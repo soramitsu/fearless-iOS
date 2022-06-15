@@ -79,58 +79,43 @@ final class ChainSyncService {
             let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
             let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: remoteData)
 
-            if
-                let chainsPath = R.file.chainsJson.path(),
-                let assetsPath = R.file.assetsJson.path() {
-                do {
-                    let chainsData = try Data(contentsOf: URL(fileURLWithPath: chainsPath), options: .mappedIfSafe)
-                    let assetsData = try Data(contentsOf: URL(fileURLWithPath: assetsPath), options: .mappedIfSafe)
-
-                    let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsData)
-                    let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: chainsData)
-
-                    remoteChains.forEach { chain in
-                        chain.assets.forEach { chainAsset in
-                            chainAsset.chain = chain
-                            if let asset = assetsList.first(where: { asset in
-                                chainAsset.assetId == asset.id
-                            }) {
-                                chainAsset.asset = asset
-                            }
-                        }
+            remoteChains.forEach { chain in
+                chain.assets.forEach { chainAsset in
+                    chainAsset.chain = chain
+                    if let asset = assetsList.first(where: { asset in
+                        chainAsset.assetId == asset.id
+                    }) {
+                        chainAsset.asset = asset
                     }
-
-                    remoteChains.forEach {
-                        $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
-                    }
-
-                    let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
-                        mapping[item.chainId] = item
-                    }
-
-                    let localChains = try localFetchOperation.extractNoCancellableResultData()
-                    let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
-                        mapping[item.chainId] = item
-                    }
-
-                    let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
-                        if let localItem = localMapping[remoteItem.chainId] {
-                            return localItem != remoteItem ? remoteItem : nil
-                        } else {
-                            return remoteItem
-                        }
-                    }
-
-                    let removed = localChains.compactMap { localItem in
-                        remoteMapping[localItem.chainId] == nil ? localItem : nil
-                    }
-
-                    return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
-                } catch {
-                    print(error)
                 }
             }
-            return SyncChanges(newOrUpdatedItems: [], removedItems: [])
+
+            remoteChains.forEach {
+                $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
+            }
+
+            let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+                mapping[item.chainId] = item
+            }
+
+            let localChains = try localFetchOperation.extractNoCancellableResultData()
+            let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+                mapping[item.chainId] = item
+            }
+
+            let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
+                if let localItem = localMapping[remoteItem.chainId] {
+                    return localItem != remoteItem ? remoteItem : nil
+                } else {
+                    return remoteItem
+                }
+            }
+
+            let removed = localChains.compactMap { localItem in
+                remoteMapping[localItem.chainId] == nil ? localItem : nil
+            }
+
+            return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
         }
 
         processingOperation.addDependency(remoteFetchAssetsOperation)
@@ -162,12 +147,7 @@ final class ChainSyncService {
         }
 
         operationQueue.addOperations([
-            remoteFetchAssetsOperation,
-            remoteFetchOperation,
-            localFetchOperation,
-            processingOperation,
-            localSaveOperation,
-            mapOperation
+            remoteFetchAssetsOperation, remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
         ], waitUntilFinished: false)
     }
 
