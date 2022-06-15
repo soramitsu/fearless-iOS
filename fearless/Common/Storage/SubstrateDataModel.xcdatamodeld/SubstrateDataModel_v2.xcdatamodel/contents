@@ -4,6 +4,7 @@
         <attribute name="chainId" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
+        <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -107,7 +108,7 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="194"/>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="209"/>
         <element name="CDChain" positionX="-45" positionY="81" width="128" height="374"/>
         <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="119"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>

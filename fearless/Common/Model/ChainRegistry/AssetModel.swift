@@ -17,6 +17,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let type: ChainAssetType
     let currencyId: String?
     let displayName: String?
+    let existentialDeposit: String?
 
     var name: String {
         displayName?.uppercased() ?? symbol.uppercased()
@@ -33,7 +34,8 @@ struct AssetModel: Equatable, Codable, Hashable {
         transfersEnabled: Bool?,
         type: ChainAssetType,
         currencyId: String?,
-        displayName: String?
+        displayName: String?,
+        existentialDeposit: String?
     ) {
         self.id = id
         self.symbol = symbol
@@ -46,6 +48,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.type = type
         self.currencyId = currencyId
         self.displayName = displayName
+        self.existentialDeposit = existentialDeposit
     }
 
     init(from decoder: Decoder) throws {
@@ -60,6 +63,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         transfersEnabled = try? container.decode(Bool?.self, forKey: .transfersEnabled)
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
+        existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
 
         price = nil
         type = .normal
@@ -77,7 +81,8 @@ struct AssetModel: Equatable, Codable, Hashable {
             transfersEnabled: transfersEnabled,
             type: type,
             currencyId: currencyId,
-            displayName: displayName
+            displayName: displayName,
+            existentialDeposit: existentialDeposit
         )
     }
 

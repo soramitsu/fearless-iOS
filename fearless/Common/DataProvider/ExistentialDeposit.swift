@@ -35,6 +35,12 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
+        if
+            let existentialDeposit = chainAsset.asset.existentialDeposit,
+            let result = BigUInt(existentialDeposit) {
+            completion(.success(result))
+            return
+        }
         switch chainAsset.chainAssetType {
         case .normal, .ormlChain:
             fetchConstant(
@@ -44,14 +50,21 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             ) { result in
                 completion(result)
             }
-        case .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
-            fetchOrmlExistentialDeposit(chainAsset: chainAsset, completion: completion)
+        case
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCroadloan,
+            .vToken,
+            .vsToken,
+            .stable:
+            fetchSubAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
         }
     }
 
     // MARK: - Private methods
 
-    private func fetchOrmlExistentialDeposit(
+    private func fetchSubAssetsExistentialDeposit(
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
