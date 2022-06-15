@@ -29,8 +29,7 @@ final class ChainModelMapper {
             transfersEnabled: entity.transfersEnabled,
             type: createChainAssetModelType(from: entity.type),
             currencyId: entity.currencyId,
-            displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            displayName: entity.displayName
         )
     }
 
@@ -138,7 +137,6 @@ final class ChainModelMapper {
         assetEntity.type = model.type.rawValue
         assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
-        assetEntity.existentialDeposit = model.asset.existentialDeposit
 
         entity.asset = assetEntity
     }
@@ -321,13 +319,13 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
+        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
             }
 
             return createChainNode(from: node)
-        }
+        } ?? []
 
         var selectedNode: ChainNodeModel?
 
@@ -367,11 +365,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let externalApiSet = createExternalApi(from: entity)
 
-        var customNodesSet: Set<ChainNodeModel>?
-        if let nodes = customNodes {
-            customNodesSet = Set(nodes)
-        }
-
         let chainModel = ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -383,7 +376,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: customNodesSet,
+            customNodes: Set(customNodes),
             iosMinAppVersion: entity.minimalAppVersion
         )
 
@@ -397,7 +390,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         let chainAssets = Set(chainAssetsArray)
 
         chainModel.assets = chainAssets
-        print("EL: return chainModel ", chainModel)
+
         return chainModel
     }
 
