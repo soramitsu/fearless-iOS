@@ -33,6 +33,9 @@ enum CurrencyId {
     case liquidCroadloan(symbol: LiquidCroadloan?)
     case foreignAsset(foreignAsset: String)
     case stableAssetPoolToken(stableAssetPoolToken: String)
+    case vToken(symbol: TokenSymbol?)
+    case vsToken(symbol: TokenSymbol?)
+    case stable(symbol: TokenSymbol?)
 }
 
 extension CurrencyId: Codable {
@@ -52,6 +55,15 @@ extension CurrencyId: Codable {
         case let .stableAssetPoolToken(stableAssetPoolToken):
             try container.encode("StableAssetPoolToken")
             try container.encode(stableAssetPoolToken)
+        case let .vToken(symbol):
+            try container.encode("VToken")
+            try container.encode(symbol)
+        case let .vsToken(symbol):
+            try container.encode("VSToken")
+            try container.encode(symbol)
+        case let .stable(symbol):
+            try container.encode("Stable")
+            try container.encode(symbol)
         }
     }
 }

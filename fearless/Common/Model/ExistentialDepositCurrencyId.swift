@@ -5,6 +5,9 @@ enum ExistentialDepositCurrencyId {
     case liquidCroadloan(symbol: UInt16)
     case foreignAsset(tokenSymbol: UInt16)
     case stableAssetPoolToken(stableAssetPoolToken: UInt16)
+    case vToken(tokenSymbol: String)
+    case vsToken(tokenSymbol: String)
+    case stable(tokenSymbol: String)
 
     init?(from currencyId: CurrencyId?) {
         guard let currencyId = currencyId else {
@@ -31,6 +34,21 @@ enum ExistentialDepositCurrencyId {
                 return nil
             }
             self = .liquidCroadloan(symbol: symbol)
+        case let .vsToken(symbol):
+            guard let symbol = symbol?.symbol else {
+                return nil
+            }
+            self = .vsToken(tokenSymbol: symbol.uppercased())
+        case let .vToken(symbol):
+            guard let symbol = symbol?.symbol else {
+                return nil
+            }
+            self = .vToken(tokenSymbol: symbol.uppercased())
+        case let .stable(symbol):
+            guard let symbol = symbol?.symbol else {
+                return nil
+            }
+            self = .stable(tokenSymbol: symbol.uppercased())
         }
     }
 }
@@ -48,6 +66,12 @@ extension ExistentialDepositCurrencyId: Codable {
             try container.encode(stableAssetPoolToken, forKey: .stableAssetPoolToken)
         case let .liquidCroadloan(symbol):
             try container.encode(symbol, forKey: .liquidCroadloan)
+        case let .vToken(symbol):
+            try container.encode(symbol, forKey: .vToken)
+        case let .vsToken(symbol):
+            try container.encode(symbol, forKey: .vsToken)
+        case let .stable(symbol):
+            try container.encode(symbol, forKey: .stable)
         }
     }
 }

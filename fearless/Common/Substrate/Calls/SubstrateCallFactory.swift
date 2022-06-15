@@ -129,7 +129,14 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
             return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
-        case .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
+        case
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCroadloan,
+            .vToken,
+            .vsToken,
+            .stable:
             return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
         }
     }

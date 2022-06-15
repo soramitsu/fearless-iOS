@@ -36,6 +36,15 @@ struct ChainAsset: Equatable, Hashable {
             }
             let liquidCroadloan = LiquidCroadloan(symbol: liquidCroadloanId)
             return CurrencyId.liquidCroadloan(symbol: liquidCroadloan)
+        case .vToken:
+            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
+            return CurrencyId.vToken(symbol: tokenSymbol)
+        case .vsToken:
+            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
+            return CurrencyId.vsToken(symbol: tokenSymbol)
+        case .stable:
+            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
+            return CurrencyId.stable(symbol: tokenSymbol)
         }
     }
 
@@ -61,7 +70,15 @@ extension ChainAsset {
         switch chainAssetType {
         case .normal:
             storagePath = StorageCodingPath.account
-        case .ormlChain, .ormlAsset, .foreignAsset, .stableAssetPoolToken, .liquidCroadloan:
+        case
+            .ormlChain,
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCroadloan,
+            .vToken,
+            .vsToken,
+            .stable:
             storagePath = StorageCodingPath.tokens
         }
 
@@ -76,4 +93,7 @@ enum ChainAssetType: String, Codable {
     case foreignAsset
     case stableAssetPoolToken
     case liquidCroadloan
+    case vToken
+    case vsToken
+    case stable
 }
