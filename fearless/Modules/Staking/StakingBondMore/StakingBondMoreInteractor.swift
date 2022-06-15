@@ -15,8 +15,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
@@ -37,8 +36,7 @@ final class StakingBondMoreInteractor: AccountFetching {
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         connection: JSONRPCEngine
@@ -51,8 +49,7 @@ final class StakingBondMoreInteractor: AccountFetching {
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
         self.connection = connection
@@ -61,7 +58,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     func handleStashAccountItem(_ account: ChainAccountResponse) {
         extrinsicService = ExtrinsicService(
             accountId: account.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: account.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -74,11 +71,11 @@ final class StakingBondMoreInteractor: AccountFetching {
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -89,7 +86,7 @@ extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
 
     func estimateFee() {
         guard let amount = StakingConstants.maxAmount.toSubstrateAmount(
-            precision: Int16(asset.precision)
+            precision: Int16(chainAsset.asset.precision)
         ) else {
             return
         }
@@ -109,7 +106,7 @@ extension StakingBondMoreInteractor: PriceLocalSubscriptionHandler, PriceLocalSt
 }
 
 extension StakingBondMoreInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -125,7 +122,7 @@ extension StakingBondMoreInteractor: StakingLocalStorageSubscriber, StakingLocal
 
             if let stashItem = maybeStashItem {
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.stash,
                     from: accountRepository,
                     operationManager: operationManager
@@ -135,7 +132,11 @@ extension StakingBondMoreInteractor: StakingLocalStorageSubscriber, StakingLocal
                     }
 
                     if case let .success(stash) = result, let stash = stash {
-                        self.accountInfoSubscriptionAdapter.subscribe(chain: self.chain, accountId: stash.accountId, handler: self)
+                        self.accountInfoSubscriptionAdapter.subscribe(
+                            chainAsset: self.chainAsset,
+                            accountId: stash.accountId,
+                            handler: self
+                        )
 
                         self.handleStashAccountItem(stash)
                     }

@@ -179,8 +179,8 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         )
     }
 
-    private func subscribeToAccountInfo(for accountId: AccountId, chain: ChainModel) {
-        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+    private func subscribeToAccountInfo(for chain: ChainModel) {
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chain.chainAssets, handler: self)
     }
 
     private func provideConstants(for chain: ChainModel) {
@@ -213,9 +213,9 @@ extension CrowdloanListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
-        if let chain = settings.value, chain.chainId == chainId {
+        if let chain = settings.value, chain.chainId == chainAsset.chain.chainId {
             logger?.debug("Did receive balance for accountId: \(accountId.toHex()))")
             presenter.didReceiveAccountInfo(result: result)
         }
@@ -223,10 +223,10 @@ extension CrowdloanListInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension CrowdloanListInteractor {
-    func setup(with accountId: AccountId, chain: ChainModel) {
+    func setup(with _: AccountId, chain: ChainModel) {
         presenter.didReceiveSelectedChain(result: .success(chain))
 
-        subscribeToAccountInfo(for: accountId, chain: chain)
+        subscribeToAccountInfo(for: chain)
 
         provideCrowdloans(for: chain)
 

@@ -39,7 +39,7 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
             return result + storageKeyData
         }
 
-        return try LocalStorageKeyFactory().createKey(from: cacheKeyData, chainId: chainId)
+        return try LocalStorageKeyFactory().createKey(from: cacheKeyData, key: chainId)
     }
 
     func attachToGlobalData(

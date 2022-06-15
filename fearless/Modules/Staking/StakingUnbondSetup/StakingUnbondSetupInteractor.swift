@@ -7,18 +7,18 @@ import IrohaCrypto
 final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingUnbondSetupInteractorOutputProtocol!
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    internal let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let selectedAccount: MetaAccountModel
-    let chain: ChainModel
-    let asset: AssetModel
-    let connection: JSONRPCEngine
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let selectedAccount: MetaAccountModel
+    private let chainAsset: ChainAsset
+    private let connection: JSONRPCEngine
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -29,8 +29,7 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -40,7 +39,8 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         connection: JSONRPCEngine,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -49,11 +49,11 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.connection = connection
         self.accountRepository = accountRepository
         self.selectedAccount = selectedAccount
+        self.existentialDepositService = existentialDepositService
     }
 }
 
@@ -72,11 +72,11 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
     }
 
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -88,11 +88,9 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
             self?.presenter.didReceiveBondingDuration(result: result)
         }
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveExistentialDeposit(result: result)
         }
 
@@ -104,7 +102,7 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
     func estimateFee() {
         guard let extrinsicService = extrinsicService,
               let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(asset.precision)
+                  precision: Int16(chainAsset.asset.precision)
               ) else {
             return
         }
@@ -123,7 +121,7 @@ extension StakingUnbondSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset _: ChainAsset
     ) {
         presenter.didReceiveAccountInfo(result: result)
     }
@@ -141,7 +139,7 @@ extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
 
             if let stashItem = maybeStashItem {
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.controller,
                     from: accountRepository,
                     operationManager: operationManager
@@ -152,11 +150,11 @@ extension StakingUnbondSetupInteractor: StakingLocalStorageSubscriber, StakingLo
                     if case let .success(account) = result, let account = account {
                         self.ledgerProvider = self.subscribeLedgerInfo(
                             for: account.accountId,
-                            chainId: self.chain.chainId
+                            chainAsset: self.chainAsset
                         )
 
                         self.accountInfoSubscriptionAdapter.subscribe(
-                            chain: self.chain,
+                            chainAsset: self.chainAsset,
                             accountId: account.accountId,
                             handler: self
                         )

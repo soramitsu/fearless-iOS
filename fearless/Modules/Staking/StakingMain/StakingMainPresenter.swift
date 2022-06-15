@@ -168,7 +168,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performAssetSelection() {
         wireframe.showChainAssetSelection(
             from: view,
-            selectedChainAssetId: chainAsset?.chainAssetId,
+            selectedChainAsset: chainAsset,
             delegate: self
         )
     }

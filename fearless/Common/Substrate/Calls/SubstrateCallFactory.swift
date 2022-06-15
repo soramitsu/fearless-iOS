@@ -7,8 +7,7 @@ protocol SubstrateCallFactoryProtocol {
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
-        chain: ChainModel?
+        chainAsset: ChainAsset
     ) -> RuntimeCall<TransferCall>
 
     func transfer(
@@ -56,6 +55,8 @@ protocol SubstrateCallFactoryProtocol {
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
+
+    // MARK: - Public methods
 
     func bond(
         amount: BigUInt,
@@ -118,32 +119,26 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "payout_stakers", args: args)
     }
 
-    func ormlTransfer(
-        to receiver: AccountId,
-        amount: BigUInt,
-        currencyId: CurrencyId?
-    ) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
-        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
-    }
-
-    func defaultTransfer(
-        to receiver: AccountId,
-        amount: BigUInt
-    ) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
-    }
-
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
-        chain: ChainModel?
+        chainAsset: ChainAsset
     ) -> RuntimeCall<TransferCall> {
-        chain?.isOrml == true
-            ? ormlTransfer(to: receiver, amount: amount, currencyId: currencyId)
-            : defaultTransfer(to: receiver, amount: amount)
+        switch chainAsset.chainAssetType {
+        case .normal:
+            return defaultTransfer(to: receiver, amount: amount)
+        case .ormlChain:
+            return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        case
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCroadloan,
+            .vToken,
+            .vsToken,
+            .stable:
+            return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        }
     }
 
     func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
@@ -189,7 +184,37 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let args = AddRemarkCall(remark: data)
         return RuntimeCall(moduleName: "System", callName: "remark", args: args)
     }
+
+    // MARK: - Private methods
+
+    private func ormlChainTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
+    }
+
+    private func ormlAssetTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "Currencies", callName: "transfer", args: args)
+    }
+
+    private func defaultTransfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
+    }
 }
+
+// MARK: - extension SubstrateCallFactory
 
 extension SubstrateCallFactory {
     func setRewardDestination(

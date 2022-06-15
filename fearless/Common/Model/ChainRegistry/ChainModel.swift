@@ -171,22 +171,6 @@ class ChainModel: Codable {
         }
     }
 
-    var tokenSymbol: TokenSymbol? {
-        guard isOrml else {
-            return nil
-        }
-
-        guard let assetName = assets.first?.assetId else {
-            return nil
-        }
-
-        return TokenSymbol(rawValue: assetName)
-    }
-
-    var currencyId: CurrencyId? {
-        CurrencyId.token(symbol: tokenSymbol)
-    }
-
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
@@ -198,6 +182,18 @@ class ChainModel: Codable {
 
     var emptyURL: URL {
         URL(string: "")!
+    }
+
+    var chainAssets: [ChainAsset] {
+        assets.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
+    }
+
+    func utilityChainAssets() -> [ChainAsset] {
+        assets.filter { $0.isUtility }.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
     }
 
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {

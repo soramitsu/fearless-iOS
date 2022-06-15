@@ -8,19 +8,19 @@ import FearlessUtils
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let rewardService: RewardCalculatorServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
-    let eraValidatorService: EraValidatorServiceProtocol
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    internal let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let rewardService: RewardCalculatorServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let chainAsset: ChainAsset
+    private let selectedAccount: MetaAccountModel
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    private let eraValidatorService: EraValidatorServiceProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -36,12 +36,12 @@ final class StakingAmountInteractor {
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
-        eraValidatorService: EraValidatorServiceProtocol
+        eraValidatorService: EraValidatorServiceProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -50,12 +50,12 @@ final class StakingAmountInteractor {
         self.rewardService = rewardService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.eraValidatorService = eraValidatorService
+        self.existentialDepositService = existentialDepositService
     }
 
     private func provideRewardCalculator() {
@@ -102,28 +102,24 @@ final class StakingAmountInteractor {
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
     AccountFetching {
     func setup() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        if let accountId = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
-        minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
-
-        counterForNominatorsProvider = subscribeToCounterForNominators(for: chain.chainId)
-
-        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chain.chainId)
+        minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
+        counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
+        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainAsset.chain.chainId)
 
         provideRewardCalculator()
         provideNetworkStakingInfo()
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             switch result {
             case let .success(amount):
                 self?.presenter?.didReceive(minimalBalance: amount)
@@ -137,7 +133,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
 
     func fetchAccounts() {
         fetchChainAccounts(
-            chain: chain,
+            chain: chainAsset.chain,
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
@@ -202,7 +198,7 @@ extension StakingAmountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscr
 }
 
 extension StakingAmountInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         switch result {
         case let .success(accountInfo):
             presenter?.didReceive(balance: accountInfo?.data)

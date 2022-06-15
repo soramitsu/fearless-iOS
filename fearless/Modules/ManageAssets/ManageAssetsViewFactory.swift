@@ -46,6 +46,7 @@ struct ManageAssetsViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             selectedMetaAccount: selectedMetaAccount,
+            filterFactory: TitleSwitchTableViewCellModelFactory(),
             localizationManager: LocalizationManager.shared
         )
 

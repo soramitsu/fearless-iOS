@@ -18,11 +18,10 @@ extension StakingMainInteractor {
             let chainAsset = selectedChainAsset,
             let stashAccountId = try? stashItem.stash.toAccountId(),
             let controllerId = try? stashItem.controller.toAccountId() {
-            let chainId = chainAsset.chain.chainId
-            ledgerProvider = subscribeLedgerInfo(for: controllerId, chainId: chainId)
-            nominatorProvider = subscribeNomination(for: stashAccountId, chainId: chainId)
-            validatorProvider = subscribeValidator(for: stashAccountId, chainId: chainId)
-            payeeProvider = subscribePayee(for: stashAccountId, chainId: chainId)
+            ledgerProvider = subscribeLedgerInfo(for: controllerId, chainAsset: chainAsset)
+            nominatorProvider = subscribeNomination(for: stashAccountId, chainAsset: chainAsset)
+            validatorProvider = subscribeValidator(for: stashAccountId, chainAsset: chainAsset)
+            payeeProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)
 
             if let rewardApi = chainAsset.chain.externalApi?.staking {
                 totalRewardProvider = subscribeTotalReward(
@@ -71,7 +70,11 @@ extension StakingMainInteractor {
             return
         }
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountResponse.accountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(
+            chainAsset: chainAsset,
+            accountId: accountResponse.accountId,
+            handler: self
+        )
     }
 
     func clearStashControllerSubscription() {
@@ -267,7 +270,7 @@ extension StakingMainInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset _: ChainAsset
     ) {
         switch result {
         case let .success(accountInfo):

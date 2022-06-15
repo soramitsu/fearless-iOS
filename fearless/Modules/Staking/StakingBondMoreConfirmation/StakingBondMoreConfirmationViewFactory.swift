@@ -80,6 +80,7 @@ struct StakingBondMoreConfirmViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingBondMoreConfirmationInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -152,8 +153,7 @@ struct StakingBondMoreConfirmViewFactory {
             feeProxy: feeProxy,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             signingWrapper: signingWrapper,
             accountRepository: AnyDataProviderRepository(accountRepository),

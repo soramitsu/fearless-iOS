@@ -1,15 +1,17 @@
 import Foundation
 
+// swiftlint:disable function_parameter_count
 protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainModel.Id: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
-        locale: Locale?
+        locale: Locale?,
+        filterOptions: [FilterOption]
     ) -> ManageAssetsViewModel
 }
 
@@ -28,7 +30,7 @@ final class ManageAssetsViewModelFactory {
         selectedMetaAccount: MetaAccountModel?,
         locale: Locale?
     ) -> ManageAssetsTableViewCellModel {
-        let icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
+        let icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
         let title = chainAsset.chain.name
         let balance = getBalanceString(
             for: chainAsset,
@@ -114,16 +116,18 @@ extension ManageAssetsViewModelFactory {
     }
 }
 
+// swiftlint:disable function_body_length
 extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainModel.Id: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo]?,
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
-        locale: Locale?
+        locale: Locale?,
+        filterOptions: [FilterOption]
     ) -> ManageAssetsViewModel {
         var chainAssets = chains.map { chain in
             chain.assets.compactMap { asset in
@@ -142,7 +146,10 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         var usdBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
-            let accountInfo: AccountInfo? = accountInfos?[chainAsset.chain.chainId]
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let accountInfo: AccountInfo? = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
@@ -164,7 +171,10 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                         orderByKey[key] = index
                     }
 
-                    return orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
+                    let orderByKeyCa1 = orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max
+                    let orderByKeyCa2 = orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
+
+                    return orderByKeyCa1 < orderByKeyCa2
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,
@@ -182,17 +192,30 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 }
             }
 
-        let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.map { chainAsset in
-            let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)) == true
+        let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.compactMap { chainAsset in
+            let substrateUniqueKey = chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+            let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(substrateUniqueKey) == true
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return nil
+            }
 
-            return buildManageAssetsCellViewModel(
+            let accountInfo = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
+            let viewModel = buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
-                accountInfo: accountInfos?[chainAsset.chain.chainId],
+                accountInfo: accountInfo,
                 delegate: cellsDelegate,
                 assetEnabled: enabled,
                 selectedMetaAccount: selectedMetaAccount,
                 locale: locale
             )
+
+            if
+                filterOptions.contains(.hideZeroBalance),
+                accountInfo == nil {
+                return nil
+            } else {
+                return viewModel
+            }
         }
 
         let missingSection = ManageAssetsTableSection(cellModels: viewModels.filter {
@@ -204,9 +227,35 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 || selectedMetaAccount.unusedChainIds?.contains($0.chainAsset.chain.chainId) == true
         })
 
-        let applyEnabled = selectedMetaAccount.assetIdsEnabled != assetIdsEnabled || selectedMetaAccount.assetKeysOrder != sortedKeys
+        let applyEnabled = selectedMetaAccount.assetIdsEnabled != assetIdsEnabled
+            || selectedMetaAccount.assetKeysOrder != sortedKeys
+            || selectedMetaAccount.assetFilterOptions != filterOptions
 
-        return ManageAssetsViewModel(sections: [missingSection, normalSection], applyEnabled: applyEnabled)
+        let selectedChain = createSelectedChainModel(from: chains, locale: locale)
+
+        return ManageAssetsViewModel(
+            sections: [missingSection, normalSection],
+            applyEnabled: applyEnabled,
+            selectedChain: selectedChain
+        )
+    }
+
+    private func createSelectedChainModel(
+        from chains: [ChainModel],
+        locale: Locale?
+    ) -> SelectedChainModel {
+        guard chains.count == 1, let selectedChain = chains.first else {
+            return SelectedChainModel(
+                chainId: nil,
+                title: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale?.rLanguages),
+                icon: nil
+            )
+        }
+        return SelectedChainModel(
+            chainId: selectedChain.chainId,
+            title: selectedChain.name,
+            icon: selectedChain.icon.map { RemoteImageViewModel(url: $0) }
+        )
     }
 }
 

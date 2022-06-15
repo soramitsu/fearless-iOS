@@ -694,3 +694,5 @@ and depending on the network state, may not be selected to participate";
 "create.new.pincode" = "Создайте новый PIN код";
 "common.currency" = "Валюта";
 "wallet.send.tip.title" = "Чаевые";
+"chain.selection.all.networks" = "Все сети";
+"chain.selection.hide.zero.balances" = "Скрыть с пустым балансом";

@@ -11,8 +11,7 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
         durationOperationFactory _: StakingDurationOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         nomination: PreparedNomination<ExistingBonding>,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
@@ -34,8 +33,7 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
             durationOperationFactory: StakingDurationOperationFactory(),
             operationManager: operationManager,
             signer: signer,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }
@@ -43,10 +41,15 @@ final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBas
     private func createRewardDestinationOperation(
         for payoutAddress: String
     ) -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
-        let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation {
+        let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation { [weak self] in
+            guard let strongSelf = self else {
+                throw BaseOperationError.parentOperationCancelled
+            }
             let displayAddress = DisplayAddress(
-                address: self.selectedAccount.fetch(for: self.chain.accountRequest())?.toAddress() ?? payoutAddress,
-                username: self.selectedAccount.name
+                address: strongSelf.selectedAccount.fetch(
+                    for: strongSelf.chainAsset.chain.accountRequest()
+                )?.toAddress() ?? payoutAddress,
+                username: strongSelf.selectedAccount.name
             )
 
             return RewardDestination.payout(account: displayAddress)

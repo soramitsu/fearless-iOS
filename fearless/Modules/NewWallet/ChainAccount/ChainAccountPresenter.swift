@@ -8,9 +8,8 @@ final class ChainAccountPresenter {
     let interactor: ChainAccountInteractorInputProtocol
     let viewModelFactory: ChainAccountViewModelFactoryProtocol
     let logger: LoggerProtocol
-    let asset: AssetModel
-    var chain: ChainModel {
-        interactor.chain
+    var chainAsset: ChainAsset {
+        interactor.chainAsset
     }
 
     let selectedMetaAccount: MetaAccountModel
@@ -37,8 +36,6 @@ final class ChainAccountPresenter {
         wireframe: ChainAccountWireframeProtocol,
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
-        asset: AssetModel,
-        chain _: ChainModel,
         selectedMetaAccount: MetaAccountModel,
         moduleOutput: ChainAccountModuleOutput?
     ) {
@@ -46,7 +43,6 @@ final class ChainAccountPresenter {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.logger = logger
-        self.asset = asset
         self.selectedMetaAccount = selectedMetaAccount
         self.moduleOutput = moduleOutput
     }
@@ -59,29 +55,29 @@ final class ChainAccountPresenter {
         let accountBalanceViewModel = viewModelFactory.buildAccountBalanceViewModel(
             accountInfo: accountInfo,
             priceData: priceData,
-            asset: asset,
+            asset: chainAsset.asset,
             locale: selectedLocale,
             currency: currency
         )
 
         let assetInfoViewModel = viewModelFactory.buildAssetInfoViewModel(
-            chain: chain,
-            assetModel: asset,
+            chain: chainAsset.chain,
+            assetModel: chainAsset.asset,
             priceData: priceData,
             locale: selectedLocale,
             currency: currency
         )
 
-        let chainOptionsViewModel = viewModelFactory.buildChainOptionsViewModel(chain: chain)
+        let chainOptionsViewModel = viewModelFactory.buildChainOptionsViewModel(chain: chainAsset.chain)
 
-        let allAssets = Array(chain.assets)
-        let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
+        let allAssets = Array(chainAsset.chain.assets)
+        let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
 
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             accountBalanceViewModel: accountBalanceViewModel,
             assetInfoViewModel: assetInfoViewModel,
             chainOptionsViewModel: chainOptionsViewModel,
-            chainAssetModel: chainAsset
+            chainAssetModel: chainAssetModel
         )
 
         view?.didReceiveState(.loaded(chainAccountViewModel))
@@ -94,12 +90,12 @@ private extension ChainAccountPresenter {
     func getPurchaseActions() -> [PurchaseAction] {
         var actions: [PurchaseAction] = []
 
-        if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() {
-            let allAssets = Array(chain.assets)
-            let chainAsset = allAssets.first(where: { $0.assetId == asset.id })
+        if let address = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
+            let allAssets = Array(chainAsset.chain.assets)
+            let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
-            chainAsset?.purchaseProviders.compactMap { $0 }.forEach {
+            chainAssetModel?.purchaseProviders.forEach {
                 switch $0 {
                 case .moonpay:
                     availableProviders.append(moonpayProvider)
@@ -109,7 +105,7 @@ private extension ChainAccountPresenter {
             }
 
             let providersAggregator = PurchaseAggregator(providers: availableProviders)
-            actions = providersAggregator.buildPurchaseActions(asset: asset, address: address)
+            actions = providersAggregator.buildPurchaseActions(asset: chainAsset.asset, address: address)
         }
         return actions
     }
@@ -127,8 +123,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapSendButton() {
         wireframe.presentSendFlow(
             from: view,
-            asset: asset,
-            chain: chain,
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
             selectedMetaAccount: selectedMetaAccount,
             transferFinishBlock: nil
         )
@@ -137,8 +133,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapReceiveButton() {
         wireframe.presentReceiveFlow(
             from: view,
-            asset: asset,
-            chain: chain,
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
             selectedMetaAccount: selectedMetaAccount
         )
     }
@@ -152,7 +148,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 
     func didTapOptionsButton() {
-        guard let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+        guard let address = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
         interactor.getAvailableExportOptions(for: address)
@@ -185,7 +181,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             wireframe.presentLockedInfo(
                 from: view,
                 balanceContext: balanceContext,
-                info: asset.displayInfo,
+                info: chainAsset.asset.displayInfo,
                 currency: currency
             )
         }
@@ -241,11 +237,11 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             switch action {
             case .export:
                 guard let address =
-                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+                    self.selectedMetaAccount.fetch(for: self.chainAsset.chain.accountRequest())?.toAddress()
                 else { return }
                 self.wireframe.showExport(
                     for: address,
-                    chain: self.chain,
+                    chain: self.chainAsset.chain,
                     options: options,
                     locale: self.selectedLocale,
                     wallet: self.selectedMetaAccount,
@@ -254,26 +250,30 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             case .switchNode:
                 self.wireframe.presentNodeSelection(
                     from: self.view,
-                    chain: self.chain
+                    chain: self.chainAsset.chain
                 )
             case .copyAddress:
                 UIPasteboard.general.string =
-                    self.selectedMetaAccount.fetch(for: self.chain.accountRequest())?.toAddress()
+                    self.selectedMetaAccount.fetch(for: self.chainAsset.chain.accountRequest())?.toAddress()
 
                 let title = R.string.localizable.commonCopied(preferredLanguages: self.selectedLocale.rLanguages)
                 self.wireframe.presentSuccessNotification(title, from: self.view)
             case .replace:
-                let model = UniqueChainModel(meta: self.selectedMetaAccount, chain: self.chain)
+                let model = UniqueChainModel(meta: self.selectedMetaAccount, chain: self.chainAsset.chain)
                 let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(from: self.view, items: options, callback: { [weak self] selectedIndex in
-                    let option = options[selectedIndex]
-                    switch option {
-                    case .create:
-                        self?.wireframe.showCreate(uniqueChainModel: model, from: self?.view)
-                    case .import:
-                        self?.wireframe.showImport(uniqueChainModel: model, from: self?.view)
+                self.wireframe.showUniqueChainSourceSelection(
+                    from: self.view,
+                    items: options,
+                    callback: { [weak self] selectedIndex in
+                        let option = options[selectedIndex]
+                        switch option {
+                        case .create:
+                            self?.wireframe.showCreate(uniqueChainModel: model, from: self?.view)
+                        case .import:
+                            self?.wireframe.showImport(uniqueChainModel: model, from: self?.view)
+                        }
                     }
-                })
+                )
             default:
                 break
             }
@@ -282,7 +282,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         wireframe.presentChainActionsFlow(
             from: view,
             items: items,
-            chain: chain,
+            chain: chainAsset.chain,
             callback: selectionCallback
         )
     }

@@ -19,7 +19,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
 
-    var chain: ChainModel { get set }
+    var chainAsset: ChainAsset { get set }
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {

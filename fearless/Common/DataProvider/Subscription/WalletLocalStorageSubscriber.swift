@@ -9,34 +9,34 @@ protocol WalletLocalStorageSubscriber where Self: AnyObject {
 
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedAccountInfo>?
 
     func subscribeToOrmlAccountInfoProvider(
         for accountId: AccountId,
-        chain: ChainModel
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedOrmlAccountInfo>?
 }
 
 extension WalletLocalStorageSubscriber {
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedAccountInfo>? {
         guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getAccountProvider(
             for: accountId,
-            chainId: chainId
+            chainAsset: chainAsset
         ) else {
             return nil
         }
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
             guard !changes.isEmpty else { return }
-            let accountInfo = changes.reduceToLastChange()
+            let accountInfo = changes.reduceToLastChange()?.item
             self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                result: .success(accountInfo?.item),
+                result: .success(accountInfo),
                 accountId: accountId,
-                chainId: chainId
+                chainAsset: chainAsset
             )
         }
 
@@ -44,7 +44,7 @@ extension WalletLocalStorageSubscriber {
             self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chainId
+                chainAsset: chainAsset
             )
             return
         }
@@ -67,11 +67,11 @@ extension WalletLocalStorageSubscriber {
 
     func subscribeToOrmlAccountInfoProvider(
         for accountId: AccountId,
-        chain: ChainModel
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedOrmlAccountInfo>? {
         guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getOrmlAccountProvider(
             for: accountId,
-            chain: chain
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -84,7 +84,7 @@ extension WalletLocalStorageSubscriber {
             self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .success(accountInfo),
                 accountId: accountId,
-                chainId: chain.chainId
+                chainAsset: chainAsset
             )
         }
 
@@ -92,7 +92,7 @@ extension WalletLocalStorageSubscriber {
             self?.walletLocalSubscriptionHandler?.handleAccountInfo(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chain.chainId
+                chainAsset: chainAsset
             )
             return
         }

@@ -16,8 +16,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let connection: JSONRPCEngine
@@ -39,8 +38,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         signingWrapper: SigningWrapperProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -55,8 +53,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
@@ -67,7 +64,7 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
     func handleStashAccountItem(_ accountItem: ChainAccountResponse) {
         extrinsicService = ExtrinsicService(
             accountId: accountItem.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountItem.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -84,11 +81,11 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
 
 extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -97,7 +94,7 @@ extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInte
 
     func estimateFee(for amount: Decimal) {
         guard let amountValue = amount.toSubstrateAmount(
-            precision: Int16(asset.precision)
+            precision: Int16(chainAsset.asset.precision)
         ) else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
@@ -113,7 +110,7 @@ extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInte
     }
 
     func submit(for amount: Decimal) {
-        guard let amountValue = amount.toSubstrateAmount(precision: Int16(asset.precision)) else {
+        guard let amountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
             presenter.didSubmitBonding(result: .failure(CommonError.undefined))
             return
         }
@@ -140,7 +137,7 @@ extension StakingBondMoreConfirmationInteractor: PriceLocalStorageSubscriber, Pr
 }
 
 extension StakingBondMoreConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -159,13 +156,17 @@ extension StakingBondMoreConfirmationInteractor: StakingLocalStorageSubscriber, 
 
                 if let accountId = try? addressFactory.accountId(
                     fromAddress: stashItem.stash,
-                    type: chain.addressPrefix
+                    type: chainAsset.chain.addressPrefix
                 ) {
-                    accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+                    accountInfoSubscriptionAdapter.subscribe(
+                        chainAsset: chainAsset,
+                        accountId: accountId,
+                        handler: self
+                    )
                 }
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.stash,
                     from: accountRepository,
                     operationManager: operationManager

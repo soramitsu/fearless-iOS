@@ -183,7 +183,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showChainAssetSelection(
         from view: StakingMainViewProtocol?,
-        selectedChainAssetId: ChainAssetId?,
+        selectedChainAsset: ChainAsset?,
         delegate: AssetSelectionDelegate
     )
 }

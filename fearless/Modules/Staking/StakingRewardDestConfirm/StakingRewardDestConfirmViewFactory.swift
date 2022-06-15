@@ -58,6 +58,7 @@ struct StakingRewardDestConfirmViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingRewardDestConfirmInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -130,8 +131,7 @@ struct StakingRewardDestConfirmViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             signingWrapper: signingWrapper,
             connection: connection,
