@@ -11,16 +11,15 @@ struct ChainAccountModule {
 
 enum ChainAccountViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedMetaAccount: MetaAccountModel,
         moduleOutput: ChainAccountModuleOutput?
     ) -> ChainAccountModule? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -46,10 +45,13 @@ enum ChainAccountViewFactory {
         var subscriptionContainer: StorageSubscriptionContainer?
 
         let localStorageIdFactory = LocalStorageKeyFactory()
-        if let address = selectedMetaAccount.fetch(for: chain.accountRequest())?.toAddress(),
-           let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
+        if let address = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
+           let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountStorageKey = try? StorageKeyFactory().accountInfoKeyForId(accountId),
-           let localStorageKey = try? localStorageIdFactory.createKey(from: accountStorageKey, chainId: chain.chainId) {
+           let localStorageKey = try? localStorageIdFactory.createKey(
+               from: accountStorageKey,
+               key: chainAsset.chain.chainId
+           ) {
             let storageRequestFactory = StorageRequestFactory(
                 remoteFactory: StorageKeyFactory(),
                 operationManager: OperationManagerFacade.sharedManager
@@ -63,7 +65,7 @@ enum ChainAccountViewFactory {
             let transactionSubscription = TransactionSubscription(
                 engine: connection,
                 address: address,
-                chain: chain,
+                chain: chainAsset.chain,
                 runtimeService: runtimeService,
                 txStorage: AnyDataProviderRepository(txStorage),
                 contactOperationFactory: contactOperationFactory,
@@ -90,10 +92,15 @@ enum ChainAccountViewFactory {
             )
         }
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let interactor = ChainAccountInteractor(
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
@@ -107,7 +114,8 @@ enum ChainAccountViewFactory {
             transactionSubscription: subscriptionContainer,
             repository: AccountRepositoryFactory.createRepository(),
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
-            settingsManager: SettingsManager.shared
+            settingsManager: SettingsManager.shared,
+            existentialDepositService: existentialDepositService
         )
 
         let wireframe = ChainAccountWireframe()
@@ -120,8 +128,6 @@ enum ChainAccountViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,
-            asset: asset,
-            chain: chain,
             selectedMetaAccount: selectedMetaAccount,
             moduleOutput: moduleOutput
         )

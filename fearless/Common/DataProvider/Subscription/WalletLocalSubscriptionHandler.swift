@@ -4,7 +4,7 @@ protocol WalletLocalSubscriptionHandler: AnyObject {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     )
 }
 
@@ -12,6 +12,6 @@ extension WalletLocalSubscriptionHandler {
     func handleAccountInfo(
         result _: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset _: ChainAsset
     ) {}
 }

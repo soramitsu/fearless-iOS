@@ -173,7 +173,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale,
-                chain: chain
+                chainAsset: ChainAsset(chain: chain, asset: asset)
             )
 
         ]).runValidation { [weak self] in

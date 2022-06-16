@@ -5,17 +5,19 @@ import IrohaCrypto
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
-    let selectedMetaAccount: MetaAccountModel
-    let chain: ChainModel
-    let asset: AssetModel
-    let runtimeService: RuntimeCodingServiceProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let receiverAddress: String
-    let signingWrapper: SigningWrapperProtocol
+
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let selectedMetaAccount: MetaAccountModel
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationManager: OperationManagerProtocol
+    private let receiverAddress: String
+    private let signingWrapper: SigningWrapperProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
+
+    private let chainAsset: ChainAsset
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -24,8 +26,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -33,11 +34,11 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
@@ -46,6 +47,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         self.receiverAddress = receiverAddress
         self.operationManager = operationManager
         self.signingWrapper = signingWrapper
+        self.existentialDepositService = existentialDepositService
     }
 
     private func provideConstants() {
@@ -57,26 +59,24 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             self?.presenter?.didReceiveBlockDuration(result: result)
         }
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }
 
     private func subscribeToAccountInfo() {
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
+        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             presenter?.didReceiveAccountInfo(result: .failure(ChainAccountFetchingError.accountNotExists))
             return
         }
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
     }
 
     private func subscribeToPrice() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         } else {
             presenter?.didReceivePriceData(result: .success(nil))
@@ -95,9 +95,12 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 
 extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol {
     func estimateFee(for amount: BigUInt, tip: BigUInt?) {
-        guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
+        guard let accountId = try? AddressFactory.accountId(
+            from: receiverAddress,
+            chain: chainAsset.chain
+        ) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.currencyId, chain: chain)
+        let call = callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
         var identifier = String(amount)
         if let tip = tip {
             identifier += "_\(String(tip))"
@@ -113,13 +116,15 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
     }
 
     func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String) {
-        guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
+        guard let accountId = try? AddressFactory.accountId(
+            from: receiverAddress,
+            chain: chainAsset.chain
+        ) else { return }
 
         let call = callFactory.transfer(
             to: accountId,
             amount: transferAmount,
-            currencyId: chain.currencyId,
-            chain: chain
+            chainAsset: chainAsset
         )
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
@@ -145,7 +150,7 @@ extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset _: ChainAsset
     ) {
         presenter?.didReceiveAccountInfo(result: result)
     }

@@ -14,8 +14,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let keystore: KeystoreProtocol
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
@@ -36,8 +35,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -54,8 +52,7 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.keystore = keystore
         self.connection = connection
         self.selectedAccount = selectedAccount
@@ -82,15 +79,15 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
 
 extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         feeProxy.delegate = self
     }
@@ -99,7 +96,7 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
         guard let extrinsicService = extrinsicService,
               let signingWrapper = signingWrapper,
               let amountValue = amount.toSubstrateAmount(
-                  precision: Int16(asset.precision)
+                  precision: Int16(chainAsset.asset.precision)
               ) else {
             presenter.didSubmitRebonding(result: .failure(CommonError.undefined))
             return
@@ -122,7 +119,7 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
     func estimateFee(for amount: Decimal) {
         guard let extrinsicService = extrinsicService,
               let amountValue = amount.toSubstrateAmount(
-                  precision: Int16(asset.precision)
+                  precision: Int16(chainAsset.asset.precision)
               ) else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
@@ -143,7 +140,7 @@ extension StakingRebondConfirmationInteractor: PriceLocalStorageSubscriber, Pric
 }
 
 extension StakingRebondConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -169,13 +166,13 @@ extension StakingRebondConfirmationInteractor: StakingLocalStorageSubscriber, St
             let addressFactory = SS58AddressFactory()
 
             if let stashItem = maybeStashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chain.chainId)
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chainAsset.chain.addressPrefix) {
+                ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
 
-                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.controller,
                     from: accountRepository,
                     operationManager: operationManager

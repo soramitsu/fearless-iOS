@@ -14,8 +14,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
     let keystore: KeystoreProtocol
@@ -38,8 +37,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -56,8 +54,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         self.extrinsicService = extrinsicService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.connection = connection
         self.keystore = keystore
         self.selectedAccount = selectedAccount
@@ -87,7 +84,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         resettingRewardDestination: Bool,
         chilling: Bool
     ) throws -> ExtrinsicBuilderProtocol {
-        guard let amountValue = amount.toSubstrateAmount(precision: Int16(asset.precision)) else {
+        guard let amountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
             throw CommonError.undefined
         }
 
@@ -109,15 +106,15 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
 
 extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        minBondedProvider = subscribeToMinNominatorBond(for: chain.chainId)
+        minBondedProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
 
         fetchConstant(
             for: .existentialDeposit,
@@ -194,7 +191,7 @@ extension StakingUnbondConfirmInteractor: PriceLocalStorageSubscriber, PriceLoca
 }
 
 extension StakingUnbondConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -229,20 +226,26 @@ extension StakingUnbondConfirmInteractor: StakingLocalStorageSubscriber, Staking
 
             let addressFactory = SS58AddressFactory()
 
-            if let stashItem = maybeStashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
+            if
+                let stashItem = maybeStashItem,
+                let accountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.controller,
+                    type: chainAsset.chain.addressPrefix
+                ) {
                 ledgerProvider = subscribeLedgerInfo(
                     for: accountId,
-                    chainId: chain.chainId
+                    chainAsset: chainAsset
                 )
 
-                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
-
-                payeeProvider = subscribePayee(for: accountId, chainId: chain.chainId)
-
-                nominationProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
-
-                fetchChainAccount(chain: chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+                payeeProvider = subscribePayee(for: accountId, chainAsset: chainAsset)
+                nominationProvider = subscribeNomination(for: accountId, chainAsset: chainAsset)
+                fetchChainAccount(
+                    chain: chainAsset.chain,
+                    address: stashItem.controller,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
                     guard let self = self else {
                         return
                     }

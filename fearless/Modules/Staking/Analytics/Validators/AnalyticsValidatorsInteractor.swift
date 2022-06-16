@@ -12,8 +12,7 @@ final class AnalyticsValidatorsInteractor {
     let engine: JSONRPCEngine
     let runtimeService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let logger: LoggerProtocol?
 
@@ -33,8 +32,7 @@ final class AnalyticsValidatorsInteractor {
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
@@ -45,8 +43,7 @@ final class AnalyticsValidatorsInteractor {
         self.engine = engine
         self.runtimeService = runtimeService
         self.storageRequestFactory = storageRequestFactory
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.logger = logger
     }
@@ -56,7 +53,7 @@ final class AnalyticsValidatorsInteractor {
             for: { accountIds },
             engine: engine,
             runtimeService: runtimeService,
-            chain: chain
+            chain: chainAsset.chain
         )
         operation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -73,7 +70,7 @@ final class AnalyticsValidatorsInteractor {
 
     private func fetchEraStakers() {
         guard
-            let analyticsURL = chain.externalApi?.staking?.url,
+            let analyticsURL = chainAsset.chain.externalApi?.staking?.url,
             let stashAddress = stashItem?.stash,
             let nomination = nomination,
             let currentEra = currentEra
@@ -103,7 +100,7 @@ final class AnalyticsValidatorsInteractor {
 
     private func fetchRewards() {
         guard
-            let analyticsURL = chain.externalApi?.staking?.url,
+            let analyticsURL = chainAsset.chain.externalApi?.staking?.url,
             let stashAddress = stashItem?.stash
         else { return }
 
@@ -126,11 +123,11 @@ final class AnalyticsValidatorsInteractor {
 
 extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        currentEraProvider = subscribeCurrentEra(for: chain.chainId)
+        currentEraProvider = subscribeCurrentEra(for: chainAsset.chain.chainId)
     }
 
     func reload() {
@@ -149,8 +146,11 @@ extension AnalyticsValidatorsInteractor: StakingLocalStorageSubscriber, StakingL
                 presenter.didReceive(stashAddressResult: .success(stashAddress))
 
                 let addressFactory = SS58AddressFactory()
-                if let accountId = try? addressFactory.accountId(fromAddress: stashAddress, type: chain.addressPrefix) {
-                    nominationProvider = subscribeNomination(for: accountId, chainId: chain.chainId)
+                if let accountId = try? addressFactory.accountId(
+                    fromAddress: stashAddress,
+                    type: chainAsset.chain.addressPrefix
+                ) {
+                    nominationProvider = subscribeNomination(for: accountId, chainAsset: chainAsset)
                 }
 
                 fetchRewards()

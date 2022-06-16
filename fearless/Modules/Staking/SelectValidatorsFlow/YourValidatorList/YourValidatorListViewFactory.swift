@@ -58,6 +58,7 @@ struct YourValidatorListViewFactory {
         selectedAccount: MetaAccountModel
     ) throws -> YourValidatorListInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -136,8 +137,7 @@ struct YourValidatorListViewFactory {
         )
 
         return YourValidatorListInteractor(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             substrateProviderFactory: substrateProviderFactory,
             runtimeService: runtimeService,

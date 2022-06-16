@@ -9,14 +9,14 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         let subscriptionId: UInt16
     }
 
-    let accountId: AccountId
-    let chainId: ChainModel.Id
-    let chainFormat: ChainFormat
-    let chainRegistry: ChainRegistryProtocol
-    let provider: StreamableProvider<StashItem>
-    let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    let operationQueue: OperationQueue
-    let logger: LoggerProtocol?
+    private let accountId: AccountId
+    private let chainAsset: ChainAsset
+    private let chainFormat: ChainFormat
+    private let chainRegistry: ChainRegistryProtocol
+    private let provider: StreamableProvider<StashItem>
+    private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
+    private let operationQueue: OperationQueue
+    private let logger: LoggerProtocol?
 
     private let mutex = NSLock()
 
@@ -24,7 +24,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
     init(
         accountId: AccountId,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         chainFormat: ChainFormat,
         chainRegistry: ChainRegistryProtocol,
         provider: StreamableProvider<StashItem>,
@@ -33,7 +33,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         logger: LoggerProtocol? = nil
     ) {
         self.accountId = accountId
-        self.chainId = chainId
+        self.chainAsset = chainAsset
         self.chainFormat = chainFormat
         self.chainRegistry = chainRegistry
         self.provider = provider
@@ -83,7 +83,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         mutex.lock()
 
         if let subscriptionId = subscription?.subscriptionId {
-            chainRegistry.getConnection(for: chainId)?.cancelForIdentifier(subscriptionId)
+            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
         }
 
         subscription = nil
@@ -123,7 +123,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
 
         do {
-            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
@@ -131,7 +131,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
             let localKeyFactory = LocalStorageKeyFactory()
             let localKeys = try requests.map {
-                try localKeyFactory.createFromStoragePath($0.0, accountId: $0.1, chainId: chainId)
+                try localKeyFactory.createFromStoragePath($0.0, chainAssetKey: chainAsset.uniqueKey(accountId: accountId))
             }
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
@@ -186,7 +186,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
 
         do {
-            guard let connection = chainRegistry.getConnection(for: chainId) else {
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.connectionUnavailable
             }
 

@@ -63,11 +63,11 @@ struct StakingBalanceViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingBalanceInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -106,8 +106,7 @@ struct StakingBalanceViewFactory {
         return StakingBalanceInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             runtimeCodingService: runtimeService,
             eraCountdownOperationFactory: eraCountdownOperationFactory,

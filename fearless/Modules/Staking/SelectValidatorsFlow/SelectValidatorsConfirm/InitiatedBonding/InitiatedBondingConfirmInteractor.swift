@@ -7,8 +7,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
 
     init(
         chainAccount: ChainAccountResponse,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -35,8 +34,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
             durationOperationFactory: durationOperationFactory,
             operationManager: operationManager,
             signer: signer,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }
@@ -56,7 +54,7 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
         }()
 
         let stash = DisplayAddress(
-            address: selectedAccount.fetch(for: chain.accountRequest())?.toAddress() ?? "",
+            address: selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? "",
             username: selectedAccount.name
         )
 
@@ -75,8 +73,8 @@ final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractor
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
         guard let amount = nomination.bonding.amount
-            .toSubstrateAmount(precision: Int16(asset.precision)),
-            let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress()
+            .toSubstrateAmount(precision: Int16(chainAsset.asset.precision)),
+            let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
         else {
             return nil
         }

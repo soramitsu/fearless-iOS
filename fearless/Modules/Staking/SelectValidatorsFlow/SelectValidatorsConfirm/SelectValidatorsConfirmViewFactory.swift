@@ -153,6 +153,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         keystore: KeystoreProtocol
     ) -> SelectValidatorsConfirmInteractorBase? {
         let operationManager = OperationManagerFacade.sharedManager
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -198,8 +199,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         return InitiatedBondingConfirmInteractor(
             chainAccount: accountResponse,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             extrinsicService: extrinsicService,
             runtimeService: runtimeService,
@@ -272,8 +272,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             durationOperationFactory: StakingDurationOperationFactory(),
             operationManager: operationManager,
             signer: signer,
-            chain: chain,
-            asset: asset,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
             selectedAccount: selectedAccount,
             nomination: nomination,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

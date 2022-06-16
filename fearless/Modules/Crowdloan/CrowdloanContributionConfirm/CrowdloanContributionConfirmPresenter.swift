@@ -13,7 +13,7 @@ final class CrowdloanContributionConfirmPresenter {
     let bonusRate: Decimal?
     let assetInfo: AssetBalanceDisplayInfo
     let logger: LoggerProtocol?
-    let chain: ChainModel
+    let chainAsset: ChainAsset
     private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
@@ -64,7 +64,7 @@ final class CrowdloanContributionConfirmPresenter {
         assetInfo: AssetBalanceDisplayInfo,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        chain: ChainModel
+        chainAsset: ChainAsset
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -75,7 +75,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.bonusRate = bonusRate
         self.assetInfo = assetInfo
         self.logger = logger
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.localizationManager = localizationManager
     }
 
@@ -217,7 +217,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale,
-                chain: chain
+                chainAsset: chainAsset
             )
 
         ]).runValidation { [weak self] in
@@ -237,7 +237,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
         wireframe.presentAccountOptions(
             from: view,
             address: address,
-            chain: chain,
+            chain: chainAsset.chain,
             locale: selectedLocale
         )
     }
