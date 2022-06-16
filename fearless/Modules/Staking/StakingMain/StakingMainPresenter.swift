@@ -174,36 +174,45 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        guard
-            let selectedAccount = SelectedWalletSettings.shared.value,
-            let chainAsset = chainAsset,
-            let commonData = stateMachine
-            .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
-            return
-        }
-
-        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-
-        let nomination = stateMachine.viewState(
-            using: { (state: NominatorState) in state }
-        )?.nomination
-
-        DataValidationRunner(validators: [
-            dataValidatingFactory.maxNominatorsCountNotApplied(
-                counterForNominators: commonData.counterForNominators,
-                maxNominatorsCount: commonData.maxNominatorsCount,
-                hasExistingNomination: nomination != nil,
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            self?.wireframe.showSetupAmount(
-                from: self?.view,
-                amount: self?.amount,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: selectedAccount
-            )
-        }
+        let accountId = try? "0x045A7eC7440FF5205028E87d650bD234341828fb".toAccountId(using: .ethereum)
+        let delegation = ParachainStakingDelegation(owner: accountId!, amount: BigUInt(stringLiteral: "9999999999999999999999"))
+        let candidate = ParachainStakingCandidateInfo(address: "123", owner: accountId!, amount: AmountDecimal(string: "9999999999999999999999")!, metadata: nil, identity: nil)
+        wireframe.showStakingBalance(
+            from: view,
+            chainAsset: chainAsset!,
+            wallet: selectedMetaAccount,
+            flow: .parachain(delegation: delegation, collator: candidate)
+        )
+//        guard
+//            let selectedAccount = SelectedWalletSettings.shared.value,
+//            let chainAsset = chainAsset,
+//            let commonData = stateMachine
+//            .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
+//            return
+//        }
+//
+//        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+//
+//        let nomination = stateMachine.viewState(
+//            using: { (state: NominatorState) in state }
+//        )?.nomination
+//
+//        DataValidationRunner(validators: [
+//            dataValidatingFactory.maxNominatorsCountNotApplied(
+//                counterForNominators: commonData.counterForNominators,
+//                maxNominatorsCount: commonData.maxNominatorsCount,
+//                hasExistingNomination: nomination != nil,
+//                locale: locale
+//            )
+//        ]).runValidation { [weak self] in
+//            self?.wireframe.showSetupAmount(
+//                from: self?.view,
+//                amount: self?.amount,
+//                chain: chainAsset.chain,
+//                asset: chainAsset.asset,
+//                selectedAccount: selectedAccount
+//            )
+//        }
     }
 
     func performNominationStatusAction() {
@@ -703,11 +712,13 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 selectedAccount: selectedAccount
             )
         case .stakingBalance:
+            let delegation = ParachainStakingDelegation(owner: Data.random(of: 20)!, amount: BigUInt(stringLiteral: "999999999999"))
+            let candidate = ParachainStakingCandidateInfo(address: "123", owner: Data.random(of: 20)!, amount: AmountDecimal(string: "999999")!, metadata: nil, identity: nil)
             wireframe.showStakingBalance(
                 from: view,
                 chainAsset: chainAsset,
                 wallet: selectedAccount,
-                flow: .relaychain
+                flow: .parachain(delegation: delegation, collator: candidate)
             )
         case .changeValidators:
             wireframe.showNominatorValidators(

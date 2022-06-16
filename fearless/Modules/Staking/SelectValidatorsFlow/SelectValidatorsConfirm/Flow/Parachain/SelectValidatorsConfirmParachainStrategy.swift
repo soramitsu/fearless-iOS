@@ -56,19 +56,31 @@ final class SelectValidatorsConfirmParachainStrategy {
 
 extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrategy {
     func setup() {
-        provideConstants()
+        fetchCurrentRound()
+        fetchDelegatorState()
         provideNetworkStakingInfo()
 
         output?.didSetup()
     }
 
-    func provideConstants() {
-        let atStakeOperation = collatorOperationFactory.collatorAtStake {
-            [[NMapKeyParam(value: "32")], [NMapKeyParam(value: self.collatorAccountId)]]
+    func fetchCurrentRound() {
+        let roundOperation = collatorOperationFactory.round()
+
+        roundOperation.targetOperation.completionBlock = { [weak self] in
+            let round = try? roundOperation.targetOperation.extractNoCancellableResultData()
+            self?.fetchAtStake(round: round?.current)
         }
 
-        let delegatorStateOperation = collatorOperationFactory.delegatorState { [unowned self] in
-            [self.balanceAccountId]
+        operationManager.enqueue(operations: roundOperation.allOperations, in: .transient)
+    }
+
+    func fetchAtStake(round: EraIndex?) {
+        guard let round = round else {
+            return
+        }
+
+        let atStakeOperation = collatorOperationFactory.collatorAtStake {
+            [[NMapKeyParam(value: round)], [NMapKeyParam(value: self.collatorAccountId)]]
         }
 
         atStakeOperation.targetOperation.completionBlock = { [weak self] in
@@ -93,6 +105,14 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
             }
         }
 
+        operationManager.enqueue(operations: atStakeOperation.allOperations, in: .transient)
+    }
+
+    func fetchDelegatorState() {
+        let delegatorStateOperation = collatorOperationFactory.delegatorState { [unowned self] in
+            [self.balanceAccountId]
+        }
+
         delegatorStateOperation.targetOperation.completionBlock = { [weak self] in
             guard let strongSelf = self else {
                 return
@@ -115,7 +135,7 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
             }
         }
 
-        operationManager.enqueue(operations: atStakeOperation.allOperations + delegatorStateOperation.allOperations, in: .transient)
+        operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)
     }
 
     func provideNetworkStakingInfo() {

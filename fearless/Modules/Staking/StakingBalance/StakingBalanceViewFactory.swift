@@ -155,8 +155,43 @@ struct StakingBalanceViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            return nil
+        case let .parachain(delegation, candidate):
+            let operationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageRequestFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+            )
+            let viewModelState = StakingBalanceParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                collator: candidate,
+                delegation: delegation
+            )
+
+            let strategy = StakingBalanceParachainStrategy(
+                collator: candidate,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                output: viewModelState
+            )
+
+            let viewModelFactory = StakingBalanceParachainViewModelFactory(
+                chainAsset: chainAsset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                timeFormatter: TotalTimeFormatter()
+            )
+
+            return StakingBalanceDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

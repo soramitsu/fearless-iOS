@@ -69,6 +69,18 @@ final class StakingBalanceRelaychainViewModelState {
         ]
     }
 
+    var bondMoreFlow: StakingBondMoreFlow? {
+        .relaychain
+    }
+
+    var unbondFlow: StakingUnbondSetupFlow? {
+        .relaychain
+    }
+
+    var revokeFlow: StakingRedeemFlow? {
+        .relaychain
+    }
+
     deinit {
         countdownTimer.stop()
     }

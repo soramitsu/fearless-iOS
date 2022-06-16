@@ -4,7 +4,7 @@ enum StakingBondMoreFlowError: Error {}
 
 enum StakingBondMoreFlow {
     case relaychain
-    case parachain
+    case parachain(candidate: ParachainStakingCandidateInfo)
 }
 
 protocol StakingBondMoreModelStateListener: AnyObject {
@@ -30,6 +30,8 @@ protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
 
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var feeReuseIdentifier: String? { get }
+
+    var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? { get }
 }
 
 struct StakingBondMoreDependencyContainer {

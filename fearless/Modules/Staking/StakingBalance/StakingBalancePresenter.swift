@@ -40,6 +40,10 @@ final class StakingBalancePresenter {
     }
 
     private func handleBondExtraAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        guard let flow = viewModelState.bondMoreFlow else {
+            return
+        }
+
         let locale = locale ?? Locale.current
         DataValidationRunner(validators: viewModelState.stakeMoreValidators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else {
@@ -50,12 +54,16 @@ final class StakingBalancePresenter {
                 from: view,
                 chainAsset: strongSelf.chainAsset,
                 wallet: strongSelf.wallet,
-                flow: .relaychain
+                flow: flow
             )
         }
     }
 
     private func handleUnbondAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        guard let flow = viewModelState.unbondFlow else {
+            return
+        }
+
         let locale = locale ?? Locale.current
 
         DataValidationRunner(validators: viewModelState.stakeLessValidators(using: locale)).runValidation { [weak self] in
@@ -67,12 +75,16 @@ final class StakingBalancePresenter {
                 from: view,
                 chainAsset: strongSelf.chainAsset,
                 wallet: strongSelf.wallet,
-                flow: .relaychain
+                flow: flow
             )
         }
     }
 
     private func handleRedeemAction(for view: StakingBalanceViewProtocol, locale: Locale?) {
+        guard let flow = viewModelState.revokeFlow else {
+            return
+        }
+
         let locale = locale ?? Locale.current
         DataValidationRunner(validators: viewModelState.revokeValidators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else {
@@ -83,7 +95,7 @@ final class StakingBalancePresenter {
                 from: view,
                 chainAsset: strongSelf.chainAsset,
                 wallet: strongSelf.wallet,
-                flow: .relaychain
+                flow: flow
             )
         }
     }

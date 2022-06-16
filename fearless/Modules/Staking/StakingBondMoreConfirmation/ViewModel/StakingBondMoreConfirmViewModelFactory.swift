@@ -37,7 +37,7 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
 
         let address = account.fetch(for: chain.accountRequest())?.toAddress() ?? ""
 
-        let icon = try iconGenerator.generateFromAddress(address)
+        let icon = try? iconGenerator.generateFromAddress(address)
 
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,

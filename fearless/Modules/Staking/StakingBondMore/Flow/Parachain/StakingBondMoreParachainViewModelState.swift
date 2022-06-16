@@ -1,24 +1,28 @@
 import Foundation
 import BigInt
 
-final class StakingBondMoreRelaychainViewModelState {
+final class StakingBondMoreParachainViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
     let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
     let chainAsset: ChainAsset
+    let candidate: ParachainStakingCandidateInfo
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     var amount: Decimal = 0
     var fee: Decimal?
     var balance: Decimal?
-    private var stashItem: StashItem?
-    private var stashAccount: ChainAccountResponse?
 
-    init(chainAsset: ChainAsset, dataValidatingFactory: StakingDataValidatingFactoryProtocol) {
+    init(
+        chainAsset: ChainAsset,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        candidate: ParachainStakingCandidateInfo
+    ) {
         self.chainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
+        self.candidate = candidate
     }
 }
 
-extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState {
+extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
         [
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [unowned self] in
@@ -29,12 +33,6 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
                 balance: balance,
                 fee: fee,
                 spendingAmount: amount,
-                locale: locale
-            ),
-
-            dataValidatingFactory.has(
-                stash: stashAccount,
-                for: stashItem?.stash ?? "",
                 locale: locale
             )
         ]
@@ -69,7 +67,7 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
             return nil
         }
 
-        let bondExtra = callFactory.bondExtra(amount: amount)
+        let bondExtra = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
 
         return bondExtra.callName
     }
@@ -85,7 +83,7 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
             return nil
         }
 
-        let bondExtra = callFactory.bondExtra(amount: amount)
+        let bondExtra = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
 
         return { builder in
             try builder.adding(call: bondExtra)
@@ -93,29 +91,11 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {
-        .relaychain(amount: amount)
+        .parachain(amount: amount, candidate: candidate.owner)
     }
 }
 
-extension StakingBondMoreRelaychainViewModelState: StakingBondMoreRelaychainStrategyOutput {
-    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(stashAccount):
-            self.stashAccount = stashAccount
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
-    }
-
+extension StakingBondMoreParachainViewModelState: StakingBondMoreParachainStrategyOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

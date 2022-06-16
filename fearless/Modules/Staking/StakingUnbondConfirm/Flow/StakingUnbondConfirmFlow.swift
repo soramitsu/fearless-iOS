@@ -4,7 +4,7 @@ enum StakingUnbondConfirmFlowError: Error {}
 
 enum StakingUnbondConfirmFlow {
     case relaychain(amount: Decimal)
-    case parachain
+    case parachain(candidate: ParachainStakingCandidateInfo, delegation: ParachainStakingDelegation, amount: Decimal)
 }
 
 protocol StakingUnbondConfirmModelStateListener: AnyObject {

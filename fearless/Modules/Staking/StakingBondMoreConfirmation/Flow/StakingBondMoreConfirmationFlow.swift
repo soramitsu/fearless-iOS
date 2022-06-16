@@ -4,7 +4,7 @@ enum StakingBondMoreConfirmationFlowError: Error {}
 
 enum StakingBondMoreConfirmationFlow {
     case relaychain(amount: Decimal)
-    case parachain
+    case parachain(amount: Decimal, candidate: AccountId)
 }
 
 protocol StakingBondMoreConfirmationModelStateListener: AnyObject {

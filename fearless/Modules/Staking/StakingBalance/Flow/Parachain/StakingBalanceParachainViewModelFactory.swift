@@ -3,16 +3,16 @@ import SoraFoundation
 import BigInt
 
 final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFactoryProtocol {
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let timeFormatter: TimeFormatterProtocol
 
     init(
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         timeFormatter: TimeFormatterProtocol
     ) {
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.balanceViewModelFactory = balanceViewModelFactory
         self.timeFormatter = timeFormatter
     }
@@ -23,9 +23,9 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         }
 
         return LocalizableResource { [unowned self] locale in
-            let precision = Int16(self.asset.precision)
+            let precision = Int16(self.chainAsset.asset.precision)
             let redeemableDecimal = Decimal.fromSubstrateAmount(
-                BigUInt.zero,
+                viewModelState.calculateRevokeAmount() ?? BigUInt.zero,
                 precision: precision
             ) ?? 0.0
 
@@ -71,7 +71,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         )
 
         let unbondedDecimal = Decimal.fromSubstrateAmount(
-            BigUInt.zero,
+            calculateDecreaseAmount(viewModelState: viewModelState),
             precision: precision
         ) ?? 0.0
         let unbondedViewModel = createWidgetItemViewModel(
@@ -141,36 +141,56 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     }
 
     func createUnbondingsViewModels(
-        from _: StakingBalanceParachainViewModelState,
-        priceData _: PriceData?,
-        precision _: Int16,
-        locale _: Locale
+        from viewModelState: StakingBalanceParachainViewModelState,
+        priceData: PriceData?,
+        precision: Int16,
+        locale: Locale
     ) -> [UnbondingItemViewModel] {
-        []
-//        balanceData.stakingLedger
-//            .unbondings(inEra: balanceData.activeEra)
-//            .sorted(by: { $0.era < $1.era })
-//            .map { unbondingItem -> UnbondingItemViewModel in
-//                let unbondingAmountDecimal = Decimal
-//                    .fromSubstrateAmount(
-//                        unbondingItem.value,
-//                        precision: precision
-//                    ) ?? .zero
-//                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
-//                let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-//                let timeLeft = timeLeftAttributedString(
-//                    unbondingEra: unbondingItem.era,
-//                    eraCountdown: balanceData.eraCountdown,
-//                    locale: locale
-//                )
-//
-//                return UnbondingItemViewModel(
-//                    addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
-//                    daysLeftText: timeLeft,
-//                    tokenAmountText: tokenAmount,
-//                    usdAmountText: usdAmount
-//                )
-//            }
+        guard let round = viewModelState.round?.current else {
+            return []
+        }
+
+        let decreaseRequests = viewModelState.requests?.filter { request in
+            if case .decrease = request.action {
+                return true
+            }
+
+            return false
+        }
+
+        return viewModelState.requests?.compactMap { request in
+            var amount = BigUInt.zero
+            var title: String = ""
+            if case let .decrease(decreaseAmount) = request.action {
+                amount = decreaseAmount
+                title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+            }
+
+            if case let .revoke(revokeAmount) = request.action {
+                amount = revokeAmount
+                title = R.string.localizable.parachainStakingRevoke(preferredLanguages: locale.rLanguages)
+            }
+
+            let unbondingAmountDecimal = Decimal
+                .fromSubstrateAmount(
+                    amount,
+                    precision: precision
+                ) ?? .zero
+            let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+            let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
+            let timeLeft = timeLeftAttributedString(
+                unbondingEra: UInt32(request.whenExecutable),
+                currentEra: round,
+                locale: locale
+            )
+
+            return UnbondingItemViewModel(
+                addressOrName: title,
+                daysLeftText: timeLeft,
+                tokenAmountText: tokenAmount,
+                usdAmountText: usdAmount
+            )
+        } ?? []
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
@@ -188,13 +208,16 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     }
 
     private func timeLeftAttributedString(
-        unbondingEra: EraIndex,
-        eraCountdown: EraCountdown?,
+        unbondingEra: EraIndex?,
+        currentEra: EraIndex,
         locale: Locale
     ) -> NSAttributedString {
-        guard let eraCountdown = eraCountdown else { return .init(string: "") }
+        guard let unbondingEra = unbondingEra else {
+            return NSAttributedString(string: "")
+        }
 
-        let eraCompletionTime = eraCountdown.timeIntervalTillStart(targetEra: unbondingEra)
+        let difference = UInt32(abs(Int32(unbondingEra) - Int32(currentEra)))
+        let eraCompletionTime = TimeInterval(difference / chainAsset.chain.erasPerDay * UInt32(86400))
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {
@@ -211,5 +234,53 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             attributes: [.foregroundColor: R.color.colorLightGray()!]
         )
         return attrubutedString
+    }
+
+    private func calculateDecreaseAmount(viewModelState: StakingBalanceParachainViewModelState) -> BigUInt {
+        let decreaseRequests = viewModelState.requests?.filter { request in
+            if case .decrease = request.action {
+                return true
+            }
+
+            return false
+        }
+
+        let amount = decreaseRequests?.compactMap { request in
+            var amount = BigUInt.zero
+            if case let .decrease(decreaseAmount) = request.action {
+                amount = decreaseAmount
+            }
+
+            return amount
+        }.reduce(BigUInt.zero, +)
+
+        return amount ?? BigUInt.zero
+    }
+
+    private func calculateRevokeAmount(viewModelState: StakingBalanceParachainViewModelState, currentEra: EraIndex?) -> BigUInt {
+        let revokeRequests = viewModelState.requests?.filter { request in
+            if case .revoke = request.action {
+                return true
+            }
+
+            return false
+        }
+
+        let amount = revokeRequests?.filter { request in
+            guard let currentEra = currentEra else {
+                return false
+            }
+
+            return request.whenExecutable < currentEra
+        }.compactMap { request in
+            var amount = BigUInt.zero
+            if case let .revoke(revokeAmount) = request.action {
+                amount = revokeAmount
+            }
+
+            return amount
+        }.reduce(BigUInt.zero, +)
+
+        return amount ?? BigUInt.zero
     }
 }

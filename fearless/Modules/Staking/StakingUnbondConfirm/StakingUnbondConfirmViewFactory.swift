@@ -149,6 +149,14 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             selectedMetaAccount: wallet
         )
+
+        let keystore = Keychain()
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: wallet.metaId,
+            accountResponse: accountResponse
+        )
+
         switch flow {
         case let .relaychain(amount):
             let viewModelState = StakingUnbondConfirmRelaychainViewModelState(
@@ -176,8 +184,33 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            return nil
+        case let .parachain(candidate, delegation, amount):
+            let viewModelState = StakingUnbondConfirmParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                inputAmount: amount,
+                candidate: candidate,
+                delegation: delegation
+            )
+
+            let strategy = StakingUnbondConfirmParachainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                keystore: Keychain(),
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper
+            )
+
+            let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(asset: chainAsset.asset)
+
+            return StakingUnbondConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         }
     }
 }

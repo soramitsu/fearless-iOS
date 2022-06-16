@@ -1,11 +1,16 @@
 import UIKit
 import SoraFoundation
+import BigInt
 
 enum StakingRedeemFlowError: Error {}
 
 enum StakingRedeemFlow {
     case relaychain
-    case parachain
+    case parachain(
+        collator: ParachainStakingCandidateInfo,
+        delegation: ParachainStakingDelegation,
+        readyForRevoke: BigUInt
+    )
 }
 
 protocol StakingRedeemModelStateListener: AnyObject {

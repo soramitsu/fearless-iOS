@@ -5,7 +5,10 @@ enum StakingBalanceFlowError: Error {}
 
 enum StakingBalanceFlow {
     case relaychain
-    case parachain
+    case parachain(
+        delegation: ParachainStakingDelegation,
+        collator: ParachainStakingCandidateInfo
+    )
 }
 
 protocol StakingBalanceModelStateListener: AnyObject {
@@ -21,6 +24,10 @@ protocol StakingBalanceViewModelState: StakingBalanceUserInputHandler {
     func stakeMoreValidators(using locale: Locale) -> [DataValidating]
     func stakeLessValidators(using locale: Locale) -> [DataValidating]
     func revokeValidators(using locale: Locale) -> [DataValidating]
+
+    var bondMoreFlow: StakingBondMoreFlow? { get }
+    var unbondFlow: StakingUnbondSetupFlow? { get }
+    var revokeFlow: StakingRedeemFlow? { get }
 }
 
 struct StakingBalanceDependencyContainer {

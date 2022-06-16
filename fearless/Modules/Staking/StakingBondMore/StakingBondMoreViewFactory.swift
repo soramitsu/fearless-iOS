@@ -159,8 +159,25 @@ struct StakingBondMoreViewFactory {
                 operationManager: operationManager
             )
             return StakingBondMoreDependencyContainer(viewModelState: viewModelState, strategy: strategy)
-        case .parachain:
-            return nil
+        case let .parachain(candidate):
+            let viewModelState = StakingBondMoreParachainViewModelState(
+                chainAsset: chainAsset,
+                dataValidatingFactory: dataValidatingFactory,
+                candidate: candidate
+            )
+            let strategy = StakingBondMoreParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                output: viewModelState,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager
+            )
+
+            return StakingBondMoreDependencyContainer(viewModelState: viewModelState, strategy: strategy)
         }
     }
 }

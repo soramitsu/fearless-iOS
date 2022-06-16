@@ -85,4 +85,8 @@ extension ConstantCodingPath {
     static var defaultTip: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "DefaultTip")
     }
+
+    static var candidateBondLessDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
+    }
 }

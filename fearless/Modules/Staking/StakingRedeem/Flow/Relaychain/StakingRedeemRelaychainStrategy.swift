@@ -41,7 +41,7 @@ final class StakingRedeemRelaychainStrategy: RuntimeConstantFetching, AccountFet
     private var signingWrapper: SigningWrapperProtocol?
 
     init(
-        output _: StakingRedeemRelaychainStrategyOutput?,
+        output: StakingRedeemRelaychainStrategyOutput?,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         chainAsset: ChainAsset,
@@ -67,6 +67,7 @@ final class StakingRedeemRelaychainStrategy: RuntimeConstantFetching, AccountFet
         self.wallet = wallet
         self.keystore = keystore
         self.accountRepository = accountRepository
+        self.output = output
     }
 
     private func handleController(accountItem: ChainAccountResponse) {

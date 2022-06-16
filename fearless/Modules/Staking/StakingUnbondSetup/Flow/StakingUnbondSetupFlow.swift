@@ -5,7 +5,7 @@ enum StakingUnbondSetupFlowError: Error {}
 
 enum StakingUnbondSetupFlow {
     case relaychain
-    case parachain
+    case parachain(candidate: ParachainStakingCandidateInfo, delegation: ParachainStakingDelegation)
 }
 
 protocol StakingUnbondSetupModelStateListener: AnyObject {
@@ -30,6 +30,8 @@ protocol StakingUnbondSetupViewModelState: StakingUnbondSetupUserInputHandler {
     func validators(using locale: Locale) -> [DataValidating]
 
     var builderClosure: ExtrinsicBuilderClosure? { get }
+
+    var confirmationFlow: StakingUnbondConfirmFlow? { get }
 }
 
 struct StakingUnbondSetupDependencyContainer {

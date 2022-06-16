@@ -202,8 +202,39 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            return nil
+        case let .parachain(collator, delegation, readyForRevoke):
+            let viewModelState = StakingRedeemParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                delegation: delegation,
+                collator: collator,
+                readyForRevoke: readyForRevoke
+            )
+
+            let strategy = StakingRedeemParachainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain()
+            )
+
+            let viewModelFactory = StakingRedeemParachainViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory
+            )
+
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

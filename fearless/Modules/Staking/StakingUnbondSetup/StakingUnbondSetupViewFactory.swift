@@ -159,8 +159,31 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .parachain:
-            return nil
+        case let .parachain(candidate, delegation):
+            let viewModelState = StakingUnbondSetupParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                candidate: candidate,
+                delegation: delegation
+            )
+            let strategy = StakingUnbondSetupParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                connection: connection,
+                output: viewModelState,
+                extrinsicService: extrinsicService
+            )
+            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory()
+            return StakingUnbondSetupDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

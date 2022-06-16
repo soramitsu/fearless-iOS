@@ -1,6 +1,8 @@
 import UIKit
 
 final class StakingBondMoreViewLayout: UIView {
+    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+    
     let amountInputView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: false)
         return view
@@ -44,6 +46,7 @@ final class StakingBondMoreViewLayout: UIView {
     }
 
     private func setupLayout() {
+        
         addSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)

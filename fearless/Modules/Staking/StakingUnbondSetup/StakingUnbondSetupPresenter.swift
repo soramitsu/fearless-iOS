@@ -63,6 +63,10 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
     }
 
     func proceed() {
+        guard let flow = viewModelState.confirmationFlow else {
+            return
+        }
+
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else {
@@ -72,7 +76,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
             if let amount = strongSelf.viewModelState.inputAmount {
                 strongSelf.wireframe.proceed(
                     view: strongSelf.view,
-                    flow: .relaychain(amount: amount),
+                    flow: flow,
                     chainAsset: strongSelf.chainAsset,
                     wallet: strongSelf.wallet
                 )

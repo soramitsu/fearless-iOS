@@ -59,6 +59,20 @@ protocol SubstrateCallFactoryProtocol {
         candidateDelegationCount: UInt32,
         delegationCount: UInt32
     ) -> RuntimeCall<DelegateCall>
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall>
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
+
+    func scheduleRevokeDelegation(
+        candidate: AccountId
+    ) -> RuntimeCall<ScheduleRevokeDelegationCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -213,6 +227,42 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(
             moduleName: "ParachainStaking",
             callName: "Delegate",
+            args: args
+        )
+    }
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall> {
+        let args = DelegatorBondMoreCall(candidate: candidate, more: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "delegator_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
+        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_delegator_bond_less",
+            args: args
+        )
+    }
+
+    func scheduleRevokeDelegation(candidate: AccountId) -> RuntimeCall<ScheduleRevokeDelegationCall> {
+        let args = ScheduleRevokeDelegationCall(collator: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_revoke_delegation",
             args: args
         )
     }

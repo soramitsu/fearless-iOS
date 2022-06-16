@@ -1,7 +1,7 @@
 import Foundation
 import BigInt
 
-final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewModelState {
+final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewModelState {
     var bonded: Decimal?
     var balance: Decimal?
     var inputAmount: Decimal?
@@ -9,10 +9,11 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     var minimalBalance: Decimal?
     var fee: Decimal?
     var controller: ChainAccountResponse?
-    var stashItem: StashItem?
 
     var stateListener: StakingUnbondSetupModelStateListener?
 
+    let delegation: ParachainStakingDelegation
+    let candidate: ParachainStakingCandidateInfo
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactory
@@ -21,11 +22,20 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        candidate: ParachainStakingCandidateInfo,
+        delegation: ParachainStakingDelegation
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.candidate = candidate
+        self.delegation = delegation
+
+        bonded = Decimal.fromSubstrateAmount(
+            delegation.amount,
+            precision: Int16(chainAsset.asset.precision)
+        )
     }
 
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {
@@ -41,12 +51,6 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
             }),
 
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.has(
-                controller: controller,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            ),
 
             dataValidatingFactory.stashIsNotKilledAfterUnbonding(
                 amount: inputAmount,
@@ -82,12 +86,10 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
             return nil
         }
 
-        let unbondCall = callFactory.unbond(amount: amount)
-        let setPayeeCall = callFactory.setPayee(for: .stash)
-        let chillCall = callFactory.chill()
+        let unbondCall = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount)
 
         return { builder in
-            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
+            try builder.adding(call: unbondCall)
         }
     }
 
@@ -96,11 +98,15 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
             return nil
         }
 
-        return .relaychain(amount: inputAmount)
+        return .parachain(
+            candidate: candidate,
+            delegation: delegation,
+            amount: inputAmount
+        )
     }
 }
 
-extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaychainStrategyOutput {
+extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachainStrategyOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
@@ -112,24 +118,6 @@ extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaycha
             } else {
                 balance = nil
             }
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
-    }
-
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
-        switch result {
-        case let .success(stakingLedger):
-            if let stakingLedger = stakingLedger {
-                bonded = Decimal.fromSubstrateAmount(
-                    stakingLedger.active,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } else {
-                bonded = nil
-            }
-
-            stateListener?.provideAssetViewModel()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
@@ -165,26 +153,6 @@ extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaycha
                 minimalBalance,
                 precision: Int16(chainAsset.asset.precision)
             )
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
-    }
-
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }

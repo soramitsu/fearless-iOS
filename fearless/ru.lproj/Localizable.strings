@@ -704,3 +704,6 @@ and depending on the network state, may not be selected to participate";
 "parachain.staking.minimum.bond" = "Min. bond";
 "parachain.staking.self.bonded" = "Self-bonded";
 "parachain.staking.effective.amount.bonded" = "Effective amount bonded";
+"parachain.staking.ready.for.revoking" = "Ready for revoking";
+"parachain.staking.stake.less" = "Stake less";
+"parachain.staking.revoke" = "Revoke";

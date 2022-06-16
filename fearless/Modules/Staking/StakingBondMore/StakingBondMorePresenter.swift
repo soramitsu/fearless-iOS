@@ -58,12 +58,16 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     }
 
     func handleContinueAction() {
+        guard let flow = viewModelState.bondMoreConfirmationFlow else {
+            return
+        }
+
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.wireframe.showConfirmation(
                 from: strongSelf.view,
-                flow: .relaychain(amount: strongSelf.viewModelState.amount),
+                flow: flow,
                 chainAsset: strongSelf.chainAsset,
                 wallet: strongSelf.wallet
             )
