@@ -42,6 +42,7 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
         return try LocalStorageKeyFactory().createKey(from: cacheKeyData, chainId: chainId)
     }
 
+//    add parachain case
     func attachToGlobalData(
         for chainId: ChainModel.Id,
         queue: DispatchQueue?,
@@ -50,6 +51,7 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
         do {
             let localKeyFactory = LocalStorageKeyFactory()
 
+            //   RelaychainKeys + ParachainKeys - All ParachainStakingKeys
             let localKeys = try Self.globalDataStoragePaths.map { storagePath in
                 try localKeyFactory.createFromStoragePath(
                     storagePath,

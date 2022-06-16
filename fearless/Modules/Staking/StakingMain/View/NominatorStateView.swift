@@ -32,8 +32,6 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .stakingYourStake(preferredLanguages: locale.rLanguages)
         stakeTitleLabel.text = R.string.localizable
             .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
@@ -42,9 +40,13 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
 
     private func applyViewModel() {
         guard let viewModel = localizableViewModel?.value(for: locale) else {
+            titleLabel.text = R.string.localizable
+                .stakingYourStake(preferredLanguages: locale.rLanguages)
             return
         }
 
+        titleLabel.text = viewModel.name == nil ?
+            R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages) : viewModel.name
         stakeAmountView.valueTop.text = viewModel.totalStakedAmount
         stakeAmountView.valueBottom.text = viewModel.totalStakedPrice
         rewardAmountView.valueTop.text = viewModel.totalRewardAmount

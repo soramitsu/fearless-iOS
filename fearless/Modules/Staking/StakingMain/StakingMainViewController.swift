@@ -4,13 +4,33 @@ import SoraFoundation
 import SoraUI
 import CommonWallet
 
+class SelfSizingTableView: UITableView {
+    override var contentSize: CGSize {
+        didSet {
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
+        }
+    }
+
+    override var intrinsicContentSize: CGSize {
+        let height = min(.infinity, contentSize.height)
+        return CGSize(width: contentSize.width, height: height)
+    }
+}
+
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
+        static let contentInset = UIEdgeInsets(
+            top: UIConstants.bigOffset,
+            left: 0,
+            bottom: UIConstants.bigOffset,
+            right: 0
+        )
     }
 
-    var presenter: StakingMainPresenterProtocol!
+    var presenter: StakingMainPresenterProtocol?
 
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var stackView: UIStackView!
@@ -31,15 +51,29 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
     private lazy var analyticsContainerView = UIView()
+    private lazy var tableViewContainer = UIView()
     private lazy var analyticsView = RewardAnalyticsWidgetView()
+    private lazy var actionButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDefaultStyle()
+        return button
+    }()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
-    private lazy var tableView = UITableView()
+    private lazy var tableView: SelfSizingTableView = {
+        let tableView = SelfSizingTableView()
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor.clear
+        tableView.contentInset = Constants.contentInset
+        return tableView
+    }()
+
     private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
+    private var delegationViewModels: [LocalizableResource<NominationViewModelProtocol>]?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -56,8 +90,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupNetworkInfoView()
         setupAlertsView()
 //        setupAnalyticsView()
+        setupTableView()
+        setupActionButton()
         setupLocalization()
-        presenter.setup()
+        presenter?.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -104,7 +140,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     @IBAction func actionIcon() {
-        presenter.performAccountAction()
+        presenter?.performAccountAction()
     }
 
     // MARK: - Private functions
@@ -178,7 +214,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     @objc
     private func handleAnalyticsWidgetTap() {
-        presenter.performAnalyticsAction()
+        presenter?.performAnalyticsAction()
     }
 
     private func configureStoriesView() {
@@ -241,10 +277,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: containerView, innerView: stateView)
 
-        stackView.insertArranged(view: containerView, after: alertsContainerView)
+        stackView.addArrangedSubview(containerView)
 
         stateContainerView = containerView
         self.stateView = stateView
+
+        stackView.removeArrangedSubview(tableViewContainer)
+        stackView.addArrangedSubview(tableViewContainer)
 
         return stateView
     }
@@ -287,7 +326,35 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupTableView() {
-        stackView.addArrangedSubview(tableView)
+        tableViewContainer.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().offset(Constants.verticalSpacing)
+            make.bottom.equalToSuperview().inset(Constants.bottomInset)
+        }
+        tableView.allowsSelection = false
+        stackView.addArrangedSubview(tableViewContainer)
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.rowHeight = UIConstants.cellHeight
+        tableView.registerClassForCell(DelegationInfoCell.self)
+    }
+
+    private func setupActionButton() {
+        view.addSubview(actionButton)
+        actionButton.addTarget(self, action: #selector(actionButtonClicked), for: .touchUpInside)
+        actionButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        }
+    }
+
+    @objc
+    private func actionButtonClicked() {
+        presenter?.performMainAction()
     }
 
     private func applyNominator(viewModel: LocalizableResource<NominationViewModelProtocol>) {
@@ -332,6 +399,8 @@ extension StakingMainViewController: Localizable {
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .stakingStartTitle(preferredLanguages: languages)
 
         networkInfoView.locale = locale
         stateView?.locale = locale
@@ -349,19 +418,15 @@ extension StakingMainViewController: Localizable {
 
 extension StakingMainViewController: RewardEstimationViewDelegate {
     func rewardEstimationView(_: RewardEstimationView, didChange amount: Decimal?) {
-        presenter.updateAmount(amount ?? 0.0)
+        presenter?.updateAmount(amount ?? 0.0)
     }
 
     func rewardEstimationView(_: RewardEstimationView, didSelect percentage: Float) {
-        presenter.selectAmountPercentage(percentage)
-    }
-
-    func rewardEstimationDidStartAction(_: RewardEstimationView) {
-        presenter.performMainAction()
+        presenter?.selectAmountPercentage(percentage)
     }
 
     func rewardEstimationDidRequestInfo(_: RewardEstimationView) {
-        presenter.performRewardInfoAction()
+        presenter?.performRewardInfoAction()
     }
 }
 
@@ -423,7 +488,14 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     @objc func actionAssetSelection() {
-        presenter.performAssetSelection()
+        presenter?.performAssetSelection()
+    }
+
+//    Parachain
+
+    func didReceiveDelegation(viewModels: [LocalizableResource<NominationViewModelProtocol>]) {
+        delegationViewModels = viewModels
+        tableView.reloadData()
     }
 }
 
@@ -433,7 +505,7 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
     }
 
     func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
-        presenter.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
+        presenter?.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }
 
@@ -488,7 +560,7 @@ extension StakingMainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
 
-        presenter.selectStory(at: indexPath.row)
+        presenter?.selectStory(at: indexPath.row)
     }
 }
 
@@ -496,14 +568,14 @@ extension StakingMainViewController: UICollectionViewDelegate {
 
 extension StakingMainViewController: StakingStateViewDelegate {
     func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
-        presenter.performManageStakingAction()
+        presenter?.performManageStakingAction()
     }
 
     func stakingStateViewDidReceiveStatusAction(_ view: StakingStateView) {
         if view is NominatorStateView {
-            presenter.performNominationStatusAction()
+            presenter?.performNominationStatusAction()
         } else if view is ValidatorStateView {
-            presenter.performValidationStatusAction()
+            presenter?.performValidationStatusAction()
         }
     }
 }
@@ -514,15 +586,39 @@ extension StakingMainViewController: AlertsViewDelegate {
     func didSelectStakingAlert(_ alert: StakingAlert) {
         switch alert {
         case .nominatorChangeValidators, .nominatorAllOversubscribed:
-            presenter.performChangeValidatorsAction()
+            presenter?.performChangeValidatorsAction()
         case .bondedSetValidators:
-            presenter.performSetupValidatorsForBondedAction()
+            presenter?.performSetupValidatorsForBondedAction()
         case .nominatorLowStake:
-            presenter.performBondMoreAction()
+            presenter?.performBondMoreAction()
         case .redeemUnbonded:
-            presenter.performRedeemAction()
+            presenter?.performRedeemAction()
         case .waitingNextEra:
             break
         }
+    }
+}
+
+extension StakingMainViewController: UITableViewDelegate {}
+
+extension StakingMainViewController: UITableViewDataSource {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        delegationViewModels?.count ?? 0
+    }
+
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        175
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard
+            let cell = tableView.dequeueReusableCellWithType(DelegationInfoCell.self),
+            let viewModel = delegationViewModels?[indexPath.row]
+        else {
+            return UITableViewCell()
+        }
+        cell.bind(to: viewModel)
+        cell.set(delegate: self)
+        return cell
     }
 }

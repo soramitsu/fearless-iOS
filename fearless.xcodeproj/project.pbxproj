@@ -1467,6 +1467,7 @@
 		C600C4D52802B87100111316 /* UsernameSetupViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C600C4D42802B87100111316 /* UsernameSetupViewLayout.swift */; };
 		C600C4D728053DF500111316 /* UsernameSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C600C4D628053DF500111316 /* UsernameSetupViewController.swift */; };
 		C600C4D928054A1B00111316 /* AccountCreateFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C600C4D828054A1B00111316 /* AccountCreateFlow.swift */; };
+		C603E81128583C2A00007B72 /* StakingMainRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */; };
 		C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */; };
 		C6264C2C2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C2B2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift */; };
 		C6264C2E2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C2D2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift */; };
@@ -1482,6 +1483,7 @@
 		C63CB31E284F790F0071AF26 /* DelegationInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */; };
 		C63CB32028505A250071AF26 /* StatusView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB31F28505A250071AF26 /* StatusView.swift */; };
 		C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */; };
+		C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */; };
 		C661B3AD27DF0193005F1F7D /* AccountCreateViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */; };
 		C661B3B027DF75D4005F1F7D /* AccountCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */; };
 		C661B3B227DF99A8005F1F7D /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */; };
@@ -3576,6 +3578,7 @@
 		C600C4D42802B87100111316 /* UsernameSetupViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewLayout.swift; sourceTree = "<group>"; };
 		C600C4D628053DF500111316 /* UsernameSetupViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewController.swift; sourceTree = "<group>"; };
 		C600C4D828054A1B00111316 /* AccountCreateFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateFlow.swift; sourceTree = "<group>"; };
+		C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainRelaychainStrategy.swift; sourceTree = "<group>"; };
 		C6264C282799A56E00FCA0DB /* WalletDetailsTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsTableCell.swift; sourceTree = "<group>"; };
 		C6264C2B2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsCellViewModel.swift; sourceTree = "<group>"; };
 		C6264C2D2799C7EE00FCA0DB /* WalletDetailsViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsViewLayout.swift; sourceTree = "<group>"; };
@@ -3591,6 +3594,7 @@
 		C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCell.swift; sourceTree = "<group>"; };
 		C63CB31F28505A250071AF26 /* StatusView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusView.swift; sourceTree = "<group>"; };
 		C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCellModel.swift; sourceTree = "<group>"; };
+		C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainFlow.swift; sourceTree = "<group>"; };
 		C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewLayout.swift; sourceTree = "<group>"; };
 		C661B3AF27DF75D4005F1F7D /* AccountCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewModel.swift; sourceTree = "<group>"; };
 		C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewController.swift; sourceTree = "<group>"; };
@@ -8753,6 +8757,7 @@
 		B7B0681CCE8F8F0127E8676C /* StakingMain */ = {
 			isa = PBXGroup;
 			children = (
+				C63CB3232851C59A0071AF26 /* Flow */,
 				FA256A47274CE8C200875A53 /* StakingMainInteractor+Subscription.swift */,
 				84C3F78A26020D3500D47501 /* StateMachine */,
 				AEFC6D602600A754000BD310 /* View */,
@@ -8851,6 +8856,14 @@
 			path = AddConnection;
 			sourceTree = "<group>";
 		};
+		C603E80F28583C0500007B72 /* Relaychain */ = {
+			isa = PBXGroup;
+			children = (
+				C603E81028583C2A00007B72 /* StakingMainRelaychainStrategy.swift */,
+			);
+			path = Relaychain;
+			sourceTree = "<group>";
+		};
 		C6264C262799A54400FCA0DB /* WalletDetails */ = {
 			isa = PBXGroup;
 			children = (
@@ -8885,6 +8898,15 @@
 				C6264C2F2799DA4500FCA0DB /* WalletDetailsViewModel.swift */,
 			);
 			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		C63CB3232851C59A0071AF26 /* Flow */ = {
+			isa = PBXGroup;
+			children = (
+				C603E80F28583C0500007B72 /* Relaychain */,
+				C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */,
+			);
+			path = Flow;
 			sourceTree = "<group>";
 		};
 		C661B3AE27DF75C4005F1F7D /* ViewModels */ = {
@@ -12292,6 +12314,7 @@
 				FA864440276843E100956D8E /* ViewModelObserver.swift in Sources */,
 				FA99422527FE921000D771E5 /* ManageAssetsTableViewCell.swift in Sources */,
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
+				C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */,
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
 				FA3430FA28508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift in Sources */,
 				FA4B92B02844D0E60003BCEF /* SelectCurrencyRouter.swift in Sources */,
@@ -12312,6 +12335,7 @@
 				6C56AB4AE63AB2DC73DE98E0 /* AccountImportInteractor.swift in Sources */,
 				F4EAC7972642E0D800FBDDC3 /* ControllerAccountViewModelFactory.swift in Sources */,
 				84F51072263BFBF5005D15AE /* SingleValueSubscriptionHandler.swift in Sources */,
+				C603E81128583C2A00007B72 /* StakingMainRelaychainStrategy.swift in Sources */,
 				849842F426592408006BBB9F /* ActiveCrowdloanTableViewCell.swift in Sources */,
 				501347BEA67CD30FE484358E /* AccountImportViewFactory.swift in Sources */,
 				84EBC55124F660A700459D15 /* EventVisitor.swift in Sources */,

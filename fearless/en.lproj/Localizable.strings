@@ -700,3 +700,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.minimum.bond" = "Min. bond";
 "parachain.staking.self.bonded" = "Self-bonded";
 "parachain.staking.effective.amount.bonded" = "Effective amount bonded";
+"staking.your.collator.title" = "Your collator";
+

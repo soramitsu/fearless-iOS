@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import BigInt
 import SwiftUI
+import SoraFoundation
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
@@ -655,6 +656,24 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
     }
+
+//    Parachain
+
+    func didReceive(delegatorState _: ParachainStakingDelegatorState?) {
+        let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
+            let model = NominationViewModel(
+                totalStakedAmount: "50.0003 GLMR",
+                totalStakedPrice: "$4,524.1",
+                totalRewardAmount: "2.49191 GLMR",
+                totalRewardPrice: "$40.51",
+                status: .active(era: 1),
+                hasPrice: true,
+                name: "bitcoinsusse.com 2"
+            )
+            return model
+        }
+        view?.didReceiveDelegation(viewModels: [resource])
+    }
 }
 
 // MARK: - ModalPickerViewControllerDelegate
@@ -731,13 +750,20 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
                 wireframe.showYourValidatorInfo(
-                    stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
+                    chainAsset: chainAsset,
                     selectedAccount: selectedAccount,
+                    flow: .relaychain(validatorInfo: nil,
+                                      address: stashAddress),
                     from: view
                 )
             }
+        case .yourCollator:
+            wireframe.showYourValidatorInfo(
+                chainAsset: chainAsset,
+                selectedAccount: selectedAccount,
+                flow: .parachain(candidate: <#T##ParachainStakingCandidateInfo#>),
+                from: view
+            )
         }
     }
 }

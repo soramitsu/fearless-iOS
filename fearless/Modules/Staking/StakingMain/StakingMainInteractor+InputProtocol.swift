@@ -14,6 +14,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     func setup() {
         setupSelectedAccountAndChainAsset()
+
+        //  Only relaychain, check if it ever needed for parachain
         setupChainRemoteSubscription()
         setupAccountRemoteSubscription()
 
@@ -31,13 +33,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
+        //  Only relaychain
         provideMaxNominatorsPerValidator(from: runtimeService)
 
         performPriceSubscription()
         performAccountInfoSubscription()
+
+        //  Only relaychain
         performStashControllerSubscription()
         performNominatorLimitsSubscripion()
 
+        //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideEraStakersInfo(from: sharedState.eraValidatorService)
 
@@ -47,7 +53,11 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         applicationHandler.delegate = self
 
-        presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
+        presenter?.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
+
+//        Mock
+
+        presenter?.didReceive(delegatorState: nil)
     }
 
     func save(chainAsset: ChainAsset) {

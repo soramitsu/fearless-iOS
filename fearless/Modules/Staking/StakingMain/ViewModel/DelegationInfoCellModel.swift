@@ -3,18 +3,18 @@ protocol DelegationInfoCellModelDelegate: AnyObject {
 }
 
 class DelegationInfoCellModel {
-    let name: String
-    let stakedAmount: String
-    let stakedSum: String
-    let rewardAmount: String
-    let rewardSum: String
-    let status: StatusView.Status
-    
+//    let name: String
+//    let stakedAmount: String
+//    let stakedSum: String
+//    let rewardAmount: String
+//    let rewardSum: String
+//    let status: StatusView.Status
+//
     weak var delegate: DelegationInfoCellModelDelegate?
-    
-    internal init() {
-        
-    }
+//
+//    internal init() {
+//
+//    }
 }
 
 extension DelegationInfoCellModel: DelegationInfoCellDelegate {

@@ -14,6 +14,7 @@ protocol NominationViewModelProtocol {
     var totalRewardPrice: String { get }
     var status: NominationViewStatus { get }
     var hasPrice: Bool { get }
+    var name: String? { get }
 }
 
 struct NominationViewModel: NominationViewModelProtocol {
@@ -23,4 +24,5 @@ struct NominationViewModel: NominationViewModelProtocol {
     let totalRewardPrice: String
     let status: NominationViewStatus
     let hasPrice: Bool
+    let name: String?
 }

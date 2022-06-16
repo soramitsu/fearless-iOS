@@ -2,6 +2,12 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
+struct NetworkInfoContentViewModel {
+    let title: String
+    let value: String
+    let details: String?
+}
+
 protocol NetworkInfoViewDelegate: AnyObject {
     func animateAlongsideWithInfo(view: NetworkInfoView)
     func didChangeExpansion(isExpanded: Bool, view: NetworkInfoView)
@@ -38,6 +44,7 @@ final class NetworkInfoView: UIView {
     }
 
     private var localizableViewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
+    private var viewModels: [LocalizableResource<NetworkInfoContentViewModel>]?
     private var chainName: String?
 
     override func awakeFromNib() {
@@ -72,6 +79,17 @@ final class NetworkInfoView: UIView {
         }
 
         applyExpansion(animated: animated)
+    }
+
+    func bind(viewModels: [LocalizableResource<NetworkInfoContentViewModel>]) {
+        self.viewModels = viewModels
+
+        if viewModels.isEmpty {
+            startLoading()
+        } else {
+            stopLoadingIfNeeded()
+            applyViewModel()
+        }
     }
 
     func bind(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?) {
