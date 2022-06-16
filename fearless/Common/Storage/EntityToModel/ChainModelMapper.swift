@@ -45,9 +45,9 @@ final class ChainModelMapper {
         } else {
             staking = nil
         }
-        let purchaseProviders: [PurchaseProvider] = entity.purchaseProviders?.compactMap {
+        let purchaseProviders: [PurchaseProvider]? = entity.purchaseProviders?.compactMap {
             PurchaseProvider(rawValue: $0)
-        } ?? []
+        }
         return ChainAssetModel(
             assetId: assetId,
             staking: staking,
@@ -321,13 +321,18 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             return createChainNode(from: node)
         } ?? []
 
-        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
+        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
             guard let node = anyNode as? CDChainNode else {
                 return nil
             }
 
             return createChainNode(from: node)
-        } ?? []
+        }
+
+        var customNodesSet: Set<ChainNodeModel>?
+        if let nodes = customNodes {
+            customNodesSet = Set(nodes)
+        }
 
         var selectedNode: ChainNodeModel?
 
@@ -378,7 +383,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             options: options.isEmpty ? nil : options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: Set(customNodes),
+            customNodes: customNodesSet,
             iosMinAppVersion: entity.minimalAppVersion
         )
 

@@ -9,6 +9,10 @@ protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
+    func fetchCoderFactoryOperation(
+        with timeout: TimeInterval,
+        closure: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol>
 }
 
 enum RuntimeProviderError: Error {

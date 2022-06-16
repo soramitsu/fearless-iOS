@@ -2,6 +2,10 @@
 import RobinHood
 
 final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
+    func createGenesisBlockHashOperation() -> BaseOperation<String> {
+        return BaseOperation()
+    }
+    
     func submit(
         _ closure: @escaping ExtrinsicBuilderIndexedClosure,
         signer: SigningWrapperProtocol,
