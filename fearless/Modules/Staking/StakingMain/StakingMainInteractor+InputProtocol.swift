@@ -14,6 +14,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     func setup() {
         setupSelectedAccountAndChainAsset()
+
+        //  Only relaychain, check if it ever needed for parachain
         setupChainRemoteSubscription()
         setupAccountRemoteSubscription()
 
@@ -31,13 +33,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
+        //  Only relaychain
         provideMaxNominatorsPerValidator(from: runtimeService)
 
         performPriceSubscription()
         performAccountInfoSubscription()
+
+        //  Only relaychain
         performStashControllerSubscription()
         performNominatorLimitsSubscripion()
 
+        //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideEraStakersInfo(from: sharedState.eraValidatorService)
 
@@ -47,11 +53,11 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         applicationHandler.delegate = self
 
-        presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
+        presenter?.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
     }
 
     func save(chainAsset: ChainAsset) {
-        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId else {
+        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId, let wallet = selectedAccount else {
             return
         }
 
@@ -59,6 +65,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             self?.updateAfterChainAssetSave()
             self?.updateAfterSelectedAccountChange()
         }
+//
+//        if chainAsset.chain.isEthereumBased {
+//            fetchDelegations(accountId: wallet.accountId, chainAsset: chainAsset)
+//        }
     }
 
     private func updateAfterChainAssetSave() {

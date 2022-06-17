@@ -273,23 +273,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showYourValidatorInfo(
-        _: AccountAddress,
-        chain _: ChainModel,
-        asset _: AssetModel,
-        selectedAccount _: MetaAccountModel,
-        from _: ControllerBackedProtocol?
+        chainAsset: ChainAsset,
+        selectedAccount: MetaAccountModel,
+        flow: ValidatorInfoFlow,
+        from view: ControllerBackedProtocol?
     ) {
-        // TODO: Transition with new parameters
-//        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
-//            address: stashAddress,
-//            asset: asset,
-//            chain: chain,
-//            selectedAccount: selectedAccount
-//        ) else {
-//            return
-//        }
-//        let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
-//        view?.controller.present(navigationController, animated: true, completion: nil)
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: flow
+        ) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: validatorInfoView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showChainAssetSelection(

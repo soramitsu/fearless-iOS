@@ -246,6 +246,8 @@ Derivation path: %@";
 "staking.stake" = "Stake";
 "staking.nominator.status.active" = "Active";
 "staking.nominator.status.inactive" = "Inactive";
+"staking.nominator.status.idle" = "Idle";
+"staking.nominator.status.leaving" = "Leaving";
 "staking.nominator.status.waiting" = "Waiting for the next Era";
 "staking.era.title" = "era #%@";
 "staking.validator.summary.title" = "Staking for validator";
@@ -709,3 +711,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.filters.collator.own.stake" = "Collator's own stake (%@)";
 "parachain.staking.filters.delegations" = "Delegations";
 "parachain.staking.filters.minimum.bond" = "Minimum bond";
+"staking.your.collator.title" = "Your collator";

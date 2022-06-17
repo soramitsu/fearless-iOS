@@ -7,6 +7,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveStakingState(viewModel: StakingViewState)
+    func didReceiveCollatorInfos(viewModels: [DelegationInfoCellModel])
     func expandNetworkInfoView(_ isExpanded: Bool)
 }
 
@@ -72,6 +73,10 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)
+
+//    Parachain
+
+    func didReceive(collatorInfos: [ParachainStakingCandidateInfo])
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
@@ -174,10 +179,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     )
 
     func showYourValidatorInfo(
-        _ stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         from view: ControllerBackedProtocol?
     )
 

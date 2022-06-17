@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import BigInt
 import SwiftUI
+import SoraFoundation
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
@@ -247,6 +248,19 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func performAccountAction() {
         wireframe.showAccountsSelection(from: view)
+    }
+
+    func performParachainManageStakingAction(info: ParachainStakingCandidateInfo) {
+        let managedItems: [StakingManageOption] = {
+            [.stakingBalance, .yourCollator(info: info)]
+        }()
+
+        wireframe.showManageStaking(
+            from: view,
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
+        )
     }
 
     func performManageStakingAction() {
@@ -655,6 +669,45 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
     }
+
+//    Parachain
+    func didReceive(collatorInfos: [ParachainStakingCandidateInfo]) {
+        let models: [DelegationInfoCellModel] = collatorInfos.map { collator in
+            let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
+                let status: NominationViewStatus
+                switch collator.metadata?.status {
+                case .active:
+                    status = .parachain(.active("0:00:00"))
+                case .idle:
+                    status = .parachain(.idle("0:00:00"))
+                case .leaving:
+                    status = .parachain(.leaving("0:00:00"))
+                case .none:
+                    status = .parachain(.undefined)
+                }
+
+                return NominationViewModel(
+                    totalStakedAmount: collator.amount.stringValue,
+                    totalStakedPrice: "0",
+                    totalRewardAmount: "0",
+                    totalRewardPrice: "0",
+                    status: status,
+                    hasPrice: true,
+                    name: collator.identity?.name
+                )
+            }
+            let moreHandler: () -> Void = { [weak self] in
+                self?.performParachainManageStakingAction(info: collator)
+            }
+            let statusHandler: () -> Void = {}
+            return DelegationInfoCellModel(
+                contentViewModel: resource,
+                moreHandler: moreHandler,
+                statusHandler: statusHandler
+            )
+        }
+        view?.didReceiveCollatorInfos(viewModels: models)
+    }
 }
 
 // MARK: - ModalPickerViewControllerDelegate
@@ -733,13 +786,22 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
                 wireframe.showYourValidatorInfo(
-                    stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
+                    chainAsset: chainAsset,
                     selectedAccount: selectedAccount,
+                    flow: .relaychain(
+                        validatorInfo: nil,
+                        address: stashAddress
+                    ),
                     from: view
                 )
             }
+        case let .yourCollator(info):
+            wireframe.showYourValidatorInfo(
+                chainAsset: chainAsset,
+                selectedAccount: selectedAccount,
+                flow: .parachain(candidate: info),
+                from: view
+            )
         }
     }
 }

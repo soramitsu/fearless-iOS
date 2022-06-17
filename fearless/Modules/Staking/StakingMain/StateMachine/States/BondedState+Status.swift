@@ -3,17 +3,17 @@ import Foundation
 extension BondedState {
     var status: NominationViewStatus {
         guard let eraStakers = commonData.eraStakersInfo else {
-            return .undefined
+            return .relaychain(.undefined)
         }
 
-        return .inactive(era: eraStakers.activeEra)
+        return .relaychain(.inactive(eraStakers.activeEra))
     }
 
     func createStatusPresentableViewModel(locale: Locale?) -> AlertPresentableViewModel? {
         switch status {
-        case .inactive:
+        case .relaychain(.inactive):
             return createInactiveStatus(locale: locale)
-        case .active, .waiting, .undefined:
+        default:
             return nil
         }
     }

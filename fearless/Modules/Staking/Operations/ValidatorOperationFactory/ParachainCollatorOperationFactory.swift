@@ -257,6 +257,70 @@ final class ParachainCollatorOperationFactory {
 }
 
 extension ParachainCollatorOperationFactory {
+    func candidateInfos(for candidateIdsOperation: CompoundOperationWrapper<[AccountId]>) -> CompoundOperationWrapper<[ParachainStakingCandidateInfo]?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let candidatePoolOperation = createCandidatePoolOperation(dependingOn: runtimeOperation)
+
+        let accountIdsClosure: () throws -> [AccountId] = {
+            try candidateIdsOperation.targetOperation.extractNoCancellableResultData()
+        }
+
+        let identityWrapper = identityOperationFactory.createIdentityWrapper(
+            for: accountIdsClosure,
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        let infoWrapper = createCollatorInfoOperation(
+            dependingOn: runtimeOperation,
+            accountIdsClosure: accountIdsClosure
+        )
+        identityWrapper.allOperations.forEach { $0.addDependency(candidateIdsOperation.targetOperation) }
+        infoWrapper.allOperations.forEach { $0.addDependency(candidateIdsOperation.targetOperation) }
+
+        let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> {
+            let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
+            let infos = try infoWrapper.targetOperation.extractNoCancellableResultData()
+
+            let candidatePool = try candidatePoolOperation.targetOperation.extractNoCancellableResultData().first?.value
+            let candidateIds = try candidateIdsOperation.targetOperation.extractNoCancellableResultData()
+
+            let candidateInfos: [ParachainStakingCandidateInfo]? = try candidatePool?
+                .filter { candidateIds.contains($0.owner) == true }
+                .compactMap { [weak self] in
+                    guard let strongSelf = self else {
+                        return nil
+                    }
+
+                    let address = try AddressFactory.address(
+                        for: $0.owner,
+                        chainFormat: strongSelf.chain.chainFormat
+                    )
+                    return ParachainStakingCandidateInfo(
+                        address: address,
+                        owner: $0.owner,
+                        amount: $0.amount,
+                        metadata: infos[address],
+                        identity: identities[address]
+                    )
+                }
+
+            return candidateInfos
+        }
+
+        mergeOperation.addDependency(candidatePoolOperation.targetOperation)
+        mergeOperation.addDependency(candidateIdsOperation.targetOperation)
+        mergeOperation.addDependency(infoWrapper.targetOperation)
+        mergeOperation.addDependency(identityWrapper.targetOperation)
+
+        let dependencies = [runtimeOperation] + candidatePoolOperation.allOperations
+            + candidateIdsOperation.allOperations + identityWrapper.allOperations + infoWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
     func allElectedOperation() -> CompoundOperationWrapper<[ParachainStakingCandidateInfo]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 

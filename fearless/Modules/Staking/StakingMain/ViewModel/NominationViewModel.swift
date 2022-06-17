@@ -1,10 +1,27 @@
 import Foundation
 
 enum NominationViewStatus {
-    case undefined
-    case active(era: UInt32)
-    case inactive(era: UInt32)
-    case waiting(eraCountdown: EraCountdown?, nominationEra: EraIndex)
+    enum ValidatorStatus {
+        case undefined
+        case active(EraIndex)
+        case inactive(EraIndex)
+        case waiting(eraCountdown: EraCountdown?, nominationEra: EraIndex)
+    }
+
+    enum CollatorStatus {
+        case active(String)
+        case idle(String)
+        case leaving(String)
+        case undefined
+    }
+
+    enum StatusInfo {
+        case era(EraIndex)
+        case countdown(String)
+    }
+
+    case relaychain(ValidatorStatus)
+    case parachain(CollatorStatus)
 }
 
 protocol NominationViewModelProtocol {
@@ -14,6 +31,7 @@ protocol NominationViewModelProtocol {
     var totalRewardPrice: String { get }
     var status: NominationViewStatus { get }
     var hasPrice: Bool { get }
+    var name: String? { get }
 }
 
 struct NominationViewModel: NominationViewModelProtocol {
@@ -23,4 +41,5 @@ struct NominationViewModel: NominationViewModelProtocol {
     let totalRewardPrice: String
     let status: NominationViewStatus
     let hasPrice: Bool
+    let name: String?
 }

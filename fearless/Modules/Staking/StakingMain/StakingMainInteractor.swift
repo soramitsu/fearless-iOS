@@ -5,7 +5,7 @@ import FearlessUtils
 import SoraFoundation
 
 final class StakingMainInteractor: RuntimeConstantFetching {
-    weak var presenter: StakingMainInteractorOutputProtocol!
+    weak var presenter: StakingMainInteractorOutputProtocol?
 
     var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol {
         sharedState.stakingLocalSubscriptionFactory
@@ -107,6 +107,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         selectedAccount = response
         selectedChainAsset = chainAsset
+
+        if chainAsset.chain.isEthereumBased {
+            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
+        }
     }
 
     func updateSharedState() {
@@ -191,7 +195,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        presenter.didReceive(selectedAddress: address)
+        presenter?.didReceive(selectedAddress: address)
     }
 
     func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
@@ -200,7 +204,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] result in
-            self?.presenter.didReceiveMaxNominatorsPerValidator(result: result)
+            self?.presenter?.didReceiveMaxNominatorsPerValidator(result: result)
         }
     }
 
@@ -209,7 +213,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        presenter.didReceive(newChainAsset: chainAsset)
+        presenter?.didReceive(newChainAsset: chainAsset)
     }
 
     func provideRewardCalculator(from calculatorService: RewardCalculatorServiceProtocol) {
@@ -219,9 +223,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async { [weak self] in
                 do {
                     let engine = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(calculator: engine)
+                    self?.presenter?.didReceive(calculator: engine)
                 } catch {
-                    self?.presenter.didReceive(calculatorError: error)
+                    self?.presenter?.didReceive(calculatorError: error)
                 }
             }
         }
@@ -236,10 +240,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async { [weak self] in
                 do {
                     let info = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraStakersInfo: info)
+                    self?.presenter?.didReceive(eraStakersInfo: info)
                     self?.fetchEraCompletionTime()
                 } catch {
-                    self?.presenter.didReceive(calculatorError: error)
+                    self?.presenter?.didReceive(calculatorError: error)
                 }
             }
         }
@@ -253,7 +257,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            presenter.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
+            presenter?.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -266,9 +270,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async { [weak self] in
                 do {
                     let info = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(networkStakingInfo: info)
+                    self?.presenter?.didReceive(networkStakingInfo: info)
                 } catch {
-                    self?.presenter.didReceive(networkStakingInfoError: error)
+                    self?.presenter?.didReceive(networkStakingInfoError: error)
                 }
             }
         }
@@ -282,12 +286,12 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
+            presenter?.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
         guard let connection = chainRegistry.getConnection(for: chainId) else {
-            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
+            presenter?.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
             return
         }
 
@@ -300,12 +304,94 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async {
                 do {
                     let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraCountdownResult: .success(result))
+                    self?.presenter?.didReceive(eraCountdownResult: .success(result))
                 } catch {
-                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
+                    self?.presenter?.didReceive(eraCountdownResult: .failure(error))
                 }
             }
         }
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
+
+//    Parachain
+
+    func fetchDelegations(accountId: AccountId, chainAsset: ChainAsset) {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest()) else {
+            return
+        }
+
+        let extrinsicService = ExtrinsicService(
+            accountId: accountResponse.accountId,
+            chainFormat: chainAsset.chain.chainFormat,
+            cryptoType: accountResponse.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
+
+        let delegatorStateOperation = collatorOperationFactory.delegatorState {
+            [accountId]
+        }
+
+        delegatorStateOperation.targetOperation.completionBlock = { [weak self] in
+            guard let strongSelf = self else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                do {
+                    let address = try AddressFactory.address(
+                        for: accountId,
+                        chainFormat: chainAsset.chain.chainFormat
+                    )
+
+                    let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
+                    let delegatorState = response?[address]
+                    if let state = delegatorState {
+                        let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
+                        let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+                        let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
+                        collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
+                            guard let strongSelf = self else {
+                                return
+                            }
+                            DispatchQueue.main.async {
+                                do {
+                                    let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+                                    strongSelf.presenter?.didReceive(collatorInfos: response)
+                                } catch {
+                                    print("error: ", error)
+                                }
+                            }
+                        }
+                        strongSelf.operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
+                    }
+                } catch {
+                    print("error: ", error)
+                }
+            }
+        }
+        operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)
     }
 }
