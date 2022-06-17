@@ -54,14 +54,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         applicationHandler.delegate = self
 
         presenter?.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
-
-//        Mock
-
-        presenter?.didReceive(delegatorState: nil)
     }
 
     func save(chainAsset: ChainAsset) {
-        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId else {
+        guard selectedChainAsset?.chainAssetId != chainAsset.chainAssetId, let wallet = selectedAccount else {
             return
         }
 
@@ -69,6 +65,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             self?.updateAfterChainAssetSave()
             self?.updateAfterSelectedAccountChange()
         }
+//
+//        if chainAsset.chain.isEthereumBased {
+//            fetchDelegations(accountId: wallet.accountId, chainAsset: chainAsset)
+//        }
     }
 
     private func updateAfterChainAssetSave() {

@@ -346,9 +346,9 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         let status: NominationViewStatus = {
             if let era = state.commonData.eraStakersInfo?.activeEra {
-                return .inactive(era: era)
+                return .relaychain(.inactive(era))
             } else {
-                return .undefined
+                return .relaychain(.undefined)
             }
         }()
 

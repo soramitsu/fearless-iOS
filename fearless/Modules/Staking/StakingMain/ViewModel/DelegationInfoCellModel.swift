@@ -1,24 +1,28 @@
-protocol DelegationInfoCellModelDelegate: AnyObject {
-    func manageDelegation()
+import SoraFoundation
+
+final class DelegationInfoCellModel {
+    let moreHandler: () -> Void
+    let statusHandler: () -> Void
+
+    let contentViewModel: LocalizableResource<NominationViewModelProtocol>
+
+    init(
+        contentViewModel: LocalizableResource<NominationViewModelProtocol>,
+        moreHandler: @escaping () -> Void,
+        statusHandler: @escaping () -> Void
+    ) {
+        self.contentViewModel = contentViewModel
+        self.moreHandler = moreHandler
+        self.statusHandler = statusHandler
+    }
 }
 
-class DelegationInfoCellModel {
-//    let name: String
-//    let stakedAmount: String
-//    let stakedSum: String
-//    let rewardAmount: String
-//    let rewardSum: String
-//    let status: StatusView.Status
-//
-    weak var delegate: DelegationInfoCellModelDelegate?
-//
-//    internal init() {
-//
-//    }
-}
+extension DelegationInfoCellModel: StakingStateViewDelegate {
+    func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
+        moreHandler()
+    }
 
-extension DelegationInfoCellModel: DelegationInfoCellDelegate {
-    func manageButtonClicked() {
-        delegate?.manageDelegation()
+    func stakingStateViewDidReceiveStatusAction(_: StakingStateView) {
+        statusHandler()
     }
 }

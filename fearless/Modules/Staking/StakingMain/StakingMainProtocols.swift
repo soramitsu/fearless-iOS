@@ -7,7 +7,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveStakingState(viewModel: StakingViewState)
-    func didReceiveDelegation(viewModels: [LocalizableResource<NominationViewModelProtocol>])
+    func didReceiveCollatorInfos(viewModels: [DelegationInfoCellModel])
     func expandNetworkInfoView(_ isExpanded: Bool)
 }
 

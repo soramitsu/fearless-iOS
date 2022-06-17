@@ -8,7 +8,7 @@ enum StakingManageOption {
     case changeValidators(count: Int?)
     case controllerAccount
     case yourValidator
-    case yourCollator
+    case yourCollator(info: ParachainStakingCandidateInfo)
 
     func titleForLocale(_ locale: Locale) -> String {
         switch self {

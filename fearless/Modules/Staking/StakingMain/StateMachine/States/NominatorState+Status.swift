@@ -5,7 +5,7 @@ import BigInt
 extension NominatorState {
     var status: NominationViewStatus {
         guard let eraStakers = commonData.eraStakersInfo else {
-            return .undefined
+            return .relaychain(.undefined)
         }
 
         do {
@@ -22,17 +22,17 @@ extension NominatorState {
                 .reduce(into: Set<Data>()) { $0.insert($1.who) }
 
             if allNominators.contains(accountId) {
-                return .active(era: eraStakers.activeEra)
+                return .relaychain(.active(eraStakers.activeEra))
             }
 
             if nomination.submittedIn >= eraStakers.activeEra {
-                return .waiting(eraCountdown: commonData.eraCountdown, nominationEra: nomination.submittedIn)
+                return .relaychain(.waiting(eraCountdown: commonData.eraCountdown, nominationEra: nomination.submittedIn))
             }
 
-            return .inactive(era: eraStakers.activeEra)
+            return .relaychain(.inactive(eraStakers.activeEra))
 
         } catch {
-            return .undefined
+            return .relaychain(.undefined)
         }
     }
 
@@ -64,14 +64,19 @@ extension NominatorState {
         locale: Locale?
     ) -> AlertPresentableViewModel? {
         switch status {
-        case .active:
-            return createActiveStatus(locale: locale)
-        case .inactive:
-            return createInactiveStatus(locale: locale)
-        case .waiting:
-            return createWaitingStatus(locale: locale)
-        case .undefined:
-            return createUndefinedStatus(locale: locale)
+        case let .relaychain(relaychainStatus):
+            switch relaychainStatus {
+            case .active:
+                return createActiveStatus(locale: locale)
+            case .inactive:
+                return createInactiveStatus(locale: locale)
+            case .waiting:
+                return createWaitingStatus(locale: locale)
+            case .undefined:
+                return createUndefinedStatus(locale: locale)
+            }
+        case .parachain:
+            return nil
         }
     }
 

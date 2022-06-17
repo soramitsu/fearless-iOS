@@ -73,7 +73,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
-    private var delegationViewModels: [LocalizableResource<NominationViewModelProtocol>]?
+    private var delegationViewModels: [DelegationInfoCellModel]?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -493,7 +493,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
 //    Parachain
 
-    func didReceiveDelegation(viewModels: [LocalizableResource<NominationViewModelProtocol>]) {
+    func didReceiveCollatorInfos(viewModels: [DelegationInfoCellModel]) {
         delegationViewModels = viewModels
         tableView.reloadData()
     }
@@ -618,7 +618,6 @@ extension StakingMainViewController: UITableViewDataSource {
             return UITableViewCell()
         }
         cell.bind(to: viewModel)
-        cell.set(delegate: self)
         return cell
     }
 }

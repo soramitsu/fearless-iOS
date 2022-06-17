@@ -250,6 +250,19 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showAccountsSelection(from: view)
     }
 
+    func performParachainManageStakingAction(info: ParachainStakingCandidateInfo) {
+        let managedItems: [StakingManageOption] = {
+            [.stakingBalance, .yourCollator(info: info)]
+        }()
+
+        wireframe.showManageStaking(
+            from: view,
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
+        )
+    }
+
     func performManageStakingAction() {
         let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
@@ -658,21 +671,42 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
 //    Parachain
+    func didReceive(collatorInfos: [ParachainStakingCandidateInfo]) {
+        let models: [DelegationInfoCellModel] = collatorInfos.map { collator in
+            let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
+                let status: NominationViewStatus
+                switch collator.metadata?.status {
+                case .active:
+                    status = .parachain(.active("0:00:00"))
+                case .idle:
+                    status = .parachain(.idle("0:00:00"))
+                case .leaving:
+                    status = .parachain(.leaving("0:00:00"))
+                case .none:
+                    status = .parachain(.undefined)
+                }
 
-    func didReceive(delegatorState _: ParachainStakingDelegatorState?) {
-        let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
-            let model = NominationViewModel(
-                totalStakedAmount: "50.0003 GLMR",
-                totalStakedPrice: "$4,524.1",
-                totalRewardAmount: "2.49191 GLMR",
-                totalRewardPrice: "$40.51",
-                status: .active(era: 1),
-                hasPrice: true,
-                name: "bitcoinsusse.com 2"
+                return NominationViewModel(
+                    totalStakedAmount: collator.amount.stringValue,
+                    totalStakedPrice: "0",
+                    totalRewardAmount: "0",
+                    totalRewardPrice: "0",
+                    status: status,
+                    hasPrice: true,
+                    name: collator.identity?.name
+                )
+            }
+            let moreHandler: () -> Void = { [weak self] in
+                self?.performParachainManageStakingAction(info: collator)
+            }
+            let statusHandler: () -> Void = {}
+            return DelegationInfoCellModel(
+                contentViewModel: resource,
+                moreHandler: moreHandler,
+                statusHandler: statusHandler
             )
-            return model
         }
-        view?.didReceiveDelegation(viewModels: [resource])
+        view?.didReceiveCollatorInfos(viewModels: models)
     }
 }
 
@@ -752,16 +786,18 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showYourValidatorInfo(
                     chainAsset: chainAsset,
                     selectedAccount: selectedAccount,
-                    flow: .relaychain(validatorInfo: nil,
-                                      address: stashAddress),
+                    flow: .relaychain(
+                        validatorInfo: nil,
+                        address: stashAddress
+                    ),
                     from: view
                 )
             }
-        case .yourCollator:
+        case let .yourCollator(info):
             wireframe.showYourValidatorInfo(
                 chainAsset: chainAsset,
                 selectedAccount: selectedAccount,
-                flow: .parachain(candidate: <#T##ParachainStakingCandidateInfo#>),
+                flow: .parachain(candidate: info),
                 from: view
             )
         }

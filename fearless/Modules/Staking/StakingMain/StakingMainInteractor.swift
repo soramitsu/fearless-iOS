@@ -107,6 +107,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         selectedAccount = response
         selectedChainAsset = chainAsset
+
+        if chainAsset.chain.isEthereumBased {
+            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
+        }
     }
 
     func updateSharedState() {
@@ -365,21 +369,23 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                     let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
                     let delegatorState = response?[address]
                     if let state = delegatorState {
-                        let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map { $0.owner } }
+                        let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
                         let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
                         let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
                         collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
                             guard let strongSelf = self else {
                                 return
                             }
-                            
-                            do {
-                                let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData()
-                                strongSelf.presenter?.didReceive(collatorInfos: response)
-                            } catch {
-                                print("error: ", error)
+                            DispatchQueue.main.async {
+                                do {
+                                    let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+                                    strongSelf.presenter?.didReceive(collatorInfos: response)
+                                } catch {
+                                    print("error: ", error)
+                                }
                             }
                         }
+                        strongSelf.operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
                     }
                 } catch {
                     print("error: ", error)

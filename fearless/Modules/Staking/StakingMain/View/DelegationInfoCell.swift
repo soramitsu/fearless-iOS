@@ -32,16 +32,15 @@ final class DelegationInfoCell: UITableViewCell {
     func setupLayout() {
         contentView.addSubview(stateView)
         stateView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.trailing.leading.equalToSuperview()
+            make.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
         }
     }
 
-    func bind(to viewModel: LocalizableResource<NominationViewModelProtocol>) {
-        stateView.bind(viewModel: viewModel)
-    }
-
-    func set(delegate: StakingStateViewDelegate) {
-        stateView.delegate = delegate
+    func bind(to viewModel: DelegationInfoCellModel) {
+        stateView.bind(viewModel: viewModel.contentViewModel)
+        stateView.delegate = viewModel
     }
 
 //    private weak var delegate: DelegationInfoCellModelDelegate?

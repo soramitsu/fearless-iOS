@@ -247,6 +247,8 @@
 "staking.nominator.status.active" = "Активен";
 "staking.nominator.status.inactive" = "Неактивен";
 "staking.nominator.status.waiting" = "Ожидание следующей Эры";
+"staking.nominator.status.idle" = "Неактивный";
+"staking.nominator.status.leaving" = "Выходящий";
 "staking.era.title" = "эра %@";
 "staking.validator.summary.title" = "Стейкинг для валидатора";
 "staking.validator.summary.description" = "В будущих обновлениях мы добавим функции стекинга для валидаторов. \n \n Оставайся бесстрашным";

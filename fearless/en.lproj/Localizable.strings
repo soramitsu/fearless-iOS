@@ -246,6 +246,8 @@ Derivation path: %@";
 "staking.stake" = "Stake";
 "staking.nominator.status.active" = "Active";
 "staking.nominator.status.inactive" = "Inactive";
+"staking.nominator.status.idle" = "Idle";
+"staking.nominator.status.leaving" = "Leaving";
 "staking.nominator.status.waiting" = "Waiting for the next Era";
 "staking.era.title" = "era #%@";
 "staking.validator.summary.title" = "Staking for validator";
