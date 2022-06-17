@@ -379,7 +379,17 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                             DispatchQueue.main.async {
                                 do {
                                     let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
-                                    strongSelf.presenter?.didReceive(collatorInfos: response)
+
+                                    let delegationInfos: [ParachainStakingDelegationInfo] = response.compactMap {
+                                        guard let delegation = state.delegations.first(where: { $0.owner == $0.owner }) else {
+                                            return nil
+                                        }
+                                        return ParachainStakingDelegationInfo(
+                                            delegation: delegation,
+                                            collator: $0
+                                        )
+                                    }
+                                    strongSelf.presenter?.didReceive(delegations: delegationInfos)
                                 } catch {
                                     print("error: ", error)
                                 }

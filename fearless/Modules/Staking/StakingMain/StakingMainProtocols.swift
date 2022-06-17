@@ -76,7 +76,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
 //    Parachain
 
-    func didReceive(collatorInfos: [ParachainStakingCandidateInfo])
+    func didReceive(delegations: [ParachainStakingDelegationInfo])
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

@@ -27,6 +27,10 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     private(set) var delegation: ParachainStakingDelegation
 
     var requests: [ParachainStakingScheduledRequest]?
+    var history: [ParachainStakingScheduledRequest]? {
+        requests?.filter { ($0.whenExecutable < (round?.current) ?? 0) == true }
+    }
+
     var round: ParachainStakingRoundInfo?
 
     init(
@@ -101,9 +105,7 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
             return
         }
 
-        self.requests = requests
-
-//        self.requests = requests?.filter { $0.delegator == accountId }
+        self.requests = requests?.filter { $0.delegator == accountId }
 
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

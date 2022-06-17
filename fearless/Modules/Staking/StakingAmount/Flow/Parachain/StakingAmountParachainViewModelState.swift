@@ -34,16 +34,19 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     }
 
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
-        let closure: ExtrinsicBuilderClosure = { builder in
-            guard let accountId = Data.random(of: 20) else {
+        let closure: ExtrinsicBuilderClosure = { [unowned self] builder in
+            guard let accountId = Data.random(of: 20),
+                  let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                      precision: Int16(self.chainAsset.asset.precision)
+                  ) else {
                 return builder
             }
 
             let call = SubstrateCallFactory().delegate(
                 candidate: accountId,
-                amount: BigUInt(stringLiteral: "9999999999999999"),
-                candidateDelegationCount: 100,
-                delegationCount: 100
+                amount: amount,
+                candidateDelegationCount: 0,
+                delegationCount: 0
             )
 
             return try builder.adding(call: call)

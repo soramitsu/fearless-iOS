@@ -150,15 +150,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             return []
         }
 
-        let decreaseRequests = viewModelState.requests?.filter { request in
-            if case .decrease = request.action {
-                return true
-            }
-
-            return false
-        }
-
-        return viewModelState.requests?.compactMap { request in
+        return viewModelState.history?.compactMap { request in
             var amount = BigUInt.zero
             var title: String = ""
             if case let .decrease(decreaseAmount) = request.action {

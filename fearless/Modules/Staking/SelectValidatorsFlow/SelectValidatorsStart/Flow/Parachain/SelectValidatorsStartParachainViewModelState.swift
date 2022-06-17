@@ -47,7 +47,7 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
 
     private func updateRecommendedCollators() {
         guard topDelegationsByCollator.count == selectedCandidates?.count,
-                let selectedCandidates = selectedCandidates else {
+              let selectedCandidates = selectedCandidates else {
             return
         }
 

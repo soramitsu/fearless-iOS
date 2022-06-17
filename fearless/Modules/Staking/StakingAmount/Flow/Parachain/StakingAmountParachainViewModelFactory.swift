@@ -59,7 +59,8 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
 
         let address = parachainViewModelState.wallet.fetch(for: parachainViewModelState.chainAsset.chain.accountRequest())?.toAddress() ?? ""
 
-        let reward = CalculatedReward(restakeReturn: 5, restakeReturnPercentage: 10, payoutReturn: 15, payoutReturnPercentage: 20)
+        // TODO: Subquery
+        let reward = CalculatedReward(restakeReturn: 0, restakeReturnPercentage: 0, payoutReturn: 0, payoutReturnPercentage: 0)
         let payoutViewModel = try? rewardDestViewModelFactory.createPayout(
             from: reward,
             priceData: priceData,

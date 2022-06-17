@@ -250,9 +250,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showAccountsSelection(from: view)
     }
 
-    func performParachainManageStakingAction(info: ParachainStakingCandidateInfo) {
+    func performParachainManageStakingAction(info: ParachainStakingDelegationInfo) {
         let managedItems: [StakingManageOption] = {
-            [.stakingBalance, .yourCollator(info: info)]
+            [.parachainStakingBalance(info: info), .yourCollator(info: info)]
         }()
 
         wireframe.showManageStaking(
@@ -671,8 +671,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
 //    Parachain
-    func didReceive(collatorInfos: [ParachainStakingCandidateInfo]) {
-        let models: [DelegationInfoCellModel] = collatorInfos.map { collator in
+    func didReceive(delegations: [ParachainStakingDelegationInfo]) {
+        let models: [DelegationInfoCellModel] = delegations.compactMap { [weak self] delegationInfo in
+            guard let strongSelf = self, let chainAsset = chainAsset else {
+                return nil
+            }
+
+            let collator = delegationInfo.collator
+            let delegation = delegationInfo.delegation
+
             let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
                 let status: NominationViewStatus
                 switch collator.metadata?.status {
@@ -686,18 +693,29 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
                     status = .parachain(.undefined)
                 }
 
+                let amount = Decimal.fromSubstrateAmount(delegation.amount, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+                let balanceViewModelFactory = strongSelf.viewModelFacade.createBalanceViewModelFactory(for: chainAsset)
+
+                let locale = strongSelf.view?.localizationManager?.selectedLocale ?? Locale.current
+
                 return NominationViewModel(
-                    totalStakedAmount: collator.amount.stringValue,
-                    totalStakedPrice: "0",
-                    totalRewardAmount: "0",
-                    totalRewardPrice: "0",
+                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
+                    totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
+                        amount,
+                        priceData: strongSelf.priceData
+                    ).value(for: locale).price ?? "",
+                    totalRewardAmount: balanceViewModelFactory.amountFromValue(Decimal.zero).value(for: locale),
+                    totalRewardPrice: balanceViewModelFactory.balanceFromPrice(
+                        Decimal.zero,
+                        priceData: strongSelf.priceData
+                    ).value(for: locale).price ?? "",
                     status: status,
                     hasPrice: true,
                     name: collator.identity?.name
                 )
             }
             let moreHandler: () -> Void = { [weak self] in
-                self?.performParachainManageStakingAction(info: collator)
+                self?.performParachainManageStakingAction(info: delegationInfo)
             }
             let statusHandler: () -> Void = {}
             return DelegationInfoCellModel(
@@ -756,13 +774,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 selectedAccount: selectedAccount
             )
         case .stakingBalance:
-            let delegation = ParachainStakingDelegation(owner: Data.random(of: 20)!, amount: BigUInt(stringLiteral: "999999999999"))
-            let candidate = ParachainStakingCandidateInfo(address: "123", owner: Data.random(of: 20)!, amount: AmountDecimal(string: "999999")!, metadata: nil, identity: nil)
             wireframe.showStakingBalance(
                 from: view,
                 chainAsset: chainAsset,
                 wallet: selectedAccount,
-                flow: .parachain(delegation: delegation, collator: candidate)
+                flow: .relaychain
             )
         case .changeValidators:
             wireframe.showNominatorValidators(
@@ -799,8 +815,15 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             wireframe.showYourValidatorInfo(
                 chainAsset: chainAsset,
                 selectedAccount: selectedAccount,
-                flow: .parachain(candidate: info),
+                flow: .parachain(candidate: info.collator),
                 from: view
+            )
+        case let .parachainStakingBalance(info):
+            wireframe.showStakingBalance(
+                from: view,
+                chainAsset: chainAsset,
+                wallet: selectedAccount,
+                flow: .parachain(delegation: info.delegation, collator: info.collator)
             )
         }
     }

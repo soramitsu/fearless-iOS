@@ -34,7 +34,7 @@ final class DelegationInfoCell: UITableViewCell {
         stateView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.trailing.leading.equalToSuperview()
-            make.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
     }
 
