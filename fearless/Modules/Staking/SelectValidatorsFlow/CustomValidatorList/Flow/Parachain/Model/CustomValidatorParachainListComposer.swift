@@ -39,7 +39,7 @@ extension CustomValidatorParachainListComposer {
         case .ownStake:
             sorted = filtered.sorted(by: { $0.metadata?.bond ?? BigUInt.zero >= $1.metadata?.bond ?? BigUInt.zero })
         case .delegations:
-            sorted = filtered.sorted(by: { $0.metadata?.delegationCount ?? "" >= $1.metadata?.delegationCount ?? "" })
+            sorted = filtered.sorted(by: { $0.metadata?.delegationCount ?? 0 > $1.metadata?.delegationCount ?? 0 })
         case .minimumBond:
             sorted = filtered.sorted(by: { $0.metadata?.lowestBottomDelegationAmount ?? BigUInt.zero >= $1.metadata?.lowestBottomDelegationAmount ?? BigUInt.zero })
         }

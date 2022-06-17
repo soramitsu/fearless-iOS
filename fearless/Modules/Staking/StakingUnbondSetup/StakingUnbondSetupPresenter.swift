@@ -73,16 +73,12 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
                 return
             }
 
-            if let amount = strongSelf.viewModelState.inputAmount {
-                strongSelf.wireframe.proceed(
-                    view: strongSelf.view,
-                    flow: flow,
-                    chainAsset: strongSelf.chainAsset,
-                    wallet: strongSelf.wallet
-                )
-            } else {
-                strongSelf.logger?.warning("Missing amount after validation")
-            }
+            strongSelf.wireframe.proceed(
+                view: strongSelf.view,
+                flow: flow,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet
+            )
         }
     }
 
@@ -106,7 +102,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
     func provideInputViewModel() {
-        let inputView = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.inputAmount)
+        let inputView = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.amount)
         view?.didReceiveInput(viewModel: inputView)
     }
 
@@ -121,7 +117,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
 
     func provideAssetViewModel() {
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            viewModelState.inputAmount ?? 0.0,
+            viewModelState.amount ?? 0,
             balance: viewModelState.bonded,
             priceData: priceData
         )
@@ -143,5 +139,21 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
 
     func didReceiveError(error: Error) {
         logger?.error("StakingUnbondSetupPresenter didReceiveError: \(error)")
+    }
+
+    func provideAccountViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveAccount(viewModel: viewModel)
+        }
+    }
+
+    func provideCollatorViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveCollator(viewModel: viewModel)
+        }
     }
 }

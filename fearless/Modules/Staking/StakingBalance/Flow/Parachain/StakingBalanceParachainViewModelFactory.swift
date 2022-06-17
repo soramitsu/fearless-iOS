@@ -71,7 +71,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         )
 
         let unbondedDecimal = Decimal.fromSubstrateAmount(
-            calculateDecreaseAmount(viewModelState: viewModelState),
+            calculateDecreaseAmount(viewModelState: viewModelState, currentEra: viewModelState.round?.current),
             precision: precision
         ) ?? 0.0
         let unbondedViewModel = createWidgetItemViewModel(
@@ -83,7 +83,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
 
         let redeemableViewModel = createWidgetItemViewModel(
             amount: redeemableDecimal,
-            title: R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages),
+            title: R.string.localizable.parachainStakingReadyForRevoking(preferredLanguages: locale.rLanguages),
             priceData: priceData,
             locale: locale
         )
@@ -113,8 +113,8 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
             bondTitle: StakingBalanceAction.bondMore.title(for: locale),
-            unbondTitle: StakingBalanceAction.unbond.title(for: locale),
-            redeemTitle: StakingBalanceAction.redeem.title(for: locale),
+            unbondTitle: R.string.localizable.parachainStakingStakeLess(preferredLanguages: locale.rLanguages),
+            redeemTitle: R.string.localizable.parachainStakingUnlock(preferredLanguages: locale.rLanguages),
             redeemActionIsAvailable: redeemableDecimal > 0
         )
     }
@@ -236,19 +236,20 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         return attrubutedString
     }
 
-    private func calculateDecreaseAmount(viewModelState: StakingBalanceParachainViewModelState) -> BigUInt {
-        let decreaseRequests = viewModelState.requests?.filter { request in
-            if case .decrease = request.action {
-                return true
+    private func calculateDecreaseAmount(
+        viewModelState: StakingBalanceParachainViewModelState,
+        currentEra: EraIndex?
+    ) -> BigUInt {
+        let amount = viewModelState.requests?.filter { request in
+            guard let currentEra = currentEra else {
+                return false
             }
 
-            return false
-        }
-
-        let amount = decreaseRequests?.compactMap { request in
+            return request.whenExecutable > currentEra
+        }.compactMap { request in
             var amount = BigUInt.zero
-            if case let .decrease(decreaseAmount) = request.action {
-                amount = decreaseAmount
+            if case let .revoke(revokeAmount) = request.action {
+                amount = revokeAmount
             }
 
             return amount
@@ -257,16 +258,11 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         return amount ?? BigUInt.zero
     }
 
-    private func calculateRevokeAmount(viewModelState: StakingBalanceParachainViewModelState, currentEra: EraIndex?) -> BigUInt {
-        let revokeRequests = viewModelState.requests?.filter { request in
-            if case .revoke = request.action {
-                return true
-            }
-
-            return false
-        }
-
-        let amount = revokeRequests?.filter { request in
+    private func calculateRevokeAmount(
+        viewModelState: StakingBalanceParachainViewModelState,
+        currentEra: EraIndex?
+    ) -> BigUInt {
+        let amount = viewModelState.requests?.filter { request in
             guard let currentEra = currentEra else {
                 return false
             }

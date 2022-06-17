@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import FearlessUtils
 
 struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView(
@@ -131,6 +132,11 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
             selectedMetaAccount: wallet
         )
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
         switch flow {
         case .relaychain:
@@ -160,6 +166,14 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(candidate, delegation):
+            let operationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
             let viewModelState = StakingUnbondSetupParachainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
@@ -176,9 +190,12 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 chainAsset: chainAsset,
                 connection: connection,
                 output: viewModelState,
-                extrinsicService: extrinsicService
+                extrinsicService: extrinsicService,
+                operationFactory: operationFactory,
+                candidate: candidate,
+                delegation: delegation
             )
-            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory()
+            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: PolkadotIconGenerator()))
             return StakingUnbondSetupDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

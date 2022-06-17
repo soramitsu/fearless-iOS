@@ -101,9 +101,9 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
             return
         }
 
-//        self.requests = requests
+        self.requests = requests
 
-        self.requests = requests?.filter { $0.delegator == accountId }
+//        self.requests = requests?.filter { $0.delegator == accountId }
 
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

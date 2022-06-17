@@ -22,7 +22,7 @@ final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
-        let call = callFactory.scheduleRevokeDelegation(candidate: collator.owner)
+        let call = callFactory.executeDelegationRequest(delegator: delegation.owner, collator: collator.owner)
 
         return { builder in
             try builder.adding(call: call)
@@ -30,7 +30,7 @@ final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
     }
 
     var reuseIdentifier: String? {
-        let call = callFactory.scheduleRevokeDelegation(candidate: collator.owner)
+        let call = callFactory.executeDelegationRequest(delegator: delegation.owner, collator: collator.owner)
 
         return call.callName
     }

@@ -38,6 +38,7 @@ struct StakingBondMoreViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelFactory: container.viewModelFactory,
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
             chainAsset: chainAsset,
@@ -158,10 +159,15 @@ struct StakingBondMoreViewFactory {
                 runtimeService: runtimeService,
                 operationManager: operationManager
             )
-            return StakingBondMoreDependencyContainer(viewModelState: viewModelState, strategy: strategy)
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: nil
+            )
         case let .parachain(candidate):
             let viewModelState = StakingBondMoreParachainViewModelState(
                 chainAsset: chainAsset,
+                wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
                 candidate: candidate
             )
@@ -177,7 +183,13 @@ struct StakingBondMoreViewFactory {
                 operationManager: operationManager
             )
 
-            return StakingBondMoreDependencyContainer(viewModelState: viewModelState, strategy: strategy)
+            let viewModelFactory = StakingBondMoreParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: PolkadotIconGenerator()))
+
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

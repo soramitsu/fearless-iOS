@@ -700,6 +700,12 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.minimum.bond" = "Min. bond";
 "parachain.staking.self.bonded" = "Self-bonded";
 "parachain.staking.effective.amount.bonded" = "Effective amount bonded";
-"parachain.staking.ready.for.revoking" = "Ready for revoking";
+"parachain.staking.ready.for.revoking" = "Ready for unlocking";
 "parachain.staking.stake.less" = "Stake less";
 "parachain.staking.revoke" = "Revoke";
+"parachain.staking.collator" = "Collator";
+"parachain.staking.unlock" = "Unlock";
+"parachain.staking.filters.effective.amount.bonded" = "Effective amount bonded (%@)";
+"parachain.staking.filters.collator.own.stake" = "Collator's own stake (%@)";
+"parachain.staking.filters.delegations" = "Delegations";
+"parachain.staking.filters.minimum.bond" = "Minimum bond";

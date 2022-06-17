@@ -5,6 +5,7 @@ final class StakingBondMoreParachainViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
     let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
     let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
     let candidate: ParachainStakingCandidateInfo
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     var amount: Decimal = 0
@@ -13,12 +14,18 @@ final class StakingBondMoreParachainViewModelState {
 
     init(
         chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         candidate: ParachainStakingCandidateInfo
     ) {
         self.chainAsset = chainAsset
+        self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.candidate = candidate
+    }
+
+    var accountAddress: AccountAddress? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 }
 
@@ -96,6 +103,11 @@ extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState 
 }
 
 extension StakingBondMoreParachainViewModelState: StakingBondMoreParachainStrategyOutput {
+    func didSetup() {
+        stateListener?.provideAccountViewModel()
+        stateListener?.provideCollatorViewModel()
+    }
+
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

@@ -16,6 +16,9 @@ protocol StakingUnbondSetupModelStateListener: AnyObject {
     func provideAssetViewModel()
     func provideBondingDuration()
 
+    func provideAccountViewModel()
+    func provideCollatorViewModel()
+
     func updateFeeIfNeeded()
 }
 
@@ -23,7 +26,7 @@ protocol StakingUnbondSetupViewModelState: StakingUnbondSetupUserInputHandler {
     var stateListener: StakingUnbondSetupModelStateListener? { get set }
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?)
 
-    var inputAmount: Decimal? { get }
+    var amount: Decimal? { get }
     var bonded: Decimal? { get }
     var fee: Decimal? { get }
 
@@ -44,6 +47,16 @@ protocol StakingUnbondSetupViewModelFactoryProtocol {
     func buildBondingDurationViewModel(
         viewModelState: StakingUnbondSetupViewModelState
     ) -> LocalizableResource<String>?
+
+    func buildCollatorViewModel(
+        viewModelState: StakingUnbondSetupViewModelState,
+        locale: Locale
+    ) -> AccountViewModel?
+
+    func buildAccountViewModel(
+        viewModelState: StakingUnbondSetupViewModelState,
+        locale: Locale
+    ) -> AccountViewModel?
 }
 
 protocol StakingUnbondSetupStrategy {

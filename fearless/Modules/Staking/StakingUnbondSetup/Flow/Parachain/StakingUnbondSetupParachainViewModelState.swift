@@ -9,6 +9,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
     var minimalBalance: Decimal?
     var fee: Decimal?
     var controller: ChainAccountResponse?
+    private var topDelegations: ParachainStakingDelegations?
 
     var stateListener: StakingUnbondSetupModelStateListener?
 
@@ -55,7 +56,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             dataValidatingFactory.stashIsNotKilledAfterUnbonding(
                 amount: inputAmount,
                 bonded: bonded,
-                minimumAmount: minimalBalance,
+                minimumAmount: minimumDelegation,
                 locale: locale
             )
         ]
@@ -86,27 +87,85 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             return nil
         }
 
-        let unbondCall = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount)
+        return { [unowned self] builder in
+            var newBuilder = builder
+            if self.isRevoke {
+                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
+            } else {
+                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+            }
 
-        return { builder in
-            try builder.adding(call: unbondCall)
+            return try newBuilder
         }
     }
 
+    var reuseIdentifier: String? {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
+            return nil
+        }
+
+        if isRevoke {
+            return callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+        }
+
+        return callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+    }
+
     var confirmationFlow: StakingUnbondConfirmFlow? {
-        guard let inputAmount = inputAmount else {
+        guard let inputAmount = amount else {
             return nil
         }
 
         return .parachain(
             candidate: candidate,
             delegation: delegation,
-            amount: inputAmount
+            amount: inputAmount,
+            revoke: isRevoke
         )
+    }
+
+    var accountAddress: AccountAddress? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    }
+
+    var amount: Decimal? {
+        isRevoke ? bonded : inputAmount
+    }
+
+    var minimumDelegation: Decimal? {
+        guard let minDelegationSubstrateValue = topDelegations?.delegations.map(\.amount).min(),
+              let minDelegationDecimal = Decimal.fromSubstrateAmount(
+                  minDelegationSubstrateValue,
+                  precision: Int16(chainAsset.asset.precision)
+              ) else {
+            return nil
+        }
+
+        return minDelegationDecimal
+    }
+
+    var isRevoke: Bool {
+        if let amount = inputAmount, let bonded = bonded, let minimumAmount = minimumDelegation {
+            return bonded - amount < minimumAmount
+        }
+
+        return false
     }
 }
 
 extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachainStrategyOutput {
+    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
+        topDelegations = delegations[candidate.address]
+    }
+
+    func didSetup() {
+        stateListener?.provideAccountViewModel()
+        stateListener?.provideCollatorViewModel()
+    }
+
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

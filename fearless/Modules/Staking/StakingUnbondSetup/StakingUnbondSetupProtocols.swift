@@ -8,6 +8,8 @@ protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
     func didReceiveBonding(duration: LocalizableResource<String>)
+    func didReceiveAccount(viewModel: AccountViewModel)
+    func didReceiveCollator(viewModel: AccountViewModel)
 }
 
 protocol StakingUnbondSetupPresenterProtocol: AnyObject {

@@ -67,7 +67,7 @@ final class ValidatorInfoParachainViewModelFactory {
     ) -> ValidatorInfoViewModel.ParachainExposure {
         let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
-        let delegationsCountString = collatorInfo.metadata?.delegationCount ?? ""
+        let delegationsCountString = "\(collatorInfo.metadata?.delegationCount ?? 0)"
 
         let myNomination: ValidatorInfoViewModel.MyNomination?
 

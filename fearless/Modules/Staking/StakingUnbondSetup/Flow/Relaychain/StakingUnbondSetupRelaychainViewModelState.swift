@@ -98,6 +98,10 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
 
         return .relaychain(amount: inputAmount)
     }
+
+    var amount: Decimal? {
+        inputAmount
+    }
 }
 
 extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaychainStrategyOutput {

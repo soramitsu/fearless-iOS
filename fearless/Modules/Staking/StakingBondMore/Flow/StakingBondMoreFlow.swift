@@ -16,6 +16,8 @@ protocol StakingBondMoreModelStateListener: AnyObject {
     func provideAmountInputViewModel()
     func provideFee()
     func provideAsset()
+    func provideAccountViewModel()
+    func provideCollatorViewModel()
 }
 
 protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
@@ -34,12 +36,16 @@ protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? { get }
 }
 
+protocol StakingBondMoreViewModelFactoryProtocol {
+    func buildCollatorViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
+    func buildAccountViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
+}
+
 struct StakingBondMoreDependencyContainer {
     let viewModelState: StakingBondMoreViewModelState
     let strategy: StakingBondMoreStrategy
+    let viewModelFactory: StakingBondMoreViewModelFactoryProtocol?
 }
-
-protocol StakingBondMoreViewModelFactoryProtocol {}
 
 protocol StakingBondMoreStrategy {
     func setup()

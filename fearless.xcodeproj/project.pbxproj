@@ -1861,6 +1861,8 @@
 		FA37AE412859E0DB001DCA96 /* StakingRedeemParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE402859E0DB001DCA96 /* StakingRedeemParachainViewModelState.swift */; };
 		FA37AE432859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE422859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift */; };
 		FA37AE452859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE442859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift */; };
+		FA37AE47285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE46285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift */; };
+		FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE4A285C5294001DCA96 /* ExecuteDelegationRequestCall.swift */; };
 		FA389B34283E22FC00FF16E9 /* ParachainStakingDelegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */; };
 		FA389B362840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */; };
 		FA389B382840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */; };
@@ -4015,6 +4017,8 @@
 		FA37AE402859E0DB001DCA96 /* StakingRedeemParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA37AE422859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScheduleRevokeDelegationCall.swift; sourceTree = "<group>"; };
 		FA37AE442859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemParachainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA37AE46285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreParachainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA37AE4A285C5294001DCA96 /* ExecuteDelegationRequestCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecuteDelegationRequestCall.swift; sourceTree = "<group>"; };
 		FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegation.swift; sourceTree = "<group>"; };
 		FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainStrategy.swift; sourceTree = "<group>"; };
@@ -5899,6 +5903,7 @@
 				FA37AE262859AB1B001DCA96 /* DelegatorBondMoreCall.swift */,
 				FA37AE322859C171001DCA96 /* ScheduleDelegatorBondLessCall.swift */,
 				FA37AE422859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift */,
+				FA37AE4A285C5294001DCA96 /* ExecuteDelegationRequestCall.swift */,
 			);
 			path = Calls;
 			sourceTree = "<group>";
@@ -9922,6 +9927,7 @@
 			children = (
 				FA37AE222859A985001DCA96 /* StakingBondMoreParachainStrategy.swift */,
 				FA37AE242859A996001DCA96 /* StakingBondMoreParachainViewModelState.swift */,
+				FA37AE46285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift */,
 			);
 			path = Parachain;
 			sourceTree = "<group>";
@@ -11546,6 +11552,7 @@
 				FA38C99F275F48D4005C5577 /* ChainAccountBalanceListViewModelFactory.swift in Sources */,
 				FA2E9B95279FE9380023FAD2 /* TextCopyPresentable.swift in Sources */,
 				2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */,
+				FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */,
 				AEA2C1C02681E9EC0069492E /* ValidatorSearchViewLayout.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */,
@@ -12036,6 +12043,7 @@
 				843910B9253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift in Sources */,
 				849ABE562627738900011A2A /* Mapping.swift in Sources */,
 				8479A89826EA506500C0E09B /* Data+Ethereum.swift in Sources */,
+				FA37AE47285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift in Sources */,
 				8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */,
 				FA99425228053C8800D771E5 /* SelectExportAccountViewState.swift in Sources */,
 				8430AAFB260230C5005B1066 /* ValidatorState.swift in Sources */,

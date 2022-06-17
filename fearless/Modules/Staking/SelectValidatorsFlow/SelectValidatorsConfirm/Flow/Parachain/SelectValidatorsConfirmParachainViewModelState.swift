@@ -66,8 +66,7 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
 
         let closure: ExtrinsicBuilderClosure = { [weak self] builder in
             guard let strongSelf = self,
-                  let candidateDelegationCountString = self?.target.metadata?.delegationCount,
-                  let candidateDelegationCount = UInt32(candidateDelegationCountString),
+                  let candidateDelegationCount = self?.target.metadata?.delegationCount,
                   let delegationCount = self?.delegationCount else {
                 return builder
             }

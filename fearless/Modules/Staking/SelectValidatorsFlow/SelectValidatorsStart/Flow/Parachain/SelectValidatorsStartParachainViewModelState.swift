@@ -14,7 +14,7 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
     var maxBottomDelegationsPerCandidate: Int?
 
     var selectedCandidates: [ParachainStakingCandidateInfo]?
-    var recommendedCandidates: [ParachainStakingCandidateInfo] = []
+    var recommendedCandidates: [ParachainStakingCandidateInfo]?
     private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
 
     var stateListener: SelectValidatorsStartModelStateListener?
@@ -37,7 +37,8 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
     }
 
     var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
-        guard let maxDelegations = maxDelegations else {
+        guard let maxDelegations = maxDelegations,
+              let recommendedCandidates = recommendedCandidates else {
             return nil
         }
 
@@ -45,16 +46,19 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
     }
 
     private func updateRecommendedCollators() {
-        guard topDelegationsByCollator.count == selectedCandidates?.count, let selectedCandidates = selectedCandidates else {
+        guard topDelegationsByCollator.count == selectedCandidates?.count,
+                let selectedCandidates = selectedCandidates else {
             return
         }
+
+        recommendedCandidates = []
 
         for candidate in selectedCandidates {
             if let delegations = topDelegationsByCollator[candidate.address] {
                 if let minimumDelegation = delegations.delegations.map(\.amount).min(),
                    let minimumDelegationDecimal = Decimal.fromSubstrateAmount(minimumDelegation, precision: Int16(chainAsset.asset.precision)) {
                     if bonding.amount > minimumDelegationDecimal {
-                        recommendedCandidates.append(candidate)
+                        recommendedCandidates?.append(candidate)
                     }
                 }
             }

@@ -99,7 +99,7 @@ class CustomValidatorListParachainViewModelFactory {
                 detailsText = balanceViewModel.amount
                 auxDetailsText = balanceViewModel.price
             case .delegations:
-                detailsText = collator.metadata?.delegationCount
+                detailsText = "\(collator.metadata?.delegationCount ?? 0)"
                 auxDetailsText = ""
             case .minimumBond:
                 let minimumBond = Decimal.fromSubstrateAmount(

@@ -73,6 +73,11 @@ protocol SubstrateCallFactoryProtocol {
     func scheduleRevokeDelegation(
         candidate: AccountId
     ) -> RuntimeCall<ScheduleRevokeDelegationCall>
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -263,6 +268,19 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(
             moduleName: "ParachainStaking",
             callName: "schedule_revoke_delegation",
+            args: args
+        )
+    }
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall> {
+        let args = ExecuteDelegationRequestCall(delegator: delegator, candidate: collator)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "execute_delegation_request",
             args: args
         )
     }

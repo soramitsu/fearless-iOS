@@ -7,6 +7,7 @@ final class StakingBondMorePresenter {
     let wireframe: StakingBondMoreWireframeProtocol
     weak var view: StakingBondMoreViewProtocol?
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let viewModelFactory: StakingBondMoreViewModelFactoryProtocol?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
     let viewModelState: StakingBondMoreViewModelState
@@ -18,6 +19,7 @@ final class StakingBondMorePresenter {
         interactor: StakingBondMoreInteractorInputProtocol,
         wireframe: StakingBondMoreWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        viewModelFactory: StakingBondMoreViewModelFactoryProtocol?,
         viewModelState: StakingBondMoreViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chainAsset: ChainAsset,
@@ -27,6 +29,7 @@ final class StakingBondMorePresenter {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
         self.chainAsset = chainAsset
@@ -135,6 +138,22 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
                 from: view,
                 locale: view.localizationManager?.selectedLocale
             )
+        }
+    }
+
+    func provideAccountViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory?.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveAccount(viewModel: viewModel)
+        }
+    }
+
+    func provideCollatorViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory?.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveCollator(viewModel: viewModel)
         }
     }
 }

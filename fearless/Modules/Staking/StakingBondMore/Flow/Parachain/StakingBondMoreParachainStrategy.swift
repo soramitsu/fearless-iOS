@@ -5,6 +5,7 @@ import FearlessUtils
 protocol StakingBondMoreParachainStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didSetup()
 
     func extrinsicServiceUpdated()
 }
@@ -67,6 +68,8 @@ extension StakingBondMoreParachainStrategy: StakingBondMoreStrategy {
                 handler: self
             )
         }
+
+        output?.didSetup()
     }
 }
 

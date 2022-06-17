@@ -72,7 +72,7 @@ struct ParachainStakingCandidateMetadata: Decodable, Equatable {
     }
 
     @StringCodable var bond: BigUInt
-    let delegationCount: String?
+    @StringCodable var delegationCount: UInt32
     @StringCodable var totalCounted: BigUInt
     @StringCodable var lowestTopDelegationAmount: BigUInt
     @StringCodable var highestBottomDelegationAmount: BigUInt

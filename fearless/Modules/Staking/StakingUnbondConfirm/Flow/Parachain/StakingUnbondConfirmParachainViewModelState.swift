@@ -16,28 +16,36 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
-        { [weak self] builder in
-            guard let strongSelf = self,
-                  let amount = strongSelf.inputAmount.toSubstrateAmount(precision: Int16(strongSelf.chainAsset.asset.precision)) else {
-                throw CommonError.undefined
+        guard
+            let amount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
+            return nil
+        }
+
+        return { [unowned self] builder in
+            var newBuilder = builder
+            if self.revoke {
+                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
+            } else {
+                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
             }
 
-            let unbondCall = strongSelf.callFactory.scheduleDelegatorBondLess(
-                candidate: strongSelf.candidate.owner,
-                amount: amount
-            )
-
-            return try builder.adding(call: unbondCall)
+            return try newBuilder
         }
     }
 
     var reuseIdentifier: String? {
-        guard let amount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
             return nil
         }
 
-        let unbondCall = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount)
-        return unbondCall.callName
+        if revoke {
+            return callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+        }
+
+        return callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
     }
 
     var accountAddress: AccountAddress? {
@@ -50,6 +58,7 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         self.stateListener = stateListener
     }
 
+    let revoke: Bool
     let candidate: ParachainStakingCandidateInfo
     let delegation: ParachainStakingDelegation
     let chainAsset: ChainAsset
@@ -70,7 +79,8 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         dataValidatingFactory: StakingDataValidatingFactory,
         inputAmount: Decimal,
         candidate: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
+        delegation: ParachainStakingDelegation,
+        revoke: Bool
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -78,36 +88,12 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         self.inputAmount = inputAmount
         self.candidate = candidate
         self.delegation = delegation
+        self.revoke = revoke
 
         bonded = Decimal.fromSubstrateAmount(
             delegation.amount,
             precision: Int16(chainAsset.asset.precision)
         )
-    }
-
-    private func setupExtrinsicBuiler(
-        _ builder: ExtrinsicBuilderProtocol,
-        amount: Decimal,
-        resettingRewardDestination: Bool,
-        chilling: Bool
-    ) throws -> ExtrinsicBuilderProtocol {
-        guard let amountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
-            throw CommonError.undefined
-        }
-
-        var resultBuilder = builder
-
-        if chilling {
-            resultBuilder = try builder.adding(call: callFactory.chill())
-        }
-
-        resultBuilder = try resultBuilder.adding(call: callFactory.unbond(amount: amountValue))
-
-        if resettingRewardDestination {
-            resultBuilder = try resultBuilder.adding(call: callFactory.setPayee(for: .stash))
-        }
-
-        return resultBuilder
     }
 }
 

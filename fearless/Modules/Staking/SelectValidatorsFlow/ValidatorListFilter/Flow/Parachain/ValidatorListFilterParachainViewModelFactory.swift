@@ -53,7 +53,7 @@ final class ValidatorListFilterParachainViewModelFactory {
                 case .ownStake:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
                         title: R.string.localizable
-                            .stakingFilterTitleOwnStakeToken(
+                            .parachainStakingFiltersCollatorOwnStake(
                                 token,
                                 preferredLanguages: locale.rLanguages
                             )
@@ -67,7 +67,7 @@ final class ValidatorListFilterParachainViewModelFactory {
                 case .effectiveAmountBonded:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
                         title: R.string.localizable
-                            .stakingValidatorTotalStakeToken(
+                            .parachainStakingFiltersEffectiveAmountBonded(
                                 token,
                                 preferredLanguages: locale.rLanguages
                             )
@@ -80,29 +80,27 @@ final class ValidatorListFilterParachainViewModelFactory {
                 case .delegations:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
                         title: R.string.localizable
-                            .stakingValidatorTotalStakeToken(
-                                token,
+                            .parachainStakingFiltersDelegations(
                                 preferredLanguages: locale.rLanguages
                             )
                     )
 
                     return SelectableViewModel(
                         underlyingViewModel: titleSubtitleViewModel,
-                        selectable: filter.sortedBy == .effectiveAmountBonded
+                        selectable: filter.sortedBy == .delegations
                     )
 
                 case .minimumBond:
                     let titleSubtitleViewModel = TitleWithSubtitleViewModel(
                         title: R.string.localizable
-                            .stakingValidatorTotalStakeToken(
-                                token,
+                            .parachainStakingFiltersMinimumBond(
                                 preferredLanguages: locale.rLanguages
                             )
                     )
 
                     return SelectableViewModel(
                         underlyingViewModel: titleSubtitleViewModel,
-                        selectable: filter.sortedBy == .effectiveAmountBonded
+                        selectable: filter.sortedBy == .minimumBond
                     )
                 }
             }
