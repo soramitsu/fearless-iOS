@@ -101,5 +101,5 @@ struct AssetModel: Equatable, Codable, Hashable {
 }
 
 extension AssetModel: Identifiable {
-    var identifier: String { id }
+    var identifier: String { symbol }
 }

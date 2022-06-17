@@ -51,8 +51,8 @@ final class ManageAssetsInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
-            presenter?.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: chains)
+            presenter?.didReceiveChains(result: .success(chains))
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:

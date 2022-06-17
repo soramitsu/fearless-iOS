@@ -64,9 +64,9 @@ final class ChainAccountBalanceListInteractor {
         case let .success(chains):
             self.chains = chains
 
+            subscribeToPrice(for: chains)
             presenter?.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: chains)
-            subscribeToPrice(for: chains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:

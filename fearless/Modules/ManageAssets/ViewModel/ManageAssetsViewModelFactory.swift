@@ -162,19 +162,23 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             )
         }
 
+        var orderByKey: [String: Int]?
+
+        if let sortedKeys = sortedKeys {
+            orderByKey = [:]
+            for (index, key) in sortedKeys.enumerated() {
+                orderByKey?[key] = index
+            }
+        }
+
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                if let sortedKeys = sortedKeys {
+                if let orderByKey = orderByKey {
                     let accountId = selectedMetaAccount.substrateAccountId
-                    var orderByKey: [String: Int] = [:]
-                    for (index, key) in sortedKeys.enumerated() {
-                        orderByKey[key] = index
-                    }
 
-                    let orderByKeyCa1 = orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max
-                    let orderByKeyCa2 = orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
-
-                    return orderByKeyCa1 < orderByKeyCa2
+                    return orderByKey[ca1.uniqueKey(accountId: accountId)]
+                        ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)]
+                        ?? Int.max
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,

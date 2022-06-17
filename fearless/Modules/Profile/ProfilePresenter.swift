@@ -68,11 +68,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         wireframe.showAccountDetails(from: view, metaAccount: wallet)
     }
 
-    func activateOption(at index: UInt) {
-        guard let option = ProfileOption(rawValue: index) else {
-            return
-        }
-
+    func activateOption(_ option: ProfileOption) {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
