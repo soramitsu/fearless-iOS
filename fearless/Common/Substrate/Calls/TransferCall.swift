@@ -15,22 +15,9 @@ extension TokenSymbol: Codable {
     }
 }
 
-struct LiquidCroadloan {
-    let symbol: UInt16
-}
-
-extension LiquidCroadloan: Codable {
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-
-        try container.encode(symbol)
-        try container.encodeNil()
-    }
-}
-
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
-    case liquidCroadloan(symbol: LiquidCroadloan?)
+    case liquidCrowdloan(liquidCrowdloan: UInt32)
     case foreignAsset(foreignAsset: String)
     case stableAssetPoolToken(stableAssetPoolToken: String)
     case vToken(symbol: TokenSymbol?)
@@ -46,9 +33,9 @@ extension CurrencyId: Codable {
         case let .token(symbol):
             try container.encode("Token")
             try container.encode(symbol)
-        case let .liquidCroadloan(symbol):
-            try container.encode("LiquidCroadloan")
-            try container.encode(symbol)
+        case let .liquidCrowdloan(liquidCrowdloan):
+            try container.encode("LiquidCrowdloan")
+            try container.encode(liquidCrowdloan)
         case let .foreignAsset(foreignAsset):
             try container.encode("ForeignAsset")
             try container.encode(foreignAsset)

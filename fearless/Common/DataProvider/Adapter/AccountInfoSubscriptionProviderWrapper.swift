@@ -30,7 +30,7 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
             .ormlAsset,
             .foreignAsset,
             .stableAssetPoolToken,
-            .liquidCroadloan,
+            .liquidCrowdloan,
             .vToken,
             .vsToken,
             .stable:
