@@ -24,6 +24,7 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
     let keystore: KeystoreProtocol
     let extrinsicService: ExtrinsicServiceProtocol?
     let signingWrapper: SigningWrapperProtocol?
+    let eventCenter: EventCenterProtocol
 
     init(
         output: StakingUnbondConfirmParachainStrategyOutput?,
@@ -36,7 +37,8 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
         extrinsicService: ExtrinsicServiceProtocol?,
-        signingWrapper: SigningWrapperProtocol?
+        signingWrapper: SigningWrapperProtocol?,
+        eventCenter: EventCenterProtocol
     ) {
         self.output = output
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -49,6 +51,7 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
         self.keystore = keystore
         self.extrinsicService = extrinsicService
         self.signingWrapper = signingWrapper
+        self.eventCenter = eventCenter
     }
 
     private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
@@ -112,6 +115,8 @@ extension StakingUnbondConfirmParachainStrategy: StakingUnbondConfirmStrategy {
             runningIn: .main
         ) { [weak self] result in
             self?.output?.didSubmitUnbonding(result: result)
+
+            self?.eventCenter.notify(with: StakingUpdatedEvent())
         }
     }
 }

@@ -13,14 +13,15 @@ protocol StakingRedeemParachainStrategyOutput: AnyObject {
 
 final class StakingRedeemParachainStrategy: RuntimeConstantFetching, AccountFetching {
     weak var output: StakingRedeemParachainStrategyOutput?
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let engine: JSONRPCEngine
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let keystore: KeystoreProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let engine: JSONRPCEngine
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let keystore: KeystoreProtocol
+    private let eventCenter: EventCenterProtocol
 
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -35,11 +36,13 @@ final class StakingRedeemParachainStrategy: RuntimeConstantFetching, AccountFetc
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
+        signingWrapper: SigningWrapperProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        keystore: KeystoreProtocol
+        keystore: KeystoreProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.feeProxy = feeProxy
@@ -51,6 +54,8 @@ final class StakingRedeemParachainStrategy: RuntimeConstantFetching, AccountFetc
         self.wallet = wallet
         self.keystore = keystore
         self.output = output
+        self.signingWrapper = signingWrapper
+        self.eventCenter = eventCenter
     }
 }
 
@@ -101,6 +106,8 @@ extension StakingRedeemParachainStrategy: StakingRedeemStrategy {
             runningIn: .main
         ) { [weak self] result in
             self?.output?.didSubmitRedeeming(result: result)
+
+            self?.eventCenter.notify(with: StakingUpdatedEvent())
         }
     }
 }

@@ -21,11 +21,14 @@ final class StakingBondMoreConfirmationParachainStrategy {
     private let operationManager: OperationManagerProtocol
     private let connection: JSONRPCEngine
     private let keystore: KeystoreProtocol
+    private let eventCenter: EventCenterProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var signingWrapper: SigningWrapperProtocol
 
     private lazy var callFactory = SubstrateCallFactory()
+    private let logger: LoggerProtocol
+    private var submitAndWatchExtrinsicSubscriptionId: UInt16?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -38,7 +41,9 @@ final class StakingBondMoreConfirmationParachainStrategy {
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
         signingWrapper: SigningWrapperProtocol,
-        output: StakingBondMoreConfirmationParachainStrategyOutput?
+        output: StakingBondMoreConfirmationParachainStrategyOutput?,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.chainAsset = chainAsset
@@ -51,6 +56,8 @@ final class StakingBondMoreConfirmationParachainStrategy {
         self.keystore = keystore
         self.signingWrapper = signingWrapper
         self.output = output
+        self.eventCenter = eventCenter
+        self.logger = logger
 
         self.feeProxy.delegate = self
     }
@@ -82,11 +89,12 @@ extension StakingBondMoreConfirmationParachainStrategy: StakingBondMoreConfirmat
         extrinsicService.submit(
             builderClosure,
             signer: signingWrapper,
-            runningIn: .main,
-            completion: { [weak self] result in
-                self?.output?.didSubmitBonding(result: result)
-            }
-        )
+            runningIn: .main
+        ) { [weak self] result in
+            self?.output?.didSubmitBonding(result: result)
+
+            self?.eventCenter.notify(with: StakingUpdatedEvent())
+        }
     }
 }
 

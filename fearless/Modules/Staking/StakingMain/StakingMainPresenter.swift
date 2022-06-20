@@ -166,6 +166,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         interactor.setup()
     }
 
+    func performRefreshAction() {
+        interactor.refresh()
+    }
+
+    func viewWillAppear() {
+        interactor.refresh()
+    }
+
     func performAssetSelection() {
         wireframe.showChainAssetSelection(
             from: view,

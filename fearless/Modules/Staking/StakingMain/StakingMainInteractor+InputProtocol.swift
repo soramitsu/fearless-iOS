@@ -3,6 +3,23 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func refresh() {
+        priceProvider?.refresh()
+        totalRewardProvider?.refresh()
+        rewardAnalyticsProvider?.refresh()
+
+        guard
+            let wallet = selectedWalletSettings.value,
+            let chainAsset = stakingSettings.value,
+            let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            return
+        }
+
+        if chainAsset.chain.isEthereumBased {
+            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
+        }
+    }
+
     func updatePrices() {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
@@ -154,6 +171,19 @@ extension StakingMainInteractor: EventVisitorProtocol {
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {
         priceProvider?.refresh()
+    }
+
+    func processStakingUpdatedEvent() {
+        guard
+            let wallet = selectedWalletSettings.value,
+            let chainAsset = stakingSettings.value,
+            let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            return
+        }
+
+        if chainAsset.chain.isEthereumBased {
+            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
+        }
     }
 }
 

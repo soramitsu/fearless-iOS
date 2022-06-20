@@ -209,7 +209,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         }
 
         let difference = UInt32(abs(Int32(unbondingEra) - Int32(currentEra)))
-        let eraCompletionTime = TimeInterval(difference / chainAsset.chain.erasPerDay * UInt32(86400))
+        let eraCompletionTime = TimeInterval(difference) / TimeInterval(chainAsset.chain.erasPerDay) * 86400.0
         let daysLeft = eraCompletionTime.daysFromSeconds
 
         let timeLeftText: String = {
@@ -230,18 +230,16 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
 
     private func calculateDecreaseAmount(
         viewModelState: StakingBalanceParachainViewModelState,
-        currentEra: EraIndex?
+        currentEra _: EraIndex?
     ) -> BigUInt {
-        let amount = viewModelState.requests?.filter { request in
-            guard let currentEra = currentEra else {
-                return false
-            }
-
-            return request.whenExecutable > currentEra
-        }.compactMap { request in
+        let amount = viewModelState.history?.compactMap { request in
             var amount = BigUInt.zero
             if case let .revoke(revokeAmount) = request.action {
-                amount = revokeAmount
+                amount += revokeAmount
+            }
+
+            if case let .decrease(decreaseAmount) = request.action {
+                amount += decreaseAmount
             }
 
             return amount
@@ -259,11 +257,15 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 return false
             }
 
-            return request.whenExecutable < currentEra
+            return request.whenExecutable <= currentEra
         }.compactMap { request in
             var amount = BigUInt.zero
             if case let .revoke(revokeAmount) = request.action {
-                amount = revokeAmount
+                amount += revokeAmount
+            }
+
+            if case let .decrease(decreaseAmount) = request.action {
+                amount += decreaseAmount
             }
 
             return amount

@@ -10,12 +10,14 @@ protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, Load
 
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
+    func handleRefresh()
     func handleAction(_ action: StakingBalanceAction)
     func handleUnbondingMoreAction()
 }
 
 protocol StakingBalanceInteractorInputProtocol: AnyObject {
     func setup()
+    func refresh()
 }
 
 protocol StakingBalanceInteractorOutputProtocol: AnyObject {

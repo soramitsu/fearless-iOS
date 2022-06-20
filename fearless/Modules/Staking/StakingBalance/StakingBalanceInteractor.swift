@@ -30,6 +30,10 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
 
         strategy.setup()
     }
+
+    func refresh() {
+        strategy.setup()
+    }
 }
 
 extension StakingBalanceInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {

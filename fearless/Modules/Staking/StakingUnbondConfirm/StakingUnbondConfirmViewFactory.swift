@@ -206,7 +206,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 connection: connection,
                 keystore: Keychain(),
                 extrinsicService: extrinsicService,
-                signingWrapper: signingWrapper
+                signingWrapper: signingWrapper,
+                eventCenter: EventCenter.shared
             )
 
             let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(asset: chainAsset.asset)

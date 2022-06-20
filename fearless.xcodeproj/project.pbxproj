@@ -1869,6 +1869,7 @@
 		FA37AE452859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE442859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift */; };
 		FA37AE47285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE46285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift */; };
 		FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE4A285C5294001DCA96 /* ExecuteDelegationRequestCall.swift */; };
+		FA37AE4D28603C37001DCA96 /* StakingUpdatedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */; };
 		FA389B34283E22FC00FF16E9 /* ParachainStakingDelegation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */; };
 		FA389B362840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */; };
 		FA389B382840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */; };
@@ -4031,6 +4032,7 @@
 		FA37AE442859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRedeemParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA37AE46285AE27C001DCA96 /* StakingBondMoreParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA37AE4A285C5294001DCA96 /* ExecuteDelegationRequestCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExecuteDelegationRequestCall.swift; sourceTree = "<group>"; };
+		FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUpdatedEvent.swift; sourceTree = "<group>"; };
 		FA389B33283E22FC00FF16E9 /* ParachainStakingDelegation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegation.swift; sourceTree = "<group>"; };
 		FA389B352840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA389B372840CBE000FF16E9 /* ValidatorSearchParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorSearchParachainStrategy.swift; sourceTree = "<group>"; };
@@ -7976,6 +7978,7 @@
 				849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */,
 				8436E94126C840C8003D4EA7 /* RuntimeCoderEvents.swift */,
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
+				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -12011,6 +12014,7 @@
 				8460E12925422C5A00826F55 /* WalletCompoundDetailsViewModel.swift in Sources */,
 				FA99423528053C5000D771E5 /* ChainAccountInfo.swift in Sources */,
 				AEA0C8BE2681141700F9666F /* YourValidatorList+SelectedList.swift in Sources */,
+				FA37AE4D28603C37001DCA96 /* StakingUpdatedEvent.swift in Sources */,
 				FA37AE3F2859DF94001DCA96 /* StakingRedeemParachainStrategy.swift in Sources */,
 				8430AAE926022F69005B1066 /* StashState.swift in Sources */,
 				84644B3325685915004EAA4B /* WalletHistoryBackgroundView.swift in Sources */,

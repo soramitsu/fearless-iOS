@@ -22,7 +22,10 @@ final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
-        let call = callFactory.executeDelegationRequest(delegator: delegation.owner, collator: collator.owner)
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return nil
+        }
+        let call = callFactory.executeDelegationRequest(delegator: accountId, collator: collator.owner)
 
         return { builder in
             try builder.adding(call: call)

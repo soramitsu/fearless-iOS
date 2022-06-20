@@ -178,7 +178,8 @@ struct StakingBalanceViewFactory {
                 wallet: wallet,
                 operationFactory: operationFactory,
                 operationManager: operationManager,
-                output: viewModelState
+                output: viewModelState,
+                eventCenter: EventCenter.shared
             )
 
             let viewModelFactory = StakingBalanceParachainViewModelFactory(

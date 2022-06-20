@@ -39,6 +39,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
 
+    var refreshControl: UIRefreshControl!
+
     let assetSelectionContainerView = UIView()
     let assetSelectionView: DetailsTriangularedView = {
         let view = UIFactory.default.createChainAssetSelectionView()
@@ -94,6 +96,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupActionButton()
         setupLocalization()
         presenter?.setup()
+
+        refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(handlePullToRefresh), for: .valueChanged)
+        scrollView.addSubview(refreshControl)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -137,6 +143,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
         }
+    }
+
+    @objc func handlePullToRefresh() {
+        presenter?.performRefreshAction()
+        refreshControl.endRefreshing()
     }
 
     @IBAction func actionIcon() {

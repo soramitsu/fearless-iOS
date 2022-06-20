@@ -94,6 +94,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -118,6 +119,12 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
+        )
+
+        let signingWrapper = SigningWrapper(
+            keystore: Keychain(),
+            metaId: wallet.metaId,
+            accountResponse: accountResponse
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -218,11 +225,13 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 chainAsset: chainAsset,
                 wallet: wallet,
                 extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 engine: connection,
                 operationManager: operationManager,
-                keystore: Keychain()
+                keystore: Keychain(),
+                eventCenter: EventCenter.shared
             )
 
             let viewModelFactory = StakingRedeemParachainViewModelFactory(

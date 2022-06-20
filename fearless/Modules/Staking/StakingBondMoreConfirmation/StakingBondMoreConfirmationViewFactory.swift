@@ -209,7 +209,9 @@ struct StakingBondMoreConfirmViewFactory {
                 connection: connection,
                 keystore: keystore,
                 signingWrapper: signingWrapper,
-                output: viewModelState
+                output: viewModelState,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
             )
 
             return StakingBondMoreConfirmationDependencyContainer(

@@ -139,6 +139,10 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         interactor.setup()
     }
 
+    func handleRefresh() {
+        interactor.refresh()
+    }
+
     func handleAction(_ action: StakingBalanceAction) {
         guard let view = view else { return }
         let selectedLocale = view.localizationManager?.selectedLocale

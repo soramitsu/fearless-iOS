@@ -28,7 +28,7 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
 
     var requests: [ParachainStakingScheduledRequest]?
     var history: [ParachainStakingScheduledRequest]? {
-        requests?.filter { ($0.whenExecutable < (round?.current) ?? 0) == true }
+        requests?.filter { ($0.whenExecutable > (round?.current) ?? 0) == true }
     }
 
     var round: ParachainStakingRoundInfo?
@@ -68,30 +68,26 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     }
 
     func calculateRevokeAmount() -> BigUInt? {
-        let revokeRequests = requests?.filter { request in
-            if case .revoke = request.action {
-                return true
-            }
-
-            return false
-        }
-
-        let amount = revokeRequests?.filter { request in
+        let amount = requests?.filter { request in
             guard let currentEra = round?.current else {
                 return false
             }
 
-            return request.whenExecutable < currentEra
+            return request.whenExecutable <= currentEra
         }.compactMap { request in
             var amount = BigUInt.zero
             if case let .revoke(revokeAmount) = request.action {
-                amount = revokeAmount
+                amount += revokeAmount
+            }
+
+            if case let .decrease(decreaseAmount) = request.action {
+                amount += decreaseAmount
             }
 
             return amount
         }.reduce(BigUInt.zero, +)
 
-        return amount
+        return amount ?? BigUInt.zero
     }
 }
 
@@ -112,6 +108,16 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
 
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?) {
         self.round = round
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func didReceiveDelegation(_ delegation: ParachainStakingDelegation?) {
+        guard let delegation = delegation else {
+            return
+        }
+
+        self.delegation = delegation
 
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
