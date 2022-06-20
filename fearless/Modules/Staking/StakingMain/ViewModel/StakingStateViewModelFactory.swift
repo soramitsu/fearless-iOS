@@ -271,7 +271,7 @@ final class StakingStateViewModelFactory {
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
-    func visit(state: InitialStakingState) {
+    func visit(state: InitialRelaychainStakingState) {
         logger?.debug("Initial state")
 
         guard let chainAsset = state.commonData.chainAsset else {

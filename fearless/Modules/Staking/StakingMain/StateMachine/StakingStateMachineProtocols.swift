@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 
 protocol StakingStateVisitorProtocol {
-    func visit(state: InitialStakingState)
+    func visit(state: InitialRelaychainStakingState)
     func visit(state: NoStashState)
     func visit(state: StashState)
     func visit(state: PendingBondedState)

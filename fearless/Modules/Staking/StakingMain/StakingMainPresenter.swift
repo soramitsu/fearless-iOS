@@ -693,7 +693,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
                     status = .parachain(.undefined)
                 }
 
-                let amount = Decimal.fromSubstrateAmount(delegation.amount, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+                let amount = Decimal.fromSubstrateAmount(
+                    delegation.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
                 let balanceViewModelFactory = strongSelf.viewModelFacade.createBalanceViewModelFactory(for: chainAsset)
 
                 let locale = strongSelf.view?.localizationManager?.selectedLocale ?? Locale.current

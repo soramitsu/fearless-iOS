@@ -380,13 +380,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                                 do {
                                     let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
 
-                                    let delegationInfos: [ParachainStakingDelegationInfo] = response.compactMap {
-                                        guard let delegation = state.delegations.first(where: { $0.owner == $0.owner }) else {
+                                    let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
+                                        guard let collator = response.first(where: { $0.owner == delegation.owner }) else {
                                             return nil
                                         }
                                         return ParachainStakingDelegationInfo(
                                             delegation: delegation,
-                                            collator: $0
+                                            collator: collator
                                         )
                                     }
                                     strongSelf.presenter?.didReceive(delegations: delegationInfos)

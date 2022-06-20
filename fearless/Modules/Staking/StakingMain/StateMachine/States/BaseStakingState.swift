@@ -24,7 +24,7 @@ class BaseStakingState: StakingStateProtocol {
                 return
             }
 
-            let newState = InitialStakingState(
+            let newState = InitialRelaychainStakingState(
                 stateMachine: stateMachine,
                 commonData: commonData
             )
@@ -44,7 +44,7 @@ class BaseStakingState: StakingStateProtocol {
                 return
             }
 
-            let newState = InitialStakingState(
+            let newState = InitialRelaychainStakingState(
                 stateMachine: stateMachine,
                 commonData: commonData
             )

@@ -1506,6 +1506,7 @@
 		C6992F10280836FA003BC769 /* AccountConfirmFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */; };
 		C6A8D6BD27EF0CF40080F81C /* UIView + FirstResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */; };
 		C6A8D6C127FC318A0080F81C /* UniqueChainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */; };
+		C6CA307D285F61B70087776D /* ParachainState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA307C285F61B70087776D /* ParachainState.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
@@ -3641,6 +3642,7 @@
 		C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConfirmFlow.swift; sourceTree = "<group>"; };
 		C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + FirstResponder.swift"; sourceTree = "<group>"; };
 		C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniqueChainViewModel.swift; sourceTree = "<group>"; };
+		C6CA307C285F61B70087776D /* ParachainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainState.swift; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
@@ -5503,6 +5505,7 @@
 				8430AB1126023C9F005B1066 /* PendingBondedState.swift */,
 				AEF507F62625A3280098574D /* ValidatorState+Status.swift */,
 				844E1E18266142080076AC59 /* BondedState+Status.swift */,
+				C6CA307C285F61B70087776D /* ParachainState.swift */,
 			);
 			path = States;
 			sourceTree = "<group>";
@@ -12327,6 +12330,7 @@
 				8488ECDF258CE118004591CC /* PurchaseCompleted.swift in Sources */,
 				840BF22726C2C8A600E3A955 /* ChainSyncEvents.swift in Sources */,
 				843910C3253F39B100E3C217 /* WalletNetworkFacade+Storage.swift in Sources */,
+				C6CA307D285F61B70087776D /* ParachainState.swift in Sources */,
 				F43A596A26D520E0005E973D /* EmptyStateViewCell.swift in Sources */,
 				AEA2C1B42681E99D0069492E /* ValidatorSearchProtocols.swift in Sources */,
 				FA2569C1274CE74100875A53 /* AttentionView.swift in Sources */,
