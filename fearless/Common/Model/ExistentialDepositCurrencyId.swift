@@ -2,7 +2,7 @@ import Foundation
 
 enum ExistentialDepositCurrencyId {
     case token(tokenSymbol: String)
-    case liquidCrowdloan(symbol: UInt32)
+    case liquidCrowdloan(symbol: String)
     case foreignAsset(tokenSymbol: UInt16)
     case stableAssetPoolToken(stableAssetPoolToken: UInt16)
     case vToken(tokenSymbol: String)

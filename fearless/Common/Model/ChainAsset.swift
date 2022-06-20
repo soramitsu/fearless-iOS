@@ -29,12 +29,11 @@ struct ChainAsset: Equatable, Hashable {
             return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
         case .liquidCrowdloan:
             guard
-                let currencyId = asset.currencyId,
-                let liquidCrowdloanId = UInt32(currencyId)
+                let currencyId = asset.currencyId
             else {
                 return nil
             }
-            return CurrencyId.liquidCrowdloan(liquidCrowdloan: liquidCrowdloanId)
+            return CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
         case .vToken:
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
             return CurrencyId.vToken(symbol: tokenSymbol)

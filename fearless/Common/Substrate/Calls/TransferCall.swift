@@ -17,7 +17,7 @@ extension TokenSymbol: Codable {
 
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
-    case liquidCrowdloan(liquidCrowdloan: UInt32)
+    case liquidCrowdloan(liquidCrowdloan: String)
     case foreignAsset(foreignAsset: String)
     case stableAssetPoolToken(stableAssetPoolToken: String)
     case vToken(symbol: TokenSymbol?)
