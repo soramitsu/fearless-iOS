@@ -4,7 +4,7 @@ enum ExistentialDepositCurrencyId {
     case token(tokenSymbol: String)
     case liquidCrowdloan(symbol: String)
     case foreignAsset(tokenSymbol: UInt16)
-    case stableAssetPoolToken(stableAssetPoolToken: UInt16)
+    case stableAssetPoolToken(stableAssetPoolToken: String)
     case vToken(tokenSymbol: String)
     case vsToken(tokenSymbol: String)
     case stable(tokenSymbol: String)
@@ -25,10 +25,7 @@ enum ExistentialDepositCurrencyId {
             }
             self = .foreignAsset(tokenSymbol: uint)
         case let .stableAssetPoolToken(stableAssetPoolToken):
-            guard let uint = UInt16(stableAssetPoolToken) else {
-                return nil
-            }
-            self = .stableAssetPoolToken(stableAssetPoolToken: uint)
+            self = .stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolToken)
         case let .liquidCrowdloan(symbol):
             self = .liquidCrowdloan(symbol: symbol)
         case let .vsToken(symbol):
