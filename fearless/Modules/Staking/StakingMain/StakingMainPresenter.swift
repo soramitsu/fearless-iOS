@@ -41,6 +41,8 @@ final class StakingMainPresenter {
     private var networkStakingInfo: NetworkStakingInfo?
     private var controllerAccount: ChainAccountResponse?
     private var nomination: Nomination?
+    private var delegations: [ParachainStakingDelegation]?
+    private var collators: [ParachainStakingCandidateInfo]?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -679,8 +681,35 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
 //    Parachain
-    func didReceive(delegations: [ParachainStakingDelegationInfo]) {
-        let models: [DelegationInfoCellModel] = delegations.compactMap { [weak self] delegationInfo in
+
+    func didReceive(delegations: [ParachainStakingDelegation]?) {
+        self.delegations = delegations
+
+        provideParachainViewModel()
+    }
+
+    func didReceive(collators: [ParachainStakingCandidateInfo]?) {
+        self.collators = collators
+
+        provideParachainViewModel()
+    }
+
+    private func provideParachainViewModel() {
+        guard let delegations = delegations, let collators = collators else {
+            return
+        }
+
+        let delegationInfos: [ParachainStakingDelegationInfo] = delegations.compactMap { delegation in
+            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
+                return nil
+            }
+            return ParachainStakingDelegationInfo(
+                delegation: delegation,
+                collator: collator
+            )
+        }
+
+        let models: [DelegationInfoCellModel] = delegationInfos.compactMap { [weak self] delegationInfo in
             guard let strongSelf = self, let chainAsset = chainAsset else {
                 return nil
             }

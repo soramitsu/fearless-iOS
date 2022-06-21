@@ -187,36 +187,10 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
 
         switch result {
         case let .success(delegatorState):
-            if let chainAsset = selectedChainAsset, chainAsset.chain.isEthereumBased {
-                if let state = delegatorState {
-                    let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
-                    let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
-                    let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
-                    collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
-                        guard let strongSelf = self else {
-                            return
-                        }
-                        DispatchQueue.main.async {
-                            do {
-                                let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+            handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
 
-                                let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
-                                    guard let collator = response.first(where: { $0.owner == delegation.owner }) else {
-                                        return nil
-                                    }
-                                    return ParachainStakingDelegationInfo(
-                                        delegation: delegation,
-                                        collator: collator
-                                    )
-                                }
-                                strongSelf.presenter?.didReceive(delegations: delegationInfos)
-                            } catch {
-                                print("error: ", error)
-                            }
-                        }
-                    }
-                    operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
-                }
+            DispatchQueue.main.async { [weak self] in
+                self?.presenter?.didReceive(delegations: delegatorState?.delegations)
             }
         case let .failure(error):
             logger?.error("StakingMainInteractor.handleDelegatorState.")

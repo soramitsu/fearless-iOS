@@ -112,10 +112,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         selectedAccount = response
         selectedChainAsset = chainAsset
-
-        if chainAsset.chain.isEthereumBased {
-            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
-        }
     }
 
     func updateSharedState() {
@@ -320,7 +316,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
 //    Parachain
 
-    func fetchDelegations(accountId: AccountId, chainAsset: ChainAsset) {
+    func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?, chainAsset: ChainAsset) {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -346,28 +342,24 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             identityOperationFactory: identityOperationFactory
         )
 
-        let delegatorStateOperation = collatorOperationFactory.delegatorState {
-            [accountId]
-        }
+        if let state = delegatorState {
+            let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
+            let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+            let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
+            collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
 
-        delegatorStateOperation.targetOperation.completionBlock = { [weak self] in
-            do {
-                let address = try AddressFactory.address(
-                    for: accountId,
-                    chainFormat: chainAsset.chain.chainFormat
-                )
-
-                let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
-                let delegatorState = response?[address]
-                self?.handleDelegatorState(
-                    result: .success(delegatorState),
-                    chainId: chainAsset.chain.chainId,
-                    accountId: accountId
-                )
-            } catch {
-                print("error: ", error)
+                DispatchQueue.main.async {
+                    do {
+                        let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+                        self?.presenter?.didReceive(collators: response)
+                    } catch {
+                        self?.logger?.error("handleDelegatorState.error: \(error)")
+                    }
+                }
             }
+            operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
+        } else {
+            presenter?.didReceive(delegations: [])
         }
-        operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)
     }
 }

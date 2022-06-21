@@ -41,7 +41,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         self.operationQueue = operationQueue
         self.logger = logger
 
-//        subscribeLocal()
+        subscribeLocal()
 
         subscribeRemote(for: accountId)
     }

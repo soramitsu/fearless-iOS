@@ -14,10 +14,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return
         }
-
-        if chainAsset.chain.isEthereumBased {
-            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
-        }
     }
 
     func updatePrices() {
@@ -114,6 +110,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
+        clear(dataProvider: &delegatorStateProvider)
         performPriceSubscription()
 
         clearNominatorsLimitProviders()
@@ -132,6 +129,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNetworkStakingInfo()
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideMaxNominatorsPerValidator(from: runtimeService)
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+            delegatorStateProvider = subscribeToDelegatorState(for: chainId, accountId: accountId)
+        } else {
+            presenter?.didReceive(delegations: [])
+        }
     }
 
     private func updateAfterSelectedAccountChange() {
@@ -178,19 +182,6 @@ extension StakingMainInteractor: EventVisitorProtocol {
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {
         priceProvider?.refresh()
-    }
-
-    func processStakingUpdatedEvent() {
-        guard
-            let wallet = selectedWalletSettings.value,
-            let chainAsset = stakingSettings.value,
-            let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
-            return
-        }
-
-        if chainAsset.chain.isEthereumBased {
-            fetchDelegations(accountId: response.accountId, chainAsset: chainAsset)
-        }
     }
 }
 
