@@ -178,7 +178,10 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 keystore: Keychain(),
                 accountRepository: AnyDataProviderRepository(accountRepository)
             )
-            let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(asset: chainAsset.asset)
+            let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(
+                asset: chainAsset.asset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
             return StakingUnbondConfirmDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -210,7 +213,10 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 eventCenter: EventCenter.shared
             )
 
-            let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(asset: chainAsset.asset)
+            let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
+                asset: chainAsset.asset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
 
             return StakingUnbondConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         }

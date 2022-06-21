@@ -95,7 +95,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = StakingAmountPresenter(
@@ -158,7 +159,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
         )
 
         let extrinsicService = ExtrinsicService(
@@ -236,7 +238,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             let viewModelFactory = StakingAmountParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
                 rewardDestViewModelFactory: rewardDestViewModelFactory,
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
             )
 
             return StakingAmountDependencyContainer(

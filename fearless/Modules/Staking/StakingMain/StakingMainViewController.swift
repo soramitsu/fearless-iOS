@@ -67,7 +67,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         let tableView = SelfSizingTableView()
         tableView.separatorStyle = .none
         tableView.backgroundColor = UIColor.clear
-        tableView.contentInset = Constants.contentInset
         return tableView
     }()
 

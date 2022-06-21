@@ -35,7 +35,7 @@ struct ControllerAccountConfirmationViewFactory {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            iconGenerator: PolkadotIconGenerator(),
+            iconGenerator: UniversalIconGenerator(chain: chain),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory
         )

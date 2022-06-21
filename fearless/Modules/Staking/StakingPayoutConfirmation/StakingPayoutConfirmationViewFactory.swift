@@ -19,7 +19,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(
             asset: asset,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let wireframe = StakingPayoutConfirmationWireframe()

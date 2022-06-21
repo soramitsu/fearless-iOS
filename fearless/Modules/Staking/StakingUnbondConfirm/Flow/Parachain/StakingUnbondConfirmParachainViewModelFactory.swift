@@ -6,10 +6,14 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
     let asset: AssetModel
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
-    init(asset: AssetModel) {
+    init(
+        asset: AssetModel,
+        iconGenerator: IconGenerating
+    ) {
         self.asset = asset
+        self.iconGenerator = iconGenerator
     }
 
     private func createHints(from shouldResetRewardDestination: Bool)

@@ -58,7 +58,10 @@ struct StakingRebondConfirmationViewFactory {
             selectedMetaAccount: selectedMetaAccount
         )
 
-        let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)
+        let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(
+            asset: asset,
+            iconGenerator: UniversalIconGenerator(chain: chain)
+        )
 
         return StakingRebondConfirmationPresenter(
             variant: variant,

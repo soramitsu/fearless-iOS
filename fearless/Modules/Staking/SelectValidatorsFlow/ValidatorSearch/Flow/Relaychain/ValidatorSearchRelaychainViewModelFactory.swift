@@ -2,7 +2,11 @@ import Foundation
 import FearlessUtils
 
 final class ValidatorSearchRelaychainViewModelFactory {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
+    }
 
     private func createHeaderViewModel(
         displayValidatorsCount: Int,

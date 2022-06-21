@@ -183,7 +183,7 @@ struct StakingBondMoreViewFactory {
                 operationManager: operationManager
             )
 
-            let viewModelFactory = StakingBondMoreParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: PolkadotIconGenerator()))
+            let viewModelFactory = StakingBondMoreParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)))
 
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,

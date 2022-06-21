@@ -18,7 +18,7 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
 
         let viewModelFactory = StakingRewardDetailsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = StakingRewardDetailsPresenter(

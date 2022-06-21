@@ -33,7 +33,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let view = StakingMainViewController(nib: R.nib.stakingMainViewController)
         view.localizationManager = LocalizationManager.shared
-        view.iconGenerator = PolkadotIconGenerator()
+        view.iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
         view.uiFactory = UIFactory()
         view.amountFormatterFactory = AssetBalanceFormatterFactory()
 

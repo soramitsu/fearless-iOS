@@ -195,7 +195,9 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 candidate: candidate,
                 delegation: delegation
             )
-            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: PolkadotIconGenerator()))
+            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
             return StakingUnbondSetupDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

@@ -51,7 +51,11 @@ extension CustomValidatorListViewFactory {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) -> CustomValidatorListDependencyContainer? {
-        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.asset.displayInfo, selectedMetaAccount: wallet)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
+        )
+        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
 
         switch flow {
         case let .parachain(candidates, maxTargets, bonding, selectedValidatorList):
@@ -64,7 +68,8 @@ extension CustomValidatorListViewFactory {
             let strategy = CustomValidatorListParachainStrategy()
             let viewModelFactory = CustomValidatorListParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                iconGenerator: iconGenerator
             )
 
             return CustomValidatorListDependencyContainer(
@@ -81,7 +86,10 @@ extension CustomValidatorListViewFactory {
                 maxTargets: maxTargets
             )
             let strategy = CustomValidatorListRelaychainStrategy()
-            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
 
             return CustomValidatorListDependencyContainer(
                 viewModelState: viewModelState,
@@ -97,7 +105,10 @@ extension CustomValidatorListViewFactory {
                 maxTargets: maxTargets
             )
             let strategy = CustomValidatorListRelaychainStrategy()
-            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
 
             return CustomValidatorListDependencyContainer(
                 viewModelState: viewModelState,

@@ -3,11 +3,12 @@ import FearlessUtils
 import SoraFoundation
 
 final class SelectValidatorsConfirmParachainViewModelFactory {
-    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol, iconGenerator: IconGenerating) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 }

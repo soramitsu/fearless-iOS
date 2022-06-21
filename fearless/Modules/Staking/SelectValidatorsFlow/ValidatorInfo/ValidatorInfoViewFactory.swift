@@ -54,7 +54,7 @@ final class ValidatorInfoViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorInfoRelaychainViewModelFactory(
-                iconGenerator: PolkadotIconGenerator(),
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
                 balanceViewModelFactory: balanceViewModelFactory
             )
 
@@ -93,7 +93,7 @@ final class ValidatorInfoViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = ValidatorInfoParachainViewModelFactory(
-                iconGenerator: PolkadotIconGenerator(),
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
                 balanceViewModelFactory: balanceViewModelFactory,
                 chainAsset: chainAsset
             )

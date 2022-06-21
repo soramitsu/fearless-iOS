@@ -63,7 +63,11 @@ struct StakingBondMoreConfirmViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(asset: chainAsset.asset, chain: chainAsset.chain)
+        let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+        )
 
         return StakingBondMoreConfirmationPresenter(
             interactor: interactor,

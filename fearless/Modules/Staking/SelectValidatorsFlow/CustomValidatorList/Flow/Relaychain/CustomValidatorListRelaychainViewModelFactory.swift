@@ -4,12 +4,14 @@ import FearlessUtils
 class CustomValidatorListRelaychainViewModelFactory {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
     private func createHeaderViewModel(

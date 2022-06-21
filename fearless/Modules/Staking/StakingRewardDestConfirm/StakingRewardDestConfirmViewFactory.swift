@@ -32,7 +32,7 @@ struct StakingRewardDestConfirmViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             rewardDestination: rewardDestination,
-            confirmModelFactory: StakingRewardDestConfirmVMFactory(),
+            confirmModelFactory: StakingRewardDestConfirmVMFactory(iconGenerator: UniversalIconGenerator(chain: chain)),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,

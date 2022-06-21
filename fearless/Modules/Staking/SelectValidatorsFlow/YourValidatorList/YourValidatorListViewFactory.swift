@@ -27,7 +27,8 @@ struct YourValidatorListViewFactory {
         )
 
         let viewModelFactory = YourValidatorListViewModelFactory(
-            balanceViewModeFactory: balanceViewModelFactory
+            balanceViewModeFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = YourValidatorListPresenter(

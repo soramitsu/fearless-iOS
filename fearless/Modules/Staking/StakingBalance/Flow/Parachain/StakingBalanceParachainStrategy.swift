@@ -140,9 +140,11 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
 // }
 
 extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
-    func handleDelegatorState(result: Result<ParachainStakingDelegatorState?, Error>,
-                              chainId: ChainModel.Id,
-                              accountId: AccountId) {
+    func handleDelegatorState(
+        result: Result<ParachainStakingDelegatorState?, Error>,
+        chainId: ChainModel.Id,
+        accountId: AccountId
+    ) {
         guard accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.chainId == chainId else {
             return
         }
@@ -157,13 +159,15 @@ extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscribe
         }
     }
 
-    func handleDelegationScheduledRequests(result: Result<[ParachainStakingScheduledRequest]?, Error>,
-                                           chainId: ChainModel.Id,
-                                           accountId: AccountId) {
+    func handleDelegationScheduledRequests(
+        result: Result<[ParachainStakingScheduledRequest]?, Error>,
+        chainId: ChainModel.Id,
+        accountId: AccountId
+    ) {
         guard accountId == collator.owner, chainAsset.chain.chainId == chainId else {
             return
         }
-        
+
         switch result {
         case let .success(requests):
             DispatchQueue.main.async { [weak self] in

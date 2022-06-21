@@ -15,10 +15,14 @@ final class StakingRebondConfirmationViewModelFactory: StakingRebondConfirmation
     let asset: AssetModel
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
-    init(asset: AssetModel) {
+    init(
+        asset: AssetModel,
+        iconGenerator: IconGenerating
+    ) {
         self.asset = asset
+        self.iconGenerator = iconGenerator
     }
 
     func createViewModel(
