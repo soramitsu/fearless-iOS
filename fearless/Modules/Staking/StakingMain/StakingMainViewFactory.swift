@@ -201,7 +201,14 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             validatorService: eraValidatorService
         )
 
-        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+        let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            storageFacade: storageFacade,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
+        let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             storageFacade: storageFacade,
             operationManager: OperationManagerFacade.sharedManager,
@@ -216,8 +223,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             settings: stakingSettings,
             eraValidatorService: eraValidatorService,
             rewardCalculationService: rewardCalculatorService,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory
+            relaychainStakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
+            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory,
+            parachainStakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory
         )
     }
 }

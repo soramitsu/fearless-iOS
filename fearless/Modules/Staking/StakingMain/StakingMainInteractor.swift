@@ -8,7 +8,11 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol?
 
     var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol {
-        sharedState.stakingLocalSubscriptionFactory
+        sharedState.relaychainStakingLocalSubscriptionFactory
+    }
+
+    var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol {
+        sharedState.parachainStakingLocalSubscriptionFactory
     }
 
     var stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
@@ -53,6 +57,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
+    var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -320,19 +325,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         guard
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
-            let accountResponse = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
             return
         }
-
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chainAsset.chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
 
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -355,51 +351,21 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         delegatorStateOperation.targetOperation.completionBlock = { [weak self] in
-            guard let strongSelf = self else {
-                return
-            }
+            do {
+                let address = try AddressFactory.address(
+                    for: accountId,
+                    chainFormat: chainAsset.chain.chainFormat
+                )
 
-            DispatchQueue.main.async {
-                do {
-                    let address = try AddressFactory.address(
-                        for: accountId,
-                        chainFormat: chainAsset.chain.chainFormat
-                    )
-
-                    let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
-                    let delegatorState = response?[address]
-                    if let state = delegatorState {
-                        let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
-                        let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
-                        let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
-                        collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
-                            guard let strongSelf = self else {
-                                return
-                            }
-                            DispatchQueue.main.async {
-                                do {
-                                    let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
-
-                                    let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
-                                        guard let collator = response.first(where: { $0.owner == delegation.owner }) else {
-                                            return nil
-                                        }
-                                        return ParachainStakingDelegationInfo(
-                                            delegation: delegation,
-                                            collator: collator
-                                        )
-                                    }
-                                    strongSelf.presenter?.didReceive(delegations: delegationInfos)
-                                } catch {
-                                    print("error: ", error)
-                                }
-                            }
-                        }
-                        strongSelf.operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
-                    }
-                } catch {
-                    print("error: ", error)
-                }
+                let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
+                let delegatorState = response?[address]
+                self?.handleDelegatorState(
+                    result: .success(delegatorState),
+                    chainId: chainAsset.chain.chainId,
+                    accountId: accountId
+                )
+            } catch {
+                print("error: ", error)
             }
         }
         operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)

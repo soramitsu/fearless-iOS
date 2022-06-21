@@ -18,6 +18,8 @@ typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNu
 typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
 typealias DecodedBalanceLocks = ChainStorageDecodedItem<BalanceLock>
 typealias DecodedParachainStakingCandidate = ChainStorageDecodedItem<ParachainStakingCandidate>
+typealias DecodedParachainDelegatorState = ChainStorageDecodedItem<ParachainStakingDelegatorState>
+typealias DecodedParachainScheduledRequests = ChainStorageDecodedItem<[ParachainStakingScheduledRequest]>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>

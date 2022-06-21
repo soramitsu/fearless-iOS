@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import CommonWallet
+import FearlessUtils
 
 extension StakingMainInteractor {
     func handle(stashItem: StashItem?) {
@@ -152,6 +153,74 @@ extension StakingMainInteractor {
 //                period: .week
 //            )
 //        }
+    }
+}
+
+extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
+    func handleDelegatorState(
+        result: Result<ParachainStakingDelegatorState?, Error>,
+        chainId _: ChainModel.Id,
+        accountId _: AccountId
+    ) {
+        guard
+            let chainAsset = selectedChainAsset,
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return
+        }
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
+
+        switch result {
+        case let .success(delegatorState):
+            if let chainAsset = selectedChainAsset, chainAsset.chain.isEthereumBased {
+                if let state = delegatorState {
+                    let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
+                    let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+                    let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
+                    collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
+                        guard let strongSelf = self else {
+                            return
+                        }
+                        DispatchQueue.main.async {
+                            do {
+                                let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+
+                                let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
+                                    guard let collator = response.first(where: { $0.owner == delegation.owner }) else {
+                                        return nil
+                                    }
+                                    return ParachainStakingDelegationInfo(
+                                        delegation: delegation,
+                                        collator: collator
+                                    )
+                                }
+                                strongSelf.presenter?.didReceive(delegations: delegationInfos)
+                            } catch {
+                                print("error: ", error)
+                            }
+                        }
+                    }
+                    operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
+                }
+            }
+        case let .failure(error):
+            logger?.error("StakingMainInteractor.handleDelegatorState.")
+        }
     }
 }
 

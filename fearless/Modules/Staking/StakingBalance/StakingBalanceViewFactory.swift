@@ -75,6 +75,7 @@ struct StakingBalanceViewFactory {
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: StakingBalanceFlow,
         chainAsset: ChainAsset,
@@ -156,6 +157,37 @@ struct StakingBalanceViewFactory {
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(delegation, candidate):
+            let substrateRepositoryFactory = SubstrateRepositoryFactory(
+                storageFacade: SubstrateDataStorageFacade.shared
+            )
+
+            let substrateDataProviderFactory = SubstrateDataProviderFactory(
+                facade: SubstrateDataStorageFacade.shared,
+                operationManager: operationManager
+            )
+
+            let childSubscriptionFactory = ChildSubscriptionFactory(
+                storageFacade: SubstrateDataStorageFacade.shared,
+                operationManager: operationManager,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
+            )
+
+            let stakingAccountUpdatingService = StakingAccountUpdatingService(
+                chainRegistry: chainRegistry,
+                substrateRepositoryFactory: substrateRepositoryFactory,
+                substrateDataProviderFactory: substrateDataProviderFactory,
+                childSubscriptionFactory: childSubscriptionFactory,
+                operationQueue: OperationManagerFacade.sharedDefaultQueue
+            )
+
+            let stakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
+
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
@@ -179,7 +211,10 @@ struct StakingBalanceViewFactory {
                 operationFactory: operationFactory,
                 operationManager: operationManager,
                 output: viewModelState,
-                eventCenter: EventCenter.shared
+                eventCenter: EventCenter.shared,
+                parachainStakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                logger: Logger.shared,
+                stakingAccountUpdatingService: stakingAccountUpdatingService
             )
 
             let viewModelFactory = StakingBalanceParachainViewModelFactory(

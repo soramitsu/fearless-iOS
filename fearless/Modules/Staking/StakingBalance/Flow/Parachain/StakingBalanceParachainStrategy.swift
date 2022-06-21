@@ -9,6 +9,9 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
 }
 
 final class StakingBalanceParachainStrategy {
+    var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var delegationScheduledRequestsProvider: AnyDataProvider<DecodedParachainScheduledRequests>?
+
     private let collator: ParachainStakingCandidateInfo
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
@@ -16,6 +19,13 @@ final class StakingBalanceParachainStrategy {
     private let operationManager: OperationManagerProtocol
     private weak var output: StakingBalanceParachainStrategyOutput?
     private let eventCenter: EventCenterProtocol
+    var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
+    private let logger: LoggerProtocol
+    private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+
+    deinit {
+        stakingAccountUpdatingService.clearSubscription()
+    }
 
     init(
         collator: ParachainStakingCandidateInfo,
@@ -24,7 +34,10 @@ final class StakingBalanceParachainStrategy {
         operationFactory: ParachainCollatorOperationFactory,
         operationManager: OperationManagerProtocol,
         output: StakingBalanceParachainStrategyOutput?,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
+        logger: LoggerProtocol,
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
     ) {
         self.collator = collator
         self.chainAsset = chainAsset
@@ -33,10 +46,9 @@ final class StakingBalanceParachainStrategy {
         self.operationManager = operationManager
         self.output = output
         self.eventCenter = eventCenter
-    }
-
-    deinit {
-        eventCenter.remove(observer: self)
+        self.parachainStakingLocalSubscriptionFactory = parachainStakingLocalSubscriptionFactory
+        self.logger = logger
+        self.stakingAccountUpdatingService = stakingAccountUpdatingService
     }
 
     private func fetchDelegationScheduledRequests() {
@@ -92,19 +104,73 @@ final class StakingBalanceParachainStrategy {
 
 extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
     func setup() {
-        eventCenter.add(observer: self)
+//        eventCenter.add(observer: self)
+
+        try? stakingAccountUpdatingService.setupSubscription(
+            for: collator.owner,
+            chainId: chainAsset.chain.chainId,
+            chainFormat: chainAsset.chain.chainFormat
+        )
 
         output?.didSetup()
 
         fetchDelegations()
         fetchCurrentRound()
         fetchDelegationScheduledRequests()
+
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset.chain.chainId, accountId: accountId)
+        }
+
+        delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(for: chainAsset.chain.chainId, accountId: collator.owner)
+    }
+
+    func refresh() {
+        fetchDelegations()
+        fetchCurrentRound()
+        fetchDelegationScheduledRequests()
     }
 }
 
-extension StakingBalanceParachainStrategy: EventVisitorProtocol {
-    func processStakingUpdatedEvent() {
-        fetchCurrentRound()
-        fetchDelegationScheduledRequests()
+// extension StakingBalanceParachainStrategy: EventVisitorProtocol {
+//    func processStakingUpdatedEvent() {
+//        fetchCurrentRound()
+//        fetchDelegationScheduledRequests()
+//    }
+// }
+
+extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
+    func handleDelegatorState(result: Result<ParachainStakingDelegatorState?, Error>,
+                              chainId: ChainModel.Id,
+                              accountId: AccountId) {
+        guard accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.chainId == chainId else {
+            return
+        }
+        switch result {
+        case let .success(delegatorState):
+            let delegation = delegatorState?.delegations.first(where: { $0.owner == collator.owner })
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveDelegation(delegation)
+            }
+        case let .failure(error):
+            logger.error("StakingBalanceParachainStrategy.handleDelegatorState.error: \(error)")
+        }
+    }
+
+    func handleDelegationScheduledRequests(result: Result<[ParachainStakingScheduledRequest]?, Error>,
+                                           chainId: ChainModel.Id,
+                                           accountId: AccountId) {
+        guard accountId == collator.owner, chainAsset.chain.chainId == chainId else {
+            return
+        }
+        
+        switch result {
+        case let .success(requests):
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveScheduledRequests(requests: requests)
+            }
+        case let .failure(error):
+            logger.error("StakingBalanceParachainStrategy.handleDelegationScheduledRequests.error: \(error)")
+        }
     }
 }

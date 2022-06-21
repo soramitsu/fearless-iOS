@@ -2,26 +2,127 @@ import Foundation
 import RobinHood
 
 protocol ParachainStakingLocalStorageSubscriber where Self: AnyObject {
-    var stakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol { get }
+    var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol { get }
 
-    var stakingLocalSubscriptionHandler: ParachainStakingLocalSubscriptionHandler { get }
+    var parachainStakingLocalSubscriptionHandler: ParachainStakingLocalSubscriptionHandler { get }
 
     func subscribeToCandidatePool(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedParachainStakingCandidate>?
+    func subscribeToDelegatorState(
+        for chainId: ChainModel.Id,
+        accountId: AccountId
+    ) -> AnyDataProvider<DecodedParachainDelegatorState>?
+    func subscribeToDelegationScheduledRequests(
+        for chainId: ChainModel.Id,
+        accountId: AccountId
+    ) -> AnyDataProvider<DecodedParachainScheduledRequests>?
 }
 
 extension ParachainStakingLocalStorageSubscriber {
+    func subscribeToDelegationScheduledRequests(
+        for chainId: ChainModel.Id,
+        accountId: AccountId
+    ) -> AnyDataProvider<DecodedParachainScheduledRequests>? {
+        guard let delegationScheduledRequestsProvider = try? parachainStakingLocalSubscriptionFactory.getDelegationScheduledRequests(
+            chainId: chainId,
+            accountId: accountId
+        ) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedParachainScheduledRequests>]) in
+            let delegationScheduledRequests = changes.reduceToLastChange()
+            self?.parachainStakingLocalSubscriptionHandler.handleDelegationScheduledRequests(
+                result: .success(delegationScheduledRequests?.item),
+                chainId: chainId,
+                accountId: accountId
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.parachainStakingLocalSubscriptionHandler.handleDelegationScheduledRequests(
+                result: .failure(error),
+                chainId: chainId,
+                accountId: accountId
+            )
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        delegationScheduledRequestsProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return delegationScheduledRequestsProvider
+    }
+
+    func subscribeToDelegatorState(
+        for chainId: ChainModel.Id,
+        accountId: AccountId
+    ) -> AnyDataProvider<DecodedParachainDelegatorState>? {
+        guard let delegatorStateProvider = try? parachainStakingLocalSubscriptionFactory.getDelegatorState(
+            chainId: chainId,
+            accountId: accountId
+        ) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedParachainDelegatorState>]) in
+            let delegatorState = changes.reduceToLastChange()
+            self?.parachainStakingLocalSubscriptionHandler.handleDelegatorState(
+                result: .success(delegatorState?.item),
+                chainId: chainId,
+                accountId: accountId
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.parachainStakingLocalSubscriptionHandler.handleDelegatorState(
+                result: .failure(error),
+                chainId: chainId,
+                accountId: accountId
+            )
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        delegatorStateProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return delegatorStateProvider
+    }
+
     func subscribeToCandidatePool(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedParachainStakingCandidate>? {
-        guard let candidatePoolProvider = try? stakingLocalSubscriptionFactory.getCandidatePool(for: chainId) else {
+        guard let candidatePoolProvider = try? parachainStakingLocalSubscriptionFactory.getCandidatePool(for: chainId) else {
             return nil
         }
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedParachainStakingCandidate>]) in
             let candidatePool = changes.reduceToLastChange()
-            self?.stakingLocalSubscriptionHandler.handleCandidatePool(result: .success(candidatePool?.item), chainId: chainId)
+            self?.parachainStakingLocalSubscriptionHandler.handleCandidatePool(
+                result: .success(candidatePool?.item),
+                chainId: chainId
+            )
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.stakingLocalSubscriptionHandler.handleCandidatePool(
+            self?.parachainStakingLocalSubscriptionHandler.handleCandidatePool(
                 result: .failure(error),
                 chainId: chainId
             )
@@ -46,5 +147,5 @@ extension ParachainStakingLocalStorageSubscriber {
 }
 
 extension ParachainStakingLocalStorageSubscriber where Self: ParachainStakingLocalSubscriptionHandler {
-    var stakingLocalSubscriptionHandler: ParachainStakingLocalSubscriptionHandler { self }
+    var parachainStakingLocalSubscriptionHandler: ParachainStakingLocalSubscriptionHandler { self }
 }

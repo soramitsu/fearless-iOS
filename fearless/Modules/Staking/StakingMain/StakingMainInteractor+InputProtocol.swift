@@ -60,6 +60,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         performStashControllerSubscription()
         performNominatorLimitsSubscripion()
 
+        // Parachain
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            delegatorStateProvider = subscribeToDelegatorState(for: chainId, accountId: accountId)
+        }
+
         //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideEraStakersInfo(from: sharedState.eraValidatorService)
