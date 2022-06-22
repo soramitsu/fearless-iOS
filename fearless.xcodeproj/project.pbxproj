@@ -1507,6 +1507,8 @@
 		C6A8D6BD27EF0CF40080F81C /* UIView + FirstResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */; };
 		C6A8D6C127FC318A0080F81C /* UniqueChainViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */; };
 		C6CA307D285F61B70087776D /* ParachainState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA307C285F61B70087776D /* ParachainState.swift */; };
+		C6CA307F286190630087776D /* DelegationStateView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA307E286190630087776D /* DelegationStateView.swift */; };
+		C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA3080286192C50087776D /* DelegationViewModel.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
@@ -3644,6 +3646,8 @@
 		C6A8D6BC27EF0CF40080F81C /* UIView + FirstResponder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView + FirstResponder.swift"; sourceTree = "<group>"; };
 		C6A8D6C027FC318A0080F81C /* UniqueChainViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniqueChainViewModel.swift; sourceTree = "<group>"; };
 		C6CA307C285F61B70087776D /* ParachainState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainState.swift; sourceTree = "<group>"; };
+		C6CA307E286190630087776D /* DelegationStateView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationStateView.swift; sourceTree = "<group>"; };
+		C6CA3080286192C50087776D /* DelegationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationViewModel.swift; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
@@ -8417,6 +8421,7 @@
 				AEF507F126259DF00098574D /* ValidationViewModel.swift */,
 				F4A6C9E3265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift */,
 				F409673226B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift */,
+				C6CA3080286192C50087776D /* DelegationViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -8808,6 +8813,7 @@
 				84B018AF26E0450F00C75E28 /* ValidatorStateView.swift */,
 				C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */,
 				C63CB31F28505A250071AF26 /* StatusView.swift */,
+				C6CA307E286190630087776D /* DelegationStateView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -11852,6 +11858,7 @@
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
 				8463A71A25E3116A003B8160 /* BalanceViewModel.swift in Sources */,
+				C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */,
 				FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */,
 				FA17B4D127E9CF21006E0735 /* main.swift in Sources */,
 				8425EA9A25EA83FA00C307C9 /* ChainData+Value.swift in Sources */,
@@ -12808,6 +12815,7 @@
 				F20C8D17ABF18B7104E14394 /* StakingAmountInteractor.swift in Sources */,
 				EF02C9661F03C8EF58182997 /* StakingAmountViewController.swift in Sources */,
 				D8581E5440A19D977E17BFDE /* StakingAmountViewFactory.swift in Sources */,
+				C6CA307F286190630087776D /* DelegationStateView.swift in Sources */,
 				F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */,
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,

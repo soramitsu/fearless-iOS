@@ -4,10 +4,10 @@ final class DelegationInfoCellModel {
     let moreHandler: () -> Void
     let statusHandler: () -> Void
 
-    let contentViewModel: LocalizableResource<NominationViewModelProtocol>
+    let contentViewModel: LocalizableResource<DelegationViewModelProtocol>
 
     init(
-        contentViewModel: LocalizableResource<NominationViewModelProtocol>,
+        contentViewModel: LocalizableResource<DelegationViewModelProtocol>,
         moreHandler: @escaping () -> Void,
         statusHandler: @escaping () -> Void
     ) {

@@ -129,8 +129,7 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil,
-                name: nil
+                hasPrice: commonData.price != nil
             )
         }
     }
@@ -346,9 +345,9 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         let status: NominationViewStatus = {
             if let era = state.commonData.eraStakersInfo?.activeEra {
-                return .relaychain(.inactive(era))
+                return .inactive(era: era)
             } else {
-                return .relaychain(.undefined)
+                return .undefined
             }
         }()
 

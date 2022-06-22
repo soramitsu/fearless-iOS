@@ -5,7 +5,7 @@ import BigInt
 extension NominatorState {
     var status: NominationViewStatus {
         guard let eraStakers = commonData.eraStakersInfo else {
-            return .relaychain(.undefined)
+            return .undefined
         }
 
         do {
@@ -22,17 +22,17 @@ extension NominatorState {
                 .reduce(into: Set<Data>()) { $0.insert($1.who) }
 
             if allNominators.contains(accountId) {
-                return .relaychain(.active(eraStakers.activeEra))
+                return .active(era: eraStakers.activeEra)
             }
 
             if nomination.submittedIn >= eraStakers.activeEra {
-                return .relaychain(.waiting(eraCountdown: commonData.eraCountdown, nominationEra: nomination.submittedIn))
+                return .waiting(eraCountdown: commonData.eraCountdown, nominationEra: nomination.submittedIn)
             }
 
-            return .relaychain(.inactive(eraStakers.activeEra))
+            return .inactive(era: eraStakers.activeEra)
 
         } catch {
-            return .relaychain(.undefined)
+            return .undefined
         }
     }
 
@@ -64,19 +64,14 @@ extension NominatorState {
         locale: Locale?
     ) -> AlertPresentableViewModel? {
         switch status {
-        case let .relaychain(relaychainStatus):
-            switch relaychainStatus {
-            case .active:
-                return createActiveStatus(locale: locale)
-            case .inactive:
-                return createInactiveStatus(locale: locale)
-            case .waiting:
-                return createWaitingStatus(locale: locale)
-            case .undefined:
-                return createUndefinedStatus(locale: locale)
-            }
-        case .parachain:
-            return nil
+        case .active:
+            return createActiveStatus(locale: locale)
+        case .inactive:
+            return createInactiveStatus(locale: locale)
+        case .waiting:
+            return createWaitingStatus(locale: locale)
+        case .undefined:
+            return createUndefinedStatus(locale: locale)
         }
     }
 
