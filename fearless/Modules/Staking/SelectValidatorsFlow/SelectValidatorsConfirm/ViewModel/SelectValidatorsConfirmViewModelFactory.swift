@@ -4,8 +4,12 @@ import CommonWallet
 import SoraFoundation
 
 final class SelectValidatorsConfirmViewModelFactory {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
+    }
 
     func createHints(from duration: StakingDuration) -> LocalizableResource<[TitleIconViewModel]> {
         LocalizableResource { locale in

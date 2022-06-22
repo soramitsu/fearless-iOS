@@ -40,7 +40,7 @@ struct ValidatorSearchViewFactory {
                 operationManager: OperationManagerFacade.sharedManager,
                 output: viewModelState
             )
-            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory()
+            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
             return ValidatorSearchDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -57,7 +57,7 @@ struct ValidatorSearchViewFactory {
                 operationManager: OperationManagerFacade.sharedManager,
                 output: viewModelState
             )
-            let viewModelFactory = ValidatorSearchParachainViewModelFactory()
+            let viewModelFactory = ValidatorSearchParachainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
             return ValidatorSearchDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

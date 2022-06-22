@@ -3,7 +3,12 @@ import FearlessUtils
 import SoraFoundation
 
 final class SelectedValidatorListParachainViewModelFactory {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
+    }
+
     private func createHeaderViewModel(
         displayValidatorsCount: Int,
         totalValidatorsCount: Int,

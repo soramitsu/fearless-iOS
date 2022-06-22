@@ -7,11 +7,16 @@ final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFacto
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
-    init(asset: AssetModel, balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+    init(
+        asset: AssetModel,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
+    ) {
         self.asset = asset
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
     func buildViewModel(viewModelState: StakingRedeemViewModelState) -> StakingRedeemViewModel? {

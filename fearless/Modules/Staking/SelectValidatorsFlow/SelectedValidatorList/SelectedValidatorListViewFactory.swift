@@ -2,7 +2,13 @@ import Foundation
 import SoraFoundation
 
 struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtocol {
-    private static func createContainer(flow: SelectedValidatorListFlow, delegate: SelectedValidatorListDelegate) -> SelectedValidatorListDependencyContainer? {
+    private static func createContainer(
+        flow: SelectedValidatorListFlow,
+        delegate: SelectedValidatorListDelegate,
+        chainAsset: ChainAsset
+    ) -> SelectedValidatorListDependencyContainer? {
+        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
+
         switch flow {
         case let .relaychainInitiated(validatorList, maxTargets, _):
             let viewModelState = SelectedValidatorListRelaychainViewModelState(
@@ -11,7 +17,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
                 selectedValidatorList: validatorList,
                 delegate: delegate
             )
-            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory()
+            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory(iconGenerator: iconGenerator)
             return SelectedValidatorListDependencyContainer(
                 viewModelState: viewModelState,
                 viewModelFactory: viewModelFactory
@@ -23,7 +29,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
                 selectedValidatorList: validatorList,
                 delegate: delegate
             )
-            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory()
+            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory(iconGenerator: iconGenerator)
             return SelectedValidatorListDependencyContainer(
                 viewModelState: viewModelState,
                 viewModelFactory: viewModelFactory
@@ -36,7 +42,7 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
                 delegate: delegate,
                 bonding: state
             )
-            let viewModelFactory = SelectedValidatorListParachainViewModelFactory()
+            let viewModelFactory = SelectedValidatorListParachainViewModelFactory(iconGenerator: iconGenerator)
             return SelectedValidatorListDependencyContainer(viewModelState: viewModelState, viewModelFactory: viewModelFactory)
         }
     }
@@ -96,7 +102,11 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         delegate: SelectedValidatorListDelegate,
         with wireframe: SelectedValidatorListWireframeProtocol
     ) -> SelectedValidatorListViewProtocol? {
-        guard let container = createContainer(flow: flow, delegate: delegate) else {
+        guard let container = createContainer(
+            flow: flow,
+            delegate: delegate,
+            chainAsset: chainAsset
+        ) else {
             return nil
         }
 

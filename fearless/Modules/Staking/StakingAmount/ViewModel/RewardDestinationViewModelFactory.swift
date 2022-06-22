@@ -15,11 +15,15 @@ protocol RewardDestinationViewModelFactoryProtocol {
 }
 
 final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+    init(
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
+    ) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
     func createRestake(

@@ -76,6 +76,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             operationManager: operationManager
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+        let iconGenerator = UniversalIconGenerator(chain: chain)
 
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
@@ -98,7 +99,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 chainAsset: chainAsset,
                 output: viewModelState
             )
-            let viewModelFactory = SelectValidatorsConfirmRelaychainInitiatedViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            let viewModelFactory = SelectValidatorsConfirmRelaychainInitiatedViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
 
             return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .relaychainExisting(targets, maxTargets, bonding):
@@ -122,7 +126,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 chainAsset: chainAsset,
                 output: viewModelState
             )
-            let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
 
             return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .parachain(target, maxTargets, bonding):
@@ -156,7 +163,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
                 eraValidatorService: eraValidatorService
             )
-            let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+            let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chain)
+            )
             return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         }
     }

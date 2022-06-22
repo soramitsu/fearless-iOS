@@ -97,5 +97,3 @@ extension StakingAmountParachainStrategy: StakingAmountStrategy {
         }
     }
 }
-
-extension StakingAmountParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {}

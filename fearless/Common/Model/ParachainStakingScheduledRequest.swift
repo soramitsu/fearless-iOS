@@ -27,7 +27,7 @@ enum ParachainStakingDelegationAction: Decodable, Equatable {
     }
 }
 
-struct ParachainStakingScheduledRequest: Decodable {
+struct ParachainStakingScheduledRequest: Decodable, Equatable {
     let delegator: AccountId
     @StringCodable var whenExecutable: UInt32
     let action: ParachainStakingDelegationAction

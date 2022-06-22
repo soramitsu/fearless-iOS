@@ -5,15 +5,16 @@ import BigInt
 class CustomValidatorListParachainViewModelFactory {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let chainAsset: ChainAsset
-
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        iconGenerator: IconGenerating
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.chainAsset = chainAsset
+        self.iconGenerator = iconGenerator
     }
 
     private func createHeaderViewModel(

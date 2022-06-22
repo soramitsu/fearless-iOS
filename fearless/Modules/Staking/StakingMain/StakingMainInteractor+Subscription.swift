@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import CommonWallet
+import FearlessUtils
 
 extension StakingMainInteractor {
     func handle(stashItem: StashItem?) {
@@ -152,6 +153,48 @@ extension StakingMainInteractor {
 //                period: .week
 //            )
 //        }
+    }
+}
+
+extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
+    func handleDelegatorState(
+        result: Result<ParachainStakingDelegatorState?, Error>,
+        chainId _: ChainModel.Id,
+        accountId _: AccountId
+    ) {
+        guard
+            let chainAsset = selectedChainAsset,
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return
+        }
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
+
+        switch result {
+        case let .success(delegatorState):
+            handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
+
+            DispatchQueue.main.async { [weak self] in
+                self?.presenter?.didReceive(delegations: delegatorState?.delegations)
+            }
+        case let .failure(error):
+            logger?.error("StakingMainInteractor.handleDelegatorState.")
+        }
     }
 }
 

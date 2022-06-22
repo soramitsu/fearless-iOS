@@ -156,7 +156,7 @@ private extension ReceiveAssetPresenter {
             asset: asset.id,
             accountName: account.name,
             address: address,
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator(chain: chain)
         ))
     }
 }
