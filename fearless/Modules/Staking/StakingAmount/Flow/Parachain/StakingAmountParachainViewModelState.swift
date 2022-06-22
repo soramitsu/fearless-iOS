@@ -58,18 +58,20 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
         let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
 
-        return [dataValidatingFactory.canNominate(
-            amount: amount,
-            minimalBalance: minimalBalance,
-            minNominatorBond: minimumStake,
-            locale: locale
-        ),
-        dataValidatingFactory.bondAtLeastMinStaking(
-            asset: chainAsset.asset,
-            amount: amount,
-            minNominatorBond: minStake,
-            locale: locale
-        )]
+        return [
+            dataValidatingFactory.canNominate(
+                amount: amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minimumStake,
+                locale: locale
+            ),
+            dataValidatingFactory.bondAtLeastMinStaking(
+                asset: chainAsset.asset,
+                amount: amount,
+                minNominatorBond: minStake,
+                locale: locale
+            )
+        ]
     }
 
     private func notifyListeners() {

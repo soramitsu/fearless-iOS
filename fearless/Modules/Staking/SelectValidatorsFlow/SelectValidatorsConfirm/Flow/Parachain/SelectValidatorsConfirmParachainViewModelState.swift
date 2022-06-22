@@ -114,6 +114,7 @@ extension SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConfir
 
     func didReceiveDelegatorState(state: ParachainStakingDelegatorState?) {
         guard let state = state else {
+            delegationCount = 0
             return
         }
 

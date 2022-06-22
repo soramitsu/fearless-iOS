@@ -45,6 +45,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             )
 
             return StakingBalanceViewModel(
+                title: R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages),
                 widgetViewModel: widgetViewModel,
                 actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
                 unbondingViewModel: unbondingViewModel
@@ -115,7 +116,9 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             bondTitle: StakingBalanceAction.bondMore.title(for: locale),
             unbondTitle: StakingBalanceAction.unbond.title(for: locale),
             redeemTitle: StakingBalanceAction.redeem.title(for: locale),
-            redeemActionIsAvailable: redeemableDecimal > 0
+            redeemActionIsAvailable: redeemableDecimal > 0,
+            stakeMoreActionAvailable: true,
+            stakeLessActionAvailable: true
         )
     }
 

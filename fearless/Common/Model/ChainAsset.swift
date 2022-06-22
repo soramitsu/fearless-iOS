@@ -20,4 +20,8 @@ extension ChainAsset {
     }
 
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
+
+    var stakingType: StakingType? {
+        chain.assets.first(where: { $0.assetId == asset.id })?.staking
+    }
 }

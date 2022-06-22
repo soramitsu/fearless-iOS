@@ -24,7 +24,7 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     private let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     private(set) var collator: ParachainStakingCandidateInfo
-    private(set) var delegation: ParachainStakingDelegation
+    private(set) var delegation: ParachainStakingDelegation?
 
     var requests: [ParachainStakingScheduledRequest]?
     var history: [ParachainStakingScheduledRequest]? {
@@ -52,11 +52,16 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     }
 
     var unbondFlow: StakingUnbondSetupFlow? {
-        .parachain(candidate: collator, delegation: delegation)
+        guard let delegation = delegation else {
+            return nil
+        }
+
+        return .parachain(candidate: collator, delegation: delegation)
     }
 
     var revokeFlow: StakingRedeemFlow? {
-        guard let readyForRevoke = calculateRevokeAmount() else {
+        guard let delegation = delegation,
+              let readyForRevoke = calculateRevokeAmount() else {
             return nil
         }
 
@@ -113,9 +118,9 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
     }
 
     func didReceiveDelegation(_ delegation: ParachainStakingDelegation?) {
-        guard let delegation = delegation else {
-            return
-        }
+//        guard let delegation = delegation else {
+//            return
+//        }
 
         self.delegation = delegation
 

@@ -176,7 +176,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         guard
             let chainId = selectedChainAsset?.chain.chainId,
             let accountId = selectedAccount?.accountId,
-            let chainFormat = selectedChainAsset?.chain.chainFormat else {
+            let chainFormat = selectedChainAsset?.chain.chainFormat,
+            let stakingType = selectedChainAsset?.stakingType else {
             return
         }
 
@@ -184,7 +185,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             try stakingAccountUpdatingService.setupSubscription(
                 for: accountId,
                 chainId: chainId,
-                chainFormat: chainFormat
+                chainFormat: chainFormat,
+                stakingType: stakingType
             )
         } catch {
             logger?.error("Could setup staking account subscription")

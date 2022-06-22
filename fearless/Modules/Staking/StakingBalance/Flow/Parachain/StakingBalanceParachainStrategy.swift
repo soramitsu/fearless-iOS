@@ -18,7 +18,6 @@ final class StakingBalanceParachainStrategy {
     private let operationFactory: ParachainCollatorOperationFactory
     private let operationManager: OperationManagerProtocol
     private weak var output: StakingBalanceParachainStrategyOutput?
-    private let eventCenter: EventCenterProtocol
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     private let logger: LoggerProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
@@ -34,7 +33,6 @@ final class StakingBalanceParachainStrategy {
         operationFactory: ParachainCollatorOperationFactory,
         operationManager: OperationManagerProtocol,
         output: StakingBalanceParachainStrategyOutput?,
-        eventCenter: EventCenterProtocol,
         parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
         logger: LoggerProtocol,
         stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
@@ -45,7 +43,6 @@ final class StakingBalanceParachainStrategy {
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.output = output
-        self.eventCenter = eventCenter
         self.parachainStakingLocalSubscriptionFactory = parachainStakingLocalSubscriptionFactory
         self.logger = logger
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
@@ -104,13 +101,18 @@ final class StakingBalanceParachainStrategy {
 
 extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
     func setup() {
-//        eventCenter.add(observer: self)
-
-        try? stakingAccountUpdatingService.setupSubscription(
-            for: collator.owner,
-            chainId: chainAsset.chain.chainId,
-            chainFormat: chainAsset.chain.chainFormat
-        )
+        if let stakingType = chainAsset.stakingType {
+            do {
+                try stakingAccountUpdatingService.setupSubscription(
+                    for: collator.owner,
+                    chainId: chainAsset.chain.chainId,
+                    chainFormat: chainAsset.chain.chainFormat,
+                    stakingType: stakingType
+                )
+            } catch {
+                logger.error("StakingBalanceParachainStrategy.stakingAccountUpdatingService.setupSubscription.error: \(error)")
+            }
+        }
 
         output?.didSetup()
 
@@ -131,13 +133,6 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
         fetchDelegationScheduledRequests()
     }
 }
-
-// extension StakingBalanceParachainStrategy: EventVisitorProtocol {
-//    func processStakingUpdatedEvent() {
-//        fetchCurrentRound()
-//        fetchDelegationScheduledRequests()
-//    }
-// }
 
 extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
     func handleDelegatorState(

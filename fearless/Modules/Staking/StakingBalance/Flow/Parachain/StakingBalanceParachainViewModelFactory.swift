@@ -17,15 +17,24 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         self.timeFormatter = timeFormatter
     }
 
-    func buildViewModel(viewModelState: StakingBalanceViewModelState, priceData: PriceData?) -> LocalizableResource<StakingBalanceViewModel>? {
+    func buildViewModel(
+        viewModelState: StakingBalanceViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingBalanceViewModel>? {
         guard let viewModelState = viewModelState as? StakingBalanceParachainViewModelState else {
             return nil
         }
 
         return LocalizableResource { [unowned self] locale in
             let precision = Int16(self.chainAsset.asset.precision)
+
             let redeemableDecimal = Decimal.fromSubstrateAmount(
                 viewModelState.calculateRevokeAmount() ?? BigUInt.zero,
+                precision: precision
+            ) ?? 0.0
+
+            let bondedDecimal = Decimal.fromSubstrateAmount(
+                viewModelState.delegation?.amount ?? BigUInt.zero,
                 precision: precision
             ) ?? 0.0
 
@@ -45,8 +54,13 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             )
 
             return StakingBalanceViewModel(
+                title: viewModelState.collator.identity?.name,
                 widgetViewModel: widgetViewModel,
-                actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
+                actionsViewModel: self.createActionsViewModel(
+                    redeemableDecimal: redeemableDecimal,
+                    bondedDecimal: bondedDecimal,
+                    locale: locale
+                ),
                 unbondingViewModel: unbondingViewModel
             )
         }
@@ -60,7 +74,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         priceData: PriceData?
     ) -> StakingBalanceWidgetViewModel {
         let bondedDecimal = Decimal.fromSubstrateAmount(
-            viewModelState.delegation.amount,
+            viewModelState.delegation?.amount ?? BigUInt.zero,
             precision: precision
         ) ?? 0.0
         let bondedViewModel = createWidgetItemViewModel(
@@ -109,13 +123,16 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
 
     func createActionsViewModel(
         redeemableDecimal: Decimal,
+        bondedDecimal: Decimal,
         locale: Locale
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
             bondTitle: StakingBalanceAction.bondMore.title(for: locale),
             unbondTitle: R.string.localizable.parachainStakingStakeLess(preferredLanguages: locale.rLanguages),
             redeemTitle: R.string.localizable.parachainStakingUnlock(preferredLanguages: locale.rLanguages),
-            redeemActionIsAvailable: redeemableDecimal > 0
+            redeemActionIsAvailable: redeemableDecimal > 0,
+            stakeMoreActionAvailable: bondedDecimal > 0,
+            stakeLessActionAvailable: bondedDecimal > 0
         )
     }
 

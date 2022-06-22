@@ -17,6 +17,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
     let operationQueue: OperationQueue
     let logger: LoggerProtocol?
+    let stakingType: StakingType
 
     private let mutex = NSLock()
 
@@ -30,7 +31,8 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         provider: StreamableProvider<StashItem>,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        stakingType: StakingType
     ) {
         self.accountId = accountId
         self.chainId = chainId
@@ -40,10 +42,13 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         self.childSubscriptionFactory = childSubscriptionFactory
         self.operationQueue = operationQueue
         self.logger = logger
+        self.stakingType = stakingType
 
-        subscribeLocal()
-
-        subscribeRemote(for: accountId)
+        if stakingType == .relayChain {
+            subscribeLocal()
+        } else {
+            subscribeRemote(for: accountId)
+        }
     }
 
     deinit {

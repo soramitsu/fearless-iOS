@@ -211,7 +211,6 @@ struct StakingBalanceViewFactory {
                 operationFactory: operationFactory,
                 operationManager: operationManager,
                 output: viewModelState,
-                eventCenter: EventCenter.shared,
                 parachainStakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 logger: Logger.shared,
                 stakingAccountUpdatingService: stakingAccountUpdatingService

@@ -81,6 +81,9 @@ extension StakingBalanceViewController: Localizable {
 extension StakingBalanceViewController: StakingBalanceViewProtocol {
     func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
+        if let title = localizedViewModel.title {
+            self.title = title
+        }
 
         rootView.balanceWidget.bind(viewModel: localizedViewModel.widgetViewModel)
         rootView.actionsWidget.bind(viewModel: localizedViewModel.actionsViewModel)
