@@ -1,10 +1,8 @@
-import Foundation
 import SoraFoundation
-
-class NominatorStateView: StakingStateView, LocalizableViewProtocol {
+class DelegationStateView: StakingStateView, LocalizableViewProtocol {
     private lazy var timer = CountdownTimer()
     private lazy var timeFormatter = TotalTimeFormatter()
-    private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
+    private var localizableViewModel: LocalizableResource<DelegationViewModelProtocol>?
 
     var locale = Locale.current {
         didSet {
@@ -24,7 +22,7 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         timer.delegate = self
     }
 
-    func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+    func bind(viewModel: LocalizableResource<DelegationViewModelProtocol>) {
         localizableViewModel = viewModel
 
         timer.stop()
@@ -45,17 +43,14 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
             return
         }
 
-        titleLabel.text = R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages)
+        titleLabel.text = viewModel.name == nil ?
+            R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages) : viewModel.name
         stakeAmountView.valueTop.text = viewModel.totalStakedAmount
         stakeAmountView.valueBottom.text = viewModel.totalStakedPrice
         rewardAmountView.valueTop.text = viewModel.totalRewardAmount
         rewardAmountView.valueBottom.text = viewModel.totalRewardPrice
 
-        if case .undefined = viewModel.status {
-            toggleStatus(false)
-        } else {
-            toggleStatus(true)
-        }
+        toggleStatus(true)
 
         var skeletonOptions: StakingStateSkeletonOptions = []
 
@@ -68,17 +63,14 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         }
 
         switch viewModel.status {
+        case let .active(countdown):
+            presentActiveStatus(countdown: countdown)
+        case let .idle(countdown):
+            presentIdleStatus(countdown: countdown)
+        case let .leaving(countdown):
+            presentLeavingState(countdown: countdown)
         case .undefined:
             skeletonOptions.insert(.status)
-        case let .active(index):
-            presentActiveStatus(for: index)
-        case let .inactive(index):
-            presentInactiveStatus(for: index)
-        case let .waiting(eraCountdown, nominationEra):
-            let remainingTime: TimeInterval? = eraCountdown.map { countdown in
-                countdown.timeIntervalTillStart(targetEra: nominationEra + 1)
-            }
-            presentWaitingStatus(remainingTime: remainingTime)
         }
 
         if !skeletonOptions.isEmpty, viewModel.hasPrice {
@@ -93,44 +85,35 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         statusButton.isUserInteractionEnabled = shouldShow
     }
 
-    private func presentActiveStatus(for era: EraIndex) {
+    private func presentActiveStatus(countdown: String) {
         statusView.titleView.indicatorColor = R.color.colorGreen()!
         statusView.titleView.titleLabel.textColor = R.color.colorGreen()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = R.string.localizable
-            .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.detailsLabel.text = countdown
     }
 
-    private func presentInactiveStatus(for era: UInt32) {
+    private func presentIdleStatus(countdown: String) {
         statusView.titleView.indicatorColor = R.color.colorRed()!
         statusView.titleView.titleLabel.textColor = R.color.colorRed()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
-            .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = R.string.localizable.stakingEraTitle(
-            "\(era)",
-            preferredLanguages: locale.rLanguages
-        ).uppercased()
+            .stakingNominatorStatusIdle(preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.detailsLabel.text = countdown
     }
 
-    private func presentWaitingStatus(remainingTime: TimeInterval?) {
-        statusView.titleView.indicatorColor = R.color.colorTransparentText()!
-        statusView.titleView.titleLabel.textColor = R.color.colorTransparentText()!
+    private func presentLeavingState(countdown: String) {
+        statusView.titleView.indicatorColor = R.color.colorRed()!
+        statusView.titleView.titleLabel.textColor = R.color.colorRed()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
-            .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
-
-        if let remainingTime = remainingTime {
-            timer.start(with: remainingTime, runLoop: .main, mode: .common)
-        } else {
-            statusView.valueView.detailsLabel.text = ""
-        }
+            .stakingNominatorStatusLeaving(preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.detailsLabel.text = countdown
     }
 }
 
-extension NominatorStateView: CountdownTimerDelegate {
+extension DelegationStateView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
         statusView.valueView.detailsLabel.text = (try? timeFormatter.string(from: interval)) ?? ""
     }

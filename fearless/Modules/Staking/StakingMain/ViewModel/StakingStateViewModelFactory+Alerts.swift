@@ -83,7 +83,7 @@ extension StakingStateViewModelFactory {
     }
 
     private func findInactiveAlert(state: NominatorState) -> StakingAlert? {
-        guard case .relaychain(.inactive) = state.status else { return nil }
+        guard case .inactive = state.status else { return nil }
 
         let commonData = state.commonData
         let ledgerInfo = state.ledgerInfo
@@ -119,7 +119,7 @@ extension StakingStateViewModelFactory {
     }
 
     private func findWaitingNextEraAlert(nominationStatus: NominationViewStatus) -> StakingAlert? {
-        if case .relaychain(.waiting) = nominationStatus {
+        if case .waiting = nominationStatus {
             return .waitingNextEra
         }
         return nil

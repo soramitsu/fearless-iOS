@@ -717,17 +717,17 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
             let collator = delegationInfo.collator
             let delegation = delegationInfo.delegation
 
-            let resource: LocalizableResource<NominationViewModelProtocol> = LocalizableResource { _ in
-                let status: NominationViewStatus
+            let resource: LocalizableResource<DelegationViewModelProtocol> = LocalizableResource { _ in
+                let status: DelegationViewStatus
                 switch collator.metadata?.status {
                 case .active:
-                    status = .parachain(.active("0:00:00"))
+                    status = .active(countdown: "0:00:00")
                 case .idle:
-                    status = .parachain(.idle("0:00:00"))
+                    status = .idle(countdown: "0:00:00")
                 case .leaving:
-                    status = .parachain(.leaving("0:00:00"))
+                    status = .leaving(countdown: "0:00:00")
                 case .none:
-                    status = .parachain(.undefined)
+                    status = .undefined
                 }
 
                 let amount = Decimal.fromSubstrateAmount(
@@ -738,7 +738,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
                 let locale = strongSelf.view?.localizationManager?.selectedLocale ?? Locale.current
 
-                return NominationViewModel(
+                return DelegationViewModel(
                     totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
                     totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
                         amount,
