@@ -312,20 +312,14 @@ extension ChainModelMapper: CoreDataMapperProtocol {
     func transform(entity: CDChain) throws -> ChainModel {
         let nodes: Set<ChainNodeModel> = (entity.nodes?.allObjects)
             .orEmpty()
-            .compactMap { anyNode in
-                (anyNode as? CDChainNode).map {
-                    createChainNode(from: $0)
-                }
-            }
+            .compactMap { $0 as? CDChainNode }
+            .map { createChainNode(from: $0) }
             .toSet()
 
         let customNodes: Set<ChainNodeModel> = (entity.customNodes?.allObjects)
             .orEmpty()
-            .compactMap { anyNode in
-                (anyNode as? CDChainNode).map {
-                    createChainNode(from: $0)
-                }
-            }
+            .compactMap { $0 as? CDChainNode }
+            .map { createChainNode(from: $0) }
             .toSet()
 
         var selectedNode: ChainNodeModel?
