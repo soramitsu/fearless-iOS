@@ -56,32 +56,15 @@ final class SelectValidatorsConfirmParachainStrategy {
 
 extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrategy {
     func setup() {
-        fetchCurrentRound()
         fetchDelegatorState()
         provideNetworkStakingInfo()
+        fetchAtStake()
 
         output?.didSetup()
     }
 
-    func fetchCurrentRound() {
-        let roundOperation = collatorOperationFactory.round()
-
-        roundOperation.targetOperation.completionBlock = { [weak self] in
-            let round = try? roundOperation.targetOperation.extractNoCancellableResultData()
-            self?.fetchAtStake(round: round?.current)
-        }
-
-        operationManager.enqueue(operations: roundOperation.allOperations, in: .transient)
-    }
-
-    func fetchAtStake(round: EraIndex?) {
-        guard let round = round else {
-            return
-        }
-
-        let atStakeOperation = collatorOperationFactory.collatorAtStake {
-            [[NMapKeyParam(value: round)], [NMapKeyParam(value: self.collatorAccountId)]]
-        }
+    func fetchAtStake() {
+        let atStakeOperation = collatorOperationFactory.collatorAtStake(collatorAccountId: collatorAccountId)
 
         atStakeOperation.targetOperation.completionBlock = { [weak self] in
             guard let strongSelf = self else {

@@ -32,6 +32,16 @@ protocol SelectValidatorsConfirmViewModelState: SelectValidatorsConfirmUserInput
 
     var amount: Decimal? { get }
     var fee: Decimal? { get }
+
+    var payoutAccountAddress: String? { get }
+    var walletAccountAddress: String? { get }
+    var collatorAddress: String? { get }
+}
+
+extension SelectValidatorsConfirmViewModelState {
+    var payoutAccountAddress: String? { nil }
+    var walletAccountAddress: String? { nil }
+    var collatorAddress: String? { nil }
 }
 
 struct SelectValidatorsConfirmDependencyContainer {

@@ -57,6 +57,12 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             action: #selector(proceed),
             for: .touchUpInside
         )
+
+        rootView.selectedCollatorView.addTarget(
+            self,
+            action: #selector(actionOnCollatorAccount),
+            for: .touchUpInside
+        )
     }
 
     private func setupLocalization() {
@@ -197,6 +203,10 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     @objc private func actionOnWalletAccount() {
         presenter.selectWalletAccount()
+    }
+
+    @objc private func actionOnCollatorAccount() {
+        presenter.selectCollatorAccount()
     }
 
     @objc private func proceed() {

@@ -51,7 +51,8 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
 
     func buildYourRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
-        priceData: PriceData?
+        priceData: PriceData?,
+        calculator: RewardCalculatorEngineProtocol?
     ) -> LocalizableResource<YourRewardDestinationViewModel>? {
         guard let parachainViewModelState = viewModelState as? StakingAmountParachainViewModelState else {
             return nil
@@ -59,8 +60,30 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
 
         let address = parachainViewModelState.wallet.fetch(for: parachainViewModelState.chainAsset.chain.accountRequest())?.toAddress() ?? ""
 
-        // TODO: Subquery
-        let reward = CalculatedReward(restakeReturn: 0, restakeReturnPercentage: 0, payoutReturn: 0, payoutReturnPercentage: 0)
+        let reward: CalculatedReward?
+
+        if let calculator = calculator {
+            let restake = calculator.calculateMaxReturn(
+                isCompound: true,
+                period: .year
+            )
+
+            let payout = calculator.calculateMaxReturn(
+                isCompound: false,
+                period: .year
+            )
+
+            let curAmount = viewModelState.amount ?? 0.0
+            reward = CalculatedReward(
+                restakeReturn: restake * curAmount,
+                restakeReturnPercentage: restake,
+                payoutReturn: payout * curAmount,
+                payoutReturnPercentage: payout
+            )
+        } else {
+            reward = nil
+        }
+
         let payoutViewModel = try? rewardDestViewModelFactory.createPayout(
             from: reward,
             priceData: priceData,

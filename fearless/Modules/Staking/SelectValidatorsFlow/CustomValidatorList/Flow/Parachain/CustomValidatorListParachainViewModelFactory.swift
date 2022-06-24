@@ -59,7 +59,7 @@ class CustomValidatorListParachainViewModelFactory {
         priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
-        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+        let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
         return collatorList.map { collator in
             let icon = try? self.iconGenerator.generateFromAddress(collator.address)
@@ -69,9 +69,8 @@ class CustomValidatorListParachainViewModelFactory {
 
             switch filter.sortedBy {
             case .estimatedReward:
-                // TODO: Real stake return value
                 detailsText =
-                    apyFormatter.string(from: 0 as NSNumber)
+                    apyFormatter.string(from: (collator.subqueryData?.apr ?? 0.0) as NSNumber)
                 auxDetailsText = nil
 
             case .ownStake:

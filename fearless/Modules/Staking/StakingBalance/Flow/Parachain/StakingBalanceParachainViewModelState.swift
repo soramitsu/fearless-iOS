@@ -20,6 +20,10 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
         []
     }
 
+    func unbondingMoreValidators(using _: Locale) -> [DataValidating] {
+        []
+    }
+
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol

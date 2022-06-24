@@ -27,6 +27,12 @@ final class ValidatorSearchRelaychainViewModelState: ValidatorSearchViewModelSta
         self.delegate = delegate
     }
 
+    func validatorInfoFlow(index: Int) -> ValidatorInfoFlow? {
+        let validator = filteredValidatorList[index]
+
+        return .relaychain(validatorInfo: validator, address: nil)
+    }
+
     func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
         filteredValidatorList = []
 

@@ -23,9 +23,14 @@ protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var amount: Decimal? { get set }
     var fee: Decimal? { get set }
     var bonding: InitiatedBonding? { get }
+    var payoutAccount: ChainAccountResponse? { get }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?)
 }
+
+// extension StakingAmountViewModelState {
+//    var payoutAccount: ChainAccountResponse? { nil }
+// }
 
 struct StakingAmountDependencyContainer {
     let viewModelState: StakingAmountViewModelState
@@ -42,7 +47,8 @@ protocol StakingAmountViewModelFactoryProtocol {
 
     func buildYourRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
-        priceData: PriceData?
+        priceData: PriceData?,
+        calculator: RewardCalculatorEngineProtocol?
     ) -> LocalizableResource<YourRewardDestinationViewModel>?
 
     func buildSelectRewardDestinationViewModel(
@@ -61,7 +67,8 @@ extension StakingAmountViewModelFactoryProtocol {
 
     func buildYourRewardDestinationViewModel(
         viewModelState _: StakingAmountViewModelState,
-        priceData _: PriceData?
+        priceData _: PriceData?,
+        calculator _: RewardCalculatorEngineProtocol?
     ) -> LocalizableResource<YourRewardDestinationViewModel>? { nil }
 
     func buildSelectRewardDestinationViewModel(

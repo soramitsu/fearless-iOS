@@ -87,6 +87,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         return view
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: SelectValidatorsStartFlow,
         chainAsset: ChainAsset
@@ -123,10 +124,27 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return nil
         }
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
-            for: settings.chain.chainId,
+            for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }
@@ -197,13 +215,18 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
             return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .parachain(bonding):
+            let subqueryOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.history?.url
+            )
+
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageOperationFactory,
                 runtimeService: runtimeService,
                 engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                subqueryOperationFactory: subqueryOperationFactory
             )
 
             let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)

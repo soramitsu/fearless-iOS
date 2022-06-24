@@ -63,6 +63,192 @@ enum RewardCalculatorEngineError: Error {
     case unexpectedValidator(accountId: Data)
 }
 
+final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
+    private var totalIssuance: Decimal
+    private var collators: [ParachainStakingCandidateInfo] = []
+
+    private let chainId: ChainModel.Id
+    private let assetPrecision: Int16
+    private let eraDurationInSeconds: TimeInterval
+    private let commission: Decimal
+
+    private let decayRate: Decimal = 0.05
+    private let idealStakePortion: Decimal = 0.75
+    private let idealInflation: Decimal = 0.1
+    private let minimalInflation: Decimal = 0.025
+
+    init(
+        chainId: ChainModel.Id,
+        assetPrecision: Int16,
+        totalIssuance: BigUInt,
+        collators: [ParachainStakingCandidateInfo],
+        eraDurationInSeconds: TimeInterval,
+        commission: Decimal
+    ) {
+        self.chainId = chainId
+        self.assetPrecision = assetPrecision
+        self.totalIssuance = Decimal.fromSubstrateAmount(
+            totalIssuance,
+            precision: assetPrecision
+        ) ?? 0.0
+        self.collators = collators
+        self.eraDurationInSeconds = eraDurationInSeconds
+        self.commission = commission
+    }
+
+    private lazy var totalStake: Decimal = {
+        Decimal.fromSubstrateAmount(
+            collators.compactMap(\.metadata?.totalCounted).reduce(0, +),
+            precision: assetPrecision
+        ) ?? 0.0
+    }()
+
+    private var averageStake: Decimal {
+        if !collators.isEmpty {
+            return totalStake / Decimal(collators.count)
+        } else {
+            return 0.0
+        }
+    }
+
+    private var stakedPortion: Decimal {
+        if totalIssuance > 0.0 {
+            return totalStake / totalIssuance
+        } else {
+            return 0.0
+        }
+    }
+
+    private lazy var annualInflation: Decimal = {
+        let idealInterest = idealInflation / idealStakePortion
+
+        if stakedPortion <= idealStakePortion {
+            return minimalInflation + stakedPortion *
+                (idealInterest - minimalInflation / idealStakePortion)
+        } else {
+            let powerValue = (idealStakePortion - stakedPortion) / decayRate
+            let doublePowerValue = Double(truncating: powerValue as NSNumber)
+            let decayCoefficient = Decimal(pow(2, doublePowerValue))
+            return minimalInflation + (idealInterest * idealStakePortion - minimalInflation)
+                * decayCoefficient
+        }
+    }()
+
+    private lazy var maxCollator: ParachainStakingCandidateInfo? = {
+        collators.max {
+            calculateEarningsForCollator($0, amount: 1.0, isCompound: false, period: .year) <
+                calculateEarningsForCollator($1, amount: 1.0, isCompound: false, period: .year)
+        }
+    }()
+
+    func calculateEarnings(
+        amount: Decimal,
+        validatorAccountId: Data,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) throws -> Decimal {
+        guard let collator = collators.first(where: { $0.owner == validatorAccountId }) else {
+            throw RewardCalculatorEngineError.unexpectedValidator(accountId: validatorAccountId)
+        }
+
+        return calculateEarningsForCollator(collator, amount: amount, isCompound: isCompound, period: period)
+    }
+
+    func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
+        guard let collator = maxCollator else {
+            return 0.0
+        }
+
+        return calculateEarningsForCollator(
+            collator,
+            amount: amount,
+            isCompound: isCompound,
+            period: period
+        )
+    }
+
+    func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
+        calculateEarningsForAmount(
+            amount,
+            stake: averageStake,
+            commission: commission,
+            isCompound: isCompound,
+            period: period
+        )
+    }
+
+    private func calculateReturnForStake(_ stake: Decimal, commission: Decimal) -> Decimal {
+        (annualInflation * averageStake / (stakedPortion * stake)) * (1.0 - commission)
+    }
+
+    private func calculateEarningsForCollator(
+        _ collator: ParachainStakingCandidateInfo,
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal {
+        let stake = Decimal.fromSubstrateAmount(
+            collator.metadata?.totalCounted ?? BigUInt.zero,
+            precision: assetPrecision
+        ) ?? 0.0
+
+        return calculateEarningsForAmount(
+            amount,
+            stake: stake,
+            commission: commission,
+            isCompound: isCompound,
+            period: period
+        )
+    }
+
+    private func calculateEarningsForAmount(
+        _ amount: Decimal,
+        stake: Decimal,
+        commission: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal {
+        let annualReturn = calculateReturnForStake(stake, commission: commission)
+
+        let dailyReturn = annualReturn / 365.0
+
+        if isCompound {
+            return calculateCompoundReward(
+                initialAmount: amount,
+                period: period,
+                dailyInterestRate: dailyReturn
+            )
+        } else {
+            return amount * dailyReturn * Decimal(period.inDays)
+        }
+    }
+
+    // MARK: - Private
+
+    // Calculation formula: R = P(1 + r/n)^nt - P, where
+    // P – original amount
+    // r - daily interest rate
+    // n - number of eras in a day
+    // t - number of days
+    private func calculateCompoundReward(
+        initialAmount: Decimal,
+        period: CalculationPeriod,
+        dailyInterestRate: Decimal
+    ) -> Decimal {
+        let numberOfDays = period.inDays
+        let erasPerDay = eraDurationInSeconds.intervalsInDay
+
+        guard erasPerDay > 0 else {
+            return 0.0
+        }
+
+        let compoundedInterest = pow(1.0 + dailyInterestRate / Decimal(erasPerDay), erasPerDay * numberOfDays)
+        let finalAmount = initialAmount * compoundedInterest
+
+        return finalAmount - initialAmount
+    }
+}
+
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75
 final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {

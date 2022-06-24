@@ -267,6 +267,42 @@ final class StakingStateViewModelFactory {
             amount: amount
         )
     }
+
+//    private func createEstimationViewModel(
+//        for chainAsset: ChainAsset,
+//        commonData: StakingStateCommonData,
+//        amount: Decimal?
+//    )
+//        throws -> StakingEstimationViewModel {
+//        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+//
+//        let balance = convertAmount(
+//            commonData.accountInfo?.data.available,
+//            for: chainAsset,
+//            defaultValue: 0.0
+//        )
+//
+//        let balanceViewModel = balanceViewModelFactory
+//            .createAssetBalanceViewModel(
+//                amount ?? 0.0,
+//                balance: balance,
+//                priceData: commonData.price
+//            )
+//
+//        let reward: LocalizableResource<PeriodRewardViewModel>? = try createPeriodReward(
+//            for: chainAsset,
+//            commonData: commonData,
+//            amount: amount
+//        )
+//
+//        return StakingEstimationViewModel(
+//            assetBalance: balanceViewModel,
+//            rewardViewModel: reward,
+//            assetInfo: chainAsset.assetDisplayInfo,
+//            inputLimit: StakingConstants.maxAmount,
+//            amount: amount
+//        )
+//    }
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {

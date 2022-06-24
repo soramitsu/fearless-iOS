@@ -78,25 +78,31 @@ final class ValidatorInfoParachainViewModelFactory {
             myNomination = nil
         }
 
-        let totalStakeAmount = Decimal.fromSubstrateAmount(
+        let totalStakeDecimal = Decimal.fromSubstrateAmount(
             collatorInfo.metadata?.totalCounted ?? BigUInt.zero,
             precision: Int16(chainAsset.asset.precision)
-        ) ?? Decimal.zero
+        ) ?? 0.0
+        let ownStakeDecimal = Decimal.fromSubstrateAmount(
+            collatorInfo.metadata?.bond ?? BigUInt.zero,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? 0.0
+
         let totalStake = balanceViewModelFactory.balanceFromPrice(
-            totalStakeAmount,
+            totalStakeDecimal,
             priceData: priceData
         ).value(for: locale)
 
-        // TODO: Stake return real value
-        let estimatedRewardDecimal = Decimal.zero
-        let estimatedReward = NumberFormatter.percentAPY.localizableResource()
+        let estimatedReward = collatorInfo.subqueryData?.apr ?? 0.0
+        let estimatedRewardDecimal = Decimal(estimatedReward)
+        let estimatedRewardString = NumberFormatter.percentPlainAPY.localizableResource()
             .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
 
-        let minimumBond = Decimal.fromSubstrateAmount(collatorInfo.metadata?.lowestTopDelegationAmount ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+        let minimumBond = Decimal.fromSubstrateAmount(
+            collatorInfo.metadata?.lowestTopDelegationAmount ?? BigUInt.zero,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? 0
 
-        let selfBonded = Decimal.fromSubstrateAmount(collatorInfo.metadata?.bond ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
-
-        let effectiveAmountBonded = Decimal.fromSubstrateAmount(collatorInfo.metadata?.bond ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+        let effectiveAmountBondedDecimal = totalStakeDecimal - ownStakeDecimal
 
         let minimumBondString = balanceViewModelFactory.balanceFromPrice(
             minimumBond,
@@ -104,12 +110,12 @@ final class ValidatorInfoParachainViewModelFactory {
         ).value(for: locale).amount
 
         let selfBondedString = balanceViewModelFactory.balanceFromPrice(
-            selfBonded,
+            ownStakeDecimal,
             priceData: priceData
         ).value(for: locale).amount
 
         let effectiveAmountBondedString = balanceViewModelFactory.balanceFromPrice(
-            effectiveAmountBonded,
+            effectiveAmountBondedDecimal,
             priceData: priceData
         ).value(for: locale).amount
 
@@ -117,7 +123,7 @@ final class ValidatorInfoParachainViewModelFactory {
         return ValidatorInfoViewModel.ParachainExposure(
             delegations: delegationsCountString,
             totalStake: totalStake,
-            estimatedReward: estimatedReward,
+            estimatedReward: estimatedRewardString,
             minimumBond: minimumBondString,
             selfBonded: selfBondedString,
             effectiveAmountBonded: effectiveAmountBondedString
@@ -224,7 +230,41 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
         )
     }
 
-    func buildStakingAmountViewModels(viewModelState _: ValidatorInfoViewModelState, priceData _: PriceData?) -> [LocalizableResource<StakingAmountViewModel>]? {
-        nil
+    func buildStakingAmountViewModels(
+        viewModelState: ValidatorInfoViewModelState,
+        priceData: PriceData?
+    ) -> [LocalizableResource<StakingAmountViewModel>]? {
+        guard let parachainViewModelState = viewModelState as? ValidatorInfoParachainViewModelState else {
+            return nil
+        }
+
+        let collator = parachainViewModelState.collatorInfo
+
+        let totalStake = Decimal.fromSubstrateAmount(
+            collator.metadata?.totalCounted ?? BigUInt.zero,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? 0.0
+        let ownStake = Decimal.fromSubstrateAmount(
+            collator.metadata?.bond ?? BigUInt.zero,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? 0.0
+
+        return [
+            createStakingAmountRow(
+                title: createOwnStakeTitle(),
+                amount: ownStake,
+                priceData: priceData
+            ),
+            createStakingAmountRow(
+                title: createNominatorsStakeTitle(),
+                amount: totalStake - ownStake,
+                priceData: priceData
+            ),
+            createStakingAmountRow(
+                title: createTotalTitle(),
+                amount: totalStake,
+                priceData: priceData
+            )
+        ]
     }
 }

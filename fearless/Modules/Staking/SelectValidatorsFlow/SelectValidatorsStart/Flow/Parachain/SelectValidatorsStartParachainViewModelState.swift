@@ -13,6 +13,7 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
     var maxTopDelegationsPerCandidate: Int?
     var maxBottomDelegationsPerCandidate: Int?
 
+    private(set) var collatorsApr: [SubqueryCollatorData]?
     var selectedCandidates: [ParachainStakingCandidateInfo]?
     var recommendedCandidates: [ParachainStakingCandidateInfo]?
     private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
@@ -112,5 +113,11 @@ extension SelectValidatorsStartParachainViewModelState: SelectValidatorsStartPar
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
+    }
+
+    func didReceiveCollatorsApr(collatorsApr: [SubqueryCollatorData]) {
+        self.collatorsApr = collatorsApr
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }

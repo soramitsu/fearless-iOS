@@ -692,6 +692,17 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         self.collators = collators
 
         provideParachainViewModel()
+
+//        if let chainAsset = chainAsset, let collators = collators {
+//            let rewardCalculatorEngine = ParachainRewardCalculatorEngine(
+//                chainId: chainAsset.chain.chainId,
+//                assetPrecision: Int16(chainAsset.asset.precision),
+//                totalIssuance: BigUInt.zero,
+//                collators: collators,
+//                eraDurationInSeconds: TimeInterval(24 / chainAsset.chain.erasPerDay) * 3600
+//            )
+//            stateMachine.state.process(calculator: rewardCalculatorEngine)
+//        }
     }
 
     private func provideParachainViewModel() {

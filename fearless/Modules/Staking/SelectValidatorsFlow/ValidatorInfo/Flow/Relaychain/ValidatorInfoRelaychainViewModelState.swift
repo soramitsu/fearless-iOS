@@ -8,6 +8,10 @@ final class ValidatorInfoRelaychainViewModelState: ValidatorInfoViewModelState {
     }
 
     var validatorInfo: ValidatorInfoProtocol?
+
+    var validatorAddress: String? {
+        validatorInfo?.address
+    }
 }
 
 extension ValidatorInfoRelaychainViewModelState: ValidatorInfoRelaychainStrategyOutput {

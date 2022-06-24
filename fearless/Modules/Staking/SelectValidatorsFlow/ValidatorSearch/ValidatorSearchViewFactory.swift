@@ -8,7 +8,8 @@ struct ValidatorSearchViewFactory {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -17,11 +18,48 @@ struct ValidatorSearchViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard
+            let eraValidatorService = try? serviceFactory.createEraValidatorService(
+                for: chainAsset.chain
+            ) else {
+            return nil
+        }
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: Int16(chainAsset.asset.precision),
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        eraValidatorService.setup()
+        rewardService.setup()
+
         let validatorOperationFactory = RelaychainValidatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
-            eraValidatorService: EraValidatorFacade.sharedService,
-            rewardService: RewardCalculatorFacade.sharedService,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
             engine: connection,

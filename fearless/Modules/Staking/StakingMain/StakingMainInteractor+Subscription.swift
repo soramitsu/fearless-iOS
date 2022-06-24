@@ -176,13 +176,18 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
+        let subqueryOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
             engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: subqueryOperationFactory
         )
 
         switch result {

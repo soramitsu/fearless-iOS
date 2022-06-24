@@ -12,6 +12,10 @@ final class ValidatorInfoParachainViewModelState: ValidatorInfoViewModelState {
     init(collatorInfo: ParachainStakingCandidateInfo) {
         self.collatorInfo = collatorInfo
     }
+
+    var validatorAddress: String? {
+        collatorInfo.address
+    }
 }
 
 extension ValidatorInfoParachainViewModelState: ValidatorInfoParachainStrategyOutput {

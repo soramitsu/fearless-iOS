@@ -133,6 +133,9 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
             return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .parachain(target, maxTargets, bonding):
+            let subqueryOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
 
             let collatorOperationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -140,7 +143,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 storageRequestFactory: storageOperationFactory,
                 runtimeService: runtimeService,
                 engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                subqueryOperationFactory: subqueryOperationFactory
             )
 
             let viewModelState = SelectValidatorsConfirmParachainViewModelState(

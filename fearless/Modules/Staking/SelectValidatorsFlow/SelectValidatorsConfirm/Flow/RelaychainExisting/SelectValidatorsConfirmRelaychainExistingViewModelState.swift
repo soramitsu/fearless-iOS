@@ -47,6 +47,19 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         self.dataValidatingFactory = dataValidatingFactory
     }
 
+    var payoutAccountAddress: String? {
+        switch existingBonding.rewardDestination {
+        case let .payout(account):
+            return account
+        default:
+            return nil
+        }
+    }
+
+    var walletAccountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    }
+
     func validators(using locale: Locale) -> [DataValidating] {
         [dataValidatingFactory.canNominate(
             amount: existingBonding.amount,

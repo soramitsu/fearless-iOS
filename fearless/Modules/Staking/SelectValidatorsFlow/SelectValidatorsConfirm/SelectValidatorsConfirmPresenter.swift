@@ -70,40 +70,54 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
     }
 
     func selectWalletAccount() {
-        // TODO: Transition with new parameters
-//        guard let state = state else {
-//            return
-//        }
-//
-//        if let view = view {
-//            let locale = view.localizationManager?.selectedLocale ?? Locale.current
-//
-//            wireframe.presentAccountOptions(
-//                from: view,
-//                address: state.wallet.address,
-//                chain: chainAsset.chain,
-//                locale: locale
-//            )
-//        }
+        guard let walletAddress = viewModelState.walletAccountAddress else {
+            return
+        }
+
+        if let view = view {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+            wireframe.presentAccountOptions(
+                from: view,
+                address: walletAddress,
+                chain: chainAsset.chain,
+                locale: locale
+            )
+        }
     }
 
     func selectPayoutAccount() {
-        // TODO: Transition with new parameters
-//        guard let state = state else {
-//            return
-//        }
-//
-//        if case let .payout(account) = state.rewardDestination,
-//           let view = view {
-//            let locale = view.localizationManager?.selectedLocale ?? Locale.current
-//
-//            wireframe.presentAccountOptions(
-//                from: view,
-//                address: account.address,
-//                chain: chainAsset.chain,
-//                locale: locale
-//            )
-//        }
+        guard let address = viewModelState.payoutAccountAddress else {
+            return
+        }
+
+        if let view = view {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+            wireframe.presentAccountOptions(
+                from: view,
+                address: address,
+                chain: chainAsset.chain,
+                locale: locale
+            )
+        }
+    }
+
+    func selectCollatorAccount() {
+        guard let address = viewModelState.collatorAddress else {
+            return
+        }
+
+        if let view = view {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+            wireframe.presentAccountOptions(
+                from: view,
+                address: address,
+                chain: chainAsset.chain,
+                locale: locale
+            )
+        }
     }
 
     func proceed() {

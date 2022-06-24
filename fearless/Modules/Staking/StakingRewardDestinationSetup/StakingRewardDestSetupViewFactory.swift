@@ -1,6 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import FearlessUtils
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -149,10 +150,26 @@ struct StakingRewardDestSetupViewFactory {
             for: settings.chain
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: settings.chain.chainId,
+            for: ChainAsset(chain: settings.chain, asset: settings.asset),
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
         )
 
         return StakingRewardDestSetupInteractor(

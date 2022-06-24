@@ -1394,7 +1394,7 @@
 		AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */; };
 		AEDD7C0F269C81F500A8405F /* BlockWeights.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEDD7C0E269C81F500A8405F /* BlockWeights.swift */; };
 		AEE1207C26565CDC003EE80C /* WalletNetworkFacade+MinimalBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */; };
-		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
+		AEE4E34825E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
 		AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */; };
@@ -1831,6 +1831,7 @@
 		FA256A51274CEB9800875A53 /* FeePriceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */; };
 		FA256A52274CEB9800875A53 /* RichAmountDisplayViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */; };
 		FA256A53274CEB9800875A53 /* RichAmountInputViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */; };
+		FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */; };
 		FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */; };
 		FA2E9B95279FE9380023FAD2 /* TextCopyPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9B94279FE9380023FAD2 /* TextCopyPresentable.swift */; };
 		FA2E9BA727A110D90023FAD2 /* BaseFilterItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9BA627A110D90023FAD2 /* BaseFilterItem.swift */; };
@@ -3538,7 +3539,7 @@
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEDD7C0E269C81F500A8405F /* BlockWeights.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlockWeights.swift; sourceTree = "<group>"; };
 		AEE1207B26565CDB003EE80C /* WalletNetworkFacade+MinimalBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+MinimalBalance.swift"; sourceTree = "<group>"; };
-		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
+		AEE4E34725E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
 		AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFacade.swift; sourceTree = "<group>"; };
 		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
@@ -3997,6 +3998,7 @@
 		FA256A4E274CEB9600875A53 /* FeePriceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FeePriceViewModel.swift; sourceTree = "<group>"; };
 		FA256A4F274CEB9700875A53 /* RichAmountDisplayViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountDisplayViewModel.swift; sourceTree = "<group>"; };
 		FA256A50274CEB9700875A53 /* RichAmountInputViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RichAmountInputViewModel.swift; sourceTree = "<group>"; };
+		FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicOptionsPresentable.swift; sourceTree = "<group>"; };
 		FA2E9B94279FE9380023FAD2 /* TextCopyPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextCopyPresentable.swift; sourceTree = "<group>"; };
 		FA2E9BA627A110D90023FAD2 /* BaseFilterItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseFilterItem.swift; sourceTree = "<group>"; };
@@ -8791,9 +8793,10 @@
 			isa = PBXGroup;
 			children = (
 				AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */,
-				AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */,
 				AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */,
 				AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */,
+				AEE4E34725E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift */,
+				FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */,
 			);
 			path = RewardCalculatorService;
 			sourceTree = "<group>";
@@ -12120,7 +12123,7 @@
 				84FA835A265CE5BE00FDF727 /* TitleMultiValueView.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				F40966FE26B29A58008CD244 /* ChartData.swift in Sources */,
-				AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */,
+				AEE4E34825E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift in Sources */,
 				F40D0AF2260CCE5800CBD43B /* StakingPayoutBaseTableCell.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				8472C601265D7A1F00E2481B /* WebSocketProviderSource.swift in Sources */,
@@ -13184,6 +13187,7 @@
 				134AFD616BE52A1AE290EEF7 /* StakingBalanceFlow.swift in Sources */,
 				78314B269F1CF1A499DE5CCB /* StakingBondMoreFlow.swift in Sources */,
 				872DF7DE5A001DF5B8A4E288 /* StakingBondMoreConfirmationFlow.swift in Sources */,
+				FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */,
 				2ED5B5FFD880BA1905051E89 /* StakingUnbondSetupFlow.swift in Sources */,
 				794029A3A00B085D6CFE3FF1 /* StakingUnbondConfirmFlow.swift in Sources */,
 				2A753CE585E2F0DA4BAD7CF4 /* StakingRedeemFlow.swift in Sources */,

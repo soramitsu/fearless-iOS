@@ -81,6 +81,19 @@ struct SubqueryHistoryElement: Decodable {
     let transfer: SubqueryTransfer?
 }
 
+struct SubqueryCollatorDataResponse: Decodable {
+    struct HistoryElements: Decodable {
+        let nodes: [SubqueryCollatorData]
+    }
+
+    let collatorRounds: HistoryElements
+}
+
+struct SubqueryCollatorData: Decodable, Equatable {
+    let collatorId: String
+    let apr: Double
+}
+
 struct SubqueryHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let pageInfo: SubqueryPageInfo
