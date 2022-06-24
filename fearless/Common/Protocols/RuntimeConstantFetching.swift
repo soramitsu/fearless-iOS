@@ -41,7 +41,7 @@ extension RuntimeConstantFetching {
                 if let result = constOperation.result {
                     if case let .failure(errorKind) = result,
                        case StorageDecodingOperationError.invalidStoragePath = errorKind,
-                       let snapshot = runtimeCodingService.runtimeSnapshot,
+                       let snapshot = runtimeCodingService.snapshot,
                        let override = snapshot.typeRegistryCatalog.override(
                            for: path.moduleName,
                            constantName: path.constantName,
