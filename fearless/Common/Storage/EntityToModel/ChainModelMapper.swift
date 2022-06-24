@@ -39,15 +39,18 @@ final class ChainModelMapper {
               let asset = entity.asset else {
             preconditionFailure()
         }
+
         let staking: StakingType?
         if let entityStaking = entity.staking {
             staking = StakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }
-        let purchaseProviders: [PurchaseProvider]? = entity.purchaseProviders?.compactMap {
+
+        let purchaseProviders: [PurchaseProvider] = entity.purchaseProviders.orEmpty().compactMap {
             PurchaseProvider(rawValue: $0)
         }
+
         return ChainAssetModel(
             assetId: assetId,
             staking: staking,
@@ -307,26 +310,23 @@ final class ChainModelMapper {
 
 extension ChainModelMapper: CoreDataMapperProtocol {
     func transform(entity: CDChain) throws -> ChainModel {
-        let nodes: [ChainNodeModel] = entity.nodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
+        let nodes: Set<ChainNodeModel> = (entity.nodes?.allObjects)
+            .orEmpty()
+            .compactMap { anyNode in
+                (anyNode as? CDChainNode).map {
+                    createChainNode(from: $0)
+                }
             }
+            .toSet()
 
-            return createChainNode(from: node)
-        } ?? []
-
-        let customNodes: [ChainNodeModel]? = entity.customNodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
+        let customNodes: Set<ChainNodeModel> = (entity.customNodes?.allObjects)
+            .orEmpty()
+            .compactMap { anyNode in
+                (anyNode as? CDChainNode).map {
+                    createChainNode(from: $0)
+                }
             }
-
-            return createChainNode(from: node)
-        }
-
-        var customNodesSet: Set<ChainNodeModel>?
-        if let nodes = customNodes {
-            customNodesSet = Set(nodes)
-        }
+            .toSet()
 
         var selectedNode: ChainNodeModel?
 
@@ -370,14 +370,14 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             chainId: entity.chainId!,
             parentId: entity.parentId,
             name: entity.name!,
-            nodes: Set(nodes),
+            nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,
             options: options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: customNodesSet,
+            customNodes: customNodes,
             iosMinAppVersion: entity.minimalAppVersion
         )
 
