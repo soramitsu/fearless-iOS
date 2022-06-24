@@ -192,7 +192,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             )
         ]
 
-        DataValidationRunner(validators: []).runValidation { [weak self] in
+        DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
             guard
                 let strongSelf = self,
                 let bonding = strongSelf.viewModelState?.bonding
