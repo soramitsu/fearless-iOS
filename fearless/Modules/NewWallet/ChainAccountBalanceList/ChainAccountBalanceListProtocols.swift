@@ -36,7 +36,10 @@ protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresen
         chain: ChainModel,
         asset: AssetModel
     )
-    func showManageAssets(from view: ChainAccountBalanceListViewProtocol?)
+    func showManageAssets(
+        from view: ChainAccountBalanceListViewProtocol?,
+        chainModels: [ChainModel]
+    )
     func showWalletSelection(from view: ChainAccountBalanceListViewProtocol?)
     func presentSelectCurrency(
         from view: ControllerBackedProtocol?,

@@ -43,7 +43,8 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             snapshotOperationFactory: snapshotOperationFactory,
             eventCenter: eventCenter,
             operationQueue: operationQueue,
-            logger: logger
+            logger: logger,
+            repository: repository
         )
     }
 }

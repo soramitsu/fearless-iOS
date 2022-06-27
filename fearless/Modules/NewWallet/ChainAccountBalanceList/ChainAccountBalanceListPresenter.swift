@@ -36,16 +36,20 @@ final class ChainAccountBalanceListPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.buildChainAccountBalanceListViewModel(
-            selectedMetaAccount: selectedMetaAccount,
-            chains: chainModels,
-            locale: selectedLocale,
-            accountInfos: accountInfos,
-            prices: prices,
-            sortedKeys: sortedKeys
-        )
+        DispatchQueue.global(qos: .userInitiated).async {
+            let viewModel = self.viewModelFactory.buildChainAccountBalanceListViewModel(
+                selectedMetaAccount: selectedMetaAccount,
+                chains: self.chainModels,
+                locale: self.selectedLocale,
+                accountInfos: self.accountInfos,
+                prices: self.prices,
+                sortedKeys: self.sortedKeys
+            )
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+            CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue) {
+                self.view?.didReceive(state: .loaded(viewModel: viewModel))
+            }
+        }
     }
 
     private func priceUpdateDidStart() {
@@ -67,7 +71,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didTapManageAssetsButton() {
-        wireframe.showManageAssets(from: view)
+        wireframe.showManageAssets(from: view, chainModels: chainModels)
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
@@ -133,8 +137,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfos[key] = accountInfo
-        case .failure:
-            break
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
         provideViewModel()
     }

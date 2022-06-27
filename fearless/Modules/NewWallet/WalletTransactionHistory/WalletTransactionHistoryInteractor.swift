@@ -78,7 +78,10 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
-        guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+        guard
+            let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress(),
+            case .normal = asset.type
+        else {
             return
         }
 

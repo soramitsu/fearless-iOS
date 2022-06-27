@@ -104,10 +104,9 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 }
             }
 
-        let totalWalletBalance: Decimal = chains.compactMap { chainModel in
-
-            chainModel.assets.compactMap { asset in
-                let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
+        var totalWalletBalance: Decimal = .zero
+        if prices.updated == true {
+            totalWalletBalance = chainAssets.compactMap { chainAsset in
                 guard
                     let accountId = selectedMetaAccount.fetch(
                         for: chainAsset.chain.accountRequest()
@@ -121,7 +120,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                     accountInfo: accountInfo
                 )
 
-                guard let priceId = asset.asset.priceId,
+                guard let priceId = chainAsset.asset.priceId,
                       let price = prices.pricesData.first(where: { $0.priceId == priceId })?.price,
                       let priceDecimal = Decimal(string: price)
                 else {
@@ -130,7 +129,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
                 return priceDecimal * balanceDecimal
             }.reduce(0, +)
-        }.reduce(0, +)
+        }
 
         var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id

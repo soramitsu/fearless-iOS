@@ -30,9 +30,17 @@ final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframePr
         )
     }
 
-    func showManageAssets(from view: ChainAccountBalanceListViewProtocol?) {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let manageAssetsController = ManageAssetsViewFactory.createView(selectedMetaAccount: selectedMetaAccount)?.controller else {
+    func showManageAssets(
+        from view: ChainAccountBalanceListViewProtocol?,
+        chainModels: [ChainModel]
+    ) {
+        guard
+            let selectedMetaAccount = SelectedWalletSettings.shared.value,
+            let manageAssetsController = ManageAssetsViewFactory.createView(
+                selectedMetaAccount: selectedMetaAccount,
+                chainModels: chainModels
+            )?.controller
+        else {
             return
         }
 

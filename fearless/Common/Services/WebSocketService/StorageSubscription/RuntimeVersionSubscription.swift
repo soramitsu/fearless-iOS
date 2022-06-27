@@ -292,7 +292,8 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 chain: self.chain.genesisHash,
                 version: runtimeVersion.specVersion,
                 txVersion: runtimeVersion.transactionVersion,
-                metadata: rawMetadata
+                metadata: rawMetadata,
+                resolver: nil
             )
 
             return [item]

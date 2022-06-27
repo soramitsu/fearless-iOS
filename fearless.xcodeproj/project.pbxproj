@@ -4646,7 +4646,6 @@
 		5ECE412B7143D2C90CB72862 /* NewsVersion2 */ = {
 			isa = PBXGroup;
 			children = (
-				55BC28AE4B63EA00CD94E854 /* NewsVersion2Tests.swift */,
 			);
 			path = NewsVersion2;
 			sourceTree = "<group>";
@@ -8775,15 +8774,6 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		C74ADB18283B887400B9D435 /* SyntaxSugar */ = {
-			isa = PBXGroup;
-			children = (
-				C74ADB1A283B888F00B9D435 /* Optional.swift */,
-				C74ADB1C283CF53200B9D435 /* SnapKit.swift */,
-			);
-			path = SyntaxSugar;
-				sourceTree = "<group>";
-		};
 		C6DD458E281A966500CB20E3 /* WalletSend */ = {
 			isa = PBXGroup;
 			children = (
@@ -8798,6 +8788,15 @@
 				C6DD4597281BB3E500CB20E3 /* AddressTestConstants.swift */,
 			);
 			path = Constants;
+			sourceTree = "<group>";
+		};
+		C74ADB18283B887400B9D435 /* SyntaxSugar */ = {
+			isa = PBXGroup;
+			children = (
+				C74ADB1A283B888F00B9D435 /* Optional.swift */,
+				C74ADB1C283CF53200B9D435 /* SnapKit.swift */,
+			);
+			path = SyntaxSugar;
 			sourceTree = "<group>";
 		};
 		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
@@ -12473,7 +12472,6 @@
 				539340533D8383965751C6D8 /* NodeSelectionTests.swift in Sources */,
 				FF83EAA1EA340E92F0FD99E5 /* AddCustomNodeTests.swift in Sources */,
 				E5B4512B99ED86EF398B648E /* WarningAlertTests.swift in Sources */,
-				813E6F8E3F1220FE06F897F7 /* NewsVersion2Tests.swift in Sources */,
 				EB869AB9FAE3A77F006953E5 /* SelectCurrencyTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

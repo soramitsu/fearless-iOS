@@ -77,6 +77,7 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
     }
 
     func showSelectChain(
+        chainModels: [ChainModel]?,
         selectedMetaAccount: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         delegate: ChainSelectionDelegate,
@@ -89,7 +90,8 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
                 repositoryFilter: nil,
                 selectedMetaAccount: selectedMetaAccount,
                 includeAllNetworksCell: true,
-                showBalances: false
+                showBalances: false,
+                chainModels: chainModels
             )?.controller else {
             return
         }

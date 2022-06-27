@@ -10,7 +10,7 @@ final class ManageAssetsPresenter {
     private let filterFactory: TitleSwitchTableViewCellModelFactoryProtocol
 
     private var chainModels: [ChainModel] = []
-    private var accountInfos: [ChainAssetKey: AccountInfo] = [:]
+    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var viewModel: ManageAssetsViewModel?
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
@@ -38,6 +38,13 @@ final class ManageAssetsPresenter {
     }
 
     private func provideViewModel() {
+        guard
+            accountInfos.keys.count == chainModels.map(\.chainAssets).reduce([], +).count
+            || accountInfos.keys.isEmpty
+        else {
+            return
+        }
+
         let viewModel = viewModelFactory.buildManageAssetsViewModel(
             selectedMetaAccount: selectedMetaAccount,
             chains: chainModels,
@@ -81,6 +88,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 
     func didTapChainSelectButton() {
         wireframe.showSelectChain(
+            chainModels: chainModels,
             selectedMetaAccount: selectedMetaAccount,
             selectedChainId: viewModel?.selectedChain.chainId,
             delegate: self,

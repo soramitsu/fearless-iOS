@@ -76,13 +76,12 @@ final class ChainAccountBalanceListInteractor {
 
     private func subscribeToPrice(for chains: [ChainModel]) {
         var pricesIds: [AssetModel.PriceId] = []
-        for chain in chains {
-            for asset in chain.assets {
-                if let priceId = asset.asset.priceId {
-                    pricesIds.append(priceId)
-                } else {
-                    presenter?.didReceiveAssetIdWithoutPriceId(asset.asset.id)
-                }
+        let chainAssets = chains.map(\.chainAssets).reduce([], +)
+        chainAssets.forEach { chainAsset in
+            if let priceId = chainAsset.asset.priceId {
+                pricesIds.append(priceId)
+            } else {
+                presenter?.didReceiveAssetIdWithoutPriceId(chainAsset.asset.id)
             }
         }
 

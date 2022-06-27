@@ -2,8 +2,8 @@ import RobinHood
 
 final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber {
     enum Subscription {
-        case usual(provider: AnyDataProvider<DecodedAccountInfo>)
-        case orml(provider: AnyDataProvider<DecodedOrmlAccountInfo>)
+        case usual(provider: StreamableProvider<ChainStorageItem>)
+        case orml(provider: StreamableProvider<ChainStorageItem>)
     }
 
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol

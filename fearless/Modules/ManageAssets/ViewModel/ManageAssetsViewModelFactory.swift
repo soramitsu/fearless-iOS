@@ -5,7 +5,7 @@ protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainAssetKey: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo?],
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -121,7 +121,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainAssetKey: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo?],
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -149,7 +149,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return
             }
-            let accountInfo: AccountInfo? = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
+            let accountInfo: AccountInfo? = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
@@ -203,7 +203,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 return nil
             }
 
-            let accountInfo = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
+            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
             let viewModel = buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
                 accountInfo: accountInfo,

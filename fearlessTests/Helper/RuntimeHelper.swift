@@ -95,7 +95,8 @@ final class RuntimeHelper {
                 type: 0,
                 version: 1,
                 signedExtensions: []
-            )
+            ),
+            resolver: nil
         )
     }()
 }
