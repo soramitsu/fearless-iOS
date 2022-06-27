@@ -18,8 +18,8 @@ extension ChainOptionsViewModelFactoryProtocol {
             viewModels.append(chainNameOptionViewModel)
         }
 
-        if let options = chainAsset.chain.options {
-            let chainOptionsViewModels = options
+        if chainAsset.chain.options.isNotEmpty {
+            let chainOptionsViewModels = chainAsset.chain.options
                 .filter { presentableOptions.contains($0) }
                 .compactMap { option -> ChainOptionsViewModel in
                     let icon = option == .testnet ? R.image.iconTestnet() : nil

@@ -67,20 +67,20 @@ extension AppVersionObserver: AppVersionObserverProtocol {
 
         let operation = source.fetchOperation().targetOperation
         operation.completionBlock = { [weak self] in
-            guard let strongSelf = self, let result = operation.result else {
+            guard let self = self, let result = operation.result else {
                 return
             }
 
             switch result {
             case let .success(config):
                 DispatchQueue.main.async {
-                    let supported = strongSelf.validateVersion(config: config)
+                    let supported = self.validateVersion(config: config)
                     if !supported {
-                        strongSelf.wireframe.presentWarningAlert(
+                        self.wireframe.presentWarningAlert(
                             from: view,
-                            config: WarningAlertConfig.unsupportedAppVersionConfig(with: strongSelf.locale)
+                            config: WarningAlertConfig.unsupportedAppVersionConfig(with: self.locale)
                         ) {
-                            strongSelf.wireframe.showAppstoreUpdatePage()
+                            self.wireframe.showAppstoreUpdatePage()
                         }
                     }
 
@@ -88,13 +88,13 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                 }
             case let .failure(error):
                 DispatchQueue.main.async {
-                    strongSelf.wireframe.presentWarningAlert(
+                    self.wireframe.presentWarningAlert(
                         from: view,
-                        config: WarningAlertConfig.connectionProblemAlertConfig(with: strongSelf.locale)
+                        config: WarningAlertConfig.connectionProblemAlertConfig(with: self.locale)
                     ) {
-                        strongSelf.wireframe.dismiss(view: view)
+                        self.wireframe.dismiss(view: view)
 
-                        strongSelf.checkVersion(from: view, callback: callback)
+                        self.checkVersion(from: view, callback: callback)
                     }
 
                     callback?(nil, nil)

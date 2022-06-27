@@ -62,6 +62,12 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
+            var chains = chains.filter { !$0.assets.isEmpty }
+            guard !chains.isEmpty else {
+                presenter?.didReceiveChains(result: .failure(BaseOperationError.unexpectedDependentResult))
+                return
+            }
+
             self.chains = chains
 
             presenter?.didReceiveChains(result: .success(chains))
