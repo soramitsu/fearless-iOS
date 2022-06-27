@@ -43,7 +43,6 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                 let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
-                // TODO: stake return real value
                 let aprDecimal = Decimal(collator.subqueryData?.apr ?? 0)
                 let details = createStakeReturnString(from: aprDecimal)
 

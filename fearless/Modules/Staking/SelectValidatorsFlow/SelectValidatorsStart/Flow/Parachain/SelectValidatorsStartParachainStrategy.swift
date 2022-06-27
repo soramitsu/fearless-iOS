@@ -7,6 +7,7 @@ protocol SelectValidatorsStartParachainStrategyOutput: AnyObject {
     func didReceiveMaxBottomDelegationsPerCandidate(result: Result<Int, Error>)
     func didReceiveSelectedCandidates(selectedCandidates: [ParachainStakingCandidateInfo])
     func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations])
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations])
 }
 
 final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
@@ -70,6 +71,28 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: topDelegationsOperation.allOperations, in: .transient)
     }
+  
+  private func requestBottomDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
+      let bottomDelegationsOperation = operationFactory.collatorBottomDelegations {
+          collators.map(\.owner)
+      }
+
+      bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+          do {
+              let response = try bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+
+              guard let delegations = response else {
+                  return
+              }
+
+              self?.output?.didReceiveBottomDelegations(delegations: delegations)
+          } catch {
+              print("error: ", error)
+          }
+      }
+
+      operationManager.enqueue(operations: bottomDelegationsOperation.allOperations, in: .transient)
+  }
 }
 
 extension SelectValidatorsStartParachainStrategy: SelectValidatorsStartStrategy {

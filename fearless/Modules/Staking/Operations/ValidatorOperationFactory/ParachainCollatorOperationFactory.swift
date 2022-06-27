@@ -73,6 +73,46 @@ final class ParachainCollatorOperationFactory {
 
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: topDelegationsWrapper.allOperations)
     }
+  
+  func createBottomDelegationsOperation(
+      dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+      accountIdsClosure: @escaping () throws -> [AccountId]
+  ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]> {
+      let bottomDelegationsWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingDelegations>]> =
+          storageRequestFactory.queryItems(
+              engine: engine,
+              keyParams: accountIdsClosure,
+              factory: { try runtimeOperation.extractNoCancellableResultData() },
+              storagePath: .bottomDelegations
+          )
+
+      bottomDelegationsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+      let mergeOperation = ClosureOperation<[AccountAddress: ParachainStakingDelegations]> { [weak self] in
+          guard let strongSelf = self else {
+              return [:]
+          }
+
+          let bottomDelegations = try bottomDelegationsWrapper.targetOperation.extractNoCancellableResultData()
+
+          var metadataByAddress: [AccountAddress: ParachainStakingDelegations] = [:]
+          try bottomDelegations.compactMap {
+              let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
+              let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
+              if let metadata = $0.value {
+                  metadataByAddress[address] = metadata
+              }
+          }
+
+          return metadataByAddress
+      }
+
+      mergeOperation.addDependency(bottomDelegationsWrapper.targetOperation)
+
+      return CompoundOperationWrapper(targetOperation: mergeOperation,
+                                      dependencies: bottomDelegationsWrapper.allOperations)
+  }
+  
 
     func createAtStakeOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
@@ -453,6 +493,24 @@ extension ParachainCollatorOperationFactory {
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
+  
+  func collatorBottomDelegations(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]?> {
+      let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+      let topDelegationsWrapper = createTopDelegationsOperation(
+          dependingOn: runtimeOperation,
+          accountIdsClosure: accountIdsClosure
+      )
+
+      let mapOperation = ClosureOperation<[AccountAddress: ParachainStakingDelegations]?> {
+          try topDelegationsWrapper.targetOperation.extractNoCancellableResultData()
+      }
+
+      mapOperation.addDependency(topDelegationsWrapper.targetOperation)
+
+      let dependencies = [runtimeOperation] + topDelegationsWrapper.allOperations
+
+      return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+  }
 
     func collatorTopDelegations(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()

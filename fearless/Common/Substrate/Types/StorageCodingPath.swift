@@ -177,4 +177,8 @@ extension StorageCodingPath {
     static var collatorCommission: StorageCodingPath {
         StorageCodingPath(moduleName: "ParachainStaking", itemName: "CollatorCommission")
     }
+  
+  static var bottomDelegations: StorageCodingPath {
+      StorageCodingPath(moduleName: "ParachainStaking", itemName: "BottomDelegations")
+  }
 }
