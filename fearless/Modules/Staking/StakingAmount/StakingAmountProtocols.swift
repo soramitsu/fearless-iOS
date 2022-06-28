@@ -41,7 +41,7 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,
-    StakingErrorPresentable {
+    StakingErrorPresentable, AddressOptionsPresentable {
     func presentAccountSelection(
         _ accounts: [ChainAccountResponse],
         selectedAccountItem: ChainAccountResponse,

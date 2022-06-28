@@ -97,12 +97,11 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         ) ?? 0.0
         self.eraDurationInSeconds = eraDurationInSeconds
         self.commission = commission
-    } 
+    }
 
     private lazy var annualInflation: Decimal = {
         0.025
     }()
-
 
     func calculateEarnings(
         amount _: Decimal,

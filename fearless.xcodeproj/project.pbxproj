@@ -1963,6 +1963,7 @@
 		FA6DB7C72757C9B000233FBA /* ChainAccountPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C02757C9AF00233FBA /* ChainAccountPresenter.swift */; };
 		FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */; };
 		FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */; };
+		FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */; };
 		FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */; };
 		FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */; };
 		FA86441D2767194B00956D8E /* WalletTransactionHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */; };
@@ -4132,6 +4133,7 @@
 		FA6DB7C02757C9AF00233FBA /* ChainAccountPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountPresenter.swift; sourceTree = "<group>"; };
 		FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountInteractor.swift; sourceTree = "<group>"; };
 		FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountProtocols.swift; sourceTree = "<group>"; };
+		FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartTextsViewModel.swift; sourceTree = "<group>"; };
 		FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewState.swift; sourceTree = "<group>"; };
 		FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactiveBondAlertConfig.swift; sourceTree = "<group>"; };
 		FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryCell.swift; sourceTree = "<group>"; };
@@ -5833,6 +5835,7 @@
 			isa = PBXGroup;
 			children = (
 				844DD65425EAF32D00B1DA97 /* SelectValidatorsStartViewModel.swift */,
+				FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -12591,6 +12594,7 @@
 				F474D388260CBEE600013699 /* StakingRewardDetailsViewLayout.swift in Sources */,
 				FACACE1127BCF105005422EE /* MetaAccountCreationMetadata.swift in Sources */,
 				849ABE81262811CF00011A2A /* NominationsListReducer.swift in Sources */,
+				FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */,
 				843910CE253F7E8000E3C217 /* SubstrateDataStorageFacade.swift in Sources */,
 				84E731C326652B5C00D5B15A /* AttributedString+Crowdloan.swift in Sources */,
 				FA1A0241274F8F5D00DA07CB /* ChainAccountBalanceListViewState.swift in Sources */,

@@ -44,6 +44,10 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
             return nil
         }
 
+        guard !recommendedCandidates.isEmpty else {
+            return nil
+        }
+
         return .parachain(collators: recommendedCandidates, maxTargets: maxDelegations, bonding: bonding)
     }
 

@@ -2,6 +2,33 @@ import Foundation
 import RobinHood
 import SoraFoundation
 
+enum SelectValidatorsStartError: Error {
+    case dataNotLoaded
+    case emptyRecommendedValidators
+}
+
+extension SelectValidatorsStartError: ErrorContentConvertible {
+    func toErrorContent(for locale: Locale?) -> ErrorContent {
+        let title: String
+        let message: String
+
+        switch self {
+        case .dataNotLoaded:
+            title = R.string.localizable
+                .accountImportKeystoreDecryptionErrorTitle(preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable
+                .accountImportKeystoreDecryptionErrorMessage(preferredLanguages: locale?.rLanguages)
+        case .emptyRecommendedValidators:
+            title = R.string.localizable
+                .commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable
+                .commonUndefinedErrorMessage(preferredLanguages: locale?.rLanguages)
+        }
+
+        return ErrorContent(title: title, message: message)
+    }
+}
+
 enum SelectValidatorsStartFlow {
     case relaychainInitiated(state: InitiatedBonding)
     case relaychainExisting(state: ExistingBonding)
@@ -41,6 +68,7 @@ struct SelectValidatorsStartDependencyContainer {
 
 protocol SelectValidatorsStartViewModelFactoryProtocol {
     func buildViewModel(viewModelState: SelectValidatorsStartViewModelState) -> SelectValidatorsStartViewModel?
+    func buildTextsViewModel(locale: Locale) -> SelectValidatorsStartTextsViewModel?
 }
 
 protocol SelectValidatorsStartStrategy {
