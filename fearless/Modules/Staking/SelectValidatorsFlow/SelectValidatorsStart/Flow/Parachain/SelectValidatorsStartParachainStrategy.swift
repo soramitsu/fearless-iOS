@@ -71,28 +71,28 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: topDelegationsOperation.allOperations, in: .transient)
     }
-  
-  private func requestBottomDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
-      let bottomDelegationsOperation = operationFactory.collatorBottomDelegations {
-          collators.map(\.owner)
-      }
 
-      bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
-          do {
-              let response = try bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+    private func requestBottomDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
+        let bottomDelegationsOperation = operationFactory.collatorBottomDelegations {
+            collators.map(\.owner)
+        }
 
-              guard let delegations = response else {
-                  return
-              }
+        bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+            do {
+                let response = try bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
 
-              self?.output?.didReceiveBottomDelegations(delegations: delegations)
-          } catch {
-              print("error: ", error)
-          }
-      }
+                guard let delegations = response else {
+                    return
+                }
 
-      operationManager.enqueue(operations: bottomDelegationsOperation.allOperations, in: .transient)
-  }
+                self?.output?.didReceiveBottomDelegations(delegations: delegations)
+            } catch {
+                print("error: ", error)
+            }
+        }
+
+        operationManager.enqueue(operations: bottomDelegationsOperation.allOperations, in: .transient)
+    }
 }
 
 extension SelectValidatorsStartParachainStrategy: SelectValidatorsStartStrategy {

@@ -65,7 +65,7 @@ enum RewardCalculatorEngineError: Error {
 
 final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal
-    private var collators: [ParachainStakingCandidateInfo] = []
+    private var totalStaked: Decimal
 
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
@@ -81,7 +81,7 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         chainId: ChainModel.Id,
         assetPrecision: Int16,
         totalIssuance: BigUInt,
-        collators: [ParachainStakingCandidateInfo],
+        totalStaked: BigUInt,
         eraDurationInSeconds: TimeInterval,
         commission: Decimal
     ) {
@@ -91,114 +91,51 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             totalIssuance,
             precision: assetPrecision
         ) ?? 0.0
-        self.collators = collators
-        self.eraDurationInSeconds = eraDurationInSeconds
-        self.commission = commission
-    }
-
-    private lazy var totalStake: Decimal = {
-        Decimal.fromSubstrateAmount(
-            collators.compactMap(\.metadata?.totalCounted).reduce(0, +),
+        self.totalStaked = Decimal.fromSubstrateAmount(
+            totalStaked,
             precision: assetPrecision
         ) ?? 0.0
-    }()
-
-    private var averageStake: Decimal {
-        if !collators.isEmpty {
-            return totalStake / Decimal(collators.count)
-        } else {
-            return 0.0
-        }
-    }
-
-    private var stakedPortion: Decimal {
-        if totalIssuance > 0.0 {
-            return totalStake / totalIssuance
-        } else {
-            return 0.0
-        }
-    }
+        self.eraDurationInSeconds = eraDurationInSeconds
+        self.commission = commission
+    } 
 
     private lazy var annualInflation: Decimal = {
-        let idealInterest = idealInflation / idealStakePortion
-
-        if stakedPortion <= idealStakePortion {
-            return minimalInflation + stakedPortion *
-                (idealInterest - minimalInflation / idealStakePortion)
-        } else {
-            let powerValue = (idealStakePortion - stakedPortion) / decayRate
-            let doublePowerValue = Double(truncating: powerValue as NSNumber)
-            let decayCoefficient = Decimal(pow(2, doublePowerValue))
-            return minimalInflation + (idealInterest * idealStakePortion - minimalInflation)
-                * decayCoefficient
-        }
+        0.025
     }()
 
-    private lazy var maxCollator: ParachainStakingCandidateInfo? = {
-        collators.max {
-            calculateEarningsForCollator($0, amount: 1.0, isCompound: false, period: .year) <
-                calculateEarningsForCollator($1, amount: 1.0, isCompound: false, period: .year)
-        }
-    }()
 
     func calculateEarnings(
-        amount: Decimal,
-        validatorAccountId: Data,
-        isCompound: Bool,
+        amount _: Decimal,
+        validatorAccountId _: Data,
+        isCompound _: Bool,
         period: CalculationPeriod
     ) throws -> Decimal {
-        guard let collator = collators.first(where: { $0.owner == validatorAccountId }) else {
-            throw RewardCalculatorEngineError.unexpectedValidator(accountId: validatorAccountId)
-        }
-
-        return calculateEarningsForCollator(collator, amount: amount, isCompound: isCompound, period: period)
+        dailyPercentReward() * Decimal(period.inDays)
     }
 
-    func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        guard let collator = maxCollator else {
-            return 0.0
-        }
-
-        return calculateEarningsForCollator(
-            collator,
-            amount: amount,
-            isCompound: isCompound,
-            period: period
-        )
+    func calculateMaxEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {
+        dailyPercentReward() * Decimal(period.inDays)
     }
 
-    func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        calculateEarningsForAmount(
-            amount,
-            stake: averageStake,
-            commission: commission,
-            isCompound: isCompound,
-            period: period
-        )
+    func calculateAvgEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {
+        dailyPercentReward() * Decimal(period.inDays)
     }
 
-    private func calculateReturnForStake(_ stake: Decimal, commission: Decimal) -> Decimal {
-        (annualInflation * averageStake / (stakedPortion * stake)) * (1.0 - commission)
+    private func dailyPercentReward() -> Decimal {
+        ((totalIssuance * annualInflation) / totalStaked) / 365
+    }
+
+    private func calculateReturnForStake(_: Decimal, commission _: Decimal) -> Decimal {
+        (totalIssuance * annualInflation) / totalStaked
     }
 
     private func calculateEarningsForCollator(
-        _ collator: ParachainStakingCandidateInfo,
-        amount: Decimal,
-        isCompound: Bool,
+        _: ParachainStakingCandidateInfo,
+        amount _: Decimal,
+        isCompound _: Bool,
         period: CalculationPeriod
     ) -> Decimal {
-        let stake = Decimal.fromSubstrateAmount(
-            collator.metadata?.totalCounted ?? BigUInt.zero,
-            precision: assetPrecision
-        ) ?? 0.0
-
-        return calculateEarningsForAmount(
-            amount,
-            stake: stake,
-            commission: commission,
-            isCompound: isCompound,
-            period: period
-        )
+        dailyPercentReward() * Decimal(period.inDays)
     }
 
     private func calculateEarningsForAmount(

@@ -97,6 +97,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
         case .paraChain:
             eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
+
         case .none:
             break
         }

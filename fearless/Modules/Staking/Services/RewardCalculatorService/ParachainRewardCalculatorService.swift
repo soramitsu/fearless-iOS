@@ -53,7 +53,6 @@ final class ParachainRewardCalculatorService {
         self.operationManager = operationManager
         self.runtimeCodingService = runtimeCodingService
         self.logger = logger
-
         self.collatorOperationFactory = collatorOperationFactory
     }
 
@@ -78,18 +77,17 @@ final class ParachainRewardCalculatorService {
         chainId: ChainModel.Id,
         assetPrecision: Int16
     ) {
-        let roundWrapper = collatorOperationFactory.round()
-        let collatorsOperation = collatorOperationFactory.allElectedOperation()
+        let stakedWrapper = collatorOperationFactory.staked()
         let commissionWrapper = collatorOperationFactory.commission()
 
         let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> { [weak self] in
             guard let strongSelf = self else {
                 throw ParachainRewardCalculatorServiceError.unexpectedInfo
             }
-            let collators = try collatorsOperation.targetOperation.extractNoCancellableResultData()
-            let round = try roundWrapper.targetOperation.extractNoCancellableResultData()
-            let commission = try? commissionWrapper.targetOperation.extractNoCancellableResultData()
+            let staked = try stakedWrapper.targetOperation.extractNoCancellableResultData()
+            let commission = try commissionWrapper.targetOperation.extractNoCancellableResultData()
 
+            let stakedValue = BigUInt(staked ?? "") ?? BigUInt.zero
             let comissionValue = BigUInt(commission ?? "")
 
             let eraDurationInSeconds = TimeInterval(24 / strongSelf.chainAsset.chain.erasPerDay * 3600)
@@ -98,14 +96,13 @@ final class ParachainRewardCalculatorService {
                 chainId: chainId,
                 assetPrecision: assetPrecision,
                 totalIssuance: snapshot,
-                collators: collators ?? [],
+                totalStaked: stakedValue,
                 eraDurationInSeconds: eraDurationInSeconds,
                 commission: Decimal.fromSubstratePerbill(value: comissionValue ?? BigUInt.zero) ?? Decimal.zero
             )
         }
 
-        mapOperation.addDependency(roundWrapper.targetOperation)
-        mapOperation.addDependency(collatorsOperation.targetOperation)
+        mapOperation.addDependency(stakedWrapper.targetOperation)
         mapOperation.addDependency(commissionWrapper.targetOperation)
 
         mapOperation.completionBlock = {
@@ -122,7 +119,7 @@ final class ParachainRewardCalculatorService {
         }
 
         operationManager.enqueue(
-            operations: roundWrapper.allOperations + collatorsOperation.allOperations + commissionWrapper.allOperations + [mapOperation],
+            operations: stakedWrapper.allOperations + commissionWrapper.allOperations + [mapOperation],
             in: .transient
         )
     }

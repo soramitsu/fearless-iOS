@@ -69,11 +69,10 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
 }
 
 extension SelectValidatorsStartParachainViewModelState: SelectValidatorsStartParachainStrategyOutput {
-    
-    func didReceiveBottomDelegations(delegations: [AccountAddress : ParachainStakingDelegations]) {
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
         bottomDelegationsByCollator = delegations
     }
-    
+
     func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
         topDelegationsByCollator = delegations
 
