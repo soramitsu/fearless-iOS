@@ -91,6 +91,10 @@ final class StakingBalanceRelaychainViewModelState {
         .relaychain
     }
 
+    var rebondCases: [StakingRebondOption]? {
+        StakingRebondOption.allCases
+    }
+
     deinit {
         countdownTimer.stop()
     }

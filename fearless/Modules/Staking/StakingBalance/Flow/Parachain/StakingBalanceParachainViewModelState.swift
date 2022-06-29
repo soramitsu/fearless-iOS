@@ -76,6 +76,10 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
         )
     }
 
+    var rebondCases: [StakingRebondOption]? {
+        nil
+    }
+
     func calculateRevokeAmount() -> BigUInt? {
         let amount = requests?.filter { request in
             guard let currentEra = round?.current else {

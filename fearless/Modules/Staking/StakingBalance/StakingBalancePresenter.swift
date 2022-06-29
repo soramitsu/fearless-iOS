@@ -101,7 +101,11 @@ final class StakingBalancePresenter {
     }
 
     private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
+        guard let rebondCases = viewModelState.rebondCases else {
+            return
+        }
+
+        let actions = rebondCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
                 guard let self = self else {

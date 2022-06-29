@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import RobinHood
 import BigInt
+import CommonWallet
 
 final class ParachainCollatorOperationFactory {
     let asset: AssetModel
@@ -344,8 +345,6 @@ extension ParachainCollatorOperationFactory {
     func candidateInfos(for candidateIdsOperation: CompoundOperationWrapper<[AccountId]>) -> CompoundOperationWrapper<[ParachainStakingCandidateInfo]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let candidatePoolOperation = createCandidatePoolOperation(dependingOn: runtimeOperation)
-
         let accountIdsClosure: () throws -> [AccountId] = {
             try candidateIdsOperation.targetOperation.extractNoCancellableResultData()
         }
@@ -368,32 +367,29 @@ extension ParachainCollatorOperationFactory {
         infoWrapper.allOperations.forEach { $0.addDependency(candidateIdsOperation.targetOperation) }
         aprOperation.addDependency(candidateIdsOperation.targetOperation)
 
-        let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> {
+        let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> { [self] in
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
             let infos = try infoWrapper.targetOperation.extractNoCancellableResultData()
             let collatorsApr = try? aprOperation.extractNoCancellableResultData()
 
-            let candidatePool = try candidatePoolOperation.targetOperation.extractNoCancellableResultData().first?.value
-            let candidateIds = try candidateIdsOperation.targetOperation.extractNoCancellableResultData()
-
-            let candidateInfos: [ParachainStakingCandidateInfo]? = try candidatePool?
-                .filter { candidateIds.contains($0.owner) == true }
-                .compactMap { [weak self] collator in
+            let candidateInfos: [ParachainStakingCandidateInfo]? = try infos
+                .keys
+                .compactMap { [weak self] key in
                     guard let strongSelf = self else {
                         return nil
                     }
 
-                    let address = try AddressFactory.address(
-                        for: collator.owner,
-                        chainFormat: strongSelf.chain.chainFormat
-                    )
+                    let metadata = infos[key]
+                    let address = key
+                    let owner = try key.toAccountId()
 
                     let subqueryData = collatorsApr?.collatorRounds.nodes.first(where: { $0.collatorId == address })
+                    let amountDecimal = Decimal.fromSubstrateAmount(metadata?.totalCounted ?? BigUInt.zero, precision: Int16(strongSelf.asset.precision)) ?? 0
 
                     return ParachainStakingCandidateInfo(
                         address: address,
-                        owner: collator.owner,
-                        amount: collator.amount,
+                        owner: owner,
+                        amount: AmountDecimal(value: amountDecimal),
                         metadata: infos[address],
                         identity: identities[address],
                         subqueryData: subqueryData
@@ -404,14 +400,12 @@ extension ParachainCollatorOperationFactory {
         }
 
         mergeOperation.addDependency(aprOperation)
-        mergeOperation.addDependency(candidatePoolOperation.targetOperation)
         mergeOperation.addDependency(candidateIdsOperation.targetOperation)
         mergeOperation.addDependency(infoWrapper.targetOperation)
         mergeOperation.addDependency(identityWrapper.targetOperation)
 
         var dependencies: [Operation] = []
         dependencies.append(runtimeOperation)
-        dependencies.append(contentsOf: candidatePoolOperation.allOperations)
         dependencies.append(contentsOf: candidateIdsOperation.allOperations)
         dependencies.append(contentsOf: identityWrapper.allOperations)
         dependencies.append(contentsOf: infoWrapper.allOperations)
