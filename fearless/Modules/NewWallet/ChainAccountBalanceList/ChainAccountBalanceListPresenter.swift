@@ -36,20 +36,16 @@ final class ChainAccountBalanceListPresenter {
             return
         }
 
-        DispatchQueue.global(qos: .userInitiated).async {
-            let viewModel = self.viewModelFactory.buildChainAccountBalanceListViewModel(
-                selectedMetaAccount: selectedMetaAccount,
-                chains: self.chainModels,
-                locale: self.selectedLocale,
-                accountInfos: self.accountInfos,
-                prices: self.prices,
-                sortedKeys: self.sortedKeys
-            )
+        let viewModel = viewModelFactory.buildChainAccountBalanceListViewModel(
+            selectedMetaAccount: selectedMetaAccount,
+            chains: chainModels,
+            locale: selectedLocale,
+            accountInfos: accountInfos,
+            prices: prices,
+            sortedKeys: sortedKeys
+        )
 
-            CFRunLoopPerformBlock(CFRunLoopGetMain(), CFRunLoopMode.commonModes.rawValue) {
-                self.view?.didReceive(state: .loaded(viewModel: viewModel))
-            }
-        }
+        view?.didReceive(state: .loaded(viewModel: viewModel))
     }
 
     private func priceUpdateDidStart() {
@@ -123,7 +119,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         switch result {
         case let .success(chains):
             chainModels = chains
-            provideViewModel()
         case let .failure(error):
             _ = wireframe.present(error: error, from: view, locale: selectedLocale)
         }
@@ -143,6 +138,11 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         provideViewModel()
     }
 
+    func didRecieceAccountInfos(_ accountInfo: [ChainAssetKey: AccountInfo?]) {
+        accountInfos = accountInfo
+        provideViewModel()
+    }
+
     func didReceivePricesData(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(priceDataResult):
@@ -153,11 +153,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         }
 
         provideViewModel()
-    }
-
-    func didReceiveAssetIdWithoutPriceId(_ assetId: String) {
-        let emptyPrice = PriceData(priceId: assetId, price: "", fiatDayChange: nil)
-        prices.pricesData.append(emptyPrice)
     }
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {

@@ -131,7 +131,7 @@ final class RuntimeProvider {
         let updateOperation = repository.saveOperation {
             guard
                 let currentRuntimeItem = try localMetadataOperation.extractNoCancellableResultData(),
-                currentRuntimeItem.version != snapshot.specVersion
+                currentRuntimeItem.resolver != snapshot.metadata.resolver
             else {
                 return []
             }

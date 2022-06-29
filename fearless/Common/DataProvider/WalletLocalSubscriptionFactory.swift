@@ -42,13 +42,16 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
     private func getProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
         let facade = SubstrateDataStorageFacade.shared
 
+        let mapper: CodableCoreDataMapper<ChainStorageItem, CDChainStorageItem> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDChainStorageItem.identifier))
+
         let filter = NSPredicate.filterStorageItemsBy(identifier: key)
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<ChainStorageItem>()
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
-            mapper: AnyCoreDataMapper(storage.dataMapper),
+            mapper: AnyCoreDataMapper(mapper),
             predicate: { $0.identifier == key }
         )
 

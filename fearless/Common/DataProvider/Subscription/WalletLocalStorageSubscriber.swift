@@ -46,9 +46,9 @@ extension WalletLocalStorageSubscriber {
 
         let options = StreamableProviderObserverOptions(
             alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: true,
+            waitsInProgressSyncOnAdd: false,
             initialSize: 0,
-            refreshWhenEmpty: false
+            refreshWhenEmpty: true
         )
 
         accountInfoProvider.addObserver(
@@ -89,9 +89,9 @@ extension WalletLocalStorageSubscriber {
 
         let options = StreamableProviderObserverOptions(
             alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: true,
+            waitsInProgressSyncOnAdd: false,
             initialSize: 0,
-            refreshWhenEmpty: false
+            refreshWhenEmpty: true
         )
 
         accountInfoProvider.addObserver(

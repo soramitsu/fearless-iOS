@@ -38,11 +38,29 @@ struct AccountInfo: Codable, Equatable {
     }
 }
 
+extension AccountInfo: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(nonce)
+        hasher.combine(consumers)
+        hasher.combine(providers)
+        hasher.combine(data)
+    }
+}
+
 struct AccountData: Codable, Equatable {
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
     @StringCodable var miscFrozen: BigUInt
     @StringCodable var feeFrozen: BigUInt
+}
+
+extension AccountData: Hashable {
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(free)
+        hasher.combine(reserved)
+        hasher.combine(miscFrozen)
+        hasher.combine(feeFrozen)
+    }
 }
 
 extension AccountData {

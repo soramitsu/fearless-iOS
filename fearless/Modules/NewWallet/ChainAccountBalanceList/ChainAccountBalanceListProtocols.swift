@@ -24,10 +24,10 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveChains(result: Result<[ChainModel], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceivePricesData(result: Result<[PriceData], Error>)
-    func didReceiveAssetIdWithoutPriceId(_ assetId: String)
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
     func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>)
     func didRecieveSelectedCurrency(_ selectedCurrency: Currency)
+    func didRecieceAccountInfos(_ accountInfo: [ChainAssetKey: AccountInfo?])
 }
 
 protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {

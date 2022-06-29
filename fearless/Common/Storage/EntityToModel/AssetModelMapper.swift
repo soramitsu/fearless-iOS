@@ -20,6 +20,11 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             throw AssetModelMapperError.requiredFieldsMissing
         }
 
+        var accountInfo: AccountInfo?
+        if let accountInfoData = entity.accountInfo {
+            accountInfo = try? JSONDecoder().decode(AccountInfo?.self, from: accountInfoData)
+        }
+
         return AssetModel(
             id: id,
             symbol: symbol,
@@ -28,11 +33,13 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             icon: entity.icon,
             priceId: entity.priceId,
             price: entity.price as Decimal?,
+            fiatDayChange: entity.fiatDayChange as Decimal?,
             transfersEnabled: entity.transfersEnabled,
             type: type,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            existentialDeposit: entity.existentialDeposit,
+            accountInfo: accountInfo
         )
     }
 
@@ -47,10 +54,16 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.icon = model.icon
         entity.priceId = model.priceId
         entity.price = model.price as NSDecimalNumber?
+        entity.fiatDayChange = model.fiatDayChange as NSDecimalNumber?
         entity.symbol = model.symbol
         entity.transfersEnabled = model.transfersEnabled ?? true
         entity.type = model.type.rawValue
         entity.currencyId = model.currencyId
         entity.existentialDeposit = model.existentialDeposit
+
+        if let accountInfo = model.accountInfo {
+            let accountInfoData = try JSONEncoder().encode(accountInfo)
+            entity.accountInfo = accountInfoData
+        }
     }
 }

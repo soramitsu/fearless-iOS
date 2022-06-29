@@ -51,9 +51,7 @@ final class ChainAccountBalanceListInteractor {
         let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleChains(result: fetchOperation.result)
-            }
+            self?.handleChains(result: fetchOperation.result)
         }
 
         operationQueue.addOperation(fetchOperation)
@@ -63,10 +61,11 @@ final class ChainAccountBalanceListInteractor {
         switch result {
         case let .success(chains):
             self.chains = chains
-
-            subscribeToPrice(for: chains)
-            presenter?.didReceiveChains(result: .success(chains))
             subscribeToAccountInfo(for: chains)
+            DispatchQueue.main.async {
+                self.presenter?.didReceiveChains(result: .success(chains))
+            }
+            subscribeToPrice(for: chains)
         case let .failure(error):
             presenter?.didReceiveChains(result: .failure(error))
         case .none:
@@ -76,21 +75,53 @@ final class ChainAccountBalanceListInteractor {
 
     private func subscribeToPrice(for chains: [ChainModel]) {
         var pricesIds: [AssetModel.PriceId] = []
+        var pricesData: [PriceData] = []
+
         let chainAssets = chains.map(\.chainAssets).reduce([], +)
         chainAssets.forEach { chainAsset in
             if let priceId = chainAsset.asset.priceId {
                 pricesIds.append(priceId)
+
+                if let price = chainAsset.asset.price {
+                    let priceData = PriceData(
+                        priceId: priceId,
+                        price: String(describing: price),
+                        fiatDayChange: chainAsset.asset.fiatDayChange
+                    )
+                    pricesData.append(priceData)
+                }
             } else {
-                presenter?.didReceiveAssetIdWithoutPriceId(chainAsset.asset.id)
+                let emptyPrice = PriceData(
+                    priceId: chainAsset.asset.id,
+                    price: "",
+                    fiatDayChange: nil
+                )
+                pricesData.append(emptyPrice)
             }
         }
 
+        DispatchQueue.main.async {
+            self.presenter?.didReceivePricesData(result: .success(pricesData))
+        }
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
         let chainAssets = chains.map(\.chainAssets).reduce([], +)
         accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
+
+        let accountInfos = chainAssets.reduce(into: [ChainAssetKey: AccountInfo?]()) { mapping, chainAsset in
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+
+            mapping[key] = chainAsset.asset.accountInfo
+        }
+
+        DispatchQueue.main.async {
+            self.presenter?.didRecieceAccountInfos(accountInfos)
+        }
     }
 
     private func replaceAccountInfoSubscriptionAdapter() {
@@ -161,8 +192,8 @@ extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceL
         switch result {
         case let .success(prices):
             updatePrices(with: prices)
-        case .failure:
-            break
+        case let .failure(error):
+            presenter?.didReceivePricesData(result: .failure(error))
         }
         presenter?.didReceivePricesData(result: result)
     }
@@ -177,7 +208,10 @@ extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceL
             guard let asset = chainAsset?.asset else {
                 return nil
             }
-            return asset.replacingPrice(Decimal(string: priceData.price))
+            return asset.replacingPrice(
+                Decimal(string: priceData.price),
+                fiatDayChange: priceData.fiatDayChange
+            )
         }
 
         let saveOperation = assetRepository.saveOperation {
@@ -199,7 +233,11 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
     }
 
     func refresh() {
-        fetchChainsAndSubscribeBalance()
+        guard let chains = chains else {
+            return
+        }
+
+        subscribeToPrice(for: chains)
     }
 
     func didReceive(currency: Currency) {
@@ -214,17 +252,43 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
 extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
         presenter?.didReceiveAccountInfo(result: result, for: chainAsset)
+
+        guard case let .success(accountInfo) = result else {
+            return
+        }
+
+        updateAccountInfo(accountInfo, chainAsset: chainAsset)
+    }
+
+    private func updateAccountInfo(_ accountInfo: AccountInfo?, chainAsset: ChainAsset) {
+        let chainAsset = chains?
+            .compactMap { Array($0.assets) }
+            .reduce([], +)
+            .first(where: { $0?.asset.id == chainAsset.asset.id })
+
+        guard let asset = chainAsset?.asset else {
+            return
+        }
+        let assetWithReplacedAccountInfo = asset.replacingAccountInfo(accountInfo)
+
+        let saveOperation = assetRepository.saveOperation {
+            [assetWithReplacedAccountInfo]
+        } _: {
+            []
+        }
+
+        operationQueue.addOperation(saveOperation)
     }
 }
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         replaceAccountInfoSubscriptionAdapter()
-        refresh()
+        fetchChainsAndSubscribeBalance()
     }
 
     func processChainsUpdated(event _: ChainsUpdatedEvent) {
-        refresh()
+        fetchChainsAndSubscribeBalance()
     }
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
@@ -238,7 +302,7 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
             presenter?.didRecieveSelectedCurrency(currency)
             pricesProvider = nil
-            refresh()
+            fetchChainsAndSubscribeBalance()
         }
     }
 

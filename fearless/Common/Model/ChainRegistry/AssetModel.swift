@@ -13,11 +13,13 @@ struct AssetModel: Equatable, Codable, Hashable {
     let icon: URL?
     let priceId: PriceId?
     let price: Decimal?
+    let fiatDayChange: Decimal?
     let transfersEnabled: Bool?
     let type: ChainAssetType
     let currencyId: String?
     let displayName: String?
     let existentialDeposit: String?
+    let accountInfo: AccountInfo?
 
     var name: String {
         displayName?.uppercased() ?? symbol.uppercased()
@@ -31,11 +33,13 @@ struct AssetModel: Equatable, Codable, Hashable {
         icon: URL?,
         priceId: AssetModel.PriceId?,
         price: Decimal?,
+        fiatDayChange: Decimal?,
         transfersEnabled: Bool?,
         type: ChainAssetType,
         currencyId: String?,
         displayName: String?,
-        existentialDeposit: String?
+        existentialDeposit: String?,
+        accountInfo: AccountInfo?
     ) {
         self.id = id
         self.symbol = symbol
@@ -44,11 +48,13 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.icon = icon
         self.priceId = priceId
         self.price = price
+        self.fiatDayChange = fiatDayChange
         self.transfersEnabled = transfersEnabled
         self.type = type
         self.currencyId = currencyId
         self.displayName = displayName
         self.existentialDeposit = existentialDeposit
+        self.accountInfo = accountInfo
     }
 
     init(from decoder: Decoder) throws {
@@ -66,10 +72,12 @@ struct AssetModel: Equatable, Codable, Hashable {
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
 
         price = nil
+        fiatDayChange = nil
         type = .normal
+        accountInfo = nil
     }
 
-    func replacingPrice(_ newPrice: Decimal?) -> AssetModel {
+    func replacingPrice(_ newPrice: Decimal?, fiatDayChange: Decimal?) -> AssetModel {
         AssetModel(
             id: id,
             symbol: symbol,
@@ -78,28 +86,41 @@ struct AssetModel: Equatable, Codable, Hashable {
             icon: icon,
             priceId: priceId,
             price: newPrice,
+            fiatDayChange: fiatDayChange,
             transfersEnabled: transfersEnabled,
             type: type,
             currencyId: currencyId,
             displayName: displayName,
-            existentialDeposit: existentialDeposit
+            existentialDeposit: existentialDeposit,
+            accountInfo: accountInfo
+        )
+    }
+
+    func replacingAccountInfo(_ accountInfo: AccountInfo?) -> AssetModel {
+        AssetModel(
+            id: id,
+            symbol: symbol,
+            chainId: chainId,
+            precision: precision,
+            icon: icon,
+            priceId: priceId,
+            price: price,
+            fiatDayChange: fiatDayChange,
+            transfersEnabled: transfersEnabled,
+            type: type,
+            currencyId: currencyId,
+            displayName: displayName,
+            existentialDeposit: existentialDeposit,
+            accountInfo: accountInfo
         )
     }
 
     static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
         lhs.id == rhs.id &&
-            lhs.chainId == rhs.chainId &&
-            lhs.precision == rhs.precision &&
-            lhs.icon == rhs.icon &&
-            lhs.priceId == rhs.priceId &&
-            lhs.symbol == rhs.symbol &&
-            lhs.type == rhs.type &&
-            lhs.transfersEnabled == rhs.transfersEnabled &&
-            lhs.currencyId == rhs.currencyId &&
-            lhs.displayName == rhs.displayName
+            lhs.chainId == rhs.chainId
     }
 }
 
 extension AssetModel: Identifiable {
-    var identifier: String { symbol }
+    var identifier: String { id }
 }
