@@ -19,7 +19,6 @@ struct AssetModel: Equatable, Codable, Hashable {
     let currencyId: String?
     let displayName: String?
     let existentialDeposit: String?
-    let accountInfo: AccountInfo?
 
     var name: String {
         displayName?.uppercased() ?? symbol.uppercased()
@@ -38,8 +37,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         type: ChainAssetType,
         currencyId: String?,
         displayName: String?,
-        existentialDeposit: String?,
-        accountInfo: AccountInfo?
+        existentialDeposit: String?
     ) {
         self.id = id
         self.symbol = symbol
@@ -54,7 +52,6 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.currencyId = currencyId
         self.displayName = displayName
         self.existentialDeposit = existentialDeposit
-        self.accountInfo = accountInfo
     }
 
     init(from decoder: Decoder) throws {
@@ -74,10 +71,9 @@ struct AssetModel: Equatable, Codable, Hashable {
         price = nil
         fiatDayChange = nil
         type = .normal
-        accountInfo = nil
     }
 
-    func replacingPrice(_ newPrice: Decimal?, fiatDayChange: Decimal?) -> AssetModel {
+    func replacingPrice(_ priceData: PriceData) -> AssetModel {
         AssetModel(
             id: id,
             symbol: symbol,
@@ -85,33 +81,13 @@ struct AssetModel: Equatable, Codable, Hashable {
             precision: precision,
             icon: icon,
             priceId: priceId,
-            price: newPrice,
-            fiatDayChange: fiatDayChange,
+            price: Decimal(string: priceData.price),
+            fiatDayChange: priceData.fiatDayChange,
             transfersEnabled: transfersEnabled,
             type: type,
             currencyId: currencyId,
             displayName: displayName,
-            existentialDeposit: existentialDeposit,
-            accountInfo: accountInfo
-        )
-    }
-
-    func replacingAccountInfo(_ accountInfo: AccountInfo?) -> AssetModel {
-        AssetModel(
-            id: id,
-            symbol: symbol,
-            chainId: chainId,
-            precision: precision,
-            icon: icon,
-            priceId: priceId,
-            price: price,
-            fiatDayChange: fiatDayChange,
-            transfersEnabled: transfersEnabled,
-            type: type,
-            currencyId: currencyId,
-            displayName: displayName,
-            existentialDeposit: existentialDeposit,
-            accountInfo: accountInfo
+            existentialDeposit: existentialDeposit
         )
     }
 

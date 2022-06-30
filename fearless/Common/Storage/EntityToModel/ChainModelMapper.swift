@@ -18,11 +18,6 @@ final class ChainModelMapper {
             preconditionFailure()
         }
 
-        var accountInfo: AccountInfo?
-        if let accountInfoData = entity.accountInfo {
-            accountInfo = try? JSONDecoder().decode(AccountInfo?.self, from: accountInfoData)
-        }
-
         return AssetModel(
             id: id,
             symbol: symbol,
@@ -36,8 +31,7 @@ final class ChainModelMapper {
             type: createChainAssetModelType(from: entity.type),
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit,
-            accountInfo: accountInfo
+            existentialDeposit: entity.existentialDeposit
         )
     }
 

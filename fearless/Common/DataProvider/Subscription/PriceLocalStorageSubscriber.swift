@@ -54,7 +54,7 @@ extension PriceLocalStorageSubscriber {
         }
 
         let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: true,
+            alwaysNotifyOnRefresh: false,
             waitsInProgressSyncOnAdd: false
         )
 

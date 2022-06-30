@@ -119,6 +119,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         switch result {
         case let .success(chains):
             chainModels = chains
+            provideViewModel()
         case let .failure(error):
             _ = wireframe.present(error: error, from: view, locale: selectedLocale)
         }
