@@ -64,6 +64,12 @@ final class ChainAccountBalanceListInteractor {
 
         switch result {
         case let .success(chains):
+            var chains = chains.filter { !$0.assets.isEmpty }
+            guard !chains.isEmpty else {
+                presenter?.didReceiveChains(result: .failure(BaseOperationError.unexpectedDependentResult))
+                return
+            }
+
             self.chains = chains
             subscribeToAccountInfo(for: chains)
             subscribeToPrice(for: chains)

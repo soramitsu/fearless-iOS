@@ -122,7 +122,7 @@ final class AccountInfoUpdatingService {
     private func subscribeToChains() {
         chainRegistry.chainsSubscribe(
             self,
-            runningInQueue: .global()
+            runningIn: .global()
         ) { [weak self] changes in
             self?.handle(changes: changes)
         }
