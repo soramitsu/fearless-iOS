@@ -82,6 +82,7 @@ final class WalletTransactionHistoryInteractor {
             let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress(),
             case .normal = asset.type
         else {
+            handleDataProvider(transactionData: nil)
             return
         }
 

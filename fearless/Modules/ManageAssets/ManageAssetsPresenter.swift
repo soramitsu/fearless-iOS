@@ -81,7 +81,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 
     func didTapChainSelectButton() {
         wireframe.showSelectChain(
-            chainModels: chainModels,
+            chainModels: allChainModels,
             selectedMetaAccount: selectedMetaAccount,
             selectedChainId: viewModel?.selectedChain.chainId,
             delegate: self,

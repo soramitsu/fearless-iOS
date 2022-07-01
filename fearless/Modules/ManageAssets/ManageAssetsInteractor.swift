@@ -119,11 +119,19 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
-            updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            if let acoountForSave = updatedAccount {
+                updatedAccount = acoountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            }
         }
 
         if let filterOptions = filterOptions, filterOptions != selectedMetaAccount.assetFilterOptions {
-            updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            if let acoountForSave = updatedAccount {
+                updatedAccount = acoountForSave.replacingAssetsFilterOptions(filterOptions)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            }
         }
 
         if let updatedAccount = updatedAccount {

@@ -63,7 +63,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         precision = try container.decode(UInt16.self, forKey: .precision)
         icon = try? container.decode(URL?.self, forKey: .icon)
         priceId = try? container.decode(String?.self, forKey: .priceId)
-        transfersEnabled = try container.decode(Bool?.self, forKey: .transfersEnabled) ?? true
+        transfersEnabled = (try? container.decode(Bool?.self, forKey: .transfersEnabled)) ?? true
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
