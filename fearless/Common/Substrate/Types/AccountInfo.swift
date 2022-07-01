@@ -45,15 +45,6 @@ struct AccountData: Codable, Equatable {
     @StringCodable var feeFrozen: BigUInt
 }
 
-extension AccountData: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(free)
-        hasher.combine(reserved)
-        hasher.combine(miscFrozen)
-        hasher.combine(feeFrozen)
-    }
-}
-
 extension AccountData {
     var total: BigUInt { free + reserved }
     var frozen: BigUInt { reserved + locked }
