@@ -78,6 +78,18 @@ protocol SubstrateCallFactoryProtocol {
         delegator: AccountId,
         collator: AccountId
     ) -> RuntimeCall<ExecuteDelegationRequestCall>
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs>
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall>
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs>
+
+    func candidateBondMore(
+        amount: BigUInt
+    ) -> RuntimeCall<CandidateBondMoreCall>
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -281,6 +293,45 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(
             moduleName: "ParachainStaking",
             callName: "execute_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_candidate_bond_less"
+        )
+    }
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall> {
+        let args = CancelDelegationRequestCall(candidate: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(moduleName: "ParachainStaking", callName: "cancel_leave_delegators")
+    }
+
+    func candidateBondMore(amount: BigUInt) -> RuntimeCall<CandidateBondMoreCall> {
+        let args = CandidateBondMoreCall(more: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "candidate_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall> {
+        let args = ScheduleCandidateBondLessCall(less: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_candidate_bond_less",
             args: args
         )
     }

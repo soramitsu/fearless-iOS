@@ -91,8 +91,19 @@ final class StakingBalanceRelaychainViewModelState {
         .relaychain
     }
 
-    var rebondCases: [StakingRebondOption]? {
+    var rebondCases: [StakingRebondOption] {
         StakingRebondOption.allCases
+    }
+
+    func decideRebondFlow(option: StakingRebondOption) {
+        switch option {
+        case .all:
+            stateListener?.decideShowConfirmRebondFlow(flow: .relaychain(variant: .all))
+        case .last:
+            stateListener?.decideShowConfirmRebondFlow(flow: .relaychain(variant: .last))
+        case .customAmount:
+            stateListener?.decideShowSetupRebondFlow()
+        }
     }
 
     deinit {

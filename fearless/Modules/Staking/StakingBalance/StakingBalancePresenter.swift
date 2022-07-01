@@ -101,25 +101,16 @@ final class StakingBalancePresenter {
     }
 
     private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        guard let rebondCases = viewModelState.rebondCases else {
-            return
-        }
-
-        let actions = rebondCases.map { option -> AlertPresentableAction in
+        let actions = viewModelState.rebondCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
                 guard let self = self else {
                     return
                 }
 
-                self.wireframe.showRebond(
-                    from: view,
-                    option: option,
-                    chain: self.chainAsset.chain,
-                    asset: self.chainAsset.asset,
-                    selectedAccount: self.wallet
-                )
+                self.viewModelState.decideRebondFlow(option: option)
             }
+
             return action
         }
 
@@ -196,5 +187,22 @@ extension StakingBalancePresenter: StakingBalanceModelStateListener {
 
     func finishFlow() {
         wireframe.cancel(from: view)
+    }
+
+    func decideShowSetupRebondFlow() {
+        wireframe.showRebondSetup(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
+    func decideShowConfirmRebondFlow(flow: StakingRebondConfirmationFlow) {
+        wireframe.showRebondConfirm(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
+        )
     }
 }

@@ -3,16 +3,15 @@ import Foundation
 final class StakingRebondSetupWireframe: StakingRebondSetupWireframeProtocol {
     func proceed(
         view: StakingRebondSetupViewProtocol?,
-        amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        amount _: Decimal,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     ) {
         guard let rebondView = StakingRebondConfirmationViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            variant: .custom(amount: amount)
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }

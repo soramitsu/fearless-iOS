@@ -2,6 +2,26 @@ import Foundation
 import BigInt
 
 final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState {
+    var rebondCases: [StakingRebondOption] {
+        [.all]
+    }
+
+    func decideRebondFlow(option _: StakingRebondOption) {
+        guard let delegation = delegation, let request = requests?.last else {
+            return
+        }
+
+        let delegationInfo = ParachainStakingDelegationInfo(
+            delegation: delegation,
+            collator: collator
+        )
+
+        stateListener?.decideShowConfirmRebondFlow(flow: .parachain(
+            delegation: delegationInfo,
+            request: request
+        ))
+    }
+
     var stateListener: StakingBalanceModelStateListener?
 
     func setStateListener(_ stateListener: StakingBalanceModelStateListener?) {
@@ -74,10 +94,6 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
             delegation: delegation,
             readyForRevoke: readyForRevoke
         )
-    }
-
-    var rebondCases: [StakingRebondOption]? {
-        nil
     }
 
     func calculateRevokeAmount() -> BigUInt? {

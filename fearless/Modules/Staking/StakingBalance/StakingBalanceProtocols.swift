@@ -46,12 +46,17 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
         flow: StakingRedeemFlow
     )
 
-    func showRebond(
+    func showRebondSetup(
         from view: ControllerBackedProtocol?,
-        option: StakingRebondOption,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+
+    func showRebondConfirm(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     )
 
     func cancel(from view: ControllerBackedProtocol?)

@@ -15,6 +15,10 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         ]
     }
 
+    private var isCollator: Bool {
+        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    }
+
     var builderClosure: ExtrinsicBuilderClosure? {
         guard
             let amount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
@@ -26,10 +30,14 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
             if self.revoke {
                 newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
             } else {
-                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                if self.isCollator {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
+                } else {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                }
             }
 
-            return try newBuilder
+            return newBuilder
         }
     }
 
@@ -41,11 +49,19 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
             return nil
         }
 
+        var identifier = ""
+
         if revoke {
-            return callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+            identifier = callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+        } else {
+            if isCollator {
+                identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
+            } else {
+                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+            }
         }
 
-        return callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+        return identifier
     }
 
     var accountAddress: AccountAddress? {
