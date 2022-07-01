@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
-        <attribute name="accountInfo" optional="YES" attributeType="Binary"/>
         <attribute name="chainId" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
@@ -112,7 +111,7 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="239"/>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="224"/>
         <element name="CDChain" positionX="-45" positionY="81" width="128" height="389"/>
         <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="119"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>

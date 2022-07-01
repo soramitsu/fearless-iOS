@@ -14,7 +14,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let priceId: PriceId?
     let price: Decimal?
     let fiatDayChange: Decimal?
-    let transfersEnabled: Bool?
+    let transfersEnabled: Bool
     let type: ChainAssetType
     let currencyId: String?
     let displayName: String?
@@ -33,7 +33,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         priceId: AssetModel.PriceId?,
         price: Decimal?,
         fiatDayChange: Decimal?,
-        transfersEnabled: Bool?,
+        transfersEnabled: Bool,
         type: ChainAssetType,
         currencyId: String?,
         displayName: String?,
@@ -63,7 +63,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         precision = try container.decode(UInt16.self, forKey: .precision)
         icon = try? container.decode(URL?.self, forKey: .icon)
         priceId = try? container.decode(String?.self, forKey: .priceId)
-        transfersEnabled = try? container.decode(Bool?.self, forKey: .transfersEnabled)
+        transfersEnabled = try container.decode(Bool?.self, forKey: .transfersEnabled) ?? true
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
@@ -93,7 +93,14 @@ struct AssetModel: Equatable, Codable, Hashable {
 
     static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
         lhs.id == rhs.id &&
-            lhs.chainId == rhs.chainId
+            lhs.chainId == rhs.chainId &&
+            lhs.precision == rhs.precision &&
+            lhs.icon == rhs.icon &&
+            lhs.priceId == rhs.priceId &&
+            lhs.symbol == rhs.symbol &&
+            lhs.transfersEnabled == rhs.transfersEnabled &&
+            lhs.currencyId == rhs.currencyId &&
+            lhs.displayName == rhs.displayName
     }
 }
 

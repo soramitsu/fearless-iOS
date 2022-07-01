@@ -140,11 +140,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         provideViewModel()
     }
 
-    func didRecieceAccountInfos(_ accountInfo: [ChainAssetKey: AccountInfo?]) {
-        accountInfos = accountInfo
-        provideViewModel()
-    }
-
     func didReceivePricesData(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(priceDataResult):

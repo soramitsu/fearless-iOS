@@ -38,13 +38,6 @@ final class ManageAssetsPresenter {
     }
 
     private func provideViewModel() {
-        guard
-            accountInfos.keys.count == chainModels.map(\.chainAssets).reduce([], +).count
-            || accountInfos.keys.isEmpty
-        else {
-            return
-        }
-
         let viewModel = viewModelFactory.buildManageAssetsViewModel(
             selectedMetaAccount: selectedMetaAccount,
             chains: chainModels,

@@ -27,7 +27,6 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
     func didReceiveSelectedAccount(_ account: MetaAccountModel)
     func didReceiveSupportedCurrencys(_ supportedCurrencys: Result<[Currency], Error>)
     func didRecieveSelectedCurrency(_ selectedCurrency: Currency)
-    func didRecieceAccountInfos(_ accountInfo: [ChainAssetKey: AccountInfo?])
 }
 
 protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
