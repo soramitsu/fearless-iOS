@@ -14,11 +14,30 @@
       "crowdloans": {
         "type": "github",
         "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/polkadot.json"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://polkadot.subscan.io/{type}/{value}"
+        },
+        {
+          "type": "polkascan",
+          "types": [
+            "extrinsic",
+            "account",
+            "event"
+          ],
+          "url": "https://polkascan.io/polkadot/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "dot",
+        "assetId": "887a17c7-1370-4de0-97dd-5422e294fa75",
         "staking": "relaychain",
         "purchaseProviders": [
           "moonpay",
@@ -34,6 +53,10 @@
       {
         "url": "wss://rpc.polkadot.io",
         "name": "Parity node"
+      },
+      {
+        "url": "wss://polkadot-rpc.dwellir.com",
+        "name": "Dwellir node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Polkadot.svg",
@@ -61,11 +84,30 @@
       "crowdloans": {
         "type": "github",
         "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/kusama.json"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://kusama.subscan.io/{type}/{value}"
+        },
+        {
+          "type": "polkascan",
+          "types": [
+            "extrinsic",
+            "account",
+            "event"
+          ],
+          "url": "https://polkascan.io/kusama/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "ksm",
+        "assetId": "1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b",
         "staking": "relaychain",
         "purchaseProviders": [
           "ramp"
@@ -80,6 +122,10 @@
       {
         "url": "wss://kusama-rpc.polkadot.io",
         "name": "Parity node"
+      },
+      {
+        "url": "wss://kusama-rpc.dwellir.com",
+        "name": "Dwellir node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Kusama.svg",
@@ -107,11 +153,21 @@
       "crowdloans": {
         "type": "github",
         "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/westend.json"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://westend.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "wnd",
+        "assetId": "a3868e1b-922e-42d4-b73e-b41712f0843c",
         "staking": "relaychain"
       }
     ],
@@ -123,10 +179,6 @@
       {
         "url": "wss://westend-rpc.polkadot.io",
         "name": "Parity node"
-      },
-      {
-        "url": "wss://pub.elara.patract.io/westend",
-        "name": "Patract node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Westend.svg",
@@ -141,22 +193,130 @@
     ]
   },
   {
-    "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-    "name": "Acala",
+    "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Statemine",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-acala"
-      },
       "history": {
         "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-acala"
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-statemine"
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://statemine.subscan.io/{type}/{value}"
+        }
+      ]
+    },
+    "assets": [
+      {
+        "assetId": "1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://statemine.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "name": "OnFinality node"
+      },
+      {
+        "url": "wss://statemine-rpc.polkadot.io",
+        "name": "Parity node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Statemine.svg",
+    "addressPrefix": 2,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/statemine.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
+    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "name": "Statemint",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-statemint"
       }
     },
     "assets": [
       {
-        "assetId": "aca"
+        "assetId": "887a17c7-1370-4de0-97dd-5422e294fa75"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://statemint.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "name": "OnFinality node"
+      },
+      {
+        "url": "wss://statemint-rpc.polkadot.io",
+        "name": "Parity node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Statemine.svg",
+    "addressPrefix": 0,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/statemint.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
+    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "name": "Acala",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-acala"
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://acala.subscan.io/{type}/{value}"
+        }
+      ]
+    },
+    "assets": [
+      {
+        "assetId": "c801d6c1-3edf-41a9-9aea-da705eab249b"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "cfe26eae-f566-4b8d-a44c-bd4380c27bc5"
+      },
+      {
+        "type": "stableAssetPoolToken",
+        "assetId": "70a69d25-a4ba-4c6b-a15d-09f3c2814ddf"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "fe07f6c5-2b90-4e1a-81e3-8ed85f5a80b9"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "b6c22f93-be25-426b-b921-18bf19c49667"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "471bfcd1-9680-4ba9-a25d-3e9f777ee2c9"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "ed98bee1-34ce-4aa2-896e-508380dea1c2"
+      },
+      {
+        "type": "liquidCrowdloan",
+        "assetId": "a7b48fb1-5741-487a-98fd-c45f958dd4fd"
       }
     ],
     "nodes": [
@@ -177,18 +337,136 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Karura",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-karura"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-karura"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://karura.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "kar"
+        "assetId": "e71b30a0-2a44-40ff-8b53-a166fadef6c5"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "94d5e2d9-c2d7-40e6-8893-5832a784b2ea"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "223b0282-b5c9-48ed-87e3-5e9ef6714ac8"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "e605149c-0f41-4ec9-960f-21c07e2d9361"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "10757cfa-b590-43c1-8524-efc28d798bcb"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "77562113-9e01-49b6-a39d-87a47bde24fe"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "c6fd5a1e-3052-4bdf-b0f3-ad1b7b9fbff0"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "5e9c76a4-9f89-487d-80aa-db0588b60aa4"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "4b9f4cba-3b26-4f99-8666-3ee305683706"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "3d32d7cb-4de5-427e-9668-a9763648a555"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "17142348-16f6-49f2-9006-098f5562bda0"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "6aa4622c-42b9-4976-9f7c-35447bb24128"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "e27e5b58-3229-4656-b9ff-de309f49f17f"
+      },
+      {
+        "type": "stableAssetPoolToken",
+        "assetId": "8e975c47-df51-48a8-a29e-a89ee0f4bf9e"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "536deaa6-49b0-4b54-adc7-9619e15c79b2"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "f2257792-ffb9-4dff-95ae-5f98c1cb594b"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "54b7f751-ef62-45b2-ad65-837852de5af4"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "bb3dc769-394f-40fb-b54f-4a0d0de7e49e"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "5fd5f3ce-4a2c-4647-923e-6c29cc95a4f7"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "8cf27ed8-11bf-4b16-be22-5aa6bbc10736"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "805e945b-54a6-47ec-a62b-7bcbae46fb70"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "addd6fed-51af-4088-8d6d-05c73b48b8df"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "f8d6e0db-e50b-46ea-b870-c2e97abb99d7"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "4879d0ed-810b-4792-8e83-387180cc3a9c"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "e0fe6aac-a52e-4e78-be60-defee1006569"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "1d534f94-bc5a-41a5-a295-c84f9ee0d95c"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "b8f7bcbc-fe2d-457d-903f-c8c126127231"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "2433813f-403f-40e1-9e00-688b037113d5"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "1a6e5327-80da-439a-8294-8b3dbeb8172c"
       }
     ],
     "nodes": [
@@ -225,12 +503,73 @@
     }
   },
   {
+    "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Moonriver",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-moonriver"
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://moonriver.subscan.io/{type}/{value}"
+        }
+      ]
+    },
+    "assets": [
+      {
+        "assetId": "35346815-009a-4cf9-a5ad-85a0167e594d"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://moonriver.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "name": "OnFinality node"
+      },
+      {
+        "url": "wss://wss.moonriver.moonbeam.network",
+        "name": "PureStake node"
+      },
+      {
+        "url": "wss://rpc.pinknode.io/moonriver/explorer",
+        "name": "Pinknode node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Moonriver.svg",
+    "addressPrefix": 1285,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/moonriver.json",
+      "overridesCommon": true
+    },
+    "options": [
+      "ethereumBased"
+    ]
+  },
+  {
     "chainId": "f1cf9022c7ebb34b162d5b5e34e705a5a740b2d0ecc1009fb89023e62a488108",
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Shiden",
+    "externalApi": {
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://shiden.subscan.io/{type}/{value}"
+        }
+      ]
+    },
     "assets": [
       {
-        "assetId": "sdn"
+        "assetId": "6dbb524b-a2d7-4c32-b0f9-6825b3e7d2c4"
       }
     ],
     "nodes": [
@@ -259,18 +598,64 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Bifrost",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-bitfrost"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-bitfrost"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://bifrost.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "bnc"
+        "assetId": "559e80d6-fb38-4dd5-bbd6-c0a7c2f600e1"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "922c191c-4cb8-407e-8b81-2cfc52170c3b"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "75206b90-456e-48ae-a118-0bf9ab861115"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "5c31c8ae-c045-43f2-849a-88a17ee7b302"
+      },
+      {
+        "type": "vToken",
+        "assetId": "07f2a7fc-9b0a-4583-9267-57b68ecd4350"
+      },
+      {
+        "type": "vsToken",
+        "assetId": "dd0efecb-51a1-481d-a949-80cb7663c105"
+      },
+      {
+        "type": "stable",
+        "assetId": "94d5e2d9-c2d7-40e6-8893-5832a784b2ea"
+      },
+      {
+        "type": "foreignAsset",
+        "assetId": "2bd78b68-8bd7-4859-928a-1a7b8b57a734"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "e6f78e19-80c7-4e8c-8499-91e03df504a8"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "fe2c5a55-aff7-4d00-af5c-e90082a5a11e"
+      },
+      {
+        "type": "ormlAsset",
+        "assetId": "33746c72-6806-47d0-a1c4-7b433df862f1"
       }
     ],
     "nodes": [
@@ -295,18 +680,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Khala",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-khala"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-khala"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://khala.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "pha"
+        "assetId": "3feb7de3-e881-4c04-a4de-1b9091dbc324"
       }
     ],
     "nodes": [
@@ -331,18 +722,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "KILT Spiritnet",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-kilt"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-kilt"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://spiritnet.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "kilt"
+        "assetId": "f0d5cadc-4999-45f3-8160-15243f2909d3"
       }
     ],
     "nodes": [
@@ -367,18 +764,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Calamari",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-calamari"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-calamari"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://calamari.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "kma"
+        "assetId": "39d4080e-e2ab-43f3-bcc2-2fa281d9290c"
       }
     ],
     "nodes": [
@@ -391,8 +794,8 @@
         "name": "Calamari Falafel node"
       },
       {
-        "url": "wss://pasta.calamari.systems/",
-        "name": "Calamari Pasta node"
+        "url": "wss://ws.calamari.systems/",
+        "name": "Manta Network node"
       }
     ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Calamari.svg",
@@ -407,10 +810,6 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Quartz",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-quartz"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-quartz"
@@ -418,7 +817,7 @@
     },
     "assets": [
       {
-        "assetId": "qtz"
+        "assetId": "d0f2e718-99ee-4bc2-8dc2-1ce07f21c5ac"
       }
     ],
     "nodes": [
@@ -451,18 +850,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Parallel Heiko",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-parallel_heiko"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-parallel_heiko"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://parallel-heiko.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "hko"
+        "assetId": "02b54158-4f4f-4077-b6a7-7c9edd75a1ca"
       }
     ],
     "nodes": [
@@ -487,18 +892,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Picasso",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-picasso"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-picasso"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://picasso.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "pica"
+        "assetId": "d24959cd-72fb-4155-9880-86d42b1d1cbb"
       }
     ],
     "nodes": [
@@ -519,18 +930,24 @@
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Altair",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-altair"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-altair"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://altair.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "air"
+        "assetId": "56c7f785-23d6-4199-accf-846be58011e6"
       }
     ],
     "nodes": [
@@ -562,7 +979,7 @@
     },
     "assets": [
       {
-        "assetId": "neer"
+        "assetId": "d3b93409-97b1-42e0-8dbc-99d3fb93fc10"
       }
     ],
     "nodes": [
@@ -587,18 +1004,24 @@
     "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "name": "Clover",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-clover"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-clover"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://clover.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "clv"
+        "assetId": "4b7ab596-bff4-4fd8-9c60-24ef1cbe9584"
       }
     ],
     "nodes": [
@@ -623,18 +1046,24 @@
     "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "name": "Astar",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-astar"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-astar"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://astar.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "astr"
+        "assetId": "5ab1e8d-81ed-4130-9d29-55b549cc6bab"
       }
     ],
     "nodes": [
@@ -652,28 +1081,31 @@
     "types": {
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/astar.json",
       "overridesCommon": true
-    },
-    "options": [
-      "tipRequired"
-    ]
+    }
   },
   {
     "chainId": "e61a41c53f5dcd0beb09df93b34402aada44cb05117b71059cce40a2723a4e97",
     "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "name": "Parallel",
     "externalApi": {
-      "staking": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-parallel"
-      },
       "history": {
         "type": "subquery",
         "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-parallel"
-      }
+      },
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://parallel.subscan.io/{type}/{value}"
+        }
+      ]
     },
     "assets": [
       {
-        "assetId": "para"
+        "assetId": "f78aa731-a33c-4d8d-a3bb-74835064366b"
       }
     ],
     "nodes": [
@@ -697,9 +1129,15 @@
     "chainId": "a85cfb9b9fd4d622a5b28289a02347af987d8f73fa3108450e2b4a11c1ce5755",
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Basilisk",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-basilisk"
+      }
+    },
     "assets": [
       {
-        "assetId": "bsx"
+        "assetId": "7dae28e2-9f5e-49ff-9140-aa750a9579ea"
       }
     ],
     "nodes": [
@@ -714,105 +1152,6 @@
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/basilisk.json",
       "overridesCommon": true
     }
-  },
-  {
-    "chainId": "631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc",
-    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-    "name": "Robonomics",
-    "externalApi": {
-      "history": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-robonomics"
-      }
-    },
-    "assets": [
-      {
-        "assetId": "xrt"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://kusama.rpc.robonomics.network/",
-        "name": "Airalab node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/robonomics.svg",
-    "addressPrefix": 32,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/robonomics.json",
-      "overridesCommon": true
-    }
-  },
-  {
-    "chainId": "4a12be580bb959937a1c7a61d5cf24428ed67fa571974b4007645d1886e7c89f",
-    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-    "name": "Subsocial Parachain",
-    "assets": [
-      {
-        "assetId": "sub"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://para.subsocial.network",
-        "name": "Dappforce node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/subsocial_new.svg",
-    "addressPrefix": 28,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/subsocial.json",
-      "overridesCommon": true
-    }
-  },
-  {
-    "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
-    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-    "name": "Moonriver",
-    "externalApi": {
-      "history": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-moonriver"
-      },
-      "explorers": [
-        {
-          "type": "subscan",
-          "types": [
-            "extrinsic",
-            "account"
-          ],
-          "url": "https://moonriver.subscan.io/{type}/{value}"
-        }
-      ]
-    },
-    "assets": [
-      {
-        "assetId": "movr"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://moonriver.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-        "name": "OnFinality node"
-      },
-      {
-        "url": "wss://wss.moonriver.moonbeam.network",
-        "name": "PureStake node"
-      },
-      {
-        "url": "wss://rpc.pinknode.io/moonriver/explorer",
-        "name": "Pinknode node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Moonriver.svg",
-    "addressPrefix": 1285,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/moonriver.json",
-      "overridesCommon": true
-    },
-    "options": [
-      "ethereumBased"
-    ]
   },
   {
     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
@@ -836,7 +1175,7 @@
     },
     "assets": [
       {
-        "assetId": "glmr"
+        "assetId": "e40c8161-9fc9-4749-a3b8-ed1c0ad16475"
       }
     ],
     "nodes": [
@@ -860,13 +1199,12 @@
     ]
   },
   {
-    "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
-    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-    "name": "Statemine",
+    "chainId": "91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527",
+    "name": "Moonbase Alpha",
     "externalApi": {
       "history": {
         "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-statemine"
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-moonbase_alpha"
       },
       "explorers": [
         {
@@ -875,120 +1213,39 @@
             "extrinsic",
             "account"
           ],
-          "url": "https://statemine.subscan.io/{type}/{value}"
+          "url": "https://moonbase.subscan.io/{type}/{value}"
         }
       ]
     },
     "assets": [
       {
-        "assetId": "ksm"
+        "assetId": "caf10b57-bb4d-437b-81be-d2e1a6acdcc5"
       }
     ],
     "nodes": [
       {
-        "url": "wss://statemine.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "url": "wss://moonbeam-alpha.api.onfinality.io/public-ws",
         "name": "OnFinality node"
       },
       {
-        "url": "wss://statemine-rpc.polkadot.io",
-        "name": "Parity node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Statemine.svg",
-    "addressPrefix": 2,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/statemine.json",
-      "overridesCommon": true
-    }
-  },
-  {
-    "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
-    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-    "name": "Statemint",
-    "externalApi": {
-      "history": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-statemint"
-      }
-    },
-    "assets": [
-      {
-        "assetId": "dot"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://statemint.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-        "name": "OnFinality node"
+        "url": "wss://wss.api.moonbase.moonbeam.network",
+        "name": "Moonbeam Network node"
       },
       {
-        "url": "wss://statemint-rpc.polkadot.io",
-        "name": "Parity node"
+        "url": "wss://rpc.pinknode.io/alphanet/explorer",
+        "name": "Pinknode node"
       }
     ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Statemine.svg",
-    "addressPrefix": 0,
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Moonbeam.svg",
+    "addressPrefix": 1287,
     "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/statemint.json",
-      "overridesCommon": true
-    }
-  },
-  {
-    "chainId": "724c168d8e86b78b831c641e2cc822b8d1bf99fa0b4b28fe59985cd6fd580215",
-    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-    "name": "Integritee Shell",
-    "externalApi": {
-      "history": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-integritee__c29yY"
-      }
-    },
-    "assets": [
-      {
-        "assetId": "teer"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://kusama.api.integritee.network",
-        "name": "Integritee node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/integritee.svg",
-    "addressPrefix": 13,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/integritee.json",
-      "overridesCommon": true
-    }
-  },
-  {
-    "chainId": "335369975fced3fc22e23498da306a712f4fd964c957364d53c49cea9db8bc2f",
-    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-    "name": "Efinity",
-    "externalApi": {
-      "history": {
-        "type": "subquery",
-        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-efinity__c29yY"
-      }
-    },
-    "assets": [
-      {
-        "assetId": "efi"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://rpc.efinity.io",
-        "name": "Efinity node"
-      }
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/efinity.svg",
-    "addressPrefix": 1110,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/efinity.json",
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/moonbasealpha.json",
       "overridesCommon": true
     },
-    "iosMinAppVersion": "2.0.7"
+    "options": [
+      "testnet",
+      "ethereumBased"
+    ]
   },
   {
     "chainId": "9af9a64e6e4da8e3073901c3ff0cc4c3aad9563786d89daf6ad820b6e14a0b8b",
@@ -1002,7 +1259,8 @@
     },
     "assets": [
       {
-        "assetId": "kint"
+        "type": "ormlChain",
+        "assetId": "f5d1db12-0a68-4897-903d-51a887daa1db"
       }
     ],
     "nodes": [
@@ -1021,10 +1279,157 @@
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/kintsugi.json",
       "overridesCommon": true
     },
-    "options": [
-      "orml"
-    ],
     "iosMinAppVersion": "2.0.7"
+  },
+  {
+    "chainId": "9b8cefc0eb5c568b527998bdd76c184e2b76ae561be76e4667072230217ea243",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Genshiro",
+    "assets": [
+      {
+        "assetId": "gens"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://node1.genshiro.io/",
+        "name": "Genshiro node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Genshiro.svg",
+    "addressPrefix": 67
+  },
+  {
+    "chainId": "631ccc82a078481584041656af292834e1ae6daab61d2875b4dd0c14bb9b17bc",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Robonomics",
+    "externalApi": {
+      "explorers": [
+        {
+          "type": "subscan",
+          "types": [
+            "extrinsic",
+            "account"
+          ],
+          "url": "https://robonomics.subscan.io/{type}/{value}"
+        }
+      ],
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-robonomics"
+      }
+    },
+    "assets": [
+      {
+        "assetId": "ca39e03e-dde3-41ac-b1f4-a3d20202b79e"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://kusama.rpc.robonomics.network/",
+        "name": "Airalab node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/robonomics.svg",
+    "addressPrefix": 32,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/robonomics.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "6d8d9f145c2177fa83512492cdd80a71e29f22473f4a8943a6292149ac319fb9",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "SORA Kusama",
+    "assets": [
+      {
+        "assetId": "2df458e8-c4a9-4026-986f-8962a36fe604"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://ws.parachain-collator-1.c1.sora2.soramitsu.co.jp",
+        "name": "Soramitsu node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/SORA.svg",
+    "addressPrefix": 420,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/sora.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "4a12be580bb959937a1c7a61d5cf24428ed67fa571974b4007645d1886e7c89f",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Subsocial",
+    "assets": [
+      {
+        "assetId": "07f9e907-d099-4893-a67b-96cb2fe63049"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://para.subsocial.network",
+        "name": "Dappforce node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/subsocial_new.svg",
+    "addressPrefix": 28,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/subsocial.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "1bf2a2ecb4a868de66ea8610f2ce7c8c43706561b6476031315f6640fe38e060",
+    "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+    "name": "Zeitgeist",
+    "assets": [
+      {
+        "assetId": "2246fe14-4ec4-460c-8d92-e15bd337f8af"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://rpc-0.zeitgeist.pm",
+        "name": "ZeitgeistPM node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/zeitgeist.svg",
+    "addressPrefix": 73,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/zeitgeist.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "335369975fced3fc22e23498da306a712f4fd964c957364d53c49cea9db8bc2f",
+    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "name": "Efinity",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/fearless-wallet-efinity__c29yY"
+      }
+    },
+    "assets": [
+      {
+        "assetId": "80b7c347-161d-40a9-aed6-b2f202e3577e"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://rpc.efinity.io",
+        "name": "Efinity node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/efinity.svg",
+    "addressPrefix": 1110,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/efinity.json",
+      "overridesCommon": true
+    }
   },
   {
     "chainId": "afdc188f45c71dacbaa0b62e16a91f726c7b8699a9748cdf715459de6b7f366d",
@@ -1032,7 +1437,7 @@
     "name": "HydraDX",
     "assets": [
       {
-        "assetId": "hdx"
+        "assetId": "fce79b6c-e071-4271-837e-6ec87a719390"
       }
     ],
     "nodes": [
@@ -1054,7 +1459,7 @@
     "name": "Centrifuge",
     "assets": [
       {
-        "assetId": "cfg"
+        "assetId": "7b1963a6-11f1-461c-a9f1-83d82a54b7ee"
       }
     ],
     "nodes": [
@@ -1076,24 +1481,45 @@
     "name": "Nodle Parachain",
     "assets": [
       {
-        "assetId": "nodl"
+        "assetId": "e0e1107-e323-43aa-bb93-d7618d2c8cf5"
       }
     ],
     "nodes": [
-            {
-                "url": "wss://nodle-parachain.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "OnFinality node"
-            },
-            {
-                "url": "wss://eden-rpc.dwellir.com",
-                "name": "Dwellir node"
-            }
-
-        ],
+      {
+        "url": "wss://nodle-parachain.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "name": "OnFinality node"
+      }
+    ],
     "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/nodle.svg",
     "addressPrefix": 37,
     "types": {
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/nodle.json",
+      "overridesCommon": true
+    }
+  },
+  {
+    "chainId": "bf88efe70e9e0e916416e8bed61f2b45717f517d7f3523e33c7b001e5ffcbc72",
+    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+    "name": "Interlay",
+    "assets": [
+      {
+        "assetId": "7a77b6b0-f015-4ccc-a5bb-3456e17775dd"
+      }
+    ],
+    "nodes": [
+      {
+        "url": "wss://interlay.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
+        "name": "OnFinality node"
+      },
+      {
+        "url": "wss://api.interlay.io/parachain",
+        "name": "Kintsugi Labs node"
+      }
+    ],
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/interlay.svg",
+    "addressPrefix": 42,
+    "types": {
+      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/interlay.json",
       "overridesCommon": true
     }
   },
@@ -1103,7 +1529,7 @@
     "name": "Litmus",
     "assets": [
       {
-        "assetId": "lit"
+        "assetId": "15076759-6a5b-4cd6-b84c-e64842f094e5"
       }
     ],
     "nodes": [
@@ -1118,110 +1544,5 @@
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/litmus.json",
       "overridesCommon": true
     }
-  },
-  {
-    "chainId": "bf88efe70e9e0e916416e8bed61f2b45717f517d7f3523e33c7b001e5ffcbc72",
-    "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-    "name": "Interlay",
-    "assets": [
-      {
-        "assetId": "intr"
-      }
-    ],
-    "nodes": [
-      {
-        "url": "wss://interlay.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-        "name": "OnFinality node"
-      },
-      {
-        "url": "wss://api.interlay.io/parachain",
-        "name": "Kintsugi Labs node"
-      }
-    ],
-    "options": [
-      "orml"
-    ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/interlay.svg",
-    "addressPrefix": 42,
-    "types": {
-      "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/interlay.json",
-      "overridesCommon": true
-    }
-  },
-  {
-        "chainId": "d4c0c08ca49dc7c680c3dac71a7c0703e5b222f4b6c03fe4c5219bb8f22c18dc",
-        "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-        "name": "Crust Shadow Parachain",
-        "assets": [
-            {
-                "assetId": "csm"
-            }
-        ],
-        "nodes": [
-            {
-                "url": "wss://rpc-shadow.crust.network",
-                "name": "Crust node"
-            }
-
-        ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/crustshadow.svg",
-        "addressPrefix": 66,
-        "types": {
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/crustshadow.json",
-            "overridesCommon": true
-        }
-    },
-  {
-        "chainId": "0f62b701fb12d02237a33b84818c11f621653d2b1614c777973babf4652b535d",
-        "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
-        "name": "Turing Network",
-        "assets": [
-            {
-                "assetId": "tur"
-            }
-        ],
-        "nodes": [
-            {
-                "url": "wss://turing.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "Onfinality node"
-            },
-            {
-                "url": "wss://rpc.turing.oak.tech",
-                "name": "OAK node"
-            }
-        ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/OAK.svg",
-        "addressPrefix": 51,
-        "types": {
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/turing.json",
-            "overridesCommon": true
-        }
-    },
-  {
-        "chainId": "3920bcb4960a1eef5580cd5367ff3f430eef052774f78468852f7b9cb39f8a3c",
-        "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
-        "name": "Polkadex Main Network",
-        "assets": [
-            {
-                "assetId": "pdex"
-            }
-        ],
-        "nodes": [
-            {
-                "url": "wss://polkadex.api.onfinality.io/public-ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
-                "name": "Onfinalty node"
-            },
-            {
-                "url": "wss://mainnet.polkadex.trade",
-                "name": "Polkadex team node"
-            }
-
-        ],
-        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/polkadex.svg",
-        "addressPrefix": 88,
-        "types": {
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/polkadex.json",
-            "overridesCommon": true
-        }
-    }
+  }
 ]
