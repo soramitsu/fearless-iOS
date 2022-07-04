@@ -123,7 +123,7 @@ extension StakingRebondConfirmationRelaychainStrategy: StakingRebondConfirmation
 }
 
 extension StakingRebondConfirmationRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }
@@ -148,9 +148,9 @@ extension StakingRebondConfirmationRelaychainStrategy: RelaychainStakingLocalSto
 
             if let stashItem = maybeStashItem,
                let accountId = try? AddressFactory.accountId(from: stashItem.controller, chain: chainAsset.chain) {
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chainAsset.chain.chainId)
+                ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
 
-                accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chainAsset.chain,

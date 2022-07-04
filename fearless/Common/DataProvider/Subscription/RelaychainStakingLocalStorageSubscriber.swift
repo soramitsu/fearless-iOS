@@ -14,20 +14,20 @@ protocol RelaychainStakingLocalStorageSubscriber where Self: AnyObject {
     func subscribeMaxNominatorsCount(for chainId: ChainModel.Id)
         -> AnyDataProvider<DecodedU32>?
 
-    func subscribeNomination(for accountId: AccountId, chainId: ChainModel.Id)
+    func subscribeNomination(for accountId: AccountId, chainAsset: ChainAsset)
         -> AnyDataProvider<DecodedNomination>?
 
-    func subscribeValidator(for accountId: AccountId, chainId: ChainModel.Id)
+    func subscribeValidator(for accountId: AccountId, chainAsset: ChainAsset)
         -> AnyDataProvider<DecodedValidator>?
 
-    func subscribeLedgerInfo(for accountId: AccountId, chainId: ChainModel.Id)
+    func subscribeLedgerInfo(for accountId: AccountId, chainAsset: ChainAsset)
         -> AnyDataProvider<DecodedLedgerInfo>?
 
     func subscribeActiveEra(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedActiveEra>?
 
     func subscribeCurrentEra(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedEraIndex>?
 
-    func subscribePayee(for accountId: AccountId, chainId: ChainModel.Id) -> AnyDataProvider<DecodedPayee>?
+    func subscribePayee(for accountId: AccountId, chainAsset: ChainAsset) -> AnyDataProvider<DecodedPayee>?
 
     func subscribeTotalReward(
         for address: AccountAddress,
@@ -158,11 +158,11 @@ extension RelaychainStakingLocalStorageSubscriber {
 
     func subscribeNomination(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedNomination>? {
         guard let nominatorProvider = try? stakingLocalSubscriptionFactory.getNominationProvider(
             for: accountId,
-            chainId: chainId
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -172,7 +172,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleNomination(
                 result: .success(nomination?.item),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
         }
 
@@ -180,7 +180,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleNomination(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
             return
         }
@@ -203,11 +203,11 @@ extension RelaychainStakingLocalStorageSubscriber {
 
     func subscribeValidator(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedValidator>? {
         guard let validatorProvider = try? stakingLocalSubscriptionFactory.getValidatorProvider(
             for: accountId,
-            chainId: chainId
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -217,7 +217,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleValidator(
                 result: .success(validator?.item),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
         }
 
@@ -225,7 +225,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleValidator(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
             return
         }
@@ -248,11 +248,11 @@ extension RelaychainStakingLocalStorageSubscriber {
 
     func subscribeLedgerInfo(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedLedgerInfo>? {
         guard let ledgerProvider = try? stakingLocalSubscriptionFactory.getLedgerInfoProvider(
             for: accountId,
-            chainId: chainId
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -262,7 +262,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleLedgerInfo(
                 result: .success(ledgerInfo?.item),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
         }
 
@@ -270,7 +270,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handleLedgerInfo(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
             return
         }
@@ -371,11 +371,11 @@ extension RelaychainStakingLocalStorageSubscriber {
 
     func subscribePayee(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) -> AnyDataProvider<DecodedPayee>? {
         guard let payeeProvider = try? stakingLocalSubscriptionFactory.getPayee(
             for: accountId,
-            chainId: chainId
+            chainAsset: chainAsset
         ) else {
             return nil
         }
@@ -385,7 +385,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handlePayee(
                 result: .success(payee?.item),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
         }
 
@@ -393,7 +393,7 @@ extension RelaychainStakingLocalStorageSubscriber {
             self?.stakingLocalSubscriptionHandler.handlePayee(
                 result: .failure(error),
                 accountId: accountId,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
             return
         }

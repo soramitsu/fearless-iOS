@@ -58,6 +58,7 @@ struct ControllerAccountViewFactory {
         selectedAccount: MetaAccountModel
     ) -> ControllerAccountInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -124,8 +125,7 @@ struct ControllerAccountViewFactory {
             extrinsicService: extrinsicService,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }

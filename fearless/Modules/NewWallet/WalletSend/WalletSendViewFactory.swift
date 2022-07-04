@@ -59,6 +59,7 @@ struct WalletSendViewFactory {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let operationManager = OperationManagerFacade.sharedManager
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -95,14 +96,15 @@ struct WalletSendViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
         )
 
         return WalletSendInteractor(
             selectedMetaAccount: selectedMetaAccount,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
@@ -112,7 +114,8 @@ struct WalletSendViewFactory {
                 selectedMetaAccount: selectedMetaAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
     }
 }

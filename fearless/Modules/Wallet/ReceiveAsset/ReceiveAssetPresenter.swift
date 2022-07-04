@@ -153,7 +153,7 @@ private extension ReceiveAssetPresenter {
         }
 
         view?.didReceive(viewModel: ReceiveAssetViewModel(
-            asset: asset.id,
+            asset: asset.name,
             accountName: account.name,
             address: address,
             iconGenerator: UniversalIconGenerator(chain: chain)

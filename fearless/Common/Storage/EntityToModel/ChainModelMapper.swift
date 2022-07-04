@@ -10,16 +10,27 @@ final class ChainModelMapper {
 
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
-        guard let id = entity.id, let chainId = entity.chainId else {
+        guard
+            let id = entity.id,
+            let chainId = entity.chainId,
+            let symbol = entity.symbol
+        else {
             preconditionFailure()
         }
+
         return AssetModel(
             id: id,
+            symbol: symbol,
             chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
             priceId: entity.priceId,
-            price: entity.price as Decimal?
+            price: entity.price as Decimal?,
+            transfersEnabled: entity.transfersEnabled,
+            type: createChainAssetModelType(from: entity.type),
+            currencyId: entity.currencyId,
+            displayName: entity.displayName,
+            existentialDeposit: entity.existentialDeposit
         )
     }
 
@@ -28,19 +39,23 @@ final class ChainModelMapper {
               let asset = entity.asset else {
             preconditionFailure()
         }
+
         let staking: StakingType?
         if let entityStaking = entity.staking {
             staking = StakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }
-        let purchaseProviders: [PurchaseProvider] = entity.purchaseProviders?.compactMap {
+
+        let purchaseProviders: [PurchaseProvider] = entity.purchaseProviders.orEmpty().compactMap {
             PurchaseProvider(rawValue: $0)
-        } ?? []
+        }
+
         return ChainAssetModel(
             assetId: assetId,
             staking: staking,
             purchaseProviders: purchaseProviders,
+            type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
             chain: parentChain
         )
@@ -79,11 +94,12 @@ final class ChainModelMapper {
                 assetEntity = CDChainAsset(context: context)
             }
 
-            let purchaseProviders: [String]? = asset.purchaseProviders?.map(\.rawValue)
+            let purchaseProviders: [String]? = asset.purchaseProviders.map(\.rawValue)
 
             assetEntity.assetId = asset.assetId
             assetEntity.purchaseProviders = purchaseProviders
             assetEntity.staking = asset.staking?.rawValue
+            assetEntity.type = asset.type.rawValue
             updateEntityAsset(
                 for: assetEntity,
                 from: asset,
@@ -120,6 +136,12 @@ final class ChainModelMapper {
         assetEntity.precision = Int16(bitPattern: model.asset.precision)
         assetEntity.priceId = model.asset.priceId
         assetEntity.price = model.asset.price as NSDecimalNumber?
+        assetEntity.symbol = model.asset.symbol
+        assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
+        assetEntity.type = model.type.rawValue
+        assetEntity.currencyId = model.asset.currencyId
+        assetEntity.displayName = model.asset.displayName
+        assetEntity.existentialDeposit = model.asset.existentialDeposit
 
         entity.asset = assetEntity
     }
@@ -162,16 +184,10 @@ final class ChainModelMapper {
         entity.nodes = Set(nodeEntities) as NSSet
     }
 
-    private func updateEntityCustomNodes(
-        for entity: CDChain,
-        from model: ChainModel,
-        context: NSManagedObjectContext
-    ) {
-        guard let customNodes = model.customNodes else {
-            return
-        }
+    private func updateEntityCustomNodes(for entity: CDChain, from model: ChainModel, context: NSManagedObjectContext) {
+        guard model.customNodes.isNotEmpty else { return }
 
-        let nodeEntities: [CDChainNode] = customNodes.map { node in
+        let nodeEntities: [CDChainNode] = model.customNodes.map { node in
             let nodeEntity: CDChainNode
 
             let maybeExistingEntity = entity.customNodes?
@@ -191,7 +207,7 @@ final class ChainModelMapper {
             return nodeEntity
         }
 
-        let existingNodeIds = Set(customNodes.map(\.url))
+        let existingNodeIds = model.customNodes.map(\.url)
 
         if let oldNodes = entity.customNodes as? Set<CDChainNode> {
             for oldNode in oldNodes {
@@ -283,25 +299,28 @@ final class ChainModelMapper {
         entity.crowdloansApiType = apis?.crowdloans?.type
         entity.crowdloansApiUrl = apis?.crowdloans?.url
     }
+
+    private func createChainAssetModelType(from rawValue: String?) -> ChainAssetType {
+        guard let rawValue = rawValue else {
+            return .normal
+        }
+        return ChainAssetType(rawValue: rawValue) ?? .normal
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
     func transform(entity: CDChain) throws -> ChainModel {
-        let nodes: [ChainNodeModel] = entity.nodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
-            }
+        let nodes: Set<ChainNodeModel> = (entity.nodes?.allObjects)
+            .orEmpty()
+            .compactMap { $0 as? CDChainNode }
+            .map { createChainNode(from: $0) }
+            .toSet()
 
-            return createChainNode(from: node)
-        } ?? []
-
-        let customNodes: [ChainNodeModel] = entity.customNodes?.compactMap { anyNode in
-            guard let node = anyNode as? CDChainNode else {
-                return nil
-            }
-
-            return createChainNode(from: node)
-        } ?? []
+        let customNodes: Set<ChainNodeModel> = (entity.customNodes?.allObjects)
+            .orEmpty()
+            .compactMap { $0 as? CDChainNode }
+            .map { createChainNode(from: $0) }
+            .toSet()
 
         var selectedNode: ChainNodeModel?
 
@@ -345,14 +364,14 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             chainId: entity.chainId!,
             parentId: entity.parentId,
             name: entity.name!,
-            nodes: Set(nodes),
+            nodes: nodes,
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,
-            options: options.isEmpty ? nil : options,
+            options: options,
             externalApi: externalApiSet,
             selectedNode: selectedNode,
-            customNodes: Set(customNodes),
+            customNodes: customNodes,
             iosMinAppVersion: entity.minimalAppVersion
         )
 
@@ -386,7 +405,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.isEthereumBased = model.isEthereumBased
         entity.isTestnet = model.isTestnet
         entity.hasCrowdloans = model.hasCrowdloans
-        entity.isOrml = model.isOrml
         entity.isTipRequired = model.isTipRequired
         entity.minimalAppVersion = model.iosMinAppVersion
 

@@ -19,6 +19,21 @@ class ChainModel: Codable {
         let staking: ExternalApi?
         let history: ExternalApi?
         let crowdloans: ExternalApi?
+
+        // For some reason, when ExternalApi fails to unwrap, even though it's optional, whole ChainModel fails, provide required inits
+
+        init(staking: ExternalApi?, history: ExternalApi?, crowdloans: ExternalApi?) {
+            self.staking = staking
+            self.history = history
+            self.crowdloans = crowdloans
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: ExternalApiSet.CodingKeys.self)
+            staking = try? container.decode(ExternalApi.self, forKey: .staking)
+            history = try? container.decode(ExternalApi.self, forKey: .history)
+            crowdloans = try? container.decode(ExternalApi.self, forKey: .crowdloans)
+        }
     }
 
     enum TypesUsage {
@@ -35,11 +50,48 @@ class ChainModel: Codable {
     let addressPrefix: UInt16
     let types: TypesSettings?
     let icon: URL?
-    let options: [ChainOptions]?
+    let options: [ChainOptions]
     let externalApi: ExternalApiSet?
     let selectedNode: ChainNodeModel?
-    let customNodes: Set<ChainNodeModel>?
+    let customNodes: Set<ChainNodeModel>
     let iosMinAppVersion: String?
+
+    enum DecodingError: Error {
+        case missingAssets
+        case missingNodes
+    }
+
+    required init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        // Rules for app stable work
+        // 1. Optional unwrap with "try?"
+        // 2. Strict fields unwrap with "try"
+        // 3. Sets/URLs unwrap with decodeOptionalArray with empty set
+        // 4. Throw error if something is wrong with "DecodingError", so ignore chain in app
+
+        chainId = try container.decode(Id.self, forKey: .chainId)
+        parentId = try? container.decode(Id.self, forKey: .parentId)
+        name = try container.decode(String.self, forKey: .name)
+        assets = container.decodeOptionalArray([ChainAssetModel].self, forKey: .assets).toSet()
+        nodes = container.decodeOptionalArray([ChainNodeModel].self, forKey: .nodes).toSet()
+        addressPrefix = try container.decode(UInt16.self, forKey: .addressPrefix)
+        types = try? container.decode(TypesSettings.self, forKey: .types)
+        icon = try? container.decode(URL.self, forKey: .icon)
+        options = container.decodeOptionalArray([ChainOptions].self, forKey: .options)
+        externalApi = try? container.decode(ExternalApiSet.self, forKey: .externalApi)
+        selectedNode = try? container.decode(ChainNodeModel.self, forKey: .selectedNode)
+        customNodes = container.decodeOptionalArray([ChainNodeModel].self, forKey: .customNodes).toSet()
+        iosMinAppVersion = try? container.decode(String.self, forKey: .iosMinAppVersion)
+
+        if assets.isEmpty {
+            throw DecodingError.missingAssets
+        }
+
+        if nodes.isEmpty {
+            throw DecodingError.missingNodes
+        }
+    }
 
     init(
         chainId: Id,
@@ -50,10 +102,10 @@ class ChainModel: Codable {
         addressPrefix: UInt16,
         types: TypesSettings? = nil,
         icon: URL?,
-        options: [ChainOptions]? = nil,
+        options: [ChainOptions] = [],
         externalApi: ExternalApiSet? = nil,
         selectedNode: ChainNodeModel? = nil,
-        customNodes: Set<ChainNodeModel>? = nil,
+        customNodes: Set<ChainNodeModel> = [],
         iosMinAppVersion: String?
     ) {
         self.chainId = chainId
@@ -72,19 +124,19 @@ class ChainModel: Codable {
     }
 
     var isEthereumBased: Bool {
-        options?.contains(.ethereumBased) ?? false
+        options.contains(.ethereumBased)
     }
 
     var isTestnet: Bool {
-        options?.contains(.testnet) ?? false
+        options.contains(.testnet)
     }
 
     var isOrml: Bool {
-        options?.contains(.orml) ?? false
+        options.contains(.orml)
     }
 
     var isTipRequired: Bool {
-        options?.contains(.tipRequired) ?? false
+        options.contains(.tipRequired)
     }
 
     var isPolkadotOrKusama: Bool {
@@ -100,7 +152,7 @@ class ChainModel: Codable {
     }
 
     var hasCrowdloans: Bool {
-        options?.contains(.crowdloans) ?? false
+        options.contains(.crowdloans)
     }
 
     var isSupported: Bool {
@@ -117,22 +169,6 @@ class ChainModel: Codable {
         } else {
             return .onlyCommon
         }
-    }
-
-    var tokenSymbol: TokenSymbol? {
-        guard isOrml else {
-            return nil
-        }
-
-        guard let assetName = assets.first?.assetId else {
-            return nil
-        }
-
-        return TokenSymbol(rawValue: assetName)
-    }
-
-    var currencyId: CurrencyId? {
-        CurrencyId.token(symbol: tokenSymbol)
     }
 
     var erasPerDay: UInt32 {
@@ -152,6 +188,18 @@ class ChainModel: Codable {
 
     var accountIdLenght: Int {
         isEthereumBased ? 20 : 32
+    }
+
+    var chainAssets: [ChainAsset] {
+        assets.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
+    }
+
+    func utilityChainAssets() -> [ChainAsset] {
+        assets.filter { $0.isUtility }.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
     }
 
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {

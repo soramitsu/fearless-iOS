@@ -4,12 +4,12 @@ import RobinHood
 protocol WalletLocalSubscriptionFactoryProtocol {
     func getAccountProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedAccountInfo>
 
     func getOrmlAccountProvider(
         for accountId: AccountId,
-        chain: ChainModel
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedOrmlAccountInfo>
 }
 
@@ -24,19 +24,18 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedAccountInfo> {
         let codingPath = StorageCodingPath.account
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )
@@ -44,19 +43,18 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
 
     func getOrmlAccountProvider(
         for accountId: AccountId,
-        chain: ChainModel
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedOrmlAccountInfo> {
         let codingPath = StorageCodingPath.tokens
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chain.chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chain.chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )

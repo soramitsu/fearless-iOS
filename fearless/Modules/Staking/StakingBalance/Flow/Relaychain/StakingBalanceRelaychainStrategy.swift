@@ -124,7 +124,7 @@ extension StakingBalanceRelaychainStrategy: RelaychainStakingLocalStorageSubscri
                     from: stashItem.controller,
                     chain: chainAsset.chain
                 ) {
-                    ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chainAsset.chain.chainId)
+                    ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
                 }
 
                 fetchAccounts(for: stashItem)

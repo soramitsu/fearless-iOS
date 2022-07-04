@@ -63,9 +63,6 @@
                   Identifier = "AccountExportPasswordTests">
                </Test>
                <Test
-                  Identifier = "AccountImportTests">
-               </Test>
-               <Test
                   Identifier = "AccountInfoExportTests">
                </Test>
                <Test

@@ -5,6 +5,23 @@ import FearlessUtils
 import IrohaCrypto
 import RobinHood
 import Cuckoo
+import SoraFoundation
+
+class MockGetBalanceProvider: GetBalanceProviderProtocol {
+    func getBalance(
+        for metaAccount: MetaAccountModel,
+        handler: GetBalanceMetaAccountHandler
+    ) {
+        return
+    }
+
+    func getBalances(
+        for managedAccounts: [ManagedMetaAccountModel],
+        handler: GetBalanceManagedMetaAccountsHandler
+    ) {
+        return
+    }
+}
 
 class AccountManagementTests: XCTestCase {
 
@@ -71,13 +88,15 @@ class AccountManagementTests: XCTestCase {
         }
 
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
-        let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory)
+        let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory,
+                                                   localizationManager: LocalizationManager.shared)
         let interactor = AccountManagementInteractor(
             repository: AnyDataProviderRepository(accountsRepository),
             repositoryObservable: AnyDataProviderRepositoryObservable(observer),
             settings: settings,
             operationQueue: OperationQueue(),
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            getBalanceProvider: MockGetBalanceProvider()
         )
 
         presenter.view = view

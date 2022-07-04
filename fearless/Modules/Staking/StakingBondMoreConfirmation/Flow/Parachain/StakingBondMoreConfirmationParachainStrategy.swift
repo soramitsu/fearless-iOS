@@ -66,7 +66,7 @@ final class StakingBondMoreConfirmationParachainStrategy {
 extension StakingBondMoreConfirmationParachainStrategy: StakingBondMoreConfirmationStrategy {
     func setup() {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
         feeProxy.delegate = self
@@ -99,7 +99,7 @@ extension StakingBondMoreConfirmationParachainStrategy: StakingBondMoreConfirmat
 }
 
 extension StakingBondMoreConfirmationParachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }

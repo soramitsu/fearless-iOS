@@ -12,7 +12,6 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let strategy: StakingUnbondConfirmStrategy
-
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(

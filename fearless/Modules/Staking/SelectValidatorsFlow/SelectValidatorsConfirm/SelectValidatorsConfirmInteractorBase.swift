@@ -20,6 +20,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         chainAsset: ChainAsset,
         strategy: SelectValidatorsConfirmStrategy,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
@@ -31,7 +32,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
     // MARK: - SelectValidatorsConfirmInteractorInputProtocol
 
     func setup() {
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: balanceAccountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: balanceAccountId, handler: self)
 
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
@@ -56,7 +57,7 @@ extension SelectValidatorsConfirmInteractorBase: PriceLocalStorageSubscriber, Pr
 }
 
 extension SelectValidatorsConfirmInteractorBase: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }

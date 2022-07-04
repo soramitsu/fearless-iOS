@@ -158,19 +158,29 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
+    private var localFiles: Bool { false }
+
     var chainListURL: URL? {
+        if localFiles {
+            return Bundle.main.url(forResource: "chains", withExtension: "json")
+        }
+
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            return GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
-            GitHubUrl.url(suffix: "chains/chains.json")
+            return GitHubUrl.url(suffix: "chains/chains.json")
         #endif
     }
 
     var assetListURL: URL? {
+        if localFiles {
+            return Bundle.main.url(forResource: "assets", withExtension: "json")
+        }
+
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
+            return GitHubUrl.url(suffix: "chains/assets_dev.json")
         #else
-            GitHubUrl.url(suffix: "chains/assets.json")
+            return GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 
@@ -196,7 +206,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/feature/moonbeam-staking"
+    private static let defaultBranch = "ios/v3-dev"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

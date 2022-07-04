@@ -89,7 +89,7 @@ extension StakingRebondConfirmationParachainStrategy: StakingRebondConfirmationS
 }
 
 extension StakingRebondConfirmationParachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }

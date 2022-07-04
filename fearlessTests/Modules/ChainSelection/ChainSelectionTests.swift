@@ -3,6 +3,7 @@ import XCTest
 import BigInt
 import Cuckoo
 import SoraFoundation
+import RobinHood
 
 class ChainSelectionTests: XCTestCase {
     func testSuccessfullSelection() {
@@ -34,12 +35,12 @@ class ChainSelectionTests: XCTestCase {
             balance: BigUInt(1e+18)
         )
 
-        let interactor = ChainSelectionInteractor(
-            selectedMetaAccount: selectedAccount,
-            repository: repository,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            operationQueue: operationQueue
-        )
+        let adapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                                                     selectedMetaAccount: selectedAccount)
+        let interactor = ChainSelectionInteractor(selectedMetaAccount: selectedAccount,
+                                                  repository: AnyDataProviderRepository(repository),
+                                                  accountInfoSubscriptionAdapter: adapter,
+                                                  operationQueue: operationQueue)
 
         let presenter = ChainSelectionPresenter(
             interactor: interactor,

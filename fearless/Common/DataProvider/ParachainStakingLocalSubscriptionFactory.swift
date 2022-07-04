@@ -26,7 +26,7 @@ final class ParachainStakingLocalSubscriptionFactory: SubstrateLocalSubscription
         let codingPath = StorageCodingPath.delegationScheduledRequests
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
+            encodableElement: accountId,
             chainId: chainId
         )
 
@@ -54,7 +54,7 @@ final class ParachainStakingLocalSubscriptionFactory: SubstrateLocalSubscription
         let codingPath = StorageCodingPath.delegatorStake
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
+            encodableElement: accountId,
             chainId: chainId
         )
 

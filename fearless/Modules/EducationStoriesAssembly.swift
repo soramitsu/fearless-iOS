@@ -10,7 +10,7 @@ final class EducationStoriesAssembly {
         let keychain = Keychain()
         let startViewHelper = StartViewHelper(
             keystore: keychain,
-            selectedWallerSettings: SelectedWalletSettings.shared,
+            selectedWalletSettings: SelectedWalletSettings.shared,
             userDefaultsStorage: SettingsManager.shared
         )
 

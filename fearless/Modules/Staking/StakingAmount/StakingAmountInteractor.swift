@@ -8,43 +8,37 @@ import FearlessUtils
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?
 
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let rewardService: RewardCalculatorServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    let strategy: StakingAmountStrategy?
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let rewardService: RewardCalculatorServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let strategy: StakingAmountStrategy?
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         strategy: StakingAmountStrategy?
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.rewardService = rewardService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.accountRepository = accountRepository
         self.strategy = strategy
     }
@@ -73,12 +67,12 @@ final class StakingAmountInteractor {
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching,
     AccountFetching {
     func setup() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
         strategy?.setup()
@@ -90,7 +84,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
 
     func fetchAccounts() {
         fetchChainAccounts(
-            chain: chain,
+            chain: chainAsset.chain,
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
@@ -120,7 +114,7 @@ extension StakingAmountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscr
 }
 
 extension StakingAmountInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         switch result {
         case let .success(accountInfo):
             presenter?.didReceive(balance: accountInfo?.data)

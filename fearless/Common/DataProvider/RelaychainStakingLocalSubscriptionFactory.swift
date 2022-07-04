@@ -11,13 +11,13 @@ protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getMaxNominatorsCountProvider(for chainId: ChainModel.Id) throws
         -> AnyDataProvider<DecodedU32>
 
-    func getNominationProvider(for accountId: AccountId, chainId: ChainModel.Id) throws
+    func getNominationProvider(for accountId: AccountId, chainAsset: ChainAsset) throws
         -> AnyDataProvider<DecodedNomination>
 
-    func getValidatorProvider(for accountId: AccountId, chainId: ChainModel.Id) throws
+    func getValidatorProvider(for accountId: AccountId, chainAsset: ChainAsset) throws
         -> AnyDataProvider<DecodedValidator>
 
-    func getLedgerInfoProvider(for accountId: AccountId, chainId: ChainModel.Id) throws
+    func getLedgerInfoProvider(for accountId: AccountId, chainAsset: ChainAsset) throws
         -> AnyDataProvider<DecodedLedgerInfo>
 
     func getActiveEra(for chainId: ChainModel.Id) throws
@@ -26,7 +26,7 @@ protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getCurrentEra(for chainId: ChainModel.Id) throws
         -> AnyDataProvider<DecodedEraIndex>
 
-    func getPayee(for accountId: AccountId, chainId: ChainModel.Id) throws
+    func getPayee(for accountId: AccountId, chainAsset: ChainAsset) throws
         -> AnyDataProvider<DecodedPayee>
 
     func getTotalReward(
@@ -80,18 +80,17 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
     func getNominationProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedNomination> {
         let codingPath = StorageCodingPath.nominators
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )
@@ -99,18 +98,17 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
     func getValidatorProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedValidator> {
         let codingPath = StorageCodingPath.validatorPrefs
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )
@@ -118,18 +116,17 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
     func getLedgerInfoProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedLedgerInfo> {
         let codingPath = StorageCodingPath.stakingLedger
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )
@@ -161,18 +158,17 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
     func getPayee(
         for accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) throws -> AnyDataProvider<DecodedPayee> {
         let codingPath = StorageCodingPath.payee
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )

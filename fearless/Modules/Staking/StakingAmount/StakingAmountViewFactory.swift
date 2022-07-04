@@ -172,6 +172,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: operationManager
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         switch flow {
         case .relaychain:
             let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
@@ -189,14 +195,15 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             )
 
             let strategy = StakingAmountRelaychainStrategy(
-                chain: chainAsset.chain,
+                chainAsset: chainAsset,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
                 stakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
                 extrinsicService: extrinsicService,
                 output: viewModelState,
                 eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
-                eraValidatorService: eraValidatorService
+                eraValidatorService: eraValidatorService,
+                existentialDepositService: existentialDepositService
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
@@ -232,7 +239,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
                 eraValidatorService: eraValidatorService,
                 runtimeService: runtimeService,
-                operationManager: operationManager
+                operationManager: operationManager,
+                existentialDepositService: existentialDepositService
             )
 
             let viewModelFactory = StakingAmountParachainViewModelFactory(
@@ -264,6 +272,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let serviceFactory = StakingServiceFactory(
             chainRegisty: ChainRegistryFacade.sharedRegistry,
@@ -305,31 +314,16 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
+        else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -350,7 +344,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
                 selectedMetaAccount: selectedAccount
@@ -358,9 +351,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             rewardService: rewardCalculatorService,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
             strategy: strategy
         )

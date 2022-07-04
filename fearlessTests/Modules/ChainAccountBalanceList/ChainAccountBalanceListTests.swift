@@ -6,6 +6,8 @@ import BigInt
 import Cuckoo
 import RobinHood
 
+// Should be fixed after merge skeletons logic. We have several "didReceive(state: ) calls, so we can't know then chains actually loaded
+
 class ChainAccountBalanceListTests: XCTestCase {
 
     override func setUp() {
@@ -27,18 +29,19 @@ class ChainAccountBalanceListTests: XCTestCase {
         }
         
         let storageFacade = SubstrateStorageTestFacade()
-        let repository = ChainRepositoryFactory(storageFacade: storageFacade).createRepository(
+        let chainRepository = ChainRepositoryFactory(storageFacade: storageFacade).createRepository(
             for: nil,
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let operationQueue = OperationQueue()
     
-        let saveChainsOperation = repository.saveOperation( { chains }, { [] })
+        let saveChainsOperation = chainRepository.saveOperation( { chains }, { [] })
         operationQueue.addOperations([saveChainsOperation], waitUntilFinished: true)
         
         let view = MockChainAccountBalanceListViewProtocol()
         let wireframe = MockChainAccountBalanceListWireframeProtocol()
         
+        let chainsGotExpectation = XCTestExpectation()
         let stateCompletionExpectation = XCTestExpectation()
         
         var actualViewModel: ChainAccountBalanceListViewModel?
@@ -52,12 +55,26 @@ class ChainAccountBalanceListTests: XCTestCase {
                     stateCompletionExpectation.fulfill()
                 }
             }
+            
+            stub.didReceive(locale: any()).thenDoNothing()
         }
-
         
+        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
+            mapper: AnyCoreDataMapper(AssetModelMapper())
+        )
+        var assets: [AssetModel] = []
+        chains.forEach { chain in
+            chain.assets.forEach { assets.append($0.asset) }
+        }
+        
+        let saveAssetsOperation = assetRepository.saveOperation( { assets }, { [] })
+        operationQueue.addOperations([saveAssetsOperation], waitUntilFinished: true)
+
         let presenter = try createPresenter(for: view,
                                                wireframe: wireframe,
-                                               operationQueue: operationQueue, repository: repository)
+                                               operationQueue: operationQueue,
+                                               chainRepository: AnyDataProviderRepository(chainRepository),
+                                               assetRepository: AnyDataProviderRepository(assetRepository))
         
         // when
 
@@ -77,10 +94,11 @@ class ChainAccountBalanceListTests: XCTestCase {
 
 extension ChainAccountBalanceListTests {
     private func createPresenter(
-        for view: MockChainAccountBalanceListViewProtocol,
-        wireframe: MockChainAccountBalanceListWireframeProtocol,
+        for view: ChainAccountBalanceListViewProtocol,
+        wireframe: ChainAccountBalanceListWireframeProtocol,
         operationQueue: OperationQueue,
-        repository: AnyDataProviderRepository<ChainModel>
+        chainRepository: AnyDataProviderRepository<ChainModel>,
+        assetRepository: AnyDataProviderRepository<AssetModel>
     ) throws -> ChainAccountBalanceListPresenter? {
         let localizationManager = LocalizationManager.shared
         let selectedAccount = AccountGenerator.generateMetaAccount()
@@ -88,14 +106,21 @@ extension ChainAccountBalanceListTests {
         let maybeInteractor = createInteractor(
             selectedAccount: selectedAccount,
             operationQueue: operationQueue,
-            repository: repository
+            chainRepository: chainRepository,
+            assetRepository: assetRepository
         )
 
         guard let interactor = maybeInteractor else {
             return nil
         }
+        
+        let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+        let viewModelFactory = ChainAccountBalanceListViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
 
-        let presenter = ChainAccountBalanceListPresenter(interactor: interactor, wireframe: wireframe, assetBalanceFormatterFactory: AssetBalanceFormatterFactory(), localizationManager: localizationManager)
+        let presenter = ChainAccountBalanceListPresenter(interactor: interactor,
+                                                         wireframe: wireframe,
+                                                         viewModelFactory: viewModelFactory,
+                                                         localizationManager: localizationManager)
 
         presenter.view = view
         interactor.presenter = presenter
@@ -106,7 +131,8 @@ extension ChainAccountBalanceListTests {
     private func createInteractor(
         selectedAccount: MetaAccountModel,
         operationQueue: OperationQueue,
-        repository: AnyDataProviderRepository<ChainModel>
+        chainRepository: AnyDataProviderRepository<ChainModel>,
+        assetRepository: AnyDataProviderRepository<AssetModel>
     ) -> ChainAccountBalanceListInteractor? {
       
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactoryStub(
@@ -115,7 +141,14 @@ extension ChainAccountBalanceListTests {
         
         let priceLocalSubscriptionFactory = PriceProviderFactoryStub(priceData:  PriceData(price: "100", usdDayChange: 0.01))
 
-
-        return ChainAccountBalanceListInteractor(selectedMetaAccount: selectedAccount, repository: repository, walletLocalSubscriptionFactory: walletLocalSubscriptionFactory, operationQueue: operationQueue, priceLocalSubscriptionFactory: priceLocalSubscriptionFactory)
+        let adapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                                                     selectedMetaAccount: selectedAccount)
+        return ChainAccountBalanceListInteractor(selectedMetaAccount: selectedAccount,
+                                                 chainRepository: chainRepository,
+                                                 assetRepository: assetRepository,
+                                                 accountInfoSubscriptionAdapter: adapter,
+                                                 operationQueue: operationQueue,
+                                                 priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+                                                 eventCenter: EventCenter.shared)
     }
 }

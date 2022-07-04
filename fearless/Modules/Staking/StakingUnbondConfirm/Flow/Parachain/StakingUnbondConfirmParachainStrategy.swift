@@ -66,7 +66,7 @@ extension StakingUnbondConfirmParachainStrategy: StakingUnbondConfirmStrategy {
     func setup() {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(
-                chain: chainAsset.chain,
+                chainAsset: chainAsset,
                 accountId: accountId,
                 handler: self
             )
@@ -122,7 +122,7 @@ extension StakingUnbondConfirmParachainStrategy: StakingUnbondConfirmStrategy {
 }
 
 extension StakingUnbondConfirmParachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }

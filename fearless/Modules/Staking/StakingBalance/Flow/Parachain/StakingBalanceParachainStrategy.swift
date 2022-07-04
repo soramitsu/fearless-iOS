@@ -105,7 +105,7 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
             do {
                 try stakingAccountUpdatingService.setupSubscription(
                     for: collator.owner,
-                    chainId: chainAsset.chain.chainId,
+                    chainAsset: chainAsset,
                     chainFormat: chainAsset.chain.chainFormat,
                     stakingType: stakingType
                 )

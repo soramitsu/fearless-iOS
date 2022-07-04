@@ -205,7 +205,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     func setupAccountRemoteSubscription() {
         guard
-            let chainId = selectedChainAsset?.chain.chainId,
+            let chainAsset = selectedChainAsset,
             let accountId = selectedAccount?.accountId,
             let chainFormat = selectedChainAsset?.chain.chainFormat,
             let stakingType = selectedChainAsset?.stakingType else {
@@ -215,7 +215,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         do {
             try stakingAccountUpdatingService.setupSubscription(
                 for: accountId,
-                chainId: chainId,
+                chainAsset: chainAsset,
                 chainFormat: chainFormat,
                 stakingType: stakingType
             )

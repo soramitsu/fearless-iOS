@@ -19,26 +19,28 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
     var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    private let chain: ChainModel
+    private let chainAsset: ChainAsset
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let eraValidatorService: EraValidatorServiceProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
 
     init(
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         output: StakingAmountRelaychainStrategyOutput?,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
-        eraValidatorService: EraValidatorServiceProtocol
+        eraValidatorService: EraValidatorServiceProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -46,6 +48,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         self.output = output
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.eraValidatorService = eraValidatorService
+        self.existentialDepositService = existentialDepositService
     }
 }
 
@@ -55,17 +58,15 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
 
         provideNetworkStakingInfo()
 
-        minBondProvider = subscribeToMinNominatorBond(for: chain.chainId)
+        minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
 
-        counterForNominatorsProvider = subscribeToCounterForNominators(for: chain.chainId)
+        counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
 
-        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chain.chainId)
+        maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainAsset.chain.chainId)
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             switch result {
             case let .success(amount):
                 self?.output?.didReceive(minimalBalance: amount)

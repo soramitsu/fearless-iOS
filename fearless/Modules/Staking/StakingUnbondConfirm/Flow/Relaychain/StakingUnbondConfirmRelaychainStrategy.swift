@@ -141,7 +141,7 @@ extension StakingUnbondConfirmRelaychainStrategy: StakingUnbondConfirmStrategy {
 }
 
 extension StakingUnbondConfirmRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }
@@ -178,14 +178,14 @@ extension StakingUnbondConfirmRelaychainStrategy: RelaychainStakingLocalStorageS
                let accountId = try? AddressFactory.accountId(from: stashItem.controller, chain: chainAsset.chain) {
                 ledgerProvider = subscribeLedgerInfo(
                     for: accountId,
-                    chainId: chainAsset.chain.chainId
+                    chainAsset: chainAsset
                 )
 
-                accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
-                payeeProvider = subscribePayee(for: accountId, chainId: chainAsset.chain.chainId)
+                payeeProvider = subscribePayee(for: accountId, chainAsset: chainAsset)
 
-                nominationProvider = subscribeNomination(for: accountId, chainId: chainAsset.chain.chainId)
+                nominationProvider = subscribeNomination(for: accountId, chainAsset: chainAsset)
 
                 fetchChainAccount(chain: chainAsset.chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
                     guard let self = self else {

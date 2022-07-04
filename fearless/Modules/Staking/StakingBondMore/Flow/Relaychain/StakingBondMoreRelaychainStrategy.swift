@@ -110,7 +110,7 @@ extension StakingBondMoreRelaychainStrategy: RelaychainStakingLocalStorageSubscr
 
                     if case let .success(stash) = result, let stash = stash {
                         self.accountInfoSubscriptionAdapter.subscribe(
-                            chain: self.chainAsset.chain,
+                            chainAsset: self.chainAsset,
                             accountId: stash.accountId,
                             handler: self
                         )
@@ -140,7 +140,7 @@ extension StakingBondMoreRelaychainStrategy: ExtrinsicFeeProxyDelegate {
 }
 
 extension StakingBondMoreRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }

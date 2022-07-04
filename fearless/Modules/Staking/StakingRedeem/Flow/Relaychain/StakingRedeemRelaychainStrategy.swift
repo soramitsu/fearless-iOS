@@ -163,7 +163,7 @@ extension StakingRedeemRelaychainStrategy: StakingRedeemStrategy {
 }
 
 extension StakingRedeemRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }
@@ -182,8 +182,8 @@ extension StakingRedeemRelaychainStrategy: RelaychainStakingLocalStorageSubscrib
                let accountId = try? AddressFactory.accountId(from: stashItem.controller, chain: chainAsset.chain) {
                 fetchSlashingSpansForStash(stashItem.stash)
 
-                ledgerProvider = subscribeLedgerInfo(for: accountId, chainId: chainAsset.chain.chainId)
-                accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+                ledgerProvider = subscribeLedgerInfo(for: accountId, chainAsset: chainAsset)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(
                     chain: chainAsset.chain,

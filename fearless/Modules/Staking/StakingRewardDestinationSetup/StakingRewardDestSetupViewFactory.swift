@@ -67,6 +67,7 @@ struct StakingRewardDestSetupViewFactory {
         selectedAccount: MetaAccountModel
     ) throws -> StakingRewardDestSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -185,8 +186,7 @@ struct StakingRewardDestSetupViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             connection: connection
         )

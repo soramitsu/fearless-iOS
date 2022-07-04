@@ -134,11 +134,7 @@ extension StakingUnbondSetupRelaychainStrategy: StakingUnbondSetupStrategy {
 }
 
 extension StakingUnbondSetupRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId _: ChainModel.Id
-    ) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }
@@ -166,11 +162,11 @@ extension StakingUnbondSetupRelaychainStrategy: RelaychainStakingLocalStorageSub
                     if case let .success(account) = result, let account = account {
                         self.ledgerProvider = self.subscribeLedgerInfo(
                             for: account.accountId,
-                            chainId: self.chainAsset.chain.chainId
+                            chainAsset: self.chainAsset
                         )
 
                         self.accountInfoSubscriptionAdapter.subscribe(
-                            chain: self.chainAsset.chain,
+                            chainAsset: self.chainAsset,
                             accountId: account.accountId,
                             handler: self
                         )

@@ -2,35 +2,40 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-enum TokenSymbol: String {
-    enum CodingKeys: String, CodingKey {
-        case dot
-        case interbtc
-        case intr
-        case ksm
-        case kbtc
-        case kint
-    }
-
-    case dot
-    case interbtc
-    case intr
-    case ksm
-    case kbtc
-    case kint
+struct TokenSymbol {
+    let symbol: String
 }
 
 extension TokenSymbol: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
 
-        try container.encode(rawValue.uppercased())
+        try container.encode(symbol.uppercased())
+        try container.encodeNil()
+    }
+}
+
+struct LiquidCroadloan {
+    let symbol: UInt16
+}
+
+extension LiquidCroadloan: Codable {
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.unkeyedContainer()
+
+        try container.encode(symbol)
         try container.encodeNil()
     }
 }
 
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
+    case liquidCroadloan(symbol: LiquidCroadloan?)
+    case foreignAsset(foreignAsset: String)
+    case stableAssetPoolToken(stableAssetPoolToken: String)
+    case vToken(symbol: TokenSymbol?)
+    case vsToken(symbol: TokenSymbol?)
+    case stable(symbol: TokenSymbol?)
 }
 
 extension CurrencyId: Codable {
@@ -40,6 +45,24 @@ extension CurrencyId: Codable {
         switch self {
         case let .token(symbol):
             try container.encode("Token")
+            try container.encode(symbol)
+        case let .liquidCroadloan(symbol):
+            try container.encode("LiquidCroadloan")
+            try container.encode(symbol)
+        case let .foreignAsset(foreignAsset):
+            try container.encode("ForeignAsset")
+            try container.encode(foreignAsset)
+        case let .stableAssetPoolToken(stableAssetPoolToken):
+            try container.encode("StableAssetPoolToken")
+            try container.encode(stableAssetPoolToken)
+        case let .vToken(symbol):
+            try container.encode("VToken")
+            try container.encode(symbol)
+        case let .vsToken(symbol):
+            try container.encode("VSToken")
+            try container.encode(symbol)
+        case let .stable(symbol):
+            try container.encode("Stable")
             try container.encode(symbol)
         }
     }

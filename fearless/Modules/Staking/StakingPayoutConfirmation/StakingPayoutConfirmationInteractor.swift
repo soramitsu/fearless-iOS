@@ -21,8 +21,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
     private let payouts: [PayoutInfo]
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
 
     private var batches: [Batch]?
@@ -49,8 +48,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
         logger: LoggerProtocol? = nil,
         selectedAccount: MetaAccountModel,
         payouts: [PayoutInfo],
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.extrinsicOperationFactory = extrinsicOperationFactory
@@ -64,8 +62,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
         self.logger = logger
         self.selectedAccount = selectedAccount
         self.payouts = payouts
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.accountRepository = accountRepository
     }
 
@@ -112,7 +109,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     private func provideRewardAmount() {
         let rewardAmount = payouts.map(\.reward).reduce(0, +)
 
-        guard let account = selectedAccount.fetch(for: chain.accountRequest()) else {
+        guard let account = selectedAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return
         }
 
@@ -132,7 +129,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
             let rewardDestination = try RewardDestination(
                 payee: payee,
                 stashItem: stashItem,
-                chainFormat: chain.chainFormat
+                chainFormat: chainAsset.chain.chainFormat
             )
 
             switch rewardDestination {
@@ -141,7 +138,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
 
             case let .payout(payoutAddress):
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: payoutAddress,
                     from: accountRepository,
                     operationManager: operationManager
@@ -181,7 +178,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
         )
 
         let dependencies = feeOperation.allOperations
-        let precision = Int16(asset.precision)
+        let precision = Int16(chainAsset.asset.precision)
 
         let mergeOperation = ClosureOperation<Decimal> {
             let results = try feeOperation.targetOperation.extractNoCancellableResultData()
@@ -283,15 +280,15 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     func setup() {
         generateBatches { self.estimateFee() }
 
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        if let accountId = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -351,7 +348,7 @@ extension StakingPayoutConfirmationInteractor: PriceLocalStorageSubscriber, Pric
 }
 
 extension StakingPayoutConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -379,8 +376,8 @@ extension StakingPayoutConfirmationInteractor: RelaychainStakingLocalStorageSubs
 
             let addressFactory = SS58AddressFactory()
             if let stashItem = stashItem,
-               let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
-                payeeProvider = subscribePayee(for: accountId, chainId: chain.chainId)
+               let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chainAsset.chain.addressPrefix) {
+                payeeProvider = subscribePayee(for: accountId, chainAsset: chainAsset)
             } else {
                 presenter.didReceiveRewardDestination(result: .success(nil))
             }

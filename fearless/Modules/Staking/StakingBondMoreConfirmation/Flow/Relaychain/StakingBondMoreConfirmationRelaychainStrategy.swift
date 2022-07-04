@@ -117,7 +117,7 @@ extension StakingBondMoreConfirmationRelaychainStrategy: StakingBondMoreConfirma
 }
 
 extension StakingBondMoreConfirmationRelaychainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }
@@ -133,7 +133,7 @@ extension StakingBondMoreConfirmationRelaychainStrategy: RelaychainStakingLocalS
 
             if let stashItem = maybeStashItem {
                 if let accountId = try? AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain) {
-                    accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+                    accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
                 }
 
                 fetchChainAccount(

@@ -26,11 +26,11 @@ final class StartViewHelper: StartViewHelperProtocol {
 
     init(
         keystore: KeystoreProtocol,
-        selectedWallerSettings: SelectedWalletSettings,
+        selectedWalletSettings: SelectedWalletSettings,
         userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.keystore = keystore
-        selectedWalletSettings = selectedWallerSettings
+        self.selectedWalletSettings = selectedWalletSettings
         self.userDefaultsStorage = userDefaultsStorage
     }
 

@@ -62,7 +62,7 @@ final class StakingRedeemParachainStrategy: RuntimeConstantFetching, AccountFetc
 extension StakingRedeemParachainStrategy: StakingRedeemStrategy {
     func setup() {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
         fetchConstant(
@@ -113,7 +113,7 @@ extension StakingRedeemParachainStrategy: StakingRedeemStrategy {
 }
 
 extension StakingRedeemParachainStrategy: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         output?.didReceiveAccountInfo(result: result)
     }
 }

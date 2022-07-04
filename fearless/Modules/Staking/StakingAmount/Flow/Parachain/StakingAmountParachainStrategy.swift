@@ -22,6 +22,8 @@ class StakingAmountParachainStrategy: RuntimeConstantFetching {
     let eraValidatorService: EraValidatorServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
+
     init(
         chainAsset: ChainAsset,
         stakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
@@ -30,8 +32,8 @@ class StakingAmountParachainStrategy: RuntimeConstantFetching {
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
-
+        operationManager: OperationManagerProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.chainAsset = chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -41,6 +43,7 @@ class StakingAmountParachainStrategy: RuntimeConstantFetching {
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.existentialDepositService = existentialDepositService
     }
 }
 
@@ -52,11 +55,9 @@ extension StakingAmountParachainStrategy: StakingAmountStrategy {
 
         provideNetworkStakingInfo()
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             switch result {
             case let .success(amount):
                 self?.output?.didReceive(minimalBalance: amount)

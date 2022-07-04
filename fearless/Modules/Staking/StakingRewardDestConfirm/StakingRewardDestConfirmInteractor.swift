@@ -16,8 +16,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let asset: AssetModel
-    let chain: ChainModel
+    let chainAsset: ChainAsset
     var signingWrapper: SigningWrapperProtocol
     let selectedAccount: MetaAccountModel
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -40,8 +39,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         signingWrapper: SigningWrapperProtocol,
         connection: JSONRPCEngine,
@@ -56,8 +54,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.feeProxy = feeProxy
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.signingWrapper = signingWrapper
         self.keystore = keystore
@@ -85,11 +82,11 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
 
 extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -137,7 +134,7 @@ extension StakingRewardDestConfirmInteractor: PriceLocalStorageSubscriber, Price
 }
 
 extension StakingRewardDestConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -150,11 +147,11 @@ extension StakingRewardDestConfirmInteractor: RelaychainStakingLocalStorageSubsc
             accountInfoSubscriptionAdapter.reset()
 
             if let stashItem = stashItem {
-                let accountId = try addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix)
-                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+                let accountId = try addressFactory.accountId(fromAddress: stashItem.controller, type: chainAsset.chain.addressPrefix)
+                accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.controller,
                     from: accountRepository,
                     operationManager: operationManager

@@ -5,17 +5,18 @@ import BigInt
 class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionInteractorOutputProtocol!
 
+    internal let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    internal let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
     let paraId: ParaId
     let selectedMetaAccount: MetaAccountModel
-    let chainAsset: ChainAsset
-    let runtimeService: RuntimeCodingServiceProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
-    let crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol
-    let operationManager: OperationManagerProtocol
+    let chainAsset: ChainAsset
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationManager: OperationManagerProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -37,7 +38,8 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.paraId = paraId
         self.selectedMetaAccount = selectedMetaAccount
@@ -49,7 +51,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
-
+        self.existentialDepositService = existentialDepositService
         self.operationManager = operationManager
     }
 
@@ -70,11 +72,9 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             self?.presenter.didReceiveLeasingPeriod(result: result)
         }
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
 
@@ -108,7 +108,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
             return
         }
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chainAsset.chain, accountId: accountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
     }
 
     private func subscribeToPrice() {
@@ -173,7 +173,7 @@ extension CrowdloanContributionInteractor: AccountInfoSubscriptionAdapterHandler
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset _: ChainAsset
     ) {
         presenter.didReceiveAccountInfo(result: result)
     }

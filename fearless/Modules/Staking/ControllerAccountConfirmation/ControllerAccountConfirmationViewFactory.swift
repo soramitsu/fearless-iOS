@@ -61,6 +61,7 @@ struct ControllerAccountConfirmationViewFactory {
         selectedAccount: MetaAccountModel
     ) -> ControllerAccountConfirmationInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -138,8 +139,7 @@ struct ControllerAccountConfirmationViewFactory {
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }

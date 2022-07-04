@@ -9,8 +9,9 @@ final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(
         _ mnemonicString: String? = nil,
         cryptoType: fearless.CryptoType,
-        name: String = "fearless",
-        derivationPath: String = "",
+        username: String = "fearless",
+        substrateDerivationPath: String = "",
+        ethereumDerivationPath: String = DerivationPathConstants.defaultEthereum,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
@@ -22,13 +23,13 @@ final class AccountCreationHelper {
             mnemonic = try IRMnemonicCreator().randomMnemonic(.entropy128)
         }
 
-        let request = MetaAccountCreationRequest(username: name,
-                                                 substrateDerivationPath: derivationPath,
-                                                 substrateCryptoType: cryptoType,
-                                                 ethereumDerivationPath: "")
+        let request = MetaAccountImportMnemonicRequest(mnemonic: mnemonic,
+                                                       username: username,
+                                                       substrateDerivationPath: substrateDerivationPath,
+                                                       ethereumDerivationPath: ethereumDerivationPath,
+                                                       cryptoType: cryptoType)
 
-        let operation = MetaAccountOperationFactory(keystore: keychain)
-            .newMetaAccountOperation(request: request, mnemonic: mnemonic)
+        let operation = MetaAccountOperationFactory(keystore: keychain).newMetaAccountOperation(request: request)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -39,17 +40,20 @@ final class AccountCreationHelper {
     }
 
     static func createMetaAccountFromSeed(
-        _ seed: String,
+        substrateSeed: String,
+        ethereumSeed: String?,
         cryptoType: fearless.CryptoType,
-        name: String = "fearless",
-        derivationPath: String = "",
+        username: String = "fearless",
+        substrateDerivationPath: String = "",
+        ethereumDerivationPath: String? = nil,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
-        let request = MetaAccountImportSeedRequest(seed: seed,
-                                                   username: name,
-                                                   substrateDerivationPath: derivationPath,
-                                                   ethereumDerivationPath: "",
+        let request = MetaAccountImportSeedRequest(substrateSeed: substrateSeed,
+                                                   ethereumSeed: ethereumSeed,
+                                                   username: username,
+                                                   substrateDerivationPath: substrateDerivationPath,
+                                                   ethereumDerivationPath: ethereumDerivationPath,
                                                    cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
@@ -64,48 +68,63 @@ final class AccountCreationHelper {
     }
 
     static func createMetaAccountFromKeystore(
-        _ filename: String,
-        password: String,
+        substrateFilename: String,
+        ethereumFilename: String?,
+        substratePassword: String,
+        ethereumPassword: String?,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings
     ) throws {
-        guard let url = Bundle(for: AccountCreationHelper.self)
-                .url(forResource: filename, withExtension: "json") else { return }
+        guard let substrateUrl = Bundle(for: AccountCreationHelper.self)
+                .url(forResource: substrateFilename, withExtension: "json") else { return }
+        let substrateData = try Data(contentsOf: substrateUrl)
+        
+        let ethereumData: Data?
+        if let ethereumFilename = ethereumFilename,
+            let ethereumUrl = Bundle(for: AccountCreationHelper.self).url(forResource: ethereumFilename, withExtension: "json") {
+            ethereumData = try? Data(contentsOf: ethereumUrl)
+        } else {
+            ethereumData = nil
+        }
 
-        let data = try Data(contentsOf: url)
-
-        let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: data)
+        let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: substrateData)
 
         let info = try AccountImportJsonFactory().createInfo(from: definition)
         let cryptoType = CryptoType(rawValue: info.cryptoType?.rawValue ?? CryptoType.sr25519.rawValue)
 
-        return try createMetaAccountFromKeystoreData(
-            data,
-            password: password,
-            keychain: keychain,
-            settings: settings,
-            networkType: info.networkType ?? .westend,
-            cryptoType: cryptoType ?? .sr25519
-        )
+        return try createMetaAccountFromKeystoreData(substrateData: substrateData,
+                                                     ethereumData: ethereumData,
+                                                     substratePassword: substratePassword,
+                                                     ethereumPassword: ethereumPassword,
+                                                     keychain: keychain,
+                                                     settings: settings,
+                                                     cryptoType: cryptoType ?? .sr25519)
     }
 
     static func createMetaAccountFromKeystoreData(
-        _ data: Data,
-        password: String,
+        substrateData: Data,
+        ethereumData: Data?,
+        substratePassword: String,
+        ethereumPassword: String?,
         keychain: KeystoreProtocol,
         settings: SelectedWalletSettings,
-        networkType: Chain,
         cryptoType: fearless.CryptoType,
         username: String = "username"
     ) throws {
-        guard let keystoreString = String(data: data, encoding: .utf8) else { return }
+        guard let substrateKeystoreString = String(data: substrateData, encoding: .utf8) else { return }
+        let ethereumKeystoreString: String?
+        if let ethereumData = ethereumData {
+            ethereumKeystoreString = String(data: ethereumData, encoding: .utf8)
+        } else {
+            ethereumKeystoreString = nil
+        }
 
-        let request = MetaAccountImportKeystoreRequest(
-            keystore: keystoreString,
-            password: password,
-            username: username,
-            cryptoType: cryptoType
-        )
+        let request = MetaAccountImportKeystoreRequest(substrateKeystore: substrateKeystoreString,
+                                                       ethereumKeystore: ethereumKeystoreString,
+                                                       substratePassword: substratePassword,
+                                                       ethereumPassword: ethereumPassword,
+                                                       username: username,
+                                                       cryptoType: cryptoType)
 
         let operation = MetaAccountOperationFactory(keystore: keychain)
             .newMetaAccountOperation(request: request)

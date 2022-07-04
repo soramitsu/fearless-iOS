@@ -12,6 +12,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         static let iconSize: CGFloat = 24
         static let switcherHeight: CGFloat = 21
         static let switcherWidth: CGFloat = 36
+        static let optionsViewHeight: CGFloat = 16
     }
 
     let chainIconImageView = UIImageView()
@@ -20,6 +21,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = .white
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
@@ -42,14 +44,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
         return button
     }()
 
-    let chainOptionsView: ScrollableContainerView = {
-        let containerView = ScrollableContainerView()
-        containerView.stackView.axis = .horizontal
-        containerView.stackView.distribution = .fillProportionally
-        containerView.stackView.alignment = .fill
-        containerView.stackView.spacing = UIConstants.defaultOffset
-        return containerView
-    }()
+    let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var accountMissingHintView: HintView = {
         let view = UIFactory.default.createHintView()
@@ -143,7 +138,11 @@ class ManageAssetsTableViewCell: UITableViewCell {
         }
 
         switcher.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset + UIConstants.defaultOffset + LayoutConstants.iconSize)
+            make.trailing.equalToSuperview().inset(
+                UIConstants.bigOffset
+                    + UIConstants.defaultOffset
+                    + LayoutConstants.iconSize
+            )
             make.centerY.equalToSuperview()
         }
 
@@ -154,8 +153,9 @@ class ManageAssetsTableViewCell: UITableViewCell {
 
         chainOptionsView.snp.makeConstraints { make in
             make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.minimalOffset)
+            make.trailing.greaterThanOrEqualTo(switcher.snp.leading).inset(UIConstants.bigOffset).priority(.low)
+            make.height.equalTo(LayoutConstants.optionsViewHeight)
             make.centerY.equalTo(chainNameLabel.snp.centerY)
-            make.trailing.equalTo(switcher.snp.leading).inset(UIConstants.bigOffset)
         }
 
         tokenBalanceLabel.snp.makeConstraints { make in
@@ -204,7 +204,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
             animated: false
         )
 
-        if let options = viewModel.options {
+        if let options = viewModel.options, !options.isEmpty {
             options.forEach { option in
                 let view = ChainOptionsView()
                 view.bind(to: option)

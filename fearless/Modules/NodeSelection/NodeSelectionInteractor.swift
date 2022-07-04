@@ -30,11 +30,9 @@ extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     }
 
     func deleteNode(_ node: ChainNodeModel) {
-        guard let customNodes = chain.customNodes else {
-            return
-        }
+        guard chain.customNodes.isNotEmpty else { return }
 
-        let updatedChain = chain.replacingCustomNodes(customNodes.filter { $0 != node })
+        let updatedChain = chain.replacingCustomNodes(chain.customNodes.filter { $0 != node })
 
         let saveOperation = repository.saveOperation {
             [updatedChain]

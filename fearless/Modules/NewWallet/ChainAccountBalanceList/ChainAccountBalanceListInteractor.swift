@@ -62,6 +62,12 @@ final class ChainAccountBalanceListInteractor {
     private func handleChains(result: Result<[ChainModel], Error>?) {
         switch result {
         case let .success(chains):
+            var chains = chains.filter { !$0.assets.isEmpty }
+            guard !chains.isEmpty else {
+                presenter?.didReceiveChains(result: .failure(BaseOperationError.unexpectedDependentResult))
+                return
+            }
+
             self.chains = chains
 
             presenter?.didReceiveChains(result: .success(chains))
@@ -90,7 +96,8 @@ final class ChainAccountBalanceListInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+        let chainAssets = chains.map(\.chainAssets).reduce([], +)
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
     }
 
     private func replaceAccountInfoSubscriptionAdapter() {
@@ -212,12 +219,8 @@ extension ChainAccountBalanceListInteractor: ChainAccountBalanceListInteractorIn
 }
 
 extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId: ChainModel.Id
-    ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainId)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
+        presenter?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
 
