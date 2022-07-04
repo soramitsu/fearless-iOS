@@ -86,9 +86,7 @@ final class SubqueryRewardOperationFactory {
 
 extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol {
     func createAprOperation(for idsClosure: @escaping () throws -> [AccountId]) -> BaseOperation<SubqueryCollatorDataResponse> {
-        let testUrl = URL(string: "https://api.subquery.network/sq/soramitsu/fearless-wallet-moonbeam__c29yY")
-
-        guard let testUrl = testUrl else {
+        guard let url = url else {
             return ClosureOperation { SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: [])) }
         }
 
@@ -102,7 +100,7 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
 
             let queryString = strongSelf.prepareCollatorsAprQuery(collatorIds: idsFilter)
 
-            var request = URLRequest(url: testUrl)
+            var request = URLRequest(url: url)
 
             let info = JSON.dictionaryValue(["query": JSON.stringValue(queryString)])
             request.httpBody = try JSONEncoder().encode(info)
