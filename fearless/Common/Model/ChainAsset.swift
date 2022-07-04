@@ -27,15 +27,13 @@ struct ChainAsset: Equatable, Hashable {
                 return nil
             }
             return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
-        case .liquidCroadloan:
+        case .liquidCrowdloan:
             guard
-                let currencyId = asset.currencyId,
-                let liquidCroadloanId = UInt16(currencyId)
+                let currencyId = asset.currencyId
             else {
                 return nil
             }
-            let liquidCroadloan = LiquidCroadloan(symbol: liquidCroadloanId)
-            return CurrencyId.liquidCroadloan(symbol: liquidCroadloan)
+            return CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
         case .vToken:
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
             return CurrencyId.vToken(symbol: tokenSymbol)
@@ -75,7 +73,7 @@ extension ChainAsset {
             .ormlAsset,
             .foreignAsset,
             .stableAssetPoolToken,
-            .liquidCroadloan,
+            .liquidCrowdloan,
             .vToken,
             .vsToken,
             .stable:
@@ -92,7 +90,7 @@ enum ChainAssetType: String, Codable {
     case ormlAsset
     case foreignAsset
     case stableAssetPoolToken
-    case liquidCroadloan
+    case liquidCrowdloan
     case vToken
     case vsToken
     case stable

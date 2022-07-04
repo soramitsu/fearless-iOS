@@ -146,9 +146,17 @@ final class ChainSyncService {
             }
         }
 
-        operationQueue.addOperations([
-            remoteFetchAssetsOperation, remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
-        ], waitUntilFinished: false)
+        operationQueue.addOperations(
+            [
+                remoteFetchAssetsOperation,
+                remoteFetchOperation,
+                localFetchOperation,
+                processingOperation,
+                localSaveOperation,
+                mapOperation
+            ],
+            waitUntilFinished: false
+        )
     }
 
     private func complete(result: Result<SyncChanges, Error>?) {

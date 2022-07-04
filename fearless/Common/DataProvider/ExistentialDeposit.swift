@@ -54,7 +54,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             .ormlAsset,
             .foreignAsset,
             .stableAssetPoolToken,
-            .liquidCroadloan,
+            .liquidCrowdloan,
             .vToken,
             .vsToken,
             .stable:

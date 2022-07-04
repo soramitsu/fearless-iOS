@@ -10,7 +10,8 @@ struct ChainSelectionViewFactory {
         repositoryFilter: NSPredicate?,
         selectedMetaAccount: MetaAccountModel,
         includeAllNetworksCell: Bool,
-        showBalances: Bool
+        showBalances: Bool,
+        chainModels: [ChainModel]?
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             for: repositoryFilter,
@@ -25,7 +26,8 @@ struct ChainSelectionViewFactory {
                 selectedMetaAccount: selectedMetaAccount
             ),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            showBalances: showBalances
+            showBalances: showBalances,
+            chainModels: chainModels
         )
 
         let wireframe = ChainSelectionWireframe()

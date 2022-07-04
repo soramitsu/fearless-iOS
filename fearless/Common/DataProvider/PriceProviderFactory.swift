@@ -55,7 +55,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
     }
 
     func getPricesProvider(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
-        let identifier = pricesIds.joined(separator: ",")
+        let identifier = pricesIds.sorted().joined(separator: ",")
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
             storageFacade.createRepository()

@@ -13,7 +13,8 @@ struct AssetModel: Equatable, Codable, Hashable {
     let icon: URL?
     let priceId: PriceId?
     let price: Decimal?
-    let transfersEnabled: Bool?
+    let fiatDayChange: Decimal?
+    let transfersEnabled: Bool
     let type: ChainAssetType
     let currencyId: String?
     let displayName: String?
@@ -31,7 +32,8 @@ struct AssetModel: Equatable, Codable, Hashable {
         icon: URL?,
         priceId: AssetModel.PriceId?,
         price: Decimal?,
-        transfersEnabled: Bool?,
+        fiatDayChange: Decimal?,
+        transfersEnabled: Bool,
         type: ChainAssetType,
         currencyId: String?,
         displayName: String?,
@@ -44,6 +46,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.icon = icon
         self.priceId = priceId
         self.price = price
+        self.fiatDayChange = fiatDayChange
         self.transfersEnabled = transfersEnabled
         self.type = type
         self.currencyId = currencyId
@@ -60,16 +63,17 @@ struct AssetModel: Equatable, Codable, Hashable {
         precision = try container.decode(UInt16.self, forKey: .precision)
         icon = try? container.decode(URL?.self, forKey: .icon)
         priceId = try? container.decode(String?.self, forKey: .priceId)
-        transfersEnabled = try? container.decode(Bool?.self, forKey: .transfersEnabled)
+        transfersEnabled = (try? container.decode(Bool?.self, forKey: .transfersEnabled)) ?? true
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
 
         price = nil
+        fiatDayChange = nil
         type = .normal
     }
 
-    func replacingPrice(_ newPrice: Decimal?) -> AssetModel {
+    func replacingPrice(_ priceData: PriceData) -> AssetModel {
         AssetModel(
             id: id,
             symbol: symbol,
@@ -77,7 +81,8 @@ struct AssetModel: Equatable, Codable, Hashable {
             precision: precision,
             icon: icon,
             priceId: priceId,
-            price: newPrice,
+            price: Decimal(string: priceData.price),
+            fiatDayChange: priceData.fiatDayChange,
             transfersEnabled: transfersEnabled,
             type: type,
             currencyId: currencyId,
@@ -93,7 +98,6 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.icon == rhs.icon &&
             lhs.priceId == rhs.priceId &&
             lhs.symbol == rhs.symbol &&
-            lhs.type == rhs.type &&
             lhs.transfersEnabled == rhs.transfersEnabled &&
             lhs.currencyId == rhs.currencyId &&
             lhs.displayName == rhs.displayName

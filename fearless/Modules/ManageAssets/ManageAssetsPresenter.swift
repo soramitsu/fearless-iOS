@@ -10,7 +10,7 @@ final class ManageAssetsPresenter {
     private let filterFactory: TitleSwitchTableViewCellModelFactoryProtocol
 
     private var chainModels: [ChainModel] = []
-    private var accountInfos: [ChainAssetKey: AccountInfo] = [:]
+    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var viewModel: ManageAssetsViewModel?
     private var sortedKeys: [String]?
     private var assetIdsEnabled: [String]?
@@ -81,6 +81,7 @@ extension ManageAssetsPresenter: ManageAssetsPresenterProtocol {
 
     func didTapChainSelectButton() {
         wireframe.showSelectChain(
+            chainModels: allChainModels,
             selectedMetaAccount: selectedMetaAccount,
             selectedChainId: viewModel?.selectedChain.chainId,
             delegate: self,

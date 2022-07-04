@@ -32,7 +32,8 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
                 repositoryFilter: NSPredicate.hasCrowloans(),
                 selectedMetaAccount: selectedMetaAccount,
                 includeAllNetworksCell: false,
-                showBalances: true
+                showBalances: true,
+                chainModels: nil
             ) else {
             return
         }

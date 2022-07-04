@@ -26,10 +26,11 @@ final class ServiceCoordinator {
 
         let semaphore = DispatchSemaphore(value: 0)
 
-        chainRegistry.chainsSubscribe(self, runningInQueue: DispatchQueue.global()) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
+        chainRegistry.chainsSubscribe(
+            self,
+            runningInQueue: DispatchQueue.global()
+        ) { _ in
+            semaphore.signal()
         }
 
         semaphore.wait()

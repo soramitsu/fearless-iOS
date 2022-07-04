@@ -95,7 +95,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .about:
                 return createAboutViewModel(for: locale)
             case .biometry:
-                return createBiometryViewModel(for: locale)
+                return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
             }
@@ -111,12 +111,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLogout()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: nil
         )
         return viewModel
     }
 
-    private func createBiometryViewModel(for _: Locale) -> ProfileOptionViewModel? {
+    private func createBiometryViewModel() -> ProfileOptionViewModel? {
         let title: String
         switch biometry.availableBiometryType {
         case .none:
@@ -131,7 +132,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: biometry.availableBiometryType.accessoryIconSettings,
             accessoryTitle: nil,
-            accessoryType: .switcher(settings.biometryEnabled ?? false)
+            accessoryType: .switcher(settings.biometryEnabled ?? false),
+            option: .biometry
         )
         return viewModel
     }
@@ -143,22 +145,9 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .accountList
         )
-        return viewModel
-    }
-
-    private func createConnectionListViewModel(for locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .profileNetworkTitle(preferredLanguages: locale.rLanguages)
-
-        let viewModel = ProfileOptionViewModel(
-            title: title,
-            icon: R.image.iconProfileNetworks()!,
-            accessoryTitle: nil,
-            accessoryType: .arrow
-        )
-
         return viewModel
     }
 
@@ -169,7 +158,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsPin()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .changePincode
         )
     }
 
@@ -181,7 +171,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .language
         )
 
         return viewModel
@@ -194,7 +185,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .about
         )
     }
 
@@ -206,7 +198,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconCurrency()!,
             accessoryTitle: subtitle,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .currency
         )
 
         return viewModel

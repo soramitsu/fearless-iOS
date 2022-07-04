@@ -67,7 +67,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didTapManageAssetsButton() {
-        wireframe.showManageAssets(from: view)
+        wireframe.showManageAssets(from: view, chainModels: chainModels)
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
@@ -133,8 +133,8 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
             }
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfos[key] = accountInfo
-        case .failure:
-            break
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
         provideViewModel()
     }
@@ -149,11 +149,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         }
 
         provideViewModel()
-    }
-
-    func didReceiveAssetIdWithoutPriceId(_ assetId: String) {
-        let emptyPrice = PriceData(priceId: assetId, price: "", fiatDayChange: nil)
-        prices.pricesData.append(emptyPrice)
     }
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {

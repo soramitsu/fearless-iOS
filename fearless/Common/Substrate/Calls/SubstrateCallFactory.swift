@@ -133,7 +133,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             .ormlAsset,
             .foreignAsset,
             .stableAssetPoolToken,
-            .liquidCroadloan,
+            .liquidCrowdloan,
             .vToken,
             .vsToken,
             .stable:
