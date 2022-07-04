@@ -5,6 +5,7 @@
         <attribute name="currencyId" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
+        <attribute name="fiatDayChange" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="id" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -29,6 +30,7 @@
         <attribute name="isTipRequired" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="minimalAppVersion" optional="YES" attributeType="String"/>
         <attribute name="name" attributeType="String"/>
+        <attribute name="options" optional="YES" attributeType="Transformable"/>
         <attribute name="parentId" optional="YES" attributeType="String"/>
         <attribute name="stakingApiType" optional="YES" attributeType="String"/>
         <attribute name="stakingApiUrl" optional="YES" attributeType="URI"/>
@@ -83,6 +85,7 @@
     <entity name="CDRuntimeMetadataItem" representedClassName="CDRuntimeMetadataItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="metadata" optional="YES" attributeType="Binary"/>
+        <attribute name="resolver" optional="YES" attributeType="Binary"/>
         <attribute name="txVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
@@ -108,14 +111,14 @@
         <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
-        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="209"/>
-        <element name="CDChain" positionX="-45" positionY="81" width="128" height="374"/>
+        <element name="CDAsset" positionX="-36" positionY="90" width="128" height="224"/>
+        <element name="CDChain" positionX="-45" positionY="81" width="128" height="389"/>
         <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="119"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>
-        <element name="CDRuntimeMetadataItem" positionX="-45" positionY="81" width="128" height="89"/>
+        <element name="CDRuntimeMetadataItem" positionX="-45" positionY="81" width="128" height="104"/>
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>

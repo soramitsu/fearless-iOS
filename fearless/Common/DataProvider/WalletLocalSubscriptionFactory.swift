@@ -2,15 +2,14 @@ import Foundation
 import RobinHood
 
 protocol WalletLocalSubscriptionFactoryProtocol {
+    var operationManager: OperationManagerProtocol { get }
+
     func getAccountProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) throws -> AnyDataProvider<DecodedAccountInfo>
+    ) throws -> StreamableProvider<ChainStorageItem>
 
-    func getOrmlAccountProvider(
-        for accountId: AccountId,
-        chainAsset: ChainAsset
-    ) throws -> AnyDataProvider<DecodedOrmlAccountInfo>
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
 final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
@@ -25,38 +24,48 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
     func getAccountProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) throws -> AnyDataProvider<DecodedAccountInfo> {
-        let codingPath = StorageCodingPath.account
+    ) throws -> StreamableProvider<ChainStorageItem> {
+        let codingPath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
             chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
-        return try getDataProvider(
-            for: localKey,
-            chainId: chainAsset.chain.chainId,
-            storageCodingPath: codingPath,
-            shouldUseFallback: false
-        )
+        return getProvider(for: localKey)
     }
 
-    func getOrmlAccountProvider(
-        for accountId: AccountId,
-        chainAsset: ChainAsset
-    ) throws -> AnyDataProvider<DecodedOrmlAccountInfo> {
-        let codingPath = StorageCodingPath.tokens
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+        chainRegistry.getRuntimeProvider(for: chainId)
+    }
 
-        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-            codingPath,
-            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+    private func getProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
+        let facade = SubstrateDataStorageFacade.shared
+
+        let mapper: CodableCoreDataMapper<ChainStorageItem, CDChainStorageItem> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDChainStorageItem.identifier))
+
+        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            facade.createRepository(filter: filter)
+        let source = EmptyStreamableSource<ChainStorageItem>()
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(mapper),
+            predicate: { $0.identifier == key }
         )
 
-        return try getDataProvider(
-            for: localKey,
-            chainId: chainAsset.chain.chainId,
-            storageCodingPath: codingPath,
-            shouldUseFallback: false
+        observable.start { error in
+            if let error = error {
+                self.logger.error("Can't start storage observing: \(error)")
+            }
+        }
+
+        return StreamableProvider(
+            source: AnyStreamableSource(source),
+            repository: AnyDataProviderRepository(storage),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager
         )
     }
 }

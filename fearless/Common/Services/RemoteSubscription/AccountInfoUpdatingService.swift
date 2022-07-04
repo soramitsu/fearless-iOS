@@ -16,6 +16,8 @@ final class AccountInfoUpdatingService {
     private let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
+    private var chains: [ChainModel.Id: ChainModel] = [:]
+    private var chainIdsWithCodersReady: [ChainModel.Id] = []
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
@@ -61,8 +63,12 @@ final class AccountInfoUpdatingService {
         for change in changes {
             switch change {
             case let .insert(newItem):
-                newItem.chainAssets.forEach {
-                    addSubscriptionIfNeeded(for: $0)
+                if chainIdsWithCodersReady.contains(newItem.chainId) {
+                    newItem.chainAssets.forEach {
+                        addSubscriptionIfNeeded(for: $0)
+                    }
+                } else {
+                    chains[newItem.chainId] = newItem
                 }
             case .update:
                 break
@@ -114,8 +120,11 @@ final class AccountInfoUpdatingService {
     }
 
     private func subscribeToChains() {
-        chainRegistry.chainsSubscribe(self, runningIn: .global(qos: .background)) { [weak self] in
-            self?.handle(changes: $0)
+        chainRegistry.chainsSubscribe(
+            self,
+            runningInQueue: .global()
+        ) { [weak self] changes in
+            self?.handle(changes: changes)
         }
     }
 
@@ -156,6 +165,16 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
                 removeSubscription(for: key)
                 addSubscriptionIfNeeded(for: $0)
             }
+        }
+    }
+
+    func processRuntimeCoderReady(event: RuntimeCoderCreated) {
+        chainIdsWithCodersReady.append(event.chainId)
+
+        let chain = chains[event.chainId]
+
+        chain?.chainAssets.forEach {
+            addSubscriptionIfNeeded(for: $0)
         }
     }
 }

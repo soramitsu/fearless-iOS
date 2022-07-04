@@ -67,7 +67,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
 
         return ReceiveInfo(
             accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
-            assetId: asset.identifier,
+            assetId: asset.id,
             amount: nil,
             details: nil
         )

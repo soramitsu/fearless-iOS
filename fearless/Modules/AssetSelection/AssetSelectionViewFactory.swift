@@ -22,7 +22,8 @@ struct AssetSelectionViewFactory {
                 selectedMetaAccount: selectedMetaAccount
             ),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            showBalances: true
+            showBalances: true,
+            chainModels: nil
         )
 
         let wireframe = AssetSelectionWireframe()

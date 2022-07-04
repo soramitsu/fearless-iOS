@@ -153,13 +153,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
 
             if let block = currentBlock, let currentBlockvalue = UInt32(block) {
-                self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                DispatchQueue.main.async {
+                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                }
             }
         }
 
         roundOperation.targetOperation.completionBlock = { [weak self] in
             let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
-            self?.presenter?.didReceiveRound(round: roundInfo)
+            DispatchQueue.main.async {
+                self?.presenter?.didReceiveRound(round: roundInfo)
+            }
         }
 
         operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)

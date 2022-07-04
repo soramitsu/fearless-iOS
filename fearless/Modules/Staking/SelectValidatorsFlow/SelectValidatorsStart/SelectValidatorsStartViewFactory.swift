@@ -216,7 +216,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
         case let .parachain(bonding):
             let subqueryOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.history?.url
+                url: chainAsset.chain.externalApi?.staking?.url
             )
 
             let operationFactory = ParachainCollatorOperationFactory(

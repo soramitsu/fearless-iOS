@@ -10,7 +10,7 @@ final class ManageAssetsInteractor {
         }
     }
 
-    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let chainModels: [ChainModel]
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationQueue: OperationQueue
@@ -22,42 +22,23 @@ final class ManageAssetsInteractor {
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        chainRepository: AnyDataProviderRepository<ChainModel>,
+        chainModels: [ChainModel],
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.chainRepository = chainRepository
+        self.chainModels = chainModels
         self.accountRepository = accountRepository
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
     }
 
-    private func fetchChainsAndSubscribeBalance() {
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleChains(result: fetchOperation.result)
-            }
-        }
-
-        operationQueue.addOperation(fetchOperation)
-    }
-
-    private func handleChains(result: Result<[ChainModel], Error>?) {
-        switch result {
-        case let .success(chains):
-            presenter?.didReceiveChains(result: .success(chains))
-            subscribeToAccountInfo(for: chains)
-        case let .failure(error):
-            presenter?.didReceiveChains(result: .failure(error))
-        case .none:
-            presenter?.didReceiveChains(result: .failure(BaseOperationError.parentOperationCancelled))
-        }
+    private func handleChains(chains: [ChainModel]) {
+        subscribeToAccountInfo(for: chains)
+        presenter?.didReceiveChains(result: .success(chains))
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
@@ -113,7 +94,7 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
     }
 
     func setup() {
-        fetchChainsAndSubscribeBalance()
+        handleChains(chains: chainModels)
         presenter?.didReceiveAccount(selectedMetaAccount)
     }
 
@@ -138,11 +119,19 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
-            updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            if let acoountForSave = updatedAccount {
+                updatedAccount = acoountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            }
         }
 
         if let filterOptions = filterOptions, filterOptions != selectedMetaAccount.assetFilterOptions {
-            updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            if let acoountForSave = updatedAccount {
+                updatedAccount = acoountForSave.replacingAssetsFilterOptions(filterOptions)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            }
         }
 
         if let updatedAccount = updatedAccount {

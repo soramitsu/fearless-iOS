@@ -29,7 +29,7 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
             )
         }
 
-        let customNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.customNodes.map { node in
+        let customNodeCellViewModels: [NodeSelectionTableCellViewModel] = chain.customNodes?.compactMap { node in
             NodeSelectionTableCellViewModel(
                 node: node,
                 selected: node.url == chain.selectedNode?.url,
@@ -37,7 +37,7 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
                 editable: true,
                 delegate: cellsDelegate
             )
-        }
+        } ?? []
 
         var sections: [NodeSelectionTableSection] = []
 

@@ -5,7 +5,7 @@ protocol ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainAssetKey: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo?],
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -121,7 +121,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
     func buildManageAssetsViewModel(
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
-        accountInfos: [ChainAssetKey: AccountInfo]?,
+        accountInfos: [ChainAssetKey: AccountInfo?],
         sortedKeys: [String]?,
         assetIdsEnabled: [String]?,
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
@@ -149,7 +149,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return
             }
-            let accountInfo: AccountInfo? = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
+            let accountInfo: AccountInfo? = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
             usdBalanceByChainAsset[chainAsset] = getUsdBalance(
                 for: chainAsset,
@@ -162,19 +162,23 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             )
         }
 
+        var orderByKey: [String: Int]?
+
+        if let sortedKeys = sortedKeys {
+            orderByKey = [:]
+            for (index, key) in sortedKeys.enumerated() {
+                orderByKey?[key] = index
+            }
+        }
+
         let chainAssetsSorted = chainAssets
             .sorted { ca1, ca2 in
-                if let sortedKeys = sortedKeys {
+                if let orderByKey = orderByKey {
                     let accountId = selectedMetaAccount.substrateAccountId
-                    var orderByKey: [String: Int] = [:]
-                    for (index, key) in sortedKeys.enumerated() {
-                        orderByKey[key] = index
-                    }
 
-                    let orderByKeyCa1 = orderByKey[ca1.uniqueKey(accountId: accountId)] ?? Int.max
-                    let orderByKeyCa2 = orderByKey[ca2.uniqueKey(accountId: accountId)] ?? Int.max
-
-                    return orderByKeyCa1 < orderByKeyCa2
+                    return orderByKey[ca1.uniqueKey(accountId: accountId)]
+                        ?? Int.max < orderByKey[ca2.uniqueKey(accountId: accountId)]
+                        ?? Int.max
                 } else {
                     return (
                         usdBalanceByChainAsset[ca1] ?? Decimal.zero,
@@ -195,11 +199,12 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.compactMap { chainAsset in
             let substrateUniqueKey = chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
             let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(substrateUniqueKey) == true
-            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                return nil
+
+            var accountInfo: AccountInfo?
+            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+                accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
             }
 
-            let accountInfo = accountInfos?[chainAsset.uniqueKey(accountId: accountId)]
             let viewModel = buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
                 accountInfo: accountInfo,

@@ -55,6 +55,7 @@ protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, Pres
     )
 
     func showSelectChain(
+        chainModels: [ChainModel]?,
         selectedMetaAccount: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         delegate: ChainSelectionDelegate,
