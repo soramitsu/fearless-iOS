@@ -71,7 +71,9 @@ final class ChainAccountBalanceListInteractor {
                 self.presenter?.didReceiveChains(result: result)
             }
         case let .failure(error):
-            presenter?.didReceiveChains(result: .failure(error))
+            DispatchQueue.main.async {
+                self.presenter?.didReceiveChains(result: .failure(error))
+            }
         }
     }
 
@@ -160,7 +162,9 @@ extension ChainAccountBalanceListInteractor: PriceLocalStorageSubscriber, PriceL
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
-            updatePrices(with: prices)
+            DispatchQueue.global().async {
+                self.updatePrices(with: prices)
+            }
         case .failure:
             break
         }
@@ -219,8 +223,10 @@ extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandl
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
-        replaceAccountInfoSubscriptionAdapter()
-        fetchChainsAndSubscribeBalance()
+        DispatchQueue.global().async {
+            self.replaceAccountInfoSubscriptionAdapter()
+            self.presenter?.didReceiveChains(result: .success(self.chains))
+        }
     }
 
     func processChainsUpdated(event _: ChainsUpdatedEvent) {

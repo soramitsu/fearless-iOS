@@ -199,11 +199,12 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         let viewModels: [ManageAssetsTableViewCellModel] = chainAssetsSorted.compactMap { chainAsset in
             let substrateUniqueKey = chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
             let enabled = assetIdsEnabled == nil || assetIdsEnabled?.contains(substrateUniqueKey) == true
-            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                return nil
+
+            var accountInfo: AccountInfo?
+            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+                accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
             }
 
-            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
             let viewModel = buildManageAssetsCellViewModel(
                 chainAsset: chainAsset,
                 accountInfo: accountInfo,
