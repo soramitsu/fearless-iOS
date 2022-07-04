@@ -5,7 +5,7 @@ import RobinHood
 class ChainAssetModel: Codable {
     let assetId: String
     let staking: StakingType?
-    let purchaseProviders: [PurchaseProvider]
+    let purchaseProviders: [PurchaseProvider]?
     let type: ChainAssetType
     var asset: AssetModel!
     weak var chain: ChainModel?
@@ -15,7 +15,7 @@ class ChainAssetModel: Codable {
     init(
         assetId: String,
         staking: StakingType? = nil,
-        purchaseProviders: [PurchaseProvider] = [],
+        purchaseProviders: [PurchaseProvider]? = nil,
         type: ChainAssetType,
         asset: AssetModel,
         chain: ChainModel
@@ -33,9 +33,9 @@ class ChainAssetModel: Codable {
 
         assetId = try container.decode(String.self, forKey: .assetId)
         staking = try? container.decode(StakingType.self, forKey: .staking)
-        purchaseProviders = container.decodeOptionalArray([PurchaseProvider].self, forKey: .purchaseProviders)
-        let type =
-            self.type = (try? container.decode(ChainAssetType?.self, forKey: .type)).or(.normal)
+        purchaseProviders = try? container.decode([PurchaseProvider]?.self, forKey: .purchaseProviders)
+        let type = try? container.decode(ChainAssetType?.self, forKey: .type)
+        self.type = type ?? ChainAssetType.normal
     }
 }
 

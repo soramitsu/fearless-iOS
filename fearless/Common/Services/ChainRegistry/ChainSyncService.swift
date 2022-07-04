@@ -6,10 +6,6 @@ protocol ChainSyncServiceProtocol {
     func syncUp()
 }
 
-enum ChainSyncError: Error {
-    case invalidDataReceived
-}
-
 final class ChainSyncService {
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -78,20 +74,12 @@ final class ChainSyncService {
         let remoteFetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
         let processingOperation: BaseOperation<SyncChanges> = ClosureOperation {
-            func optionallyUnwrapArrayData(from operation: BaseOperation<Data>) -> Data {
-                (try? operation.extractNoCancellableResultData()).orEmptyJsonArray()
-            }
+            let assetsRemoteData = try remoteFetchAssetsOperation.extractNoCancellableResultData()
+            let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsRemoteData)
+            let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
+            let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: remoteData)
 
-            func decodeValidObjects<T: Decodable>(of _: T.Type, from data: Data) -> [T] {
-                (try? JSONDecoder().decodeOptionalArray([T].self, from: data)).orEmpty()
-            }
-
-            let assetsRemoteData = optionallyUnwrapArrayData(from: remoteFetchAssetsOperation)
-            let assetsList = decodeValidObjects(of: AssetModel.self, from: assetsRemoteData)
-            let chainsRemoteData = optionallyUnwrapArrayData(from: remoteFetchOperation)
-            let chainsList = decodeValidObjects(of: ChainModel.self, from: chainsRemoteData)
-
-            chainsList.forEach { chain in
+            remoteChains.forEach { chain in
                 chain.assets.forEach { chainAsset in
                     chainAsset.chain = chain
                     if let asset = assetsList.first(where: { asset in
@@ -102,17 +90,11 @@ final class ChainSyncService {
                 }
             }
 
-            chainsList.forEach {
+            remoteChains.forEach {
                 $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
             }
 
-            if chainsList.filter({ !$0.assets.isEmpty }).isEmpty {
-                // In case if all assets failed to load, and this resulted into chains with no assets
-                // Throw an error, so data is loaded from cache instead of showing empty list with an error
-                throw ChainSyncError.invalidDataReceived
-            }
-
-            let remoteMapping = chainsList.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+            let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
                 mapping[item.chainId] = item
             }
 
@@ -121,7 +103,7 @@ final class ChainSyncService {
                 mapping[item.chainId] = item
             }
 
-            let newOrUpdated: [ChainModel] = chainsList.compactMap { remoteItem in
+            let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
                 if let localItem = localMapping[remoteItem.chainId] {
                     return localItem != remoteItem ? remoteItem : nil
                 } else {
@@ -165,12 +147,7 @@ final class ChainSyncService {
         }
 
         operationQueue.addOperations([
-            remoteFetchAssetsOperation,
-            remoteFetchOperation,
-            localFetchOperation,
-            processingOperation,
-            localSaveOperation,
-            mapOperation
+            remoteFetchAssetsOperation, remoteFetchOperation, localFetchOperation, processingOperation, localSaveOperation, mapOperation
         ], waitUntilFinished: false)
     }
 

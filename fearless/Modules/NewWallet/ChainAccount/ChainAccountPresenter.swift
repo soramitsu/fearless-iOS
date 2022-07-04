@@ -95,7 +95,7 @@ private extension ChainAccountPresenter {
             let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
-            chainAssetModel?.purchaseProviders.forEach {
+            chainAssetModel?.purchaseProviders?.compactMap { $0 }.forEach {
                 switch $0 {
                 case .moonpay:
                     availableProviders.append(moonpayProvider)

@@ -9,7 +9,7 @@ final class MainTabBarInteractor {
 
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
-    private var serviceCoordinator: ServiceCoordinatorProtocol
+    private let serviceCoordinator: ServiceCoordinatorProtocol
     private let applicationHandler: ApplicationHandlerProtocol
 
     private var goneBackgroundTimestamp: TimeInterval?
