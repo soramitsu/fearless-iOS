@@ -82,6 +82,8 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceive(delegations: [ParachainStakingDelegation]?)
     func didReceive(collators: [ParachainStakingCandidateInfo]?)
+    func didReceiveRound(round: ParachainStakingRoundInfo?)
+    func didReceiveCurrentBlock(currentBlock: UInt32?)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

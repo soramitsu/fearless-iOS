@@ -63,6 +63,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             delegatorStateProvider = subscribeToDelegatorState(for: chainId, accountId: accountId)
         }
 
+        fetchParachainInfo()
+
         //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideEraStakersInfo(from: sharedState.eraValidatorService)
@@ -139,6 +141,28 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         } else {
             presenter?.didReceive(delegations: [])
         }
+
+        fetchParachainInfo()
+    }
+
+    private func fetchParachainInfo() {
+        let roundOperation = collatorOperationFactory.round()
+        let currentBlockOperation = collatorOperationFactory.currentBlock()
+
+        currentBlockOperation.targetOperation.completionBlock = { [weak self] in
+            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
+
+            if let block = currentBlock, let currentBlockvalue = UInt32(block) {
+                self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+            }
+        }
+
+        roundOperation.targetOperation.completionBlock = { [weak self] in
+            let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
+            self?.presenter?.didReceiveRound(round: roundInfo)
+        }
+
+        operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)
     }
 
     private func updateAfterSelectedAccountChange() {

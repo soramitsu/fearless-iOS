@@ -185,4 +185,8 @@ extension StorageCodingPath {
     static var staked: StorageCodingPath {
         StorageCodingPath(moduleName: "ParachainStaking", itemName: "Staked")
     }
+
+    static var currentBlock: StorageCodingPath {
+        StorageCodingPath(moduleName: "System", itemName: "Number")
+    }
 }

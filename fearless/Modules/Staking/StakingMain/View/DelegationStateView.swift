@@ -43,6 +43,12 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             return
         }
 
+        if let interval = viewModel.nextRoundInterval {
+            timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+        }
+
+        statusView.valueView.detailsLabel.isHidden = viewModel.nextRoundInterval == nil
+
         titleLabel.text = viewModel.name == nil ?
             R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages) : viewModel.name
         stakeAmountView.valueTop.text = viewModel.totalStakedAmount
@@ -115,11 +121,13 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
 
 extension DelegationStateView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
-        statusView.valueView.detailsLabel.text = (try? timeFormatter.string(from: interval)) ?? ""
+        let intervalString = (try? timeFormatter.string(from: interval)) ?? ""
+        statusView.valueView.detailsLabel.text = "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
-        statusView.valueView.detailsLabel.text = (try? timeFormatter.string(from: remainedInterval)) ?? ""
+        let intervalString = (try? timeFormatter.string(from: remainedInterval)) ?? ""
+        statusView.valueView.detailsLabel.text = "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
     }
 
     func didStop(with _: TimeInterval) {

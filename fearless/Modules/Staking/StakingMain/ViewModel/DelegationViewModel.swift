@@ -1,3 +1,5 @@
+import Foundation
+
 enum DelegationViewStatus {
     case active(countdown: String)
     case idle(countdown: String)
@@ -13,6 +15,7 @@ protocol DelegationViewModelProtocol {
     var status: DelegationViewStatus { get }
     var hasPrice: Bool { get }
     var name: String? { get }
+    var nextRoundInterval: TimeInterval? { get }
 }
 
 struct DelegationViewModel: DelegationViewModelProtocol {
@@ -23,4 +26,5 @@ struct DelegationViewModel: DelegationViewModelProtocol {
     let status: DelegationViewStatus
     let hasPrice: Bool
     let name: String?
+    let nextRoundInterval: TimeInterval?
 }
