@@ -5,7 +5,6 @@ import FearlessUtils
 
 final class MainTabBarPresenter {
     weak var view: MainTabBarViewProtocol?
-
     private let interactor: MainTabBarInteractorInputProtocol
     private let wireframe: MainTabBarWireframeProtocol
     private let appVersionObserver: AppVersionObserver
@@ -39,12 +38,6 @@ final class MainTabBarPresenter {
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
     func setup() {
-        assertNotNil(view) // should be called from view on appear
-        // Update reachability if decided before view set
-        if let reachability = reachability {
-            didChangeReachability(by: reachability)
-        }
-
         interactor.setup()
 
         appVersionObserver.checkVersion(from: view, callback: nil)
@@ -86,13 +79,11 @@ extension MainTabBarPresenter: ApplicationHandlerDelegate {
 
 extension MainTabBarPresenter: ReachabilityListenerDelegate {
     func didChangeReachability(by _: ReachabilityManagerProtocol) {
-        assertNotNil(reachability)
-
-        let isReachable = (reachability?.isReachable).orFalse()
-        if isReachable {
-            networkStatusPresenter.didDecideReachableStatusPresentation()
-        } else {
-            networkStatusPresenter.didDecideUnreachableStatusPresentation()
+        guard let isReachable = reachability?.isReachable else {
+            return
         }
+        isReachable
+            ? networkStatusPresenter.didDecideReachableStatusPresentation()
+            : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }
 }

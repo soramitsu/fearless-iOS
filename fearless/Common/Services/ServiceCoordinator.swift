@@ -28,11 +28,9 @@ final class ServiceCoordinator {
 
         chainRegistry.chainsSubscribe(
             self,
-            runningIn: DispatchQueue.global()
-        ) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
+            runningInQueue: DispatchQueue.global()
+        ) { _ in
+            semaphore.signal()
         }
 
         semaphore.wait()

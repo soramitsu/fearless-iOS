@@ -55,7 +55,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             reachability: ReachabilityManager.shared,
             localizationManager: localizationManager
         )
-        interactor.presenter = presenter
 
         guard
             let walletController = createWalletController(
@@ -97,6 +96,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         view.presenter = presenter
         presenter.view = view
+        interactor.presenter = presenter
 
         return view
     }

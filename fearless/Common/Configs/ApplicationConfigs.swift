@@ -158,29 +158,19 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     // MARK: - GitHub
 
-    private var localFiles: Bool { false }
-
     var chainListURL: URL? {
-        if localFiles {
-            return Bundle.main.url(forResource: "chains", withExtension: "json")
-        }
-
         #if F_DEV
-            return GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
-            return GitHubUrl.url(suffix: "chains/chains.json")
+            GitHubUrl.url(suffix: "chains/chains.json")
         #endif
     }
 
     var assetListURL: URL? {
-        if localFiles {
-            return Bundle.main.url(forResource: "assets", withExtension: "json")
-        }
-
         #if F_DEV
-            return GitHubUrl.url(suffix: "chains/assets_dev.json")
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
         #else
-            return GitHubUrl.url(suffix: "chains/assets.json")
+            GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 

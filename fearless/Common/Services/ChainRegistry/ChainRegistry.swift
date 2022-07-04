@@ -9,7 +9,7 @@ protocol ChainRegistryProtocol: AnyObject {
 
     func chainsSubscribe(
         _ target: AnyObject,
-        runningIn queue: DispatchQueue,
+        runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
 
@@ -191,11 +191,11 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func chainsSubscribe(
         _ target: AnyObject,
-        runningIn queue: DispatchQueue,
+        runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     ) {
         let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { changes in
-            queue.async {
+            runningInQueue.async {
                 updateClosure(changes)
             }
         }
