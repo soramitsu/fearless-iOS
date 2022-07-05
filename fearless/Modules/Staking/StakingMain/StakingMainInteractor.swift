@@ -59,6 +59,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var delegationScheduledRequestsProvider: AnyDataProvider<DecodedParachainScheduledRequests>?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -381,8 +382,11 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         )
 
         if let state = delegatorState {
+            fetchBottomDelegations(accountIds: state.delegations.map(\.owner))
+
             let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
             let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+
             let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
             collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
 

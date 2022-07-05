@@ -1,3 +1,4 @@
+// swiftlint:disable file_length
 import Foundation
 import CommonWallet
 import BigInt
@@ -791,6 +792,14 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(delegationInfos: delegationInfos)
     }
 
+    func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?) {
+        stateMachine.state.process(scheduledRequests: requests)
+    }
+
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
+        stateMachine.state.process(bottomDelegations: delegations)
+    }
+
 //    func didReceive(delegations: [ParachainStakingDelegation]?) {
 //        self.delegations = delegations
 //
@@ -879,6 +888,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceiveRound(round: ParachainStakingRoundInfo?) {
         self.round = round
         provideRoundInfo()
+
+        stateMachine.state.process(roundInfo: round)
     }
 
     func didReceiveCurrentBlock(currentBlock: UInt32?) {
