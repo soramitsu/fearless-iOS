@@ -74,9 +74,16 @@ extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState 
             return nil
         }
 
-        let bondExtra = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
+        var identifier = ""
+        if isCollator {
+            let call = callFactory.candidateBondMore(amount: amount)
+            identifier = call.callName
+        } else {
+            let call = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
+            identifier = call.callName
+        }
 
-        return bondExtra.callName
+        return identifier
     }
 
     func setStateListener(_ stateListener: StakingBondMoreModelStateListener?) {
@@ -90,11 +97,30 @@ extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState 
             return nil
         }
 
-        let bondExtra = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        return { builder in
-            try builder.adding(call: bondExtra)
+            var newBuilder = builder
+
+            if strongSelf.isCollator {
+                let call = strongSelf.callFactory.candidateBondMore(amount: amount)
+                newBuilder = try newBuilder.adding(call: call)
+            } else {
+                let call = strongSelf.callFactory.delegatorBondMore(
+                    candidate: strongSelf.candidate.owner,
+                    amount: amount
+                )
+                newBuilder = try newBuilder.adding(call: call)
+            }
+
+            return newBuilder
         }
+    }
+
+    private var isCollator: Bool {
+        candidate.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {

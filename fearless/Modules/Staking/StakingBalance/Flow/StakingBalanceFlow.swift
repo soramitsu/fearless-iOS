@@ -15,6 +15,8 @@ protocol StakingBalanceModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: StakingBalanceViewModelState)
     func didReceiveError(error: StakingBalanceFlowError)
     func finishFlow()
+    func decideShowSetupRebondFlow()
+    func decideShowConfirmRebondFlow(flow: StakingRebondConfirmationFlow)
 }
 
 protocol StakingBalanceViewModelState: StakingBalanceUserInputHandler {
@@ -26,10 +28,13 @@ protocol StakingBalanceViewModelState: StakingBalanceUserInputHandler {
     func revokeValidators(using locale: Locale) -> [DataValidating]
     func unbondingMoreValidators(using locale: Locale) -> [DataValidating]
 
-    var rebondCases: [StakingRebondOption]? { get }
+    var rebondCases: [StakingRebondOption] { get }
+
     var bondMoreFlow: StakingBondMoreFlow? { get }
     var unbondFlow: StakingUnbondSetupFlow? { get }
     var revokeFlow: StakingRedeemFlow? { get }
+
+    func decideRebondFlow(option: StakingRebondOption)
 }
 
 struct StakingBalanceDependencyContainer {

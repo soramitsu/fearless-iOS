@@ -301,6 +301,24 @@ final class ParachainCollatorOperationFactory {
         return candidatePoolWrapper
     }
 
+    func createCurrentBlockOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<String>]> {
+        guard let roundKey = try? StorageKeyFactory().key(from: .currentBlock) else {
+            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
+        }
+
+        let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [roundKey] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .currentBlock
+            )
+
+        candidatePoolWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return candidatePoolWrapper
+    }
+
     func createCommissionOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<String>]> {
@@ -659,6 +677,21 @@ extension ParachainCollatorOperationFactory {
         mapOperation.addDependency(stakedWrapper.targetOperation)
 
         let dependencies = [runtimeOperation] + roundOperation.allOperations + stakedWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func currentBlock() -> CompoundOperationWrapper<String?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let blockWrapper = createCurrentBlockOperation(dependingOn: runtimeOperation)
+
+        let mapOperation = ClosureOperation<String?> {
+            try blockWrapper.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        mapOperation.addDependency(blockWrapper.targetOperation)
+
+        let dependencies = [runtimeOperation] + blockWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

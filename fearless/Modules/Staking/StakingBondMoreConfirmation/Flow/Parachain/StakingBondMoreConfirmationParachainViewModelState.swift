@@ -54,30 +54,53 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         ]
     }
 
+    private var isCollator: Bool {
+        candidate == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    }
+
     var builderClosure: ExtrinsicBuilderClosure? {
-        guard let amountValue = amount.toSubstrateAmount(
-            precision: Int16(chainAsset.asset.precision)
-        ) else {
-//            output?.didReceiveFee(result: .failure(CommonError.undefined))
+        guard let amount = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
             return nil
         }
 
-        let bondExtra = callFactory.delegatorBondMore(candidate: candidate, amount: amountValue)
+        return { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        return { builder in
-            try builder.adding(call: bondExtra)
+            var newBuilder = builder
+
+            if strongSelf.isCollator {
+                let call = strongSelf.callFactory.candidateBondMore(amount: amount)
+                newBuilder = try newBuilder.adding(call: call)
+            } else {
+                let call = strongSelf.callFactory.delegatorBondMore(
+                    candidate: strongSelf.candidate,
+                    amount: amount
+                )
+                newBuilder = try newBuilder.adding(call: call)
+            }
+
+            return newBuilder
         }
     }
 
     var feeReuseIdentifier: String? {
-        guard let amountValue = amount.toSubstrateAmount(
+        guard let amount = amount.toSubstrateAmount(
             precision: Int16(chainAsset.asset.precision)
         ) else {
             return nil
         }
+        var identifier = ""
+        if isCollator {
+            let call = callFactory.candidateBondMore(amount: amount)
+            identifier = call.callName
+        } else {
+            let call = callFactory.delegatorBondMore(candidate: candidate, amount: amount)
+            identifier = call.callName
+        }
 
-        let bondExtra = callFactory.delegatorBondMore(candidate: candidate, amount: amountValue)
-        return bondExtra.callName
+        return identifier
     }
 }
 

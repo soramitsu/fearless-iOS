@@ -36,9 +36,9 @@ protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable
     func proceed(
         view: StakingRebondSetupViewProtocol?,
         amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     )
     func close(view: StakingRebondSetupViewProtocol?)
 }

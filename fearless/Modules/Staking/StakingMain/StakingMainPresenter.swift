@@ -43,6 +43,9 @@ final class StakingMainPresenter {
     private var nomination: Nomination?
     private var delegations: [ParachainStakingDelegation]?
     private var collators: [ParachainStakingCandidateInfo]?
+    private var round: ParachainStakingRoundInfo?
+    private var currentBlock: UInt32?
+    private var countdownInterval: TimeInterval?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -174,6 +177,93 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func viewWillAppear() {
         interactor.refresh()
+    }
+
+    private func provideRoundInfo() {
+        guard let round = round, let currentBlock = currentBlock, let erasPerDay = chainAsset?.chain.erasPerDay else {
+            return
+        }
+
+        let roundDurationInSeconds: TimeInterval = 24.0 / Double(erasPerDay) * 3600.0
+        let blockDurationInSeconds: TimeInterval = roundDurationInSeconds / Double(round.length)
+        let countdown: TimeInterval = Double((round.first + round.length) - currentBlock) * blockDurationInSeconds
+
+        countdownInterval = countdown
+        provideParachainViewModel()
+    }
+
+    private func provideParachainViewModel() {
+        guard let delegations = delegations, let collators = collators else {
+            return
+        }
+
+        let delegationInfos: [ParachainStakingDelegationInfo] = delegations.compactMap { delegation in
+            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
+                return nil
+            }
+            return ParachainStakingDelegationInfo(
+                delegation: delegation,
+                collator: collator
+            )
+        }
+
+        let models: [DelegationInfoCellModel] = delegationInfos.compactMap { [weak self] delegationInfo in
+            guard let strongSelf = self, let chainAsset = chainAsset else {
+                return nil
+            }
+
+            let collator = delegationInfo.collator
+            let delegation = delegationInfo.delegation
+
+            let resource: LocalizableResource<DelegationViewModelProtocol> = LocalizableResource { _ in
+                let status: DelegationViewStatus
+                switch collator.metadata?.status {
+                case .active:
+                    status = .active(countdown: "0:00:00")
+                case .idle:
+                    status = .idle(countdown: "0:00:00")
+                case .leaving:
+                    status = .leaving(countdown: "0:00:00")
+                case .none:
+                    status = .undefined
+                }
+
+                let amount = Decimal.fromSubstrateAmount(
+                    delegation.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
+                let balanceViewModelFactory = strongSelf.viewModelFacade.createBalanceViewModelFactory(for: chainAsset)
+
+                let locale = strongSelf.view?.localizationManager?.selectedLocale ?? Locale.current
+
+                return DelegationViewModel(
+                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
+                    totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
+                        amount,
+                        priceData: strongSelf.priceData
+                    ).value(for: locale).price ?? "",
+                    totalRewardAmount: balanceViewModelFactory.amountFromValue(Decimal.zero).value(for: locale),
+                    totalRewardPrice: balanceViewModelFactory.balanceFromPrice(
+                        Decimal.zero,
+                        priceData: strongSelf.priceData
+                    ).value(for: locale).price ?? "",
+                    status: status,
+                    hasPrice: true,
+                    name: collator.identity?.name,
+                    nextRoundInterval: strongSelf.countdownInterval
+                )
+            }
+            let moreHandler: () -> Void = { [weak self] in
+                self?.performParachainManageStakingAction(info: delegationInfo)
+            }
+            let statusHandler: () -> Void = {}
+            return DelegationInfoCellModel(
+                contentViewModel: resource,
+                moreHandler: moreHandler,
+                statusHandler: statusHandler
+            )
+        }
+        view?.didReceiveCollatorInfos(viewModels: models)
     }
 
     func performAssetSelection() {
@@ -785,6 +875,16 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 //        }
 //        view?.didReceiveCollatorInfos(viewModels: models)
 //    }
+
+    func didReceiveRound(round: ParachainStakingRoundInfo?) {
+        self.round = round
+        provideRoundInfo()
+    }
+
+    func didReceiveCurrentBlock(currentBlock: UInt32?) {
+        self.currentBlock = currentBlock
+        provideRoundInfo()
+    }
 }
 
 // MARK: - ModalPickerViewControllerDelegate

@@ -79,6 +79,10 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         }
     }
 
+    private var isCollator: Bool {
+        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    }
+
     var builderClosure: ExtrinsicBuilderClosure? {
         guard
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
@@ -92,10 +96,14 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             if self.isRevoke {
                 newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
             } else {
-                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                if self.isCollator {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
+                } else {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                }
             }
 
-            return try newBuilder
+            return newBuilder
         }
     }
 
@@ -107,11 +115,19 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             return nil
         }
 
+        var identifier = ""
+
         if isRevoke {
-            return callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+            identifier = callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+        } else {
+            if isCollator {
+                identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
+            } else {
+                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+            }
         }
 
-        return callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+        return identifier
     }
 
     var confirmationFlow: StakingUnbondConfirmFlow? {
@@ -149,7 +165,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
 
     var isRevoke: Bool {
         if let amount = inputAmount, let bonded = bonded, let minimumAmount = minimumDelegation {
-            return bonded - amount < minimumAmount
+            return bonded - amount < minimumAmount || bonded == amount
         }
 
         return false
