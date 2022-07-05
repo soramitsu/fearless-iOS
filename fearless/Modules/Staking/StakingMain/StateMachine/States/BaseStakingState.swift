@@ -134,6 +134,9 @@ class BaseStakingState: StakingStateProtocol {
     func process(totalReward _: TotalRewardItem?) {}
     func process(payee _: RewardDestinationArg?) {}
     func process(delegationInfos _: [ParachainStakingDelegationInfo]?) {}
+    func process(bottomDelegations _: [AccountAddress: ParachainStakingDelegations]?) {}
+    func process(scheduledRequests _: [ParachainStakingScheduledRequest]?) {}
+    func process(roundInfo _: ParachainStakingRoundInfo?) {}
 
     func process(eraCountdown: EraCountdown) {
         commonData = commonData.byReplacing(eraCountdown: eraCountdown)

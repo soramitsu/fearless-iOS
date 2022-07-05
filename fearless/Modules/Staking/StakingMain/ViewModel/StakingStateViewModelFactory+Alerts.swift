@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
 extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
@@ -135,7 +136,8 @@ extension StakingStateViewModelFactory {
 
 //    Parachain
 
-    private func findCollatorLeavingAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
+    private func findCollatorLeavingAlert(state: ParachainState) -> StakingAlert? {
+        let delegations = state.delegationInfos
         if let delegations = delegations, delegations.contains(where: { delegation in
             delegation.collator.metadata?.status == .leaving
         }) {
@@ -144,16 +146,49 @@ extension StakingStateViewModelFactory {
         return nil
     }
 
-    private func findLowStakeAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
-        if let delegations = delegations, delegations.contains(where: { _ in
-            false
-        }) {
+    private func findLowStakeAlert(state: ParachainState) -> StakingAlert? {
+        guard let chainFormat = state.commonData.chainAsset?.chain.chainFormat,
+              let accountId = try? state.commonData.address?.toAccountId(using: chainFormat) else {
+            return nil
+        }
+
+        let delegations = state.bottomDelegations?.values.compactMap(\.delegations).reduce([], +)
+
+        if delegations?.contains(where: { delegation in
+            delegation.owner == accountId
+        }) == true {
             return .collatorLowStake(LocalizableResource { _ in String() })
         }
+
         return nil
     }
 
-    private func findRedeemAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
-        nil
+    private func findRedeemAlert(state: ParachainState) -> StakingAlert? {
+        let requests = state.requests
+        let round = state.round
+        let amount = requests?.filter { request in
+            guard let currentEra = round?.current else {
+                return false
+            }
+
+            return request.whenExecutable <= currentEra
+        }.compactMap { request in
+            var amount = BigUInt.zero
+            if case let .revoke(revokeAmount) = request.action {
+                amount += revokeAmount
+            }
+
+            if case let .decrease(decreaseAmount) = request.action {
+                amount += decreaseAmount
+            }
+
+            return amount
+        }.reduce(BigUInt.zero, +)
+
+        if let amount = amount, amount > BigUInt.zero {
+            return .parachainRedeemUnbonded
+        }
+
+        return nil
     }
 }

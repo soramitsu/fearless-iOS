@@ -10,6 +10,9 @@ final class ParachainState: BaseStakingState {
     }
 
     private(set) var delegationInfos: [ParachainStakingDelegationInfo]?
+    private(set) var bottomDelegations: [AccountAddress: ParachainStakingDelegations]?
+    private(set) var requests: [ParachainStakingScheduledRequest]?
+    private(set) var round: ParachainStakingRoundInfo?
 
     override func accept(visitor: StakingStateVisitorProtocol) {
         visitor.visit(state: self)
@@ -23,6 +26,24 @@ final class ParachainState: BaseStakingState {
     override func process(delegationInfos: [ParachainStakingDelegationInfo]?) {
         self.delegationInfos = delegationInfos
 
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(scheduledRequests: [ParachainStakingScheduledRequest]?) {
+        requests = scheduledRequests
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?) {
+        self.bottomDelegations = bottomDelegations
+
+        stateMachine?.transit(to: self)
+    }
+    
+    override func process(roundInfo: ParachainStakingRoundInfo?) {
+        self.round = roundInfo
+        
         stateMachine?.transit(to: self)
     }
 }
