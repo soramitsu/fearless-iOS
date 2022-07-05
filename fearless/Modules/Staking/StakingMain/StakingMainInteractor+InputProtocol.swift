@@ -133,8 +133,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         if let chainAsset = selectedChainAsset,
            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(for: chainId, accountId: accountId)
-        } else {
-            presenter?.didReceive(delegations: [])
         }
     }
 

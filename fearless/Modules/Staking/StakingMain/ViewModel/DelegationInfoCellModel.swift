@@ -1,28 +1,31 @@
 import SoraFoundation
 
+protocol DelegationInfoCellModelDelegate: AnyObject {
+    func didReceiveMoreAction(delegationInfo: ParachainStakingDelegationInfo)
+    func didReceiveStatusAction()
+}
+
 final class DelegationInfoCellModel {
-    let moreHandler: () -> Void
-    let statusHandler: () -> Void
+    weak var delegate: DelegationInfoCellModelDelegate?
 
     let contentViewModel: LocalizableResource<DelegationViewModelProtocol>
+    let delegationInfo: ParachainStakingDelegationInfo
 
     init(
         contentViewModel: LocalizableResource<DelegationViewModelProtocol>,
-        moreHandler: @escaping () -> Void,
-        statusHandler: @escaping () -> Void
+        delegationInfo: ParachainStakingDelegationInfo
     ) {
         self.contentViewModel = contentViewModel
-        self.moreHandler = moreHandler
-        self.statusHandler = statusHandler
+        self.delegationInfo = delegationInfo
     }
 }
 
 extension DelegationInfoCellModel: StakingStateViewDelegate {
     func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
-        moreHandler()
+        delegate?.didReceiveMoreAction(delegationInfo: delegationInfo)
     }
 
     func stakingStateViewDidReceiveStatusAction(_: StakingStateView) {
-        statusHandler()
+        delegate?.didReceiveStatusAction()
     }
 }

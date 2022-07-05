@@ -333,6 +333,8 @@
 "staking.switch.account.to.stash" = "Для установки контроллер аккаунта смените аккаунт на стэш.";
 "staking.inactive.current.minimal.stake" = "В настоящее время стейкинг неактивен. \nТекущая минимальная ставка %@ .";
 "staking.change.your.validators" = "Смените своих валидаторов.";
+"staking.leaving.collators" = "Один или несколько из Ваших коллейторов прекращают работу";
+"staking.leaving.collators.description" = "Проверьте ваши делегации и отзовите неактивные";
 "staking.bond.more.tokens" = "Застейкайте ещё токенов";
 "staking.redeem.unbonded.tokens" = "Заберите токены после вывода";
 "staking.your.stake" = "Ваш стейк";

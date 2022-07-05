@@ -352,8 +352,17 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
                 DispatchQueue.main.async {
                     do {
-                        let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
-                        self?.presenter?.didReceive(collators: response)
+                        let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+                        let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
+                            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
+                                return nil
+                            }
+                            return ParachainStakingDelegationInfo(
+                                delegation: delegation,
+                                collator: collator
+                            )
+                        }
+                        self?.presenter?.didReceive(delegationInfos: delegationInfos)
                     } catch {
                         self?.logger?.error("handleDelegatorState.error: \(error)")
                     }
@@ -361,7 +370,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
             operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
         } else {
-            presenter?.didReceive(delegations: [])
+            presenter?.didReceive(delegationInfos: nil)
         }
     }
 }

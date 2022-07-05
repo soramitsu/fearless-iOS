@@ -1,10 +1,6 @@
 import UIKit
 import SoraFoundation
 
-protocol DelegationInfoCellDelegate: AnyObject {
-    func manageButtonClicked()
-}
-
 final class DelegationInfoCell: UITableViewCell {
     private lazy var stateView = DelegationStateView()
 

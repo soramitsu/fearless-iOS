@@ -163,37 +163,15 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
         accountId _: AccountId
     ) {
         guard
-            let chainAsset = selectedChainAsset,
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            let chainAsset = selectedChainAsset else {
             return
         }
-
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
-        )
 
         switch result {
         case let .success(delegatorState):
             handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
-
-            DispatchQueue.main.async { [weak self] in
-                self?.presenter?.didReceive(delegations: delegatorState?.delegations)
-            }
         case let .failure(error):
-            logger?.error("StakingMainInteractor.handleDelegatorState.")
+            logger?.error(error.localizedDescription)
         }
     }
 }

@@ -11,6 +11,7 @@ protocol StakingStateVisitorProtocol {
     func visit(state: NominatorState)
     func visit(state: PendingValidatorState)
     func visit(state: ValidatorState)
+    func visit(state: ParachainState)
 }
 
 protocol StakingStateProtocol {
@@ -36,6 +37,7 @@ protocol StakingStateProtocol {
     func process(maxNominatorsCount: UInt32?)
     func process(eraCountdown: EraCountdown)
     func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod))
+    func process(delegationInfos: [ParachainStakingDelegationInfo]?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

@@ -28,6 +28,11 @@ extension StakingStateViewModelFactory {
         []
     }
 
+    func stakingAlertParachainState(_: ParachainState) -> [StakingAlert] {
+        [
+        ]
+    }
+
     private func findRedeemUnbondedAlert(
         commonData: StakingStateCommonData,
         ledgerInfo: StakingLedger
@@ -123,5 +128,29 @@ extension StakingStateViewModelFactory {
             return .waitingNextEra
         }
         return nil
+    }
+
+//    Parachain
+
+    private func findCollatorLeavingAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
+        if let delegations = delegations, delegations.contains(where: { delegation in
+            delegation.collator.metadata?.status == .leaving
+        }) {
+            return .collatorLeaving
+        }
+        return nil
+    }
+
+    private func findLowStakeAlert(delegations: [ParachainStakingDelegations]?) -> StakingAlert? {
+        if let delegations = delegations, delegations.contains(where: { _ in
+            false
+        }) {
+            return .collatorLowStake(LocalizableResource { _ in String() })
+        }
+        return nil
+    }
+
+    private func findRedeemAlert(delegations _: [ParachainStakingDelegations]?) -> StakingAlert? {
+        nil
     }
 }

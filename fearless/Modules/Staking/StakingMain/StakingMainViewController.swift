@@ -390,6 +390,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         validatorView?.bind(viewModel: viewModel)
     }
 
+    private func applyDelegations(viewModels: [DelegationInfoCellModel]?) {
+        delegationViewModels = viewModels
+        delegationViewModels?.forEach { model in
+            model.delegate = self
+        }
+        tableView.reloadData()
+    }
+
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
@@ -476,6 +484,12 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func didReceiveStakingState(viewModel: StakingViewState) {
+        if case .delegations = viewModel {
+            tableView.isHidden = false
+        } else {
+            tableView.isHidden = true
+        }
+
         switch viewModel {
         case .undefined:
             clearStateView()
@@ -490,6 +504,9 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
 //            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .delegations(viewModels: viewModels, alerts: alerts):
+            applyDelegations(viewModels: viewModels)
+            applyAlerts(alerts)
         }
     }
 
@@ -499,13 +516,6 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
     @objc func actionAssetSelection() {
         presenter?.performAssetSelection()
-    }
-
-//    Parachain
-
-    func didReceiveCollatorInfos(viewModels: [DelegationInfoCellModel]) {
-        delegationViewModels = viewModels
-        tableView.reloadData()
     }
 }
 
@@ -576,6 +586,16 @@ extension StakingMainViewController: UICollectionViewDelegate {
 
 // MARK: - StakingStateViewDelegate
 
+extension StakingMainViewController: DelegationInfoCellModelDelegate {
+    func didReceiveMoreAction(delegationInfo: ParachainStakingDelegationInfo) {
+        presenter?.performParachainManageStakingAction(for: delegationInfo)
+    }
+
+    func didReceiveStatusAction() {
+        presenter?.performDelegationStatusAction()
+    }
+}
+
 extension StakingMainViewController: StakingStateViewDelegate {
     func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
         presenter?.performManageStakingAction()
@@ -604,6 +624,8 @@ extension StakingMainViewController: AlertsViewDelegate {
         case .redeemUnbonded:
             presenter?.performRedeemAction()
         case .waitingNextEra:
+            break
+        case .collatorLeaving, .collatorLowStake, .parachainRedeemUnbonded:
             break
         }
     }
