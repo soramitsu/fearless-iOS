@@ -528,7 +528,7 @@ extension ParachainCollatorOperationFactory {
 
     func collatorBottomDelegations(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let topDelegationsWrapper = createTopDelegationsOperation(
+        let topDelegationsWrapper = createBottomDelegationsOperation(
             dependingOn: runtimeOperation,
             accountIdsClosure: accountIdsClosure
         )
