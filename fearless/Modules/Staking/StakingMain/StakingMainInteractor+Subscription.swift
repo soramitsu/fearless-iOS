@@ -177,24 +177,6 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
             logger?.error(error.localizedDescription)
         }
     }
-
-    func handleDelegationScheduledRequests(
-        result: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainId: ChainModel.Id,
-        accountId _: AccountId
-    ) {
-        guard
-            let chainAsset = selectedChainAsset,
-            chainAsset.chain.chainId == chainId else {
-            return
-        }
-        switch result {
-        case let .success(requests):
-            presenter?.didReceiveScheduledRequests(requests: requests)
-        case let .failure(error):
-            logger?.error(error.localizedDescription)
-        }
-    }
 }
 
 extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler,

@@ -619,7 +619,7 @@ extension ParachainCollatorOperationFactory {
         )
 
         let mapOperation = ClosureOperation<[ParachainStakingScheduledRequest]?> {
-            try delegatorStateWrapper.targetOperation.extractNoCancellableResultData().first?.value
+            try delegatorStateWrapper.targetOperation.extractNoCancellableResultData().compactMap(\.value).reduce([], +)
         }
 
         mapOperation.addDependency(delegatorStateWrapper.targetOperation)

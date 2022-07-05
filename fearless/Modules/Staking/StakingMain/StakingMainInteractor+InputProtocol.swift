@@ -64,11 +64,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 for: chainId,
                 accountId: accountId
             )
-
-            delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(
-                for: chainAsset.chain.chainId,
-                accountId: accountId
-            )
         }
 
         fetchParachainInfo()
@@ -149,20 +144,25 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 for: chainId,
                 accountId: accountId
             )
-
-            delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(
-                for: chainAsset.chain.chainId,
-                accountId: accountId
-            )
         }
 
         fetchParachainInfo()
     }
 
     func fetchBottomDelegations(accountIds: [AccountId]) {
-        let accountIdsClosure = {
+        let accountIdsClosure = { [accountIds] in
             accountIds
         }
+
+        let delegationScheduledRequests = collatorOperationFactory.delegationScheduledRequests(accountIdsClosure: accountIdsClosure)
+
+        delegationScheduledRequests.targetOperation.completionBlock = { [weak self] in
+            let requests = try? delegationScheduledRequests.targetOperation.extractNoCancellableResultData()
+            DispatchQueue.main.async {
+                self?.presenter?.didReceiveScheduledRequests(requests: requests)
+            }
+        }
+
         let bottomDelegationsOperation = collatorOperationFactory.collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
 
         bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
@@ -171,6 +171,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
             }
         }
+
+        operationManager.enqueue(operations: delegationScheduledRequests.allOperations + bottomDelegationsOperation.allOperations, in: .transient)
     }
 
     private func fetchParachainInfo() {
@@ -221,11 +223,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         if let chainAsset = selectedChainAsset,
            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset.chain.chainId,
-                accountId: accountId
-            )
-
-            delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(
                 for: chainAsset.chain.chainId,
                 accountId: accountId
             )

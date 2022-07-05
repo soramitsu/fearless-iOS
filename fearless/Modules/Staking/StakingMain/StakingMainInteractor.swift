@@ -59,7 +59,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
-    var delegationScheduledRequestsProvider: AnyDataProvider<DecodedParachainScheduledRequests>?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
