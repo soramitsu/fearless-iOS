@@ -176,10 +176,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     private func fetchParachainInfo() {
         let roundOperation = collatorOperationFactory.round()
         let currentBlockOperation = collatorOperationFactory.currentBlock()
-        
+
         currentBlockOperation.targetOperation.completionBlock = { [weak self] in
             let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
-            
+
             if let block = currentBlock, let currentBlockvalue = UInt32(block) {
                 DispatchQueue.main.async {
                     self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)

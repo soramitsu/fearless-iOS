@@ -22,6 +22,7 @@ protocol ManageAssetsInteractorInputProtocol: AnyObject {
     func markUnused(chain: ChainModel)
     func saveAllChanges()
     func saveFilter(_ options: [FilterOption])
+    func saveChainIdForFilter(_ chainId: ChainModel.Id?)
 }
 
 protocol ManageAssetsInteractorOutputProtocol: AnyObject {

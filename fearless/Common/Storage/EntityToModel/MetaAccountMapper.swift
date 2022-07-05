@@ -61,7 +61,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             assetFilterOptions: assetFilterOptions?.compactMap { FilterOption(rawValue: $0) } ?? [],
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
-            selectedCurrency: selectedCurrency ?? Currency.defaultCurrency()
+            selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
+            chainIdForFilter: entity.chainIdForFilter
         )
     }
 
@@ -83,6 +84,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray
         entity.assetFilterOptions = assetFilterOptions
+        entity.chainIdForFilter = model.chainIdForFilter
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {

@@ -1962,6 +1962,7 @@
 		FA6DB7C82757C9B000233FBA /* ChainAccountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */; };
 		FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */; };
 		FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */; };
+		FA76D1AB2874856600AB43F5 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA76D1A32874856600AB43F5 /* UserDataModel.xcdatamodeld */; };
 		FA851FF127917494004F5979 /* WalletTransactionDetailsViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */; };
 		FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */; };
 		FA86441D2767194B00956D8E /* WalletTransactionHistoryCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */; };
@@ -2004,7 +2005,6 @@
 		FA936BF52872E37E0059B97A /* AddressTestConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA936BF42872E37D0059B97A /* AddressTestConstants.swift */; };
 		FA936BFB2872E3940059B97A /* validEthereumKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = FA936BFA2872E3940059B97A /* validEthereumKeystore.json */; };
 		FA936BFD2872E3A20059B97A /* westend-metadata-v14 in Resources */ = {isa = PBXBuildFile; fileRef = FA936BFC2872E3A20059B97A /* westend-metadata-v14 */; };
-		FA936C052873079C0059B97A /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA936BFE2873079C0059B97A /* UserDataModel.xcdatamodeld */; };
 		FA93A2D32832325C0021330F /* CustomValidatorListFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D22832325C0021330F /* CustomValidatorListFlow.swift */; };
 		FA93A2D728323CB90021330F /* CustomValidatorListParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D628323CB90021330F /* CustomValidatorListParachainViewModelState.swift */; };
 		FA93A2D928323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A2D828323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift */; };
@@ -4147,6 +4147,13 @@
 		FA6DB7C12757C9AF00233FBA /* ChainAccountInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountInteractor.swift; sourceTree = "<group>"; };
 		FA6DB7C22757C9AF00233FBA /* ChainAccountProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountProtocols.swift; sourceTree = "<group>"; };
 		FA7154C3286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartTextsViewModel.swift; sourceTree = "<group>"; };
+		FA76D1A42874856600AB43F5 /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1A52874856600AB43F5 /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1A62874856600AB43F5 /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1A72874856600AB43F5 /* MultiassetUserDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1A82874856600AB43F5 /* MultiassetUserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1A92874856600AB43F5 /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		FA76D1AA2874856600AB43F5 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewState.swift; sourceTree = "<group>"; };
 		FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactiveBondAlertConfig.swift; sourceTree = "<group>"; };
 		FA86441C2767194B00956D8E /* WalletTransactionHistoryCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionHistoryCell.swift; sourceTree = "<group>"; };
@@ -4190,12 +4197,6 @@
 		FA936BF42872E37D0059B97A /* AddressTestConstants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressTestConstants.swift; sourceTree = "<group>"; };
 		FA936BFA2872E3940059B97A /* validEthereumKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEthereumKeystore.json; sourceTree = "<group>"; };
 		FA936BFC2872E3A20059B97A /* westend-metadata-v14 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "westend-metadata-v14"; sourceTree = "<group>"; };
-		FA936BFF2873079C0059B97A /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
-		FA936C002873079C0059B97A /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA936C012873079C0059B97A /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		FA936C022873079C0059B97A /* MultiassetUserDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
-		FA936C032873079C0059B97A /* MultiassetUserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA936C042873079C0059B97A /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		FA93A2D22832325C0021330F /* CustomValidatorListFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListFlow.swift; sourceTree = "<group>"; };
 		FA93A2D628323CB90021330F /* CustomValidatorListParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListParachainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A2D828323CC40021330F /* CustomValidatorListParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -6174,7 +6175,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				FA936BFE2873079C0059B97A /* UserDataModel.xcdatamodeld */,
+				FA76D1A32874856600AB43F5 /* UserDataModel.xcdatamodeld */,
 				FA2569A7274CE70700875A53 /* SubstrateDataModel.xcdatamodeld */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
 				84CEAAEB26D6D91A0021B881 /* MigrationMappings */,
@@ -12068,7 +12069,6 @@
 				FA93A2E42833B0520021330F /* RecommendedValidatorListFlow.swift in Sources */,
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				84FD3DB32540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift in Sources */,
-				FA936C052873079C0059B97A /* UserDataModel.xcdatamodeld in Sources */,
 				C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */,
 				84786E1525FA57B90089DFF7 /* StakingLedger.swift in Sources */,
 				8497FC6026317783002FEAA7 /* AccountInfoViewModel.swift in Sources */,
@@ -12138,6 +12138,7 @@
 				FAD646D0284F104B007CCB92 /* StakingBondMoreConfirmationRelaychainStrategy.swift in Sources */,
 				84CA68DD26BEA60A003B9453 /* ConnectionFactory.swift in Sources */,
 				FA37AE232859A985001DCA96 /* StakingBondMoreParachainStrategy.swift in Sources */,
+				FA76D1AB2874856600AB43F5 /* UserDataModel.xcdatamodeld in Sources */,
 				F40966B626B297D6008CD244 /* AnalyticsRewardsPresenter.swift in Sources */,
 				84DF21AD25363D28005454AE /* WalletAssetId+Chain.swift in Sources */,
 				848EAEB82659859600676CEA /* CrowdloansViewModelFactory.swift in Sources */,
@@ -13965,17 +13966,18 @@
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
-		FA936BFE2873079C0059B97A /* UserDataModel.xcdatamodeld */ = {
+		FA76D1A32874856600AB43F5 /* UserDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA936BFF2873079C0059B97A /* MultiassetUserDataModel_v4.xcdatamodel */,
-				FA936C002873079C0059B97A /* UserDataModel.xcdatamodel */,
-				FA936C012873079C0059B97A /* MultiassetUserDataModel_v2.xcdatamodel */,
-				FA936C022873079C0059B97A /* MultiassetUserDataModel_v5.xcdatamodel */,
-				FA936C032873079C0059B97A /* MultiassetUserDataModel.xcdatamodel */,
-				FA936C042873079C0059B97A /* MultiassetUserDataModel_v3.xcdatamodel */,
+				FA76D1A42874856600AB43F5 /* MultiassetUserDataModel_v4.xcdatamodel */,
+				FA76D1A52874856600AB43F5 /* UserDataModel.xcdatamodel */,
+				FA76D1A62874856600AB43F5 /* MultiassetUserDataModel_v2.xcdatamodel */,
+				FA76D1A72874856600AB43F5 /* MultiassetUserDataModel_v5.xcdatamodel */,
+				FA76D1A82874856600AB43F5 /* MultiassetUserDataModel.xcdatamodel */,
+				FA76D1A92874856600AB43F5 /* MultiassetUserDataModel_v3.xcdatamodel */,
+				FA76D1AA2874856600AB43F5 /* MultiassetUserDataModel_v6.xcdatamodel */,
 			);
-			currentVersion = FA936C022873079C0059B97A /* MultiassetUserDataModel_v5.xcdatamodel */;
+			currentVersion = FA76D1AA2874856600AB43F5 /* MultiassetUserDataModel_v6.xcdatamodel */;
 			path = UserDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

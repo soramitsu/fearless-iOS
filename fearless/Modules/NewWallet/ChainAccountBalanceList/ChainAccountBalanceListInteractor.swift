@@ -244,6 +244,7 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
             presenter?.didRecieveSelectedCurrency(currency)
             presenter?.didReceiveChains(result: .success(chains))
+            refresh()
         }
     }
 
