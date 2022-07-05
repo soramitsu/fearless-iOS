@@ -354,7 +354,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             types = nil
         }
 
-        let options = entity.options as? [String] ?? []
+        let options = entity.options as? [String]
 
         let externalApiSet = createExternalApi(from: entity)
 
@@ -366,7 +366,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,
-            options: options.compactMap { ChainOptions(rawValue: $0) },
+            options: options?.compactMap { ChainOptions(rawValue: $0) },
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: customNodesSet,
