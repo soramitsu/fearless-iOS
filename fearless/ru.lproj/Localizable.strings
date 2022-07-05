@@ -275,7 +275,7 @@
 "common.module" = "Модуль";
 "wallet.asset.buy.with" = "Купить %s с";
 "wallet.filters.title" = "Фильтры";
-"common.apply" = "Применять";
+"common.apply" = "Применить";
 "common.reset" = "Сброс";
 "wallet.filters.transfers" = "Переводы";
 "wallet.filters.rewards.and.slashes" = "Вознаграждения и слэши";
