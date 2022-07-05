@@ -11,7 +11,8 @@ protocol ManageAssetsViewModelFactoryProtocol {
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
         locale: Locale?,
-        filterOptions: [FilterOption]
+        filterOptions: [FilterOption],
+        chainIdForFilter: String?
     ) -> ManageAssetsViewModel
 }
 
@@ -127,13 +128,16 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
         locale: Locale?,
-        filterOptions: [FilterOption]
+        filterOptions: [FilterOption],
+        chainIdForFilter: String?
     ) -> ManageAssetsViewModel {
-        var chainAssets = chains.map { chain in
-            chain.assets.compactMap { asset in
-                ChainAsset(chain: chain, asset: asset.asset)
-            }
-        }.reduce([], +)
+        var chainAssets = chains
+            .filter { $0.chainId == chainIdForFilter || chainIdForFilter == nil }
+            .map { chain in
+                chain.assets.compactMap { asset in
+                    ChainAsset(chain: chain, asset: asset.asset)
+                }
+            }.reduce([], +)
 
         if let filter = filter?.lowercased(), !filter.isEmpty {
             chainAssets = chainAssets.filter {
@@ -236,7 +240,10 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             || selectedMetaAccount.assetKeysOrder != sortedKeys
             || selectedMetaAccount.assetFilterOptions != filterOptions
 
-        let selectedChain = createSelectedChainModel(from: chains, locale: locale)
+        let selectedChain = createSelectedChainModel(
+            from: chains.filter { $0.chainId == chainIdForFilter || chainIdForFilter == nil },
+            locale: locale
+        )
 
         return ManageAssetsViewModel(
             sections: [missingSection, normalSection],

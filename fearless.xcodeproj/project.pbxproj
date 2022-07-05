@@ -2029,6 +2029,7 @@
 		06B4E294F237E21F1553091D /* ChainAccountBalanceListInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListInteractor.swift; sourceTree = "<group>"; };
 		07493C78286EA400007C7C23 /* SnapKit.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SnapKit.swift; sourceTree = "<group>"; };
 		07493C7A286EA400007C7C23 /* Optional.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Optional.swift; sourceTree = "<group>"; };
+		07493C80287425FD007C7C23 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		07859814284DDFBB002ECC5E /* Collection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Collection.swift; sourceTree = "<group>"; };
 		07859816284DE795002ECC5E /* ExistentialDepositCurrencyId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistentialDepositCurrencyId.swift; sourceTree = "<group>"; };
@@ -12996,6 +12997,7 @@
 		07A93B0828238627005A1E0D /* UserDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				07493C80287425FD007C7C23 /* MultiassetUserDataModel_v6.xcdatamodel */,
 				07DC822B2849C2ED006B5F6D /* MultiassetUserDataModel_v5.xcdatamodel */,
 				07A93B0928238627005A1E0D /* MultiassetUserDataModel_v4.xcdatamodel */,
 				07A93B0A28238627005A1E0D /* UserDataModel.xcdatamodel */,
@@ -13003,7 +13005,7 @@
 				07A93B0C28238627005A1E0D /* MultiassetUserDataModel.xcdatamodel */,
 				07A93B0D28238627005A1E0D /* MultiassetUserDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = 07DC822B2849C2ED006B5F6D /* MultiassetUserDataModel_v5.xcdatamodel */;
+			currentVersion = 07493C80287425FD007C7C23 /* MultiassetUserDataModel_v6.xcdatamodel */;
 			name = UserDataModel.xcdatamodeld;
 			path = ../UserDataModel.xcdatamodeld;
 			sourceTree = "<group>";
