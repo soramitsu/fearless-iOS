@@ -177,12 +177,14 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         balanceView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         balanceView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
+            make.size.greaterThanOrEqualTo(LayoutConstants.balanceRowSize)
         }
 
         contentStackView.addArrangedSubview(priceView)
         priceView.setContentHuggingPriority(.defaultLow, for: .vertical)
         priceView.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
+            make.size.greaterThanOrEqualTo(LayoutConstants.priceRowSize)
         }
 
         chainInfoView.addSubview(chainNameLabel)

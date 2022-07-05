@@ -243,9 +243,7 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
             currency = event.account.selectedCurrency
             presenter?.didReceiveSelectedAccount(selectedMetaAccount)
             presenter?.didRecieveSelectedCurrency(currency)
-            pricesProvider = nil
-            fetchChainsAndSubscribeBalance()
-            refresh()
+            presenter?.didReceiveChains(result: .success(chains))
         }
     }
 
