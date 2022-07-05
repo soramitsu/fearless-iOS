@@ -132,12 +132,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         chainIdForFilter: String?
     ) -> ManageAssetsViewModel {
         var chainAssets = chains
-            .filter {
-                if let chainIdForFilter = chainIdForFilter {
-                    return $0.chainId == chainIdForFilter
-                }
-                return true
-            }
+            .filter { $0.chainId == chainIdForFilter || chainIdForFilter == nil }
             .map { chain in
                 chain.assets.compactMap { asset in
                     ChainAsset(chain: chain, asset: asset.asset)
@@ -246,13 +241,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             || selectedMetaAccount.assetFilterOptions != filterOptions
 
         let selectedChain = createSelectedChainModel(
-            from: chains
-                .filter {
-                    if let chainIdForFilter = chainIdForFilter {
-                        return $0.chainId == chainIdForFilter
-                    }
-                    return true
-                },
+            from: chains.filter { $0.chainId == chainIdForFilter || chainIdForFilter == nil },
             locale: locale
         )
 
