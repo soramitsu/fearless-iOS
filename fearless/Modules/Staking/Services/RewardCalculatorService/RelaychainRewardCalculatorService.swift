@@ -27,7 +27,7 @@ final class RewardCalculatorService {
     private var totalIssuanceDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
 
-    let chainId: ChainModel.Id
+    let chainAsset: ChainAsset
     let assetPrecision: Int16
     let eraValidatorsService: EraValidatorServiceProtocol
     let logger: LoggerProtocol?
@@ -38,7 +38,7 @@ final class RewardCalculatorService {
     let stakingDurationFactory: StakingDurationOperationFactoryProtocol
 
     init(
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         assetPrecision: Int16,
         eraValidatorsService: EraValidatorServiceProtocol,
         operationManager: OperationManagerProtocol,
@@ -48,7 +48,7 @@ final class RewardCalculatorService {
         storageFacade: StorageFacadeProtocol,
         logger: LoggerProtocol? = nil
     ) {
-        self.chainId = chainId
+        self.chainAsset = chainAsset
         self.assetPrecision = assetPrecision
         self.storageFacade = storageFacade
         self.providerFactory = providerFactory
@@ -68,7 +68,7 @@ final class RewardCalculatorService {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
-            deliver(snapshot: snapshot, to: request, chainId: chainId, assetPrecision: assetPrecision)
+            deliver(snapshot: snapshot, to: request, chainId: chainAsset.chain.chainId, assetPrecision: assetPrecision)
         } else {
             pendingRequests.append(request)
         }
@@ -86,7 +86,7 @@ final class RewardCalculatorService {
 
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
-        let mapOperation = ClosureOperation<RewardCalculatorEngine> {
+        let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> {
             let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
             let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
 
@@ -135,7 +135,7 @@ final class RewardCalculatorService {
             deliver(
                 snapshot: totalIssuance,
                 to: $0,
-                chainId: chainId,
+                chainId: chainAsset.chain.chainId,
                 assetPrecision: assetPrecision
             )
         }
@@ -195,7 +195,7 @@ final class RewardCalculatorService {
         do {
             let localKey = try LocalStorageKeyFactory().createFromStoragePath(
                 .totalIssuance,
-                chainId: chainId
+                chainId: chainAsset.chain.chainId
             )
 
             let totalIssuanceDataProvider = providerFactory.createStorageProvider(for: localKey)
@@ -270,7 +270,7 @@ extension RewardCalculatorService: RewardCalculatorServiceProtocol {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCalculator.\(self.chainId)", qos: .utility)
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCalculator.\(self.chainAsset.chain.chainId)", qos: .utility)
 
             self.syncQueue.async {
                 self.fetchInfoFactory(runCompletionIn: queue) { [weak semaphore] info in

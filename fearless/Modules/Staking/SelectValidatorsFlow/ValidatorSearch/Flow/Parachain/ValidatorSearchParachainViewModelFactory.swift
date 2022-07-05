@@ -29,14 +29,13 @@ final class ValidatorSearchParachainViewModelFactory {
         selectedValidatorList: [ParachainStakingCandidateInfo],
         locale: Locale
     ) -> [ValidatorSearchCellViewModel] {
-        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+        let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
         return displayValidatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
-            // TODO: Real stake return value
             let detailsText = apyFormatter.string(
-                from: 0 as NSNumber
+                from: (validator.subqueryData?.apr ?? 0.0) as NSNumber
             )
 
             // TODO: Real oversubscribed and hasSlashes value

@@ -15,7 +15,7 @@ class RecommendedValidatorListParachainViewModelFactory {
         LocalizableResource { locale in
             guard let stakeReturn = stakeReturn else { return "" }
 
-            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+            let percentageFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
             return percentageFormatter.string(from: stakeReturn as NSNumber) ?? ""
         }
@@ -43,8 +43,8 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                 let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
-                // TODO: stake return real value
-                let details = createStakeReturnString(from: Decimal.zero)
+                let aprDecimal = Decimal(collator.subqueryData?.apr ?? 0)
+                let details = createStakeReturnString(from: aprDecimal)
 
                 return LocalizableResource { locale in
                     RecommendedValidatorViewModel(

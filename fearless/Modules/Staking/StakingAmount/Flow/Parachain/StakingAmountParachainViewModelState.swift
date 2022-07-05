@@ -25,6 +25,8 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         self.amount = amount
     }
 
+    var payoutAccount: ChainAccountResponse? { nil }
+
     var bonding: InitiatedBonding? {
         guard let amount = amount, let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil

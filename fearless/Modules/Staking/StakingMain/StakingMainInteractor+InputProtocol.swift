@@ -85,10 +85,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             self?.updateAfterChainAssetSave()
             self?.updateAfterSelectedAccountChange()
         }
-//
-//        if chainAsset.chain.isEthereumBased {
-//            fetchDelegations(accountId: wallet.accountId, chainAsset: chainAsset)
-//        }
     }
 
     private func updateAfterChainAssetSave() {
@@ -96,8 +92,15 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
-        // TODO: replace isEthereumBased with real relaychain/parachain parameter
-        eraInfoOperationFactory = newSelectedChainAsset.chain.isEthereumBased ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
+        switch newSelectedChainAsset.stakingType {
+        case .relayChain:
+            eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
+        case .paraChain:
+            eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
+
+        case .none:
+            break
+        }
 
         selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
 
@@ -156,6 +159,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideSelectedAccount()
 
         performStashControllerSubscription()
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset.chain.chainId, accountId: accountId)
+        } else {
+            presenter?.didReceive(delegations: [])
+        }
     }
 }
 

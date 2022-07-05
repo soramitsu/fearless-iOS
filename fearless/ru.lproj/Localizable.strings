@@ -718,3 +718,5 @@ and depending on the network state, may not be selected to participate";
 "parachain.staking.filters.delegations" = "Delegations";
 "parachain.staking.filters.minimum.bond" = "Minimum bond";
 "staking.your.collator.title" = "Ваш коллатор";
+"custom.collators.title" = "Stake with known collators";
+"custom.collators.text" = "You should trust your collators to act competently and honest; basing your decision purely on their current profitability could lead to reduced profits or even loss of funds.";

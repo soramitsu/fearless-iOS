@@ -19,13 +19,13 @@ protocol StakingRemoteSubscriptionServiceProtocol {
 final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
     StakingRemoteSubscriptionServiceProtocol {
     private static let globalDataStoragePaths: [StorageCodingPath] = [
-        .activeEra,
-        .currentEra,
+        //        .activeEra,
+//        .currentEra,
         .totalIssuance,
-        .historyDepth,
-        .minNominatorBond,
-        .maxNominatorsCount,
-        .counterForNominators
+//        .historyDepth,
+//        .minNominatorBond,
+//        .maxNominatorsCount,
+//        .counterForNominators
     ]
 
     private static func globalDataParamsCacheKey(for chainId: ChainModel.Id) throws -> String {

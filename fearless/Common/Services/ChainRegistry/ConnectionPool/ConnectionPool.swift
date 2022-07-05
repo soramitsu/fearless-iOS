@@ -90,7 +90,7 @@ extension ConnectionPool: WebSocketEngineDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
-                delegate?.connectionNeedsReconnect(url: previousUrl)
+//                delegate?.connectionNeedsReconnect(url: previousUrl)
             }
         case .connected:
             break

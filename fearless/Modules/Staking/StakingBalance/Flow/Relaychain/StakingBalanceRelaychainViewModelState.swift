@@ -39,7 +39,7 @@ final class StakingBalanceRelaychainViewModelState {
             dataValidatingFactory.has(
                 stash: stashAccount,
                 for: stashItem?.stash ?? "",
-                locale: locale ?? Locale.current
+                locale: locale
             )
         ]
     }
@@ -64,7 +64,17 @@ final class StakingBalanceRelaychainViewModelState {
             dataValidatingFactory.has(
                 controller: controllerAccount,
                 for: stashItem?.controller ?? "",
-                locale: locale ?? Locale.current
+                locale: locale
+            )
+        ]
+    }
+
+    func unbondingMoreValidators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
             )
         ]
     }
@@ -79,6 +89,10 @@ final class StakingBalanceRelaychainViewModelState {
 
     var revokeFlow: StakingRedeemFlow? {
         .relaychain
+    }
+
+    var rebondCases: [StakingRebondOption]? {
+        StakingRebondOption.allCases
     }
 
     deinit {

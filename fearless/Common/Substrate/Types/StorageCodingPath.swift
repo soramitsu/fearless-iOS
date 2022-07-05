@@ -173,4 +173,16 @@ extension StorageCodingPath {
     static var delegationScheduledRequests: StorageCodingPath {
         StorageCodingPath(moduleName: "ParachainStaking", itemName: "DelegationScheduledRequests")
     }
+
+    static var collatorCommission: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CollatorCommission")
+    }
+
+    static var bottomDelegations: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "BottomDelegations")
+    }
+
+    static var staked: StorageCodingPath {
+        StorageCodingPath(moduleName: "ParachainStaking", itemName: "Staked")
+    }
 }

@@ -24,7 +24,9 @@ protocol StakingBalanceViewModelState: StakingBalanceUserInputHandler {
     func stakeMoreValidators(using locale: Locale) -> [DataValidating]
     func stakeLessValidators(using locale: Locale) -> [DataValidating]
     func revokeValidators(using locale: Locale) -> [DataValidating]
+    func unbondingMoreValidators(using locale: Locale) -> [DataValidating]
 
+    var rebondCases: [StakingRebondOption]? { get }
     var bondMoreFlow: StakingBondMoreFlow? { get }
     var unbondFlow: StakingUnbondSetupFlow? { get }
     var revokeFlow: StakingRedeemFlow? { get }

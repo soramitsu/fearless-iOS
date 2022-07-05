@@ -13,6 +13,7 @@ protocol SelectValidatorsConfirmPresenterProtocol: AnyObject {
     func setup()
     func selectWalletAccount()
     func selectPayoutAccount()
+    func selectCollatorAccount()
     func proceed()
 }
 

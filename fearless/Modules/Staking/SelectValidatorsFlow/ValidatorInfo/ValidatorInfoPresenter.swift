@@ -96,28 +96,30 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentAccountOptions() {
-        // TODO: Transition with new parameters
-//        if let view = view, let validatorInfo = try? validatorInfoResult?.get() {
-//            wireframe.presentAccountOptions(
-//                from: view,
-//                address: validatorInfo.address,
-//                chain: chain,
-//                locale: selectedLocale
-//            )
-//        }
+        if let view = view, let address = viewModelState.validatorAddress {
+            wireframe.presentAccountOptions(
+                from: view,
+                address: address,
+                chain: chainAsset.chain,
+                locale: selectedLocale
+            )
+        }
     }
 
     func presentTotalStake() {
-        // TODO: Transition with new parameters
+        let priceData = try? priceDataResult?.get()
 
-//        guard let validatorInfo = try? validatorInfoResult?.get() else { return }
-//
-//        let priceData = try? priceDataResult?.get()
-//
-//        wireframe.showStakingAmounts(
-//            from: view,
-//            items: viewModelFactory.buildStakingAmountViewModels(viewModelState: viewModelState, priceData: priceData)
-//        )
+        guard let viewModel = viewModelFactory.buildStakingAmountViewModels(
+            viewModelState: viewModelState,
+            priceData: priceData
+        ) else {
+            return
+        }
+
+        wireframe.showStakingAmounts(
+            from: view,
+            items: viewModel
+        )
     }
 
     func presentIdentityItem(_ value: ValidatorInfoViewModel.IdentityItemValue) {

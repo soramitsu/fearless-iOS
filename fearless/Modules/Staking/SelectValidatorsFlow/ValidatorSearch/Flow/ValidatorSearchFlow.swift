@@ -37,6 +37,8 @@ protocol ValidatorSearchViewModelState: ValidatorSearchUserInputHandler {
     func reset()
 
     var searchString: String { get set }
+
+    func validatorInfoFlow(index: Int) -> ValidatorInfoFlow?
 }
 
 struct ValidatorSearchDependencyContainer {

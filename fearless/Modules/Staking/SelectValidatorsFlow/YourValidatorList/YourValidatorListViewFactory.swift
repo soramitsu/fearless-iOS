@@ -97,10 +97,22 @@ struct YourValidatorListViewFactory {
             for: chain
         )
 
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: chain.chainId,
+            for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         )
 
         defer {

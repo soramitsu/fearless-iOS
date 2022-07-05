@@ -107,15 +107,17 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
 
     // MARK: - Presenting actions
 
-    func didSelectValidator(at _: Int) {
-        // TODO: Transition with new parameters
-//        let selectedValidator = filteredValidatorList[index]
-//        wireframe.present(
-//            selectedValidator,
-//            asset: asset,
-//            chain: chain,
-//            from: view
-//        )
+    func didSelectValidator(at index: Int) {
+        guard let flow = viewModelState.validatorInfoFlow(index: index) else {
+            return
+        }
+
+        wireframe.present(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
     }
 
     func applyChanges() {

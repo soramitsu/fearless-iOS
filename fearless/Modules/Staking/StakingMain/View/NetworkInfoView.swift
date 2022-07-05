@@ -25,7 +25,6 @@ final class NetworkInfoView: UIView {
     @IBOutlet var titleControl: ActionTitleControl!
     @IBOutlet var collectionView: UICollectionView!
     @IBOutlet var contentTop: NSLayoutConstraint!
-    @IBOutlet var contentHeight: NSLayoutConstraint!
 
     weak var delegate: NetworkInfoViewDelegate?
 
@@ -195,11 +194,11 @@ final class NetworkInfoView: UIView {
 
     private func applyExpansionState() {
         if expanded {
-//            contentTop.constant = 0.0
+            contentTop.constant = 0.0
             networkInfoContainer.alpha = 1.0
             delegate?.didChangeExpansion(isExpanded: true, view: self)
         } else {
-//            contentTop.constant = -contentHeight.constant
+            contentTop.constant = -networkInfoContainer.frame.size.height
             networkInfoContainer.alpha = 0.0
             delegate?.didChangeExpansion(isExpanded: false, view: self)
         }
@@ -242,7 +241,7 @@ final class NetworkInfoView: UIView {
 
     private func setupSkeleton() {
         let spaceSize = networkInfoContainer.frame.size
-
+        print("SETUP SKELETON: \(spaceSize)")
         let skeletonView = Skrull(
             size: networkInfoContainer.frame.size,
             decorations: [],
@@ -264,56 +263,49 @@ final class NetworkInfoView: UIView {
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
         let bigRowSize = CGSize(width: 72.0, height: 12.0)
         let smallRowSize = CGSize(width: 57.0, height: 6.0)
-        let topInset: CGFloat = 7.0
+        let rowOffset: CGFloat = 4.0
         let verticalSpacing: CGFloat = 10.0
 
         return [
             SingleSkeleton.createRow(
+                inPlaceOf: totalStakeView.titleLabel,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
+                size: smallRowSize
+            ),
+            SingleSkeleton.createRow(
                 under: totalStakeView.titleLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
+                offset: CGPoint(x: 0, y: rowOffset),
                 size: bigRowSize
             ),
-
             SingleSkeleton.createRow(
-                under: totalStakeView.valueLabel,
+                under: totalStakeView.titleLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                offset: CGPoint(x: 0, y: bigRowSize.height + verticalSpacing + rowOffset),
                 size: smallRowSize
             ),
-
             SingleSkeleton.createRow(
-                under: minimumStakeView.titleLabel,
+                inPlaceOf: minimumStakeView.titleLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize
+                size: smallRowSize
             ),
-
             SingleSkeleton.createRow(
                 under: minimumStakeView.valueLabel,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                offset: CGPoint(x: 0, y: rowOffset),
+                size: bigRowSize
+            ),
+            SingleSkeleton.createRow(
+                under: minimumStakeView.valueLabel,
+                containerView: networkInfoContainer,
+                spaceSize: spaceSize,
+                offset: CGPoint(x: 0, y: bigRowSize.height + verticalSpacing + rowOffset),
                 size: smallRowSize
-            ),
-
-            SingleSkeleton.createRow(
-                under: activeNominatorsView,
-                containerView: networkInfoContainer,
-                spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize
-            ),
-
-            SingleSkeleton.createRow(
-                under: unstakingPeriodView,
-                containerView: networkInfoContainer,
-                spaceSize: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize
             )
         ]
     }

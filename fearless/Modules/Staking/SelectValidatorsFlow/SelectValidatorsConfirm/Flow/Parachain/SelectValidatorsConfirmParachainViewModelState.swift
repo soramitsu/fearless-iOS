@@ -40,6 +40,14 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         self.dataValidatingFactory = dataValidatingFactory
     }
 
+    var walletAccountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    }
+
+    var collatorAddress: String? {
+        target.address
+    }
+
     func validators(using locale: Locale) -> [DataValidating] {
         let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
 

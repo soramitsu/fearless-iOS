@@ -37,6 +37,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
     let logger: LoggerProtocol?
+    let collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
@@ -74,7 +75,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        collatorOperationFactory: ParachainCollatorOperationFactory
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.sharedState = sharedState
@@ -91,6 +93,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
         self.logger = logger
+        self.collatorOperationFactory = collatorOperationFactory
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 
@@ -115,9 +118,36 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func updateSharedState() {
-        guard let chainAsset = selectedChainAsset else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let chainAsset = selectedChainAsset,
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
             return
         }
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let subqueryOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: subqueryOperationFactory
+        )
 
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
@@ -125,9 +155,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             )
 
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
-                for: chainAsset.chain.chainId,
+                for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService
+                validatorService: eraValidatorService,
+                collatorOperationFactory: collatorOperationFactory
             )
 
             sharedState.eraValidatorService.throttle()
@@ -335,13 +366,18 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
+        let subqueryOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
             engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: subqueryOperationFactory
         )
 
         if let state = delegatorState {

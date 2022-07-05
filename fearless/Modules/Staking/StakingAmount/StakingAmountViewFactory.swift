@@ -255,6 +255,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         selectedAccount: MetaAccountModel,
         strategy: StakingAmountStrategy?
     ) -> StakingAmountInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
         let serviceFactory = StakingServiceFactory(
@@ -270,15 +278,30 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
-            for: chain.chainId,
+            for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }
-
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),

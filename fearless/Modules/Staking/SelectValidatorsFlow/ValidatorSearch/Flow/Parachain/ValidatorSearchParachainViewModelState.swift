@@ -47,17 +47,22 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
     func performSearch() {
         let nameSearchString = searchString.lowercased()
 
-        // TODO: Sort by stake return
         filteredValidatorList = fullValidatorList.filter {
             ($0.identity?.displayName.lowercased()
                 .contains(nameSearchString) ?? false) ||
                 $0.address.hasPrefix(searchString)
         }
-//        .sorted(by: {
-//            $0.stakeReturn > $1.stakeReturn
-//        })
+        .sorted(by: {
+            $0.subqueryData?.apr ?? 0.0 > $1.subqueryData?.apr ?? 0.0
+        })
 
         stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func validatorInfoFlow(index: Int) -> ValidatorInfoFlow? {
+        let collator = filteredValidatorList[index]
+
+        return .parachain(candidate: collator)
     }
 
     func changeValidatorSelection(at index: Int) {

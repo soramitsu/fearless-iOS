@@ -69,6 +69,12 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         interactor.setup()
 
         viewModelState.setStateListener(self)
+
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let textsViewModel = viewModelFactory.buildTextsViewModel(locale: locale) {
+            view?.didReceive(textsViewModel: textsViewModel)
+        }
     }
 
     func updateOnAppearance() {

@@ -16,6 +16,8 @@ protocol ValidatorInfoViewModelState: ValidatorInfoUserInputHandler {
     var stateListener: ValidatorInfoModelStateListener? { get set }
 
     func setStateListener(_ stateListener: ValidatorInfoModelStateListener?)
+
+    var validatorAddress: String? { get }
 }
 
 struct ValidatorInfoDependencyContainer {

@@ -335,6 +335,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         rewardAccountView.iconImage = icon
         rewardAccountView.subtitle = localizableViewModel.accountViewModel.name
         rewardAccountView.title = localizableViewModel.accountViewModel.title
+        rewardAccountView.actionImage = nil
     }
 
     private func applyPayoutAddress(_ icon: DrawableIcon?, title: String) {

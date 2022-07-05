@@ -7,6 +7,7 @@ struct ParachainStakingCandidateInfo: Equatable {
     let amount: AmountDecimal
     let metadata: ParachainStakingCandidateMetadata?
     let identity: AccountIdentity?
+    let subqueryData: SubqueryCollatorData?
 
     var oversubscribed: Bool {
         // TODO: Check this logic

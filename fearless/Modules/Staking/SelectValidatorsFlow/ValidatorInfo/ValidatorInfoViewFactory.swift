@@ -4,6 +4,7 @@ import SoraKeystore
 import SoraFoundation
 
 final class ValidatorInfoViewFactory {
+    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: ValidatorInfoFlow,
         chainAsset: ChainAsset,
@@ -32,11 +33,48 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
+            let serviceFactory = StakingServiceFactory(
+                chainRegisty: ChainRegistryFacade.sharedRegistry,
+                storageFacade: SubstrateDataStorageFacade.shared,
+                eventCenter: EventCenter.shared,
+                operationManager: OperationManagerFacade.sharedManager
+            )
+
+            guard
+                let eraValidatorService = try? serviceFactory.createEraValidatorService(
+                    for: chainAsset.chain
+                ) else {
+                return nil
+            }
+
+            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+            let collatorOperationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageRequestFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+                subqueryOperationFactory: subqueryRewardOperationFactory
+            )
+
+            guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+                for: chainAsset,
+                assetPrecision: Int16(chainAsset.asset.precision),
+                validatorService: eraValidatorService,
+                collatorOperationFactory: collatorOperationFactory
+            ) else {
+                return nil
+            }
+
+            eraValidatorService.setup()
+            rewardService.setup()
+
             let validatorOperationFactory = RelaychainValidatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
-                eraValidatorService: EraValidatorFacade.sharedService,
-                rewardService: RewardCalculatorFacade.sharedService,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
                 storageRequestFactory: storageRequestFactory,
                 runtimeService: runtimeService,
                 engine: connection,
@@ -77,13 +115,17 @@ final class ValidatorInfoViewFactory {
                 operationManager: OperationManagerFacade.sharedManager
             )
 
+            let subqueryOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageRequestFactory,
                 runtimeService: runtimeService,
                 engine: connection,
-                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+                subqueryOperationFactory: subqueryOperationFactory
             )
             let viewModelState = ValidatorInfoParachainViewModelState(collatorInfo: candidate)
             let strategy = ValidatorInfoParachainStrategy(

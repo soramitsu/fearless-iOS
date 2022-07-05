@@ -26,6 +26,7 @@ protocol StakingUnbondSetupViewModelState: StakingUnbondSetupUserInputHandler {
     var stateListener: StakingUnbondSetupModelStateListener? { get set }
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?)
 
+    var inputAmount: Decimal? { get }
     var amount: Decimal? { get }
     var bonded: Decimal? { get }
     var fee: Decimal? { get }

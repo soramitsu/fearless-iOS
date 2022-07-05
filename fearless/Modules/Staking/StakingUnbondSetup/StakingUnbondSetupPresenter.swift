@@ -102,7 +102,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
     func provideInputViewModel() {
-        let inputView = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.amount)
+        let inputView = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.inputAmount)
         view?.didReceiveInput(viewModel: inputView)
     }
 

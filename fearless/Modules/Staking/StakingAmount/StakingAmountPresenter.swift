@@ -49,16 +49,25 @@ final class StakingAmountPresenter {
     }
 
     private func provideRewardDestination() {
-        guard let viewModelState = viewModelState,
-              let viewModel = try? viewModelFactory?.buildSelectRewardDestinationViewModel(
-                  viewModelState: viewModelState,
-                  priceData: priceData,
-                  calculator: calculator
-              ) else {
+        guard let viewModelState = viewModelState else {
             return
         }
 
-        view?.didReceiveRewardDestination(viewModel: viewModel)
+        if let viewModel = try? viewModelFactory?.buildSelectRewardDestinationViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData,
+            calculator: calculator
+        ) {
+            view?.didReceiveRewardDestination(viewModel: viewModel)
+        }
+
+        if let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData,
+            calculator: calculator
+        ) {
+            view?.didReceiveYourRewardDestination(viewModel: viewModel)
+        }
     }
 
     private func provideAsset() {
@@ -213,22 +222,22 @@ extension StakingAmountPresenter: SchedulerDelegate {
 }
 
 extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
-    func didReceive(accounts _: [ChainAccountResponse]) {
-//        guard let payoutAccount = payoutAccount else {
-//            return
-//        }
+    func didReceive(accounts: [ChainAccountResponse]) {
+        guard let payoutAccount = viewModelState?.payoutAccount else {
+            return
+        }
 
-//        loadingPayouts = false
-//
-//        let context = PrimitiveContextWrapper(value: accounts)
-//
-//        wireframe.presentAccountSelection(
-//            accounts,
-//            selectedAccountItem: payoutAccount,
-//            delegate: self,
-//            from: view,
-//            context: context
-//        )
+        loadingPayouts = false
+
+        let context = PrimitiveContextWrapper(value: accounts)
+
+        wireframe.presentAccountSelection(
+            accounts,
+            selectedAccountItem: payoutAccount,
+            delegate: self,
+            from: view,
+            context: context
+        )
     }
 
     func didReceive(price: PriceData?) {
@@ -296,7 +305,7 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
     }
 
     func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState) {
-        guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData) else {
+        guard let viewModel = viewModelFactory?.buildYourRewardDestinationViewModel(viewModelState: viewModelState, priceData: priceData, calculator: calculator) else {
             return
         }
 

@@ -101,7 +101,11 @@ final class StakingBalancePresenter {
     }
 
     private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
+        guard let rebondCases = viewModelState.rebondCases else {
+            return
+        }
+
+        let actions = rebondCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
                 guard let self = self else {
@@ -158,22 +162,15 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 
     func handleUnbondingMoreAction() {
-        // TODO: Move datavalidators to viewmodelstate
-//        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-//
-//        DataValidationRunner(validators: [
-//            dataValidatingFactory.has(
-//                controller: controllerAccount,
-//                for: stashItem?.controller ?? "",
-//                locale: locale
-//            )
-//        ]).runValidation { [weak self] in
-//            guard let view = self?.view else {
-//                return
-//            }
-//
-//            self?.presentRebond(for: view, locale: locale)
-//        }
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: viewModelState.unbondingMoreValidators(using: locale)).runValidation { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentRebond(for: view, locale: locale)
+        }
     }
 }
 
