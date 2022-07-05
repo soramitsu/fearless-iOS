@@ -40,10 +40,10 @@ final class ParachainState: BaseStakingState {
 
         stateMachine?.transit(to: self)
     }
-    
+
     override func process(roundInfo: ParachainStakingRoundInfo?) {
-        self.round = roundInfo
-        
+        round = roundInfo
+
         stateMachine?.transit(to: self)
     }
 }

@@ -220,7 +220,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             )
 
             delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(
-                \
                 for: chainAsset.chain.chainId,
                 accountId: accountId
             )

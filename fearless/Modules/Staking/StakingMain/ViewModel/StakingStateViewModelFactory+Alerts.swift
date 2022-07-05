@@ -31,9 +31,9 @@ extension StakingStateViewModelFactory {
 
     func stakingAlertParachainState(_ state: ParachainState) -> [StakingAlert] {
         [
-            findCollatorLeavingAlert(delegations: state.delegationInfos),
-            findLowStakeAlert(delegations: state.delegationInfos),
-            findRedeemAlert(delegations: state.delegationInfos)
+            findCollatorLeavingAlert(state: state),
+            findLowStakeAlert(state: state),
+            findRedeemAlert(state: state)
         ].compactMap { $0 }
     }
 
@@ -152,7 +152,9 @@ extension StakingStateViewModelFactory {
             return nil
         }
 
-        let delegations = state.bottomDelegations?.values.compactMap(\.delegations).reduce([], +)
+        let delegations = state.bottomDelegations?.values.compactMap { delegation in
+            delegation.delegations
+        }.reduce([], +)
 
         if delegations?.contains(where: { delegation in
             delegation.owner == accountId

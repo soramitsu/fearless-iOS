@@ -216,7 +216,8 @@ final class StakingStateViewModelFactory {
                     ).value(for: locale).price ?? "",
                     status: status,
                     hasPrice: true,
-                    name: collator.identity?.name
+                    name: collator.identity?.name,
+                    nextRoundInterval: nil
                 )
             }
             return DelegationInfoCellModel(
