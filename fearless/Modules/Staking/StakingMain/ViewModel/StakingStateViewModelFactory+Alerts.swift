@@ -28,9 +28,12 @@ extension StakingStateViewModelFactory {
         []
     }
 
-    func stakingAlertParachainState(_: ParachainState) -> [StakingAlert] {
+    func stakingAlertParachainState(_ state: ParachainState) -> [StakingAlert] {
         [
-        ]
+            findCollatorLeavingAlert(delegations: state.delegationInfos),
+            findLowStakeAlert(delegations: state.delegationInfos),
+            findRedeemAlert(delegations: state.delegationInfos)
+        ].compactMap { $0 }
     }
 
     private func findRedeemUnbondedAlert(
@@ -141,7 +144,7 @@ extension StakingStateViewModelFactory {
         return nil
     }
 
-    private func findLowStakeAlert(delegations: [ParachainStakingDelegations]?) -> StakingAlert? {
+    private func findLowStakeAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
         if let delegations = delegations, delegations.contains(where: { _ in
             false
         }) {
@@ -150,7 +153,7 @@ extension StakingStateViewModelFactory {
         return nil
     }
 
-    private func findRedeemAlert(delegations _: [ParachainStakingDelegations]?) -> StakingAlert? {
+    private func findRedeemAlert(delegations: [ParachainStakingDelegationInfo]?) -> StakingAlert? {
         nil
     }
 }
