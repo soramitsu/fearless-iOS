@@ -166,8 +166,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         let bottomDelegationsOperation = collatorOperationFactory.collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
 
         bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
-            let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
-            self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
+            DispatchQueue.main.async {
+                let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
+            }
         }
     }
 
@@ -176,16 +178,20 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         let currentBlockOperation = collatorOperationFactory.currentBlock()
 
         currentBlockOperation.targetOperation.completionBlock = { [weak self] in
-            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
+            DispatchQueue.main.async {
+                let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
 
-            if let block = currentBlock, let currentBlockvalue = UInt32(block) {
-                self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                if let block = currentBlock, let currentBlockvalue = UInt32(block) {
+                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                }
             }
         }
 
         roundOperation.targetOperation.completionBlock = { [weak self] in
-            let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
-            self?.presenter?.didReceiveRound(round: roundInfo)
+            DispatchQueue.main.async {
+                let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveRound(round: roundInfo)
+            }
         }
 
         operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)

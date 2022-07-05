@@ -137,6 +137,7 @@ class BaseStakingState: StakingStateProtocol {
     func process(bottomDelegations _: [AccountAddress: ParachainStakingDelegations]?) {}
     func process(scheduledRequests _: [ParachainStakingScheduledRequest]?) {}
     func process(roundInfo _: ParachainStakingRoundInfo?) {}
+    func process(currentBlock _: UInt32?) {}
 
     func process(eraCountdown: EraCountdown) {
         commonData = commonData.byReplacing(eraCountdown: eraCountdown)

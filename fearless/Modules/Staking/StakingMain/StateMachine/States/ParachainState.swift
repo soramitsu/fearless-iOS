@@ -1,3 +1,6 @@
+import Foundation
+import BigInt
+
 final class ParachainState: BaseStakingState {
     var moreHandler: ((ParachainStakingDelegationInfo) -> Void)?
     var statusHandler: (() -> Void)?
@@ -13,6 +16,7 @@ final class ParachainState: BaseStakingState {
     private(set) var bottomDelegations: [AccountAddress: ParachainStakingDelegations]?
     private(set) var requests: [ParachainStakingScheduledRequest]?
     private(set) var round: ParachainStakingRoundInfo?
+    private(set) var currentBlock: UInt32?
 
     override func accept(visitor: StakingStateVisitorProtocol) {
         visitor.visit(state: self)
@@ -43,6 +47,12 @@ final class ParachainState: BaseStakingState {
 
     override func process(roundInfo: ParachainStakingRoundInfo?) {
         round = roundInfo
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(currentBlock: UInt32?) {
+        self.currentBlock = currentBlock
 
         stateMachine?.transit(to: self)
     }

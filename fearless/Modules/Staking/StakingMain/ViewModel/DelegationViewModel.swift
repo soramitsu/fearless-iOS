@@ -1,9 +1,9 @@
 import Foundation
 
 enum DelegationViewStatus {
-    case active(countdown: String)
-    case idle(countdown: String)
-    case leaving(countdown: String)
+    case active(countdown: TimeInterval?)
+    case idle(countdown: TimeInterval?)
+    case leaving(countdown: TimeInterval?)
     case undefined
 }
 
