@@ -91,31 +91,37 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         statusButton.isUserInteractionEnabled = shouldShow
     }
 
-    private func presentActiveStatus(countdown: String) {
+    private func presentActiveStatus(countdown: TimeInterval?) {
         statusView.titleView.indicatorColor = R.color.colorGreen()!
         statusView.titleView.titleLabel.textColor = R.color.colorGreen()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = countdown
+        if let remainingTime = countdown {
+            timer.start(with: remainingTime, runLoop: .main, mode: .common)
+        }
     }
 
-    private func presentIdleStatus(countdown: String) {
+    private func presentIdleStatus(countdown: TimeInterval?) {
         statusView.titleView.indicatorColor = R.color.colorRed()!
         statusView.titleView.titleLabel.textColor = R.color.colorRed()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusIdle(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = countdown
+        if let remainingTime = countdown {
+            timer.start(with: remainingTime, runLoop: .main, mode: .common)
+        }
     }
 
-    private func presentLeavingState(countdown: String) {
+    private func presentLeavingState(countdown: TimeInterval?) {
         statusView.titleView.indicatorColor = R.color.colorRed()!
         statusView.titleView.titleLabel.textColor = R.color.colorRed()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusLeaving(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = countdown
+        if let remainingTime = countdown {
+            timer.start(with: remainingTime, runLoop: .main, mode: .common)
+        }
     }
 }
 

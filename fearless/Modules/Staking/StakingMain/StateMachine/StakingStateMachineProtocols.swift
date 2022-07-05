@@ -41,6 +41,7 @@ protocol StakingStateProtocol {
     func process(scheduledRequests: [ParachainStakingScheduledRequest]?)
     func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?)
     func process(roundInfo: ParachainStakingRoundInfo?)
+    func process(currentBlock: UInt32?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

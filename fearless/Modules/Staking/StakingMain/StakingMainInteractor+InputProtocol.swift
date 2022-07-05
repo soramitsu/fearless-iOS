@@ -166,18 +166,20 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         let bottomDelegationsOperation = collatorOperationFactory.collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
 
         bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
-            let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
-            self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
+            DispatchQueue.main.async {
+                let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
+            }
         }
     }
 
     private func fetchParachainInfo() {
         let roundOperation = collatorOperationFactory.round()
         let currentBlockOperation = collatorOperationFactory.currentBlock()
-
+        
         currentBlockOperation.targetOperation.completionBlock = { [weak self] in
             let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
-
+            
             if let block = currentBlock, let currentBlockvalue = UInt32(block) {
                 DispatchQueue.main.async {
                     self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)

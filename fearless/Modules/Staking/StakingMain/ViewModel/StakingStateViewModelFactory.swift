@@ -177,6 +177,7 @@ final class StakingStateViewModelFactory {
         commonData: StakingStateCommonData,
         chainAsset: ChainAsset,
         delegationInfos: [ParachainStakingDelegationInfo]?,
+        countdownInterval: TimeInterval?,
         moreHandler _: ((ParachainStakingDelegationInfo) -> Void)?,
         statusHandler _: (() -> Void)?
     ) -> [DelegationInfoCellModel]? {
@@ -189,11 +190,11 @@ final class StakingStateViewModelFactory {
                 let status: DelegationViewStatus
                 switch collator.metadata?.status {
                 case .active:
-                    status = .active(countdown: "0:00:00")
+                    status = .active(countdown: countdownInterval)
                 case .idle:
-                    status = .idle(countdown: "0:00:00")
+                    status = .idle(countdown: countdownInterval)
                 case .leaving:
-                    status = .leaving(countdown: "0:00:00")
+                    status = .leaving(countdown: countdownInterval)
                 case .none:
                     status = .undefined
                 }
@@ -217,7 +218,7 @@ final class StakingStateViewModelFactory {
                     status: status,
                     hasPrice: true,
                     name: collator.identity?.name,
-                    nextRoundInterval: nil
+                    nextRoundInterval: countdownInterval
                 )
             }
             return DelegationInfoCellModel(
@@ -555,10 +556,20 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         updateCacheForChainAsset(chainAsset)
 
+        var countdownInterval: TimeInterval?
+        let erasPerDay = chainAsset.chain.erasPerDay
+        if let round = state.round, let currentBlock = state.currentBlock {
+            let roundDurationInSeconds: TimeInterval = 24.0 / Double(erasPerDay) * 3600.0
+            let blockDurationInSeconds: TimeInterval = roundDurationInSeconds / Double(round.length)
+            let countdown: TimeInterval = Double((round.first + round.length) - currentBlock) * blockDurationInSeconds
+            countdownInterval = countdown
+        }
+
         let viewModels = createDelegationViewModels(
             commonData: state.commonData,
             chainAsset: chainAsset,
             delegationInfos: state.delegationInfos,
+            countdownInterval: countdownInterval,
             moreHandler: state.moreHandler,
             statusHandler: state.statusHandler
         )
