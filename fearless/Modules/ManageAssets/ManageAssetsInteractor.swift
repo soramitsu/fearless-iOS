@@ -19,6 +19,7 @@ final class ManageAssetsInteractor {
     private var assetIdsEnabled: [String]?
     private var sortKeys: [String]?
     private var filterOptions: [FilterOption]?
+    private var chainIdForFilter: ChainModel.Id?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -34,6 +35,7 @@ final class ManageAssetsInteractor {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        chainIdForFilter = selectedMetaAccount.chainIdForFilter
     }
 
     private func handleChains(chains: [ChainModel]) {
@@ -80,6 +82,10 @@ final class ManageAssetsInteractor {
 }
 
 extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
+    func saveChainIdForFilter(_ chainId: ChainModel.Id?) {
+        chainIdForFilter = chainId
+    }
+
     func markUnused(chain: ChainModel) {
         var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
         unusedChainIds.append(chain.chainId)
@@ -119,18 +125,26 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
-            if let acoountForSave = updatedAccount {
-                updatedAccount = acoountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
             } else {
                 updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
             }
         }
 
         if let filterOptions = filterOptions, filterOptions != selectedMetaAccount.assetFilterOptions {
-            if let acoountForSave = updatedAccount {
-                updatedAccount = acoountForSave.replacingAssetsFilterOptions(filterOptions)
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingAssetsFilterOptions(filterOptions)
             } else {
                 updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            }
+        }
+
+        if chainIdForFilter != selectedMetaAccount.chainIdForFilter {
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingChainIdForFilter(chainIdForFilter)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingChainIdForFilter(chainIdForFilter)
             }
         }
 

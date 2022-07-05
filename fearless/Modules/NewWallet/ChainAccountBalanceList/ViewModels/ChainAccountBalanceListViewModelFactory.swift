@@ -30,6 +30,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         )
 
         var chainAssets = chains
+            .filter {
+                if let chainIdForFilter = selectedMetaAccount.chainIdForFilter {
+                    return $0.chainId == chainIdForFilter
+                }
+                return true
+            }
             .filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }
             .map { chain in
                 chain.assets.compactMap { asset in

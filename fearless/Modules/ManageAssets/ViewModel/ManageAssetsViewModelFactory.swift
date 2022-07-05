@@ -11,7 +11,8 @@ protocol ManageAssetsViewModelFactoryProtocol {
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
         locale: Locale?,
-        filterOptions: [FilterOption]
+        filterOptions: [FilterOption],
+        chainIdForFilter: String?
     ) -> ManageAssetsViewModel
 }
 
@@ -127,13 +128,21 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
         cellsDelegate: ManageAssetsTableViewCellModelDelegate?,
         filter: String?,
         locale: Locale?,
-        filterOptions: [FilterOption]
+        filterOptions: [FilterOption],
+        chainIdForFilter: String?
     ) -> ManageAssetsViewModel {
-        var chainAssets = chains.map { chain in
-            chain.assets.compactMap { asset in
-                ChainAsset(chain: chain, asset: asset.asset)
+        var chainAssets = chains
+            .filter {
+                if let chainIdForFilter = chainIdForFilter {
+                    return $0.chainId == chainIdForFilter
+                }
+                return true
             }
-        }.reduce([], +)
+            .map { chain in
+                chain.assets.compactMap { asset in
+                    ChainAsset(chain: chain, asset: asset.asset)
+                }
+            }.reduce([], +)
 
         if let filter = filter?.lowercased(), !filter.isEmpty {
             chainAssets = chainAssets.filter {
@@ -236,7 +245,16 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
             || selectedMetaAccount.assetKeysOrder != sortedKeys
             || selectedMetaAccount.assetFilterOptions != filterOptions
 
-        let selectedChain = createSelectedChainModel(from: chains, locale: locale)
+        let selectedChain = createSelectedChainModel(
+            from: chains
+                .filter {
+                    if let chainIdForFilter = chainIdForFilter {
+                        return $0.chainId == chainIdForFilter
+                    }
+                    return true
+                },
+            locale: locale
+        )
 
         return ManageAssetsViewModel(
             sections: [missingSection, normalSection],

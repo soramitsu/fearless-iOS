@@ -17,6 +17,7 @@ final class ManageAssetsPresenter {
     private var filter: String?
     private var chainAssets: [ChainAsset]?
     private var filterOptions: [FilterOption] = []
+    private var chainIdForFilter: String?
 
     private var allChainModels: [ChainModel] = []
 
@@ -47,7 +48,8 @@ final class ManageAssetsPresenter {
             cellsDelegate: self,
             filter: filter,
             locale: localizationManager?.selectedLocale,
-            filterOptions: filterOptions
+            filterOptions: filterOptions,
+            chainIdForFilter: chainIdForFilter
         )
 
         self.viewModel = viewModel
@@ -109,6 +111,7 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
         assetIdsEnabled = account.assetIdsEnabled
         sortedKeys = account.assetKeysOrder
         filterOptions = account.assetFilterOptions
+        chainIdForFilter = account.chainIdForFilter
         provideViewModel()
     }
 
@@ -217,11 +220,19 @@ extension ManageAssetsPresenter: TitleSwitchTableViewCellModelDelegate {
 extension ManageAssetsPresenter: ChainSelectionDelegate {
     func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?) {
         guard let chain = chain else {
+            chainIdForFilter = nil
+            interactor.saveChainIdForFilter(nil)
             chainModels = allChainModels
-            provideViewModel()
+            let modifiedAssetIdsEnabled = chainAssets?
+                .compactMap { $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId) }
+            interactor.saveAssetIdsEnabled(modifiedAssetIdsEnabled ?? [])
             return
         }
+        chainIdForFilter = chain.chainId
         chainModels = allChainModels.filter { $0.chainId == chain.chainId }
+        interactor.saveChainIdForFilter(chain.chainId)
+        assetIdsEnabled = chain.chainAssets.map { $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId) }
+        interactor.saveAssetIdsEnabled(assetIdsEnabled ?? [])
         provideViewModel()
     }
 }
