@@ -59,6 +59,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var delegationScheduledRequestsProvider: AnyDataProvider<DecodedParachainScheduledRequests>?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -381,15 +382,27 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         )
 
         if let state = delegatorState {
+            fetchBottomDelegations(accountIds: state.delegations.map(\.owner))
+
             let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
             let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+
             let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
             collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
 
                 DispatchQueue.main.async {
                     do {
-                        let response = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
-                        self?.presenter?.didReceive(collators: response)
+                        let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+                        let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
+                            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
+                                return nil
+                            }
+                            return ParachainStakingDelegationInfo(
+                                delegation: delegation,
+                                collator: collator
+                            )
+                        }
+                        self?.presenter?.didReceive(delegationInfos: delegationInfos)
                     } catch {
                         self?.logger?.error("handleDelegatorState.error: \(error)")
                     }
@@ -397,7 +410,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
             operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
         } else {
-            presenter?.didReceive(delegations: [])
+            presenter?.didReceive(delegationInfos: nil)
         }
     }
 }

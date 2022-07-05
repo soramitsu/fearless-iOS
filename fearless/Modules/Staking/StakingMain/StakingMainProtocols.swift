@@ -7,7 +7,6 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModel)
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveStakingState(viewModel: StakingViewState)
-    func didReceiveCollatorInfos(viewModels: [DelegationInfoCellModel])
     func expandNetworkInfoView(_ isExpanded: Bool)
     func didReceive(stakingEstimationViewModel: StakingEstimationViewModel)
 }
@@ -18,10 +17,13 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func viewWillAppear()
     func performAssetSelection()
     func performMainAction()
+    func performParachainMainAction(for delegation: ParachainStakingDelegationInfo)
     func performAccountAction()
     func performManageStakingAction()
+    func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo)
     func performNominationStatusAction()
     func performValidationStatusAction()
+    func performDelegationStatusAction()
     func performRewardInfoAction()
     func performChangeValidatorsAction()
     func performSetupValidatorsForBondedAction()
@@ -80,10 +82,11 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
 //    Parachain
 
-    func didReceive(delegations: [ParachainStakingDelegation]?)
-    func didReceive(collators: [ParachainStakingCandidateInfo]?)
+    func didReceive(delegationInfos: [ParachainStakingDelegationInfo]?)
     func didReceiveRound(round: ParachainStakingRoundInfo?)
     func didReceiveCurrentBlock(currentBlock: UInt32?)
+    func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

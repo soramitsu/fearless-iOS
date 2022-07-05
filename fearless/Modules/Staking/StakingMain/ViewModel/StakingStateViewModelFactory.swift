@@ -173,6 +173,61 @@ final class StakingStateViewModelFactory {
         }
     }
 
+    private func createDelegationViewModels(
+        commonData: StakingStateCommonData,
+        chainAsset: ChainAsset,
+        delegationInfos: [ParachainStakingDelegationInfo]?,
+        moreHandler _: ((ParachainStakingDelegationInfo) -> Void)?,
+        statusHandler _: (() -> Void)?
+    ) -> [DelegationInfoCellModel]? {
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+        let models: [DelegationInfoCellModel]? = delegationInfos?.compactMap { delegationInfo in
+            let collator = delegationInfo.collator
+            let delegation = delegationInfo.delegation
+
+            let resource: LocalizableResource<DelegationViewModelProtocol> = LocalizableResource { locale in
+                let status: DelegationViewStatus
+                switch collator.metadata?.status {
+                case .active:
+                    status = .active(countdown: "0:00:00")
+                case .idle:
+                    status = .idle(countdown: "0:00:00")
+                case .leaving:
+                    status = .leaving(countdown: "0:00:00")
+                case .none:
+                    status = .undefined
+                }
+
+                let amount = Decimal.fromSubstrateAmount(
+                    delegation.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
+
+                return DelegationViewModel(
+                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
+                    totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
+                        amount,
+                        priceData: commonData.price
+                    ).value(for: locale).price ?? "",
+                    totalRewardAmount: balanceViewModelFactory.amountFromValue(Decimal.zero).value(for: locale),
+                    totalRewardPrice: balanceViewModelFactory.balanceFromPrice(
+                        Decimal.zero,
+                        priceData: commonData.price
+                    ).value(for: locale).price ?? "",
+                    status: status,
+                    hasPrice: true,
+                    name: collator.identity?.name,
+                    nextRoundInterval: nil
+                )
+            }
+            return DelegationInfoCellModel(
+                contentViewModel: resource,
+                delegationInfo: delegationInfo
+            )
+        }
+        return models
+    }
+
     private func createAnalyticsViewModel(
         commonData: StakingStateCommonData,
         chainAsset: ChainAsset
@@ -488,6 +543,27 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             chainAsset: chainAsset
         )
         lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: analyticsViewModel)
+    }
+
+    func visit(state: ParachainState) {
+        logger?.debug("Parachain state")
+
+        guard let chainAsset = state.commonData.chainAsset else {
+            lastViewModel = .undefined
+            return
+        }
+
+        updateCacheForChainAsset(chainAsset)
+
+        let viewModels = createDelegationViewModels(
+            commonData: state.commonData,
+            chainAsset: chainAsset,
+            delegationInfos: state.delegationInfos,
+            moreHandler: state.moreHandler,
+            statusHandler: state.statusHandler
+        )
+        let alerts = stakingAlertParachainState(state)
+        lastViewModel = .delegations(viewModels: viewModels, alerts: alerts)
     }
 }
 
