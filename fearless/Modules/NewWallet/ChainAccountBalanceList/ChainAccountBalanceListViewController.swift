@@ -33,7 +33,6 @@ final class ChainAccountBalanceListViewController: UIViewController, ViewHolder 
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
 
         rootView.tableView.tableFooterView = UIView()
-
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
@@ -115,17 +114,11 @@ extension ChainAccountBalanceListViewController: UITableViewDataSource {
         return viewModel.accountViewModels.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard case let .loaded(viewModel) = state else {
+    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
             return UITableViewCell()
         }
 
-        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self)
-        else {
-            return UITableViewCell()
-        }
-
-        cell.bind(to: viewModel.accountViewModels[indexPath.row])
         return cell
     }
 }
@@ -137,6 +130,17 @@ extension ChainAccountBalanceListViewController: UITableViewDelegate {
         }
 
         presenter.didSelectViewModel(viewModel.accountViewModels[indexPath.row])
+    }
+
+    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+        guard
+            case let .loaded(viewModel) = state,
+            let cell = cell as? ChainAccountBalanceTableCell
+        else {
+            return
+        }
+
+        cell.bind(to: viewModel.accountViewModels[indexPath.row])
     }
 }
 
