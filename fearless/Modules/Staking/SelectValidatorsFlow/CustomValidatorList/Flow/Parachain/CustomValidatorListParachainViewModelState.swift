@@ -20,7 +20,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         self.bonding = bonding
         self.selectedValidatorList = selectedValidatorList
 
-        filteredValidatorList = candidates
+        filteredValidatorList = composeFilteredValidatorList(filter: CustomValidatorParachainListFilter.defaultFilter())
     }
 
     var viewModel: CustomValidatorListViewModel?

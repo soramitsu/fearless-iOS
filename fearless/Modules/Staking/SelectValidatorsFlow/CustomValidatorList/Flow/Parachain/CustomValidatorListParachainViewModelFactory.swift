@@ -150,7 +150,11 @@ class CustomValidatorListParachainViewModelFactory {
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedCollatorList.count
+            selectedValidatorsCount: selectedCollatorList.count,
+            proceedButtonTitle: R.string.localizable
+                .stakingStakeWithSelectedTitle(
+                    preferredLanguages: locale.rLanguages
+                )
         )
     }
 }
@@ -183,7 +187,11 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            selectedValidatorsCount: parachainViewModelState.selectedValidatorList.count
+            selectedValidatorsCount: parachainViewModelState.selectedValidatorList.count,
+            proceedButtonTitle: R.string.localizable
+                .stakingStakeWithSelectedTitle(
+                    preferredLanguages: locale.rLanguages
+                )
         )
     }
 }

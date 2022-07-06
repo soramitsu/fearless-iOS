@@ -122,7 +122,12 @@ class CustomValidatorListRelaychainViewModelFactory {
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedValidatorList.count
+            selectedValidatorsCount: selectedValidatorList.count,
+            proceedButtonTitle: R.string.localizable
+                .stakingCustomProceedButtonDisabledTitle(
+                    selectedValidatorList.count,
+                    preferredLanguages: locale.rLanguages
+                )
         )
     }
 }
@@ -155,7 +160,12 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
-            selectedValidatorsCount: relaychainViewModelState.selectedValidatorList.count
+            selectedValidatorsCount: relaychainViewModelState.selectedValidatorList.count,
+            proceedButtonTitle: R.string.localizable
+                .stakingCustomProceedButtonDisabledTitle(
+                    relaychainViewModelState.selectedValidatorList.count,
+                    preferredLanguages: locale.rLanguages
+                )
         )
     }
 }
