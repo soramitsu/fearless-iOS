@@ -565,7 +565,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             countdownInterval = countdown
         }
 
-        let viewModels = createDelegationViewModels(
+        let delegationViewModels = createDelegationViewModels(
             commonData: state.commonData,
             chainAsset: chainAsset,
             delegationInfos: state.delegationInfos,
@@ -574,7 +574,20 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             statusHandler: state.statusHandler
         )
         let alerts = stakingAlertParachainState(state)
-        lastViewModel = .delegations(viewModels: viewModels, alerts: alerts)
+        do {
+            let rewardViewModel = try createEstimationViewModel(
+                for: chainAsset,
+                commonData: state.commonData,
+                amount: state.rewardEstimationAmount
+            )
+            lastViewModel = .delegations(
+                rewardViewModel: rewardViewModel,
+                delegationViewModels: delegationViewModels,
+                alerts: alerts
+            )
+        } catch {
+            lastViewModel = .undefined
+        }
     }
 }
 
