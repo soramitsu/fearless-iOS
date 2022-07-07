@@ -9,7 +9,12 @@ protocol SubqueryRewardOperationFactoryProtocol {
         endTimestamp: Int64?
     ) -> BaseOperation<SubqueryRewardOrSlashData>
 
-    func createAprOperation(for idsClosure: @escaping () throws -> [AccountId]) -> BaseOperation<SubqueryCollatorDataResponse>
+    func createAprOperation(
+        for idsClosure: @escaping () throws -> [AccountId],
+        dependingOn roundIdOperation: BaseOperation<String>
+    ) -> BaseOperation<SubqueryCollatorDataResponse>
+
+    func createLastRoundOperation() -> BaseOperation<String>
 }
 
 extension SubqueryRewardOperationFactoryProtocol {
@@ -25,19 +30,33 @@ final class SubqueryRewardOperationFactory {
         self.url = url
     }
 
-    private func prepareCollatorsAprQuery(collatorIds: [String]) -> String {
+    private func prepareLastRoundsQuery() -> String {
         """
         {
-          collatorRounds(filter:
-            {collatorId: {
-              inInsensitive: \(collatorIds)
-            },
+                  rounds(last: 1) {
+                      nodes {
+                        id
+                      }
+                  }
+                }
+        """
+    }
+
+    private func prepareCollatorsAprQuery(collatorIds: [String], roundId: String) -> String {
+        """
+        {
+        collatorRounds(
+        filter:
+        {
+            collatorId: { inInsensitive: \(collatorIds) }
             apr: { isNull: false, greaterThan: 0 }
-            }
-          ) {
-            nodes {
-              collatorId
-              apr
+            roundId: { equalTo: "\(roundId)"}
+        }
+        )
+        {
+        nodes {
+            collatorId
+            apr
             }
           }
         }
@@ -85,7 +104,59 @@ final class SubqueryRewardOperationFactory {
 }
 
 extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol {
-    func createAprOperation(for idsClosure: @escaping () throws -> [AccountId]) -> BaseOperation<SubqueryCollatorDataResponse> {
+    func createLastRoundOperation() -> BaseOperation<String> {
+        guard let url = url else {
+            return ClosureOperation { "" }
+        }
+
+        let requestFactory = BlockNetworkRequestFactory { [weak self] in
+            guard let strongSelf = self else {
+                throw CommonError.internal
+            }
+
+            let queryString = strongSelf.prepareLastRoundsQuery()
+
+            var request = URLRequest(url: url)
+
+            let info = JSON.dictionaryValue(["query": JSON.stringValue(queryString)])
+            request.httpBody = try JSONEncoder().encode(info)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
+
+            request.httpMethod = HttpMethod.post.rawValue
+            return request
+        }
+
+        let resultFactory = AnyNetworkResultFactory<String> { data in
+            var roundId: String = ""
+
+            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let data = json["data"] as? [String: Any],
+               let collatorRounds = data["rounds"] as? [String: Any],
+               let nodesJson = collatorRounds["nodes"] as? [[String: Any]] {
+                for nodeJson in nodesJson {
+                    if let foundRoundId = nodeJson["id"] as? String {
+                        if let roundIdValue = Int(foundRoundId) {
+                            roundId = "\(roundIdValue - 1)"
+                        }
+                    }
+                }
+            }
+
+            return roundId
+        }
+
+        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
+
+        return operation
+    }
+
+    func createAprOperation(
+        for idsClosure: @escaping () throws -> [AccountId],
+        dependingOn roundIdOperation: BaseOperation<String>
+    ) -> BaseOperation<SubqueryCollatorDataResponse> {
         guard let url = url else {
             return ClosureOperation { SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: [])) }
         }
@@ -95,10 +166,12 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
                 throw CommonError.internal
             }
 
+            let roundId = (try? roundIdOperation.extractNoCancellableResultData()) ?? ""
+
             let ids = try? idsClosure()
             let idsFilter = (ids?.compactMap { $0.toHex(includePrefix: true) }) ?? []
 
-            let queryString = strongSelf.prepareCollatorsAprQuery(collatorIds: idsFilter)
+            let queryString = strongSelf.prepareCollatorsAprQuery(collatorIds: idsFilter, roundId: roundId)
 
             var request = URLRequest(url: url)
 
@@ -130,10 +203,6 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
 
             let response = SubqueryResponse.data(SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: nodes)))
 
-//            let response = try JSONDecoder().decode(
-//                SubqueryResponse<SubqueryCollatorDataResponse>.self,
-//                from: data
-//            )
             switch response {
             case let .errors(error):
                 throw error

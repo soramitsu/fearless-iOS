@@ -15,4 +15,5 @@ struct CustomValidatorListViewModel {
     var headerViewModel: TitleWithSubtitleViewModel
     var cellViewModels: [CustomValidatorCellViewModel]
     var selectedValidatorsCount: Int
+    var proceedButtonTitle: String?
 }

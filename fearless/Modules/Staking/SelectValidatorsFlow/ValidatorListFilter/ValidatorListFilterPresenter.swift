@@ -27,7 +27,7 @@ final class ValidatorListFilterPresenter {
     private func provideViewModels() {
         guard let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
-            token: asset.id,
+            token: asset.symbol.uppercased(),
             locale: selectedLocale
         ) else {
             return

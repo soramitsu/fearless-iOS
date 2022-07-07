@@ -379,11 +379,16 @@ extension ParachainCollatorOperationFactory {
             accountIdsClosure: accountIdsClosure
         )
 
-        let aprOperation = subqueryOperationFactory.createAprOperation(for: accountIdsClosure)
+        let roundOperation = subqueryOperationFactory.createLastRoundOperation()
+        let aprOperation = subqueryOperationFactory.createAprOperation(
+            for: accountIdsClosure,
+            dependingOn: roundOperation
+        )
 
         identityWrapper.allOperations.forEach { $0.addDependency(candidateIdsOperation.targetOperation) }
         infoWrapper.allOperations.forEach { $0.addDependency(candidateIdsOperation.targetOperation) }
         aprOperation.addDependency(candidateIdsOperation.targetOperation)
+        aprOperation.addDependency(roundOperation)
 
         let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> { [self] in
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
@@ -417,6 +422,7 @@ extension ParachainCollatorOperationFactory {
             return candidateInfos
         }
 
+        mergeOperation.addDependency(roundOperation)
         mergeOperation.addDependency(aprOperation)
         mergeOperation.addDependency(candidateIdsOperation.targetOperation)
         mergeOperation.addDependency(infoWrapper.targetOperation)
@@ -428,6 +434,7 @@ extension ParachainCollatorOperationFactory {
         dependencies.append(contentsOf: identityWrapper.allOperations)
         dependencies.append(contentsOf: infoWrapper.allOperations)
         dependencies.append(aprOperation)
+        dependencies.append(roundOperation)
 
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
@@ -442,7 +449,8 @@ extension ParachainCollatorOperationFactory {
             try selectedCandidatesOperation.targetOperation.extractNoCancellableResultData().first?.value ?? []
         }
 
-        let aprOperation = subqueryOperationFactory.createAprOperation(for: accountIdsClosure)
+        let roundIdOperation = subqueryOperationFactory.createLastRoundOperation()
+        let aprOperation = subqueryOperationFactory.createAprOperation(for: accountIdsClosure, dependingOn: roundIdOperation)
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,
@@ -456,6 +464,7 @@ extension ParachainCollatorOperationFactory {
         identityWrapper.allOperations.forEach { $0.addDependency(selectedCandidatesOperation.targetOperation) }
         infoWrapper.allOperations.forEach { $0.addDependency(selectedCandidatesOperation.targetOperation) }
         aprOperation.addDependency(selectedCandidatesOperation.targetOperation)
+        aprOperation.addDependency(roundIdOperation)
 
         let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> {
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
@@ -492,6 +501,7 @@ extension ParachainCollatorOperationFactory {
             return selectedCandidates
         }
 
+        mergeOperation.addDependency(roundIdOperation)
         mergeOperation.addDependency(aprOperation)
         mergeOperation.addDependency(candidatePoolOperation.targetOperation)
         mergeOperation.addDependency(selectedCandidatesOperation.targetOperation)
@@ -505,6 +515,7 @@ extension ParachainCollatorOperationFactory {
         dependencies.append(contentsOf: identityWrapper.allOperations)
         dependencies.append(contentsOf: infoWrapper.allOperations)
         dependencies.append(aprOperation)
+        dependencies.append(roundIdOperation)
 
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }

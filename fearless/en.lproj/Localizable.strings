@@ -425,7 +425,7 @@ Derivation path: %@";
 "common.filter.sort.header" = "Sort by:";
 "staking.recommended.hint3.addition" = "with at least one identity contact";
 "staking.validator.total.stake.token" = "Total stake (%@)";
-"staking.validator.apy.percent" = "Estimated reward (% APY)";
+"staking.validator.apy.percent" = "Estimated reward (% APR)";
 "staking.pending.rewards" = "Pending rewards";
 "staking.rewards.destination.title" = "Rewards destination";
 "staking.your.oversubscribed.message" = "Your tokens are allocated to the oversubscribed validators. You will not receive rewards in this era.";
@@ -720,3 +720,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "staking.next.round" = "NEXT ROUND";
 "chain.selection.all.networks" = "All networks";
 "chain.selection.hide.zero.balances" = "Hide with empty balance";
+"staking.stake.with.selected.title" = "Stake with selected";

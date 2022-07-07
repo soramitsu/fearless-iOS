@@ -81,7 +81,7 @@ final class ChainSelectionPresenter {
     }
 
     private func updateView() {
-        viewModels = chainModels.map { chain in
+        viewModels = chainModels.filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }.map { chain in
             let icon: ImageViewModelProtocol? = chain.icon.map { RemoteImageViewModel(url: $0) }
             let title = chain.name
             let isSelected = chain.identifier == selectedChainId

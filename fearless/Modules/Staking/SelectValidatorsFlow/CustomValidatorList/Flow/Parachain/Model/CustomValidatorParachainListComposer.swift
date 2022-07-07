@@ -21,19 +21,23 @@ extension CustomValidatorParachainListComposer {
             filtered = filtered.filter {
                 $0.hasIdentity
             }
+        } else {
+            filtered = validators
         }
 
         if !filter.allowsOversubscribed {
             filtered = filtered.filter {
                 !$0.oversubscribed
             }
+        } else {
+            filtered = validators
         }
 
         let sorted: [ParachainStakingCandidateInfo]
 
         switch filter.sortedBy {
         case .estimatedReward:
-            sorted = filtered.sorted(by: { $0.stakeReturn >= $1.stakeReturn })
+            sorted = filtered.sorted(by: { $0.subqueryData?.apr ?? 0.0 >= $1.subqueryData?.apr ?? 0.0 })
         case .effectiveAmountBonded:
             sorted = filtered.sorted(by: { $0.metadata?.totalCounted ?? BigUInt.zero >= $1.metadata?.totalCounted ?? BigUInt.zero })
         case .ownStake:
