@@ -180,7 +180,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 for: chainSubscriptionId,
                 chainId: chainId,
                 queue: nil,
-                closure: nil
+                closure: nil,
+                stakingType: selectedChainAsset?.stakingType
             )
 
             self.chainSubscriptionId = nil
@@ -195,7 +196,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         chainSubscriptionId = stakingRemoteSubscriptionService.attachToGlobalData(
             for: chainId,
             queue: nil,
-            closure: nil
+            closure: nil,
+            stakingType: selectedChainAsset?.stakingType
         )
     }
 
