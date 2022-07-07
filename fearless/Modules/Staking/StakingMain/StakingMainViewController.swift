@@ -373,11 +373,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         nominatorView?.bind(viewModel: viewModel)
     }
 
-    private func applyBonded(viewModel: StakingEstimationViewModel) {
-        let rewardView = setupRewardEstimationViewIfNeeded()
-        rewardView?.bind(viewModel: viewModel)
-    }
-
     private func applyNoStash(viewModel: StakingEstimationViewModel) {
         let rewardView = setupRewardEstimationViewIfNeeded()
         rewardView?.bind(viewModel: viewModel)
@@ -388,6 +383,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         let validatorView = setupValidatorViewIfNeeded()
         validatorView?.delegate = self
         validatorView?.bind(viewModel: viewModel)
+    }
+
+    private func applyRewards(viewModel: StakingEstimationViewModel) {
+        let rewardView = setupRewardEstimationViewIfNeeded()
+        rewardView?.bind(viewModel: viewModel)
     }
 
     private func applyDelegations(viewModels: [DelegationInfoCellModel]?) {
@@ -509,8 +509,13 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
 //            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .delegations(viewModels: viewModels, alerts: alerts):
-            applyDelegations(viewModels: viewModels)
+        case let .delegations(
+            rewardViewModel: rewardViewModel,
+            delegationViewModels: delegationViewModels,
+            alerts: alerts
+        ):
+            applyDelegations(viewModels: delegationViewModels)
+            applyRewards(viewModel: rewardViewModel)
             applyAlerts(alerts)
         }
     }

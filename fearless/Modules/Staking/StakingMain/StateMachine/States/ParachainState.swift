@@ -2,13 +2,17 @@ import Foundation
 import BigInt
 
 final class ParachainState: BaseStakingState {
+    private(set) var rewardEstimationAmount: Decimal?
     var moreHandler: ((ParachainStakingDelegationInfo) -> Void)?
     var statusHandler: (() -> Void)?
 
     init(
         stateMachine: StakingStateMachineProtocol,
-        commonData: StakingStateCommonData
+        commonData: StakingStateCommonData,
+        rewardEstimationAmount: Decimal? = nil
     ) {
+        self.rewardEstimationAmount = rewardEstimationAmount
+
         super.init(stateMachine: stateMachine, commonData: commonData)
     }
 
@@ -53,6 +57,12 @@ final class ParachainState: BaseStakingState {
 
     override func process(currentBlock: UInt32?) {
         self.currentBlock = currentBlock
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(rewardEstimationAmount: Decimal?) {
+        self.rewardEstimationAmount = rewardEstimationAmount
 
         stateMachine?.transit(to: self)
     }
