@@ -425,7 +425,7 @@ Derivation path: %@";
 "common.filter.sort.header" = "Sort by:";
 "staking.recommended.hint3.addition" = "with at least one identity contact";
 "staking.validator.total.stake.token" = "Total stake (%@)";
-"staking.validator.apy.percent" = "Estimated reward (% APR)";
+"staking.validator.apy.percent" = "Estimated reward (% APY)";
 "staking.pending.rewards" = "Pending rewards";
 "staking.rewards.destination.title" = "Rewards destination";
 "staking.your.oversubscribed.message" = "Your tokens are allocated to the oversubscribed validators. You will not receive rewards in this era.";
@@ -698,7 +698,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "staking.start.change.collators.suggested.subtitle" = "FEARLESS algorithm has made a list of suggested collators based on the following criteria:";
 "staking.select.suggested" = "Select suggested";
 "staking.start.change.collators.custom.title" = "Stake with your collators";
-"select.collators.warning" = "WARNING: Holders of MOVR/GLMR tokens should perform careful due diligence on collators before delegating. Being listed as a collator is not an endorsement or recommendation from the Moonbeam Network, the Moonriver Network, or Moonbeam Foundation. Neither the Moonbeam Network, Moonriver Network, nor Moonbeam Foundation has vetted the list collators and assumes no responsibility with regard to the selection, performance, security, accuracy, or use of any third-party offerings. You alone are responsible for doing your own diligence to understand the applicable fees and all risks present, including actively monitoring the activity of your collators.";
+"select.collators.warning" = "DISCLAIMER: Algorithmic сollator suggestions do not constitute financial consultation or advice. Staking is a high-risk activity, and algorithmic сollator suggestions do not necessarily mitigate this risk. A сollator suggested by the algorithm could still leave the pool of candidates. A сollator suggested by the algorithm could also change their parameters (e.g.,commission rates, etc.) at any time after having been suggested and/or selected. You could lose rewards for these or other reasons. Only stake tokens and use сollator suggestions at your own discretion, after conducting due diligence and carefully considering the risks involved.";
 "staking.suggested.collators.title" = "Suggested collators";
 "wallet.send.tip.title" = "Tip";
 "staking.selected.collator" = "Selected collator";
@@ -721,3 +721,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "chain.selection.all.networks" = "All networks";
 "chain.selection.hide.zero.balances" = "Hide with empty balance";
 "staking.stake.with.selected.title" = "Stake with selected";
+"staking.filter.title.rewards.apr" = "Rewards (APR)";

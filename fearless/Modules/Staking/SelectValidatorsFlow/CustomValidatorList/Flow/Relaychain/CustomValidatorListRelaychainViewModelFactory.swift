@@ -102,7 +102,8 @@ class CustomValidatorListRelaychainViewModelFactory {
         totalValidatorsCount: Int,
         filter: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        maxTargets: Int
     ) -> CustomValidatorListViewModel {
         let headerViewModel = createHeaderViewModel(
             displayValidatorsCount: displayValidatorList.count,
@@ -127,7 +128,14 @@ class CustomValidatorListRelaychainViewModelFactory {
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorList.count,
                     preferredLanguages: locale.rLanguages
-                )
+                ),
+            fillRestButtonVisible: true,
+            fillRestButtonEnabled: selectedValidatorList.count < maxTargets,
+            clearButtonEnabled: filter != CustomValidatorRelaychainListFilter.defaultFilter(),
+            deselectButtonEnabled: !selectedValidatorList.isEmpty,
+            deselectedButtonVisible: true,
+            identityButtonVisible: false,
+            identityButtonSelected: false
         )
     }
 }
@@ -165,7 +173,14 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
                 .stakingCustomProceedButtonDisabledTitle(
                     relaychainViewModelState.selectedValidatorList.count,
                     preferredLanguages: locale.rLanguages
-                )
+                ),
+            fillRestButtonVisible: true,
+            fillRestButtonEnabled: relaychainViewModelState.selectedValidatorList.count < relaychainViewModelState.maxTargets,
+            clearButtonEnabled: relaychainViewModelState.filter != CustomValidatorRelaychainListFilter.defaultFilter(),
+            deselectButtonEnabled: !relaychainViewModelState.selectedValidatorList.items.isEmpty,
+            deselectedButtonVisible: true,
+            identityButtonVisible: false,
+            identityButtonSelected: false
         )
     }
 }

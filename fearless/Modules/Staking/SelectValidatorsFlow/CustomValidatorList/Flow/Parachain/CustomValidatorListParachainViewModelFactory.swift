@@ -34,7 +34,7 @@ class CustomValidatorListParachainViewModelFactory {
         switch filter.sortedBy {
         case .estimatedReward:
             subtitle = R.string.localizable
-                .stakingFilterTitleRewards(preferredLanguages: locale.rLanguages)
+                .stakingFilterTitleRewardsApr(preferredLanguages: locale.rLanguages)
         case .ownStake:
             subtitle = R.string.localizable
                 .stakingFilterTitleOwnStake(preferredLanguages: locale.rLanguages)
@@ -154,7 +154,14 @@ class CustomValidatorListParachainViewModelFactory {
             proceedButtonTitle: R.string.localizable
                 .stakingStakeWithSelectedTitle(
                     preferredLanguages: locale.rLanguages
-                )
+                ),
+            fillRestButtonVisible: false,
+            fillRestButtonEnabled: false,
+            clearButtonEnabled: filter != CustomValidatorParachainListFilter.defaultFilter(),
+            deselectButtonEnabled: false,
+            deselectedButtonVisible: false,
+            identityButtonVisible: true,
+            identityButtonSelected: filter.allowsNoIdentity
         )
     }
 }
@@ -191,7 +198,14 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             proceedButtonTitle: R.string.localizable
                 .stakingStakeWithSelectedTitle(
                     preferredLanguages: locale.rLanguages
-                )
+                ),
+            fillRestButtonVisible: false,
+            fillRestButtonEnabled: false,
+            clearButtonEnabled: parachainViewModelState.filterApplied,
+            deselectButtonEnabled: false,
+            deselectedButtonVisible: false,
+            identityButtonVisible: true,
+            identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity
         )
     }
 }

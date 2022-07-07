@@ -85,10 +85,11 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         rootView.clearButton.addTarget(self, action: #selector(tapClearButton), for: .touchUpInside)
         rootView.deselectButton.addTarget(self, action: #selector(tapDeselectButton), for: .touchUpInside)
         rootView.proceedButton.addTarget(self, action: #selector(tapProceedButton), for: .touchUpInside)
+        rootView.identityFilterButton.addTarget(self, action: #selector(tapIdentityFilterButton), for: .touchUpInside)
 
-        updateFillRestButton()
-        updateDeselectButton()
-        updateProceedButton()
+        updateFillRestButton(visible: false, enabled: false)
+        updateDeselectButton(visible: false, enabled: false)
+        updateProceedButton(title: nil)
     }
 
     private func updateSetFiltersButton() {
@@ -96,46 +97,57 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         filterButton.setImage(image, for: .normal)
     }
 
-    private func updateFillRestButton() {
-        let isEnabled = selectedValidatorsCount < selectedValidatorsLimit
-        rootView.fillRestButton.isEnabled = isEnabled
+    private func updateFillRestButton(visible _: Bool, enabled: Bool) {
+        rootView.fillRestButton.isEnabled = enabled
+        rootView.fillRestButton.isHidden = !enabled
 
-        if isEnabled {
+        if enabled {
             rootView.fillRestButton.applyEnabledStyle()
         } else {
             rootView.fillRestButton.applyDisabledStyle()
         }
     }
 
-    private func updateClearFiltersButton() {
-        rootView.clearButton.isEnabled = filterIsApplied
+    private func updateClearFiltersButton(visible: Bool, enabled: Bool) {
+        rootView.clearButton.isEnabled = enabled
+        rootView.clearButton.isHidden = !visible
 
-        if filterIsApplied {
+        if enabled {
             rootView.clearButton.applyEnabledStyle()
         } else {
             rootView.clearButton.applyDisabledStyle()
         }
     }
 
-    private func updateDeselectButton() {
-        let isEnabled = selectedValidatorsCount > 0
-        rootView.deselectButton.isEnabled = isEnabled
+    private func updateDeselectButton(visible: Bool, enabled: Bool) {
+        rootView.deselectButton.isEnabled = enabled
+        rootView.deselectButton.isHidden = !visible
 
-        if isEnabled {
+        if enabled {
             rootView.deselectButton.applyEnabledStyle()
         } else {
             rootView.deselectButton.applyDisabledStyle()
         }
     }
 
-    private func updateProceedButton() {
+    private func updateIdentityFitlerButton(visible: Bool, enabled: Bool) {
+        rootView.identityFilterButton.isHidden = !visible
+
+        if !enabled {
+            rootView.identityFilterButton.applyEnabledStyle()
+        } else {
+            rootView.identityFilterButton.applyDisabledStyle()
+        }
+    }
+
+    private func updateProceedButton(title: String?) {
         let buttonTitle: String
         let isEnabled: Bool
 
         if selectedValidatorsCount == 0 {
             isEnabled = false
 
-            buttonTitle = R.string.localizable
+            buttonTitle = title ?? R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
@@ -144,7 +156,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         } else {
             isEnabled = true
 
-            buttonTitle = R.string.localizable
+            buttonTitle = title ?? R.string.localizable
                 .stakingCustomProceedButtonEnabledTitle(
                     selectedValidatorsCount,
                     selectedValidatorsLimit,
@@ -185,6 +197,10 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
     @objc private func tapProceedButton() {
         presenter.proceed()
     }
+
+    @objc private func tapIdentityFilterButton() {
+        presenter.changeIdentityFilterValue()
+    }
 }
 
 // MARK: - Localizable
@@ -195,6 +211,7 @@ extension CustomValidatorListViewController: Localizable {
             title = R.string.localizable
                 .stakingCustomValidatorsListTitle(preferredLanguages: selectedLocale.rLanguages)
 
+            rootView.identityFilterButton.imageWithTitleView?.title = R.string.localizable.stakingRecommendedHint3(preferredLanguages: selectedLocale.rLanguages).uppercased()
             rootView.fillRestButton.imageWithTitleView?.title = R.string.localizable
                 .stakingCustomFillButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
             rootView.clearButton.imageWithTitleView?.title = R.string.localizable
@@ -202,7 +219,7 @@ extension CustomValidatorListViewController: Localizable {
             rootView.deselectButton.imageWithTitleView?.title = R.string.localizable
                 .stakingCustomDeselectButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
 
-            updateProceedButton()
+            updateProceedButton(title: nil)
         }
     }
 }
@@ -227,14 +244,15 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
             rootView.tableView.reloadData()
         }
 
-        updateFillRestButton()
-        updateDeselectButton()
-        updateProceedButton()
+        updateFillRestButton(visible: viewModel.fillRestButtonVisible, enabled: viewModel.fillRestButtonEnabled)
+        updateDeselectButton(visible: viewModel.deselectedButtonVisible, enabled: viewModel.deselectButtonEnabled)
+        updateIdentityFitlerButton(visible: viewModel.identityButtonVisible, enabled: viewModel.identityButtonSelected)
+        updateProceedButton(title: viewModel.proceedButtonTitle)
     }
 
     func setFilterAppliedState(to applied: Bool) {
         filterIsApplied = applied
-        updateClearFiltersButton()
+        updateClearFiltersButton(visible: true, enabled: applied)
         updateSetFiltersButton()
     }
 

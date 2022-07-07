@@ -8,7 +8,7 @@ final class SelectValidatorsStartParachainViewModelFactory: SelectValidatorsStar
 
         return SelectValidatorsStartViewModel(
             selectedCount: parachainViewModelState.selectedCandidates?.count ?? 0,
-            totalCount: parachainViewModelState.maxDelegations ?? 0
+            totalCount: nil
         )
     }
 

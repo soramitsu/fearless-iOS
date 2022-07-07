@@ -20,7 +20,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         self.bonding = bonding
         self.selectedValidatorList = selectedValidatorList
 
-        filteredValidatorList = composeFilteredValidatorList(filter: CustomValidatorParachainListFilter.defaultFilter())
+        filteredValidatorList = composeFilteredValidatorList(filter: CustomValidatorParachainListFilter.recommendedFilter())
     }
 
     var viewModel: CustomValidatorListViewModel?
@@ -75,6 +75,12 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
         stateListener?.showConfirmation()
     }
 
+    func changeIdentityFilterValue() {
+        filter.allowsNoIdentity = !filter.allowsNoIdentity
+        filteredValidatorList = composeFilteredValidatorList(filter: filter)
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
     func changeValidatorSelection(at index: Int) {
         let validator = filteredValidatorList[index]
 
@@ -104,6 +110,7 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
     func clearFilter() {
         filter = CustomValidatorParachainListFilter.defaultFilter()
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func updateFilter(with flow: ValidatorListFilterFlow) {
@@ -114,6 +121,7 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
         filter = updatedFilter
 
         filteredValidatorList = composeFilteredValidatorList(filter: updatedFilter)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 

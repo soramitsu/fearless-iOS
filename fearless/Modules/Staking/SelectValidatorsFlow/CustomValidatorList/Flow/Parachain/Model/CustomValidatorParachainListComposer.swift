@@ -21,16 +21,12 @@ extension CustomValidatorParachainListComposer {
             filtered = filtered.filter {
                 $0.hasIdentity
             }
-        } else {
-            filtered = validators
         }
 
         if !filter.allowsOversubscribed {
             filtered = filtered.filter {
                 !$0.oversubscribed
             }
-        } else {
-            filtered = validators
         }
 
         let sorted: [ParachainStakingCandidateInfo]

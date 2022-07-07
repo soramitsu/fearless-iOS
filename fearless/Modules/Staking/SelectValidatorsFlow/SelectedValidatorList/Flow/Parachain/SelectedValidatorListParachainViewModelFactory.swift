@@ -22,7 +22,7 @@ final class SelectedValidatorListParachainViewModelFactory {
             )
 
         let subtitle = R.string.localizable
-            .stakingFilterTitleRewards(preferredLanguages: locale.rLanguages)
+            .stakingFilterTitleRewardsApr(preferredLanguages: locale.rLanguages)
 
         return TitleWithSubtitleViewModel(
             title: title,

@@ -723,3 +723,5 @@ and depending on the network state, may not be selected to participate";
 "staking.next.round" = "NEXT ROUND";
 "chain.selection.all.networks" = "Все сети";
 "chain.selection.hide.zero.balances" = "Скрыть с пустым балансом";
+"staking.stake.with.selected.title" = "Stake with selected";
+"staking.filter.title.rewards.apr" = "Rewards (APR)";

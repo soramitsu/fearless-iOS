@@ -94,7 +94,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
         let estimatedReward = collatorInfo.subqueryData?.apr ?? 0.0
         let estimatedRewardDecimal = Decimal(estimatedReward)
-        let estimatedRewardString = NumberFormatter.percentPlainAPY.localizableResource()
+        let estimatedRewardString = NumberFormatter.percentPlainAPR.localizableResource()
             .value(for: locale).stringFromDecimal(estimatedRewardDecimal) ?? ""
 
         let minimumBond = Decimal.fromSubstrateAmount(

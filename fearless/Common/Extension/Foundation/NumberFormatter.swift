@@ -51,6 +51,13 @@ extension NumberFormatter {
         return numberFormatter
     }
 
+    static var percentPlainAPR: NumberFormatter {
+        let numberFormatter = percentBase
+        numberFormatter.percentSymbol = "% APR"
+        numberFormatter.multiplier = 1
+        return numberFormatter
+    }
+
     static var percentAPY: NumberFormatter {
         let numberFormatter = percentBase
         numberFormatter.percentSymbol = "% APY"
