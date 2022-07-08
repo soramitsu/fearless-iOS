@@ -246,7 +246,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             let viewModelFactory = StakingAmountParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
                 rewardDestViewModelFactory: rewardDestViewModelFactory,
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)), wallet: wallet
             )
 
             return StakingAmountDependencyContainer(

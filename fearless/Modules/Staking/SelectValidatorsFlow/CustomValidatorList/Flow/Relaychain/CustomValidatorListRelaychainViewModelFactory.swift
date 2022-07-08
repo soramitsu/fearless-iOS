@@ -135,7 +135,8 @@ class CustomValidatorListRelaychainViewModelFactory {
             deselectButtonEnabled: !selectedValidatorList.isEmpty,
             deselectedButtonVisible: true,
             identityButtonVisible: false,
-            identityButtonSelected: false
+            identityButtonSelected: false,
+            title: R.string.localizable.stakingCustomValidatorsListTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }
@@ -180,7 +181,8 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             deselectButtonEnabled: !relaychainViewModelState.selectedValidatorList.items.isEmpty,
             deselectedButtonVisible: true,
             identityButtonVisible: false,
-            identityButtonSelected: false
+            identityButtonSelected: false,
+            title: R.string.localizable.stakingCustomValidatorsListTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }

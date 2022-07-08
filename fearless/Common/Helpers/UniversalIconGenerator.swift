@@ -98,6 +98,33 @@ final class UniversalIconGenerator: IconGenerating {
         )
     }
 
+    public func ethereumIconFromAddress(_ address: String) throws -> DrawableIcon {
+        let accountId = try deriveAccountIdFromAddress(address)
+
+        let colors = try getColorsForData(accountId)
+        var colorsWithoutDuplicates: [UIColor] = []
+        colors.forEach { color in
+            if !colorsWithoutDuplicates.contains(color) {
+                colorsWithoutDuplicates.append(color)
+            }
+        }
+        let centers = generateSquareCenters(squareSize: Self.diameter / 2, accountId: accountId)
+
+        let squares = (0 ..< centers.count).map { index in
+            EthereumIcon.Square(
+                origin: centers[index],
+                color: colorsWithoutDuplicates[index],
+                sideSize: Self.diameter,
+                rotation: generateSquareRotations(accountId: accountId)
+            )
+        }
+
+        return EthereumIcon(
+            radius: Self.diameter / 2,
+            squares: squares
+        )
+    }
+
     private func deriveAccountIdFromAddress(_ address: String) throws -> Data {
         let zero: [UInt8] = try (Data(repeating: 0, count: 32) as NSData).blake2b(64).map { $0 }
 
@@ -167,6 +194,34 @@ final class UniversalIconGenerator: IconGenerating {
         }
 
         throw UniversalIconGeneratorError.noSchemeFound
+    }
+
+    private func generateSquareRotations(accountId: Data) -> CGFloat {
+        let rotation: CGFloat = accountId.map { CGFloat($0) }[31]
+        return rotation
+    }
+
+    private func generateSquareCenters(squareSize: CGFloat, accountId: Data) -> [CGPoint] {
+        let accountIdBytes: [CGFloat] = accountId.map { CGFloat($0) / 25.0 }
+
+        return [
+            CGPoint(
+                x: -squareSize / 2 - accountIdBytes[0],
+                y: -squareSize / 2 - accountIdBytes[1]
+            ),
+            CGPoint(
+                x: -squareSize / 2 - accountIdBytes[2],
+                y: squareSize / 2 - accountIdBytes[3]
+            ),
+            CGPoint(
+                x: squareSize / 2 - accountIdBytes[4],
+                y: -squareSize / 2 - accountIdBytes[5]
+            ),
+            CGPoint(
+                x: squareSize / 2 - accountIdBytes[6],
+                y: squareSize / 2 - accountIdBytes[7]
+            )
+        ]
     }
 
     private func generateCircleCenters() -> [CGPoint] {
