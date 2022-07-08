@@ -339,6 +339,8 @@
 "staking.alert.low.stake.text" = "Ваш стейк слишком мал для генерации наград. Вы можете застейкать еще %@ токенов или отозвать свой стейк";
 "staking.alert.unlock.title" = "Вы можете забрать ваши токены";
 "staking.alert.unlock.text" = "Пожалуйста завершите текущую операцию (уменьшить/отозвать стейк) забрав ваши токены";
+"staking.status.low.stake" = "Малый стейк";
+"staking.status.ready.to.unlock" = "Можно забрать";
 "staking.bond.more.tokens" = "Застейкайте ещё токенов";
 "staking.redeem.unbonded.tokens" = "Заберите токены после вывода";
 "staking.your.stake" = "Ваш стейк";

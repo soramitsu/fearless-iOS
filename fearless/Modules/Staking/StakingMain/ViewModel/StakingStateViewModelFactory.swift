@@ -174,20 +174,17 @@ final class StakingStateViewModelFactory {
     }
 
     private func createDelegationViewModels(
-        commonData: StakingStateCommonData,
+        state: ParachainState,
         chainAsset: ChainAsset,
-        delegationInfos: [ParachainStakingDelegationInfo]?,
-        countdownInterval: TimeInterval?,
-        moreHandler _: ((ParachainStakingDelegationInfo) -> Void)?,
-        statusHandler _: (() -> Void)?
+        countdownInterval: TimeInterval?
     ) -> [DelegationInfoCellModel]? {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
-        let models: [DelegationInfoCellModel]? = delegationInfos?.compactMap { delegationInfo in
+        let models: [DelegationInfoCellModel]? = state.delegationInfos?.compactMap { delegationInfo in
             let collator = delegationInfo.collator
             let delegation = delegationInfo.delegation
 
             let resource: LocalizableResource<DelegationViewModelProtocol> = LocalizableResource { locale in
-                let status: DelegationViewStatus
+                var status: DelegationViewStatus
                 switch collator.metadata?.status {
                 case .active:
                     status = .active(countdown: countdownInterval)
@@ -199,6 +196,42 @@ final class StakingStateViewModelFactory {
                     status = .undefined
                 }
 
+                if let bottomDelegations = state.bottomDelegations,
+                   let collatorBottomDelegations = bottomDelegations[collator.address] {
+                    if collatorBottomDelegations.delegations.contains(where: { $0 == delegation }) {
+                        status = .lowStake
+                    }
+                }
+
+                if let accountId = try? state.commonData.address?.toAccountId(using: chainAsset.chain.chainFormat),
+                   let round = state.round,
+                   let requests = state.requests {
+                    if requests.contains(where: { requestsByCollatorAddress in
+                        let ownOutdatedRequests = requestsByCollatorAddress.value
+                            .filter { $0.delegator == accountId }
+                            .filter { $0.whenExecutable <= round.current }
+                        let amount: BigUInt = ownOutdatedRequests.compactMap { ownRequest in
+                            var amount = BigUInt.zero
+                            if case let .revoke(revokeAmount) = ownRequest.action {
+                                amount += revokeAmount
+                            }
+
+                            if case let .decrease(decreaseAmount) = ownRequest.action {
+                                amount += decreaseAmount
+                            }
+
+                            return amount
+                        }.reduce(BigUInt.zero, +)
+
+                        if amount > BigUInt.zero {
+                            return collator.address == requestsByCollatorAddress.key
+                        }
+                        return false
+                    }) {
+                        status = .readyToUnlock
+                    }
+                }
+
                 let amount = Decimal.fromSubstrateAmount(
                     delegation.amount,
                     precision: Int16(chainAsset.asset.precision)
@@ -208,12 +241,12 @@ final class StakingStateViewModelFactory {
                     totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
                     totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
                         amount,
-                        priceData: commonData.price
+                        priceData: state.commonData.price
                     ).value(for: locale).price ?? "",
                     totalRewardAmount: balanceViewModelFactory.amountFromValue(Decimal.zero).value(for: locale),
                     totalRewardPrice: balanceViewModelFactory.balanceFromPrice(
                         Decimal.zero,
-                        priceData: commonData.price
+                        priceData: state.commonData.price
                     ).value(for: locale).price ?? "",
                     status: status,
                     hasPrice: true,
@@ -566,12 +599,9 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         }
 
         let delegationViewModels = createDelegationViewModels(
-            commonData: state.commonData,
+            state: state,
             chainAsset: chainAsset,
-            delegationInfos: state.delegationInfos,
-            countdownInterval: countdownInterval,
-            moreHandler: state.moreHandler,
-            statusHandler: state.statusHandler
+            countdownInterval: countdownInterval
         )
         let alerts = stakingAlertParachainState(state)
         do {

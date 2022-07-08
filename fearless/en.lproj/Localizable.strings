@@ -339,6 +339,8 @@ Derivation path: %@";
 "staking.alert.low.stake.text" = "Your stake amount is too small for generating rewards. You can stake %@ more tokens or revoke your stake.";
 "staking.alert.unlock.title" = "Your tokens are ready for unlocking";
 "staking.alert.unlock.text" = "Please complete the pending operation (stake less/revoke) by unlocking your tokens";
+"staking.status.low.stake" = "Low stake";
+"staking.status.ready.to.unlock" = "Ready to unlock";
 "staking.bond.more.tokens" = "Stake more tokens.";
 "staking.redeem.unbonded.tokens" = "Redeem unstaked tokens.";
 "staking.your.stake" = "Your stake";

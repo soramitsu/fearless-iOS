@@ -75,6 +75,10 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             presentIdleStatus(countdown: countdown)
         case let .leaving(countdown):
             presentLeavingState(countdown: countdown)
+        case .lowStake:
+            presentLowStakeState()
+        case .readyToUnlock:
+            presentReadyToUnlock()
         case .undefined:
             skeletonOptions.insert(.status)
         }
@@ -122,6 +126,22 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         if let remainingTime = countdown {
             timer.start(with: remainingTime, runLoop: .main, mode: .common)
         }
+    }
+
+    private func presentLowStakeState() {
+        statusView.titleView.indicatorColor = R.color.colorRed()!
+        statusView.titleView.titleLabel.textColor = R.color.colorRed()!
+
+        statusView.titleView.titleLabel.text =
+            R.string.localizable.stakingStatusLowStake(preferredLanguages: locale.rLanguages).uppercased()
+    }
+
+    private func presentReadyToUnlock() {
+        statusView.titleView.indicatorColor = R.color.colorRed()!
+        statusView.titleView.titleLabel.textColor = R.color.colorRed()!
+
+        statusView.titleView.titleLabel.text =
+            R.string.localizable.stakingStatusReadyToUnlock(preferredLanguages: locale.rLanguages).uppercased()
     }
 }
 

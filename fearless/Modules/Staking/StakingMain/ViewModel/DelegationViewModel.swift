@@ -4,6 +4,8 @@ enum DelegationViewStatus {
     case active(countdown: TimeInterval?)
     case idle(countdown: TimeInterval?)
     case leaving(countdown: TimeInterval?)
+    case readyToUnlock
+    case lowStake
     case undefined
 }
 

@@ -155,34 +155,33 @@ extension StakingStateViewModelFactory {
         }
 
         return bottomDelegations.compactMap { collatorBottomDelegations in
-            if let delegation = collatorBottomDelegations.value.delegations.first(where: { $0.owner == accountId }) {
-                if let minTopDelegationAmount =
-                    topDelegations[collatorBottomDelegations.key]?.delegations.compactMap({ delegation in
-                        delegation.amount
-                    }).min() {
-                    let minTopDecimal = Decimal.fromSubstrateAmount(
-                        minTopDelegationAmount,
-                        precision: Int16(chainAsset.asset.precision)
-                    ) ?? 0.0
-                    let ownAmountDecimal = Decimal.fromSubstrateAmount(
-                        delegation.amount,
-                        precision: Int16(chainAsset.asset.precision)
-                    ) ?? 0.0
-                    let difference = (minTopDecimal - ownAmountDecimal) * 1.1
+            if let delegation = collatorBottomDelegations.value.delegations.first(where: { $0.owner == accountId }),
+               let minTopDelegationAmount =
+               topDelegations[collatorBottomDelegations.key]?.delegations.compactMap({ delegation in
+                   delegation.amount
+               }).min() {
+                let minTopDecimal = Decimal.fromSubstrateAmount(
+                    minTopDelegationAmount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0.0
+                let ownAmountDecimal = Decimal.fromSubstrateAmount(
+                    delegation.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0.0
+                let difference = (minTopDecimal - ownAmountDecimal) * 1.1
 
-                    if let collator = delegationInfos.first(where: { delegationInfo in
-                        delegationInfo.collator.address == collatorBottomDelegations.key
-                    })?.collator {
-                        return .collatorLowStake(
-                            amount: difference.stringWithPointSeparator,
-                            delegation: ParachainStakingDelegationInfo(
-                                delegation: delegation,
-                                collator: collator
-                            )
+                if let collator = delegationInfos.first(where: { delegationInfo in
+                    delegationInfo.collator.address == collatorBottomDelegations.key
+                })?.collator {
+                    return .collatorLowStake(
+                        amount: difference.stringWithPointSeparator,
+                        delegation: ParachainStakingDelegationInfo(
+                            delegation: delegation,
+                            collator: collator
                         )
-                    }
-                    return nil
+                    )
                 }
+                return nil
             }
             return nil
         }
