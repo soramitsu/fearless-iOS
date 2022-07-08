@@ -149,7 +149,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         fetchParachainInfo()
     }
 
-    func fetchBottomDelegations(accountIds: [AccountId]) {
+    func fetchCollatorsDelegations(accountIds: [AccountId]) {
         let accountIdsClosure = { [accountIds] in
             accountIds
         }
@@ -172,7 +172,16 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: delegationScheduledRequests.allOperations + bottomDelegationsOperation.allOperations, in: .transient)
+        let topDelegationsOperation = collatorOperationFactory.collatorTopDelegations(accountIdsClosure: accountIdsClosure)
+
+        topDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                let topDelegations = try? topDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveTopDelegations(delegations: topDelegations)
+            }
+        }
+
+        operationManager.enqueue(operations: delegationScheduledRequests.allOperations + bottomDelegationsOperation.allOperations + topDelegationsOperation.allOperations, in: .transient)
     }
 
     private func fetchParachainInfo() {

@@ -149,11 +149,11 @@ extension StakingStateViewModelFactory {
         guard let chainAsset = state.commonData.chainAsset,
               let accountId = try? state.commonData.address?.toAccountId(using: chainAsset.chain.chainFormat),
               let bottomDelegations = state.bottomDelegations,
+              let topDelegations = state.topDelegations,
               let delegationInfos = state.delegationInfos else {
             return []
         }
 
-        let topDelegations: [AccountAddress: ParachainStakingDelegations] = [:]
         return bottomDelegations.compactMap { collatorBottomDelegations in
             if let delegation = collatorBottomDelegations.value.delegations.first(where: { $0.owner == accountId }) {
                 if let minTopDelegationAmount =
@@ -169,9 +169,9 @@ extension StakingStateViewModelFactory {
                         precision: Int16(chainAsset.asset.precision)
                     ) ?? 0.0
                     let difference = (minTopDecimal - ownAmountDecimal) * 1.1
-                    
+
                     if let collator = delegationInfos.first(where: { delegationInfo in
-                        delegationInfo.collator.owner == delegation.owner
+                        delegationInfo.collator.address == collatorBottomDelegations.key
                     })?.collator {
                         return .collatorLowStake(
                             amount: difference.stringWithPointSeparator,

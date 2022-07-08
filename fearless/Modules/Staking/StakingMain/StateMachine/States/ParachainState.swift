@@ -17,6 +17,7 @@ final class ParachainState: BaseStakingState {
     }
 
     private(set) var delegationInfos: [ParachainStakingDelegationInfo]?
+    private(set) var topDelegations: [AccountAddress: ParachainStakingDelegations]?
     private(set) var bottomDelegations: [AccountAddress: ParachainStakingDelegations]?
     private(set) var requests: [AccountAddress: [ParachainStakingScheduledRequest]]?
     private(set) var round: ParachainStakingRoundInfo?
@@ -45,6 +46,12 @@ final class ParachainState: BaseStakingState {
 
     override func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?) {
         self.bottomDelegations = bottomDelegations
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(topDelegations: [AccountAddress: ParachainStakingDelegations]?) {
+        self.topDelegations = topDelegations
 
         stateMachine?.transit(to: self)
     }

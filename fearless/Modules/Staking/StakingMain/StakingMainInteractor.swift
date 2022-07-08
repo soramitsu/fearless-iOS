@@ -383,7 +383,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         )
 
         if let state = delegatorState {
-            fetchBottomDelegations(accountIds: state.delegations.map(\.owner))
+            fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
 
             let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
             let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)

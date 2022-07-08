@@ -40,6 +40,7 @@ protocol StakingStateProtocol {
     func process(delegationInfos: [ParachainStakingDelegationInfo]?)
     func process(scheduledRequests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
     func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?)
+    func process(topDelegations: [AccountAddress: ParachainStakingDelegations]?)
     func process(roundInfo: ParachainStakingRoundInfo?)
     func process(currentBlock: UInt32?)
 }
