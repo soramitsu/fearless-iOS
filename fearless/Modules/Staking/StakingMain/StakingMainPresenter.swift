@@ -700,7 +700,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(delegationInfos: delegationInfos)
     }
 
-    func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?) {
+    func didReceiveScheduledRequests(requests: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
         stateMachine.state.process(scheduledRequests: requests)
     }
 

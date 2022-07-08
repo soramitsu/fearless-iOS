@@ -169,6 +169,7 @@ extension StakingStateViewModelFactory {
                         precision: Int16(chainAsset.asset.precision)
                     ) ?? 0.0
                     let difference = (minTopDecimal - ownAmountDecimal) * 1.1
+                    
                     if let collator = delegationInfos.first(where: { delegationInfo in
                         delegationInfo.collator.owner == delegation.owner
                     })?.collator {
@@ -188,30 +189,38 @@ extension StakingStateViewModelFactory {
     }
 
     private func findRedeemAlert(state: ParachainState) -> [StakingAlert] {
-        let round = state.round
-        if let requests = state.requests {
-            return requests.filter { request in
-                guard let currentEra = round?.current else {
-                    return false
-                }
+        guard let chainAsset = state.commonData.chainAsset,
+              let accountId = try? state.commonData.address?.toAccountId(using: chainAsset.chain.chainFormat),
+              let delegationInfos = state.delegationInfos,
+              let requests = state.requests,
+              let round = state.round else {
+            return []
+        }
 
-                return request.whenExecutable <= currentEra
-            }.compactMap { request in
+        return requests.compactMap { requestsByCollatorAddress in
+            let ownOutdatedRequests = requestsByCollatorAddress.value
+                .filter { $0.delegator == accountId }
+                .filter { $0.whenExecutable <= round.current }
+
+            let amount: BigUInt = ownOutdatedRequests.compactMap { ownRequest in
                 var amount = BigUInt.zero
-                if case let .revoke(revokeAmount) = request.action {
+                if case let .revoke(revokeAmount) = ownRequest.action {
                     amount += revokeAmount
                 }
 
-                if case let .decrease(decreaseAmount) = request.action {
+                if case let .decrease(decreaseAmount) = ownRequest.action {
                     amount += decreaseAmount
                 }
 
-                if amount > BigUInt.zero {
-                    return .parachainRedeemUnbonded(delegation: (state.delegationInfos?.first)!)
-                }
-                return nil
+                return amount
+            }.reduce(BigUInt.zero, +)
+
+            if amount > BigUInt.zero,
+               let delegationInfo = delegationInfos.first(where: { $0.collator.address == requestsByCollatorAddress.key }) {
+                return .parachainRedeemUnbonded(delegation: delegationInfo)
             }
+
+            return nil
         }
-        return []
     }
 }

@@ -55,7 +55,10 @@ final class StakingBalanceParachainStrategy {
 
         delegationScheduledRequestsOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
-                let requests = try? delegationScheduledRequestsOperation.targetOperation.extractNoCancellableResultData()
+                let requests = try? delegationScheduledRequestsOperation.targetOperation.extractNoCancellableResultData()?.compactMap { requestsByAddress in
+                    requestsByAddress.value
+                }.reduce([], +)
+
                 self?.output?.didReceiveScheduledRequests(requests: requests)
             }
         }

@@ -269,7 +269,7 @@ final class ParachainCollatorOperationFactory {
     func createDelegationScheduledRequestsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
-    ) -> CompoundOperationWrapper<[StorageResponse<[ParachainStakingScheduledRequest]>]> {
+    ) -> CompoundOperationWrapper<[AccountAddress: [ParachainStakingScheduledRequest]]> {
         let delegationScheduledRequestsWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainStakingScheduledRequest]>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
@@ -280,7 +280,31 @@ final class ParachainCollatorOperationFactory {
 
         delegationScheduledRequestsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
-        return delegationScheduledRequestsWrapper
+        let mergeOperation = ClosureOperation<[AccountAddress: [ParachainStakingScheduledRequest]]> { [weak self] in
+            guard let strongSelf = self else {
+                return [:]
+            }
+
+            let requestsInfo = try delegationScheduledRequestsWrapper.targetOperation.extractNoCancellableResultData()
+
+            var requestsByAddress: [AccountAddress: [ParachainStakingScheduledRequest]] = [:]
+            try requestsInfo.compactMap {
+                let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
+                let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
+                if let requests = $0.value {
+                    requestsByAddress[address] = requests
+                }
+            }
+
+            return requestsByAddress
+        }
+
+        mergeOperation.addDependency(delegationScheduledRequestsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: delegationScheduledRequestsWrapper.allOperations
+        )
     }
 
     func createRoundOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]> {
@@ -622,15 +646,15 @@ extension ParachainCollatorOperationFactory {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    func delegationScheduledRequests(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[ParachainStakingScheduledRequest]?> {
+    func delegationScheduledRequests(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: [ParachainStakingScheduledRequest]]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let delegatorStateWrapper = createDelegationScheduledRequestsOperation(
             dependingOn: runtimeOperation,
             accountIdsClosure: accountIdsClosure
         )
 
-        let mapOperation = ClosureOperation<[ParachainStakingScheduledRequest]?> {
-            try delegatorStateWrapper.targetOperation.extractNoCancellableResultData().compactMap(\.value).reduce([], +)
+        let mapOperation = ClosureOperation<[AccountAddress: [ParachainStakingScheduledRequest]]?> {
+            try delegatorStateWrapper.targetOperation.extractNoCancellableResultData()
         }
 
         mapOperation.addDependency(delegatorStateWrapper.targetOperation)

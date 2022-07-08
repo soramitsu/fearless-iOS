@@ -38,7 +38,7 @@ protocol StakingStateProtocol {
     func process(eraCountdown: EraCountdown)
     func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod))
     func process(delegationInfos: [ParachainStakingDelegationInfo]?)
-    func process(scheduledRequests: [ParachainStakingScheduledRequest]?)
+    func process(scheduledRequests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
     func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?)
     func process(roundInfo: ParachainStakingRoundInfo?)
     func process(currentBlock: UInt32?)

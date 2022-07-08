@@ -18,7 +18,7 @@ final class ParachainState: BaseStakingState {
 
     private(set) var delegationInfos: [ParachainStakingDelegationInfo]?
     private(set) var bottomDelegations: [AccountAddress: ParachainStakingDelegations]?
-    private(set) var requests: [ParachainStakingScheduledRequest]?
+    private(set) var requests: [AccountAddress: [ParachainStakingScheduledRequest]]?
     private(set) var round: ParachainStakingRoundInfo?
     private(set) var currentBlock: UInt32?
 
@@ -37,7 +37,7 @@ final class ParachainState: BaseStakingState {
         stateMachine?.transit(to: self)
     }
 
-    override func process(scheduledRequests: [ParachainStakingScheduledRequest]?) {
+    override func process(scheduledRequests: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
         requests = scheduledRequests
 
         stateMachine?.transit(to: self)

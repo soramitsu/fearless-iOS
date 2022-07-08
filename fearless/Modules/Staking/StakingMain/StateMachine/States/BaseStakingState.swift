@@ -135,7 +135,7 @@ class BaseStakingState: StakingStateProtocol {
     func process(payee _: RewardDestinationArg?) {}
     func process(delegationInfos _: [ParachainStakingDelegationInfo]?) {}
     func process(bottomDelegations _: [AccountAddress: ParachainStakingDelegations]?) {}
-    func process(scheduledRequests _: [ParachainStakingScheduledRequest]?) {}
+    func process(scheduledRequests _: [AccountAddress: [ParachainStakingScheduledRequest]]?) {}
     func process(roundInfo _: ParachainStakingRoundInfo?) {}
     func process(currentBlock _: UInt32?) {}
 
