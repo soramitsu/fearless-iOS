@@ -30,11 +30,7 @@ extension StakingStateViewModelFactory {
     }
 
     func stakingAlertParachainState(_ state: ParachainState) -> [StakingAlert] {
-        [
-            findCollatorLeavingAlert(state: state),
-            findLowStakeAlert(state: state),
-            findRedeemAlert(state: state)
-        ].compactMap { $0 }
+        findCollatorLeavingAlert(state: state) + findLowStakeAlert(state: state) + findRedeemAlert(state: state)
     }
 
     private func findRedeemUnbondedAlert(
@@ -136,61 +132,86 @@ extension StakingStateViewModelFactory {
 
 //    Parachain
 
-    private func findCollatorLeavingAlert(state: ParachainState) -> StakingAlert? {
+    private func findCollatorLeavingAlert(state: ParachainState) -> [StakingAlert] {
         let delegations = state.delegationInfos
-        if let delegations = delegations, delegations.contains(where: { delegation in
-            delegation.collator.metadata?.status == .leaving
-        }) {
-            return .collatorLeaving
+        if let delegations = delegations {
+            return delegations.compactMap { delegation in
+                if case .leaving = delegation.collator.metadata?.status, let name = delegation.collator.identity?.name {
+                    return .collatorLeaving(collatorName: name, delegation: delegation)
+                }
+                return nil
+            }
         }
-        return nil
+        return []
     }
 
-    private func findLowStakeAlert(state: ParachainState) -> StakingAlert? {
-        guard let chainFormat = state.commonData.chainAsset?.chain.chainFormat,
-              let accountId = try? state.commonData.address?.toAccountId(using: chainFormat) else {
+    private func findLowStakeAlert(state: ParachainState) -> [StakingAlert] {
+        guard let chainAsset = state.commonData.chainAsset,
+              let accountId = try? state.commonData.address?.toAccountId(using: chainAsset.chain.chainFormat),
+              let bottomDelegations = state.bottomDelegations,
+              let delegationInfos = state.delegationInfos else {
+            return []
+        }
+
+        let topDelegations: [AccountAddress: ParachainStakingDelegations] = [:]
+        return bottomDelegations.compactMap { collatorBottomDelegations in
+            if let delegation = collatorBottomDelegations.value.delegations.first(where: { $0.owner == accountId }) {
+                if let minTopDelegationAmount =
+                    topDelegations[collatorBottomDelegations.key]?.delegations.compactMap({ delegation in
+                        delegation.amount
+                    }).min() {
+                    let minTopDecimal = Decimal.fromSubstrateAmount(
+                        minTopDelegationAmount,
+                        precision: Int16(chainAsset.asset.precision)
+                    ) ?? 0.0
+                    let ownAmountDecimal = Decimal.fromSubstrateAmount(
+                        delegation.amount,
+                        precision: Int16(chainAsset.asset.precision)
+                    ) ?? 0.0
+                    let difference = (minTopDecimal - ownAmountDecimal) * 1.1
+                    if let collator = delegationInfos.first(where: { delegationInfo in
+                        delegationInfo.collator.owner == delegation.owner
+                    })?.collator {
+                        return .collatorLowStake(
+                            amount: difference.stringWithPointSeparator,
+                            delegation: ParachainStakingDelegationInfo(
+                                delegation: delegation,
+                                collator: collator
+                            )
+                        )
+                    }
+                    return nil
+                }
+            }
             return nil
         }
-
-        let delegations = state.bottomDelegations?.values.compactMap { delegation in
-            delegation.delegations
-        }.reduce([], +)
-
-        if delegations?.contains(where: { delegation in
-            delegation.owner == accountId
-        }) == true {
-            return .collatorLowStake(LocalizableResource { _ in String() })
-        }
-
-        return nil
     }
 
-    private func findRedeemAlert(state: ParachainState) -> StakingAlert? {
-        let requests = state.requests
+    private func findRedeemAlert(state: ParachainState) -> [StakingAlert] {
         let round = state.round
-        let amount = requests?.filter { request in
-            guard let currentEra = round?.current else {
-                return false
+        if let requests = state.requests {
+            return requests.filter { request in
+                guard let currentEra = round?.current else {
+                    return false
+                }
+
+                return request.whenExecutable <= currentEra
+            }.compactMap { request in
+                var amount = BigUInt.zero
+                if case let .revoke(revokeAmount) = request.action {
+                    amount += revokeAmount
+                }
+
+                if case let .decrease(decreaseAmount) = request.action {
+                    amount += decreaseAmount
+                }
+
+                if amount > BigUInt.zero {
+                    return .parachainRedeemUnbonded(delegation: (state.delegationInfos?.first)!)
+                }
+                return nil
             }
-
-            return request.whenExecutable <= currentEra
-        }.compactMap { request in
-            var amount = BigUInt.zero
-            if case let .revoke(revokeAmount) = request.action {
-                amount += revokeAmount
-            }
-
-            if case let .decrease(decreaseAmount) = request.action {
-                amount += decreaseAmount
-            }
-
-            return amount
-        }.reduce(BigUInt.zero, +)
-
-        if let amount = amount, amount > BigUInt.zero {
-            return .parachainRedeemUnbonded
         }
-
-        return nil
+        return []
     }
 }

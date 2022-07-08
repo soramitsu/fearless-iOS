@@ -633,9 +633,13 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter?.performBondMoreAction()
         case .redeemUnbonded:
             presenter?.performRedeemAction()
+        case let .collatorLeaving(_, delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
+        case let .collatorLowStake(_, delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
+        case let .parachainRedeemUnbonded(delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
         case .waitingNextEra:
-            break
-        case .collatorLeaving, .collatorLowStake, .parachainRedeemUnbonded:
             break
         }
     }

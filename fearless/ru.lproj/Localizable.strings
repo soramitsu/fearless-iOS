@@ -333,8 +333,12 @@
 "staking.switch.account.to.stash" = "Для установки контроллер аккаунта смените аккаунт на стэш.";
 "staking.inactive.current.minimal.stake" = "В настоящее время стейкинг неактивен. \nТекущая минимальная ставка %@ .";
 "staking.change.your.validators" = "Смените своих валидаторов.";
-"staking.leaving.collators" = "Один или несколько из Ваших коллейторов прекращают работу";
-"staking.leaving.collators.description" = "Проверьте ваши делегации и отзовите неактивные";
+"staking.alert.leaving.collator.title" = "Коллатор %@ покидает список кандидатов";
+"staking.alert.leaving.collator.text" = "Проверьте делегацию коллатору %@ и заберите токены, если они доступны";
+"staking.alert.low.stake.title" = "Ваша делегация не производит наград.";
+"staking.alert.low.stake.text" = "Ваш стейк слишком мал для генерации наград. Вы можете застейкать еще %@ токенов или отозвать свой стейк";
+"staking.alert.unlock.title" = "Вы можете забрать ваши токены";
+"staking.alert.unlock.text" = "Пожалуйста завершите текущую операцию (уменьшить/отозвать стейк) забрав ваши токены";
 "staking.bond.more.tokens" = "Застейкайте ещё токенов";
 "staking.redeem.unbonded.tokens" = "Заберите токены после вывода";
 "staking.your.stake" = "Ваш стейк";

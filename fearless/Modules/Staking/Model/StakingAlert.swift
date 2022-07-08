@@ -10,9 +10,9 @@ enum StakingAlert {
     case redeemUnbonded(LocalizableResource<String>)
     case waitingNextEra
 
-    case collatorLeaving
-    case collatorLowStake(LocalizableResource<String>)
-    case parachainRedeemUnbonded
+    case collatorLeaving(collatorName: String, delegation: ParachainStakingDelegationInfo)
+    case collatorLowStake(amount: String, delegation: ParachainStakingDelegationInfo)
+    case parachainRedeemUnbonded(delegation: ParachainStakingDelegationInfo)
 }
 
 extension StakingAlert {
@@ -40,16 +40,23 @@ extension StakingAlert {
         switch self {
         case .nominatorChangeValidators, .nominatorAllOversubscribed:
             return R.string.localizable.stakingChangeYourValidators(preferredLanguages: locale.rLanguages)
-        case .nominatorLowStake, .collatorLowStake:
+        case .nominatorLowStake:
             return R.string.localizable.stakingBondMoreTokens(preferredLanguages: locale.rLanguages)
-        case .redeemUnbonded, .parachainRedeemUnbonded:
+        case .redeemUnbonded:
             return R.string.localizable.stakingRedeemUnbondedTokens(preferredLanguages: locale.rLanguages)
         case .bondedSetValidators:
             return R.string.localizable.stakingSetValidatorsTitle(preferredLanguages: locale.rLanguages)
         case .waitingNextEra:
             return R.string.localizable.stakingNominatorStatusAlertWaitingMessage(preferredLanguages: locale.rLanguages)
-        case .collatorLeaving:
-            return R.string.localizable.stakingLeavingCollators(preferredLanguages: locale.rLanguages)
+        case let .collatorLeaving(collatorName, _):
+            return R.string.localizable.stakingAlertLeavingCollatorTitle(
+                collatorName,
+                preferredLanguages: locale.rLanguages
+            )
+        case .collatorLowStake:
+            return R.string.localizable.stakingAlertLowStakeTitle(preferredLanguages: locale.rLanguages)
+        case .parachainRedeemUnbonded:
+            return R.string.localizable.stakingAlertUnlockTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -69,12 +76,18 @@ extension StakingAlert {
             return R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages)
         case .waitingNextEra:
             return R.string.localizable.stakingAlertStartNextEraMessage(preferredLanguages: locale.rLanguages)
-        case .collatorLeaving:
-            return R.string.localizable.stakingLeavingCollatorsDescription(preferredLanguages: locale.rLanguages)
-        case let .collatorLowStake(localizedString):
-            return localizedString.value(for: locale)
+        case let .collatorLeaving(collatorName, _):
+            return R.string.localizable.stakingAlertLeavingCollatorText(
+                collatorName,
+                preferredLanguages: locale.rLanguages
+            )
+        case let .collatorLowStake(amount, _):
+            return R.string.localizable.stakingAlertLowStakeText(
+                amount,
+                preferredLanguages: locale.rLanguages
+            )
         case .parachainRedeemUnbonded:
-            return String()
+            return R.string.localizable.stakingAlertUnlockText(preferredLanguages: locale.rLanguages)
         }
     }
 }
