@@ -704,6 +704,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(scheduledRequests: requests)
     }
 
+    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
+        stateMachine.state.process(topDelegations: delegations)
+    }
+
     func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
         stateMachine.state.process(bottomDelegations: delegations)
     }
