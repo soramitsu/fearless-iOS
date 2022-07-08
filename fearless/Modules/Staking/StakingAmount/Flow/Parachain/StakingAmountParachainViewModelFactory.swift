@@ -1,19 +1,23 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactoryProtocol {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let accountViewModelFactory: AccountViewModelFactoryProtocol
+    let wallet: MetaAccountModel
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
-        accountViewModelFactory: AccountViewModelFactoryProtocol
+        accountViewModelFactory: AccountViewModelFactoryProtocol,
+        wallet: MetaAccountModel
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.accountViewModelFactory = accountViewModelFactory
+        self.wallet = wallet
     }
 
     func buildViewModel(
@@ -92,11 +96,13 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
         )
 
         return LocalizableResource { [unowned self] locale in
-            let accountViewModel = self.accountViewModelFactory.buildViewModel(
+            let accountViewModel = AccountViewModel(
                 title: R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages),
-                address: address,
-                locale: locale
+                name: wallet.name,
+                icon: nil,
+                image: R.image.iconBirdGreen()
             )
+
             return YourRewardDestinationViewModel(
                 accountViewModel: accountViewModel,
                 payoutAmount: payoutViewModel?.value(for: locale).rewardViewModel?.payoutAmount,

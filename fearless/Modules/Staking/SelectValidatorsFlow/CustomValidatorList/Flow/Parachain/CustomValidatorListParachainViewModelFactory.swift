@@ -62,7 +62,7 @@ class CustomValidatorListParachainViewModelFactory {
         let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
         return collatorList.map { collator in
-            let icon = try? self.iconGenerator.generateFromAddress(collator.address)
+            let icon = try? self.iconGenerator.ethereumIconFromAddress(collator.address)
 
             let detailsText: String?
             let auxDetailsText: String?
@@ -161,7 +161,8 @@ class CustomValidatorListParachainViewModelFactory {
             deselectButtonEnabled: false,
             deselectedButtonVisible: false,
             identityButtonVisible: true,
-            identityButtonSelected: filter.allowsNoIdentity
+            identityButtonSelected: filter.allowsNoIdentity,
+            title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }
@@ -205,7 +206,8 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             deselectButtonEnabled: false,
             deselectedButtonVisible: false,
             identityButtonVisible: true,
-            identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity
+            identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity,
+            title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }

@@ -23,4 +23,5 @@ struct CustomValidatorListViewModel {
     var deselectedButtonVisible: Bool
     var identityButtonVisible: Bool
     var identityButtonSelected: Bool
+    var title: String
 }

@@ -725,3 +725,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "chain.selection.hide.zero.balances" = "Hide with empty balance";
 "staking.stake.with.selected.title" = "Stake with selected";
 "staking.filter.title.rewards.apr" = "Rewards (APR)";
+"staking.custom.collators.title" = "Select a collator";

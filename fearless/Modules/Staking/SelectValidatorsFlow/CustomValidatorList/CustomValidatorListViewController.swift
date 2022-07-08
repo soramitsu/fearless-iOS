@@ -228,6 +228,8 @@ extension CustomValidatorListViewController: Localizable {
 
 extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
+        title = viewModel.title
+
         cellViewModels = viewModel.cellViewModels
         headerViewModel = viewModel.headerViewModel
         selectedValidatorsCount = viewModel.selectedValidatorsCount
