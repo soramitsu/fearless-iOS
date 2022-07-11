@@ -735,3 +735,4 @@ and depending on the network state, may not be selected to participate";
 "staking.filter.title.rewards.apr" = "Rewards (APR)";
 "staking.custom.collators.title" = "Select a collator";
 "parachain.staking.recommended.section.title" = "Collators suggested by algorithm";
+"staking.recommended.filter.minimum.bond" = "Having relevant minimum bond";

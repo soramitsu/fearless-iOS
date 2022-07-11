@@ -5,6 +5,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     let maxTargets: Int
     let bonding: InitiatedBonding
     let selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
+    let chainAsset: ChainAsset
 
     var filteredValidatorList: [ParachainStakingCandidateInfo] = []
     var filter: CustomValidatorParachainListFilter = .recommendedFilter()
@@ -13,12 +14,14 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
         candidates: [ParachainStakingCandidateInfo],
         maxTargets: Int,
         bonding: InitiatedBonding,
-        selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
+        selectedValidatorList: SharedList<ParachainStakingCandidateInfo>,
+        chainAsset: ChainAsset
     ) {
         self.candidates = candidates
         self.maxTargets = maxTargets
         self.bonding = bonding
         self.selectedValidatorList = selectedValidatorList
+        self.chainAsset = chainAsset
 
         filteredValidatorList = composeFilteredValidatorList(filter: CustomValidatorParachainListFilter.recommendedFilter())
     }
@@ -60,13 +63,19 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     }
 
     func composeFilteredValidatorList(filter: CustomValidatorParachainListFilter) -> [ParachainStakingCandidateInfo] {
-        let composer = CustomValidatorParachainListComposer(filter: filter)
-        return composer.compose(from: candidates)
+        let extractedExpr = CustomValidatorParachainListComposer(
+            filter: filter,
+            chainAsset: chainAsset
+        )
+        let composer = extractedExpr
+        return composer.compose(
+            from: candidates,
+            stakeAmount: bonding.amount
+        )
     }
 
     var filterApplied: Bool {
-        let emptyFilter = CustomValidatorParachainListFilter.defaultFilter()
-        return filter != emptyFilter
+        false
     }
 }
 
@@ -77,6 +86,12 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
 
     func changeIdentityFilterValue() {
         filter.allowsNoIdentity = !filter.allowsNoIdentity
+        filteredValidatorList = composeFilteredValidatorList(filter: filter)
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func changeMinBondFilterValue() {
+        filter.allowsOversubscribed = !filter.allowsOversubscribed
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

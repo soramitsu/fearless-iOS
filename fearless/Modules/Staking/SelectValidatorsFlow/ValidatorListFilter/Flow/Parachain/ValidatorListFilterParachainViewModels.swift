@@ -11,7 +11,7 @@ enum ValidatorListParachainFilterRow: Int, CaseIterable {
             return LocalizableResource { locale in
                 TitleWithSubtitleViewModel(
                     title: R.string.localizable
-                        .stakingRecommendedHint2(preferredLanguages: locale.rLanguages)
+                        .stakingRecommendedFilterMinimumBond(preferredLanguages: locale.rLanguages)
                 )
             }
         case .withoutIdentity:

@@ -63,7 +63,8 @@ extension CustomValidatorListViewFactory {
                 candidates: candidates,
                 maxTargets: maxTargets,
                 bonding: bonding,
-                selectedValidatorList: selectedValidatorList
+                selectedValidatorList: selectedValidatorList,
+                chainAsset: chainAsset
             )
             let strategy = CustomValidatorListParachainStrategy()
             let viewModelFactory = CustomValidatorListParachainViewModelFactory(
