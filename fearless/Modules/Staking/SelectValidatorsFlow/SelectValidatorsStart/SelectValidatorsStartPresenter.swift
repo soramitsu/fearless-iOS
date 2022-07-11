@@ -44,7 +44,8 @@ final class SelectValidatorsStartPresenter {
 
         let viewModel = SelectValidatorsStartViewModel(
             selectedCount: selectedValidators.count,
-            totalCount: maxNominations
+            totalCount: maxNominations,
+            recommendedValidatorListLoaded: !(recommendedValidators?.isEmpty ?? true)
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -82,16 +83,21 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectRecommendedValidators() {
-        guard let recommendedValidatorListFlow = viewModelState.recommendedValidatorListFlow else {
-            return
-        }
+        do {
+            guard let recommendedValidatorListFlow = try viewModelState.recommendedValidatorListFlow() else {
+                return
+            }
 
-        wireframe.proceedToRecommendedList(
-            from: view,
-            flow: recommendedValidatorListFlow,
-            wallet: wallet,
-            chainAsset: chainAsset
-        )
+            wireframe.proceedToRecommendedList(
+                from: view,
+                flow: recommendedValidatorListFlow,
+                wallet: wallet,
+                chainAsset: chainAsset
+            )
+        } catch {
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            wireframe.present(error: error, from: view, locale: locale)
+        }
     }
 
     func selectCustomValidators() {
@@ -114,10 +120,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartModelStateListene
     }
 
     func modelStateDidChanged(viewModelState: SelectValidatorsStartViewModelState) {
-        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState) else {
-            return
-        }
-
+        let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState)
         view?.didReceive(viewModel: viewModel)
     }
 }

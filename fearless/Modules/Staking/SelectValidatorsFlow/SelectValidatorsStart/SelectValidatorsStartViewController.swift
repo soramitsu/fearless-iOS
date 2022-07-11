@@ -90,25 +90,19 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     }
 
     private func toggleActivityViews() {
-        [
-            rootView.recommendedValidatorsActivityIndicator,
-            rootView.customValidatorsActivityIndicator
-        ].forEach { view in
-            if viewModelIsSet {
-                view.stopAnimating()
-            } else {
-                view.startAnimating()
-            }
-        }
+        (viewModel?.recommendedValidatorListLoaded ?? false)
+            ? rootView.recommendedValidatorsActivityIndicator.stopAnimating()
+            : rootView.recommendedValidatorsActivityIndicator.startAnimating()
+
+        viewModelIsSet
+            ? rootView.customValidatorsActivityIndicator.stopAnimating()
+            : rootView.customValidatorsActivityIndicator.startAnimating()
     }
 
     private func toggleNextStepIndicators() {
-        [
-            rootView.recommendedValidatorsCell.rowContentView.arrowIconView,
-            rootView.customValidatorsCell.rowContentView.arrowIconView
-        ].forEach { view in
-            view.isHidden = !viewModelIsSet
-        }
+        let recommendedValidatorListLoaded = (viewModel?.recommendedValidatorListLoaded ?? false)
+        rootView.recommendedValidatorsCell.rowContentView.arrowIconView.isHidden = !recommendedValidatorListLoaded
+        rootView.customValidatorsCell.rowContentView.arrowIconView.isHidden = !viewModelIsSet
     }
 
     func updateLoadingState() {
@@ -154,11 +148,13 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
 }
 
 extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol {
-    func didReceive(viewModel: SelectValidatorsStartViewModel) {
+    func didReceive(viewModel: SelectValidatorsStartViewModel?) {
         self.viewModel = viewModel
 
-        updateLoadingState()
-        updateSelected()
+        DispatchQueue.main.async {
+            self.updateLoadingState()
+            self.updateSelected()
+        }
     }
 
     func didReceive(textsViewModel: SelectValidatorsStartTextsViewModel) {

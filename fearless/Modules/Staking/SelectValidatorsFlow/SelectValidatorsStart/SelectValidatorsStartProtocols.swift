@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: SelectValidatorsStartViewModel)
+    func didReceive(viewModel: SelectValidatorsStartViewModel?)
     func didReceive(textsViewModel: SelectValidatorsStartTextsViewModel)
 }
 

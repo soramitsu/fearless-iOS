@@ -38,14 +38,14 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
         )
     }
 
-    var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+    func recommendedValidatorListFlow() throws -> RecommendedValidatorListFlow? {
         guard let maxDelegations = maxDelegations,
               let recommendedCandidates = recommendedCandidates else {
-            return nil
+            throw SelectValidatorsStartError.dataNotLoaded
         }
 
         guard !recommendedCandidates.isEmpty else {
-            return nil
+            throw SelectValidatorsStartError.emptyRecommendedValidators
         }
 
         return .parachain(collators: recommendedCandidates, maxTargets: maxDelegations, bonding: bonding)
@@ -62,13 +62,18 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
         for candidate in selectedCandidates {
             if let delegations = topDelegationsByCollator[candidate.address] {
                 if let minimumDelegation = delegations.delegations.map(\.amount).min(),
-                   let minimumDelegationDecimal = Decimal.fromSubstrateAmount(minimumDelegation, precision: Int16(chainAsset.asset.precision)) {
+                   let minimumDelegationDecimal = Decimal.fromSubstrateAmount(
+                       minimumDelegation,
+                       precision: Int16(chainAsset.asset.precision)
+                   ) {
                     if bonding.amount > minimumDelegationDecimal {
                         recommendedCandidates?.append(candidate)
                     }
                 }
             }
         }
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 

@@ -37,9 +37,9 @@ final class SelectValidatorsStartRelaychainExistingViewModelState: SelectValidat
         )
     }
 
-    override var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+    override func recommendedValidatorListFlow() throws -> RecommendedValidatorListFlow? {
         guard let recommendedValidators = recommendedValidators, let maxTargets = maxNominations else {
-            return nil
+            throw SelectValidatorsStartError.dataNotLoaded
         }
 
         let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
@@ -85,9 +85,9 @@ final class SelectValidatorsStartRelaychainInitiatedViewModelState: SelectValida
         )
     }
 
-    override var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+    override func recommendedValidatorListFlow() throws -> RecommendedValidatorListFlow? {
         guard let recommendedValidators = recommendedValidators, let maxTargets = maxNominations else {
-            return nil
+            throw SelectValidatorsStartError.dataNotLoaded
         }
 
         let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
@@ -119,7 +119,7 @@ class SelectValidatorsStartRelaychainViewModelState: SelectValidatorsStartViewMo
         self.stateListener = stateListener
     }
 
-    var recommendedValidatorListFlow: RecommendedValidatorListFlow? {
+    func recommendedValidatorListFlow() throws -> RecommendedValidatorListFlow? {
         assertionFailure("SelectValidatorsStartRelaychainViewModelState.recommendedValidatorListFlow error: Please use subclass to specify flow")
         return nil
     }

@@ -2,13 +2,17 @@ import Foundation
 
 final class SelectValidatorsStartParachainViewModelFactory: SelectValidatorsStartViewModelFactoryProtocol {
     func buildViewModel(viewModelState: SelectValidatorsStartViewModelState) -> SelectValidatorsStartViewModel? {
-        guard let parachainViewModelState = viewModelState as? SelectValidatorsStartParachainViewModelState else {
+        guard
+            let parachainViewModelState = viewModelState as? SelectValidatorsStartParachainViewModelState,
+            let selectedCount = parachainViewModelState.selectedCandidates?.count
+        else {
             return nil
         }
 
         return SelectValidatorsStartViewModel(
-            selectedCount: parachainViewModelState.selectedCandidates?.count ?? 0,
-            totalCount: nil
+            selectedCount: selectedCount,
+            totalCount: nil,
+            recommendedValidatorListLoaded: parachainViewModelState.recommendedCandidates != nil
         )
     }
 
