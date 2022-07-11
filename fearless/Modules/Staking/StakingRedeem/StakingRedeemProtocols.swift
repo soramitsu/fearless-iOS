@@ -33,6 +33,7 @@ protocol StakingRedeemViewFactoryProtocol: AnyObject {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemFlow,
+        redeemCompletion: (() -> Void)?
     ) -> StakingRedeemViewProtocol?
 }

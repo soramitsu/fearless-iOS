@@ -8,9 +8,10 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemFlow,
+        redeemCompletion: (() -> Void)?
     ) -> StakingRedeemViewProtocol? {
-        let wireframe = StakingRedeemWireframe()
+        let wireframe = StakingRedeemWireframe(redeemCompletion: redeemCompletion)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
