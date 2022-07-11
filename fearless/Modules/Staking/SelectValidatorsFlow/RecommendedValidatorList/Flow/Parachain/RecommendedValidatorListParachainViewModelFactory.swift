@@ -33,13 +33,15 @@ class RecommendedValidatorListParachainViewModelFactory {
 }
 
 extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
-    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState) -> RecommendedValidatorListViewModel? {
+    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState, locale: Locale) -> RecommendedValidatorListViewModel? {
         guard let parachainViewModelState = viewModelState as? RecommendedValidatorListParachainViewModelState else {
             return nil
         }
 
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
-            parachainViewModelState.collators.compactMap { collator in
+            parachainViewModelState.collators.sorted(by: { collator1, collator2 in
+                collator1.subqueryData?.apr ?? 0.0 > collator2.subqueryData?.apr ?? 0.0
+            }).compactMap { collator in
                 let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
@@ -59,7 +61,8 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
 
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
-            itemViewModels: items
+            itemViewModels: items,
+            title: R.string.localizable.parachainStakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }

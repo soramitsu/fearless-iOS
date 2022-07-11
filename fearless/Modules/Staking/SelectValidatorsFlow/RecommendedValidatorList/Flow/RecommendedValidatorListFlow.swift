@@ -27,7 +27,8 @@ struct RecommendedValidatorListDependencyContainer {
 
 protocol RecommendedValidatorListViewModelFactoryProtocol {
     func buildViewModel(
-        viewModelState: RecommendedValidatorListViewModelState
+        viewModelState: RecommendedValidatorListViewModelState,
+        locale: Locale
     ) -> RecommendedValidatorListViewModel?
 }
 

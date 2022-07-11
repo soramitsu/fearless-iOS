@@ -29,7 +29,9 @@ final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStat
     }
 
     private func provideViewModel() {
-        if let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState) {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, locale: locale) {
             view?.didReceive(viewModel: viewModel)
         }
     }

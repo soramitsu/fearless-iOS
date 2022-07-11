@@ -728,3 +728,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "staking.stake.with.selected.title" = "Stake with selected";
 "staking.filter.title.rewards.apr" = "Rewards (APR)";
 "staking.custom.collators.title" = "Select a collator";
+"parachain.staking.recommended.section.title" = "Collators suggested by algorithm";

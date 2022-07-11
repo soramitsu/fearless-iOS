@@ -5,6 +5,7 @@ import SoraFoundation
 protocol RecommendedValidatorListViewModelProtocol {
     var itemsCountString: LocalizableResource<String> { get }
     var itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>] { get }
+    var title: String { get }
 }
 
 protocol RecommendedValidatorViewModelProtocol {
@@ -17,6 +18,7 @@ protocol RecommendedValidatorViewModelProtocol {
 struct RecommendedValidatorListViewModel: RecommendedValidatorListViewModelProtocol {
     let itemsCountString: LocalizableResource<String>
     let itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>]
+    let title: String
 }
 
 struct RecommendedValidatorViewModel: RecommendedValidatorViewModelProtocol {

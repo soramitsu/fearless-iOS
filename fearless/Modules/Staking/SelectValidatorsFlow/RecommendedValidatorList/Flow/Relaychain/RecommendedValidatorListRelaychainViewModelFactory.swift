@@ -33,7 +33,7 @@ class RecommendedValidatorListRelaychainViewModelFactory {
 }
 
 extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
-    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState) -> RecommendedValidatorListViewModel? {
+    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState, locale: Locale) -> RecommendedValidatorListViewModel? {
         guard let relaychainViewModelState = viewModelState as? RecommendedValidatorListRelaychainViewModelState else {
             return nil
         }
@@ -62,7 +62,8 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
 
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
-            itemViewModels: items
+            itemViewModels: items, title: R.string.localizable
+                .stakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }

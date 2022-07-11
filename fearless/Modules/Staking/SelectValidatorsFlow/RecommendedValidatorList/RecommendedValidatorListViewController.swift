@@ -97,6 +97,8 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
 
 extension RecommendedValidatorListViewController: RecommendedValidatorListViewProtocol {
     func didReceive(viewModel: RecommendedValidatorListViewModelProtocol) {
+        title = viewModel.title
+
         self.viewModel = viewModel
         updateHeaderView()
 
