@@ -1,10 +1,6 @@
 import Foundation
 
 final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStateListener {
-    func modelStateDidChanged(viewModelState _: RecommendedValidatorListViewModelState) {
-        provideViewModel()
-    }
-
     weak var view: RecommendedValidatorListViewProtocol?
     var wireframe: RecommendedValidatorListWireframeProtocol!
 
@@ -28,12 +24,17 @@ final class RecommendedValidatorListPresenter: RecommendedValidatorListModelStat
         self.wallet = wallet
     }
 
+    func modelStateDidChanged(viewModelState _: RecommendedValidatorListViewModelState) {
+        provideViewModel()
+    }
+
     private func provideViewModel() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        if let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, locale: locale) {
-            view?.didReceive(viewModel: viewModel)
+        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, locale: locale) else {
+            return
         }
+        view?.didReceive(viewModel: viewModel)
     }
 }
 

@@ -117,14 +117,25 @@ final class ValidatorListFilterParachainViewModelFactory {
 }
 
 extension ValidatorListFilterParachainViewModelFactory: ValidatorListFilterViewModelFactoryProtocol {
-    func buildViewModel(viewModelState: ValidatorListFilterViewModelState, token: String, locale: Locale) -> ValidatorListFilterViewModel? {
+    func buildViewModel(
+        viewModelState: ValidatorListFilterViewModelState,
+        token: String,
+        locale: Locale
+    ) -> ValidatorListFilterViewModel? {
         guard let parachainViewModelState = viewModelState as? ValidatorListFilterParachainViewModelState else {
             return nil
         }
 
         return ValidatorListFilterViewModel(
-            filterModel: createFilterViewModelSection(from: parachainViewModelState.currentFilter, locale: locale),
-            sortModel: createSortViewModelSection(from: parachainViewModelState.currentFilter, token: token, locale: locale),
+            filterModel: createFilterViewModelSection(
+                from: parachainViewModelState.currentFilter,
+                locale: locale
+            ),
+            sortModel: createSortViewModelSection(
+                from: parachainViewModelState.currentFilter,
+                token: token,
+                locale: locale
+            ),
             canApply: parachainViewModelState.currentFilter != parachainViewModelState.initialFilter,
             canReset: parachainViewModelState.currentFilter != CustomValidatorParachainListFilter.recommendedFilter()
         )

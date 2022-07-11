@@ -90,10 +90,14 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     }
 
     private func toggleActivityViews() {
-        (viewModel?.recommendedValidatorListLoaded ?? false)
+        let recommendedValidatorListLoaded = (viewModel?.recommendedValidatorListLoaded ?? false)
+        rootView.recommendedValidatorsCell.isEnabled = recommendedValidatorListLoaded
+
+        recommendedValidatorListLoaded
             ? rootView.recommendedValidatorsActivityIndicator.stopAnimating()
             : rootView.recommendedValidatorsActivityIndicator.startAnimating()
 
+        rootView.customValidatorsCell.isEnabled = viewModelIsSet
         viewModelIsSet
             ? rootView.customValidatorsActivityIndicator.stopAnimating()
             : rootView.customValidatorsActivityIndicator.startAnimating()
@@ -139,6 +143,9 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     }
 
     @objc private func actionRecommendedValidators() {
+        guard viewModel?.recommendedValidatorListLoaded ?? false else {
+            return
+        }
         presenter.selectRecommendedValidators()
     }
 

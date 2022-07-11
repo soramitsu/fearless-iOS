@@ -74,30 +74,51 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
         return view
     }
 
-    static func createContainer(flow: RecommendedValidatorListFlow, chainAsset: ChainAsset) -> RecommendedValidatorListDependencyContainer? {
+    static func createContainer(
+        flow: RecommendedValidatorListFlow,
+        chainAsset: ChainAsset
+    ) -> RecommendedValidatorListDependencyContainer? {
         switch flow {
         case let .relaychainInitiated(validators, maxTargets, bonding):
-            let viewModelState = RecommendedValidatorListRelaychainInitiatedViewModelState(bonding: bonding, validators: validators, maxTargets: maxTargets)
+            let viewModelState = RecommendedValidatorListRelaychainInitiatedViewModelState(
+                bonding: bonding,
+                validators: validators,
+                maxTargets: maxTargets
+            )
             let strategy = RecommendedValidatorListRelaychainStrategy()
-            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
             return RecommendedValidatorListDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
         case let .relaychainExisting(validators, maxTargets, bonding):
-            let viewModelState = RecommendedValidatorListRelaychainExistingViewModelState(bonding: bonding, validators: validators, maxTargets: maxTargets)
+            let viewModelState = RecommendedValidatorListRelaychainExistingViewModelState(
+                bonding: bonding,
+                validators: validators,
+                maxTargets: maxTargets
+            )
             let strategy = RecommendedValidatorListRelaychainStrategy()
-            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
             return RecommendedValidatorListDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(collators, maxTargets, bonding):
-            let viewModelState = RecommendedValidatorListParachainViewModelState(collators: collators, bonding: bonding, maxTargets: maxTargets)
+            let viewModelState = RecommendedValidatorListParachainViewModelState(
+                collators: collators,
+                bonding: bonding,
+                maxTargets: maxTargets
+            )
             let strategy = RecommendedValidatorListParachainStrategy()
-            let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
             return RecommendedValidatorListDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
