@@ -223,12 +223,10 @@ extension ChainAccountBalanceListInteractor: AccountInfoSubscriptionAdapterHandl
 
 extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        presenter?.didReceiveChains(result: .success(chains))
+
         DispatchQueue.global().async {
             self.replaceAccountInfoSubscriptionAdapter()
-
-            DispatchQueue.main.async {
-                self.presenter?.didReceiveChains(result: .success(self.chains))
-            }
         }
     }
 
@@ -253,6 +251,13 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processWalletNameChanged(event: WalletNameChanged) {
         presenter?.didReceiveSelectedAccount(event.wallet)
+    }
+
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        guard !event.newOrUpdatedChains.isEmpty, !event.removedChains.isEmpty else {
+            return
+        }
+        fetchChainsAndSubscribeBalance()
     }
 }
 
