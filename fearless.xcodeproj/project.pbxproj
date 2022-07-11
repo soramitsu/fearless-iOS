@@ -1337,7 +1337,6 @@
 		AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */; };
 		AE805FCA26B42AE200007CE9 /* ValidatorOperationFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */; };
 		AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */; };
-		AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */; };
 		AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */; };
 		AE8B8835267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */; };
 		AE8B8837267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */; };
@@ -3500,7 +3499,6 @@
 		AE805FC426B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoInteractorBase.swift; sourceTree = "<group>"; };
 		AE805FC926B42AE200007CE9 /* ValidatorOperationFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactoryStub.swift; sourceTree = "<group>"; };
 		AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModel.swift; sourceTree = "<group>"; };
-		AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AE8B883126733BAC00AB0AA9 /* CustomValidatorListHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorListHeaderView.swift; sourceTree = "<group>"; };
 		AE8B8834267349C200AB0AA9 /* CustomVlidatorRelaychainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVlidatorRelaychainListFilter.swift; sourceTree = "<group>"; };
 		AE8B8836267351E300AB0AA9 /* CustomValidatorRelaychainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorRelaychainListComposer.swift; sourceTree = "<group>"; };
@@ -8498,7 +8496,6 @@
 			isa = PBXGroup;
 			children = (
 				AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */,
-				AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -11972,7 +11969,6 @@
 				84F30EEC25FFF40C00039D09 /* Nomination.swift in Sources */,
 				FA37AE3C2859CCD8001DCA96 /* StakingUnbondConfirmParachainViewModelFactory.swift in Sources */,
 				FA38C9C32761E77A005C5577 /* AccountViewModelFactory.swift in Sources */,
-				AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */,
 				8494D8632524753400614D8F /* WalletCopyCommand.swift in Sources */,
 				84F51060263AE530005D15AE /* TitleValueView.swift in Sources */,
 				84DB4E5C25EA71C100A6DF41 /* StringScaleMapper.swift in Sources */,

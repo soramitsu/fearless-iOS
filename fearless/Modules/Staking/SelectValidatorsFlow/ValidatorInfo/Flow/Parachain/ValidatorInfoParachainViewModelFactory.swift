@@ -45,7 +45,7 @@ final class ValidatorInfoParachainViewModelFactory {
     private func createAccountViewModel(from collatorInfo: ParachainStakingCandidateInfo) -> AccountInfoViewModel {
         let identityName: String = collatorInfo.identity?.displayName ?? ""
 
-        let icon = try? iconGenerator.generateFromAddress(collatorInfo.address)
+        let icon = try? iconGenerator.ethereumIconFromAddress(collatorInfo.address)
             .imageWithFillColor(
                 .white,
                 size: UIConstants.normalAddressIconSize,
@@ -226,7 +226,8 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
         return ValidatorInfoViewModel(
             account: accountViewModel,
             staking: staking,
-            identity: identityItems
+            identity: identityItems,
+            type: .paraChain
         )
     }
 

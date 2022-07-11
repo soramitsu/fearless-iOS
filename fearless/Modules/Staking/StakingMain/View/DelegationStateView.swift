@@ -43,10 +43,6 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             return
         }
 
-        if let interval = viewModel.nextRoundInterval {
-            timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
-        }
-
         statusView.valueView.detailsLabel.isHidden = viewModel.nextRoundInterval == nil
 
         titleLabel.text = viewModel.name == nil ?
@@ -69,12 +65,18 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         }
 
         switch viewModel.status {
-        case let .active(countdown):
-            presentActiveStatus(countdown: countdown)
+        case let .active(round):
+            presentActiveStatus(round: round)
         case let .idle(countdown):
             presentIdleStatus(countdown: countdown)
+            if let interval = viewModel.nextRoundInterval {
+                timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+            }
         case let .leaving(countdown):
             presentLeavingState(countdown: countdown)
+            if let interval = viewModel.nextRoundInterval {
+                timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+            }
         case .lowStake:
             presentLowStakeState()
         case .readyToUnlock:
@@ -95,15 +97,14 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         statusButton.isUserInteractionEnabled = shouldShow
     }
 
-    private func presentActiveStatus(countdown: TimeInterval?) {
+    private func presentActiveStatus(round: UInt32) {
         statusView.titleView.indicatorColor = R.color.colorGreen()!
         statusView.titleView.titleLabel.textColor = R.color.colorGreen()!
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
-        if let remainingTime = countdown {
-            timer.start(with: remainingTime, runLoop: .main, mode: .common)
-        }
+        statusView.valueView.detailsLabel.text = R.string.localizable
+            .stakingRoundTitle("\(round)", preferredLanguages: locale.rLanguages).uppercased()
     }
 
     private func presentIdleStatus(countdown: TimeInterval?) {

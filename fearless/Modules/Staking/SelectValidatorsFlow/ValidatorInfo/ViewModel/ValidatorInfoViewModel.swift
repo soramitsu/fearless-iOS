@@ -67,4 +67,5 @@ struct ValidatorInfoViewModel {
     let account: AccountInfoViewModel
     let staking: Staking
     let identity: [IdentityItem]?
+    let type: StakingType
 }
