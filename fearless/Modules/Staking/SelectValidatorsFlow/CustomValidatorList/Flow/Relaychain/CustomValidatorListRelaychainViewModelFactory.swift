@@ -132,10 +132,13 @@ class CustomValidatorListRelaychainViewModelFactory {
             fillRestButtonVisible: true,
             fillRestButtonEnabled: selectedValidatorList.count < maxTargets,
             clearButtonEnabled: filter != CustomValidatorRelaychainListFilter.defaultFilter(),
+            clearButtonVisible: true,
             deselectButtonEnabled: !selectedValidatorList.isEmpty,
             deselectedButtonVisible: true,
             identityButtonVisible: false,
             identityButtonSelected: false,
+            minBondButtonVisible: false,
+            minBondButtonSelected: false,
             title: R.string.localizable.stakingCustomValidatorsListTitle(preferredLanguages: locale.rLanguages)
         )
     }
@@ -178,10 +181,13 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             fillRestButtonVisible: true,
             fillRestButtonEnabled: relaychainViewModelState.selectedValidatorList.count < relaychainViewModelState.maxTargets,
             clearButtonEnabled: relaychainViewModelState.filter != CustomValidatorRelaychainListFilter.defaultFilter(),
+            clearButtonVisible: true,
             deselectButtonEnabled: !relaychainViewModelState.selectedValidatorList.items.isEmpty,
             deselectedButtonVisible: true,
             identityButtonVisible: false,
             identityButtonSelected: false,
+            minBondButtonVisible: false,
+            minBondButtonSelected: false,
             title: R.string.localizable.stakingCustomValidatorsListTitle(preferredLanguages: locale.rLanguages)
         )
     }

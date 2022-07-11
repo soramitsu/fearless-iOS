@@ -75,8 +75,7 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
     }
 
     var filterApplied: Bool {
-        let emptyFilter = CustomValidatorParachainListFilter.defaultFilter()
-        return filter != emptyFilter
+        false
     }
 }
 
@@ -87,6 +86,12 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
 
     func changeIdentityFilterValue() {
         filter.allowsNoIdentity = !filter.allowsNoIdentity
+        filteredValidatorList = composeFilteredValidatorList(filter: filter)
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func changeMinBondFilterValue() {
+        filter.allowsOversubscribed = !filter.allowsOversubscribed
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

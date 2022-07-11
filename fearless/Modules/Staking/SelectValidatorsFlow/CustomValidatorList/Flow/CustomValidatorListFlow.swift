@@ -75,6 +75,7 @@ protocol CustomValidatorListUserInputHandler {
     func fillWithRecommended()
     func performDeselect()
     func changeIdentityFilterValue()
+    func changeMinBondFilterValue()
     func changeValidatorSelection(at index: Int)
     func updateFilter(with flow: ValidatorListFilterFlow)
     func clearFilter()
@@ -85,6 +86,7 @@ extension CustomValidatorListUserInputHandler {
     func remove(validator _: SelectedValidatorInfo) {}
     func fillWithRecommended() {}
     func changeIdentityFilterValue() {}
+    func changeMinBondFilterValue() {}
     func performDeselect() {}
     func changeValidatorSelection(at _: Int) {}
     func updateFilter(with _: ValidatorListFilterFlow) {}

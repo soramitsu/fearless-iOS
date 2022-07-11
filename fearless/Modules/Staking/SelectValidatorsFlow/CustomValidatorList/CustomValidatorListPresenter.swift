@@ -107,6 +107,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         viewModelState.changeIdentityFilterValue()
     }
 
+    func changeMinBondFilterValue() {
+        viewModelState.changeMinBondFilterValue()
+    }
+
     // MARK: - Cell actions
 
     func changeValidatorSelection(at index: Int) {

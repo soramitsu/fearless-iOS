@@ -26,8 +26,8 @@ final class ValidatorListFilterParachainViewModelFactory {
         )
 
         return ValidatorListFilterViewModelSection(
-            title: title,
-            cellViewModels: cellViewModels
+            title: "",
+            cellViewModels: []
         )
     }
 

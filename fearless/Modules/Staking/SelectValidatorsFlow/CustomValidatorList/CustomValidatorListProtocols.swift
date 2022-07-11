@@ -18,6 +18,7 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func presentFilter()
     func presentSearch()
     func changeIdentityFilterValue()
+    func changeMinBondFilterValue()
     func proceed()
 }
 

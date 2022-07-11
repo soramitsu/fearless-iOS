@@ -175,6 +175,10 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
             }
         }()
 
+        if sectionTitle.isEmpty {
+            return nil
+        }
+
         view.bind(title: sectionTitle, icon: nil)
 
         return view

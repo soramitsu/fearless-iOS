@@ -158,10 +158,13 @@ class CustomValidatorListParachainViewModelFactory {
             fillRestButtonVisible: false,
             fillRestButtonEnabled: false,
             clearButtonEnabled: filter != CustomValidatorParachainListFilter.defaultFilter(),
+            clearButtonVisible: false,
             deselectButtonEnabled: false,
             deselectedButtonVisible: false,
             identityButtonVisible: true,
             identityButtonSelected: filter.allowsNoIdentity,
+            minBondButtonVisible: true,
+            minBondButtonSelected: filter.allowsOversubscribed,
             title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
@@ -203,10 +206,13 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             fillRestButtonVisible: false,
             fillRestButtonEnabled: false,
             clearButtonEnabled: parachainViewModelState.filterApplied,
+            clearButtonVisible: false,
             deselectButtonEnabled: false,
             deselectedButtonVisible: false,
             identityButtonVisible: true,
             identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity,
+            minBondButtonVisible: true,
+            minBondButtonSelected: parachainViewModelState.filter.allowsOversubscribed,
             title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
