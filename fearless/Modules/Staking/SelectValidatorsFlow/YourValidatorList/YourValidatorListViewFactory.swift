@@ -82,7 +82,8 @@ struct YourValidatorListViewFactory {
         let stakingSettings = StakingAssetSettings(
             storageFacade: storageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()

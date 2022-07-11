@@ -7,6 +7,10 @@ import RobinHood
 // swiftlint:disable function_body_length
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
+        guard let selectedAccount = SelectedWalletSettings.shared.value else {
+            return nil
+        }
+
         let settings = SettingsManager.shared
 
         let storageFacade = SubstrateDataStorageFacade.shared
@@ -14,7 +18,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let stakingSettings = StakingAssetSettings(
             storageFacade: storageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()
@@ -24,8 +29,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             let sharedState = try? createSharedState(
                 with: chainAsset,
                 stakingSettings: stakingSettings
-            ),
-            let selectedAccount = SelectedWalletSettings.shared.value else {
+            ) else {
             return nil
         }
 

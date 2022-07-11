@@ -42,6 +42,11 @@ extension Scheme {
         freq: 128
     )
 
+    static let square = Scheme(
+        colors: [0, 1, 2, 3],
+        freq: 32
+    )
+
     static let all: [Scheme] = [
         .target,
         .cube,
@@ -101,19 +106,13 @@ final class UniversalIconGenerator: IconGenerating {
     public func ethereumIconFromAddress(_ address: String) throws -> DrawableIcon {
         let accountId = try deriveAccountIdFromAddress(address)
 
-        let colors = try getColorsForData(accountId)
-        var colorsWithoutDuplicates: [UIColor] = []
-        colors.forEach { color in
-            if !colorsWithoutDuplicates.contains(color) {
-                colorsWithoutDuplicates.append(color)
-            }
-        }
+        let colors = try getEthColorsForData(accountId)
         let centers = generateSquareCenters(squareSize: Self.diameter / 2, accountId: accountId)
 
         let squares = (0 ..< centers.count).map { index in
             EthereumIcon.Square(
                 origin: centers[index],
-                color: colorsWithoutDuplicates[index],
+                color: colors[index],
                 sideSize: Self.diameter,
                 rotation: generateSquareRotations(accountId: accountId)
             )
@@ -138,6 +137,38 @@ final class UniversalIconGenerator: IconGenerating {
         }
 
         return Data(bytes)
+    }
+
+    private func getEthColorsForData(_ data: Data) throws -> [UIColor] {
+        let accountId: [UInt8] = data.map { $0 }
+
+        let sat = floor(CGFloat(accountId[29]) * 70.0 / 256.0 + 26.0).truncatingRemainder(dividingBy: 80) + 30.0
+        let scheme: Scheme = .square
+
+        var palette: [UIColor] = []
+
+        for (index, byte) in accountId.enumerated() {
+            let colorParam = (UInt(byte) + UInt(index) % 28 * 58) % 256
+
+            let hue: CGFloat = floor(CGFloat(colorParam % 64) * 360.0 / 64.0)
+            let lightness: CGFloat = [53.0, 15.0, 35.0, 75.0][Int(floor(CGFloat(colorParam) / 64.0))]
+
+            let color = UIColor.colorWithHSL(
+                hue: hue,
+                saturation: CGFloat(sat) * 0.01,
+                lightness: CGFloat(lightness) * 0.01
+            )
+
+            guard !palette.contains(color) else {
+                continue
+            }
+
+            palette.append(color)
+        }
+
+        return (0 ..< scheme.colors.count).map { index in
+            palette[index]
+        }
     }
 
     private func getColorsForData(_ data: Data) throws -> [UIColor] {

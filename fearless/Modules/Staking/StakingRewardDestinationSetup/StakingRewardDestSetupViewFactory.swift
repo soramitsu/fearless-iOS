@@ -131,7 +131,8 @@ struct StakingRewardDestSetupViewFactory {
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()

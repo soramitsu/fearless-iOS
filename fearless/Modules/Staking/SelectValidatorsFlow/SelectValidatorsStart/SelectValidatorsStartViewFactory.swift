@@ -54,7 +54,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     ) -> SelectValidatorsStartViewProtocol? {
         guard let container = createContainer(
             flow: flow,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         ) else {
             return nil
         }
@@ -90,7 +91,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     // swiftlint:disable function_body_length
     private static func createContainer(
         flow: SelectValidatorsStartFlow,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> SelectValidatorsStartDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -104,7 +106,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: wallet
         )
 
         stakingSettings.setup()
