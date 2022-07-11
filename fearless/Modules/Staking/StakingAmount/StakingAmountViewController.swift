@@ -326,18 +326,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         rewardDestinationView.incomeTitle = localizableViewModel.payoutPercentage
         rewardDestinationView.priceTitle = localizableViewModel.payoutPrice
 
-        var image: UIImage?
-        if let icon = localizableViewModel.accountViewModel.icon {
-            image = icon.imageWithFillColor(
-                R.color.colorWhite()!,
-                size: UIConstants.smallAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
-        } else {
-            image = localizableViewModel.accountViewModel.image
-        }
-
-        rewardAccountView.iconImage = image
+        rewardAccountView.iconImage = R.image.iconFearlessRounded()
         rewardAccountView.subtitle = localizableViewModel.accountViewModel.name
         rewardAccountView.title = localizableViewModel.accountViewModel.title
         rewardAccountView.actionImage = nil
