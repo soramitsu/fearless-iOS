@@ -2,13 +2,18 @@ import Foundation
 
 final class SelectValidatorsStartRelaychainViewModelFactory: SelectValidatorsStartViewModelFactoryProtocol {
     func buildViewModel(viewModelState: SelectValidatorsStartViewModelState) -> SelectValidatorsStartViewModel? {
-        guard let relaychainViewModelState = viewModelState as? SelectValidatorsStartRelaychainViewModelState else {
+        guard
+            let relaychainViewModelState = viewModelState as? SelectValidatorsStartRelaychainViewModelState,
+            let selectedCount = relaychainViewModelState.electedValidators?.count,
+            let totalCount = relaychainViewModelState.maxNominations
+        else {
             return nil
         }
 
         return SelectValidatorsStartViewModel(
-            selectedCount: relaychainViewModelState.electedValidators?.count ?? 0,
-            totalCount: relaychainViewModelState.maxNominations ?? 0
+            selectedCount: selectedCount,
+            totalCount: totalCount,
+            recommendedValidatorListLoaded: relaychainViewModelState.recommendedValidators != nil
         )
     }
 

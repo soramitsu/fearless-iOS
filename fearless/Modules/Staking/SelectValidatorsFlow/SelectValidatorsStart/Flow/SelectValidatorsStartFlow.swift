@@ -53,11 +53,10 @@ protocol SelectValidatorsStartModelStateListener: AnyObject {
 
 protocol SelectValidatorsStartViewModelState: SelectValidatorsStartUserInputHandler {
     var stateListener: SelectValidatorsStartModelStateListener? { get set }
+    var customValidatorListFlow: CustomValidatorListFlow? { get }
 
     func setStateListener(_ stateListener: SelectValidatorsStartModelStateListener?)
-
-    var customValidatorListFlow: CustomValidatorListFlow? { get }
-    var recommendedValidatorListFlow: RecommendedValidatorListFlow? { get }
+    func recommendedValidatorListFlow() throws -> RecommendedValidatorListFlow?
 }
 
 struct SelectValidatorsStartDependencyContainer {
