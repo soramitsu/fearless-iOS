@@ -424,6 +424,7 @@ extension StakingMainViewController: Localizable {
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
+        tableView.reloadData()
     }
 
     func applyLocalization() {
@@ -663,6 +664,7 @@ extension StakingMainViewController: UITableViewDataSource {
         else {
             return UITableViewCell()
         }
+        viewModel.locale = selectedLocale
         cell.bind(to: viewModel)
         return cell
     }

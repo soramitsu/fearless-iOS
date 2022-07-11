@@ -10,6 +10,7 @@ final class DelegationInfoCellModel {
 
     let contentViewModel: LocalizableResource<DelegationViewModelProtocol>
     let delegationInfo: ParachainStakingDelegationInfo
+    var locale: Locale?
 
     init(
         contentViewModel: LocalizableResource<DelegationViewModelProtocol>,

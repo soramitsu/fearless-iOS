@@ -34,5 +34,6 @@ final class DelegationInfoCell: UITableViewCell {
     func bind(to viewModel: DelegationInfoCellModel) {
         stateView.bind(viewModel: viewModel.contentViewModel)
         stateView.delegate = viewModel
+        stateView.locale = viewModel.locale ?? Locale.current
     }
 }
