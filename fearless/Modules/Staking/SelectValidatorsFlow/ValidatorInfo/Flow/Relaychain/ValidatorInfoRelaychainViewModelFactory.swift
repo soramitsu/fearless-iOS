@@ -194,7 +194,7 @@ extension ValidatorInfoRelaychainViewModelFactory: ValidatorInfoViewModelFactory
             account: accountViewModel,
             staking: staking,
             identity: identityItems,
-            type: .relayChain
+            title: R.string.localizable.stakingValidatorInfoTitle(preferredLanguages: locale.rLanguages)
         )
     }
 

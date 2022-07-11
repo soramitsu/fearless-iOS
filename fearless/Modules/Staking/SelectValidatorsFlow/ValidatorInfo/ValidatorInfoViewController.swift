@@ -147,14 +147,7 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
             }
         }
 
-        switch viewModel.type {
-        case .relayChain:
-            title = R.string.localizable
-                .stakingValidatorInfoTitle(preferredLanguages: selectedLocale.rLanguages)
-        case .paraChain:
-            title = R.string.localizable
-                .stakingCollatorInfoTitle(preferredLanguages: selectedLocale.rLanguages)
-        }
+        title = viewModel.title
     }
 
     private func addLinkView(for item: ValidatorInfoViewModel.IdentityItem, title: String, value: String) {

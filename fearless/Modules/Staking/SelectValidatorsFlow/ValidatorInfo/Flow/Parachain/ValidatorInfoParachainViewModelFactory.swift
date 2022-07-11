@@ -227,7 +227,7 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
             account: accountViewModel,
             staking: staking,
             identity: identityItems,
-            type: .paraChain
+            title: R.string.localizable.stakingCollatorInfoTitle(preferredLanguages: locale.rLanguages)
         )
     }
 
