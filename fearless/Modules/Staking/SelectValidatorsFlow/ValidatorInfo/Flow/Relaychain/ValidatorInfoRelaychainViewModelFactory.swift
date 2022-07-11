@@ -193,7 +193,8 @@ extension ValidatorInfoRelaychainViewModelFactory: ValidatorInfoViewModelFactory
         return ValidatorInfoViewModel(
             account: accountViewModel,
             staking: staking,
-            identity: identityItems
+            identity: identityItems,
+            title: R.string.localizable.stakingValidatorInfoTitle(preferredLanguages: locale.rLanguages)
         )
     }
 

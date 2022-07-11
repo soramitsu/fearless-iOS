@@ -38,13 +38,7 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupLocalization()
         presenter.setup()
-    }
-
-    private func setupLocalization() {
-        title = R.string.localizable
-            .stakingValidatorInfoTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     func applyState() {
@@ -152,6 +146,8 @@ final class ValidatorInfoViewController: UIViewController, ViewHolder, LoadableV
                 }
             }
         }
+
+        title = viewModel.title
     }
 
     private func addLinkView(for item: ValidatorInfoViewModel.IdentityItem, title: String, value: String) {
@@ -237,7 +233,6 @@ extension ValidatorInfoViewController: ErrorStateViewDelegate {
 extension ValidatorInfoViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            setupLocalization()
             view.setNeedsLayout()
         }
     }

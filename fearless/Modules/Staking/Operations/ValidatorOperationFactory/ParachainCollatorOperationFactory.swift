@@ -430,7 +430,7 @@ extension ParachainCollatorOperationFactory {
                     let address = key
                     let owner = try key.toAccountId()
 
-                    let subqueryData = collatorsApr?.collatorRounds.nodes.first(where: { $0.collatorId == address })
+                    let subqueryData = collatorsApr?.collatorRounds.nodes.first(where: { $0.collatorId.lowercased() == address.lowercased() })
                     let amountDecimal = Decimal.fromSubstrateAmount(metadata?.totalCounted ?? BigUInt.zero, precision: Int16(strongSelf.asset.precision)) ?? 0
 
                     return ParachainStakingCandidateInfo(

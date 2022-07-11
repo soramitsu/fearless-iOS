@@ -1,7 +1,7 @@
 import Foundation
 
 enum DelegationViewStatus {
-    case active(countdown: TimeInterval?)
+    case active(round: UInt32)
     case idle(countdown: TimeInterval?)
     case leaving(countdown: TimeInterval?)
     case readyToUnlock
