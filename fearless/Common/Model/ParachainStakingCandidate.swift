@@ -10,7 +10,6 @@ struct ParachainStakingCandidateInfo: Equatable {
     let subqueryData: SubqueryCollatorData?
 
     var oversubscribed: Bool {
-        // TODO: Check this logic
         metadata?.topCapacity == .full
     }
 

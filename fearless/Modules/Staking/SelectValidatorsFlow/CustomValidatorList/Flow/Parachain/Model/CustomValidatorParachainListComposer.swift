@@ -3,18 +3,21 @@ import BigInt
 
 class CustomValidatorParachainListComposer {
     let filter: CustomValidatorParachainListFilter
+    let chainAsset: ChainAsset
 
     init(
-        filter: CustomValidatorParachainListFilter
+        filter: CustomValidatorParachainListFilter,
+        chainAsset: ChainAsset
     ) {
         self.filter = filter
+        self.chainAsset = chainAsset
     }
 }
 
 extension CustomValidatorParachainListComposer {
     typealias RecommendableType = ParachainStakingCandidateInfo
 
-    func compose(from validators: [ParachainStakingCandidateInfo]) -> [ParachainStakingCandidateInfo] {
+    func compose(from validators: [ParachainStakingCandidateInfo], stakeAmount: Decimal) -> [ParachainStakingCandidateInfo] {
         var filtered = validators
 
         if !filter.allowsNoIdentity {
@@ -25,7 +28,16 @@ extension CustomValidatorParachainListComposer {
 
         if !filter.allowsOversubscribed {
             filtered = filtered.filter {
-                !$0.oversubscribed
+                let lowestTopDelegationAmountDecimal = Decimal.fromSubstrateAmount(
+                    $0.metadata?.lowestTopDelegationAmount ?? BigUInt.zero,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0.0
+
+                if $0.oversubscribed {
+                    return stakeAmount > lowestTopDelegationAmountDecimal
+                }
+
+                return true
             }
         }
 
