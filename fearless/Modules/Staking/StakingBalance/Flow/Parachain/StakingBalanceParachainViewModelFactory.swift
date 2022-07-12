@@ -38,6 +38,11 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 precision: precision
             ) ?? 0.0
 
+            let unbondedDecimal = Decimal.fromSubstrateAmount(
+                calculateDecreaseAmount(viewModelState: viewModelState, currentEra: viewModelState.round?.current),
+                precision: precision
+            ) ?? 0.0
+
             let widgetViewModel = self.createWidgetViewModel(
                 from: viewModelState,
                 precision: precision,
@@ -59,6 +64,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 actionsViewModel: self.createActionsViewModel(
                     redeemableDecimal: redeemableDecimal,
                     bondedDecimal: bondedDecimal,
+                    unbondedDecimal: unbondedDecimal,
                     locale: locale
                 ),
                 unbondingViewModel: unbondingViewModel
@@ -124,6 +130,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     func createActionsViewModel(
         redeemableDecimal: Decimal,
         bondedDecimal: Decimal,
+        unbondedDecimal: Decimal,
         locale: Locale
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
@@ -132,7 +139,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             redeemTitle: R.string.localizable.parachainStakingUnlock(preferredLanguages: locale.rLanguages),
             redeemActionIsAvailable: redeemableDecimal > 0,
             stakeMoreActionAvailable: bondedDecimal > 0,
-            stakeLessActionAvailable: bondedDecimal > 0
+            stakeLessActionAvailable: bondedDecimal > unbondedDecimal
         )
     }
 
