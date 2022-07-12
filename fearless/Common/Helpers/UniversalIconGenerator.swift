@@ -84,6 +84,14 @@ final class UniversalIconGenerator: IconGenerating {
     }
 
     public func generateFromAddress(_ address: String) throws -> DrawableIcon {
+        if address.starts(with: "0x") {
+            return try ethereumIconFromAddress(address)
+        } else {
+            return try substrateIconFromAddress(address)
+        }
+    }
+
+    public func substrateIconFromAddress(_ address: String) throws -> DrawableIcon {
         let accountId = try deriveAccountIdFromAddress(address)
 
         let colors = try getColorsForData(accountId)

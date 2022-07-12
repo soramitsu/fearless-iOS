@@ -473,12 +473,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         assetIconViewModel = viewModel.assetIcon
         balanceViewModel = viewModel.balanceViewModel
 
-        let sideSize = iconButtonWidth.constant - iconButton.contentInsets.left
-            - iconButton.contentInsets.right
-        let size = CGSize(width: sideSize, height: sideSize)
-        let icon = try? iconGenerator?.generateFromAddress(viewModel.address)
-            .imageWithFillColor(R.color.colorWhite()!, size: size, contentScale: UIScreen.main.scale)
-        iconButton.imageWithTitleView?.iconImage = icon
+        iconButton.imageWithTitleView?.iconImage = R.image.iconFearlessRounded()
         iconButton.invalidateLayout()
 
         networkInfoView.bind(chainName: viewModel.chainName)
