@@ -43,6 +43,8 @@ struct ChainAsset: Equatable, Hashable {
         case .stable:
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
             return CurrencyId.stable(symbol: tokenSymbol)
+        case .equilibrium:
+            return CurrencyId.equilibrium(id: asset.symbol)
         }
     }
 
@@ -78,6 +80,8 @@ extension ChainAsset {
             .vsToken,
             .stable:
             storagePath = StorageCodingPath.tokens
+        case .equilibrium:
+            storagePath = StorageCodingPath.eqBalances
         }
 
         return storagePath
@@ -94,4 +98,5 @@ enum ChainAssetType: String, Codable {
     case vToken
     case vsToken
     case stable
+    case equilibrium
 }
