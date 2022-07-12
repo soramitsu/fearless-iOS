@@ -144,6 +144,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
 
         statusView.titleView.titleLabel.text =
             R.string.localizable.stakingStatusReadyToUnlock(preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.imageView.isHidden = true
     }
 }
 
