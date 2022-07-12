@@ -90,7 +90,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
         ) { [weak self] result in
             switch result {
             case let .success(accounts):
-                self?.presenter?.didReceive(accounts: accounts)
+                self?.presenter?.didReceive(accounts: accounts.filter { $0.isChainAccount == false })
             case let .failure(error):
                 self?.presenter?.didReceive(error: error)
             }

@@ -7,13 +7,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         priceProvider?.refresh()
         totalRewardProvider?.refresh()
         rewardAnalyticsProvider?.refresh()
-
-        guard
-            let wallet = selectedWalletSettings.value,
-            let chainAsset = stakingSettings.value,
-            let response = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
-            return
-        }
     }
 
     func updatePrices() {
