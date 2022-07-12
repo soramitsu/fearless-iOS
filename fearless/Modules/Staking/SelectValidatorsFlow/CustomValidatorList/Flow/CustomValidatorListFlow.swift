@@ -29,7 +29,6 @@ enum CustomValidatorListFlow {
 
 protocol CustomValidatorListModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: CustomValidatorListViewModelState)
-    func viewModelChanged(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?)
     func didReceiveError(error: CustomValidatorListFlowError)
     func showSelectedList()
     func showConfirmation()

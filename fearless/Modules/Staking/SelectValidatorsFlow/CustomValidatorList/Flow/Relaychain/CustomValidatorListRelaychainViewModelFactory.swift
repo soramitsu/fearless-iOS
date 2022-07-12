@@ -172,7 +172,7 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
         let proceedButtonTitle = relaychainViewModelState.selectedValidatorList.count == 0
             ? R.string.localizable
             .stakingCustomProceedButtonDisabledTitle(
-                relaychainViewModelState.selectedValidatorList.count,
+                relaychainViewModelState.maxTargets,
                 preferredLanguages: locale.rLanguages
             )
             : R.string.localizable.stakingCustomProceedButtonEnabledTitle(

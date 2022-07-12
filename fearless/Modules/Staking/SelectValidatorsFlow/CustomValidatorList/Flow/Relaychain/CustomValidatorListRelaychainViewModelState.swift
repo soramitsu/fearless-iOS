@@ -70,32 +70,9 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     }
 
     func performDeselect() {
-        guard var viewModel = viewModel else { return }
-
-        let changedModels: [CustomValidatorCellViewModel] = viewModel.cellViewModels.map {
-            var newItem = $0
-            newItem.isSelected = false
-            return newItem
-        }
-
-        let indices = viewModel.cellViewModels
-            .enumerated()
-            .filter {
-                $1.isSelected
-            }.map { index, _ in
-                index
-            }
-
         selectedValidatorList.set([])
 
         stateListener?.modelStateDidChanged(viewModelState: self)
-
-        viewModel.cellViewModels = changedModels
-        viewModel.selectedValidatorsCount = 0
-
-        self.viewModel = viewModel
-
-        stateListener?.viewModelChanged(viewModel, at: indices)
     }
 
     func changeValidatorSelection(at index: Int) {
