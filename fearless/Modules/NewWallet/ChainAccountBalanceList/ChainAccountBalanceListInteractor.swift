@@ -240,10 +240,14 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         if selectedMetaAccount.metaId == event.account.metaId {
-            selectedMetaAccount = event.account
-            currency = event.account.selectedCurrency
-            presenter?.didReceiveSelectedAccount(selectedMetaAccount)
-            presenter?.didRecieveSelectedCurrency(currency)
+            if selectedMetaAccount != event.account {
+                selectedMetaAccount = event.account
+                presenter?.didReceiveSelectedAccount(selectedMetaAccount)
+            }
+            if currency != event.account.selectedCurrency {
+                currency = event.account.selectedCurrency
+                presenter?.didRecieveSelectedCurrency(currency)
+            }
             presenter?.didReceiveChains(result: .success(chains))
             refresh()
         }
