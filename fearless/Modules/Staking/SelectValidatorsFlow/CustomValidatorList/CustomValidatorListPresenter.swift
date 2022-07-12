@@ -221,8 +221,8 @@ extension CustomValidatorListPresenter: CustomValidatorListModelStateListener {
         provideViewModels(viewModelState: viewModelState)
     }
 
-    func viewModelChanged(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?) {
-        view?.reload(viewModel, at: indexes)
+    func viewModelChanged() {
+        provideViewModels(viewModelState: viewModelState)
     }
 
     func showSelectedList() {
