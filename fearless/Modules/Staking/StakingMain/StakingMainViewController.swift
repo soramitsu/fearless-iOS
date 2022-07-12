@@ -493,6 +493,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
             tableView.isHidden = false
         } else {
             tableView.isHidden = true
+            applyDelegations(viewModels: nil)
         }
 
         switch viewModel {
