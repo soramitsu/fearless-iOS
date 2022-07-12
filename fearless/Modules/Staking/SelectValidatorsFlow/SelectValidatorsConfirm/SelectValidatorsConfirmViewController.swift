@@ -111,12 +111,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.amountView.fieldText = viewModel.amount
 
-        rootView.mainAccountView.iconImage = viewModel.senderIcon?
-            .imageWithFillColor(
-                R.color.colorWhite()!,
-                size: UIConstants.smallAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
+        rootView.mainAccountView.iconImage = R.image.iconFearlessRounded()
 
         rootView.mainAccountView.subtitle = viewModel.senderName
 
