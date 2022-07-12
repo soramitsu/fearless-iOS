@@ -199,6 +199,7 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
             selectedValidatorsCount: parachainViewModelState.selectedValidatorList.count,
+            selectedValidatorsLimit: nil,
             proceedButtonTitle: R.string.localizable
                 .stakingStakeWithSelectedTitle(
                     preferredLanguages: locale.rLanguages

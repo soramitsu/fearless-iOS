@@ -34,7 +34,6 @@ enum CustomValidatorListViewFactory {
 
         let view = CustomValidatorListViewController(
             presenter: presenter,
-            selectedValidatorsLimit: 0,
             localizationManager: LocalizationManager.shared
         )
 

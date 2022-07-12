@@ -92,6 +92,7 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
 
         viewModel.cellViewModels = changedModels
         viewModel.selectedValidatorsCount = 0
+
         self.viewModel = viewModel
 
         stateListener?.viewModelChanged(viewModel, at: indices)
@@ -119,7 +120,8 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
-        stateListener?.viewModelChanged(viewModel, at: [index])
+//        stateListener?.viewModelChanged(viewModel, at: [index])
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func composeFilteredValidatorList(filter: CustomValidatorRelaychainListFilter) -> [SelectedValidatorInfo] {

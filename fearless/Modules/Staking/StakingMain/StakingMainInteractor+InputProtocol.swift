@@ -216,7 +216,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
               let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()) else {
-            sharedState.settings.setup(runningCompletionIn: .main) { [weak self] result in
+            sharedState.settings.performSetup { [weak self] result in
                 switch result {
                 case let .success(chainAsset):
                     if let chainAsset = chainAsset {
@@ -226,6 +226,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                     self?.logger?.error("updateAfterSelectedAccountChange: \(error)")
                 }
             }
+
             return
         }
 

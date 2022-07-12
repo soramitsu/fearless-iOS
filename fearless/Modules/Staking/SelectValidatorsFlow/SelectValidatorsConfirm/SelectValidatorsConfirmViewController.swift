@@ -163,6 +163,11 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
         rootView.selectedCollatorContainer.isHidden = viewModel.selectedCollatorViewModel == nil
         rootView.selectedCollatorView.title = viewModel.selectedCollatorViewModel?.name
         rootView.selectedCollatorView.subtitle = viewModel.selectedCollatorViewModel?.address
+        rootView.selectedCollatorView.iconImage = viewModel.selectedCollatorViewModel?.icon?.imageWithFillColor(
+            .white,
+            size: UIConstants.smallAddressIconSize,
+            contentScale: UIScreen.main.scale
+        )
     }
 
     private func applyHints() {

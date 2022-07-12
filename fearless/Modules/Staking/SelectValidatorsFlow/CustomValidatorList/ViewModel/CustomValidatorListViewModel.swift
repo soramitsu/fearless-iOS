@@ -15,6 +15,7 @@ struct CustomValidatorListViewModel {
     var headerViewModel: TitleWithSubtitleViewModel
     var cellViewModels: [CustomValidatorCellViewModel]
     var selectedValidatorsCount: Int
+    var selectedValidatorsLimit: Int?
     var proceedButtonTitle: String?
     var fillRestButtonVisible: Bool
     var fillRestButtonEnabled: Bool
