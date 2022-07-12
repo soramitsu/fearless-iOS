@@ -5,11 +5,11 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
     typealias RootViewType = CustomValidatorListViewLayout
 
     let presenter: CustomValidatorListPresenterProtocol
-    let selectedValidatorsLimit: Int
 
     private var cellViewModels: [CustomValidatorCellViewModel] = []
     private var headerViewModel: TitleWithSubtitleViewModel?
     private var selectedValidatorsCount: Int = 0
+    private var selectedValidatorsLimit: Int = 0
 
     private var filterIsApplied: Bool = true
 
@@ -29,11 +29,9 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
 
     init(
         presenter: CustomValidatorListPresenterProtocol,
-        selectedValidatorsLimit: Int,
         localizationManager: LocalizationManagerProtocol? = nil
     ) {
         self.presenter = presenter
-        self.selectedValidatorsLimit = selectedValidatorsLimit
 
         super.init(nibName: nil, bundle: nil)
 
@@ -248,6 +246,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         cellViewModels = viewModel.cellViewModels
         headerViewModel = viewModel.headerViewModel
         selectedValidatorsCount = viewModel.selectedValidatorsCount
+        selectedValidatorsLimit = viewModel.selectedValidatorsLimit ?? 0
 
         if let indexes = indexes {
             let indexPaths = indexes.map {

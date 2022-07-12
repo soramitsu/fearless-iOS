@@ -4,6 +4,7 @@ import FearlessUtils
 struct SelectedValidatorViewModel {
     let name: String?
     let address: String
+    let icon: DrawableIcon?
 }
 
 struct SelectValidatorsConfirmViewModel {
