@@ -240,10 +240,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         wallet: MetaAccountModel,
         flow: StakingRedeemFlow
     ) {
+        var redeemCompletion: (() -> Void)?
+        if case .parachain = flow {
+            redeemCompletion = {
+                self.dismiss(view: view)
+            }
+        }
         guard let redeemView = StakingRedeemViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
-            flow: flow
+            flow: flow,
+            redeemCompletion: redeemCompletion
         ) else {
             return
         }
