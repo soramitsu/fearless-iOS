@@ -63,7 +63,8 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
             itemViewModels: items, title: R.string.localizable
-                .stakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages)
+                .stakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages),
+            continueButtonEnabled: true
         )
     }
 }

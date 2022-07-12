@@ -6,6 +6,7 @@ protocol RecommendedValidatorListViewModelProtocol {
     var itemsCountString: LocalizableResource<String> { get }
     var itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>] { get }
     var title: String { get }
+    var continueButtonEnabled: Bool { get }
 }
 
 protocol RecommendedValidatorViewModelProtocol {
@@ -19,6 +20,7 @@ struct RecommendedValidatorListViewModel: RecommendedValidatorListViewModelProto
     let itemsCountString: LocalizableResource<String>
     let itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>]
     let title: String
+    let continueButtonEnabled: Bool
 }
 
 struct RecommendedValidatorViewModel: RecommendedValidatorViewModelProtocol {

@@ -63,7 +63,8 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
             itemViewModels: items,
-            title: R.string.localizable.parachainStakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages)
+            title: R.string.localizable.parachainStakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages),
+            continueButtonEnabled: !parachainViewModelState.selectedCollators.isEmpty
         )
     }
 }

@@ -131,7 +131,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
             let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
-            assertionFailure("StakingAmountViewFactory.createContainer.runtimeService.missing")
             return nil
         }
 

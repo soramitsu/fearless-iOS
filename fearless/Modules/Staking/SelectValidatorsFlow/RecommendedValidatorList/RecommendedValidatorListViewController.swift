@@ -102,6 +102,12 @@ extension RecommendedValidatorListViewController: RecommendedValidatorListViewPr
         self.viewModel = viewModel
         updateHeaderView()
 
+        if viewModel.continueButtonEnabled {
+            continueButton.applyEnabledStyle()
+        } else {
+            continueButton.applyDisabledStyle()
+        }
+
         tableView.reloadData()
     }
 }

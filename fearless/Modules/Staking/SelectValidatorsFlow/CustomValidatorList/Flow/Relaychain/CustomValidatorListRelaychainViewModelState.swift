@@ -47,6 +47,10 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     }
 
     func selectedValidatorListFlow() -> SelectedValidatorListFlow? {
+        guard !selectedValidatorList.items.isEmpty else {
+            return nil
+        }
+
         switch baseFlow {
         case .parachain:
             return nil

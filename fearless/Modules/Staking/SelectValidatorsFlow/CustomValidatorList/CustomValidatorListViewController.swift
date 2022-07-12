@@ -173,7 +173,12 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         }
 
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
-        rootView.proceedButton.set(enabled: isEnabled)
+
+        if isEnabled {
+            rootView.proceedButton.applyEnabledStyle()
+        } else {
+            rootView.proceedButton.applyDisabledStyle()
+        }
     }
 
     private func presentValidatorInfo(at index: Int) {
