@@ -22,7 +22,7 @@ extension SelectValidatorsStartError: ErrorContentConvertible {
             title = R.string.localizable
                 .commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
-                .commonUndefinedErrorMessage(preferredLanguages: locale?.rLanguages)
+                .stakingRecommendedCollatorsEmptyText(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

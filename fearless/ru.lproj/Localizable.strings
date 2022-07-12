@@ -736,3 +736,4 @@ and depending on the network state, may not be selected to participate";
 "staking.custom.collators.title" = "Select a collator";
 "parachain.staking.recommended.section.title" = "Collators suggested by algorithm";
 "staking.recommended.filter.minimum.bond" = "Having relevant minimum bond";
+"staking.recommended.collators.empty.text" = "Your stake amount is less than the minimum one of all collators suggested by the algorithm. Increase your stake amount or choose a collator manually";
