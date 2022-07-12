@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable type_name
 class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListViewModelState {
     var collators: [ParachainStakingCandidateInfo]
     var selectedCollators: [ParachainStakingCandidateInfo] = []
@@ -8,7 +9,9 @@ class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListV
     let maxTargets: Int
 
     init(collators: [ParachainStakingCandidateInfo], bonding: InitiatedBonding, maxTargets: Int) {
-        self.collators = collators
+        self.collators = collators.sorted(by: { collator1, collator2 in
+            collator1.subqueryData?.apr ?? 0.0 > collator2.subqueryData?.apr ?? 0.0
+        })
         self.bonding = bonding
         self.maxTargets = maxTargets
     }
