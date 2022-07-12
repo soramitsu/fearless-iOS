@@ -43,6 +43,10 @@ enum ExistentialDepositCurrencyId {
                 return nil
             }
             self = .stable(tokenSymbol: symbol.uppercased())
+        case .equilibrium:
+            // existential deposit for equilibrium fetch by constants, becouse this chain now unuse subassets
+            // when sub-assets are added, this part needs to be researched
+            return nil
         }
     }
 }
