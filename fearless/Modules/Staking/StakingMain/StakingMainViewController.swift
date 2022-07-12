@@ -424,6 +424,7 @@ extension StakingMainViewController: Localizable {
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
+        tableView.reloadData()
     }
 
     func applyLocalization() {
@@ -457,10 +458,16 @@ extension StakingMainViewController: StakingMainViewProtocol {
     func didRecieveNetworkStakingInfo(
         viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
     ) {
+        guard networkInfoView != nil else {
+            return
+        }
         networkInfoView.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModel) {
+        guard viewIfLoaded != nil else {
+            return
+        }
         assetIconViewModel?.cancel(on: assetSelectionView.iconView)
 
         assetIconViewModel = viewModel.assetIcon
@@ -489,6 +496,9 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func didReceiveStakingState(viewModel: StakingViewState) {
+        guard viewIfLoaded != nil else {
+            return
+        }
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {
@@ -664,6 +674,7 @@ extension StakingMainViewController: UITableViewDataSource {
         else {
             return UITableViewCell()
         }
+        viewModel.locale = selectedLocale
         cell.bind(to: viewModel)
         return cell
     }

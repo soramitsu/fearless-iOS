@@ -243,7 +243,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         guard let redeemView = StakingRedeemViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
-            flow: flow
+            flow: flow,
+            redeemCompletion: nil
         ) else {
             return
         }

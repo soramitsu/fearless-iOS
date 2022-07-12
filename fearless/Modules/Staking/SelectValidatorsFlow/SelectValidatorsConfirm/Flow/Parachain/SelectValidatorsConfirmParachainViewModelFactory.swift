@@ -91,7 +91,8 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
 
         let selectedCollatorViewModel = SelectedValidatorViewModel(
             name: state.target.identity?.name,
-            address: state.target.address
+            address: state.target.address,
+            icon: try? iconGenerator.ethereumIconFromAddress(state.target.address)
         )
 
         return LocalizableResource { locale in

@@ -169,15 +169,24 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             locale: locale
         )
 
+        let proceedButtonTitle = relaychainViewModelState.selectedValidatorList.count == 0
+            ? R.string.localizable
+            .stakingCustomProceedButtonDisabledTitle(
+                relaychainViewModelState.selectedValidatorList.count,
+                preferredLanguages: locale.rLanguages
+            )
+            : R.string.localizable.stakingCustomProceedButtonEnabledTitle(
+                relaychainViewModelState.selectedValidatorList.count,
+                relaychainViewModelState.maxTargets,
+                preferredLanguages: locale.rLanguages
+            )
+
         return CustomValidatorListViewModel(
             headerViewModel: headerViewModel,
             cellViewModels: cellsViewModel,
             selectedValidatorsCount: relaychainViewModelState.selectedValidatorList.count,
-            proceedButtonTitle: R.string.localizable
-                .stakingCustomProceedButtonDisabledTitle(
-                    relaychainViewModelState.selectedValidatorList.count,
-                    preferredLanguages: locale.rLanguages
-                ),
+            selectedValidatorsLimit: relaychainViewModelState.maxTargets,
+            proceedButtonTitle: proceedButtonTitle,
             fillRestButtonVisible: true,
             fillRestButtonEnabled: relaychainViewModelState.selectedValidatorList.count < relaychainViewModelState.maxTargets,
             clearButtonEnabled: relaychainViewModelState.filter != CustomValidatorRelaychainListFilter.defaultFilter(),

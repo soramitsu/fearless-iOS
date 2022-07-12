@@ -105,6 +105,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
         statusView.valueView.detailsLabel.text = R.string.localizable
             .stakingRoundTitle("\(round)", preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.imageView.isHidden = true
     }
 
     private func presentIdleStatus(countdown: TimeInterval?) {

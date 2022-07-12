@@ -1,3 +1,5 @@
+import Foundation
+
 final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showBondMore(
         from view: ControllerBackedProtocol?,
@@ -39,10 +41,17 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         wallet: MetaAccountModel,
         flow: StakingRedeemFlow
     ) {
+        var redeemCompletion: (() -> Void)?
+        if case .parachain = flow {
+            redeemCompletion = {
+                view?.controller.navigationController?.popViewController(animated: true)
+            }
+        }
         guard let redeemView = StakingRedeemViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
-            flow: flow
+            flow: flow,
+            redeemCompletion: redeemCompletion
         ) else {
             return
         }

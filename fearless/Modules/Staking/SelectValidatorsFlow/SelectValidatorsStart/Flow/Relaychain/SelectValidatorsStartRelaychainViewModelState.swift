@@ -1,5 +1,7 @@
 import Foundation
 
+// swiftlint:disable type_name
+// swiftlint:disable line_length
 final class SelectValidatorsStartRelaychainExistingViewModelState: SelectValidatorsStartRelaychainViewModelState {
     let bonding: ExistingBonding
 

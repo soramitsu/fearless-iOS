@@ -2,12 +2,11 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 
+// swiftlint:disable type_name
 class RecommendedValidatorListParachainViewModelFactory {
     private let iconGenerator: IconGenerating
 
-    init(
-        iconGenerator: IconGenerating
-    ) {
+    init(iconGenerator: IconGenerating) {
         self.iconGenerator = iconGenerator
     }
 
@@ -33,15 +32,16 @@ class RecommendedValidatorListParachainViewModelFactory {
 }
 
 extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
-    func buildViewModel(viewModelState: RecommendedValidatorListViewModelState, locale: Locale) -> RecommendedValidatorListViewModel? {
+    func buildViewModel(
+        viewModelState: RecommendedValidatorListViewModelState,
+        locale: Locale
+    ) -> RecommendedValidatorListViewModel? {
         guard let parachainViewModelState = viewModelState as? RecommendedValidatorListParachainViewModelState else {
             return nil
         }
 
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
-            parachainViewModelState.collators.sorted(by: { collator1, collator2 in
-                collator1.subqueryData?.apr ?? 0.0 > collator2.subqueryData?.apr ?? 0.0
-            }).compactMap { collator in
+            parachainViewModelState.collators.compactMap { collator in
                 let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
@@ -52,7 +52,8 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: details.value(for: locale), isSelected: parachainViewModelState.selectedCollators.contains(collator)
+                        details: details.value(for: locale),
+                        isSelected: parachainViewModelState.selectedCollators.contains(collator)
                     )
                 }
             }
