@@ -62,7 +62,7 @@ class CustomValidatorListParachainViewModelFactory {
         let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
         return collatorList.map { collator in
-            let icon = try? self.iconGenerator.ethereumIconFromAddress(collator.address)
+            let icon = try? self.iconGenerator.generateFromAddress(collator.address)
 
             let detailsText: String?
             let auxDetailsText: String?
