@@ -120,7 +120,6 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
         viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
-//        stateListener?.viewModelChanged(viewModel, at: [index])
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
