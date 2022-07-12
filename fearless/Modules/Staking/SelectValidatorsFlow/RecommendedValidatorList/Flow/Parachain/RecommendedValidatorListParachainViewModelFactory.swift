@@ -42,7 +42,7 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
 
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
             parachainViewModelState.collators.compactMap { collator in
-                let icon = try? iconGenerator.ethereumIconFromAddress(collator.address)
+                let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
                 let aprDecimal = Decimal(collator.subqueryData?.apr ?? 0)
