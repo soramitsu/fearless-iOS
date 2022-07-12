@@ -228,6 +228,7 @@ extension ChainAccountBalanceListInteractor: EventVisitorProtocol {
         DispatchQueue.global().async {
             self.replaceAccountInfoSubscriptionAdapter()
         }
+        presenter?.didReceiveChains(result: .success(chains))
     }
 
     func processChainsUpdated(event _: ChainsUpdatedEvent) {

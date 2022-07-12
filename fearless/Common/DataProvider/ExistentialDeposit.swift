@@ -41,6 +41,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             completion(.success(result))
             return
         }
+
         switch chainAsset.chainAssetType {
         case .normal, .ormlChain:
             fetchConstant(
@@ -59,6 +60,14 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             .vsToken,
             .stable:
             fetchSubAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
+        case .equilibrium:
+            fetchConstant(
+                for: .equilibriumExistentialDeposit,
+                runtimeCodingService: runtimeCodingService,
+                operationManager: operationManager
+            ) { result in
+                completion(result)
+            }
         }
     }
 

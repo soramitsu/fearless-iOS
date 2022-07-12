@@ -14,6 +14,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Tokens", itemName: "Accounts")
     }
 
+    static var eqBalances: StorageCodingPath {
+        StorageCodingPath(moduleName: "EqBalances", itemName: "Account")
+    }
+
     static var events: StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Events")
     }

@@ -30,6 +30,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }
 
+    static var equilibriumExistentialDeposit: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "eqBalances", constantName: "depositEq")
+    }
+
     static var paraLeasingPeriod: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Slots", constantName: "LeasePeriod")
     }

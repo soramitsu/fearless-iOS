@@ -27,7 +27,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     // MARK: - Private properties
 
-    private var subscriptions: [AccountInfoSubscriptionProviderWrapper.Subscription] = []
+    private var subscriptions: [StreamableProvider<ChainStorageItem>] = []
     private var selectedMetaAccount: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
@@ -48,12 +48,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     func reset() {
         subscriptions.forEach { subscription in
-            switch subscription {
-            case let .usual(provider):
-                provider.removeObserver(wrapper)
-            case let .orml(provider):
-                provider.removeObserver(wrapper)
-            }
+            subscription.removeObserver(wrapper)
         }
 
         subscriptions.removeAll()

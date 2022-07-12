@@ -176,6 +176,8 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             .vsToken,
             .stable:
             return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        case .equilibrium:
+            return equilibriumAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
         }
     }
 
@@ -349,6 +351,15 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
         return RuntimeCall(moduleName: "Currencies", callName: "transfer", args: args)
+    }
+
+    private func equilibriumAssetTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "EqBalances", callName: "transfer", args: args)
     }
 
     private func defaultTransfer(

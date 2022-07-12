@@ -11,11 +11,6 @@ protocol WalletLocalStorageSubscriber where Self: AnyObject {
         for accountId: AccountId,
         chainAsset: ChainAsset
     ) -> StreamableProvider<ChainStorageItem>?
-
-    func subscribeToOrmlAccountInfoProvider(
-        for accountId: AccountId,
-        chainAsset: ChainAsset
-    ) -> StreamableProvider<ChainStorageItem>?
 }
 
 extension WalletLocalStorageSubscriber {
@@ -32,7 +27,7 @@ extension WalletLocalStorageSubscriber {
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<ChainStorageItem>]) in
             let finalValue: ChainStorageItem? = changes.reduceToLastChange()
-            self?.handleAccountInfo(for: accountId, chainAsset: chainAsset, item: finalValue)
+            self?.handleChainStorageItem(for: accountId, chainAsset: chainAsset, item: finalValue)
         }
 
         let failureClosure = { [weak self] (error: Error) in
@@ -62,50 +57,9 @@ extension WalletLocalStorageSubscriber {
         return accountInfoProvider
     }
 
-    func subscribeToOrmlAccountInfoProvider(
-        for accountId: AccountId,
-        chainAsset: ChainAsset
-    ) -> StreamableProvider<ChainStorageItem>? {
-        guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getAccountProvider(
-            for: accountId,
-            chainAsset: chainAsset
-        ) else {
-            return nil
-        }
+    // MARK: - private methods
 
-        let updateClosure = { [weak self] (changes: [DataProviderChange<ChainStorageItem>]) in
-            let finalValue: ChainStorageItem? = changes.reduceToLastChange()
-            self?.handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: finalValue)
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                result: .failure(error),
-                accountId: accountId,
-                chainAsset: chainAsset
-            )
-            return
-        }
-
-        let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false,
-            initialSize: 0,
-            refreshWhenEmpty: true
-        )
-
-        accountInfoProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        return accountInfoProvider
-    }
-
-    private func handleOrmlAccountInfo(
+    private func handleChainStorageItem(
         for accountId: AccountId,
         chainAsset: ChainAsset,
         item: ChainStorageItem?
@@ -119,6 +73,30 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
+        switch chainAsset.chainAssetType {
+        case .normal:
+            handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+
+        case
+            .ormlChain,
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCrowdloan,
+            .vToken,
+            .vsToken,
+            .stable:
+            handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+        case .equilibrium:
+            handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
+        }
+    }
+
+    private func handleOrmlAccountInfo(
+        for accountId: AccountId,
+        chainAsset: ChainAsset,
+        item: ChainStorageItem
+    ) {
         guard
             let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
                 for: chainAsset.chain.chainId
@@ -176,17 +154,8 @@ extension WalletLocalStorageSubscriber {
     private func handleAccountInfo(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        item: ChainStorageItem?
+        item: ChainStorageItem
     ) {
-        guard let item = item else {
-            walletLocalSubscriptionHandler?.handleAccountInfo(
-                result: .success(nil),
-                accountId: accountId,
-                chainAsset: chainAsset
-            )
-            return
-        }
-
         guard
             let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
                 for: chainAsset.chain.chainId
@@ -221,6 +190,65 @@ extension WalletLocalStorageSubscriber {
                     accountId: accountId,
                     chainAsset: chainAsset
                 )
+            }
+        }
+
+        walletLocalSubscriptionFactory.operationManager.enqueue(
+            operations: [codingFactoryOperation, decodingOperation],
+            in: .transient
+        )
+    }
+
+    private func handleEquilibrium(
+        for accountId: AccountId,
+        chainAsset: ChainAsset,
+        item: ChainStorageItem
+    ) {
+        guard
+            let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
+                for: chainAsset.chain.chainId
+            )
+        else {
+            return
+        }
+
+        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        let decodingOperation = StorageDecodingOperation<EquilibriumAccountInfo?>(
+            path: .eqBalances,
+            data: item.data
+        )
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation
+                    .extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
+
+        decodingOperation.addDependency(codingFactoryOperation)
+
+        decodingOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                guard let result = decodingOperation.result else {
+                    return
+                }
+
+                switch result {
+                case let .success(equilibriumAccountInfo):
+                    let accountInfo = AccountInfo(equilibriumAccountInfo: equilibriumAccountInfo)
+                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                        result: .success(accountInfo),
+                        accountId: accountId,
+                        chainAsset: chainAsset
+                    )
+                case let .failure(error):
+                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                        result: .failure(error),
+                        accountId: accountId,
+                        chainAsset: chainAsset
+                    )
+                }
             }
         }
 
