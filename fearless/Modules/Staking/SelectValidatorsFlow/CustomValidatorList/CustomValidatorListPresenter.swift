@@ -221,10 +221,6 @@ extension CustomValidatorListPresenter: CustomValidatorListModelStateListener {
         provideViewModels(viewModelState: viewModelState)
     }
 
-    func viewModelChanged(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?) {
-        view?.reload(viewModel, at: indexes)
-    }
-
     func showSelectedList() {
         guard let flow = viewModelState.selectedValidatorListFlow() else {
             return
