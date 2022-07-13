@@ -28,7 +28,6 @@ final class ChainModelMapper {
             price: entity.price as Decimal?,
             fiatDayChange: entity.fiatDayChange as Decimal?,
             transfersEnabled: entity.transfersEnabled,
-            type: createChainAssetModelType(from: entity.type),
             currencyId: entity.currencyId,
             displayName: entity.displayName,
             existentialDeposit: entity.existentialDeposit
@@ -141,7 +140,6 @@ final class ChainModelMapper {
         assetEntity.fiatDayChange = model.asset.fiatDayChange as NSDecimalNumber?
         assetEntity.symbol = model.asset.symbol
         assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
-        assetEntity.type = model.type.rawValue
         assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
