@@ -297,9 +297,9 @@ final class StakingStateViewModelFactory {
 
         let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
-        let monthlyReturn = calculator.calculateMaxReturn(isCompound: true, period: .month)
+        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month)
 
-        let yearlyReturn = calculator.calculateMaxReturn(isCompound: true, period: .year)
+        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year)
 
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: (amount ?? 0.0) * monthlyReturn,

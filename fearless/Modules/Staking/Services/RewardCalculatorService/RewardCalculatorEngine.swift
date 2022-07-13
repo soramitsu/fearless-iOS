@@ -34,6 +34,11 @@ protocol RewardCalculatorEngineProtocol {
     func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal
 
     func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal
+
+    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal
+
+    func maxEarningsTitle(locale: Locale) -> String
+    func avgEarningTitle(locale: Locale) -> String
 }
 
 extension RewardCalculatorEngineProtocol {
@@ -71,6 +76,7 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private let assetPrecision: Int16
     private let eraDurationInSeconds: TimeInterval
     private let commission: Decimal
+    private let collators: [ParachainStakingCandidateInfo]
 
     private let decayRate: Decimal = 0.05
     private let idealStakePortion: Decimal = 0.75
@@ -83,7 +89,8 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         totalIssuance: BigUInt,
         totalStaked: BigUInt,
         eraDurationInSeconds: TimeInterval,
-        commission: Decimal
+        commission: Decimal,
+        collators: [ParachainStakingCandidateInfo]
     ) {
         self.chainId = chainId
         self.assetPrecision = assetPrecision
@@ -97,11 +104,20 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         ) ?? 0.0
         self.eraDurationInSeconds = eraDurationInSeconds
         self.commission = commission
+        self.collators = collators
     }
 
     private lazy var annualInflation: Decimal = {
         0.025
     }()
+
+    func avgEarningTitle(locale: Locale) -> String {
+        R.string.localizable.parachainStakingRewardInfoAvg(preferredLanguages: locale.rLanguages)
+    }
+
+    func maxEarningsTitle(locale: Locale) -> String {
+        R.string.localizable.parachainStakingRewardInfoMax(preferredLanguages: locale.rLanguages)
+    }
 
     func calculateEarnings(
         amount _: Decimal,
@@ -113,11 +129,15 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     func calculateMaxEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {
-        dailyPercentReward() * Decimal(period.inDays)
+        Decimal(collators.compactMap { $0.subqueryData?.apr }.max() ?? 0.0) / 365 * Decimal(period.inDays)
     }
 
     func calculateAvgEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {
         dailyPercentReward() * Decimal(period.inDays)
+    }
+
+    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
+        calculateAvgEarnings(amount: 1.0, isCompound: isCompound, period: period)
     }
 
     private func dailyPercentReward() -> Decimal {
@@ -285,6 +305,14 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         self.eraDurationInSeconds = eraDurationInSeconds
     }
 
+    func avgEarningTitle(locale: Locale) -> String {
+        R.string.localizable.stakingRewardInfoAvg(preferredLanguages: locale.rLanguages)
+    }
+
+    func maxEarningsTitle(locale: Locale) -> String {
+        R.string.localizable.stakingRewardInfoMax(preferredLanguages: locale.rLanguages)
+    }
+
     func calculateEarnings(
         amount: Decimal,
         validatorAccountId: Data,
@@ -319,6 +347,10 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             isCompound: isCompound,
             period: period
         )
+    }
+
+    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
+        calculateMaxEarnings(amount: 1.0, isCompound: isCompound, period: period)
     }
 
     private func calculateReturnForStake(_ stake: Decimal, commission: Decimal) -> Decimal {

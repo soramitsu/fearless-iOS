@@ -4,9 +4,11 @@ import SoraFoundation
 
 protocol RecommendedValidatorListViewModelProtocol {
     var itemsCountString: LocalizableResource<String> { get }
+    var rewardColumnTitle: String { get }
     var itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>] { get }
     var title: String { get }
     var continueButtonEnabled: Bool { get }
+    var continueButtonTitle: String { get }
 }
 
 protocol RecommendedValidatorViewModelProtocol {
@@ -21,6 +23,8 @@ struct RecommendedValidatorListViewModel: RecommendedValidatorListViewModelProto
     let itemViewModels: [LocalizableResource<RecommendedValidatorViewModelProtocol>]
     let title: String
     let continueButtonEnabled: Bool
+    let rewardColumnTitle: String
+    let continueButtonTitle: String
 }
 
 struct RecommendedValidatorViewModel: RecommendedValidatorViewModelProtocol {

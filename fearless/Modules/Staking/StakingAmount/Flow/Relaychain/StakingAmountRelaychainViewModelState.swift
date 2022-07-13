@@ -49,6 +49,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         return InitiatedBonding(amount: amount, rewardDestination: rewardDestination)
     }
 
+    var learnMoreUrl: URL? {
+        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")
+    }
+
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
         let closure: ExtrinsicBuilderClosure = { [weak self] builder in
             guard let strongSelf = self else {

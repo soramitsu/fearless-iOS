@@ -331,10 +331,18 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return
         }
 
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
         let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
         let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+        let maxRewardTitle = rewardCalculator.maxEarningsTitle(locale: locale)
+        let avgRewardTitle = rewardCalculator.avgEarningTitle(locale: locale)
 
-        wireframe.showRewardDetails(from: view, maxReward: maxReward, avgReward: avgReward)
+        wireframe.showRewardDetails(
+            from: view,
+            maxReward: (maxRewardTitle, maxReward),
+            avgReward: (avgRewardTitle, avgReward)
+        )
     }
 
     func updateAmount(_ newValue: Decimal) {

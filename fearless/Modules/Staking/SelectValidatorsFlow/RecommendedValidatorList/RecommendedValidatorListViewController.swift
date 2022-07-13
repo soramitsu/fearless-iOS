@@ -40,12 +40,10 @@ final class RecommendedValidatorListViewController: UIViewController {
 
     private func updateHeaderView() {
         if let viewModel = viewModel {
-            let languages = selectedLocale.rLanguages
             let title = viewModel
                 .itemsCountString.value(for: selectedLocale)
 
-            let details = R.string.localizable
-                .stakingFilterTitleRewards(preferredLanguages: languages)
+            let details = viewModel.rewardColumnTitle
 
             headerView?.bind(
                 title: title.uppercased(),
@@ -58,10 +56,6 @@ final class RecommendedValidatorListViewController: UIViewController {
         let languages = selectedLocale.rLanguages
         title = R.string.localizable
             .stakingRecommendedSectionTitle(preferredLanguages: languages)
-
-        continueButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: languages)
-        continueButton.invalidateLayout()
 
         updateHeaderView()
     }
@@ -101,6 +95,8 @@ extension RecommendedValidatorListViewController: RecommendedValidatorListViewPr
 
         self.viewModel = viewModel
         updateHeaderView()
+
+        continueButton.imageWithTitleView?.title = viewModel.continueButtonTitle
 
         if viewModel.continueButtonEnabled {
             continueButton.applyEnabledStyle()
