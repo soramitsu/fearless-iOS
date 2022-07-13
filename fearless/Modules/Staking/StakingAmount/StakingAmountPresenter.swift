@@ -196,41 +196,22 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             )
         ]
 
-        #if DEBUG
-            DataValidationRunner(validators: []).runValidation { [weak self] in
-                guard
-                    let strongSelf = self,
-                    let bonding = strongSelf.viewModelState?.bonding
-                else {
-                    return
-                }
-
-                strongSelf.wireframe.proceed(
-                    from: strongSelf.view,
-                    state: bonding,
-                    asset: strongSelf.asset,
-                    chain: strongSelf.chain,
-                    selectedAccount: strongSelf.selectedAccount
-                )
+        DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
+            guard
+                let strongSelf = self,
+                let bonding = strongSelf.viewModelState?.bonding
+            else {
+                return
             }
-        #else
-            DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
-                guard
-                    let strongSelf = self,
-                    let bonding = strongSelf.viewModelState?.bonding
-                else {
-                    return
-                }
-
-                strongSelf.wireframe.proceed(
-                    from: strongSelf.view,
-                    state: bonding,
-                    asset: strongSelf.asset,
-                    chain: strongSelf.chain,
-                    selectedAccount: strongSelf.selectedAccount
-                )
-            }
-        #endif
+            
+            strongSelf.wireframe.proceed(
+                from: strongSelf.view,
+                state: bonding,
+                asset: strongSelf.asset,
+                chain: strongSelf.chain,
+                selectedAccount: strongSelf.selectedAccount
+            )
+        }
     }
 
     func close() {
