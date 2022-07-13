@@ -15,7 +15,6 @@ struct AssetModel: Equatable, Codable, Hashable {
     let price: Decimal?
     let fiatDayChange: Decimal?
     let transfersEnabled: Bool
-    let type: ChainAssetType
     let currencyId: String?
     let displayName: String?
     let existentialDeposit: String?
@@ -34,7 +33,6 @@ struct AssetModel: Equatable, Codable, Hashable {
         price: Decimal?,
         fiatDayChange: Decimal?,
         transfersEnabled: Bool,
-        type: ChainAssetType,
         currencyId: String?,
         displayName: String?,
         existentialDeposit: String?
@@ -48,7 +46,6 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.price = price
         self.fiatDayChange = fiatDayChange
         self.transfersEnabled = transfersEnabled
-        self.type = type
         self.currencyId = currencyId
         self.displayName = displayName
         self.existentialDeposit = existentialDeposit
@@ -70,7 +67,6 @@ struct AssetModel: Equatable, Codable, Hashable {
 
         price = nil
         fiatDayChange = nil
-        type = .normal
     }
 
     func replacingPrice(_ priceData: PriceData) -> AssetModel {
@@ -84,7 +80,6 @@ struct AssetModel: Equatable, Codable, Hashable {
             price: Decimal(string: priceData.price),
             fiatDayChange: priceData.fiatDayChange,
             transfersEnabled: transfersEnabled,
-            type: type,
             currencyId: currencyId,
             displayName: displayName,
             existentialDeposit: existentialDeposit
