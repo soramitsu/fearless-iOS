@@ -53,18 +53,16 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         let remoteHistoryOperation: BaseOperation<SubqueryHistoryData>
 
         if let baseUrl = chain.externalApi?.history?.url {
-            let remoteHistoryFactory = SubqueryHistoryOperationFactory(
-                url: baseUrl,
-                filters: filters
-            )
-
-            remoteHistoryOperation = remoteHistoryFactory.createOperation(
+            let page = (Int(pagination.context?["endCursor"] ?? "") ?? 1)
+            remoteHistoryOperation = SubqueryHistoryOperation(
+                baseUrl: baseUrl,
+                filters: filters,
                 address: address,
                 count: pagination.count,
-                cursor: pagination.context?["endCursor"]
+                page: page,
+                chain: chain
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
             let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil), nodes: []))
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }

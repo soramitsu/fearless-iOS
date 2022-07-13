@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import CommonWallet
 import IrohaCrypto
+import XNetworking
 
 struct SubqueryPageInfo: Decodable {
     let startCursor: String?
@@ -81,7 +82,7 @@ struct SubqueryHistoryElement: Decodable {
     let transfer: SubqueryTransfer?
 }
 
-struct SubqueryHistoryData: Decodable {
+public struct SubqueryHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let pageInfo: SubqueryPageInfo
         let nodes: [SubqueryHistoryElement]
