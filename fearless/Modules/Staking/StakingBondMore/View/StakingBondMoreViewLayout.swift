@@ -16,8 +16,16 @@ final class StakingBondMoreViewLayout: UIView {
         let view = UIFactory().createAmountInputView(filled: false)
         return view
     }()
+    
+    let hintView: IconDetailsView = {
+        let view = IconDetailsView()
+        view.iconWidth = 24.0
+        view.imageView.contentMode = .top
+        view.imageView.image = R.image.iconGeneralReward()
+        return view
+    }()
 
-    let networkFeeView = NetworkFeeView()
+    let networkFeeView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()

@@ -12,6 +12,11 @@ final class StakingBMConfirmationViewLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+    let collatorView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.subtitleLabel?.lineBreakMode = .byTruncatingTail
+        return view
+    }()
 
     let amountView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
@@ -60,6 +65,13 @@ final class StakingBMConfirmationViewLayout: UIView {
             accountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
             accountView.subtitle = confirmationViewModel.senderAddress
         }
+        
+        if let collatorName = confirmationViewModel.collatorName {
+            collatorView.subtitle = collatorName
+            collatorView.isHidden = false
+        } else {
+            collatorView.isHidden = true
+        }
 
         let iconSize = 2.0 * accountView.iconRadius
         accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
@@ -98,6 +110,7 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
+        collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -116,6 +129,12 @@ final class StakingBMConfirmationViewLayout: UIView {
         stackView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+        
+        stackView.addArrangedSubview(collatorView)
+        collatorView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(52)
         }
 
         stackView.addArrangedSubview(accountView)
