@@ -35,6 +35,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         return InitiatedBonding(amount: amount, rewardDestination: .payout(account: account))
     }
 
+    var learnMoreUrl: URL? {
+        URL(string: "https://docs.moonbeam.network/learn/features/staking/")
+    }
+
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
         let closure: ExtrinsicBuilderClosure = { [unowned self] builder in
             guard let accountId = Data.random(of: 20),

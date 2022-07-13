@@ -24,6 +24,7 @@ protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var fee: Decimal? { get set }
     var bonding: InitiatedBonding? { get }
     var payoutAccount: ChainAccountResponse? { get }
+    var learnMoreUrl: URL? { get }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?)
 }

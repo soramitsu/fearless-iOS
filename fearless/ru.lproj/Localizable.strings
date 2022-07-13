@@ -737,3 +737,6 @@ and depending on the network state, may not be selected to participate";
 "parachain.staking.recommended.section.title" = "Collators suggested by algorithm";
 "staking.recommended.filter.minimum.bond" = "Having relevant minimum bond";
 "staking.recommended.collators.empty.text" = "Your stake amount is less than the minimum one of all collators suggested by the algorithm. Increase your stake amount or choose a collator manually";
+"parachain.staking.reward.info.max" = "Максимальный APR";
+"parachain.staking.reward.info.avg" = "Средний APR";
+"parachain.staking.recommended.list.title" = "Предложено %d";

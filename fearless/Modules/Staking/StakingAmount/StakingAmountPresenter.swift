@@ -159,9 +159,13 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectLearnMore() {
+        guard let learnMoreUrl = viewModelState?.learnMoreUrl else {
+            return
+        }
+
         if let view = view {
             wireframe.showWeb(
-                url: applicationConfig.learnPayoutURL,
+                url: learnMoreUrl,
                 from: view,
                 style: .automatic
             )

@@ -733,3 +733,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.recommended.section.title" = "Collators suggested by algorithm";
 "staking.recommended.filter.minimum.bond" = "Having relevant minimum bond";
 "staking.recommended.collators.empty.text" = "Your stake amount is less than the minimum one of all collators suggested by the algorithm. Increase your stake amount or choose a collator manually";
+"parachain.staking.reward.info.max" = "Maximum APR";
+"parachain.staking.reward.info.avg" = "Average APR";
+"parachain.staking.recommended.list.title" = "Suggested %d";

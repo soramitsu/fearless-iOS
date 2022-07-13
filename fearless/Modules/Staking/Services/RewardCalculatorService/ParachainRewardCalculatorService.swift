@@ -79,6 +79,7 @@ final class ParachainRewardCalculatorService {
     ) {
         let stakedWrapper = collatorOperationFactory.staked()
         let commissionWrapper = collatorOperationFactory.commission()
+        let collatorsWrapper = collatorOperationFactory.allElectedOperation()
 
         let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> { [weak self] in
             guard let strongSelf = self else {
@@ -86,6 +87,7 @@ final class ParachainRewardCalculatorService {
             }
             let staked = try stakedWrapper.targetOperation.extractNoCancellableResultData()
             let commission = try commissionWrapper.targetOperation.extractNoCancellableResultData()
+            let collators = try collatorsWrapper.targetOperation.extractNoCancellableResultData()
 
             let stakedValue = BigUInt(staked ?? "") ?? BigUInt.zero
             let comissionValue = BigUInt(commission ?? "")
@@ -98,12 +100,14 @@ final class ParachainRewardCalculatorService {
                 totalIssuance: snapshot,
                 totalStaked: stakedValue,
                 eraDurationInSeconds: eraDurationInSeconds,
-                commission: Decimal.fromSubstratePerbill(value: comissionValue ?? BigUInt.zero) ?? Decimal.zero
+                commission: Decimal.fromSubstratePerbill(value: comissionValue ?? BigUInt.zero) ?? Decimal.zero,
+                collators: collators ?? []
             )
         }
 
         mapOperation.addDependency(stakedWrapper.targetOperation)
         mapOperation.addDependency(commissionWrapper.targetOperation)
+        mapOperation.addDependency(collatorsWrapper.targetOperation)
 
         mapOperation.completionBlock = {
             dispatchInQueueWhenPossible(request.queue) {
@@ -119,7 +123,7 @@ final class ParachainRewardCalculatorService {
         }
 
         operationManager.enqueue(
-            operations: stakedWrapper.allOperations + commissionWrapper.allOperations + [mapOperation],
+            operations: stakedWrapper.allOperations + commissionWrapper.allOperations + collatorsWrapper.allOperations + [mapOperation],
             in: .transient
         )
     }

@@ -119,7 +119,11 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         startingFrom index: Int
     )
 
-    func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        maxReward: (title: String, amount: Decimal),
+        avgReward: (title: String, amount: Decimal)
+    )
 
     func showRewardPayoutsForNominator(
         from view: ControllerBackedProtocol?,

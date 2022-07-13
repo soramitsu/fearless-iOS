@@ -20,13 +20,9 @@ class RecommendedValidatorListParachainViewModelFactory {
         }
     }
 
-    private func createItemsCountString(for currentCount: Int, outOf maxCount: Int) -> LocalizableResource<String> {
+    private func createItemsCountString(for count: Int, outOf _: Int) -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.stakingSelectedValidatorsCount_v191(
-                currentCount,
-                maxCount,
-                preferredLanguages: locale.rLanguages
-            )
+            R.string.localizable.parachainStakingRecommendedListTitle(count, preferredLanguages: locale.rLanguages)
         }
     }
 }
@@ -64,7 +60,9 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
             itemsCountString: itemsCountString,
             itemViewModels: items,
             title: R.string.localizable.parachainStakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages),
-            continueButtonEnabled: !parachainViewModelState.selectedCollators.isEmpty
+            continueButtonEnabled: !parachainViewModelState.selectedCollators.isEmpty,
+            rewardColumnTitle: R.string.localizable.stakingFilterTitleRewardsApr(preferredLanguages: locale.rLanguages),
+            continueButtonTitle: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
 }
