@@ -41,7 +41,7 @@ protocol AccountFetching {
         chain: ChainModel,
         address: String,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
-    )
+    ) -> Bool
 }
 
 extension AccountFetching {
@@ -109,11 +109,11 @@ extension AccountFetching {
         chain: ChainModel,
         address: String,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
-    ) {
+    ) -> Bool {
         let nativeChainAccount = meta.fetch(for: chain.accountRequest())
         if let nativeAddress = nativeChainAccount?.toAddress(), nativeAddress == address {
             closure(.success(nativeChainAccount))
-            return
+            return true
         }
 
         for chainAccount in meta.chainAccounts {
@@ -131,11 +131,11 @@ extension AccountFetching {
                     isChainAccount: true
                 )
                 closure(.success(account))
-                return
+                return true
             }
         }
         closure(.failure(ChainAccountFetchingError.accountNotExists))
-        return
+        return false
     }
 
     func fetchChainAccount(
@@ -155,7 +155,16 @@ extension AccountFetching {
                     }
 
                     for meta in accounts {
-                        fetchChainAccountFor(meta: meta, chain: chain, address: address, closure: closure)
+                        let found = fetchChainAccountFor(
+                            meta: meta,
+                            chain: chain,
+                            address: address,
+                            closure: closure
+                        )
+
+                        if found {
+                            return
+                        }
                     }
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
