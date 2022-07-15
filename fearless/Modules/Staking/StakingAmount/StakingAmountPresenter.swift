@@ -203,7 +203,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             else {
                 return
             }
-            
+
             strongSelf.wireframe.proceed(
                 from: strongSelf.view,
                 state: bonding,
