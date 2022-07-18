@@ -29,6 +29,7 @@ struct UIConstants {
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
     static let amountViewHeight: CGFloat = 72
+    static let iconSize: CGFloat = 24
 }
 
 enum AccountViewMode {
@@ -70,7 +71,7 @@ protocol UIFactoryProtocol {
 
     func createNetworkFeeView() -> NetworkFeeView
 
-    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
+    func createNetworkFeeFooterView() -> NetworkFeeFooterView
 
     func createTitleValueView() -> TitleValueView
 
@@ -471,8 +472,8 @@ final class UIFactory: UIFactoryProtocol {
         NetworkFeeView()
     }
 
-    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView()
+    func createNetworkFeeFooterView() -> NetworkFeeFooterView {
+        NetworkFeeFooterView()
     }
 
     func createTitleValueView() -> TitleValueView {

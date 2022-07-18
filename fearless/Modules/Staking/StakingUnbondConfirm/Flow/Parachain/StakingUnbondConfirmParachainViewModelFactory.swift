@@ -4,47 +4,33 @@ import SoraFoundation
 
 final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
     let asset: AssetModel
+    let collator: ParachainStakingCandidateInfo
+    let bondingDuration: UInt32?
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
     private var iconGenerator: IconGenerating
 
     init(
         asset: AssetModel,
+        collator: ParachainStakingCandidateInfo,
+        bondingDuration: UInt32?,
         iconGenerator: IconGenerating
     ) {
         self.asset = asset
+        self.collator = collator
+        self.bondingDuration = bondingDuration
         self.iconGenerator = iconGenerator
     }
 
-    private func createHints(from shouldResetRewardDestination: Bool)
+    private func createHints(from _: Bool)
         -> LocalizableResource<[TitleIconViewModel]> {
         LocalizableResource { locale in
             var items = [TitleIconViewModel]()
 
             items.append(
                 TitleIconViewModel(
-                    title: R.string.localizable.stakingHintNoRewards(preferredLanguages: locale.rLanguages),
-                    icon: R.image.iconNoReward()
-                )
-            )
-
-            if shouldResetRewardDestination {
-                items.append(
-                    TitleIconViewModel(
-                        title: R.string.localizable.stakingHintUnbondKillsStash(
-                            preferredLanguages: locale.rLanguages
-                        ),
-                        icon: R.image.iconWallet()
-                    )
-                )
-            }
-
-            items.append(
-                TitleIconViewModel(
-                    title: R.string.localizable.stakingHintRedeem(
-                        preferredLanguages: locale.rLanguages
-                    ),
-                    icon: R.image.iconRedeem()
+                    title: R.string.localizable.stakingStakeLessHint(preferredLanguages: locale.rLanguages),
+                    icon: R.image.iconInfoFilled()?.tinted(with: R.color.colorStrokeGray()!)
                 )
             )
 
@@ -64,16 +50,43 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
         }
 
         let address = viewModelState.accountAddress ?? ""
-        let icon = try? iconGenerator.generateFromAddress(address)
+        let accountIcon = try? iconGenerator.generateFromAddress(address)
+
+        let collatorIcon = try? iconGenerator.generateFromAddress(collator.address)
 
         let hints = createHints(from: false)
 
         return StakingUnbondConfirmViewModel(
             senderAddress: address,
-            senderIcon: icon,
+            senderIcon: accountIcon,
             senderName: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
+            collatorName: collator.identity?.name,
+            collatorIcon: collatorIcon,
             amount: amount,
             hints: hints
         )
+    }
+
+    func buildBondingDurationViewModel(
+        viewModelState: StakingUnbondConfirmViewModelState
+    ) -> LocalizableResource<TitleWithSubtitleViewModel>? {
+        guard let viewModelState = viewModelState as? StakingUnbondConfirmParachainViewModelState else {
+            return nil
+        }
+
+        let daysCount = bondingDuration.map { UInt32($0) / viewModelState.chainAsset.chain.erasPerDay }
+        let viewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
+            guard let daysCount = daysCount else {
+                return TitleWithSubtitleViewModel(title: "")
+            }
+
+            let title = R.string.localizable.stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
+            let subtitle = R.string.localizable.commonDaysFormat(
+                format: Int(daysCount),
+                preferredLanguages: locale.rLanguages
+            )
+            return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
+        }
+        return viewModel
     }
 }

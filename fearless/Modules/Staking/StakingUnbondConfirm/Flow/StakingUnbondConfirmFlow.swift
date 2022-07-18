@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 enum StakingUnbondConfirmFlowError: Error {}
 
@@ -8,7 +9,8 @@ enum StakingUnbondConfirmFlow {
         candidate: ParachainStakingCandidateInfo,
         delegation: ParachainStakingDelegation,
         amount: Decimal,
-        revoke: Bool
+        revoke: Bool,
+        bondingDuration: UInt32?
     )
 }
 
@@ -48,6 +50,10 @@ protocol StakingUnbondConfirmViewModelFactoryProtocol {
     func buildViewModel(
         viewModelState: StakingUnbondConfirmViewModelState
     ) -> StakingUnbondConfirmViewModel?
+
+    func buildBondingDurationViewModel(
+        viewModelState: StakingUnbondConfirmViewModelState
+    ) -> LocalizableResource<TitleWithSubtitleViewModel>?
 }
 
 protocol StakingUnbondConfirmStrategy {

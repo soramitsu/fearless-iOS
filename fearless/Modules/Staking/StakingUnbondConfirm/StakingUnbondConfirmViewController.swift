@@ -13,6 +13,7 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
     private var confirmationViewModel: StakingUnbondConfirmViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var bondingDurationViewModel: LocalizableResource<TitleWithSubtitleViewModel>?
 
     init(
         presenter: StakingUnbondConfirmPresenterProtocol,
@@ -54,7 +55,7 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
     }
 
     private func configureActions() {
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(actionConfirm),
             for: .touchUpInside
@@ -78,6 +79,14 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
     private func applyFeeViewModel() {
         let viewModel = feeViewModel?.value(for: selectedLocale)
         rootView.bind(feeViewModel: viewModel)
+    }
+
+    private func applyBondingDuration() {
+        guard let viewModel = bondingDurationViewModel else {
+            return
+        }
+
+        rootView.networkFeeFooterView.bindDuration(viewModel: viewModel)
     }
 
     private func applyConfirmationViewModel() {
@@ -111,6 +120,11 @@ extension StakingUnbondConfirmViewController: StakingUnbondConfirmViewProtocol {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFeeViewModel()
+    }
+
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>) {
+        bondingDurationViewModel = duration
+        applyBondingDuration()
     }
 }
 

@@ -116,7 +116,11 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            let viewModel = StakingBondMoreViewModelFactory.createViewModel(
+                from: balanceViewModel
+            )
             view?.didReceiveFee(viewModel: viewModel)
         } else {
             view?.didReceiveFee(viewModel: nil)
@@ -152,7 +156,10 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
     func provideCollatorViewModel() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        if let viewModel = viewModelFactory?.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
+        if let viewModel = viewModelFactory?.buildCollatorViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        ) {
             view?.didReceiveCollator(viewModel: viewModel)
         }
     }

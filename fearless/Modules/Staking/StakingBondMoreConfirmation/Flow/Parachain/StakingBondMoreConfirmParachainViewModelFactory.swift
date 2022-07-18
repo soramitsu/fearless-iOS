@@ -3,16 +3,10 @@ import CommonWallet
 import SoraFoundation
 import FearlessUtils
 
-protocol StakingBondMoreConfirmViewModelFactoryProtocol {
-    func createViewModel(
-        account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel
-}
-
-final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
+final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     let asset: AssetModel
     let chain: ChainModel
+    let collator: ParachainStakingCandidateInfo
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
     private var iconGenerator: IconGenerating
@@ -20,11 +14,13 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
     init(
         asset: AssetModel,
         chain: ChainModel,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        collator: ParachainStakingCandidateInfo
     ) {
         self.asset = asset
         self.chain = chain
         self.iconGenerator = iconGenerator
+        self.collator = collator
     }
 
     func createViewModel(
@@ -39,13 +35,16 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
 
         let address = account.fetch(for: chain.accountRequest())?.toAddress() ?? ""
 
-        let icon = try? iconGenerator.generateFromAddress(address)
+        let senderIcon = try? iconGenerator.generateFromAddress(address)
+        let collatorIcon = try? iconGenerator.generateFromAddress(collator.address)
 
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,
-            senderIcon: icon,
+            senderIcon: senderIcon,
             senderName: account.name,
-            amount: amount
+            amount: amount,
+            collatorName: collator.identity?.name,
+            collatorIcon: collatorIcon
         )
     }
 }

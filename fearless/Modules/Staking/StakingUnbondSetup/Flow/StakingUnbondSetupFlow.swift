@@ -47,7 +47,7 @@ struct StakingUnbondSetupDependencyContainer {
 protocol StakingUnbondSetupViewModelFactoryProtocol {
     func buildBondingDurationViewModel(
         viewModelState: StakingUnbondSetupViewModelState
-    ) -> LocalizableResource<String>?
+    ) -> LocalizableResource<TitleWithSubtitleViewModel>?
 
     func buildCollatorViewModel(
         viewModelState: StakingUnbondSetupViewModelState,
@@ -58,6 +58,14 @@ protocol StakingUnbondSetupViewModelFactoryProtocol {
         viewModelState: StakingUnbondSetupViewModelState,
         locale: Locale
     ) -> AccountViewModel?
+
+    func buildTitleViewModel() -> LocalizableResource<String>
+
+    func buildNetworkFeeViewModel(
+        from balanceViewModel: LocalizableResource<BalanceViewModelProtocol>
+    ) -> LocalizableResource<NetworkFeeFooterViewModelProtocol>
+
+    func buildHints() -> LocalizableResource<[TitleIconViewModel]>
 }
 
 protocol StakingUnbondSetupStrategy {

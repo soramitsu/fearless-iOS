@@ -4,7 +4,14 @@ enum StakingBondMoreConfirmationFlowError: Error {}
 
 enum StakingBondMoreConfirmationFlow {
     case relaychain(amount: Decimal)
-    case parachain(amount: Decimal, candidate: AccountId)
+    case parachain(amount: Decimal, candidate: ParachainStakingCandidateInfo)
+}
+
+protocol StakingBondMoreConfirmViewModelFactoryProtocol {
+    func createViewModel(
+        account: MetaAccountModel,
+        amount: Decimal
+    ) throws -> StakingBondMoreConfirmViewModel
 }
 
 protocol StakingBondMoreConfirmationModelStateListener: AnyObject {
@@ -36,12 +43,6 @@ protocol StakingBondMoreConfirmationViewModelState: StakingBondMoreConfirmationU
 struct StakingBondMoreConfirmationDependencyContainer {
     let viewModelState: StakingBondMoreConfirmationViewModelState
     let strategy: StakingBondMoreConfirmationStrategy
-}
-
-protocol StakingBondMoreConfirmationViewModelFactoryProtocol {
-//    func buildViewModel(
-//        viewModelState: StakingBondMoreConfirmationViewModelState
-//    ) -> StakingBondMoreConfirmationViewModel?
 }
 
 protocol StakingBondMoreConfirmationStrategy {

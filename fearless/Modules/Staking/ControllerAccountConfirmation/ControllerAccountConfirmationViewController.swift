@@ -46,11 +46,11 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder, Impor
 
     private func applyFeeViewModel() {
         let viewModel = feeViewModel?.value(for: selectedLocale)
-        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
+        rootView.networkFeeFooterView.bindBalance(viewModel: viewModel)
     }
 
     private func setupActions() {
-        rootView.networkFeeConfirmView
+        rootView.networkFeeFooterView
             .actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
         rootView.stashAccountView.addTarget(self, action: #selector(handleStashAction), for: .touchUpInside)
         rootView.controllerAccountView.addTarget(self, action: #selector(handleControllerAction), for: .touchUpInside)
