@@ -7,6 +7,13 @@ protocol AccountViewModelFactoryProtocol {
         address: String,
         locale: Locale
     ) -> AccountViewModel
+
+    func buildViewModel(
+        title: String,
+        address: String,
+        name: String?,
+        locale: Locale
+    ) -> AccountViewModel
 }
 
 class AccountViewModelFactory: AccountViewModelFactoryProtocol {
@@ -24,6 +31,19 @@ class AccountViewModelFactory: AccountViewModelFactoryProtocol {
         AccountViewModel(
             title: title,
             name: address,
+            icon: try? iconGenerator.generateFromAddress(address)
+        )
+    }
+
+    func buildViewModel(
+        title: String,
+        address: String,
+        name: String?,
+        locale _: Locale
+    ) -> AccountViewModel {
+        AccountViewModel(
+            title: title,
+            name: name ?? address,
             icon: try? iconGenerator.generateFromAddress(address)
         )
     }

@@ -1,11 +1,6 @@
 import RobinHood
 
 final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber {
-    enum Subscription {
-        case usual(provider: AnyDataProvider<DecodedAccountInfo>)
-        case orml(provider: AnyDataProvider<DecodedOrmlAccountInfo>)
-    }
-
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
     weak var walletLocalSubscriptionHandler: WalletLocalSubscriptionHandler?
 
@@ -14,17 +9,10 @@ final class AccountInfoSubscriptionProviderWrapper: WalletLocalStorageSubscriber
         walletLocalSubscriptionHandler = handler
     }
 
-    func subscribeAccountProvider(for accountId: AccountId, chain: ChainModel) -> Subscription? {
-        if chain.isOrml {
-            if let provider = subscribeToOrmlAccountInfoProvider(for: accountId, chain: chain) {
-                return .orml(provider: provider)
-            }
-            return nil
-        } else {
-            if let provider = subscribeToAccountInfoProvider(for: accountId, chainId: chain.chainId) {
-                return .usual(provider: provider)
-            }
-            return nil
-        }
+    func subscribeAccountProvider(
+        for accountId: AccountId,
+        chainAsset: ChainAsset
+    ) -> StreamableProvider<ChainStorageItem>? {
+        subscribeToAccountInfoProvider(for: accountId, chainAsset: chainAsset)
     }
 }

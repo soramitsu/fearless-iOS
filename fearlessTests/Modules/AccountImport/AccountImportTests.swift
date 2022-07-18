@@ -39,13 +39,13 @@ class AccountImportTests: XCTestCase {
         )
 
         let expectedUsername = "myname"
-        let expetedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
+        let expectedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
-        let presenter = AccountImportPresenter()
-        presenter.view = view
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
+        let presenter = AccountImportPresenter(wireframe: wireframe,
+                                               interactor: interactor,
+                                               flow: .wallet(step: .first))
         interactor.presenter = presenter
+        presenter.view = view
 
         let setupExpectation = XCTestExpectation()
         setupExpectation.expectedFulfillmentCount = 2
@@ -56,8 +56,8 @@ class AccountImportTests: XCTestCase {
         stub(view) { stub in
             when(stub).didCompleteSourceTypeSelection().thenDoNothing()
             when(stub).didCompleteCryptoTypeSelection().thenDoNothing()
-            when(stub).didCompleteAddressTypeSelection().thenDoNothing()
-            when(stub).didValidateDerivationPath(any()).thenDoNothing()
+            when(stub).didValidateSubstrateDerivationPath(any()).thenDoNothing()
+            when(stub).didValidateEthereumDerivationPath(any()).thenDoNothing()
             when(stub).isSetup.get.thenReturn(false, true)
 
             when(stub).setSource(viewModel: any()).then { viewModel in
@@ -72,16 +72,17 @@ class AccountImportTests: XCTestCase {
                 setupExpectation.fulfill()
             }
 
-            when(stub).setSource(type: any()).thenDoNothing()
             when(stub).setSelectedCrypto(model: any()).thenDoNothing()
-            when(stub).setSelectedNetwork(model: any()).thenDoNothing()
-            when(stub).setDerivationPath(viewModel: any()).thenDoNothing()
+            when(stub).setSource(type: any(), selectable: any()).thenDoNothing()
+            when(stub).bind(substrateViewModel: any()).thenDoNothing()
+            when(stub).bind(ethereumViewModel: any()).thenDoNothing()
+            when(stub).show(chainType: any()).thenDoNothing()
         }
 
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any()).then { _ in
+            when(stub).proceed(from: any(), flow: any()).then { _ in
                 expectation.fulfill()
             }
         }
@@ -102,7 +103,7 @@ class AccountImportTests: XCTestCase {
 
         wait(for: [setupExpectation], timeout: Constants.defaultExpectationDuration)
 
-        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expetedMnemonic,
+        _ = sourceInputViewModel?.inputHandler.didReceiveReplacement(expectedMnemonic,
                                                                      for: NSRange(location: 0, length: 0));
 
         _ = usernameViewModel?.inputHandler.didReceiveReplacement(expectedUsername,

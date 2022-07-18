@@ -10,7 +10,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     var stackView: UIStackView { contentView.stackView }
 
-    let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+    let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
     let amountView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
@@ -32,6 +32,16 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         view.borderView.borderType = [.top, .bottom]
         return view
     }()
+
+    let selectedCollatorContainer = UIView()
+    let selectedCollatorTitle: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = .white
+        return label
+    }()
+
+    let selectedCollatorView = UIFactory.default.createAccountView(for: .options, filled: false)
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
@@ -131,6 +141,27 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         rewardDestinationView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
+        }
+
+        stackView.addArrangedSubview(selectedCollatorContainer)
+        selectedCollatorContainer.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
+        stackView.setCustomSpacing(16.0, after: selectedCollatorContainer)
+
+        selectedCollatorContainer.addSubview(selectedCollatorTitle)
+        selectedCollatorContainer.addSubview(selectedCollatorView)
+
+        selectedCollatorTitle.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        selectedCollatorView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(selectedCollatorTitle.snp.bottom).offset(UIConstants.defaultOffset)
         }
 
         stackView.addArrangedSubview(validatorsView)

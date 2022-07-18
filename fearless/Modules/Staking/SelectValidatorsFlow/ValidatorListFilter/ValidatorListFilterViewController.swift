@@ -6,6 +6,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
 
     private enum Constants {
         static let headerId = "validatorListFilterHeaderId"
+        static let headerHeight: CGFloat = 28
     }
 
     let presenter: ValidatorListFilterPresenterProtocol
@@ -54,6 +55,9 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(TitleSubtitleSwitchTableViewCell.self)
         rootView.tableView.registerClassForCell(ValidatorListFilterSortCell.self)
 
+        if #available(iOS 15.0, *) {
+            rootView.tableView.sectionHeaderTopPadding = 0
+        }
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
@@ -175,9 +179,34 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
             }
         }()
 
+        if sectionTitle.isEmpty {
+            return nil
+        }
+
         view.bind(title: sectionTitle, icon: nil)
 
         return view
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch section {
+        case 0:
+            guard !(viewModel?.filterModel.cellViewModels.isEmpty ?? true) else {
+                return .leastNormalMagnitude
+            }
+            return Constants.headerHeight
+        case 1:
+            guard !(viewModel?.sortModel.cellViewModels.isEmpty ?? true) else {
+                return .leastNormalMagnitude
+            }
+            return Constants.headerHeight
+        default:
+            return .leastNormalMagnitude
+        }
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        .leastNormalMagnitude
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

@@ -3,11 +3,15 @@ import RobinHood
 import SoraFoundation
 
 struct ChainSelectionViewFactory {
+    // swiftlint:disable function_parameter_count
     static func createView(
         delegate: ChainSelectionDelegate,
         selectedChainId: ChainModel.Id?,
         repositoryFilter: NSPredicate?,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        includeAllNetworksCell: Bool,
+        showBalances: Bool,
+        chainModels: [ChainModel]?
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             for: repositoryFilter,
@@ -21,7 +25,9 @@ struct ChainSelectionViewFactory {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            showBalances: showBalances,
+            chainModels: chainModels
         )
 
         let wireframe = ChainSelectionWireframe()
@@ -36,6 +42,9 @@ struct ChainSelectionViewFactory {
             wireframe: wireframe,
             selectedChainId: selectedChainId,
             assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+            includeAllNetworksCell: includeAllNetworksCell,
+            showBalances: showBalances,
+            selectedMetaAccount: selectedMetaAccount,
             localizationManager: localizationManager
         )
 

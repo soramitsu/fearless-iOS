@@ -19,7 +19,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(
             asset: asset,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let wireframe = StakingPayoutConfirmationWireframe()
@@ -68,6 +69,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         payouts: [PayoutInfo]
     ) -> StakingPayoutConfirmationInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -99,7 +101,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -144,8 +146,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             logger: logger,
             selectedAccount: selectedAccount,
             payouts: payouts,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             accountRepository: AnyDataProviderRepository(accountRepository)
         )
     }

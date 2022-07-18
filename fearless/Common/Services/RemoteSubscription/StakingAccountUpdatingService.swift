@@ -4,23 +4,24 @@ import RobinHood
 protocol StakingAccountUpdatingServiceProtocol {
     func setupSubscription(
         for accountId: AccountId,
-        chainId: ChainModel.Id,
-        chainFormat: ChainFormat
+        chainAsset: ChainAsset,
+        chainFormat: ChainFormat,
+        stakingType: StakingType
     ) throws
 
     func clearSubscription()
 }
 
-class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
+final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
     private var accountResolver: StakingAccountResolver?
     private var accountSubscription: StakingAccountSubscription?
 
-    let chainRegistry: ChainRegistryProtocol
-    let substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol
-    let substrateDataProviderFactory: SubstrateDataProviderFactoryProtocol
-    let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    let operationQueue: OperationQueue
-    let logger: LoggerProtocol?
+    private let chainRegistry: ChainRegistryProtocol
+    private let substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol
+    private let substrateDataProviderFactory: SubstrateDataProviderFactoryProtocol
+    private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
+    private let operationQueue: OperationQueue
+    private let logger: LoggerProtocol?
 
     init(
         chainRegistry: ChainRegistryProtocol,
@@ -40,8 +41,9 @@ class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
 
     func setupSubscription(
         for accountId: AccountId,
-        chainId: ChainModel.Id,
-        chainFormat: ChainFormat
+        chainAsset: ChainAsset,
+        chainFormat: ChainFormat,
+        stakingType: StakingType
     ) throws {
         let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
 
@@ -50,7 +52,7 @@ class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
 
         accountResolver = StakingAccountResolver(
             accountId: accountId,
-            chainId: chainId,
+            chainAsset: chainAsset,
             chainFormat: chainFormat,
             chainRegistry: chainRegistry,
             childSubscriptionFactory: childSubscriptionFactory,
@@ -61,13 +63,14 @@ class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol {
 
         accountSubscription = StakingAccountSubscription(
             accountId: accountId,
-            chainId: chainId,
+            chainAsset: chainAsset,
             chainFormat: chainFormat,
             chainRegistry: chainRegistry,
             provider: stashItemProvider,
             childSubscriptionFactory: childSubscriptionFactory,
             operationQueue: operationQueue,
-            logger: logger
+            logger: logger,
+            stakingType: stakingType
         )
     }
 

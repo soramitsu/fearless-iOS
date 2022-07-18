@@ -4,10 +4,12 @@ import RobinHood
 final class ChainSelectionInteractor {
     weak var presenter: ChainSelectionInteractorOutputProtocol!
 
-    let selectedMetaAccount: MetaAccountModel
-    let repository: AnyDataProviderRepository<ChainModel>
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let operationQueue: OperationQueue
+    private let selectedMetaAccount: MetaAccountModel
+    private let repository: AnyDataProviderRepository<ChainModel>
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationQueue: OperationQueue
+    private let showBalances: Bool
+    private let chainModels: [ChainModel]?
 
     private var accountInfoProviders: [AnyDataProvider<DecodedAccountInfo>]?
 
@@ -15,15 +17,23 @@ final class ChainSelectionInteractor {
         selectedMetaAccount: MetaAccountModel,
         repository: AnyDataProviderRepository<ChainModel>,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        showBalances: Bool,
+        chainModels: [ChainModel]?
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.repository = repository
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
+        self.showBalances = showBalances
+        self.chainModels = chainModels
     }
 
     private func fetchChainsAndSubscribeBalance() {
+        if let chainModels = chainModels {
+            handleChains(result: .success(chainModels))
+            return
+        }
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         fetchOperation.completionBlock = { [weak self] in
@@ -48,7 +58,9 @@ final class ChainSelectionInteractor {
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+        guard showBalances else { return }
+        let chainAsset = chains.map(\.chainAssets).reduce([], +)
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAsset, handler: self)
     }
 }
 
@@ -61,9 +73,10 @@ extension ChainSelectionInteractor: ChainSelectionInteractorInputProtocol {
 extension ChainSelectionInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId: ChainModel.Id
+        accountId: AccountId,
+        chainAsset: ChainAsset
     ) {
-        presenter.didReceiveAccountInfo(result: result, for: chainId)
+        let key = chainAsset.uniqueKey(accountId: accountId)
+        presenter.didReceiveAccountInfo(result: result, for: key)
     }
 }

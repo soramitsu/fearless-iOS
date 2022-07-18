@@ -13,7 +13,7 @@ extension BondedState {
         switch status {
         case .inactive:
             return createInactiveStatus(locale: locale)
-        case .active, .waiting, .undefined:
+        default:
             return nil
         }
     }

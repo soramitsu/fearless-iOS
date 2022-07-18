@@ -5,7 +5,7 @@ import SoraFoundation
 struct AssetSelectionViewFactory {
     static func createView(
         delegate: AssetSelectionDelegate,
-        selectedChainId: ChainAssetId?,
+        selectedChain: ChainAsset?,
         selectedMetaAccount: MetaAccountModel,
         assetFilter: @escaping AssetSelectionFilter
     ) -> ChainSelectionViewProtocol? {
@@ -21,7 +21,9 @@ struct AssetSelectionViewFactory {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            showBalances: true,
+            chainModels: nil
         )
 
         let wireframe = AssetSelectionWireframe()
@@ -35,7 +37,8 @@ struct AssetSelectionViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             assetFilter: assetFilter,
-            selectedChainAssetId: selectedChainId,
+            selectedChainAsset: selectedChain,
+            selectedMetaAccount: selectedMetaAccount,
             assetBalanceFormatterFactory: assetBalanceFormatterFactory,
             localizationManager: localizationManager
         )

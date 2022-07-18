@@ -15,4 +15,17 @@ struct CustomValidatorListViewModel {
     var headerViewModel: TitleWithSubtitleViewModel
     var cellViewModels: [CustomValidatorCellViewModel]
     var selectedValidatorsCount: Int
+    var selectedValidatorsLimit: Int?
+    var proceedButtonTitle: String?
+    var fillRestButtonVisible: Bool
+    var fillRestButtonEnabled: Bool
+    var clearButtonEnabled: Bool
+    var clearButtonVisible: Bool
+    var deselectButtonEnabled: Bool
+    var deselectedButtonVisible: Bool
+    var identityButtonVisible: Bool
+    var identityButtonSelected: Bool
+    var minBondButtonVisible: Bool
+    var minBondButtonSelected: Bool
+    var title: String
 }

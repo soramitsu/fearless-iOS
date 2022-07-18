@@ -2,7 +2,8 @@ import Foundation
 import SoraFoundation
 
 protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: SelectValidatorsStartViewModel)
+    func didReceive(viewModel: SelectValidatorsStartViewModel?)
+    func didReceive(textsViewModel: SelectValidatorsStartTextsViewModel)
 }
 
 protocol SelectValidatorsStartPresenterProtocol: AnyObject {
@@ -17,55 +18,43 @@ protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
-    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
-    func didReceiveMaxNominations(result: Result<Int, Error>)
-}
+protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {}
 
 protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceedToCustomList(
-        from: ControllerBackedProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        recommendedValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: SharedList<SelectedValidatorInfo>,
-        maxTargets: Int,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        from view: ControllerBackedProtocol?,
+        flow: CustomValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 
     func proceedToRecommendedList(
         from view: SelectValidatorsStartViewProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel
+        flow: RecommendedValidatorListFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
     )
 }
 
 protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: InitiatedBonding
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 
     static func createChangeTargetsView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: ExistingBonding
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 
     static func createChangeYourValidatorsView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: ExistingBonding
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        flow: SelectValidatorsStartFlow
     )
         -> SelectValidatorsStartViewProtocol?
 }

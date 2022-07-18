@@ -34,11 +34,11 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
         chain: ChainModel,
         selectedAccount: MetaAccountModel
     ) {
+        let flow: SelectValidatorsStartFlow = chain.isEthereumBased ? .parachain(state: state) : .relaychainInitiated(state: state)
         guard let validatorsView = SelectValidatorsStartViewFactory.createInitiatedBondingView(
-            selectedAccount: selectedAccount,
-            asset: asset,
-            chain: chain,
-            state: state
+            wallet: selectedAccount,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            flow: flow
         )
         else {
             return

@@ -1,0 +1,49 @@
+import Foundation
+import SoraFoundation
+
+enum ValidatorInfoFlow {
+    case relaychain(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)
+    case parachain(candidate: ParachainStakingCandidateInfo)
+}
+
+protocol ValidatorInfoModelStateListener: AnyObject {
+    func modelStateDidChanged(viewModelState: ValidatorInfoViewModelState)
+    func didStartLoading()
+    func didReceiveError(error: Error)
+}
+
+protocol ValidatorInfoViewModelState: ValidatorInfoUserInputHandler {
+    var stateListener: ValidatorInfoModelStateListener? { get set }
+
+    func setStateListener(_ stateListener: ValidatorInfoModelStateListener?)
+
+    var validatorAddress: String? { get }
+}
+
+struct ValidatorInfoDependencyContainer {
+    let viewModelState: ValidatorInfoViewModelState
+    let strategy: ValidatorInfoStrategy
+    let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
+}
+
+protocol ValidatorInfoViewModelFactoryProtocol {
+    func buildViewModel(
+        viewModelState: ValidatorInfoViewModelState,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> ValidatorInfoViewModel?
+
+    func buildStakingAmountViewModels(
+        viewModelState: ValidatorInfoViewModelState,
+        priceData: PriceData?
+    ) -> [LocalizableResource<StakingAmountViewModel>]?
+}
+
+protocol ValidatorInfoStrategy {
+    func setup()
+    func reload()
+}
+
+protocol ValidatorInfoUserInputHandler {}
+
+extension ValidatorInfoUserInputHandler {}

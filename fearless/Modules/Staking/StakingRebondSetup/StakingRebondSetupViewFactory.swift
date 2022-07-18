@@ -71,6 +71,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         settings _: SettingsManagerProtocol
     ) -> StakingRebondSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -94,7 +95,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -130,8 +131,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             runtimeCodingService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             connection: connection,
             extrinsicService: extrinsicService,

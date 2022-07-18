@@ -35,7 +35,7 @@ struct ControllerAccountConfirmationViewFactory {
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            iconGenerator: PolkadotIconGenerator(),
+            iconGenerator: UniversalIconGenerator(chain: chain),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory
         )
@@ -61,6 +61,7 @@ struct ControllerAccountConfirmationViewFactory {
         selectedAccount: MetaAccountModel
     ) -> ControllerAccountConfirmationInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -84,7 +85,7 @@ struct ControllerAccountConfirmationViewFactory {
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -138,8 +139,7 @@ struct ControllerAccountConfirmationViewFactory {
             operationManager: operationManager,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }

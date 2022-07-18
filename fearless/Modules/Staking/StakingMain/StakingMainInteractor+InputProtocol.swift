@@ -3,6 +3,12 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
+    func refresh() {
+        priceProvider?.refresh()
+        totalRewardProvider?.refresh()
+        rewardAnalyticsProvider?.refresh()
+    }
+
     func updatePrices() {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()
@@ -14,11 +20,15 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
     func setup() {
         setupSelectedAccountAndChainAsset()
+
+        //  Only relaychain, check if it ever needed for parachain
         setupChainRemoteSubscription()
         setupAccountRemoteSubscription()
 
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
+
+        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
 
         provideNewChain()
         provideSelectedAccount()
@@ -29,13 +39,29 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
+        //  Only relaychain
         provideMaxNominatorsPerValidator(from: runtimeService)
 
         performPriceSubscription()
         performAccountInfoSubscription()
+
+        //  Only relaychain
         performStashControllerSubscription()
         performNominatorLimitsSubscripion()
 
+        // Parachain
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            delegatorStateProvider = subscribeToDelegatorState(
+                for: chainId,
+                accountId: accountId
+            )
+        }
+
+        fetchParachainInfo()
+
+        //  Should be done by separate task
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideEraStakersInfo(from: sharedState.eraValidatorService)
 
@@ -45,7 +71,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         applicationHandler.delegate = self
 
-        presenter.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
+        presenter?.networkInfoViewExpansion(isExpanded: commonSettings.stakingNetworkExpansion)
     }
 
     func save(chainAsset: ChainAsset) {
@@ -64,6 +90,16 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             return
         }
 
+        switch newSelectedChainAsset.stakingType {
+        case .relayChain:
+            eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
+        case .paraChain:
+            eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
+
+        case .none:
+            break
+        }
+
         selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
 
         selectedChainAsset = newSelectedChainAsset
@@ -75,6 +111,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
+        clear(dataProvider: &delegatorStateProvider)
         performPriceSubscription()
 
         clearNominatorsLimitProviders()
@@ -93,6 +130,75 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNetworkStakingInfo()
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideMaxNominatorsPerValidator(from: runtimeService)
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+            delegatorStateProvider = subscribeToDelegatorState(
+                for: chainId,
+                accountId: accountId
+            )
+        }
+
+        fetchParachainInfo()
+    }
+
+    func fetchCollatorsDelegations(accountIds: [AccountId]) {
+        let accountIdsClosure = { [accountIds] in
+            accountIds
+        }
+
+        let delegationScheduledRequests = collatorOperationFactory.delegationScheduledRequests(accountIdsClosure: accountIdsClosure)
+
+        delegationScheduledRequests.targetOperation.completionBlock = { [weak self] in
+            let requests = try? delegationScheduledRequests.targetOperation.extractNoCancellableResultData()
+            DispatchQueue.main.async {
+                self?.presenter?.didReceiveScheduledRequests(requests: requests)
+            }
+        }
+
+        let bottomDelegationsOperation = collatorOperationFactory.collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
+
+        bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                let bottomDelegations = try? bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveBottomDelegations(delegations: bottomDelegations)
+            }
+        }
+
+        let topDelegationsOperation = collatorOperationFactory.collatorTopDelegations(accountIdsClosure: accountIdsClosure)
+
+        topDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                let topDelegations = try? topDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                self?.presenter?.didReceiveTopDelegations(delegations: topDelegations)
+            }
+        }
+
+        operationManager.enqueue(operations: delegationScheduledRequests.allOperations + bottomDelegationsOperation.allOperations + topDelegationsOperation.allOperations, in: .transient)
+    }
+
+    private func fetchParachainInfo() {
+        let roundOperation = collatorOperationFactory.round()
+        let currentBlockOperation = collatorOperationFactory.currentBlock()
+
+        currentBlockOperation.targetOperation.completionBlock = { [weak self] in
+            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
+
+            if let block = currentBlock, let currentBlockvalue = UInt32(block) {
+                DispatchQueue.main.async {
+                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                }
+            }
+        }
+
+        roundOperation.targetOperation.completionBlock = { [weak self] in
+            let roundInfo = try? roundOperation.targetOperation.extractNoCancellableResultData()
+            DispatchQueue.main.async {
+                self?.presenter?.didReceiveRound(round: roundInfo)
+            }
+        }
+
+        operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)
     }
 
     private func updateAfterSelectedAccountChange() {
@@ -103,6 +209,17 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
               let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()) else {
+            sharedState.settings.performSetup { [weak self] result in
+                switch result {
+                case let .success(chainAsset):
+                    if let chainAsset = chainAsset {
+                        self?.save(chainAsset: chainAsset)
+                    }
+                case let .failure(error):
+                    self?.logger?.error("updateAfterSelectedAccountChange: \(error)")
+                }
+            }
+
             return
         }
 
@@ -115,6 +232,16 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideSelectedAccount()
 
         performStashControllerSubscription()
+
+        if let chainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+            delegatorStateProvider = subscribeToDelegatorState(
+                for: chainAsset.chain.chainId,
+                accountId: accountId
+            )
+        } else {
+            presenter?.didReceive(delegationInfos: [])
+        }
     }
 }
 

@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import FearlessUtils
 
 final class TransactionHistoryConfigurator {
     private lazy var transactionCellStyle: TransactionCellStyleProtocol = {
@@ -56,7 +57,8 @@ final class TransactionHistoryConfigurator {
             amountFormatterFactory: amountFormatterFactory,
             dateFormatter: DateFormatter.txHistory,
             assets: assets,
-            chain: chain
+            chain: chain,
+            iconGenerator: PolkadotIconGenerator()
         )
     }
 

@@ -45,7 +45,12 @@ final class RuntimeSnapshotFactory {
             }
 
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            var runtimeMetadata: RuntimeMetadata
+            if let resolver = runtimeMetadataItem.resolver {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
+            } else {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            }
 
             guard let commonTypes = commonTypes, let chainTypes = chainTypes else {
                 return nil
@@ -94,7 +99,12 @@ final class RuntimeSnapshotFactory {
             }
 
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            var runtimeMetadata: RuntimeMetadata
+            if let resolver = runtimeMetadataItem.resolver {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
+            } else {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            }
 
             guard let commonTypes = commonTypes else {
                 return nil
@@ -141,7 +151,12 @@ final class RuntimeSnapshotFactory {
             }
 
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            var runtimeMetadata: RuntimeMetadata
+            if let resolver = runtimeMetadataItem.resolver {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
+            } else {
+                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
+            }
 
             guard let ownTypes = ownTypes else {
                 return nil

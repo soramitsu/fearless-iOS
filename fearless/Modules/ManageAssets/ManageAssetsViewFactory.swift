@@ -3,7 +3,10 @@ import RobinHood
 import SoraFoundation
 
 struct ManageAssetsViewFactory {
-    static func createView(selectedMetaAccount: MetaAccountModel) -> ManageAssetsViewProtocol? {
+    static func createView(
+        selectedMetaAccount: MetaAccountModel,
+        chainModels: [ChainModel]
+    ) -> ManageAssetsViewProtocol? {
         guard let account = SelectedWalletSettings.shared.value else {
             return nil
         }
@@ -18,10 +21,6 @@ struct ManageAssetsViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let chainRepository = ChainRepositoryFactory().createRepository(
-            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
-        )
-
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
             walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: selectedMetaAccount
@@ -29,7 +28,7 @@ struct ManageAssetsViewFactory {
 
         let interactor = ManageAssetsInteractor(
             selectedMetaAccount: account,
-            chainRepository: AnyDataProviderRepository(chainRepository),
+            chainModels: chainModels,
             accountRepository: AnyDataProviderRepository(accountRepository),
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
@@ -46,6 +45,7 @@ struct ManageAssetsViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             selectedMetaAccount: selectedMetaAccount,
+            filterFactory: TitleSwitchTableViewCellModelFactory(),
             localizationManager: LocalizationManager.shared
         )
 

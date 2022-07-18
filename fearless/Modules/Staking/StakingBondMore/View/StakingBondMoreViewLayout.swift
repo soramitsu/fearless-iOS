@@ -1,6 +1,17 @@
 import UIKit
 
 final class StakingBondMoreViewLayout: UIView {
+    let contentView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.spacing = UIConstants.bigOffset
+        return view
+    }()
+
+    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+    let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+
     let amountInputView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: false)
         return view
@@ -44,16 +55,29 @@ final class StakingBondMoreViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(amountInputView)
+        addSubview(contentView)
+
+        contentView.stackView.addArrangedSubview(collatorView)
+        contentView.stackView.addArrangedSubview(accountView)
+        contentView.stackView.addArrangedSubview(amountInputView)
+        contentView.stackView.addArrangedSubview(networkFeeView)
+
+        collatorView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(52)
+        }
+
+        accountView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(52)
+        }
+
         amountInputView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(72)
         }
 
-        addSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
-            make.top.equalTo(amountInputView.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }
@@ -64,5 +88,13 @@ final class StakingBondMoreViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        contentView.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+            make.bottom.equalTo(actionButton.snp.top).inset(UIConstants.bigOffset)
+        }
+
+        accountView.isHidden = true
+        collatorView.isHidden = true
     }
 }

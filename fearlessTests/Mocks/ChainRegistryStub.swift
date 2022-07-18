@@ -17,14 +17,6 @@ extension MockChainRegistryProtocol {
                 }
             }
 
-            stub.getRuntimeProvider(for: any()).then { chainId in
-                if availableChainIds.contains(chainId) {
-                    return MockRuntimeProviderProtocol().applyDefault(for: chainId)
-                } else {
-                    return nil
-                }
-            }
-
             stub.chainsSubscribe(
                 any(),
                 runningInQueue: any(),

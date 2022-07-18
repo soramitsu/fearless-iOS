@@ -16,18 +16,13 @@ protocol StakingBondMoreConfirmationPresenterProtocol: AnyObject {
 
 protocol StakingBondMoreConfirmationInteractorInputProtocol: AnyObject {
     func setup()
-    func submit(for amount: Decimal)
-    func estimateFee(for amount: Decimal)
+
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
+    func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveStash(result: Result<ChainAccountResponse?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-
-    func didSubmitBonding(result: Result<String, Error>)
 }
 
 protocol StakingBondMoreConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,

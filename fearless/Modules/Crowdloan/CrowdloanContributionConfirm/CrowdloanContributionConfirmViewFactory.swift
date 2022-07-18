@@ -35,7 +35,8 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
-            chainDateCalculator: ChainDateCalculator()
+            chainDateCalculator: ChainDateCalculator(),
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
@@ -54,7 +55,7 @@ struct CrowdloanContributionConfirmViewFactory {
             assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            chain: chain
+            chainAsset: ChainAsset(chain: chain, asset: asset.asset)
         )
 
         let view = CrowdloanContributionConfirmVC(
@@ -110,6 +111,12 @@ struct CrowdloanContributionConfirmViewFactory {
             accountResponse: accountResponse
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
@@ -123,7 +130,8 @@ struct CrowdloanContributionConfirmViewFactory {
             jsonLocalSubscriptionFactory: JsonDataProviderFactory.shared,
             signingWrapper: signingWrapper,
             bonusService: bonusService,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
     }
 }

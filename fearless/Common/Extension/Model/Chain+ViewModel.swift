@@ -7,6 +7,7 @@ extension Chain {
         case .kusama: return "Kusama"
         case .westend: return "Westend"
         case .rococo: return "Rococo"
+        default: return ""
         }
     }
 
@@ -16,6 +17,7 @@ extension Chain {
         case .kusama: return R.image.iconKsmSmallBg()
         case .westend: return R.image.iconWestendSmallBg()
         case .rococo: return R.image.iconKsmSmallBg()
+        default: return nil
         }
     }
 
@@ -25,6 +27,7 @@ extension Chain {
         case .kusama: return R.image.iconKusamaExtrinsic()
         case .westend: return R.image.iconWestendExtrinsic()
         case .rococo: return R.image.iconKusamaExtrinsic()
+        default: return nil
         }
     }
 }

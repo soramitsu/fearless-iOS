@@ -32,7 +32,7 @@ struct StakingRewardDestConfirmViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             rewardDestination: rewardDestination,
-            confirmModelFactory: StakingRewardDestConfirmVMFactory(),
+            confirmModelFactory: StakingRewardDestConfirmVMFactory(iconGenerator: UniversalIconGenerator(chain: chain)),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
@@ -58,6 +58,7 @@ struct StakingRewardDestConfirmViewFactory {
         selectedAccount: MetaAccountModel
     ) -> StakingRewardDestConfirmInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -88,7 +89,7 @@ struct StakingRewardDestConfirmViewFactory {
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -130,8 +131,7 @@ struct StakingRewardDestConfirmViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             signingWrapper: signingWrapper,
             connection: connection,

@@ -10,7 +10,7 @@ final class ManageAssetsInteractor {
         }
     }
 
-    private let chainRepository: AnyDataProviderRepository<ChainModel>
+    private let chainModels: [ChainModel]
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationQueue: OperationQueue
@@ -18,58 +18,40 @@ final class ManageAssetsInteractor {
 
     private var assetIdsEnabled: [String]?
     private var sortKeys: [String]?
+    private var filterOptions: [FilterOption]?
+    private var chainIdForFilter: ChainModel.Id?
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        chainRepository: AnyDataProviderRepository<ChainModel>,
+        chainModels: [ChainModel],
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.chainRepository = chainRepository
+        self.chainModels = chainModels
         self.accountRepository = accountRepository
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        chainIdForFilter = selectedMetaAccount.chainIdForFilter
     }
 
-    private func fetchChainsAndSubscribeBalance() {
-        let fetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleChains(result: fetchOperation.result)
-            }
-        }
-
-        operationQueue.addOperation(fetchOperation)
-    }
-
-    private func handleChains(result: Result<[ChainModel], Error>?) {
-        switch result {
-        case let .success(chains):
-            presenter?.didReceiveChains(result: .success(chains))
-            subscribeToAccountInfo(for: chains)
-        case let .failure(error):
-            presenter?.didReceiveChains(result: .failure(error))
-        case .none:
-            presenter?.didReceiveChains(result: .failure(BaseOperationError.parentOperationCancelled))
-        }
+    private func handleChains(chains: [ChainModel]) {
+        subscribeToAccountInfo(for: chains)
+        presenter?.didReceiveChains(result: .success(chains))
     }
 
     private func subscribeToAccountInfo(for chains: [ChainModel]) {
-        accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+        let chainsAssets = chains.map(\.chainAssets).reduce([], +)
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainsAssets, handler: self)
     }
-}
 
-extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
-    func markUnused(chain: ChainModel) {
-        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
-        unusedChainIds.append(chain.chainId)
-        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
-
+    private func save(
+        _ updatedAccount: MetaAccountModel,
+        needDismiss: Bool
+    ) {
         let saveOperation = accountRepository.saveOperation {
             [updatedAccount]
         } _: {
@@ -77,6 +59,11 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         saveOperation.completionBlock = { [weak self] in
+            if needDismiss {
+                DispatchQueue.main.async {
+                    self?.presenter?.saveDidComplete()
+                }
+            }
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
@@ -92,12 +79,29 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 
         operationQueue.addOperation(saveOperation)
     }
+}
+
+extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
+    func saveChainIdForFilter(_ chainId: ChainModel.Id?) {
+        chainIdForFilter = chainId
+    }
+
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = selectedMetaAccount.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = selectedMetaAccount.replacingUnusedChainIds(unusedChainIds)
+
+        save(updatedAccount, needDismiss: false)
+    }
+
+    func saveFilter(_ options: [FilterOption]) {
+        filterOptions = options
+        presenter?.didReceiveFilterOptions(filterOptions)
+    }
 
     func setup() {
-        fetchChainsAndSubscribeBalance()
-
-        presenter?.didReceiveSortOrder(selectedMetaAccount.assetKeysOrder)
-        presenter?.didReceiveAssetIdsEnabled(selectedMetaAccount.assetIdsEnabled)
+        handleChains(chains: chainModels)
+        presenter?.didReceiveAccount(selectedMetaAccount)
     }
 
     func saveAssetsOrder(assets: [ChainAsset]) {
@@ -121,32 +125,31 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
         }
 
         if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
-            updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
+            }
+        }
+
+        if let filterOptions = filterOptions, filterOptions != selectedMetaAccount.assetFilterOptions {
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingAssetsFilterOptions(filterOptions)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingAssetsFilterOptions(filterOptions)
+            }
+        }
+
+        if chainIdForFilter != selectedMetaAccount.chainIdForFilter {
+            if let accountForSave = updatedAccount {
+                updatedAccount = accountForSave.replacingChainIdForFilter(chainIdForFilter)
+            } else {
+                updatedAccount = selectedMetaAccount.replacingChainIdForFilter(chainIdForFilter)
+            }
         }
 
         if let updatedAccount = updatedAccount {
-            let saveOperation = accountRepository.saveOperation {
-                [updatedAccount]
-            } _: {
-                []
-            }
-
-            saveOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    self?.presenter?.saveDidComplete()
-
-                    SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
-                        switch result {
-                        case let .success(account):
-                            self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                        case .failure:
-                            break
-                        }
-                    }
-                }
-            }
-
-            operationQueue.addOperation(saveOperation)
+            save(updatedAccount, needDismiss: true)
         }
     }
 }
@@ -154,9 +157,9 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
 extension ManageAssetsInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainId: ChainModel.Id
+        accountId: AccountId,
+        chainAsset: ChainAsset
     ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainId)
+        presenter?.didReceiveAccountInfo(result: result, for: chainAsset.uniqueKey(accountId: accountId))
     }
 }

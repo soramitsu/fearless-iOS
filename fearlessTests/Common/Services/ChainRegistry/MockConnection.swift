@@ -9,6 +9,21 @@ final class MockConnection {
 }
 
 extension MockConnection: ChainConnection {
+    func generateRequestId() -> UInt16 {
+        0
+    }
+    
+    func addSubscription(_ subscription: JSONRPCSubscribing) { }
+    
+    func disconnectIfNeeded() { }
+    
+    var url: URL? {
+        get {
+            autobalancing.url
+        }
+        set(newValue) { }
+    }
+    
     var ranking: [ConnectionRank] {
         autobalancing.ranking
     }

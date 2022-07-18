@@ -6,15 +6,14 @@ import IrohaCrypto
 final class YourValidatorListInteractor: AccountFetching {
     weak var presenter: YourValidatorListInteractorOutputProtocol!
 
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let eraValidatorService: EraValidatorServiceProtocol
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -27,19 +26,17 @@ final class YourValidatorListInteractor: AccountFetching {
     var stashAddress: String?
 
     init(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.substrateProviderFactory = substrateProviderFactory
         self.runtimeService = runtimeService
@@ -52,7 +49,7 @@ final class YourValidatorListInteractor: AccountFetching {
 
     func fetchController(for address: AccountAddress) {
         fetchChainAccount(
-            chain: chain,
+            chain: chainAsset.chain,
             address: address,
             from: accountRepository,
             operationManager: operationManager
@@ -131,7 +128,7 @@ final class YourValidatorListInteractor: AccountFetching {
     }
 }
 
-extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
+extension YourValidatorListInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
     func handleLedgerInfo(
         result: Result<StakingLedger?, Error>,
         accountId _: AccountId,
@@ -157,7 +154,7 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         clear(dataProvider: &rewardDestinationProvider)
         clear(streamableProvider: &stashControllerProvider)
 
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashControllerProvider = subscribeStashItemProvider(for: address)
         } else {
             presenter.didReceiveValidators(result: .success(nil))
@@ -174,11 +171,11 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
         if let stashItem = try? result.get(),
            let controllerAccountId = try? addressFactory.accountId(
                fromAddress: stashItem.controller,
-               addressPrefix: chain.addressPrefix
+               addressPrefix: chainAsset.chain.addressPrefix
            ),
            let stashAccountId = try? addressFactory.accountId(
                fromAddress: stashItem.stash,
-               type: chain.addressPrefix
+               type: chainAsset.chain.addressPrefix
            ) {
             presenter.didReceiveStashItem(result: .success(stashItem))
 
@@ -186,9 +183,9 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
 
             fetchController(for: stashItem.controller)
 
-            nominatorProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
-            ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainId: chain.chainId)
-            rewardDestinationProvider = subscribePayee(for: stashAccountId, chainId: chain.chainId)
+            nominatorProvider = subscribeNomination(for: stashAccountId, chainAsset: chainAsset)
+            ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainAsset: chainAsset)
+            rewardDestinationProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)
 
         } else {
             presenter.didReceiveValidators(result: .success(nil))
@@ -226,11 +223,11 @@ extension YourValidatorListInteractor: StakingLocalStorageSubscriber, StakingLoc
 
 extension YourValidatorListInteractor: YourValidatorListInteractorInputProtocol {
     func setup() {
-        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
     }
 
     func refresh() {
         clearAllSubscriptions()
-        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
     }
 }

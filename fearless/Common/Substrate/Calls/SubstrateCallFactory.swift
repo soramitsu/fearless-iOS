@@ -7,8 +7,7 @@ protocol SubstrateCallFactoryProtocol {
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
-        chain: ChainModel?
+        chainAsset: ChainAsset
     ) -> RuntimeCall<TransferCall>
 
     func transfer(
@@ -52,10 +51,50 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall>
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall>
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
+
+    func scheduleRevokeDelegation(
+        candidate: AccountId
+    ) -> RuntimeCall<ScheduleRevokeDelegationCall>
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall>
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs>
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall>
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs>
+
+    func candidateBondMore(
+        amount: BigUInt
+    ) -> RuntimeCall<CandidateBondMoreCall>
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
+
+    // MARK: - Public methods
 
     func bond(
         amount: BigUInt,
@@ -118,32 +157,28 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "payout_stakers", args: args)
     }
 
-    func ormlTransfer(
-        to receiver: AccountId,
-        amount: BigUInt,
-        currencyId: CurrencyId?
-    ) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
-        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
-    }
-
-    func defaultTransfer(
-        to receiver: AccountId,
-        amount: BigUInt
-    ) -> RuntimeCall<TransferCall> {
-        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
-    }
-
     func transfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
-        chain: ChainModel?
+        chainAsset: ChainAsset
     ) -> RuntimeCall<TransferCall> {
-        chain?.isOrml == true
-            ? ormlTransfer(to: receiver, amount: amount, currencyId: currencyId)
-            : defaultTransfer(to: receiver, amount: amount)
+        switch chainAsset.chainAssetType {
+        case .normal:
+            return defaultTransfer(to: receiver, amount: amount)
+        case .ormlChain:
+            return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        case
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCrowdloan,
+            .vToken,
+            .vsToken,
+            .stable:
+            return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        case .equilibrium:
+            return equilibriumAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        }
     }
 
     func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
@@ -189,7 +224,154 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let args = AddRemarkCall(remark: data)
         return RuntimeCall(moduleName: "System", callName: "remark", args: args)
     }
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall> {
+        let args = DelegateCall(
+            candidate: candidate,
+            amount: amount,
+            candidateDelegationCount: candidateDelegationCount,
+            delegationCount: delegationCount
+        )
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "Delegate",
+            args: args
+        )
+    }
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall> {
+        let args = DelegatorBondMoreCall(candidate: candidate, more: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "delegator_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
+        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_delegator_bond_less",
+            args: args
+        )
+    }
+
+    func scheduleRevokeDelegation(candidate: AccountId) -> RuntimeCall<ScheduleRevokeDelegationCall> {
+        let args = ScheduleRevokeDelegationCall(collator: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_revoke_delegation",
+            args: args
+        )
+    }
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall> {
+        let args = ExecuteDelegationRequestCall(delegator: delegator, candidate: collator)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "execute_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_candidate_bond_less"
+        )
+    }
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall> {
+        let args = CancelDelegationRequestCall(candidate: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(moduleName: "ParachainStaking", callName: "cancel_leave_delegators")
+    }
+
+    func candidateBondMore(amount: BigUInt) -> RuntimeCall<CandidateBondMoreCall> {
+        let args = CandidateBondMoreCall(more: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "candidate_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall> {
+        let args = ScheduleCandidateBondLessCall(less: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_candidate_bond_less",
+            args: args
+        )
+    }
+
+    // MARK: - Private methods
+
+    private func ormlChainTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
+    }
+
+    private func ormlAssetTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "Currencies", callName: "transfer", args: args)
+    }
+
+    private func equilibriumAssetTransfer(
+        to receiver: AccountId,
+        amount: BigUInt,
+        currencyId: CurrencyId?
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
+        return RuntimeCall(moduleName: "EqBalances", callName: "transfer", args: args)
+    }
+
+    private func defaultTransfer(
+        to receiver: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
+    }
 }
+
+// MARK: - extension SubstrateCallFactory
 
 extension SubstrateCallFactory {
     func setRewardDestination(

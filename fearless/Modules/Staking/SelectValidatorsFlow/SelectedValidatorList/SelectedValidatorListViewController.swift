@@ -5,7 +5,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
     typealias RootViewType = SelectedValidatorListViewLayout
 
     let presenter: SelectedValidatorListPresenterProtocol
-    let selectedValidatorsLimit: Int
 
     private var viewModel: SelectedValidatorListViewModel?
 
@@ -13,11 +12,9 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
     init(
         presenter: SelectedValidatorListPresenterProtocol,
-        selectedValidatorsLimit: Int,
         localizationManager: LocalizationManagerProtocol? = nil
     ) {
         self.presenter = presenter
-        self.selectedValidatorsLimit = selectedValidatorsLimit
 
         super.init(nibName: nil, bundle: nil)
 
@@ -90,6 +87,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
     private func updateProceedButton() {
         let cellViewModels = viewModel?.cellViewModels ?? []
+        let selectedValidatorsLimit = viewModel?.selectedValidatorsLimit ?? 0
 
         let buttonTitle: String
         let isEnabled: Bool

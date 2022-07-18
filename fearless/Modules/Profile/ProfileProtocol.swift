@@ -7,7 +7,7 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
 protocol ProfilePresenterProtocol: AnyObject {
     func didLoad(view: ProfileViewProtocol)
     func activateAccountDetails()
-    func activateOption(at index: UInt)
+    func activateOption(_ option: ProfileOption)
     func logout()
     func switcherValueChanged(isOn: Bool)
 }

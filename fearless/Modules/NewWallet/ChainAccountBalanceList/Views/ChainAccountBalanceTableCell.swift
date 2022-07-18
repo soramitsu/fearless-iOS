@@ -46,14 +46,7 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
 
     let chainInfoView = UIView()
 
-    let chainOptionsView: ScrollableContainerView = {
-        let containerView = ScrollableContainerView()
-        containerView.stackView.axis = .horizontal
-        containerView.stackView.distribution = .fillProportionally
-        containerView.stackView.alignment = .fill
-        containerView.stackView.spacing = UIConstants.defaultOffset
-        return containerView
-    }()
+    let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var balanceView: HorizontalKeyValueView = {
         let view = HorizontalKeyValueView()
@@ -244,6 +237,7 @@ extension ChainAccountBalanceTableCell {
     }
 
     private func startLoading() {
+        layoutIfNeeded()
         guard skeletonView == nil, backgroundTriangularedView.frame.size != .zero else {
             return
         }
@@ -270,7 +264,7 @@ extension ChainAccountBalanceTableCell {
     }
 
     private func setupLoadingSkeleton() {
-        let spaceSize = frame.size
+        let spaceSize = contentStackView.frame.size
 
         let skeletonView = Skrull(
             size: spaceSize,
@@ -283,7 +277,7 @@ extension ChainAccountBalanceTableCell {
 
         skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
         skeletonView.autoresizingMask = []
-        backgroundTriangularedView.insertSubview(skeletonView, belowSubview: contentStackView)
+        contentStackView.addSubview(skeletonView)
 
         self.skeletonView = skeletonView
 
@@ -294,7 +288,7 @@ extension ChainAccountBalanceTableCell {
         [
             SingleSkeleton.createRow(
                 under: priceView.keyLabel,
-                containerView: backgroundTriangularedView,
+                containerView: contentStackView,
                 spaceSize: spaceSize,
                 offset: CGPoint(
                     x: 0,
@@ -305,7 +299,7 @@ extension ChainAccountBalanceTableCell {
 
             SingleSkeleton.createRow(
                 under: balanceView.valueLabel,
-                containerView: backgroundTriangularedView,
+                containerView: contentStackView,
                 spaceSize: spaceSize,
                 offset: CGPoint(
                     x: -LayoutConstants.balanceRowSize.width + balanceView.valueLabel.frame.width,
@@ -316,7 +310,7 @@ extension ChainAccountBalanceTableCell {
 
             SingleSkeleton.createRow(
                 under: priceView.valueLabel,
-                containerView: backgroundTriangularedView,
+                containerView: contentStackView,
                 spaceSize: spaceSize,
                 offset: CGPoint(
                     x: -LayoutConstants.balancePriceRowSize.width + priceView.valueLabel.frame.width,

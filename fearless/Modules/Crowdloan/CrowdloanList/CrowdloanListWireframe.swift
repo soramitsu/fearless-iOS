@@ -30,7 +30,10 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
                 delegate: delegate,
                 selectedChainId: selectedChainId,
                 repositoryFilter: NSPredicate.hasCrowloans(),
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: selectedMetaAccount,
+                includeAllNetworksCell: false,
+                showBalances: true,
+                chainModels: nil
             ) else {
             return
         }

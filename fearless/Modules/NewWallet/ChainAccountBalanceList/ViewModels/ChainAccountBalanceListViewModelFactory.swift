@@ -8,7 +8,7 @@ protocol ChainAccountBalanceListViewModelFactoryProtocol {
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
-        accountInfos: [ChainModel.Id: AccountInfo?],
+        accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel
@@ -20,7 +20,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         selectedMetaAccount: MetaAccountModel,
         chains: [ChainModel],
         locale: Locale,
-        accountInfos: [ChainModel.Id: AccountInfo?],
+        accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         sortedKeys: [String]?
     ) -> ChainAccountBalanceListViewModel {
@@ -30,6 +30,7 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         )
 
         var chainAssets = chains
+            .filter { $0.chainId == selectedMetaAccount.chainIdForFilter || selectedMetaAccount.chainIdForFilter == nil }
             .filter { selectedMetaAccount.fetch(for: $0.accountRequest()) != nil }
             .map { chain in
                 chain.assets.compactMap { asset in
@@ -52,7 +53,10 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         var balanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
-            let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
+            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
             let priceData = prices.pricesData.first(where: { $0.priceId == chainAsset.asset.priceId })
             fiatBalanceByChainAsset[chainAsset] = getFiatBalance(
@@ -101,18 +105,23 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 }
             }
 
-        let totalWalletBalance: Decimal = chains.compactMap { chainModel in
-
-            chainModel.assets.compactMap { asset in
-                let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
-                let accountInfo = accountInfos[chainModel.chainId] ?? nil
+        var totalWalletBalance: Decimal = .zero
+        if prices.updated == true {
+            totalWalletBalance = chainAssets.compactMap { chainAsset in
+                guard
+                    let accountId = selectedMetaAccount.fetch(
+                        for: chainAsset.chain.accountRequest()
+                    )?.accountId else {
+                    return nil
+                }
+                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
 
                 let balanceDecimal = getBalance(
                     for: chainAsset,
                     accountInfo: accountInfo
                 )
 
-                guard let priceId = asset.asset.priceId,
+                guard let priceId = chainAsset.asset.priceId,
                       let price = prices.pricesData.first(where: { $0.priceId == priceId })?.price,
                       let priceDecimal = Decimal(string: price)
                 else {
@@ -121,9 +130,9 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
 
                 return priceDecimal * balanceDecimal
             }.reduce(0, +)
-        }.reduce(0, +)
+        }
 
-        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.map { chainAsset in
+        var viewModels: [ChainAccountBalanceCellViewModel] = chainAssetsSorted.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -134,7 +143,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
                 priceDataUpdated: prices.updated,
                 accountInfos: accountInfos,
                 locale: locale,
-                currency: selectedMetaAccount.selectedCurrency
+                currency: selectedMetaAccount.selectedCurrency,
+                selectedMetaAccount: selectedMetaAccount
             )
         }
 
@@ -148,7 +158,16 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         }) != nil
 
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
-            chainAssets.contains { $0.chain.chainId == key }
+            chainAssets.contains { chainAsset in
+                guard
+                    let accountId = selectedMetaAccount.fetch(
+                        for: chainAsset.chain.accountRequest()
+                    )?.accountId else {
+                    return false
+                }
+                let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+                return key == chainAssetKey
+            }
         }
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
@@ -175,11 +194,12 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         chainAsset: ChainAsset,
         priceData: PriceData?,
         priceDataUpdated: Bool,
-        accountInfos: [ChainModel.Id: AccountInfo?],
+        accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
-        currency: Currency
-    ) -> ChainAccountBalanceCellViewModel {
-        var icon = chainAsset.chain.icon.map { buildRemoteImageViewModel(url: $0) }
+        currency: Currency,
+        selectedMetaAccount: MetaAccountModel
+    ) -> ChainAccountBalanceCellViewModel? {
+        var icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
         var title = chainAsset.chain.name
 
         if chainAsset.chain.parentId == chainAsset.asset.chainId,
@@ -188,7 +208,11 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             icon = chain.icon.map { buildRemoteImageViewModel(url: $0) }
         }
 
-        let accountInfo = accountInfos[chainAsset.chain.chainId] ?? nil
+        var accountInfo: AccountInfo?
+        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            accountInfo = accountInfos[key] ?? nil
+        }
         let balance = getBalanceString(
             for: chainAsset,
             accountInfo: accountInfo,
@@ -208,9 +232,13 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         )
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
-        let isColdBoot = !accountInfos.keys.contains(chainAsset.chain.chainId)
+        var isColdBoot = true
+        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            isColdBoot = !accountInfos.keys.contains(key)
+        }
 
-        return ChainAccountBalanceCellViewModel(
+        let viewModel = ChainAccountBalanceCellViewModel(
             chain: chainAsset.chain,
             asset: chainAsset.asset,
             assetName: title,
@@ -232,6 +260,14 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated
         )
+
+        if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
+           accountInfo == nil,
+           !isColdBoot {
+            return nil
+        } else {
+            return viewModel
+        }
     }
 }
 

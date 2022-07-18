@@ -30,6 +30,10 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }
 
+    static var equilibriumExistentialDeposit: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "eqBalances", constantName: "depositEq")
+    }
+
     static var paraLeasingPeriod: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Slots", constantName: "LeasePeriod")
     }
@@ -58,7 +62,35 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "System", constantName: "BlockHashCount")
     }
 
+    static var revokeDelegationDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RevokeDelegationDelay")
+    }
+
+    static var minDelegation: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MinDelegation")
+    }
+
+    static var rewardPaymentDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RewardPaymentDelay")
+    }
+
+    static var maxDelegationsPerDelegator: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
+    }
+
+    static var maxTopDelegationsPerCandidate: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxTopDelegationsPerCandidate")
+    }
+
+    static var maxBottomDelegationsPerCandidate: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
+    }
+
     static var defaultTip: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "DefaultTip")
+    }
+
+    static var candidateBondLessDelay: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
     }
 }

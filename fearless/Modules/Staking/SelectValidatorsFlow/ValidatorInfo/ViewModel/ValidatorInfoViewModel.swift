@@ -15,6 +15,15 @@ struct StakingAmountViewModel {
 }
 
 struct ValidatorInfoViewModel {
+    struct ParachainExposure {
+        let delegations: String
+        let totalStake: BalanceViewModelProtocol
+        let estimatedReward: String
+        let minimumBond: String
+        let selfBonded: String
+        let effectiveAmountBonded: String
+    }
+
     struct Exposure {
         let nominators: String
         let myNomination: MyNomination?
@@ -28,6 +37,7 @@ struct ValidatorInfoViewModel {
     }
 
     enum StakingStatus {
+        case electedParachain(exposure: ParachainExposure)
         case elected(exposure: Exposure)
         case unelected
     }
@@ -57,4 +67,5 @@ struct ValidatorInfoViewModel {
     let account: AccountInfoViewModel
     let staking: Staking
     let identity: [IdentityItem]?
+    let title: String
 }

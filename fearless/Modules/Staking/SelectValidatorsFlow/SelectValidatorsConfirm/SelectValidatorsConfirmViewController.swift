@@ -57,6 +57,12 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             action: #selector(proceed),
             for: .touchUpInside
         )
+
+        rootView.selectedCollatorView.addTarget(
+            self,
+            action: #selector(actionOnCollatorAccount),
+            for: .touchUpInside
+        )
     }
 
     private func setupLocalization() {
@@ -85,6 +91,8 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.networkFeeConfirmView.locale = selectedLocale
 
+        rootView.selectedCollatorTitle.text = R.string.localizable.stakingSelectedCollator(preferredLanguages: languages)
+
         applyConfirmationViewModel()
         applyHints()
         applyBalanceView()
@@ -103,12 +111,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         rootView.amountView.fieldText = viewModel.amount
 
-        rootView.mainAccountView.iconImage = viewModel.senderIcon
-            .imageWithFillColor(
-                R.color.colorWhite()!,
-                size: UIConstants.smallAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
+        rootView.mainAccountView.iconImage = R.image.iconFearlessRounded()
 
         rootView.mainAccountView.subtitle = viewModel.senderName
 
@@ -132,17 +135,33 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
                 preferredLanguages: selectedLocale.rLanguages
             )
 
-            rootView.payoutAccountView?.iconImage = icon.imageWithFillColor(
+            rootView.payoutAccountView?.iconImage = icon?.imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )
             rootView.payoutAccountView?.subtitle = title
+        case .none:
+            rootView.rewardDestinationView.isHidden = true
+            rootView.payoutAccountView?.isHidden = true
         }
 
-        rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
-            quantityFormatter.string(from: NSNumber(value: viewModel.validatorsCount)) ?? "",
-            quantityFormatter.string(from: NSNumber(value: viewModel.maxValidatorCount)) ?? ""
+        if let validatorsCount = viewModel.validatorsCount, let maxValidatorCount = viewModel.maxValidatorCount {
+            rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
+                quantityFormatter.string(from: NSNumber(value: validatorsCount)) ?? "",
+                quantityFormatter.string(from: NSNumber(value: maxValidatorCount)) ?? ""
+            )
+        } else {
+            rootView.validatorsView.isHidden = true
+        }
+
+        rootView.selectedCollatorContainer.isHidden = viewModel.selectedCollatorViewModel == nil
+        rootView.selectedCollatorView.title = viewModel.selectedCollatorViewModel?.name
+        rootView.selectedCollatorView.subtitle = viewModel.selectedCollatorViewModel?.address
+        rootView.selectedCollatorView.iconImage = viewModel.selectedCollatorViewModel?.icon?.imageWithFillColor(
+            .white,
+            size: UIConstants.smallAddressIconSize,
+            contentScale: UIScreen.main.scale
         )
     }
 
@@ -184,6 +203,10 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     @objc private func actionOnWalletAccount() {
         presenter.selectWalletAccount()
+    }
+
+    @objc private func actionOnCollatorAccount() {
+        presenter.selectCollatorAccount()
     }
 
     @objc private func proceed() {

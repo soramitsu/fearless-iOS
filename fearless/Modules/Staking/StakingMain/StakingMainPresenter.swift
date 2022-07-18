@@ -1,7 +1,9 @@
+// swiftlint:disable file_length
 import Foundation
 import CommonWallet
 import BigInt
 import SwiftUI
+import SoraFoundation
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
@@ -165,10 +167,18 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         interactor.setup()
     }
 
+    func performRefreshAction() {
+        interactor.refresh()
+    }
+
+    func viewWillAppear() {
+        interactor.refresh()
+    }
+
     func performAssetSelection() {
         wireframe.showChainAssetSelection(
             from: view,
-            selectedChainAssetId: chainAsset?.chainAssetId,
+            selectedChainAsset: chainAsset,
             delegate: self
         )
     }
@@ -204,6 +214,19 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 selectedAccount: selectedAccount
             )
         }
+    }
+
+    func performParachainMainAction(for delegation: ParachainStakingDelegationInfo) {
+        let managedItems: [StakingManageOption] = {
+            [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
+        }()
+
+        wireframe.showManageStaking(
+            from: view,
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
+        )
     }
 
     func performNominationStatusAction() {
@@ -244,6 +267,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             )
         }
     }
+
+    func performDelegationStatusAction() {}
 
     func performAccountAction() {
         wireframe.showAccountsSelection(from: view)
@@ -287,16 +312,37 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         )
     }
 
+    func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo) {
+        let managedItems: [StakingManageOption] = {
+            [.parachainStakingBalance(info: delegation), .yourCollator(info: delegation)]
+        }()
+
+        wireframe.showManageStaking(
+            from: view,
+            items: managedItems,
+            delegate: self,
+            context: managedItems as NSArray
+        )
+    }
+
     func performRewardInfoAction() {
         guard let rewardCalculator = stateMachine
             .viewState(using: { (state: BaseStakingState) in state })?.commonData.calculatorEngine else {
             return
         }
 
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
         let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
         let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+        let maxRewardTitle = rewardCalculator.maxEarningsTitle(locale: locale)
+        let avgRewardTitle = rewardCalculator.avgEarningTitle(locale: locale)
 
-        wireframe.showRewardDetails(from: view, maxReward: maxReward, avgReward: avgReward)
+        wireframe.showRewardDetails(
+            from: view,
+            maxReward: (maxRewardTitle, maxReward),
+            avgReward: (avgRewardTitle, avgReward)
+        )
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -346,9 +392,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         wireframe.showBondMore(
             from: view,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: .relaychain
         )
     }
 
@@ -370,9 +416,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         wireframe.showRedeem(
             from: view,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: .relaychain
         )
     }
 
@@ -655,6 +701,32 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func networkInfoViewExpansion(isExpanded: Bool) {
         view?.expandNetworkInfoView(isExpanded)
     }
+
+//    Parachain
+
+    func didReceive(delegationInfos: [ParachainStakingDelegationInfo]?) {
+        stateMachine.state.process(delegationInfos: delegationInfos)
+    }
+
+    func didReceiveScheduledRequests(requests: [AccountAddress: [ParachainStakingScheduledRequest]]?) {
+        stateMachine.state.process(scheduledRequests: requests)
+    }
+
+    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
+        stateMachine.state.process(topDelegations: delegations)
+    }
+
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?) {
+        stateMachine.state.process(bottomDelegations: delegations)
+    }
+
+    func didReceiveRound(round: ParachainStakingRoundInfo?) {
+        stateMachine.state.process(roundInfo: round)
+    }
+
+    func didReceiveCurrentBlock(currentBlock: UInt32?) {
+        stateMachine.state.process(currentBlock: currentBlock)
+    }
 }
 
 // MARK: - ModalPickerViewControllerDelegate
@@ -705,9 +777,9 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .stakingBalance:
             wireframe.showStakingBalance(
                 from: view,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: selectedAccount
+                chainAsset: chainAsset,
+                wallet: selectedAccount,
+                flow: .relaychain
             )
         case .changeValidators:
             wireframe.showNominatorValidators(
@@ -731,13 +803,29 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
                 let stashAddress = validatorState.stashItem.stash
                 wireframe.showYourValidatorInfo(
-                    stashAddress,
-                    chain: chainAsset.chain,
-                    asset: chainAsset.asset,
+                    chainAsset: chainAsset,
                     selectedAccount: selectedAccount,
+                    flow: .relaychain(
+                        validatorInfo: nil,
+                        address: stashAddress
+                    ),
                     from: view
                 )
             }
+        case let .yourCollator(info):
+            wireframe.showYourValidatorInfo(
+                chainAsset: chainAsset,
+                selectedAccount: selectedAccount,
+                flow: .parachain(candidate: info.collator),
+                from: view
+            )
+        case let .parachainStakingBalance(info):
+            wireframe.showStakingBalance(
+                from: view,
+                chainAsset: chainAsset,
+                wallet: selectedAccount,
+                flow: .parachain(delegation: info.delegation, collator: info.collator)
+            )
         }
     }
 }

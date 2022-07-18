@@ -472,12 +472,7 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView(
-            frame: CGRect(
-                x: 0.0, y: 0.0,
-                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
-            )
-        )
+        NetworkFeeConfirmView()
     }
 
     func createTitleValueView() -> TitleValueView {
@@ -563,5 +558,14 @@ final class UIFactory: UIFactoryProtocol {
         button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
 
         return button
+    }
+
+    func createChainOptionsView() -> ScrollableContainerView {
+        let containerView = ScrollableContainerView()
+        containerView.stackView.axis = .horizontal
+        containerView.stackView.distribution = .fillProportionally
+        containerView.stackView.alignment = .fill
+        containerView.stackView.spacing = UIConstants.defaultOffset
+        return containerView
     }
 }

@@ -39,11 +39,11 @@ struct AnalyticsValidatorsViewFactory {
         selectedAccount: MetaAccountModel
     ) -> AnalyticsValidatorsInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
             return nil
         }
 
@@ -52,7 +52,7 @@ struct AnalyticsValidatorsViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -78,8 +78,7 @@ struct AnalyticsValidatorsViewFactory {
             engine: connection,
             runtimeService: runtimeService,
             storageRequestFactory: requestFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }
@@ -99,7 +98,8 @@ struct AnalyticsValidatorsViewFactory {
         let viewModelFactory = AnalyticsValidatorsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
             chain: chain,
-            asset: asset
+            asset: asset,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = AnalyticsValidatorsPresenter(

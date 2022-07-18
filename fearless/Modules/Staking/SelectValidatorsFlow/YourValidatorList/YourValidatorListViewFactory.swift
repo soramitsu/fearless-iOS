@@ -27,7 +27,8 @@ struct YourValidatorListViewFactory {
         )
 
         let viewModelFactory = YourValidatorListViewModelFactory(
-            balanceViewModeFactory: balanceViewModelFactory
+            balanceViewModeFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = YourValidatorListPresenter(
@@ -58,6 +59,7 @@ struct YourValidatorListViewFactory {
         selectedAccount: MetaAccountModel
     ) throws -> YourValidatorListInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -80,7 +82,8 @@ struct YourValidatorListViewFactory {
         let stakingSettings = StakingAssetSettings(
             storageFacade: storageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()
@@ -93,13 +96,25 @@ struct YourValidatorListViewFactory {
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chain.chainId
+            for: chain
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: chain.chainId,
+            for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         )
 
         defer {
@@ -107,7 +122,7 @@ struct YourValidatorListViewFactory {
             rewardCalculatorService.setup()
         }
 
-        let validatorOperationFactory = ValidatorOperationFactory(
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
             asset: asset,
             chain: chain,
             eraValidatorService: eraValidatorService,
@@ -118,7 +133,7 @@ struct YourValidatorListViewFactory {
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager,
@@ -136,8 +151,7 @@ struct YourValidatorListViewFactory {
         )
 
         return YourValidatorListInteractor(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             substrateProviderFactory: substrateProviderFactory,
             runtimeService: runtimeService,

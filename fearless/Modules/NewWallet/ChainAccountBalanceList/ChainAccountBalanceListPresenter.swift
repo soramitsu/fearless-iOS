@@ -13,7 +13,7 @@ final class ChainAccountBalanceListPresenter {
     private var sortedKeys: [String]?
     private var chainModels: [ChainModel] = []
 
-    private var accountInfos: [ChainModel.Id: AccountInfo?] = [:]
+    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var viewModels: [ChainAccountBalanceCellViewModel] = []
     private var selectedMetaAccount: MetaAccountModel?
@@ -67,7 +67,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didTapManageAssetsButton() {
-        wireframe.showManageAssets(from: view)
+        wireframe.showManageAssets(from: view, chainModels: chainModels)
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
@@ -125,12 +125,16 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            accountInfos[chainId] = accountInfo
-        case .failure:
-            break
+            guard let accountId = selectedMetaAccount?.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            accountInfos[key] = accountInfo
+        case let .failure(error):
+            wireframe.present(error: error, from: view, locale: selectedLocale)
         }
         provideViewModel()
     }
@@ -145,11 +149,6 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListInteractorOut
         }
 
         provideViewModel()
-    }
-
-    func didReceiveAssetIdWithoutPriceId(_ assetId: String) {
-        let emptyPrice = PriceData(priceId: assetId, price: "", fiatDayChange: nil)
-        prices.pricesData.append(emptyPrice)
     }
 
     func didReceiveSelectedAccount(_ account: MetaAccountModel) {

@@ -1,28 +1,17 @@
 final class ChangeTargetsCustomValidatorListWireframe: CustomValidatorListWireframe {
-    let state: ExistingBonding
-
-    init(state: ExistingBonding) {
-        self.state = state
-    }
-
     override func proceed(
         from view: ControllerBackedProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
+        flow: SelectedValidatorListFlow,
         delegate: SelectedValidatorListDelegate,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let nextView = SelectedValidatorListViewFactory
             .createChangeTargetsView(
-                for: validatorList,
-                maxTargets: maxTargets,
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount,
-                delegate: delegate,
-                with: state
+                flow: flow,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                delegate: delegate
             ) else { return }
 
         view?.controller.navigationController?.pushViewController(

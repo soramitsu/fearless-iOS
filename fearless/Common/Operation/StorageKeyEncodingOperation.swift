@@ -302,12 +302,6 @@ class NMapKeyEncodingOperation: BaseOperation<[Data]> {
                 throw StorageKeyEncodingOperationError.incompatibleStorageType
             }
 
-            let keysEncoded = try keyParams.enumerated().map { index, params in
-                try params.map { param in
-                    try param.encode(encoder: factory.createEncoder(), type: keyEntries[index])
-                }
-            }
-
             var params: [[NMapKeyParamProtocol]] = []
             for index in 0 ..< keyParams[0].count {
                 var array: [NMapKeyParamProtocol] = []

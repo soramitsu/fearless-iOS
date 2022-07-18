@@ -153,10 +153,10 @@ private extension ReceiveAssetPresenter {
         }
 
         view?.didReceive(viewModel: ReceiveAssetViewModel(
-            asset: asset.id,
+            asset: asset.name,
             accountName: account.name,
             address: address,
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator(chain: chain)
         ))
     }
 }

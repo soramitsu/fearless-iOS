@@ -8,16 +8,22 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
+    func didReceive(stakingEstimationViewModel: StakingEstimationViewModel)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
+    func performRefreshAction()
+    func viewWillAppear()
     func performAssetSelection()
     func performMainAction()
+    func performParachainMainAction(for delegation: ParachainStakingDelegationInfo)
     func performAccountAction()
     func performManageStakingAction()
+    func performParachainManageStakingAction(for delegation: ParachainStakingDelegationInfo)
     func performNominationStatusAction()
     func performValidationStatusAction()
+    func performDelegationStatusAction()
     func performRewardInfoAction()
     func performChangeValidatorsAction()
     func performSetupValidatorsForBondedAction()
@@ -32,6 +38,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
 
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
+    func refresh()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
     func save(chainAsset: ChainAsset)
     func updatePrices()
@@ -72,6 +79,15 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveControllerAccount(result: Result<ChainAccountResponse?, Error>)
     func networkInfoViewExpansion(isExpanded: Bool)
+
+//    Parachain
+
+    func didReceive(delegationInfos: [ParachainStakingDelegationInfo]?)
+    func didReceiveRound(round: ParachainStakingRoundInfo?)
+    func didReceiveCurrentBlock(currentBlock: UInt32?)
+    func didReceiveScheduledRequests(requests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
+    func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
+    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
@@ -103,7 +119,11 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         startingFrom index: Int
     )
 
-    func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        maxReward: (title: String, amount: Decimal),
+        avgReward: (title: String, amount: Decimal)
+    )
 
     func showRewardPayoutsForNominator(
         from view: ControllerBackedProtocol?,
@@ -123,9 +143,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showStakingBalance(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBalanceFlow
     )
 
     func showNominatorValidators(
@@ -153,16 +173,16 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     )
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     )
 
     func showAnalytics(
@@ -174,16 +194,15 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     )
 
     func showYourValidatorInfo(
-        _ stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         from view: ControllerBackedProtocol?
     )
 
     func showChainAssetSelection(
         from view: StakingMainViewProtocol?,
-        selectedChainAssetId: ChainAssetId?,
+        selectedChainAsset: ChainAsset?,
         delegate: AssetSelectionDelegate
     )
 }

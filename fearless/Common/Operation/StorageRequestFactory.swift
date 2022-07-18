@@ -164,7 +164,6 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
         let queryOperation = createQueryOperation(for: keys, at: blockHash, engine: engine)
 
-        var path = storagePath
         let decodingOperation = StorageFallbackDecodingListOperation<T>(path: storagePath)
         decodingOperation.configurationBlock = {
             do {
@@ -226,14 +225,20 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
             queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath, at: blockHash)
 
+//        queryWrapper.targetOperation.completionBlock = {
+//            print("queryWrapper Finished")
+//        }
+
         queryWrapper.allOperations.forEach { $0.addDependency(keysOperation) }
 
         let dependencies = [keysOperation] + queryWrapper.dependencies
 
-        return CompoundOperationWrapper(
+        let wrapper = CompoundOperationWrapper(
             targetOperation: queryWrapper.targetOperation,
             dependencies: dependencies
         )
+
+        return wrapper
     }
 
     func queryItems<K1, K2, T>(

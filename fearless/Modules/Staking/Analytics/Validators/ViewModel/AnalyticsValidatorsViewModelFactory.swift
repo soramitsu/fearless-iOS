@@ -4,8 +4,7 @@ import BigInt
 import IrohaCrypto
 
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
-
+    private var iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chain: ChainModel
     private let asset: AssetModel
@@ -14,11 +13,13 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        iconGenerator: IconGenerating
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.chain = chain
         self.asset = asset
+        self.iconGenerator = iconGenerator
     }
 
     func createViewModel(

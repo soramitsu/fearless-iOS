@@ -2,40 +2,45 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import FearlessUtils
 
 struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondSetupFlow
     ) -> StakingUnbondSetupViewProtocol? {
+        let wireframe = StakingUnbondSetupWireframe()
+
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        guard let container = createContainer(chainAsset: chainAsset, wallet: wallet, dataValidatingFactory: dataValidatingFactory, flow: flow) else {
+            return nil
+        }
+
         guard let interactor = createInteractor(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
         ) else {
             return nil
         }
 
-        let wireframe = StakingUnbondSetupWireframe()
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: wallet
         )
-
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let presenter = StakingUnbondSetupPresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            logger: Logger.shared
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
 
         let view = StakingUnbondSetupViewController(
@@ -51,16 +56,34 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        strategy: StakingUnbondSetupStrategy
     ) -> StakingUnbondSetupInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingUnbondSetupInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            strategy: strategy
+        )
+    }
+
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactory,
+        flow: StakingUnbondSetupFlow
+    ) -> StakingUnbondSetupDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -68,7 +91,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -78,8 +101,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -105,22 +127,86 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingUnbondSetupInteractor(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            connection: connection,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
         )
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        switch flow {
+        case .relaychain:
+            let viewModelState = StakingUnbondSetupRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingUnbondSetupRelaychainStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                connection: connection,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                output: viewModelState,
+                extrinsicService: extrinsicService
+            )
+            let viewModelFactory = StakingUnbondSetupRelaychainViewModelFactory()
+
+            return StakingUnbondSetupDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(candidate, delegation):
+            let subqueryOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
+
+            let operationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory,
+                subqueryOperationFactory: subqueryOperationFactory
+            )
+            let viewModelState = StakingUnbondSetupParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                candidate: candidate,
+                delegation: delegation
+            )
+            let strategy = StakingUnbondSetupParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                connection: connection,
+                output: viewModelState,
+                extrinsicService: extrinsicService,
+                operationFactory: operationFactory,
+                candidate: candidate,
+                delegation: delegation
+            )
+            let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
+            return StakingUnbondSetupDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }

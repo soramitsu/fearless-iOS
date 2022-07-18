@@ -9,6 +9,10 @@ protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     func setup()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
+    func fetchCoderFactoryOperation(
+        with timeout: TimeInterval,
+        closure: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol>
 }
 
 enum RuntimeProviderError: Error {
@@ -29,6 +33,7 @@ final class RuntimeProvider {
     let operationQueue: OperationQueue
     let dataHasher: StorageHasher
     let logger: LoggerProtocol?
+    let repository: AnyDataProviderRepository<RuntimeMetadataItem>
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -45,7 +50,8 @@ final class RuntimeProvider {
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
         dataHasher: StorageHasher = .twox256,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        repository: AnyDataProviderRepository<RuntimeMetadataItem>
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -54,6 +60,7 @@ final class RuntimeProvider {
         self.operationQueue = operationQueue
         self.dataHasher = dataHasher
         self.logger = logger
+        self.repository = repository
         commonTypesFetched = typesUsage == .onlyOwn
 
         eventCenter.add(observer: self, dispatchIn: DispatchQueue.global())
@@ -93,6 +100,7 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
+                updateMetadata(snapshot)
 
                 logger?.debug("Did complete snapshot for: \(chainId)")
                 logger?.debug("Will notify waiters: \(pendingRequests.count)")
@@ -112,6 +120,40 @@ final class RuntimeProvider {
         case .none:
             break
         }
+    }
+
+    private func updateMetadata(_ snapshot: RuntimeSnapshot) {
+        let localMetadataOperation = repository.fetchOperation(
+            by: chainId,
+            options: RepositoryFetchOptions()
+        )
+
+        let updateOperation = repository.saveOperation {
+            guard
+                let currentRuntimeItem = try localMetadataOperation.extractNoCancellableResultData(),
+                currentRuntimeItem.resolver != snapshot.metadata.resolver
+            else {
+                return []
+            }
+            var updateItem: [RuntimeMetadataItem] = []
+
+            let metadataItem = RuntimeMetadataItem(
+                chain: currentRuntimeItem.chain,
+                version: currentRuntimeItem.version,
+                txVersion: currentRuntimeItem.txVersion,
+                metadata: currentRuntimeItem.metadata,
+                resolver: snapshot.metadata.resolver
+            )
+
+            updateItem = [metadataItem]
+
+            return updateItem
+        } _: {
+            []
+        }
+
+        updateOperation.addDependency(localMetadataOperation)
+        operationQueue.addOperations([localMetadataOperation, updateOperation], waitUntilFinished: false)
     }
 
     private func resolveRequests() {

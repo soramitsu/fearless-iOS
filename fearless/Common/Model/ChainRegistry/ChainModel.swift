@@ -79,10 +79,6 @@ class ChainModel: Codable {
         options?.contains(.testnet) ?? false
     }
 
-    var isOrml: Bool {
-        options?.contains(.orml) ?? false
-    }
-
     var isTipRequired: Bool {
         options?.contains(.tipRequired) ?? false
     }
@@ -119,25 +115,11 @@ class ChainModel: Codable {
         }
     }
 
-    var tokenSymbol: TokenSymbol? {
-        guard isOrml else {
-            return nil
-        }
-
-        guard let assetName = assets.first?.assetId else {
-            return nil
-        }
-
-        return TokenSymbol(rawValue: assetName)
-    }
-
-    var currencyId: CurrencyId? {
-        CurrencyId.token(symbol: tokenSymbol)
-    }
-
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
+        case .moonbeam: return 4
+        case .moonriver, .moonbaseAlpha: return 12
         case .polkadot: return 1
         case .kusama, .westend, .rococo: return 4
         default: return 1 // We have staking only for above chains
@@ -146,6 +128,22 @@ class ChainModel: Codable {
 
     var emptyURL: URL {
         URL(string: "")!
+    }
+
+    var accountIdLenght: Int {
+        isEthereumBased ? 20 : 32
+    }
+
+    var chainAssets: [ChainAsset] {
+        assets.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
+    }
+
+    func utilityChainAssets() -> [ChainAsset] {
+        assets.filter { $0.isUtility }.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
     }
 
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {
@@ -215,6 +213,18 @@ enum ChainOptions: String, Codable {
     case crowdloans
     case orml
     case tipRequired
+
+    case unsupported
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        if let options = ChainOptions(rawValue: rawValue) {
+            self = options
+        } else {
+            self = .unsupported
+        }
+    }
 }
 
 extension ChainModel {

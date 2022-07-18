@@ -7,7 +7,7 @@ final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
@@ -17,8 +17,7 @@ final class ControllerAccountConfirmationInteractor {
     private let operationManager: OperationManagerProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let engine: JSONRPCEngine
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
@@ -31,7 +30,7 @@ final class ControllerAccountConfirmationInteractor {
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -42,8 +41,7 @@ final class ControllerAccountConfirmationInteractor {
         operationManager: OperationManagerProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -59,8 +57,7 @@ final class ControllerAccountConfirmationInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.selectedAccount = selectedAccount
         self.engine = engine
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
     }
 
     private func createLedgerFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<StakingLedger?> {
@@ -89,11 +86,11 @@ final class ControllerAccountConfirmationInteractor {
 
 extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmationInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -125,7 +122,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
 
     func fetchStashAccountItem(for address: AccountAddress) {
         fetchChainAccount(
-            chain: chain,
+            chain: chainAsset.chain,
             address: address,
             from: accountRepository,
             operationManager: operationManager
@@ -156,7 +153,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         do {
             let accountId = try addressFactory.accountId(
                 fromAddress: address,
-                addressPrefix: chain.addressPrefix
+                addressPrefix: chainAsset.chain.addressPrefix
             )
 
             let ledgerOperataion = createLedgerFetchOperation(accountId)
@@ -181,7 +178,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
 
     private func handle(stashItem: StashItem) {
         fetchChainAccount(
-            chain: chain,
+            chain: chainAsset.chain,
             address: stashItem.stash,
             from: accountRepository,
             operationManager: operationManager
@@ -194,14 +191,14 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             case let .success(accountItem):
                 if let accountItem = accountItem {
                     self.accountInfoSubscriptionAdapter.subscribe(
-                        chain: self.chain,
+                        chainAsset: self.chainAsset,
                         accountId: accountItem.accountId,
                         handler: self
                     )
 
                     self.extrinsicService = ExtrinsicService(
                         accountId: accountItem.accountId,
-                        chainFormat: self.chain.chainFormat,
+                        chainFormat: self.chainAsset.chain.chainFormat,
                         cryptoType: accountItem.cryptoType,
                         runtimeRegistry: self.runtimeService,
                         engine: self.engine,
@@ -225,12 +222,12 @@ extension ControllerAccountConfirmationInteractor: PriceLocalStorageSubscriber, 
 }
 
 extension ControllerAccountConfirmationInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
 
-extension ControllerAccountConfirmationInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension ControllerAccountConfirmationInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             clear(dataProvider: &accountInfoProvider)

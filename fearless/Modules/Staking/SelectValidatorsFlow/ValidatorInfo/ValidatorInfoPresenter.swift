@@ -7,24 +7,26 @@ final class ValidatorInfoPresenter {
     let wireframe: ValidatorInfoWireframeProtocol
 
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
-    private let chain: ChainModel
+    private let viewModelState: ValidatorInfoViewModelState
+    private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
 
-    private(set) var validatorInfoResult: Result<ValidatorInfoProtocol?, Error>?
     private(set) var priceDataResult: Result<PriceData?, Error>?
 
     init(
         interactor: ValidatorInfoInteractorInputProtocol,
         wireframe: ValidatorInfoWireframeProtocol,
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
-        chain: ChainModel,
+        viewModelState: ValidatorInfoViewModelState,
+        chainAsset: ChainAsset,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.chain = chain
+        self.viewModelState = viewModelState
+        self.chainAsset = chainAsset
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -57,21 +59,14 @@ final class ValidatorInfoPresenter {
     }
 
     private func updateView() {
-        guard let validatorInfoResult = self.validatorInfoResult else {
-            view?.didRecieve(state: .empty)
-            return
-        }
-
         do {
             let priceData = try priceDataResult?.get()
 
-            if let validatorInfo = try validatorInfoResult.get() {
-                let viewModel = viewModelFactory.createViewModel(
-                    from: validatorInfo,
-                    priceData: priceData,
-                    locale: selectedLocale
-                )
-
+            if let viewModel = viewModelFactory.buildViewModel(
+                viewModelState: viewModelState,
+                priceData: priceData,
+                locale: selectedLocale
+            ) {
                 view?.didRecieve(state: .validatorInfo(viewModel))
             } else {
                 view?.didRecieve(state: .empty)
@@ -91,6 +86,8 @@ final class ValidatorInfoPresenter {
 
 extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         interactor.setup()
     }
 
@@ -99,27 +96,29 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentAccountOptions() {
-        if let view = view, let validatorInfo = try? validatorInfoResult?.get() {
+        if let view = view, let address = viewModelState.validatorAddress {
             wireframe.presentAccountOptions(
                 from: view,
-                address: validatorInfo.address,
-                chain: chain,
+                address: address,
+                chain: chainAsset.chain,
                 locale: selectedLocale
             )
         }
     }
 
     func presentTotalStake() {
-        guard let validatorInfo = try? validatorInfoResult?.get() else { return }
-
         let priceData = try? priceDataResult?.get()
+
+        guard let viewModel = viewModelFactory.buildStakingAmountViewModels(
+            viewModelState: viewModelState,
+            priceData: priceData
+        ) else {
+            return
+        }
 
         wireframe.showStakingAmounts(
             from: view,
-            items: viewModelFactory.createStakingAmountsViewModel(
-                from: validatorInfo,
-                priceData: priceData
-            )
+            items: viewModel
         )
     }
 
@@ -152,15 +151,6 @@ extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
         priceDataResult = result
         updateView()
     }
-
-    func didStartLoadingValidatorInfo() {
-        view?.didRecieve(state: .loading)
-    }
-
-    func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>) {
-        validatorInfoResult = result
-        updateView()
-    }
 }
 
 extension ValidatorInfoPresenter: Localizable {
@@ -168,5 +158,19 @@ extension ValidatorInfoPresenter: Localizable {
         if let view = view, view.isSetup {
             updateView()
         }
+    }
+}
+
+extension ValidatorInfoPresenter: ValidatorInfoModelStateListener {
+    func modelStateDidChanged(viewModelState _: ValidatorInfoViewModelState) {
+        updateView()
+    }
+
+    func didStartLoading() {
+        view?.didRecieve(state: .loading)
+    }
+
+    func didReceiveError(error: Error) {
+        logger?.error("ValidatorInfoPresenter:didReceiveError: \(error)")
     }
 }
