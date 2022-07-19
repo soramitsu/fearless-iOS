@@ -121,7 +121,7 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
 
         switch section {
         case 0:
-            return viewModel.filterModel.cellViewModels.count
+            return viewModel.filterModel?.cellViewModels.count ?? 0
         case 1:
             return viewModel.sortModel.cellViewModels.count
         default:
@@ -134,11 +134,12 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
 
         switch indexPath.section {
         case 0:
-            let item = viewModel.filterModel.cellViewModels[indexPath.row]
             let cell = tableView.dequeueReusableCellWithType(TitleSubtitleSwitchTableViewCell.self)!
-
-            cell.bind(viewModel: item)
             cell.delegate = self
+
+            if let item = viewModel.filterModel?.cellViewModels[indexPath.row] {
+                cell.bind(viewModel: item)
+            }
 
             return cell
 
@@ -171,7 +172,7 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
         let sectionTitle: String = {
             switch section {
             case 0:
-                return viewModel?.filterModel.title ?? ""
+                return viewModel?.filterModel?.title ?? ""
             case 1:
                 return viewModel?.sortModel.title ?? ""
             default:
@@ -191,7 +192,7 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         switch section {
         case 0:
-            guard !(viewModel?.filterModel.cellViewModels.isEmpty ?? true) else {
+            guard !(viewModel?.filterModel?.cellViewModels.isEmpty ?? true) else {
                 return .leastNormalMagnitude
             }
             return Constants.headerHeight

@@ -58,8 +58,6 @@ final class StakingBondMoreConfirmationParachainStrategy {
         self.output = output
         self.eventCenter = eventCenter
         self.logger = logger
-
-        self.feeProxy.delegate = self
     }
 }
 

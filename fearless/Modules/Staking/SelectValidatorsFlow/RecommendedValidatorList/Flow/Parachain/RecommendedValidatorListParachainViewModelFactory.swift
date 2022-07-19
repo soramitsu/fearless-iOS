@@ -3,7 +3,7 @@ import SoraFoundation
 import FearlessUtils
 
 // swiftlint:disable type_name
-class RecommendedValidatorListParachainViewModelFactory {
+final class RecommendedValidatorListParachainViewModelFactory {
     private let iconGenerator: IconGenerating
 
     init(iconGenerator: IconGenerating) {

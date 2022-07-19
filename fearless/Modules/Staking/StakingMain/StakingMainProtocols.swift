@@ -13,8 +13,6 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
-    func performRefreshAction()
-    func viewWillAppear()
     func performAssetSelection()
     func performMainAction()
     func performParachainMainAction(for delegation: ParachainStakingDelegationInfo)
@@ -38,7 +36,6 @@ protocol StakingMainPresenterProtocol: AnyObject {
 
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
-    func refresh()
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
     func save(chainAsset: ChainAsset)
     func updatePrices()

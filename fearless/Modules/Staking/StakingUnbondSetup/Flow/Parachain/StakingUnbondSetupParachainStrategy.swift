@@ -13,6 +13,21 @@ protocol StakingUnbondSetupParachainStrategyOutput: AnyObject {
 }
 
 final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, AccountFetching {
+    private weak var output: StakingUnbondSetupParachainStrategyOutput?
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let wallet: MetaAccountModel
+    private let chainAsset: ChainAsset
+    private let connection: JSONRPCEngine
+    private let operationFactory: ParachainCollatorOperationFactory
+    private let candidate: ParachainStakingCandidateInfo
+    private let delegation: ParachainStakingDelegation
+    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var extrinsicService: ExtrinsicServiceProtocol?
+    private lazy var callFactory = SubstrateCallFactory()
+
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -40,23 +55,6 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
         self.candidate = candidate
         self.delegation = delegation
     }
-
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-
-    private let runtimeService: RuntimeCodingServiceProtocol
-    private let operationManager: OperationManagerProtocol
-    private let feeProxy: ExtrinsicFeeProxyProtocol
-    private let wallet: MetaAccountModel
-    private let chainAsset: ChainAsset
-    private let connection: JSONRPCEngine
-    private weak var output: StakingUnbondSetupParachainStrategyOutput?
-    private lazy var callFactory = SubstrateCallFactory()
-    private let operationFactory: ParachainCollatorOperationFactory
-    private let candidate: ParachainStakingCandidateInfo
-    private let delegation: ParachainStakingDelegation
-
-    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var extrinsicService: ExtrinsicServiceProtocol?
 }
 
 extension StakingUnbondSetupParachainStrategy: StakingUnbondSetupStrategy {
@@ -140,7 +138,7 @@ extension StakingUnbondSetupParachainStrategy: StakingUnbondSetupStrategy {
 
                 self?.output?.didReceiveTopDelegations(delegations: delegations)
             } catch {
-                print("error: ", error)
+                Logger.shared.error("StakingUnbondSetupParachainStrategy.requestCollatorsTopDelegations.error: \(error)")
             }
         }
 

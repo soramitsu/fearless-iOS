@@ -7,10 +7,9 @@ protocol ValidatorSearchParachainStrategyOutput {
 }
 
 final class ValidatorSearchParachainStrategy {
-    let validatorOperationFactory: ValidatorOperationFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let output: ValidatorSearchParachainStrategyOutput?
-
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let output: ValidatorSearchParachainStrategyOutput?
     private var currentOperation: CompoundOperationWrapper<[ParachainStakingCandidateInfo]>?
 
     init(
@@ -30,34 +29,5 @@ final class ValidatorSearchParachainStrategy {
 }
 
 extension ValidatorSearchParachainStrategy: ValidatorSearchStrategy {
-    func setup() {}
-
-    func performValidatorSearch(accountId _: AccountId) {
-//        cancelSearch()
-//
-//        let searchOperation = validatorOperationFactory
-//            .wannabeValidatorsOperation(for: [accountId])
-//
-//        currentOperation = searchOperation
-//
-//        searchOperation.targetOperation.completionBlock = { [weak self] in
-//            DispatchQueue.main.async {
-//                do {
-//                    self?.currentOperation = nil
-//                    let result = try searchOperation.targetOperation.extractNoCancellableResultData()
-//
-//                    guard let validatorInfo = result.first else {
-//                        self?.output?.didReceiveValidatorInfo(nil)
-//                        return
-//                    }
-//
-//                    self?.output?.didReceiveValidatorInfo(validatorInfo)
-//                } catch {
-//                    self?.output?.didReceiveError(error)
-//                }
-//            }
-//        }
-//
-//        operationManager.enqueue(operations: searchOperation.allOperations, in: .transient)
-    }
+    func performValidatorSearch(accountId _: AccountId) {}
 }

@@ -7,9 +7,9 @@ protocol SelectValidatorsStartRelaychainStrategyOutput: AnyObject {
 }
 
 final class SelectValidatorsStartRelaychainStrategy: RuntimeConstantFetching {
-    let operationFactory: ValidatorOperationFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
+    private let operationFactory: ValidatorOperationFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
     private weak var output: SelectValidatorsStartRelaychainStrategyOutput?
 
     init(

@@ -2,17 +2,16 @@ import Foundation
 
 final class ValidatorListFilterParachainViewModelState: ValidatorListFilterViewModelState {
     var stateListener: ValidatorListFilterModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorListFilterModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
     let initialFilter: CustomValidatorParachainListFilter
     private(set) var currentFilter: CustomValidatorParachainListFilter
 
     init(filter: CustomValidatorParachainListFilter) {
         initialFilter = filter
         currentFilter = filter
+    }
+
+    func setStateListener(_ stateListener: ValidatorListFilterModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {

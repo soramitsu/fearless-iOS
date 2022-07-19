@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-class CustomValidatorListParachainViewModelFactory {
+final class CustomValidatorListParachainViewModelFactory {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let chainAsset: ChainAsset
     private var iconGenerator: IconGenerating
@@ -160,7 +160,7 @@ class CustomValidatorListParachainViewModelFactory {
             clearButtonEnabled: filter != CustomValidatorParachainListFilter.defaultFilter(),
             clearButtonVisible: false,
             deselectButtonEnabled: false,
-            deselectedButtonVisible: false,
+            deselectButtonVisible: false,
             identityButtonVisible: true,
             identityButtonSelected: filter.allowsNoIdentity,
             minBondButtonVisible: true,
@@ -209,7 +209,7 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
             clearButtonEnabled: parachainViewModelState.filterApplied,
             clearButtonVisible: false,
             deselectButtonEnabled: false,
-            deselectedButtonVisible: false,
+            deselectButtonVisible: false,
             identityButtonVisible: true,
             identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity,
             minBondButtonVisible: true,

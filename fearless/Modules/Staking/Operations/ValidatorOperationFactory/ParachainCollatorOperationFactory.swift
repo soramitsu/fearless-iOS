@@ -5,13 +5,13 @@ import BigInt
 import CommonWallet
 
 final class ParachainCollatorOperationFactory {
-    let asset: AssetModel
-    let chain: ChainModel
-    let storageRequestFactory: StorageRequestFactoryProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let identityOperationFactory: IdentityOperationFactoryProtocol
-    let subqueryOperationFactory: SubqueryRewardOperationFactoryProtocol
-    let engine: JSONRPCEngine
+    private let asset: AssetModel
+    private let chain: ChainModel
+    private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let identityOperationFactory: IdentityOperationFactoryProtocol
+    private let subqueryOperationFactory: SubqueryRewardOperationFactoryProtocol
+    private let engine: JSONRPCEngine
 
     init(
         asset: AssetModel,
@@ -163,7 +163,7 @@ final class ParachainCollatorOperationFactory {
                 engine: engine,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
-                storagePath: .delegatorStake
+                storagePath: .delegatorState
             )
 
         topDelegationsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
@@ -231,14 +231,10 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createCandidatePoolOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<[ParachainStakingCandidate]>]> {
-        guard let candidatePoolKey = try? StorageKeyFactory().key(from: .candidatePool) else {
-            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
-        }
-
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainStakingCandidate]>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [candidatePoolKey] },
+                keys: { [try StorageKeyFactory().key(from: .candidatePool)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .candidatePool
             )
@@ -249,14 +245,10 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createSelectedCandidatesOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<[AccountId]>]> {
-        guard let selectedCandidatesKey = try? StorageKeyFactory().key(from: .selectedCandidates) else {
-            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
-        }
-
         let selectedCandidatesWrapper: CompoundOperationWrapper<[StorageResponse<[AccountId]>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [selectedCandidatesKey] },
+                keys: { [try StorageKeyFactory().key(from: .selectedCandidates)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .selectedCandidates
             )
@@ -308,14 +300,10 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createRoundOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]> {
-        guard let roundKey = try? StorageKeyFactory().key(from: .round) else {
-            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
-        }
-
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [roundKey] },
+                keys: { [try StorageKeyFactory().key(from: .round)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .round
             )
@@ -326,14 +314,10 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createCurrentBlockOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<String>]> {
-        guard let roundKey = try? StorageKeyFactory().key(from: .currentBlock) else {
-            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
-        }
-
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [roundKey] },
+                keys: { [try StorageKeyFactory().key(from: .currentBlock)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .currentBlock
             )
@@ -346,14 +330,10 @@ final class ParachainCollatorOperationFactory {
     func createCommissionOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<String>]> {
-        guard let roundKey = try? StorageKeyFactory().key(from: .collatorCommission) else {
-            return CompoundOperationWrapper(targetOperation: ClosureOperation { [] })
-        }
-
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { [roundKey] },
+                keys: { [try StorageKeyFactory().key(from: .collatorCommission)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .collatorCommission
             )
@@ -414,7 +394,7 @@ extension ParachainCollatorOperationFactory {
         aprOperation.addDependency(candidateIdsOperation.targetOperation)
         aprOperation.addDependency(roundOperation)
 
-        let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> { [self] in
+        let mergeOperation = ClosureOperation<[ParachainStakingCandidateInfo]?> {
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
             let infos = try infoWrapper.targetOperation.extractNoCancellableResultData()
             let collatorsApr = try? aprOperation.extractNoCancellableResultData()

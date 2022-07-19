@@ -2,15 +2,14 @@ import Foundation
 
 final class ValidatorInfoRelaychainViewModelState: ValidatorInfoViewModelState {
     var stateListener: ValidatorInfoModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorInfoModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
     var validatorInfo: ValidatorInfoProtocol?
 
     var validatorAddress: String? {
         validatorInfo?.address
+    }
+
+    func setStateListener(_ stateListener: ValidatorInfoModelStateListener?) {
+        self.stateListener = stateListener
     }
 }
 

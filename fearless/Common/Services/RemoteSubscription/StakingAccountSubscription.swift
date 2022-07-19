@@ -125,7 +125,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
         var requests: [(StorageCodingPath, Data)] = []
 
-        requests.append((.delegatorStake, accountId))
+        requests.append((.delegatorState, accountId))
         requests.append((.delegationScheduledRequests, accountId))
 
         return requests

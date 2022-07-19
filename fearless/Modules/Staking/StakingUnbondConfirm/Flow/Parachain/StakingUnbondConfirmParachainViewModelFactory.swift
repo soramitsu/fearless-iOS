@@ -3,10 +3,9 @@ import FearlessUtils
 import SoraFoundation
 
 final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
-    let asset: AssetModel
-
-    private lazy var formatterFactory = AssetBalanceFormatterFactory()
+    private let asset: AssetModel
     private var iconGenerator: IconGenerating
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         asset: AssetModel,
@@ -14,6 +13,31 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
     ) {
         self.asset = asset
         self.iconGenerator = iconGenerator
+    }
+
+    func buildViewModel(viewModelState: StakingUnbondConfirmViewModelState) -> StakingUnbondConfirmViewModel? {
+        guard let viewModelState = viewModelState as? StakingUnbondConfirmParachainViewModelState else {
+            return nil
+        }
+
+        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
+
+        let amount = LocalizableResource { locale in
+            formatter.value(for: locale).string(from: viewModelState.inputAmount as NSNumber) ?? ""
+        }
+
+        let address = viewModelState.accountAddress ?? ""
+        let icon = try? iconGenerator.generateFromAddress(address)
+
+        let hints = createHints(from: false)
+
+        return StakingUnbondConfirmViewModel(
+            senderAddress: address,
+            senderIcon: icon,
+            senderName: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
+            amount: amount,
+            hints: hints
+        )
     }
 
     private func createHints(from shouldResetRewardDestination: Bool)
@@ -50,30 +74,5 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
 
             return items
         }
-    }
-
-    func buildViewModel(viewModelState: StakingUnbondConfirmViewModelState) -> StakingUnbondConfirmViewModel? {
-        guard let viewModelState = viewModelState as? StakingUnbondConfirmParachainViewModelState else {
-            return nil
-        }
-
-        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
-
-        let amount = LocalizableResource { locale in
-            formatter.value(for: locale).string(from: viewModelState.inputAmount as NSNumber) ?? ""
-        }
-
-        let address = viewModelState.accountAddress ?? ""
-        let icon = try? iconGenerator.generateFromAddress(address)
-
-        let hints = createHints(from: false)
-
-        return StakingUnbondConfirmViewModel(
-            senderAddress: address,
-            senderIcon: icon,
-            senderName: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
-            amount: amount,
-            hints: hints
-        )
     }
 }

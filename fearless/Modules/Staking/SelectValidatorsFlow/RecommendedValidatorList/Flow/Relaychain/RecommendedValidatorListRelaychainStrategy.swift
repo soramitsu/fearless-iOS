@@ -1,10 +1,6 @@
 import Foundation
 
-protocol RecommendedValidatorListRelaychainStrategyOutput: AnyObject {}
-
-class RecommendedValidatorListRelaychainStrategy {
-    var output: RecommendedValidatorListRelaychainStrategyOutput?
-}
+class RecommendedValidatorListRelaychainStrategy {}
 
 extension RecommendedValidatorListRelaychainStrategy: RecommendedValidatorListStrategy {
     func setup() {}

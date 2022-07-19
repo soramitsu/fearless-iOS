@@ -28,21 +28,9 @@ protocol RecommendedValidatorListWireframeProtocol: AnyObject {
 }
 
 protocol RecommendedValidatorListViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(
+    static func createView(
         flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
-    ) -> RecommendedValidatorListViewProtocol?
-
-    static func createChangeTargetsView(
-        flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
-    ) -> RecommendedValidatorListViewProtocol?
-
-    static func createChangeYourValidatorsView(
-        flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> RecommendedValidatorListViewProtocol?
 }

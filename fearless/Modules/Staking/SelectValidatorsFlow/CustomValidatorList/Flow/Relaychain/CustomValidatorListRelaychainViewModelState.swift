@@ -1,6 +1,6 @@
 import Foundation
 
-class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelState {
+final class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelState {
     var stateListener: CustomValidatorListModelStateListener?
 
     func setStateListener(_ stateListener: CustomValidatorListModelStateListener?) {
@@ -13,10 +13,14 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     let maxTargets: Int
     let baseFlow: CustomValidatorListFlow
 
-    var filteredValidatorList: [SelectedValidatorInfo] = []
+    private(set) var filteredValidatorList: [SelectedValidatorInfo] = []
+    private(set) var viewModel: CustomValidatorListViewModel?
+    private(set) var filter: CustomValidatorRelaychainListFilter = .recommendedFilter()
 
-    var viewModel: CustomValidatorListViewModel?
-    var filter: CustomValidatorRelaychainListFilter = .recommendedFilter()
+    var filterApplied: Bool {
+        let emptyFilter = CustomValidatorRelaychainListFilter.defaultFilter()
+        return filter != emptyFilter
+    }
 
     init(
         baseFlow: CustomValidatorListFlow,
@@ -97,7 +101,7 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
             viewModel.selectedValidatorsCount += 1
         }
 
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.cellViewModels[index].isSelected.toggle()
         viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
@@ -107,11 +111,6 @@ class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelS
     func composeFilteredValidatorList(filter: CustomValidatorRelaychainListFilter) -> [SelectedValidatorInfo] {
         let composer = CustomValidatorRelaychainListComposer(filter: filter)
         return composer.compose(from: fullValidatorList)
-    }
-
-    var filterApplied: Bool {
-        let emptyFilter = CustomValidatorRelaychainListFilter.defaultFilter()
-        return filter != emptyFilter
     }
 }
 

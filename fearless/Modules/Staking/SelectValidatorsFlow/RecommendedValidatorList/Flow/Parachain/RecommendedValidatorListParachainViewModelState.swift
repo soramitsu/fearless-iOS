@@ -1,10 +1,10 @@
 import Foundation
 
 // swiftlint:disable type_name
-class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListViewModelState {
-    var collators: [ParachainStakingCandidateInfo]
-    var selectedCollators: [ParachainStakingCandidateInfo] = []
-
+final class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListViewModelState {
+    var stateListener: RecommendedValidatorListModelStateListener?
+    private(set) var collators: [ParachainStakingCandidateInfo]
+    private(set) var selectedCollators: [ParachainStakingCandidateInfo] = []
     let bonding: InitiatedBonding
     let maxTargets: Int
 
@@ -15,8 +15,6 @@ class RecommendedValidatorListParachainViewModelState: RecommendedValidatorListV
         self.bonding = bonding
         self.maxTargets = maxTargets
     }
-
-    var stateListener: RecommendedValidatorListModelStateListener?
 
     func setStateListener(_ stateListener: RecommendedValidatorListModelStateListener?) {
         self.stateListener = stateListener

@@ -16,17 +16,16 @@ protocol SelectValidatorsConfirmRelaychainInitiatedStrategyOutput: AnyObject {
 }
 
 final class SelectValidatorsConfirmRelaychainInitiatedStrategy: StakingDurationFetching {
-    let balanceAccountId: AccountId
-    let runtimeService: RuntimeCodingServiceProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
-    let durationOperationFactory: StakingDurationOperationFactoryProtocol
-    let signer: SigningWrapperProtocol
-    let operationManager: OperationManagerProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let chainAsset: ChainAsset
-    let output: SelectValidatorsConfirmRelaychainInitiatedStrategyOutput?
-
+    private let balanceAccountId: AccountId
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private let durationOperationFactory: StakingDurationOperationFactoryProtocol
+    private let signer: SigningWrapperProtocol
+    private let operationManager: OperationManagerProtocol
+    private let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let output: SelectValidatorsConfirmRelaychainInitiatedStrategyOutput?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
@@ -75,11 +74,6 @@ extension SelectValidatorsConfirmRelaychainInitiatedStrategy: SelectValidatorsCo
     }
 
     func submitNomination(closure: ExtrinsicBuilderClosure?) {
-//        guard !nomination.targets.isEmpty else {
-//            output?.didFailNomination(error: SelectValidatorsConfirmError.extrinsicFailed)
-//            return
-//        }
-
         guard let closure = closure else {
             return
         }

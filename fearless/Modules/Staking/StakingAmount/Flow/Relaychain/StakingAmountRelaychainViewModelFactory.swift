@@ -3,8 +3,8 @@ import SoraFoundation
 import CommonWallet
 
 final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFactoryProtocol {
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -42,17 +42,6 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         )
     }
 
-    private func buildFeeViewModel(
-        viewModelState: StakingAmountRelaychainViewModelState,
-        priceData: PriceData?
-    ) -> LocalizableResource<BalanceViewModelProtocol>? {
-        guard let fee = viewModelState.fee else {
-            return nil
-        }
-
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-    }
-
     func buildSelectRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
         priceData: PriceData?,
@@ -62,51 +51,60 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             return nil
         }
 
-        do {
-            let reward: CalculatedReward?
+        let reward: CalculatedReward?
 
-            if let calculator = calculator {
-                let restake = calculator.calculateMaxReturn(
-                    isCompound: true,
-                    period: .year
-                )
+        if let calculator = calculator {
+            let restake = calculator.calculateMaxReturn(
+                isCompound: true,
+                period: .year
+            )
 
-                let payout = calculator.calculateMaxReturn(
-                    isCompound: false,
-                    period: .year
-                )
+            let payout = calculator.calculateMaxReturn(
+                isCompound: false,
+                period: .year
+            )
 
-                let curAmount = viewModelState.amount ?? 0.0
-                reward = CalculatedReward(
-                    restakeReturn: restake * curAmount,
-                    restakeReturnPercentage: restake,
-                    payoutReturn: payout * curAmount,
-                    payoutReturnPercentage: payout
-                )
-            } else {
-                reward = nil
+            let curAmount = viewModelState.amount ?? 0.0
+            reward = CalculatedReward(
+                restakeReturn: restake * curAmount,
+                restakeReturnPercentage: restake,
+                payoutReturn: payout * curAmount,
+                payoutReturnPercentage: payout
+            )
+        } else {
+            reward = nil
+        }
+
+        switch viewModelState.rewardDestination {
+        case .restake:
+            return rewardDestViewModelFactory.createRestake(
+                from: reward,
+                priceData: priceData
+            )
+        case .payout:
+            if let payoutAccount = viewModelState.payoutAccount,
+               let address = payoutAccount.toAddress() {
+                return try rewardDestViewModelFactory
+                    .createPayout(
+                        from: reward,
+                        priceData: priceData,
+                        address: address,
+                        title: (try? payoutAccount.toDisplayAddress().username) ?? address
+                    )
             }
-
-            switch viewModelState.rewardDestination {
-            case .restake:
-                return rewardDestViewModelFactory.createRestake(
-                    from: reward,
-                    priceData: priceData
-                )
-            case .payout:
-                if let payoutAccount = viewModelState.payoutAccount,
-                   let address = payoutAccount.toAddress() {
-                    return try rewardDestViewModelFactory
-                        .createPayout(
-                            from: reward,
-                            priceData: priceData,
-                            address: address,
-                            title: (try? payoutAccount.toDisplayAddress().username) ?? address
-                        )
-                }
-            }
-        } catch {}
+        }
 
         return nil
+    }
+
+    private func buildFeeViewModel(
+        viewModelState: StakingAmountRelaychainViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let fee = viewModelState.fee else {
+            return nil
+        }
+
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 }

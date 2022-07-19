@@ -1,10 +1,9 @@
 import Foundation
 import FearlessUtils
 
-class CustomValidatorListRelaychainViewModelFactory {
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
-    private var iconGenerator: IconGenerating
+final class CustomValidatorListRelaychainViewModelFactory {
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let iconGenerator: IconGenerating
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -96,7 +95,7 @@ class CustomValidatorListRelaychainViewModelFactory {
         }
     }
 
-    func createViewModel(
+    private func createViewModel(
         from displayValidatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
         totalValidatorsCount: Int,
@@ -134,7 +133,7 @@ class CustomValidatorListRelaychainViewModelFactory {
             clearButtonEnabled: filter != CustomValidatorRelaychainListFilter.defaultFilter(),
             clearButtonVisible: true,
             deselectButtonEnabled: !selectedValidatorList.isEmpty,
-            deselectedButtonVisible: true,
+            deselectButtonVisible: true,
             identityButtonVisible: false,
             identityButtonSelected: false,
             minBondButtonVisible: false,
@@ -169,7 +168,7 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             locale: locale
         )
 
-        let proceedButtonTitle = relaychainViewModelState.selectedValidatorList.count == 0
+        let proceedButtonTitle = relaychainViewModelState.selectedValidatorList.items.isEmpty
             ? R.string.localizable
             .stakingCustomProceedButtonDisabledTitle(
                 relaychainViewModelState.maxTargets,
@@ -192,7 +191,7 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
             clearButtonEnabled: relaychainViewModelState.filter != CustomValidatorRelaychainListFilter.defaultFilter(),
             clearButtonVisible: true,
             deselectButtonEnabled: !relaychainViewModelState.selectedValidatorList.items.isEmpty,
-            deselectedButtonVisible: true,
+            deselectButtonVisible: true,
             identityButtonVisible: false,
             identityButtonSelected: false,
             minBondButtonVisible: false,

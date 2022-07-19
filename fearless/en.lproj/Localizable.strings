@@ -736,3 +736,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.reward.info.max" = "Maximum APR";
 "parachain.staking.reward.info.avg" = "Average APR";
 "parachain.staking.recommended.list.title" = "Suggested %d";
+
+"staking.collator.my.oversubscribed.message" = "Oversubscribed. You will not receive rewards from the collator in this era.";
+"staking.collator.other.oversubscribed.message" = "Oversubscribed. Only the top staked delegators are paid rewards.";

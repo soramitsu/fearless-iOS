@@ -3,6 +3,10 @@ import FearlessUtils
 import SoraFoundation
 
 final class SelectValidatorsConfirmRelaychainInitiatedViewModelFactory {
+    private let iconGenerator: IconGenerating
+    private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         iconGenerator: IconGenerating
@@ -10,10 +14,6 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelFactory {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
     }
-
-    private var iconGenerator: IconGenerating
-    private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 }
 
 extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {

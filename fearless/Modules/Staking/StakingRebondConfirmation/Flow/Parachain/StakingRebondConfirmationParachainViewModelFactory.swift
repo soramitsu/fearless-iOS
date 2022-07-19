@@ -3,10 +3,10 @@ import SoraFoundation
 import FearlessUtils
 
 final class StakingRebondConfirmationParachainViewModelFactory: StakingRebondConfirmationViewModelFactoryProtocol {
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let iconGenerator: IconGenerating
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(

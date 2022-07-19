@@ -2,19 +2,13 @@ import Foundation
 
 final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelState {
     var stateListener: ValidatorSearchModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorSearchModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    var fullValidatorList: [ParachainStakingCandidateInfo]
-    var selectedValidatorList: [ParachainStakingCandidateInfo]
-    let referenceValidatorList: [ParachainStakingCandidateInfo]
-    var filteredValidatorList: [ParachainStakingCandidateInfo] = []
-    private var viewModel: ValidatorSearchViewModel?
-    weak var delegate: ValidatorSearchParachainDelegate?
-
     var searchString: String = ""
+    weak var delegate: ValidatorSearchParachainDelegate?
+    private(set) var fullValidatorList: [ParachainStakingCandidateInfo]
+    private(set) var selectedValidatorList: [ParachainStakingCandidateInfo]
+    private(set) var filteredValidatorList: [ParachainStakingCandidateInfo] = []
+    private var viewModel: ValidatorSearchViewModel?
+    let referenceValidatorList: [ParachainStakingCandidateInfo]
 
     init(
         fullValidatorList: [ParachainStakingCandidateInfo],
@@ -25,6 +19,10 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
         self.delegate = delegate
+    }
+
+    func setStateListener(_ stateListener: ValidatorSearchModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
@@ -70,12 +68,6 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
 
         let changedValidator = filteredValidatorList[index]
 
-        // TODO: Handle blocked
-//        guard !changedValidator.blocked else {
-//            stateListener?.didReceiveError(error: ValidatorSearchError.validatorBlocked)
-//            return
-//        }
-
         if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
             selectedValidatorList.remove(at: selectedIndex)
         } else {
@@ -84,7 +76,7 @@ final class ValidatorSearchParachainViewModelState: ValidatorSearchViewModelStat
 
         let differsFromInitial = referenceValidatorList != selectedValidatorList
 
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.cellViewModels[index].isSelected.toggle()
         viewModel.differsFromInitial = differsFromInitial
         self.viewModel = viewModel
 

@@ -7,10 +7,9 @@ protocol ValidatorSearchRelaychainStrategyOutput {
 }
 
 final class ValidatorSearchRelaychainStrategy {
-    let validatorOperationFactory: ValidatorOperationFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let output: ValidatorSearchRelaychainStrategyOutput?
-
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let output: ValidatorSearchRelaychainStrategyOutput?
     private var currentOperation: CompoundOperationWrapper<[SelectedValidatorInfo]>?
 
     init(
@@ -30,8 +29,6 @@ final class ValidatorSearchRelaychainStrategy {
 }
 
 extension ValidatorSearchRelaychainStrategy: ValidatorSearchStrategy {
-    func setup() {}
-
     func performValidatorSearch(accountId: AccountId) {
         cancelSearch()
 

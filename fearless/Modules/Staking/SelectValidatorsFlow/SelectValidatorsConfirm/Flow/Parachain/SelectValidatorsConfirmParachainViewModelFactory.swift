@@ -8,9 +8,9 @@ final class SelectValidatorsConfirmParachainViewModelFactory {
         self.iconGenerator = iconGenerator
     }
 
-    private var iconGenerator: IconGenerating
+    private let iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 }
 
 extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
@@ -21,7 +21,7 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         }
 
         return balanceViewModelFactory.createAssetBalanceViewModel(
-            viewModelState.confirmationModel?.amount ?? 0,
+            state.amount,
             balance: balance,
             priceData: priceData
         )

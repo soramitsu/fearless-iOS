@@ -27,7 +27,7 @@ final class ManagedAccountItemMapper: CoreDataMapperProtocol {
             let address = entity.metaId,
             let username = entity.name,
             let cryptoType = CryptoType(rawValue: UInt8(entity.substrateCryptoType)),
-            let networkType = SNAddressType(rawValue: UInt8(0)),
+            let networkType = SNAddressType(rawValue: UInt16(0)),
             let publicKeyData = entity.substratePublicKey
         else {
             throw ManagedAccountItemMapperError.invalidEntity

@@ -4,7 +4,12 @@ final class StakingBondMoreViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(
+            top: UIConstants.hugeOffset,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0
+        )
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
@@ -64,22 +69,22 @@ final class StakingBondMoreViewLayout: UIView {
 
         collatorView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         accountView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         amountInputView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(72)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
         networkFeeView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         addSubview(actionButton)

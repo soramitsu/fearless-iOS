@@ -23,18 +23,16 @@ final class ParachainRewardCalculatorService {
 
     private var isActive: Bool = false
     private var snapshot: BigUInt?
-
     private var totalIssuanceDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
-
-    let chainAsset: ChainAsset
-    let assetPrecision: Int16
-    let collatorOperationFactory: ParachainCollatorOperationFactory
-    let logger: LoggerProtocol?
-    let operationManager: OperationManagerProtocol
-    let providerFactory: SubstrateDataProviderFactoryProtocol
-    let storageFacade: StorageFacadeProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
+    private let chainAsset: ChainAsset
+    private let assetPrecision: Int16
+    private let collatorOperationFactory: ParachainCollatorOperationFactory
+    private let logger: LoggerProtocol?
+    private let operationManager: OperationManagerProtocol
+    private let providerFactory: SubstrateDataProviderFactoryProtocol
+    private let storageFacade: StorageFacadeProtocol
+    private let runtimeCodingService: RuntimeCodingServiceProtocol
 
     init(
         chainAsset: ChainAsset,

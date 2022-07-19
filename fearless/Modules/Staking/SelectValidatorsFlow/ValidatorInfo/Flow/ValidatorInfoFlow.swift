@@ -12,12 +12,11 @@ protocol ValidatorInfoModelStateListener: AnyObject {
     func didReceiveError(error: Error)
 }
 
-protocol ValidatorInfoViewModelState: ValidatorInfoUserInputHandler {
+protocol ValidatorInfoViewModelState {
     var stateListener: ValidatorInfoModelStateListener? { get set }
+    var validatorAddress: String? { get }
 
     func setStateListener(_ stateListener: ValidatorInfoModelStateListener?)
-
-    var validatorAddress: String? { get }
 }
 
 struct ValidatorInfoDependencyContainer {
@@ -43,7 +42,3 @@ protocol ValidatorInfoStrategy {
     func setup()
     func reload()
 }
-
-protocol ValidatorInfoUserInputHandler {}
-
-extension ValidatorInfoUserInputHandler {}

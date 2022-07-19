@@ -165,7 +165,7 @@ final class RelaychainValidatorOperationFactory {
 
     func createValidatorPrefsWrapper(for accountIdList: [AccountId])
         -> CompoundOperationWrapper<[AccountAddress: ValidatorPrefs]> {
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
 
         let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -179,15 +179,13 @@ final class RelaychainValidatorOperationFactory {
 
         fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
 
-        let addressFactory = SS58AddressFactory()
-
         let mapOperation = ClosureOperation<[AccountAddress: ValidatorPrefs]> {
             try fetchOperation.targetOperation.extractNoCancellableResultData()
                 .enumerated()
                 .reduce(into: [AccountAddress: ValidatorPrefs]()) { result, indexedItem in
-                    let address = try addressFactory.addressFromAccountId(
-                        data: accountIdList[indexedItem.offset],
-                        addressPrefix: addressType
+                    let address = try AddressFactory.address(
+                        for: accountIdList[indexedItem.offset],
+                        chainFormat: chainFormat
                     )
 
                     if indexedItem.element.data != nil {
@@ -210,7 +208,7 @@ final class RelaychainValidatorOperationFactory {
         for validatorIds: [AccountId],
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[ValidatorStakeInfo?]> {
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -228,15 +226,14 @@ final class RelaychainValidatorOperationFactory {
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
             let maxNominatorsRewarded =
                 try maxNominatorsOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
 
             return try validatorIds.map { validatorId in
                 if let electedValidator = electedStakers.validators
                     .first(where: { $0.accountId == validatorId }) {
                     let nominators: [NominatorInfo] = try electedValidator.exposure.others.map { individual in
-                        let nominatorAddress = try addressFactory.addressFromAccountId(
-                            data: individual.who,
-                            addressPrefix: addressType
+                        let nominatorAddress = try AddressFactory.address(
+                            for: individual.who,
+                            chainFormat: chainFormat
                         )
 
                         let stake = Decimal.fromSubstrateAmount(
@@ -283,7 +280,8 @@ final class RelaychainValidatorOperationFactory {
         for nominatorAddress: AccountAddress,
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[AccountId: ValidatorStakeInfo]> {
-        let addressType = chain.addressPrefix
+        let chain = chain
+        let chainFormat = chain.chainFormat
 
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
 
@@ -299,8 +297,7 @@ final class RelaychainValidatorOperationFactory {
         let validatorsStakeInfoOperation = ClosureOperation<[AccountId: ValidatorStakeInfo]> {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
-            let nominatorAccountId = try addressFactory.accountId(fromAddress: nominatorAddress, type: addressType)
+            let nominatorAccountId = try AddressFactory.accountId(from: nominatorAddress, chain: chain)
             let maxNominatorsRewarded = try maxNominatorsOperation
                 .extractNoCancellableResultData()
 
@@ -314,9 +311,9 @@ final class RelaychainValidatorOperationFactory {
                     }
 
                     let nominators: [NominatorInfo] = try validator.exposure.others.map { individual in
-                        let nominatorAddress = try addressFactory.addressFromAccountId(
-                            data: individual.who,
-                            addressPrefix: addressType
+                        let nominatorAddress = try AddressFactory.address(
+                            for: individual.who,
+                            chainFormat: chainFormat
                         )
 
                         let stake = Decimal.fromSubstrateAmount(
@@ -365,7 +362,8 @@ final class RelaychainValidatorOperationFactory {
         slashesOperation: UnappliedSlashesOperation,
         identitiesOperation: BaseOperation<[String: AccountIdentity]>
     ) -> BaseOperation<[ElectedValidatorInfo]> {
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
+        let addressPrefix = chain.addressPrefix
 
         return ClosureOperation<[ElectedValidatorInfo]> {
             let electedInfo = try eraValidatorsOperation.extractNoCancellableResultData()
@@ -373,8 +371,6 @@ final class RelaychainValidatorOperationFactory {
             let slashings = try slashesOperation.extractNoCancellableResultData()
             let identities = try identitiesOperation.extractNoCancellableResultData()
             let calculator = try rewardOperation.extractNoCancellableResultData()
-
-            let addressFactory = SS58AddressFactory()
 
             let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { result, slashInEra in
                 slashInEra.value?.forEach { slash in
@@ -385,9 +381,9 @@ final class RelaychainValidatorOperationFactory {
             return try electedInfo.validators.map { validator in
                 let hasSlashes = slashed.contains(validator.accountId)
 
-                let address = try addressFactory.addressFromAccountId(
-                    data: validator.accountId,
-                    addressPrefix: addressType
+                let address = try AddressFactory.address(
+                    for: validator.accountId,
+                    chainFormat: chainFormat
                 )
 
                 let validatorReturn = try calculator
@@ -403,7 +399,7 @@ final class RelaychainValidatorOperationFactory {
                     stakeReturn: validatorReturn,
                     hasSlashes: hasSlashes,
                     maxNominatorsRewarded: maxNominators,
-                    addressType: addressType,
+                    addressType: addressPrefix,
                     blocked: validator.prefs.blocked,
                     precision: Int16(self.asset.precision)
                 )
@@ -520,7 +516,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
@@ -529,10 +525,8 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             let validatorsStakingInfo = try validatorsStakingInfoWrapper.targetOperation
                 .extractNoCancellableResultData()
 
-            let addressFactory = SS58AddressFactory()
-
             return try nomination.targets.enumerated().map { index, accountId in
-                let address = try addressFactory.addressFromAccountId(data: accountId, addressPrefix: addressType)
+                let address = try AddressFactory.address(for: accountId, chainFormat: chainFormat)
 
                 return SelectedValidatorInfo(
                     address: address,
@@ -582,13 +576,12 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             $0.addDependency(activeValidatorsStakeInfoWrapper.targetOperation)
         }
 
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let validatorStakeInfo = try activeValidatorsStakeInfoWrapper.targetOperation
                 .extractNoCancellableResultData()
             let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
 
             return try validatorStakeInfo.compactMap { validatorAccountId, validatorStakeInfo in
                 guard let nominatorIndex = validatorStakeInfo.nominators
@@ -596,10 +589,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     return nil
                 }
 
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: validatorAccountId,
-                    addressPrefix: addressType
-                )
+                let validatorAddress = try AddressFactory.address(for: validatorAccountId, chainFormat: chainFormat)
 
                 let nominatorInfo = validatorStakeInfo.nominators[nominatorIndex]
                 let isRewarded = nominatorIndex < validatorStakeInfo.maxNominatorsRewarded
@@ -639,18 +629,17 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             chain: chain
         )
 
-        let addressType = chain.addressPrefix
+        let chainFormat = chain.chainFormat
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let validatorsStakeInfo = try validatorsStakeInfoWrapper.targetOperation
                 .extractNoCancellableResultData()
             let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
 
             return try validatorsStakeInfo.enumerated().map { index, validatorStakeInfo in
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: accountIds[index],
-                    addressPrefix: addressType
+                let validatorAddress = try AddressFactory.address(
+                    for: accountIds[index],
+                    chainFormat: chainFormat
                 )
 
                 return SelectedValidatorInfo(
@@ -715,14 +704,13 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         stakeInfoWrapper.addDependency(operations: [eraValidatorsOperation])
 
-        let addressType = chain.addressPrefix
         let precision = asset.precision
+        let chainFormat = chain.chainFormat
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let identityList = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
             let validatorPrefsList = try validatorPrefsWrapper.targetOperation.extractNoCancellableResultData()
             let slashings = try slashingsWrapper.targetOperation.extractNoCancellableResultData()
-            let addressFactory = SS58AddressFactory()
             let stakeInfoList = try stakeInfoWrapper.targetOperation.extractNoCancellableResultData()
 
             let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { result, slashInEra in
@@ -732,9 +720,9 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
             }
 
             return try accountIdList.enumerated().compactMap { index, accountId in
-                let validatorAddress = try addressFactory.addressFromAccountId(
-                    data: accountId,
-                    addressPrefix: addressType
+                let validatorAddress = try AddressFactory.address(
+                    for: accountId,
+                    chainFormat: chainFormat
                 )
 
                 guard let prefs = validatorPrefsList[validatorAddress] else { return nil }

@@ -4,52 +4,9 @@ import SoraKeystore
 import SoraFoundation
 
 final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryProtocol {
-    static func createInitiatedBondingView(
+    static func createView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        flow: SelectValidatorsStartFlow
-    ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = InitBondingSelectValidatorsStartWireframe()
-        return createView(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            wireframe: wireframe,
-            flow: flow
-        )
-    }
-
-    static func createChangeTargetsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsStartFlow
-    ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = ChangeTargetsSelectValidatorsStartWireframe()
-        return createView(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            wireframe: wireframe,
-            flow: flow
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsStartFlow
-    ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = YourValidatorList.SelectionStartWireframe()
-        return createView(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            wireframe: wireframe,
-            flow: flow
-        )
-    }
-
-    private static func createView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        wireframe: SelectValidatorsStartWireframeProtocol,
         flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
         guard let container = createContainer(
@@ -60,6 +17,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             return nil
         }
 
+        let wireframe = SelectValidatorsStartWireframe()
         let interactor = SelectValidatorsStartInteractor(
             strategy: container.strategy
         )

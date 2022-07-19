@@ -10,14 +10,13 @@ enum ParachainStakingDelegationAction: Decodable, Equatable {
         var container = try decoder.unkeyedContainer()
 
         let type = try container.decode(String.self)
-        let amountString = try container.decode(String.self)
-        let amount = BigUInt(stringLiteral: amountString)
+        let amount = try container.decode(StringScaleMapper<BigUInt>.self)
 
         switch type.lowercased() {
         case "revoke":
-            self = .revoke(amount: amount)
+            self = .revoke(amount: amount.value)
         case "decrease":
-            self = .decrease(amount: amount)
+            self = .decrease(amount: amount.value)
         default:
             throw DecodingError.dataCorruptedError(
                 in: container,

@@ -1,7 +1,5 @@
 import UIKit
 
-enum StakingBondMoreFlowError: Error {}
-
 enum StakingBondMoreFlow {
     case relaychain
     case parachain(candidate: ParachainStakingCandidateInfo)
@@ -10,9 +8,7 @@ enum StakingBondMoreFlow {
 protocol StakingBondMoreModelStateListener: AnyObject {
     func didReceiveError(error: Error)
     func didReceiveInsufficientlyFundsError()
-
     func feeParametersDidChanged(viewModelState: StakingBondMoreViewModelState)
-
     func provideAmountInputViewModel()
     func provideFee()
     func provideAsset()
@@ -24,16 +20,13 @@ protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
     var amount: Decimal { get }
     var fee: Decimal? { get }
     var balance: Decimal? { get }
-
-    func validators(using locale: Locale) -> [DataValidating]
-
     var stateListener: StakingBondMoreModelStateListener? { get set }
-    func setStateListener(_ stateListener: StakingBondMoreModelStateListener?)
-
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var feeReuseIdentifier: String? { get }
-
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? { get }
+
+    func validators(using locale: Locale) -> [DataValidating]
+    func setStateListener(_ stateListener: StakingBondMoreModelStateListener?)
 }
 
 protocol StakingBondMoreViewModelFactoryProtocol {

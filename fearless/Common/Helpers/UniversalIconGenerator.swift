@@ -91,7 +91,7 @@ final class UniversalIconGenerator: IconGenerating {
         }
     }
 
-    public func substrateIconFromAddress(_ address: String) throws -> DrawableIcon {
+    private func substrateIconFromAddress(_ address: String) throws -> DrawableIcon {
         let accountId = try deriveAccountIdFromAddress(address)
 
         let colors = try getColorsForData(accountId)
@@ -111,7 +111,7 @@ final class UniversalIconGenerator: IconGenerating {
         )
     }
 
-    public func ethereumIconFromAddress(_ address: String) throws -> DrawableIcon {
+    private func ethereumIconFromAddress(_ address: String) throws -> DrawableIcon {
         let accountId = try deriveAccountIdFromAddress(address)
 
         let colors = try getEthColorsForData(accountId)

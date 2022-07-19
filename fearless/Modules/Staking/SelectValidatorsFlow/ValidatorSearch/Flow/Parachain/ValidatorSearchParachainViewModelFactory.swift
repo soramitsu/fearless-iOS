@@ -38,13 +38,12 @@ final class ValidatorSearchParachainViewModelFactory {
                 from: (validator.subqueryData?.apr ?? 0.0) as NSNumber
             )
 
-            // TODO: Real oversubscribed and hasSlashes value
             return ValidatorSearchCellViewModel(
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
                 details: detailsText,
-                shouldShowWarning: false,
+                shouldShowWarning: validator.oversubscribed,
                 shouldShowError: false,
                 isSelected: selectedValidatorList.contains(validator)
             )

@@ -9,19 +9,21 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
     let wallet: MetaAccountModel
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    var confirmationModel: SelectValidatorsConfirmParachainModel?
-
+    private(set) var confirmationModel: SelectValidatorsConfirmParachainModel?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var networkStakingInfo: NetworkStakingInfo?
-    var amount: Decimal?
-
+    private(set) var amount: Decimal?
     private(set) var candidateDelegationCount: UInt32?
     private(set) var delegationCount: UInt32?
 
-    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
-        self.stateListener = stateListener
+    var walletAccountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    }
+
+    var collatorAddress: String? {
+        target.address
     }
 
     init(
@@ -40,12 +42,8 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         self.dataValidatingFactory = dataValidatingFactory
     }
 
-    var walletAccountAddress: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
-    }
-
-    var collatorAddress: String? {
-        target.address
+    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validators(using locale: Locale) -> [DataValidating] {

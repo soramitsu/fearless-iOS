@@ -3,6 +3,51 @@ import BigInt
 
 final class StakingRedeemRelaychainViewModelState: StakingRedeemViewModelState {
     private lazy var callFactory = SubstrateCallFactory()
+    var stateListener: StakingRedeemModelStateListener?
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+    let dataValidatingFactory: StakingDataValidatingFactory
+    private(set) var stakingLedger: StakingLedger?
+    private(set) var activeEra: UInt32?
+    private(set) var balance: Decimal?
+    private(set) var minimalBalance: BigUInt?
+    private(set) var fee: Decimal?
+    private(set) var controller: ChainAccountResponse?
+    private(set) var stashItem: StashItem?
+    private(set) var numberOfSlashingSpans: Int?
+
+    var builderClosure: ExtrinsicBuilderClosure? {
+        guard let numberOfSlashingSpans = numberOfSlashingSpans else {
+            return nil
+        }
+
+        let withdrawUnbonded = callFactory.withdrawUnbonded(for: UInt32(numberOfSlashingSpans))
+        return { builder in
+            try builder.adding(call: withdrawUnbonded)
+        }
+    }
+
+    var reuseIdentifier: String? {
+        (numberOfSlashingSpans ?? 0).description
+    }
+
+    var address: String? {
+        stashItem?.controller
+    }
+
+    init(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) {
+        self.chainAsset = chainAsset
+        self.wallet = wallet
+        self.dataValidatingFactory = dataValidatingFactory
+    }
+
+    func setStateListener(_ stateListener: StakingRedeemModelStateListener?) {
+        self.stateListener = stateListener
+    }
 
     func validators(using locale: Locale) -> [DataValidating] {
         [
@@ -25,54 +70,6 @@ final class StakingRedeemRelaychainViewModelState: StakingRedeemViewModelState {
             )
         ]
     }
-
-    var builderClosure: ExtrinsicBuilderClosure? {
-        guard let numberOfSlashingSpans = numberOfSlashingSpans else {
-            return nil
-        }
-
-        let withdrawUnbonded = callFactory.withdrawUnbonded(for: UInt32(numberOfSlashingSpans))
-        return { builder in
-            try builder.adding(call: withdrawUnbonded)
-        }
-    }
-
-    var reuseIdentifier: String? {
-        (numberOfSlashingSpans ?? 0).description
-    }
-
-    var address: String? {
-        stashItem?.controller
-    }
-
-    var stateListener: StakingRedeemModelStateListener?
-
-    func setStateListener(_ stateListener: StakingRedeemModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-
-    init(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
-    ) {
-        self.chainAsset = chainAsset
-        self.wallet = wallet
-        self.dataValidatingFactory = dataValidatingFactory
-    }
-
-    private(set) var stakingLedger: StakingLedger?
-    private(set) var activeEra: UInt32?
-    private(set) var balance: Decimal?
-    private(set) var minimalBalance: BigUInt?
-    private(set) var fee: Decimal?
-    private(set) var controller: ChainAccountResponse?
-    private(set) var stashItem: StashItem?
-    private(set) var numberOfSlashingSpans: Int?
 }
 
 extension StakingRedeemRelaychainViewModelState: StakingRedeemRelaychainStrategyOutput {

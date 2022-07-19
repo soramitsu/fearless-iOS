@@ -2,56 +2,20 @@ import Foundation
 import BigInt
 
 final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreConfirmationViewModelState {
-    var accountAddress: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
-    }
-
     var stateListener: StakingBondMoreConfirmationModelStateListener?
-
-    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    private let chainAsset: ChainAsset
-    private var wallet: MetaAccountModel
-    let amount: Decimal
-
     var stashAccount: ChainAccountResponse?
     var balance: Decimal?
-    private var priceData: PriceData?
     var fee: Decimal?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let candidate: AccountId
-
+    let amount: Decimal
+    private var priceData: PriceData?
+    private let chainAsset: ChainAsset
+    private var wallet: MetaAccountModel
     private lazy var callFactory = SubstrateCallFactory()
 
-    init(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        amount: Decimal,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: AccountId
-    ) {
-        self.chainAsset = chainAsset
-        self.wallet = wallet
-        self.amount = amount
-        self.dataValidatingFactory = dataValidatingFactory
-        self.candidate = candidate
-    }
-
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.stateListener?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: amount,
-                locale: locale
-            )
-        ]
+    var accountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
     private var isCollator: Bool {
@@ -101,6 +65,39 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         }
 
         return identifier
+    }
+
+    init(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        amount: Decimal,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        candidate: AccountId
+    ) {
+        self.chainAsset = chainAsset
+        self.wallet = wallet
+        self.amount = amount
+        self.dataValidatingFactory = dataValidatingFactory
+        self.candidate = candidate
+    }
+
+    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.stateListener?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            )
+        ]
     }
 }
 

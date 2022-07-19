@@ -2,6 +2,10 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
+enum SubqueryRewardOperationFactoryError: Error {
+    case urlMissing
+}
+
 protocol SubqueryRewardOperationFactoryProtocol {
     func createHistoryOperation(
         address: String,
@@ -105,11 +109,11 @@ final class SubqueryRewardOperationFactory {
 
 extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol {
     func createLastRoundOperation() -> BaseOperation<String> {
-        guard let url = url else {
-            return ClosureOperation { "" }
-        }
-
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
+            guard let url = self?.url else {
+                throw SubqueryRewardOperationFactoryError.urlMissing
+            }
+
             guard let strongSelf = self else {
                 throw CommonError.internal
             }
@@ -157,11 +161,11 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
         for idsClosure: @escaping () throws -> [AccountId],
         dependingOn roundIdOperation: BaseOperation<String>
     ) -> BaseOperation<SubqueryCollatorDataResponse> {
-        guard let url = url else {
-            return ClosureOperation { SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: [])) }
-        }
-
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
+            guard let url = self?.url else {
+                throw SubqueryRewardOperationFactoryError.urlMissing
+            }
+
             guard let strongSelf = self else {
                 throw CommonError.internal
             }
@@ -221,17 +225,17 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<SubqueryRewardOrSlashData> {
-        guard let url = url else {
-            return ClosureOperation { SubqueryRewardOrSlashData(historyElements: SubqueryRewardOrSlashData.HistoryElements(nodes: [])) }
-        }
-
         let queryString = prepareQueryForAddress(
             address,
             startTimestamp: startTimestamp,
             endTimestamp: endTimestamp
         )
 
-        let requestFactory = BlockNetworkRequestFactory {
+        let requestFactory = BlockNetworkRequestFactory { [weak self] in
+            guard let url = self?.url else {
+                throw SubqueryRewardOperationFactoryError.urlMissing
+            }
+
             var request = URLRequest(url: url)
 
             let info = JSON.dictionaryValue(["query": JSON.stringValue(queryString)])

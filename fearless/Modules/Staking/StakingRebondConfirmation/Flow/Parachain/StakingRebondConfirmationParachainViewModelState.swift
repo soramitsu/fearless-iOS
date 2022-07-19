@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 
 final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfirmationViewModelState {
+    var stateListener: StakingRebondConfirmationModelStateListener?
     let delegation: ParachainStakingDelegationInfo
     let request: ParachainStakingScheduledRequest
     let wallet: MetaAccountModel
@@ -9,6 +10,9 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let callFactory = SubstrateCallFactory()
     let logger: LoggerProtocol?
+
+    private(set) var balance: Decimal?
+    private(set) var fee: Decimal?
 
     var inputAmount: Decimal {
         var amount: Decimal = 0
@@ -20,27 +24,6 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
         }
         return amount
     }
-
-    private(set) var balance: Decimal?
-    private(set) var fee: Decimal?
-
-    init(
-        delegation: ParachainStakingDelegationInfo,
-        request: ParachainStakingScheduledRequest,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol?
-    ) {
-        self.delegation = delegation
-        self.request = request
-        self.wallet = wallet
-        self.chainAsset = chainAsset
-        self.dataValidatingFactory = dataValidatingFactory
-        self.logger = logger
-    }
-
-    var stateListener: StakingRebondConfirmationModelStateListener?
 
     var builderClosure: ExtrinsicBuilderClosure? {
         let closure: ExtrinsicBuilderClosure = { [weak self] builder in
@@ -81,14 +64,6 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
-    func setStateListener(_ stateListener: StakingRebondConfirmationModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    func dataValidators(locale _: Locale) -> [DataValidating] {
-        []
-    }
-
     private var isRevoke: Bool {
         switch request.action {
         case .revoke:
@@ -100,6 +75,30 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
 
     private var isCollator: Bool {
         delegation.collator.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    }
+
+    init(
+        delegation: ParachainStakingDelegationInfo,
+        request: ParachainStakingScheduledRequest,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        logger: LoggerProtocol?
+    ) {
+        self.delegation = delegation
+        self.request = request
+        self.wallet = wallet
+        self.chainAsset = chainAsset
+        self.dataValidatingFactory = dataValidatingFactory
+        self.logger = logger
+    }
+
+    func setStateListener(_ stateListener: StakingRebondConfirmationModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func dataValidators(locale _: Locale) -> [DataValidating] {
+        []
     }
 }
 

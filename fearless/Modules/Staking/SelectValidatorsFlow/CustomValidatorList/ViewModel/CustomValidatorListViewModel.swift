@@ -22,7 +22,7 @@ struct CustomValidatorListViewModel {
     var clearButtonEnabled: Bool
     var clearButtonVisible: Bool
     var deselectButtonEnabled: Bool
-    var deselectedButtonVisible: Bool
+    var deselectButtonVisible: Bool
     var identityButtonVisible: Bool
     var identityButtonSelected: Bool
     var minBondButtonVisible: Bool
