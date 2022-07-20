@@ -2,47 +2,54 @@ import Foundation
 import RobinHood
 
 // swiftlint:disable file_length
-typealias WalletBalanceResult = Result<[String: WalletBalance], Error>
-typealias WalletBalanceResultCompletion = (WalletBalanceResult) -> Void
+typealias WalletBalancesResult = Result<[MetaAccountId: WalletBalance], Error>
 
-protocol WalletBalanceFetcherProtocol {
+protocol WalletBalanceFetcherHandler: AnyObject {
+    func handle(result: WalletBalancesResult)
+}
+
+protocol WalletBalanceSubscriptionAdapterProtocol {
     /// Collects and counts all the information for `WalletBalance`
     /// - Parameters:
     ///   - walletId: Balance for specific wallet Id. If nil calculating for all meta accounts
     ///   - completion: Called when WalletBalance will calculated
     ///   - queue: The queue to which the result will be delivered
-    func fetchBalanceFor(
+    func subsctibeWalletBalance(
         walletId: String?,
         deliverOn queue: DispatchQueue?,
-        completion: @escaping WalletBalanceResultCompletion
+        handler: WalletBalanceFetcherHandler
     )
 }
 
 enum WalletBalanceError: Error {
-    case noData
+    case accountMissing
+    case chainsMissing
     case `internal`
 }
 
-final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorageSubscriber {
+final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol, PriceLocalStorageSubscriber {
     // MARK: - PriceLocalStorageSubscriber
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
 
     // MARK: - Private properties
 
-    private lazy var walletBalanceBuilder = WalletBalanceBuilder()
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
+    private lazy var walletBalanceBuilder = {
+        WalletBalanceBuilder()
+    }()
 
     private let metaAccountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
+    private let eventCenter: EventCenterProtocol
     private let logger: Logger
 
-    private var completion: WalletBalanceResultCompletion?
     private var deliverQueue: DispatchQueue?
+    private weak var delegate: WalletBalanceFetcherHandler?
 
     private lazy var accountInfosAdapters: [String: AccountInfoSubscriptionAdapter] = [:]
-    private lazy var accountInfos: [ChainAssetKey: AccountInfo] = [:]
+    private lazy var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private lazy var chainAssets: [ChainAsset] = []
     private lazy var metaAccounts: [MetaAccountModel] = []
     private lazy var prices: [PriceData] = []
@@ -54,24 +61,27 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         chainRepository: AnyDataProviderRepository<ChainModel>,
         operationQueue: OperationQueue,
+        eventCenter: EventCenterProtocol,
         logger: Logger
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.metaAccountRepository = metaAccountRepository
         self.chainRepository = chainRepository
         self.operationQueue = operationQueue
+        self.eventCenter = eventCenter
         self.logger = logger
+        eventCenter.add(observer: self, dispatchIn: .global())
     }
 
     // MARK: - Public methods
 
-    func fetchBalanceFor(
+    func subsctibeWalletBalance(
         walletId: String?,
         deliverOn queue: DispatchQueue?,
-        completion: @escaping WalletBalanceResultCompletion
+        handler: WalletBalanceFetcherHandler
     ) {
-        self.completion = completion
         deliverQueue = queue
+        delegate = handler
 
         if let identifier = walletId {
             fetchMetaAccount(by: identifier)
@@ -92,11 +102,15 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
 
         let builderBlock = BlockOperation {
             let walletBalances = self.walletBalanceBuilder.buildBalance(
-                accountInfos: self.accountInfos,
-                metaAccounts: self.metaAccounts,
-                chainAssets: self.chainAssets,
-                prices: self.prices
+                for: self.accountInfos,
+                self.metaAccounts,
+                self.chainAssets,
+                self.prices
             )
+
+            guard let walletBalances = walletBalances else {
+                return
+            }
 
             self.deliverOnCompletion(.success(walletBalances))
         }
@@ -113,9 +127,9 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
         subscribeToPrices(for: chains)
     }
 
-    private func fetchMetaAccount(by identifire: String) {
+    private func fetchMetaAccount(by identifier: String) {
         let metaAccountOperation = metaAccountRepository.fetchOperation(
-            by: identifire,
+            by: identifier,
             options: RepositoryFetchOptions()
         )
         let chainsOperation = fetchChainsOperation()
@@ -123,18 +137,19 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
         metaAccountOperation.addDependency(chainsOperation)
 
         metaAccountOperation.completionBlock = { [weak self] in
-            guard
-                let metaAccountResult = metaAccountOperation.result,
-                let chainsResult = chainsOperation.result
-            else {
-                self?.deliverOnCompletion(.failure(WalletBalanceError.noData))
+            guard let metaAccountResult = metaAccountOperation.result else {
+                self?.deliverOnCompletion(.failure(WalletBalanceError.accountMissing))
+                return
+            }
+            guard let chainsResult = chainsOperation.result else {
+                self?.deliverOnCompletion(.failure(WalletBalanceError.chainsMissing))
                 return
             }
 
             switch (metaAccountResult, chainsResult) {
             case let (.success(wallet), .success(chains)):
                 guard let wallet = wallet else {
-                    self?.deliverOnCompletion(.failure(WalletBalanceError.noData))
+                    self?.deliverOnCompletion(.failure(WalletBalanceError.accountMissing))
                     return
                 }
                 self?.handle([wallet], chains)
@@ -155,11 +170,12 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
         metaAccountsOperation.addDependency(chainsOperation)
 
         metaAccountsOperation.completionBlock = { [weak self] in
-            guard
-                let metaAccountsResult = metaAccountsOperation.result,
-                let chainsResult = chainsOperation.result
-            else {
-                self?.deliverOnCompletion(.failure(WalletBalanceError.noData))
+            guard let metaAccountsResult = metaAccountsOperation.result else {
+                self?.deliverOnCompletion(.failure(WalletBalanceError.accountMissing))
+                return
+            }
+            guard let chainsResult = chainsOperation.result else {
+                self?.deliverOnCompletion(.failure(WalletBalanceError.chainsMissing))
                 return
             }
 
@@ -200,22 +216,46 @@ final class WalletBalanceFetcher: WalletBalanceFetcherProtocol, PriceLocalStorag
         chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
     }
 
-    private func deliverOnCompletion(_ result: WalletBalanceResult) {
+    private func deliverOnCompletion(_ result: WalletBalancesResult) {
         dispatchInQueueWhenPossible(deliverQueue) { [weak self] in
-            self?.completion?(result)
+            self?.delegate?.handle(result: result)
         }
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
+            metaAccounts[index] = event.account
+        }
+        buildBalance()
+    }
+
+    func processChainsUpdated(event: ChainsUpdatedEvent) {
+        let updatedChainAssets = event.updatedChains.map(\.chainAssets).reduce([], +)
+        for (index, chainAsset) in chainAssets.enumerated() {
+            updatedChainAssets.forEach { updatedChainAsset in
+                if chainAsset.chainAssetId == updatedChainAsset.chainAssetId {
+                    chainAssets[index] = updatedChainAsset
+                }
+            }
+        }
+        buildBalance()
+    }
+
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        buildBalance()
     }
 }
 
 // MARK: - AccountInfoSubscriptionAdapterHandler
 
-extension WalletBalanceFetcher: AccountInfoSubscriptionAdapterHandler {
+extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            guard let accountInfo = accountInfo else {
-                return
-            }
             accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             buildBalance()
         case let .failure(error):
@@ -231,7 +271,7 @@ extension WalletBalanceFetcher: AccountInfoSubscriptionAdapterHandler {
 
 // MARK: - PriceLocalSubscriptionHandler
 
-extension WalletBalanceFetcher: PriceLocalSubscriptionHandler {
+extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
@@ -248,47 +288,54 @@ extension WalletBalanceFetcher: PriceLocalSubscriptionHandler {
 
 private protocol WalletBalanceBuilderProtocol {
     func buildBalance(
-        accountInfos: [ChainAssetKey: AccountInfo],
-        metaAccounts: [MetaAccountModel],
-        chainAssets: [ChainAsset],
-        prices: [PriceData]
-    ) -> [String: WalletBalance]
+        for accountInfos: [ChainAssetKey: AccountInfo?],
+        _ metaAccounts: [MetaAccountModel],
+        _ chainAssets: [ChainAsset],
+        _ prices: [PriceData]
+    ) -> [MetaAccountId: WalletBalance]?
 }
 
 // MARK: - WalletBalanceBuilder
 
 private final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
     func buildBalance(
-        accountInfos: [ChainAssetKey: AccountInfo],
-        metaAccounts: [MetaAccountModel],
-        chainAssets: [ChainAsset],
-        prices: [PriceData]
-    ) -> [String: WalletBalance] {
+        for accountInfos: [ChainAssetKey: AccountInfo?],
+        _ metaAccounts: [MetaAccountModel],
+        _ chainAssets: [ChainAsset],
+        _ prices: [PriceData]
+    ) -> [MetaAccountId: WalletBalance]? {
         let walletBalanceMap = metaAccounts.reduce(
-            [String: WalletBalance]()
-        ) { (dict, account) -> [String: WalletBalance] in
+            [MetaAccountId: WalletBalance]()
+        ) { (dict, account) -> [MetaAccountId: WalletBalance]? in
 
-            let splitedChainAssets = split(chainAssets: chainAssets, for: account)
+            let splitedChainAssets = split(chainAssets, for: account)
             let enabledChainAssets = splitedChainAssets.enabled
             let disabledChainAssets = splitedChainAssets.disabled
 
-            let enabledAssetFiatBalance = countBalance(
+            let enabledAssetFiatBalanceInfo = countBalance(
                 for: enabledChainAssets,
                 account,
                 accountInfos,
                 prices
             )
 
-            let disabledAssetFiatBalance = countBalance(
+            let disabledAssetFiatBalanceInfo = countBalance(
                 for: disabledChainAssets,
                 account,
                 accountInfos,
                 prices
             )
 
+            let enabledAssetFiatBalance = enabledAssetFiatBalanceInfo.totalBalance
+            let disabledAssetFiatBalance = disabledAssetFiatBalanceInfo.totalBalance
             let totalFiatValue = enabledAssetFiatBalance + disabledAssetFiatBalance
             let dayChangePercent = countDayChangePercent(for: prices)
             let dayChangeValue = totalFiatValue * dayChangePercent / 100
+            let isLoaded = enabledAssetFiatBalanceInfo.isLoaded && disabledAssetFiatBalanceInfo.isLoaded
+
+            guard isLoaded else {
+                return nil
+            }
 
             let walletBalance = WalletBalance(
                 totalFiatValue: totalFiatValue,
@@ -299,7 +346,7 @@ private final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             )
 
             var dict = dict
-            dict[account.metaId] = walletBalance
+            dict?[account.metaId] = walletBalance
             return dict
         }
 
@@ -320,28 +367,46 @@ private final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
     private func countBalance(
         for chainAssets: [ChainAsset],
         _ metaAccount: MetaAccountModel,
-        _ accountInfos: [ChainAssetKey: AccountInfo],
+        _ accountInfos: [ChainAssetKey: AccountInfo?],
         _ prices: [PriceData]
-    ) -> Decimal {
+    ) -> CountBalanceInfo {
+        var accountInfosCount = 0
+
         let balance = chainAssets.map { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
             guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
                 return .zero
             }
-            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)]
+            let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+            let accountInfo = accountInfos[chainAssetKey] ?? nil
 
-            return getBalance(
+            let balance = getFiatBalance(
                 for: chainAsset,
-                accountInfo: accountInfo,
-                prices: prices
+                accountInfo,
+                prices
             )
+
+            if accountInfos.keys.contains(chainAssetKey) {
+                accountInfosCount += 1
+            }
+
+            return balance
         }.reduce(Decimal.zero, +)
 
-        return balance
+        let isLoaded = accountInfosCount == chainAssets.count
+        return CountBalanceInfo(
+            totalBalance: balance,
+            isLoaded: isLoaded
+        )
+    }
+
+    private struct CountBalanceInfo {
+        let totalBalance: Decimal
+        let isLoaded: Bool
     }
 
     private func split(
-        chainAssets: [ChainAsset],
+        _ chainAssets: [ChainAsset],
         for metaAccount: MetaAccountModel
     ) -> (enabled: [ChainAsset], disabled: [ChainAsset]) {
         var enabledChainAssets: [ChainAsset] = []
@@ -366,14 +431,14 @@ private final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         return (enabled: enabledChainAssets, disabled: disabledChainAssets)
     }
 
-    private func getBalance(
+    private func getFiatBalance(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?,
-        prices: [PriceData]
+        _ accountInfo: AccountInfo?,
+        _ prices: [PriceData]
     ) -> Decimal {
         let balanceDecimal = getBalance(
             for: chainAsset,
-            accountInfo: accountInfo
+            accountInfo
         )
 
         guard let priceId = chainAsset.asset.priceId,
@@ -388,7 +453,7 @@ private final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
 
     private func getBalance(
         for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?
+        _ accountInfo: AccountInfo?
     ) -> Decimal {
         guard
             let accountInfo = accountInfo,
