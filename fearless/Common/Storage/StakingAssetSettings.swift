@@ -5,14 +5,17 @@ import RobinHood
 final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     let settings: SettingsManagerProtocol
     let operationQueue: OperationQueue
+    let wallet: MetaAccountModel
 
     init(
         storageFacade: StorageFacadeProtocol,
         settings: SettingsManagerProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        wallet: MetaAccountModel
     ) {
         self.settings = settings
         self.operationQueue = operationQueue
+        self.wallet = wallet
 
         super.init(storageFacade: storageFacade)
     }
@@ -35,23 +38,24 @@ final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
 
         let fetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
-        let mappingOperation = ClosureOperation<ChainAsset?> {
+        let mappingOperation = ClosureOperation<ChainAsset?> { [weak self] in
             let chains = try fetchOperation.extractNoCancellableResultData()
 
             if
                 let selectedChain = chains.first(where: { $0.chainId == maybeChainAssetId?.chainId }),
-                let selectedAsset = selectedChain.assets.first(where: { $0.assetId == maybeChainAssetId?.assetId }) {
+                let selectedAsset = selectedChain.assets.first(where: { $0.assetId == maybeChainAssetId?.assetId }),
+                self?.wallet.fetch(for: selectedChain.accountRequest()) != nil {
                 return ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
             }
 
             let maybeChain = chains.first { chain in
-                chain.assets.contains { $0.staking != nil }
+                chain.assets.contains { $0.staking != nil } && self?.wallet.fetch(for: chain.accountRequest()) != nil
             }
 
             let maybeAsset = maybeChain?.assets.first { $0.staking != nil }
 
             if let chain = maybeChain, let asset = maybeAsset {
-                self.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
+                self?.settings.stakingAsset = ChainAssetId(chainId: chain.chainId, assetId: asset.assetId)
                 return ChainAsset(chain: chain, asset: asset.asset)
             }
 

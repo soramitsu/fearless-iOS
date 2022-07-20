@@ -19,7 +19,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(
             asset: asset,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let wireframe = StakingPayoutConfirmationWireframe()
@@ -100,7 +101,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,

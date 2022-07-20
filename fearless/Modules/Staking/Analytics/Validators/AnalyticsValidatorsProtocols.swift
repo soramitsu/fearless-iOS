@@ -30,10 +30,9 @@ protocol AnalyticsValidatorsInteractorOutputProtocol: AnyObject {
 
 protocol AnalyticsValidatorsWireframeProtocol: AnyObject {
     func showValidatorInfo(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        address: AccountAddress,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         view: ControllerBackedProtocol?
     )
 }

@@ -472,12 +472,7 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView(
-            frame: CGRect(
-                x: 0.0, y: 0.0,
-                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
-            )
-        )
+        NetworkFeeConfirmView()
     }
 
     func createTitleValueView() -> TitleValueView {

@@ -8,7 +8,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
@@ -29,7 +29,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -109,7 +109,7 @@ extension StakingRebondSetupInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension StakingRebondSetupInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRebondSetupInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()

@@ -15,14 +15,16 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
     let chain: ChainModel
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
         asset: AssetModel,
-        chain: ChainModel
+        chain: ChainModel,
+        iconGenerator: IconGenerating
     ) {
         self.asset = asset
         self.chain = chain
+        self.iconGenerator = iconGenerator
     }
 
     func createViewModel(
@@ -37,7 +39,7 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
 
         let address = account.fetch(for: chain.accountRequest())?.toAddress() ?? ""
 
-        let icon = try iconGenerator.generateFromAddress(address)
+        let icon = try? iconGenerator.generateFromAddress(address)
 
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,

@@ -2,16 +2,18 @@ import UIKit.UIImage
 
 enum StakingManageOption {
     case stakingBalance
+    case parachainStakingBalance(info: ParachainStakingDelegationInfo)
     case pendingRewards
     case rewardDestination
     case setupValidators
     case changeValidators(count: Int?)
     case controllerAccount
     case yourValidator
+    case yourCollator(info: ParachainStakingDelegationInfo)
 
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
-        case .stakingBalance:
+        case .stakingBalance, .parachainStakingBalance:
             return R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages)
         case .pendingRewards:
             return R.string.localizable.stakingPendingRewards(preferredLanguages: locale.rLanguages)
@@ -23,6 +25,8 @@ enum StakingManageOption {
             return R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
         case .yourValidator:
             return R.string.localizable.stakingYourValidatorTitle(preferredLanguages: locale.rLanguages)
+        case .yourCollator:
+            return R.string.localizable.stakingYourCollatorTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -41,13 +45,13 @@ enum StakingManageOption {
 
     var icon: UIImage? {
         switch self {
-        case .stakingBalance:
+        case .stakingBalance, .parachainStakingBalance:
             return R.image.iconStakingBalance()
         case .pendingRewards:
             return R.image.iconPendingRewards()
         case .rewardDestination:
             return R.image.iconWallet()
-        case .changeValidators, .setupValidators, .yourValidator:
+        case .changeValidators, .setupValidators, .yourValidator, .yourCollator:
             return R.image.iconValidators()
         case .controllerAccount:
             return R.image.iconAccount()

@@ -51,6 +51,44 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CrowdloanAddMemo>
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall>
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall>
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
+
+    func scheduleRevokeDelegation(
+        candidate: AccountId
+    ) -> RuntimeCall<ScheduleRevokeDelegationCall>
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall>
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs>
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall>
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs>
+
+    func candidateBondMore(
+        amount: BigUInt
+    ) -> RuntimeCall<CandidateBondMoreCall>
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -185,6 +223,114 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall> {
         let args = AddRemarkCall(remark: data)
         return RuntimeCall(moduleName: "System", callName: "remark", args: args)
+    }
+
+    func delegate(
+        candidate: AccountId,
+        amount: BigUInt,
+        candidateDelegationCount: UInt32,
+        delegationCount: UInt32
+    ) -> RuntimeCall<DelegateCall> {
+        let args = DelegateCall(
+            candidate: candidate,
+            amount: amount,
+            candidateDelegationCount: candidateDelegationCount,
+            delegationCount: delegationCount
+        )
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "Delegate",
+            args: args
+        )
+    }
+
+    func delegatorBondMore(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<DelegatorBondMoreCall> {
+        let args = DelegatorBondMoreCall(candidate: candidate, more: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "delegator_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleDelegatorBondLess(
+        candidate: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
+        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_delegator_bond_less",
+            args: args
+        )
+    }
+
+    func scheduleRevokeDelegation(candidate: AccountId) -> RuntimeCall<ScheduleRevokeDelegationCall> {
+        let args = ScheduleRevokeDelegationCall(collator: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_revoke_delegation",
+            args: args
+        )
+    }
+
+    func executeDelegationRequest(
+        delegator: AccountId,
+        collator: AccountId
+    ) -> RuntimeCall<ExecuteDelegationRequestCall> {
+        let args = ExecuteDelegationRequestCall(delegator: delegator, candidate: collator)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "execute_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_candidate_bond_less"
+        )
+    }
+
+    func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall> {
+        let args = CancelDelegationRequestCall(candidate: candidate)
+
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_delegation_request",
+            args: args
+        )
+    }
+
+    func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(moduleName: "ParachainStaking", callName: "cancel_leave_delegators")
+    }
+
+    func candidateBondMore(amount: BigUInt) -> RuntimeCall<CandidateBondMoreCall> {
+        let args = CandidateBondMoreCall(more: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "candidate_bond_more",
+            args: args
+        )
+    }
+
+    func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall> {
+        let args = ScheduleCandidateBondLessCall(less: amount)
+        return RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "schedule_candidate_bond_less",
+            args: args
+        )
     }
 
     // MARK: - Private methods

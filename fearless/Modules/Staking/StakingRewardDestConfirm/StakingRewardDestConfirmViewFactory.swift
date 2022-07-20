@@ -32,7 +32,7 @@ struct StakingRewardDestConfirmViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             rewardDestination: rewardDestination,
-            confirmModelFactory: StakingRewardDestConfirmVMFactory(),
+            confirmModelFactory: StakingRewardDestConfirmVMFactory(iconGenerator: UniversalIconGenerator(chain: chain)),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
@@ -89,7 +89,7 @@ struct StakingRewardDestConfirmViewFactory {
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,

@@ -8,11 +8,14 @@ protocol YourValidatorListViewModelFactoryProtocol {
 
 final class YourValidatorListViewModelFactory {
     let balanceViewModeFactory: BalanceViewModelFactoryProtocol
+    private var iconGenerator: IconGenerating
 
-    private lazy var iconGenerator = PolkadotIconGenerator()
-
-    init(balanceViewModeFactory: BalanceViewModelFactoryProtocol) {
+    init(
+        balanceViewModeFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
+    ) {
         self.balanceViewModeFactory = balanceViewModeFactory
+        self.iconGenerator = iconGenerator
     }
 
     private func createValidatorViewModel(

@@ -2,8 +2,8 @@ import Foundation
 
 enum NominationViewStatus {
     case undefined
-    case active(era: UInt32)
-    case inactive(era: UInt32)
+    case active(era: EraIndex)
+    case inactive(era: EraIndex)
     case waiting(eraCountdown: EraCountdown?, nominationEra: EraIndex)
 }
 

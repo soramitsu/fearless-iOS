@@ -16,7 +16,7 @@ extension EraValidatorService {
         }
 
         let keyedPrefs = prefs.reduce(into: [Data: ValidatorPrefs]()) { result, item in
-            let accountId = item.key.getAccountIdFromKey()
+            let accountId = item.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
             result[accountId] = item.value
         }
 
@@ -114,6 +114,7 @@ extension EraValidatorService {
         exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>,
         activeEra: UInt32
     ) -> BaseOperation<Void> {
+        let accountIdLenght = chain.accountIdLenght
         do {
             let baseLocalKey = try createLocalExposurePrefixKey(for: chainId, activeEra: nil)
             let activeEraSuffix = try activeEra.scaleEncoded().toHex()
@@ -127,7 +128,7 @@ extension EraValidatorService {
                 return result.compactMap { item in
                     if let data = item.data {
                         let localId = baseLocalKey + activeEraSuffix +
-                            item.key.getAccountIdFromKey().toHex()
+                            item.key.getAccountIdFromKey(accountIdLenght: accountIdLenght).toHex()
                         return ChainStorageItem(identifier: localId, data: data)
                     } else {
                         return nil
@@ -149,7 +150,7 @@ extension EraValidatorService {
                 return nil
             }
 
-            let accountId = item.key.getAccountIdFromKey()
+            let accountId = item.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
             return (accountId, value)
         }
 
@@ -165,6 +166,8 @@ extension EraValidatorService {
         prefixKey: Data,
         codingFactory: RuntimeCoderFactoryProtocol
     ) {
+        let accountIdLenght = chain.accountIdLenght
+
         guard activeEra == self.activeEra else {
             logger?.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
             return
@@ -183,7 +186,7 @@ extension EraValidatorService {
 
         let identifiersClosure: () throws -> [Data] = {
             let keys = try keysClosure()
-            return keys.map { $0.getAccountIdFromKey() }
+            return keys.map { $0.getAccountIdFromKey(accountIdLenght: accountIdLenght) }
         }
 
         let prefsWrapper = createPrefsWrapper(
@@ -233,13 +236,14 @@ extension EraValidatorService {
         _ encodedItems: [ChainStorageItem],
         codingFactory: RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<[IdentifiableExposure]> {
+        let accountIdLenght = chain.accountIdLenght
         let decodingOperation = StorageDecodingListOperation<ValidatorExposure>(path: .erasStakers)
         decodingOperation.codingFactory = codingFactory
         decodingOperation.dataList = encodedItems.map(\.data)
 
         let mapOperation: BaseOperation<[IdentifiableExposure]> = ClosureOperation {
             let identifiers = try encodedItems.map { item in
-                try Data(hexString: item.identifier).getAccountIdFromKey()
+                try Data(hexString: item.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght)
             }
             let validators = try decodingOperation.extractNoCancellableResultData()
 
@@ -256,6 +260,8 @@ extension EraValidatorService {
         activeEra: UInt32,
         codingFactory: RuntimeCoderFactoryProtocol
     ) {
+        let accountIdLenght = chain.accountIdLenght
+
         guard activeEra == self.activeEra else {
             logger?.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
             return
@@ -263,7 +269,7 @@ extension EraValidatorService {
 
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
 
-        let identifiersClosure = { try validators.map { try Data(hexString: $0.identifier).getAccountIdFromKey() } }
+        let identifiersClosure = { try validators.map { try Data(hexString: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght) } }
 
         let prefs = createPrefsWrapper(
             identifiersClosure: identifiersClosure,

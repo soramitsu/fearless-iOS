@@ -28,7 +28,7 @@ final class EraValidatorService {
     private var eraDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
 
-    let chainId: ChainModel.Id
+    let chain: ChainModel
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let connection: JSONRPCEngine
@@ -37,8 +37,12 @@ final class EraValidatorService {
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol?
 
+    var chainId: ChainModel.Id {
+        chain.chainId
+    }
+
     init(
-        chainId: ChainModel.Id,
+        chain: ChainModel,
         storageFacade: StorageFacadeProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         connection: JSONRPCEngine,
@@ -47,7 +51,7 @@ final class EraValidatorService {
         eventCenter: EventCenterProtocol,
         logger: LoggerProtocol? = nil
     ) {
-        self.chainId = chainId
+        self.chain = chain
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
         self.connection = connection

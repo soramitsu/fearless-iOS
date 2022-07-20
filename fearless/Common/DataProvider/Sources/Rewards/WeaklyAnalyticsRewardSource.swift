@@ -23,7 +23,7 @@ extension WeaklyAnalyticsRewardSource: SingleValueProviderSourceProtocol {
         let now = Date().timeIntervalSince1970
         let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
 
-        let rewardOperation = operationFactory.createOperation(
+        let rewardOperation = operationFactory.createHistoryOperation(
             address: address,
             startTimestamp: Int64(sevenDaysAgo),
             endTimestamp: Int64(now)

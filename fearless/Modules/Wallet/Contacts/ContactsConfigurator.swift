@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 import CommonWallet
 import SoraFoundation
+import FearlessUtils
 
 final class ContactsConfigurator {
     private var localSearchEngine: ContactsLocalSearchEngine
@@ -69,7 +70,7 @@ final class ContactsConfigurator {
     }()
 
     init(networkType: SNAddressType) {
-        let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared)
+        let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: PolkadotIconGenerator())
         localSearchEngine = ContactsLocalSearchEngine(
             addressPrefix: UInt16(networkType.rawValue),
             contactViewModelFactory: viewModelFactory

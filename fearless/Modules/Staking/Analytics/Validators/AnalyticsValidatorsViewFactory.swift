@@ -52,7 +52,7 @@ struct AnalyticsValidatorsViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -98,7 +98,8 @@ struct AnalyticsValidatorsViewFactory {
         let viewModelFactory = AnalyticsValidatorsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
             chain: chain,
-            asset: asset
+            asset: asset,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = AnalyticsValidatorsPresenter(

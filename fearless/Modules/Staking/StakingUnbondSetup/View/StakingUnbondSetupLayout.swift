@@ -5,9 +5,12 @@ final class StakingUnbondSetupLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
+
+    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+    let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
     let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
 
@@ -59,13 +62,26 @@ final class StakingUnbondSetupLayout: UIView {
             make.bottom.leading.trailing.equalToSuperview()
         }
 
+        contentView.stackView.addArrangedSubview(collatorView)
+        contentView.stackView.addArrangedSubview(accountView)
+
+        collatorView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        accountView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)
 
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
@@ -75,7 +91,7 @@ final class StakingUnbondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(durationView)
         durationView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         addSubview(actionButton)
@@ -84,5 +100,8 @@ final class StakingUnbondSetupLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        accountView.isHidden = true
+        collatorView.isHidden = true
     }
 }

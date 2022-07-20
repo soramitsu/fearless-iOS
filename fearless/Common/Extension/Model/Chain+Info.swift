@@ -8,13 +8,17 @@ extension Chain {
         case .kusama: return "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe"
         case .westend: return "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
         case .rococo: return "1ab7fbd1d7c3532386268ec23fe4ff69f5bb6b3e3697947df3a2ec2786424de3"
+        case .moonbeam: return "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d"
+        case .moonriver: return "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b"
+        case .moonbaseAlpha: return "91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527"
         }
     }
 
     var erasPerDay: Int {
         switch self {
         case .polkadot: return 1
-        case .kusama, .westend, .rococo: return 4
+        case .kusama, .westend, .rococo, .moonbeam: return 4
+        case .moonriver, .moonbaseAlpha: return 12
         }
     }
 
@@ -142,6 +146,7 @@ extension Chain {
         case .kusama: return remoteTypeRegistryUrl(for: "kusama.json")
         case .polkadot: return remoteTypeRegistryUrl(for: "polkadot.json")
         case .rococo: return remoteTypeRegistryUrl(for: "rococo.json")
+        default: return nil
         }
     }
 
@@ -155,6 +160,7 @@ extension Chain {
         case .kusama: return base.appendingPathComponent("kusama.json")
         case .polkadot: return base.appendingPathComponent("polkadot.json")
         case .rococo: return base.appendingPathComponent("rococo.json")
+        default: return base
         }
     }
 }

@@ -5,7 +5,8 @@ protocol StakingAccountUpdatingServiceProtocol {
     func setupSubscription(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        chainFormat: ChainFormat
+        chainFormat: ChainFormat,
+        stakingType: StakingType
     ) throws
 
     func clearSubscription()
@@ -41,7 +42,8 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
     func setupSubscription(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        chainFormat: ChainFormat
+        chainFormat: ChainFormat,
+        stakingType: StakingType
     ) throws {
         let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
 
@@ -67,7 +69,8 @@ final class StakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
             provider: stashItemProvider,
             childSubscriptionFactory: childSubscriptionFactory,
             operationQueue: operationQueue,
-            logger: logger
+            logger: logger,
+            stakingType: stakingType
         )
     }
 

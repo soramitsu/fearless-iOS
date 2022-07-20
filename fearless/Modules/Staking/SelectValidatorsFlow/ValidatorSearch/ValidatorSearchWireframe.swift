@@ -1,18 +1,12 @@
 final class ValidatorSearchWireframe: ValidatorSearchWireframeProtocol {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
-        from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
     ) {
         guard
-            let validatorInfoView = ValidatorInfoViewFactory.createView(
-                asset: asset,
-                chain: chain,
-                validatorInfo: validatorInfo,
-                wallet: wallet
-            ) else {
+            let validatorInfoView = ValidatorInfoViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow) else {
             return
         }
 

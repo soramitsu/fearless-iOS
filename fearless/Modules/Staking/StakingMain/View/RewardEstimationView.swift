@@ -6,7 +6,6 @@ import SoraUI
 protocol RewardEstimationViewDelegate: AnyObject {
     func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?)
     func rewardEstimationView(_ view: RewardEstimationView, didSelect percentage: Float)
-    func rewardEstimationDidStartAction(_ view: RewardEstimationView)
     func rewardEstimationDidRequestInfo(_ view: RewardEstimationView)
 }
 
@@ -26,19 +25,9 @@ final class RewardEstimationView: LocalizableView {
 
     @IBOutlet private var infoButton: RoundedButton!
 
-    @IBOutlet private var actionButton: TriangularedButton!
-
     private var skeletonView: SkrullableView?
 
     var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
-
-    var actionTitle: LocalizableResource<String> = LocalizableResource { locale in
-        R.string.localizable.stakingStartTitle(preferredLanguages: locale.rLanguages)
-    } {
-        didSet {
-            applyActionTitle()
-        }
-    }
 
     weak var delegate: RewardEstimationViewDelegate?
 
@@ -162,13 +151,6 @@ final class RewardEstimationView: LocalizableView {
             .walletSendAmountTitle(preferredLanguages: languages)
 
         setupInputAccessoryView()
-        applyActionTitle()
-    }
-
-    private func applyActionTitle() {
-        let title = actionTitle.value(for: locale)
-        actionButton.imageWithTitleView?.title = title
-        actionButton.invalidateLayout()
     }
 
     private func setupInputAccessoryView() {
@@ -295,12 +277,6 @@ final class RewardEstimationView: LocalizableView {
                 size: smallRowSize
             )
         ]
-    }
-
-    @IBAction private func actionTouchUpInside() {
-        amountInputView.textField.resignFirstResponder()
-
-        delegate?.rewardEstimationDidStartAction(self)
     }
 
     @IBAction private func infoTouchUpInside() {

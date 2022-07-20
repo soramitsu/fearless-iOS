@@ -7,6 +7,9 @@ enum Chain: String, Codable, CaseIterable {
     case polkadot = "Polkadot"
     case westend = "Westend"
     case rococo = "Rococo"
+    case moonbeam = "Moonbeam"
+    case moonriver = "Moonriver"
+    case moonbaseAlpha = "Moonbase Alpha"
 
     init?(rawValue: String) {
         switch rawValue {
@@ -14,6 +17,9 @@ enum Chain: String, Codable, CaseIterable {
         case Self.polkadot.rawValue: self = .polkadot
         case Self.westend.rawValue: self = .westend
         case Self.rococo.rawValue: self = .rococo
+        case Self.moonbeam.rawValue: self = .moonbeam
+        case Self.moonriver.rawValue: self = .moonriver
+        case Self.moonbaseAlpha.rawValue: self = .moonbaseAlpha
 
         #if F_DEV
             case "Polkatrain": self = .polkadot
@@ -31,6 +37,9 @@ extension Chain {
         case .kusama: return .kusamaMain
         case .westend: return .genericSubstrate
         case .rococo: return .kusamaSecondary
+        case .moonbeam: return .moonbeam
+        case .moonriver: return .moonriver
+        case .moonbaseAlpha: return .moonbaseAlpha
         }
     }
 }

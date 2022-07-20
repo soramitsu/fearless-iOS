@@ -7,16 +7,14 @@ final class StakingUnbondSetupWireframe: StakingUnbondSetupWireframeProtocol {
 
     func proceed(
         view: StakingUnbondSetupViewProtocol?,
-        amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        flow: StakingUnbondConfirmFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let confirmationView = StakingUnbondConfirmViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            amount: amount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }
