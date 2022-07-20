@@ -6,6 +6,7 @@ import CommonWallet
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
+        static let delegationRowHeight: CGFloat = 175.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
         static let contentInset = UIEdgeInsets(
@@ -651,6 +652,6 @@ extension StakingMainViewController: UITableViewDataSource {
 
 extension StakingMainViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        175
+        Constants.delegationRowHeight
     }
 }
