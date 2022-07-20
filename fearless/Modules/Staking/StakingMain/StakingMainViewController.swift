@@ -326,6 +326,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func setupTableView() {
         tableView.allowsSelection = false
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.rowHeight = UIConstants.cellHeight
         tableView.registerClassForCell(DelegationInfoCell.self)
     }
@@ -635,10 +636,6 @@ extension StakingMainViewController: UITableViewDataSource {
         delegationViewModels?.count ?? 0
     }
 
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        175
-    }
-
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard
             let cell = tableView.dequeueReusableCellWithType(DelegationInfoCell.self),
@@ -649,5 +646,11 @@ extension StakingMainViewController: UITableViewDataSource {
         viewModel.locale = selectedLocale
         cell.bind(to: viewModel)
         return cell
+    }
+}
+
+extension StakingMainViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        175
     }
 }
