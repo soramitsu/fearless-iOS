@@ -90,6 +90,10 @@ extension ChainAsset {
 
         return storagePath
     }
+
+    var debugName: String {
+        "\(chain.name)-\(asset.name)"
+    }
 }
 
 enum ChainAssetType: String, Codable {

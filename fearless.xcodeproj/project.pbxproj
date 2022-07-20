@@ -16,6 +16,8 @@
 		06197BBE4299DC971C42DB92 /* WalletSendConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A687FBDA0912F8727CE0D81 /* WalletSendConfirmPresenter.swift */; };
 		06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */; };
 		0678271BE1BA5BBC084F478A /* RecommendedValidatorListWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 57C624E71FCE0FFF8EAD5BA9 /* RecommendedValidatorListWireframe.swift */; };
+		0716C83C28853ACA004C8CB1 /* WalletBalanceFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C83B28853ACA004C8CB1 /* WalletBalanceFetcher.swift */; };
+		0716C83E288562FB004C8CB1 /* WalletBalance.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C83D288562FB004C8CB1 /* WalletBalance.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
@@ -2169,6 +2171,8 @@
 		04EF69DFE142600FF2708A13 /* ControllerAccountConfirmationViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountConfirmationViewController.swift; sourceTree = "<group>"; };
 		0533F9E531CDFB721D697769 /* YourValidatorListPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = YourValidatorListPresenter.swift; sourceTree = "<group>"; };
 		06B4E294F237E21F1553091D /* ChainAccountBalanceListInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceListInteractor.swift; sourceTree = "<group>"; };
+		0716C83B28853ACA004C8CB1 /* WalletBalanceFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalanceFetcher.swift; sourceTree = "<group>"; };
+		0716C83D288562FB004C8CB1 /* WalletBalance.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBalance.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
@@ -6697,6 +6701,7 @@
 				FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */,
 				FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */,
 				FA37AE1F2858838A001DCA96 /* ParachainStakingScheduledRequest.swift */,
+				0716C83D288562FB004C8CB1 /* WalletBalance.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -10118,6 +10123,7 @@
 				FA38C9A727607213005C5577 /* BaseService.swift */,
 				FA38C9A52760701F005C5577 /* SearchService.swift */,
 				FA8644322767AB2300956D8E /* HistoryService.swift */,
+				0716C83B28853ACA004C8CB1 /* WalletBalanceFetcher.swift */,
 			);
 			path = Services;
 			sourceTree = "<group>";
@@ -12562,6 +12568,7 @@
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				42B79A8D0D9540C1D97D991C /* AccountConfirmWireframe.swift in Sources */,
+				0716C83C28853ACA004C8CB1 /* WalletBalanceFetcher.swift in Sources */,
 				84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */,
 				FA93A2FF2834AF9E0021330F /* ValidatorInfoParachainViewModelState.swift in Sources */,
 				AEA0C8BC2681140700F9666F /* YourValidatorList+CustomList.swift in Sources */,
@@ -13242,6 +13249,7 @@
 				FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */,
 				2ED5B5FFD880BA1905051E89 /* StakingUnbondSetupFlow.swift in Sources */,
 				794029A3A00B085D6CFE3FF1 /* StakingUnbondConfirmFlow.swift in Sources */,
+				0716C83E288562FB004C8CB1 /* WalletBalance.swift in Sources */,
 				2A753CE585E2F0DA4BAD7CF4 /* StakingRedeemFlow.swift in Sources */,
 				C9BF0C6B333E7A3E04CC158F /* StakingRebondConfirmationFlow.swift in Sources */,
 			);
