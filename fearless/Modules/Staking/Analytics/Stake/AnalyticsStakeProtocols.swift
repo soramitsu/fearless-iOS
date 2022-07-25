@@ -21,7 +21,8 @@ protocol AnalyticsStakeWireframeProtocol: AnyObject {
     func showRewardDetails(
         _ rewardModel: AnalyticsRewardDetailsModel,
         from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
     )
 }
 
@@ -30,6 +31,7 @@ protocol AnalyticsStakeViewModelFactoryProtocol {
         from data: [SubqueryStakeChangeData],
         priceData: PriceData?,
         period: AnalyticsPeriod,
-        selectedChartIndex: Int?
+        selectedChartIndex: Int?,
+        hasPendingRewards: Bool
     ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }

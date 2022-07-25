@@ -74,15 +74,15 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
         interactor.reload()
     }
 
-    func handleValidatorInfoAction(validatorAddress _: AccountAddress) {
-        // TODO: Transition with new parameters
-//        wireframe.showValidatorInfo(
-//            chain: chain,
-//            asset: asset,
-//            selectedAccount: selectedAccount,
-//            address: validatorAddress,
-//            view: view
-//        )
+    func handleValidatorInfoAction(validatorAddress: AccountAddress) {
+        // TODO: Parachain case if needed
+
+        wireframe.showValidatorInfo(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: selectedAccount,
+            flow: .relaychain(validatorInfo: nil, address: validatorAddress),
+            view: view
+        )
     }
 
     func handlePageAction(page: AnalyticsValidatorsPage) {

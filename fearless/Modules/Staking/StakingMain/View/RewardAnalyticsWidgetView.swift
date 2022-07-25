@@ -144,7 +144,7 @@ final class RewardAnalyticsWidgetView: UIView {
 
             applyViewModel()
         } else {
-            startLoading()
+//            startLoading()
         }
     }
 

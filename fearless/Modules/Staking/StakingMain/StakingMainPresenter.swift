@@ -438,12 +438,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return nomination != nil ? .includeValidatorsTab : .none
         }()
 
+        let flow: AnalyticsRewardsFlow = chainAsset.stakingType == .paraChain ? .parachain : .relaychain
+
         wireframe.showAnalytics(
             from: view,
             mode: isNominator.union(includeValidators),
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: flow
         )
     }
 
