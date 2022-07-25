@@ -22,11 +22,11 @@ protocol ValidatorListFilterPresenterProtocol: Localizable {
 protocol ValidatorListFilterViewFactoryProtocol {
     static func createView(
         asset: AssetModel,
-        with filter: CustomValidatorListFilter,
+        flow: ValidatorListFilterFlow,
         delegate: ValidatorListFilterDelegate?
     ) -> ValidatorListFilterViewProtocol?
 }
 
 protocol ValidatorListFilterDelegate: AnyObject {
-    func didUpdate(_ filter: CustomValidatorListFilter)
+    func didUpdate(with flow: ValidatorListFilterFlow)
 }

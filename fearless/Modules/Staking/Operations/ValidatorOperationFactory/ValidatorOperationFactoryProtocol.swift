@@ -3,6 +3,7 @@ import RobinHood
 
 protocol ValidatorOperationFactoryProtocol {
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>
+
     func allSelectedOperation(
         by nomination: Nomination,
         nominatorAddress: AccountAddress

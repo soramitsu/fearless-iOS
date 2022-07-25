@@ -13,9 +13,7 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = entity.symbol,
-            let typeRawValue = entity.type,
-            let type = ChainAssetType(rawValue: typeRawValue)
+            let symbol = entity.symbol
         else {
             throw AssetModelMapperError.requiredFieldsMissing
         }
@@ -30,7 +28,6 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             price: entity.price as Decimal?,
             fiatDayChange: entity.fiatDayChange as Decimal?,
             transfersEnabled: entity.transfersEnabled,
-            type: type,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
             existentialDeposit: entity.existentialDeposit
@@ -51,7 +48,6 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.fiatDayChange = model.fiatDayChange as NSDecimalNumber?
         entity.symbol = model.symbol
         entity.transfersEnabled = model.transfersEnabled ?? true
-        entity.type = model.type.rawValue
         entity.currencyId = model.currencyId
         entity.existentialDeposit = model.existentialDeposit
     }

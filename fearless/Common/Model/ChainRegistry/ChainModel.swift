@@ -118,6 +118,8 @@ class ChainModel: Codable {
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
+        case .moonbeam: return 4
+        case .moonriver, .moonbaseAlpha: return 12
         case .polkadot: return 1
         case .kusama, .westend, .rococo: return 4
         default: return 1 // We have staking only for above chains
@@ -126,6 +128,10 @@ class ChainModel: Codable {
 
     var emptyURL: URL {
         URL(string: "")!
+    }
+
+    var accountIdLenght: Int {
+        isEthereumBased ? EthereumConstants.accountIdLength : SubstrateConstants.accountIdLength
     }
 
     var chainAssets: [ChainAsset] {

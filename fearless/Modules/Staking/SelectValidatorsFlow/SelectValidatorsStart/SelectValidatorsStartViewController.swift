@@ -74,32 +74,8 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     private func setupLocalization() {
         let languages = selectedLocale.rLanguages
 
-        title = R.string.localizable.stakingRecommendedTitle(preferredLanguages: languages)
-        rootView.algoSectionLabel.text = R.string.localizable
-            .stakingSelectValidatorsRecommendedTitle(preferredLanguages: languages)
-        rootView.algoDetailsLabel.text = R.string.localizable
-            .stakingSelectValidatorsRecommendedDesc(preferredLanguages: languages)
-        rootView.suggestedValidatorsWarningView.titleLabel.text = R.string.localizable
-            .selectValidatorsDisclaimer(preferredLanguages: selectedLocale.rLanguages)
-
-        rootView.setAlgoSteps(
-            [
-                R.string.localizable.stakingRecommendedHint1(preferredLanguages: languages),
-                R.string.localizable.stakingRecommendedHint2(preferredLanguages: languages),
-                R.string.localizable.stakingRecommendedHint3(preferredLanguages: languages),
-                R.string.localizable.stakingRecommendedHint4(preferredLanguages: languages),
-                R.string.localizable.stakingRecommendedHint5(preferredLanguages: languages)
-            ]
-        )
-
         rootView.recommendedValidatorsCell.rowContentView.titleLabel.text = R.string.localizable
             .stakingSelectValidatorsRecommendedButtonTitle(preferredLanguages: languages)
-
-        rootView.customValidatorsSectionLabel.text = R.string.localizable
-            .stakingSelectValidatorsCustomTitle(preferredLanguages: languages)
-
-        rootView.customValidatorsDetailsLabel.text = R.string.localizable
-            .stakingSelectValidatorsCustomDesc(preferredLanguages: languages)
 
         switch phase {
         case .setup:
@@ -114,25 +90,23 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     }
 
     private func toggleActivityViews() {
-        [
-            rootView.recommendedValidatorsActivityIndicator,
-            rootView.customValidatorsActivityIndicator
-        ].forEach { view in
-            if viewModelIsSet {
-                view.stopAnimating()
-            } else {
-                view.startAnimating()
-            }
-        }
+        let recommendedValidatorListLoaded = (viewModel?.recommendedValidatorListLoaded ?? false)
+        rootView.recommendedValidatorsCell.isEnabled = recommendedValidatorListLoaded
+
+        recommendedValidatorListLoaded
+            ? rootView.recommendedValidatorsActivityIndicator.stopAnimating()
+            : rootView.recommendedValidatorsActivityIndicator.startAnimating()
+
+        rootView.customValidatorsCell.isEnabled = viewModelIsSet
+        viewModelIsSet
+            ? rootView.customValidatorsActivityIndicator.stopAnimating()
+            : rootView.customValidatorsActivityIndicator.startAnimating()
     }
 
     private func toggleNextStepIndicators() {
-        [
-            rootView.recommendedValidatorsCell.rowContentView.arrowIconView,
-            rootView.customValidatorsCell.rowContentView.arrowIconView
-        ].forEach { view in
-            view.isHidden = !viewModelIsSet
-        }
+        let recommendedValidatorListLoaded = (viewModel?.recommendedValidatorListLoaded ?? false)
+        rootView.recommendedValidatorsCell.rowContentView.arrowIconView.isHidden = !recommendedValidatorListLoaded
+        rootView.customValidatorsCell.rowContentView.arrowIconView.isHidden = !viewModelIsSet
     }
 
     func updateLoadingState() {
@@ -146,21 +120,32 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
             return
         }
 
-        if viewModel.selectedCount > 0 {
-            let languages = selectedLocale.rLanguages
-            let text = R.string.localizable
-                .stakingValidatorInfoNominators(
-                    "\(viewModel.selectedCount)",
-                    "\(viewModel.totalCount)",
-                    preferredLanguages: languages
-                )
-            rootView.customValidatorsCell.rowContentView.detailsLabel.text = text
+        if let totalCount = viewModel.totalCount {
+            if viewModel.selectedCount > 0 {
+                let languages = selectedLocale.rLanguages
+                let text = R.string.localizable
+                    .stakingValidatorInfoNominators(
+                        "\(viewModel.selectedCount)",
+                        "\(totalCount)",
+                        preferredLanguages: languages
+                    )
+                rootView.customValidatorsCell.rowContentView.detailsLabel.text = text
+            } else {
+                rootView.customValidatorsCell.rowContentView.detailsLabel.text = ""
+            }
         } else {
-            rootView.customValidatorsCell.rowContentView.detailsLabel.text = ""
+            if viewModel.selectedCount > 0 {
+                rootView.customValidatorsCell.rowContentView.detailsLabel.text = "\(viewModel.selectedCount)"
+            } else {
+                rootView.customValidatorsCell.rowContentView.detailsLabel.text = ""
+            }
         }
     }
 
     @objc private func actionRecommendedValidators() {
+        guard viewModel?.recommendedValidatorListLoaded ?? false else {
+            return
+        }
         presenter.selectRecommendedValidators()
     }
 
@@ -170,11 +155,26 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
 }
 
 extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol {
-    func didReceive(viewModel: SelectValidatorsStartViewModel) {
+    func didReceive(viewModel: SelectValidatorsStartViewModel?) {
         self.viewModel = viewModel
 
-        updateLoadingState()
-        updateSelected()
+        DispatchQueue.main.async {
+            self.updateLoadingState()
+            self.updateSelected()
+        }
+    }
+
+    func didReceive(textsViewModel: SelectValidatorsStartTextsViewModel) {
+        title = textsViewModel.stakingRecommendedTitle
+        rootView.algoSectionLabel.text = textsViewModel.algoSectionLabel
+        rootView.algoDetailsLabel.text = textsViewModel.algoDetailsLabel
+        rootView.suggestedValidatorsWarningView.titleLabel.text = textsViewModel.suggestedValidatorsWarningViewTitle
+        rootView.customValidatorsSectionLabel.text = textsViewModel.customValidatorsSectionLabel
+        rootView.customValidatorsDetailsLabel.text = textsViewModel.customValidatorsDetailsLabel
+
+        rootView.setAlgoSteps(
+            textsViewModel.algoSteps
+        )
     }
 }
 

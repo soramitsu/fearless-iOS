@@ -135,6 +135,34 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
 }
 
 extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
+    func didReceiveAccount(viewModel: AccountViewModel) {
+        rootView.accountView.isHidden = false
+        rootView.accountView.title = viewModel.title
+        rootView.accountView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.accountView.iconRadius
+
+        rootView.accountView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+    }
+
+    func didReceiveCollator(viewModel: AccountViewModel) {
+        rootView.collatorView.isHidden = false
+        rootView.collatorView.title = viewModel.title
+        rootView.collatorView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.collatorView.iconRadius
+
+        rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+    }
+
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel
         applyAssetViewModel()

@@ -116,10 +116,11 @@ extension StakingRebondSetupPresenter: StakingRebondSetupPresenterProtocol {
                 self.wireframe.proceed(
                     view: self.view,
                     amount: amount,
-                    chain: self.chain,
-                    asset: self.asset,
-                    selectedAccount: self.selectedAccount
+                    chainAsset: ChainAsset(chain: self.chain, asset: self.asset),
+                    wallet: self.selectedAccount,
+                    flow: .relaychain(variant: .custom(amount: amount))
                 )
+
             } else {
                 self?.logger?.warning("Missing amount after validation")
             }

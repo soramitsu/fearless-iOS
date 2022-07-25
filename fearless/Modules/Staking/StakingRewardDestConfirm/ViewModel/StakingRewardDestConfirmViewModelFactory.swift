@@ -10,7 +10,11 @@ protocol StakingRewardDestConfirmVMFactoryProtocol {
 }
 
 final class StakingRewardDestConfirmVMFactory: StakingRewardDestConfirmVMFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
+    }
 
     func createViewModel(
         from stashItem: StashItem,

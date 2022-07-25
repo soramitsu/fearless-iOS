@@ -56,7 +56,7 @@ final class StakingUnbondConfirmLayout: UIView {
         }
 
         let iconSize = 2.0 * accountView.iconRadius
-        accountView.iconImage = confirmationViewModel.senderIcon.imageWithFillColor(
+        accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
             R.color.colorWhite()!,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale

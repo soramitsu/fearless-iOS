@@ -17,6 +17,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol?
+    private let stakingType: StakingType
 
     private let mutex = NSLock()
 
@@ -30,7 +31,8 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         provider: StreamableProvider<StashItem>,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         operationQueue: OperationQueue,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        stakingType: StakingType
     ) {
         self.accountId = accountId
         self.chainAsset = chainAsset
@@ -40,8 +42,13 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         self.childSubscriptionFactory = childSubscriptionFactory
         self.operationQueue = operationQueue
         self.logger = logger
+        self.stakingType = stakingType
 
-        subscribeLocal()
+        if stakingType == .relayChain {
+            subscribeLocal()
+        } else {
+            subscribeRemote(for: accountId)
+        }
     }
 
     deinit {
@@ -113,6 +120,76 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         requests.append((.payee, stashId))
 
         return requests
+    }
+
+    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
+        var requests: [(StorageCodingPath, Data)] = []
+
+        requests.append((.delegatorState, accountId))
+        requests.append((.delegationScheduledRequests, accountId))
+
+        return requests
+    }
+
+    private func subscribeRemote(for accountId: AccountId) {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        do {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+                throw ChainRegistryError.runtimeMetadaUnavailable
+            }
+
+            let requests = try createRequest(for: accountId)
+
+            let localKeyFactory = LocalStorageKeyFactory()
+            let localKeys = try requests.map {
+                try localKeyFactory.createFromStoragePath($0.0, encodableElement: $0.1, chainId: chainAsset.chain.chainId)
+            }
+
+            let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+            let storageKeyFactory = StorageKeyFactory()
+
+            let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
+                MapKeyEncodingOperation(
+                    path: request.0,
+                    storageKeyFactory: storageKeyFactory,
+                    keyParams: [request.1]
+                )
+            }
+
+            configureMapOperations(codingOperations, coderFactoryOperation: codingFactoryOperation)
+
+            let mapOperation = ClosureOperation {
+                try codingOperations.map { try $0.extractNoCancellableResultData()[0] }
+            }
+
+            codingOperations.forEach { mapOperation.addDependency($0) }
+
+            mapOperation.completionBlock = { [weak self] in
+                do {
+                    let remoteKeys = try mapOperation.extractNoCancellableResultData()
+                    let keysList = zip(remoteKeys, localKeys).map {
+                        SubscriptionStorageKeys(remote: $0.0, local: $0.1)
+                    }
+
+                    self?.subscribeToRemote(with: keysList)
+                } catch {
+                    self?.logger?.error("Did receive error: \(error)")
+                }
+            }
+
+            let operations = [codingFactoryOperation] + codingOperations + [mapOperation]
+
+            operationQueue.addOperations(operations, waitUntilFinished: false)
+
+        } catch {
+            logger?.error("Did receive unexpected error \(error)")
+        }
     }
 
     private func subscribeRemote(for stashItem: StashItem) {

@@ -8,7 +8,7 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
     let asset: AssetModel
 
     var chainAssetType: ChainAssetType {
-        asset.type
+        chain.assets.first(where: { $0.assetId == asset.id })?.type ?? .normal
     }
 
     var identifier: String {
@@ -69,6 +69,10 @@ extension ChainAsset {
     }
 
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
+
+    var stakingType: StakingType? {
+        chain.assets.first(where: { $0.assetId == asset.id })?.staking
+    }
 
     var storagePath: StorageCodingPath {
         var storagePath: StorageCodingPath

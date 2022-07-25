@@ -16,15 +16,16 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
 final class StakingPayoutConfirmViewModelFactory {
     private let asset: AssetModel
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
         asset: AssetModel,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
     ) {
         self.asset = asset
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
     // MARK: - Private functions

@@ -99,11 +99,10 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         if let validatorInfo = validatorsModel?.allValidators
             .first(where: { $0.address == viewModel.address }) {
             wireframe.present(
-                validatorInfo,
-                asset: asset,
-                chain: chain,
-                from: view,
-                wallet: selectedAccount
+                flow: .relaychain(validatorInfo: validatorInfo, address: nil),
+                chainAsset: ChainAsset(chain: chain, asset: asset),
+                wallet: selectedAccount,
+                from: view
             )
         }
     }

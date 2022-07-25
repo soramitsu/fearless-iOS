@@ -60,5 +60,5 @@ enum PurchaseProvider: String, Codable {
 
 enum StakingType: String, Codable {
     case relayChain = "relaychain"
-    case parachain
+    case paraChain = "parachain"
 }

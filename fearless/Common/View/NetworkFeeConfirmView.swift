@@ -2,6 +2,8 @@ import UIKit
 import Foundation
 
 final class NetworkFeeConfirmView: UIView {
+    private let contentStackView = UIFactory.default.createVerticalStackView(spacing: 8)
+
     let tipView = NetworkFeeView()
     let networkFeeView = NetworkFeeView()
 
@@ -40,22 +42,20 @@ final class NetworkFeeConfirmView: UIView {
     }
 
     private func setupLayout() {
+        addSubview(contentStackView)
+        contentStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+        }
+
         tipView.isHidden = true // by default, because this view is being used among other screens but send confirmatio
-        addSubview(tipView) {
-            $0.top.equalToSuperview()
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
+        contentStackView.addArrangedSubview(tipView)
+        contentStackView.addArrangedSubview(networkFeeView)
+        contentStackView.addArrangedSubview(actionButton)
 
-        addSubview(networkFeeView) {
-            $0.top.equalTo(tipView.snp.bottom)
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        addSubview(actionButton) {
-            $0.height.equalTo(UIConstants.actionHeight)
-            $0.top.equalTo(networkFeeView.snp.bottom).offset(UIConstants.horizontalInset)
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+        actionButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
         }
     }
 }

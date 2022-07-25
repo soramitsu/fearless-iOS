@@ -47,6 +47,14 @@ final class CustomValidatorListViewLayout: UIView {
         createRoundedButton()
     }()
 
+    let identityFilterButton: GradientButton = {
+        createGradientButton()
+    }()
+
+    let minBondFilterButton: GradientButton = {
+        createGradientButton()
+    }()
+
     let proceedButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
@@ -85,6 +93,8 @@ final class CustomValidatorListViewLayout: UIView {
     }
 
     private func setupLayout() {
+        stackView.addArrangedSubview(identityFilterButton)
+        stackView.addArrangedSubview(minBondFilterButton)
         stackView.addArrangedSubview(fillRestButton)
         stackView.addArrangedSubview(clearButton)
         stackView.addArrangedSubview(deselectButton)
