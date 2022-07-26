@@ -140,7 +140,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         for chainAsset: ChainAsset,
         _ accountInfo: AccountInfo?,
         _ prices: [PriceData]
-    ) -> DayFiatBalance {
+    ) -> AssetFiatBalanceInfo {
         let balanceDecimal = getBalance(
             for: chainAsset,
             accountInfo
@@ -150,12 +150,12 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
               let priceData = prices.first(where: { $0.priceId == priceId }),
               let priceDecimal = Decimal(string: priceData.price)
         else {
-            return DayFiatBalance(total: .zero, dayChange: .zero)
+            return AssetFiatBalanceInfo(total: .zero, dayChange: .zero)
         }
 
         let total = priceDecimal * balanceDecimal
         let dayChange = total * (priceData.fiatDayChange ?? .zero)
-        let dayFiatBalance = DayFiatBalance(total: total, dayChange: dayChange)
+        let dayFiatBalance = AssetFiatBalanceInfo(total: total, dayChange: dayChange)
 
         return dayFiatBalance
     }
@@ -184,7 +184,7 @@ private struct CountBalanceInfo {
     let isLoaded: Bool
 }
 
-private struct DayFiatBalance {
+private struct AssetFiatBalanceInfo {
     let total: Decimal
     let dayChange: Decimal
 }
