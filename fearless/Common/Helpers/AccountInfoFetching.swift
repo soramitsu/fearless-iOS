@@ -48,7 +48,6 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                 switch chainAsset.chainAssetType {
                 case .normal:
                     self?.handleAccountInfo(
-                        for: accountId,
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
@@ -63,14 +62,12 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .vsToken,
                     .stable:
                     self?.handleOrmlAccountInfo(
-                        for: accountId,
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
                     )
                 case .equilibrium:
                     self?.handleEquilibrium(
-                        for: accountId,
                         chainAsset: chainAsset,
                         item: item,
                         completionBlock: completionBlock
@@ -86,7 +83,6 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
 
 private extension AccountInfoFetching {
     func handleOrmlAccountInfo(
-        for _: AccountId,
         chainAsset: ChainAsset,
         item: ChainStorageItem,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
@@ -133,7 +129,6 @@ private extension AccountInfoFetching {
     }
 
     func handleAccountInfo(
-        for _: AccountId,
         chainAsset: ChainAsset,
         item: ChainStorageItem,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
@@ -178,7 +173,6 @@ private extension AccountInfoFetching {
     }
 
     func handleEquilibrium(
-        for _: AccountId,
         chainAsset: ChainAsset,
         item: ChainStorageItem,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void

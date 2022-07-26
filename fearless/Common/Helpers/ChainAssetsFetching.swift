@@ -26,6 +26,15 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case isTest(SortOrder)
         case isPolkadotOrKusama(SortOrder)
         case assetId(SortOrder)
+
+        var balanceRequired: Bool {
+            switch self {
+            case .balance, .usdBalance:
+                return true
+            default:
+                return false
+            }
+        }
     }
 
     enum SortOrder {
@@ -73,51 +82,14 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
             }
             switch operation.result {
             case let .success(chains):
-                var chainAssets: [ChainAsset] = []
-                chains.forEach { chain in
-                    chainAssets.append(contentsOf: chain.chainAssets)
-                }
+                var chainAssets = chains.map(\.chainAssets).reduce([], +)
 
                 chainAssets = strongSelf.filter(chainAssets: chainAssets, filters: filters)
-
-                if sortDescriptors.contains(where: { sort in
-                    switch sort {
-                    case .balance, .usdBalance:
-                        return true
-                    default:
-                        return false
-                    }
-                }) {
-                    var accountInfos: [ChainAsset: AccountInfo?] = [:]
-                    chainAssets.forEach { [weak self] chainAsset in
-                        guard let strongSelf = self,
-                              let accountId = strongSelf.meta.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                            return
-                        }
-
-                        strongSelf.accountInfoFetching.fetch(
-                            for: chainAsset,
-                            accountId: accountId
-                        ) { chainAsset, accountInfo in
-                            accountInfos[chainAsset] = accountInfo
-                        }
-                    }
-                    let sorts: [Sort] = strongSelf.convertSorts(
-                        sortDescriptors: sortDescriptors,
-                        accountInfos: accountInfos
-                    )
-                    chainAssets = strongSelf.sort(chainAssets: chainAssets, sorts: sorts)
-
-                    completionBlock(.success(chainAssets))
-                } else {
-                    let sorts: [Sort] = strongSelf.convertSorts(
-                        sortDescriptors: sortDescriptors,
-                        accountInfos: nil
-                    )
-                    chainAssets = strongSelf.sort(chainAssets: chainAssets, sorts: sorts)
-
-                    completionBlock(.success(chainAssets))
-                }
+                strongSelf.prepareSortIfNeeded(
+                    chainAssets: chainAssets,
+                    sortDescriptors: sortDescriptors,
+                    completionBlock: completionBlock
+                )
             case let .failure(error):
                 completionBlock(.failure(error))
             case .none:
@@ -148,6 +120,57 @@ private extension ChainAssetsFetching {
                 chainAsset.hasStaking == hasStaking
             }
         }
+    }
+
+    private func prepareSortIfNeeded(
+        chainAssets: [ChainAsset],
+        sortDescriptors: [SortDescriptor],
+        completionBlock: @escaping (Result<[ChainAsset], Error>?) -> Void
+    ) {
+        if sortDescriptors.contains(where: { $0.balanceRequired }) {
+            getAccountInfo(
+                for: chainAssets,
+                completionBlock: { accountInfos in
+                    let sorts: [Sort] = self.convertSorts(
+                        sortDescriptors: sortDescriptors,
+                        accountInfos: accountInfos
+                    )
+
+                    completionBlock(.success(self.sort(chainAssets: chainAssets, sorts: sorts)))
+                }
+            )
+        } else {
+            let sorts: [Sort] = convertSorts(
+                sortDescriptors: sortDescriptors,
+                accountInfos: nil
+            )
+
+            completionBlock(.success(sort(chainAssets: chainAssets, sorts: sorts)))
+        }
+    }
+
+    private func getAccountInfo(
+        for chainAssets: [ChainAsset],
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        let semaphore = DispatchSemaphore(value: chainAssets.count)
+        var accountInfos: [ChainAsset: AccountInfo?] = [:]
+        chainAssets.forEach { [weak self] chainAsset in
+            guard let strongSelf = self,
+                  let accountId = strongSelf.meta.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+
+            strongSelf.accountInfoFetching.fetch(
+                for: chainAsset,
+                accountId: accountId
+            ) { chainAsset, accountInfo in
+                accountInfos[chainAsset] = accountInfo
+                semaphore.signal()
+            }
+        }
+        semaphore.wait()
+        completionBlock(accountInfos)
     }
 
     private func sort(chainAssets: [ChainAsset], sorts: [Sort]) -> [ChainAsset] {
