@@ -3,25 +3,25 @@ import UIKit
 import SwiftUI
 
 protocol SwipeButtonProtocol: UIButton {
-    var type: SwipeButtonType { get }
+    var type: SwipableCellButtonType { get }
 }
 
-enum SwipeButtonType: Int, CaseIterable {
+enum SwipableCellButtonType: Int, CaseIterable {
     case send
     case receive
     case teleport
     case hide
 }
 
-protocol SwipeTableCellDelegate: AnyObject {
-    func swipeCellDidTap(on actionType: SwipeButtonType, with indexPath: IndexPath?)
+protocol SwipableTableViewCellDelegate: AnyObject {
+    func swipeCellDidTap(on actionType: SwipableCellButtonType, with indexPath: IndexPath?)
 }
 
 // swiftlint:disable type_body_length file_length
 class SwipableTableViewCell: UITableViewCell {
     // MARK: - Public properties
 
-    weak var delegate: SwipeTableCellDelegate?
+    weak var delegate: SwipableTableViewCellDelegate?
 
     /// The content view of a SwipableTableViewCell object is the default superview for content that the cell displays.
     /// If you want to customize cells by simply adding additional views, you should add them to the content view so
@@ -50,11 +50,9 @@ class SwipableTableViewCell: UITableViewCell {
     }
 
     var rightMenuButtons: [SwipeButtonProtocol] = []
-
     var leftMenuButtons: [SwipeButtonProtocol] = []
-
-    /// Time for closing swipe action menu
-    var animationDuration: TimeInterval {
+    
+    var closeSwipeAnimationDuration: TimeInterval {
         0.3
     }
 
@@ -77,7 +75,7 @@ class SwipableTableViewCell: UITableViewCell {
     private var startPosition: CGPoint = .zero
     private var leadingOffset: CGFloat = 0
     private var isSwiping = false
-    private var swipeDirectional: SwipeDirectional = .ended
+    private var swipeDirectional: SwipeState = .ended
     private var isSwipeOpen: Bool {
         isLeftMenuOpen || isRightMenuOpen
     }
@@ -166,7 +164,7 @@ class SwipableTableViewCell: UITableViewCell {
         isSwiping = true
         startPosition = gesture.location(in: self)
         leadingOffset = cloudView.frame.origin.x
-        swipeDirectional = SwipeDirectional(velocity: gesture.velocity(in: self).x)
+        swipeDirectional = SwipeState(velocity: gesture.velocity(in: self).x)
 
         if let swipableVisibleCells = usedTableView?.visibleCells as? [SwipableTableViewCell] {
             swipableVisibleCells.forEach { $0.closeSwipe() }
@@ -210,7 +208,7 @@ class SwipableTableViewCell: UITableViewCell {
             make.leading.equalToSuperview().offset(leading)
         }
 
-        UIView.animate(withDuration: animationDuration) {
+        UIView.animate(withDuration: closeSwipeAnimationDuration) {
             self.layoutIfNeeded()
             self.leftMenuMenuWrapper.alpha = alpha
         }
@@ -231,7 +229,7 @@ class SwipableTableViewCell: UITableViewCell {
             make.leading.equalToSuperview().offset(leading)
         }
 
-        UIView.animate(withDuration: animationDuration) {
+        UIView.animate(withDuration: closeSwipeAnimationDuration) {
             self.rightMenuMenuWrapper.alpha = alpha
             self.layoutIfNeeded()
         }
@@ -298,7 +296,7 @@ class SwipableTableViewCell: UITableViewCell {
             make.leading.equalToSuperview().offset(cloudViewEdgeInsets.left)
         }
 
-        UIView.animate(withDuration: animationDuration) {
+        UIView.animate(withDuration: closeSwipeAnimationDuration) {
             self.layoutIfNeeded()
             self.leftMenuMenuWrapper.alpha = 0
             self.rightMenuMenuWrapper.alpha = 0
@@ -363,7 +361,7 @@ class SwipableTableViewCell: UITableViewCell {
     }
 
     @objc private func handleAction(_ sender: UIButton) {
-        guard let buttonType = SwipeButtonType(rawValue: sender.tag) else {
+        guard let buttonType = SwipableCellButtonType(rawValue: sender.tag) else {
             return
         }
         delegate?.swipeCellDidTap(on: buttonType, with: indexPath)
@@ -459,7 +457,7 @@ extension SwipableTableViewCell {
     }
 }
 
-private enum SwipeDirectional {
+private enum SwipeState {
     case ended
     case rightToLeft
     case leftToRight
