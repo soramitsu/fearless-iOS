@@ -90,6 +90,15 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
+    func didReceiveHints(viewModel: LocalizableResource<String>?) {
+        if let viewModel = viewModel {
+            rootView.hintView.detailsLabel.text = viewModel.value(for: selectedLocale)
+            rootView.hintView.isHidden = false
+        } else {
+            rootView.hintView.isHidden = true
+        }
+    }
+
     func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFee()
@@ -137,7 +146,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
         let iconSize = 2.0 * rootView.collatorView.iconRadius
 
         rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
-            R.color.colorWhite()!,
+            R.color.colorWhite() ?? UIColor.white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )

@@ -21,7 +21,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
     private var priceData: PriceData?
     var fee: Decimal?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let candidate: AccountId
+    let candidate: ParachainStakingCandidateInfo
 
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -30,7 +30,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         wallet: MetaAccountModel,
         amount: Decimal,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: AccountId
+        candidate: ParachainStakingCandidateInfo
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -55,7 +55,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
     }
 
     private var isCollator: Bool {
-        candidate == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        candidate.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
@@ -75,7 +75,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
                 newBuilder = try newBuilder.adding(call: call)
             } else {
                 let call = strongSelf.callFactory.delegatorBondMore(
-                    candidate: strongSelf.candidate,
+                    candidate: strongSelf.candidate.owner,
                     amount: amount
                 )
                 newBuilder = try newBuilder.adding(call: call)
@@ -96,7 +96,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
             let call = callFactory.candidateBondMore(amount: amount)
             identifier = call.callName
         } else {
-            let call = callFactory.delegatorBondMore(candidate: candidate, amount: amount)
+            let call = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
             identifier = call.callName
         }
 

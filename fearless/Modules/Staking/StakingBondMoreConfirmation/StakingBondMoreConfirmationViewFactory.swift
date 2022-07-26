@@ -73,19 +73,12 @@ struct StakingBondMoreConfirmViewFactory {
                 chain: chainAsset.chain,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
-        case let .parachain(_, candidate):
+        case .parachain:
             confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
-                collator: candidate
+                chainAsset: chainAsset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
         }
-//        = StakingBondMoreConfirmViewModelFactory(
-//            asset: chainAsset.asset,
-//            chain: chainAsset.chain,
-//            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
-//        )
 
         return StakingBondMoreConfirmationPresenter(
             interactor: interactor,
@@ -217,7 +210,7 @@ struct StakingBondMoreConfirmViewFactory {
                 wallet: wallet,
                 amount: amount,
                 dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate.owner
+                candidate: candidate
             )
 
             let strategy = StakingBondMoreConfirmationParachainStrategy(

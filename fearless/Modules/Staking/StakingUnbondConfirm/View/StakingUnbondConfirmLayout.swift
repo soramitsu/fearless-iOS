@@ -2,7 +2,7 @@ import UIKit
 
 final class StakingUnbondConfirmLayout: UIView {
     private enum Constants {
-        static let spasingBetweenHints: CGFloat = 9
+        static let spacingBetweenHints: CGFloat = 9
     }
 
     let stackView: UIStackView = {
@@ -15,7 +15,11 @@ final class StakingUnbondConfirmLayout: UIView {
         return view
     }()
 
-    let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+    lazy var collatorView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.isHidden = true
+        return view
+    }()
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
@@ -66,7 +70,7 @@ final class StakingUnbondConfirmLayout: UIView {
             collatorView.subtitle = collatorName
             let iconSize = 2.0 * collatorView.iconRadius
             collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
-                R.color.colorWhite()!,
+                R.color.colorWhite() ?? .white,
                 size: CGSize(width: iconSize, height: iconSize),
                 contentScale: UIScreen.main.scale
             )
@@ -76,7 +80,7 @@ final class StakingUnbondConfirmLayout: UIView {
 
         let iconSize = 2.0 * accountView.iconRadius
         accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
-            R.color.colorWhite()!,
+            R.color.colorWhite() ?? .white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )
@@ -133,7 +137,7 @@ final class StakingUnbondConfirmLayout: UIView {
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             }
 
-            stackView.setCustomSpacing(Constants.spasingBetweenHints, after: view)
+            stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)
         }
     }
 
@@ -184,7 +188,5 @@ final class StakingUnbondConfirmLayout: UIView {
         networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
-
-        collatorView.isHidden = true
     }
 }

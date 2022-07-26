@@ -35,6 +35,7 @@ final class StakingBondMoreViewLayout: UIView {
         view.iconWidth = Constants.hintIconWidth
         view.imageView.contentMode = .top
         view.imageView.image = R.image.iconGeneralReward()
+        view.isHidden = true
         return view
     }()
 
@@ -54,7 +55,6 @@ final class StakingBondMoreViewLayout: UIView {
         backgroundColor = R.color.colorBlack()
         applyLocalization()
         setupLayout()
-//        applyLocalization()
     }
 
     @available(*, unavailable)

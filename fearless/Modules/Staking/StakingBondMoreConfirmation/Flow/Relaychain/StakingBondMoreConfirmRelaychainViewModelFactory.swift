@@ -22,8 +22,9 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
 
     func createViewModel(
         account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel {
+        amount: Decimal,
+        state _: StakingBondMoreConfirmationViewModelState
+    ) throws -> StakingBondMoreConfirmViewModel? {
         let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in

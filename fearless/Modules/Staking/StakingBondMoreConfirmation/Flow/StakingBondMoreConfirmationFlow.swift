@@ -10,8 +10,9 @@ enum StakingBondMoreConfirmationFlow {
 protocol StakingBondMoreConfirmViewModelFactoryProtocol {
     func createViewModel(
         account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel
+        amount: Decimal,
+        state: StakingBondMoreConfirmationViewModelState
+    ) throws -> StakingBondMoreConfirmViewModel?
 }
 
 protocol StakingBondMoreConfirmationModelStateListener: AnyObject {

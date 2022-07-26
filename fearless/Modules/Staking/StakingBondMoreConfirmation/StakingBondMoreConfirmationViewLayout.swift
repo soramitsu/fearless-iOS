@@ -12,10 +12,12 @@ final class StakingBMConfirmationViewLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+
     let collatorView: DetailsTriangularedView = {
         let view = UIFactory.default.createAccountView(for: .options, filled: true)
         view.subtitleLabel?.lineBreakMode = .byTruncatingTail
         view.actionImage = nil
+        view.isHidden = true
         return view
     }()
 
@@ -82,7 +84,7 @@ final class StakingBMConfirmationViewLayout: UIView {
 
         let iconSize = 2.0 * accountView.iconRadius
         accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
-            R.color.colorWhite()!,
+            R.color.colorWhite() ?? .white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )

@@ -4,7 +4,6 @@ import SoraFoundation
 
 final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
     let asset: AssetModel
-    let collator: ParachainStakingCandidateInfo
     let bondingDuration: UInt32?
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
@@ -12,12 +11,10 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
 
     init(
         asset: AssetModel,
-        collator: ParachainStakingCandidateInfo,
         bondingDuration: UInt32?,
         iconGenerator: IconGenerating
     ) {
         self.asset = asset
-        self.collator = collator
         self.bondingDuration = bondingDuration
         self.iconGenerator = iconGenerator
     }
@@ -52,7 +49,7 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
         let address = viewModelState.accountAddress ?? ""
         let accountIcon = try? iconGenerator.generateFromAddress(address)
 
-        let collatorIcon = try? iconGenerator.generateFromAddress(collator.address)
+        let collatorIcon = try? iconGenerator.generateFromAddress(viewModelState.candidate.address)
 
         let hints = createHints(from: false)
 
@@ -60,7 +57,7 @@ final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmV
             senderAddress: address,
             senderIcon: accountIcon,
             senderName: viewModelState.wallet.fetch(for: viewModelState.chainAsset.chain.accountRequest())?.name,
-            collatorName: collator.identity?.name,
+            collatorName: viewModelState.candidate.identity?.name,
             collatorIcon: collatorIcon,
             amount: amount,
             hints: hints

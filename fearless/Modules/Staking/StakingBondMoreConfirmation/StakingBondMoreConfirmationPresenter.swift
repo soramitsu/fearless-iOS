@@ -129,10 +129,13 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
 
     func provideConfirmationViewModel() {
         do {
-            let viewModel = try confirmViewModelFactory.createViewModel(
+            guard let viewModel = try confirmViewModelFactory.createViewModel(
                 account: wallet,
-                amount: viewModelState.amount
-            )
+                amount: viewModelState.amount,
+                state: viewModelState
+            ) else {
+                return
+            }
 
             view?.didReceiveConfirmation(viewModel: viewModel)
         } catch {

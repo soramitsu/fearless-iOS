@@ -57,6 +57,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
         viewModelState.setStateListener(self)
 
         provideAmountInputViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
 
@@ -165,5 +166,15 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
         ) {
             view?.didReceiveCollator(viewModel: viewModel)
         }
+    }
+
+    func provideHintsViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = viewModelFactory?.buildHintViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        )
+        view?.didReceiveHints(viewModel: viewModel)
     }
 }

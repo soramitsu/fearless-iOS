@@ -215,7 +215,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
 
             let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
                 asset: chainAsset.asset,
-                collator: candidate,
                 bondingDuration: bondingDuration,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )

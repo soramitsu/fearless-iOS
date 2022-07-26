@@ -4,46 +4,44 @@ import SoraFoundation
 import FearlessUtils
 
 final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
-    let asset: AssetModel
-    let chain: ChainModel
-    let collator: ParachainStakingCandidateInfo
+    private let chainAsset: ChainAsset
+    private let iconGenerator: IconGenerating
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
-    private var iconGenerator: IconGenerating
 
     init(
-        asset: AssetModel,
-        chain: ChainModel,
-        iconGenerator: IconGenerating,
-        collator: ParachainStakingCandidateInfo
+        chainAsset: ChainAsset,
+        iconGenerator: IconGenerating
     ) {
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.iconGenerator = iconGenerator
-        self.collator = collator
     }
 
     func createViewModel(
         account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel {
-        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
+        amount: Decimal,
+        state: StakingBondMoreConfirmationViewModelState
+    ) throws -> StakingBondMoreConfirmViewModel? {
+        guard let state = state as? StakingBondMoreConfirmationParachainViewModelState else {
+            return nil
+        }
+        let formatter = formatterFactory.createInputFormatter(for: chainAsset.assetDisplayInfo)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).string(from: amount as NSNumber) ?? ""
         }
 
-        let address = account.fetch(for: chain.accountRequest())?.toAddress() ?? ""
+        let address = account.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
 
         let senderIcon = try? iconGenerator.generateFromAddress(address)
-        let collatorIcon = try? iconGenerator.generateFromAddress(collator.address)
+        let collatorIcon = try? iconGenerator.generateFromAddress(state.candidate.address)
 
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,
             senderIcon: senderIcon,
             senderName: account.name,
             amount: amount,
-            collatorName: collator.identity?.name,
+            collatorName: state.candidate.identity?.name,
             collatorIcon: collatorIcon
         )
     }
