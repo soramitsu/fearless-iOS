@@ -60,6 +60,10 @@ final class MainTabBarViewController: UITabBarController {
                 tabBar.scrollEdgeAppearance = appearance
             }
         } else {
+            tabBar.backgroundImage = UIImage()
+            tabBar.barTintColor = .clear
+            tabBar.layer.backgroundColor = UIColor.clear.cgColor
+
             let blurView = UIVisualEffectView(effect: blurEffect)
             blurView.frame = tabBar.bounds
             blurView.autoresizingMask = .flexibleWidth
@@ -163,6 +167,7 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
 
 extension MainTabBarViewController: Localizable {
     func applyLocalization() {
-        failedMemoView.titleLabel.text = R.string.localizable.tabbarCrowdloanAttention(preferredLanguages: selectedLocale.rLanguages)
+        failedMemoView.titleLabel.text = R.string.localizable
+            .tabbarCrowdloanAttention(preferredLanguages: selectedLocale.rLanguages)
     }
 }
