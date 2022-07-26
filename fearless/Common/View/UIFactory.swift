@@ -29,6 +29,7 @@ struct UIConstants {
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
     static let amountViewHeight: CGFloat = 72
+    static let swipeTableActionButtonWidth: CGFloat = 88
     static let iconSize: CGFloat = 24
 }
 
