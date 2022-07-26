@@ -27,26 +27,18 @@ final class StakingRedeemRelaychainViewModelState: StakingRedeemViewModelState {
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
-        guard let slashingSpans = slashingSpans else {
+        guard let numberOfSlashingSpans = numberOfSlashingSpans else {
             return nil
         }
 
-        let numberOfSlashes = slashingSpans.prior.count + 1
-
-        let withdrawUnbonded = callFactory.withdrawUnbonded(for: UInt32(numberOfSlashes))
+        let withdrawUnbonded = callFactory.withdrawUnbonded(for: UInt32(numberOfSlashingSpans))
         return { builder in
             try builder.adding(call: withdrawUnbonded)
         }
     }
 
     var reuseIdentifier: String? {
-        guard let slashingSpans = slashingSpans else {
-            return nil
-        }
-
-        let numberOfSlashes = slashingSpans.prior.count + 1
-
-        return numberOfSlashes.description
+        (numberOfSlashingSpans ?? 0).description
     }
 
     var address: String? {
@@ -80,7 +72,7 @@ final class StakingRedeemRelaychainViewModelState: StakingRedeemViewModelState {
     private(set) var fee: Decimal?
     private(set) var controller: ChainAccountResponse?
     private(set) var stashItem: StashItem?
-    private(set) var slashingSpans: SlashingSpans?
+    private(set) var numberOfSlashingSpans: Int?
 }
 
 extension StakingRedeemRelaychainViewModelState: StakingRedeemRelaychainStrategyOutput {
@@ -180,7 +172,8 @@ extension StakingRedeemRelaychainViewModelState: StakingRedeemRelaychainStrategy
     func didReceiveSlashingSpans(result: Result<SlashingSpans?, Error>) {
         switch result {
         case let .success(slashingSpans):
-            self.slashingSpans = slashingSpans
+            numberOfSlashingSpans = (slashingSpans?.prior.count ?? 0) + 1
+
             stateListener?.refreshFeeIfNeeded()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
