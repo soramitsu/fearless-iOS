@@ -19,16 +19,26 @@ protocol StakingUnbondConfirmRelaychainStrategyOutput: AnyObject {
 
 final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeConstantFetching {
     weak var output: StakingUnbondConfirmRelaychainStrategyOutput?
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let connection: JSONRPCEngine
-    let keystore: KeystoreProtocol
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let connection: JSONRPCEngine
+    private let keystore: KeystoreProtocol
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private var stashItemProvider: StreamableProvider<StashItem>?
+    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
+    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var payeeProvider: AnyDataProvider<DecodedPayee>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var extrinsicService: ExtrinsicServiceProtocol?
+    private var signingWrapper: SigningWrapperProtocol?
+    private lazy var callFactory = SubstrateCallFactory()
 
     init(
         output: StakingUnbondConfirmRelaychainStrategyOutput?,
@@ -55,19 +65,6 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
         self.keystore = keystore
         self.accountRepository = accountRepository
     }
-
-    private var stashItemProvider: StreamableProvider<StashItem>?
-    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
-    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
-    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var nominationProvider: AnyDataProvider<DecodedNomination>?
-    private var payeeProvider: AnyDataProvider<DecodedPayee>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-
-    private var extrinsicService: ExtrinsicServiceProtocol?
-    private var signingWrapper: SigningWrapperProtocol?
-
-    private lazy var callFactory = SubstrateCallFactory()
 
     private func handleController(accountItem: ChainAccountResponse) {
         extrinsicService = ExtrinsicService(

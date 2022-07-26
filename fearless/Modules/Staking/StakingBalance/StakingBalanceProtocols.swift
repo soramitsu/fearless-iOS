@@ -4,10 +4,6 @@ protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, Load
     func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>)
 }
 
-// protocol StakingBalanceViewModelFactoryProtocol {
-//    func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>
-// }
-
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
     func handleRefresh()

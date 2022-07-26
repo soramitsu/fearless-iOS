@@ -131,7 +131,7 @@ class ChainModel: Codable {
     }
 
     var accountIdLenght: Int {
-        isEthereumBased ? 20 : 32
+        isEthereumBased ? EthereumConstants.accountIdLength : SubstrateConstants.accountIdLength
     }
 
     var chainAssets: [ChainAsset] {

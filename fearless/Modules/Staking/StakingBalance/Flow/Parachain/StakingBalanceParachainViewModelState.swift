@@ -2,73 +2,21 @@ import Foundation
 import BigInt
 
 final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState {
-    var rebondCases: [StakingRebondOption] {
-        [.all]
-    }
-
-    func decideRebondFlow(option _: StakingRebondOption) {
-        guard let delegation = delegation, let request = requests?.last else {
-            return
-        }
-
-        let delegationInfo = ParachainStakingDelegationInfo(
-            delegation: delegation,
-            collator: collator
-        )
-
-        stateListener?.decideShowConfirmRebondFlow(flow: .parachain(
-            delegation: delegationInfo,
-            request: request
-        ))
-    }
-
     var stateListener: StakingBalanceModelStateListener?
-
-    func setStateListener(_ stateListener: StakingBalanceModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    func stakeMoreValidators(using _: Locale) -> [DataValidating] {
-        []
-    }
-
-    func stakeLessValidators(using _: Locale) -> [DataValidating] {
-        []
-    }
-
-    func revokeValidators(using _: Locale) -> [DataValidating] {
-        []
-    }
-
-    func unbondingMoreValidators(using _: Locale) -> [DataValidating] {
-        []
-    }
-
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     private(set) var collator: ParachainStakingCandidateInfo
     private(set) var delegation: ParachainStakingDelegation?
+    private(set) var round: ParachainStakingRoundInfo?
+    private(set) var requests: [ParachainStakingScheduledRequest]?
 
-    var requests: [ParachainStakingScheduledRequest]?
-    var history: [ParachainStakingScheduledRequest]? {
-        requests?.filter { ($0.whenExecutable > (round?.current) ?? 0) == true }
+    var rebondCases: [StakingRebondOption] {
+        [.all]
     }
 
-    var round: ParachainStakingRoundInfo?
-
-    init(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        collator: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
-    ) {
-        self.chainAsset = chainAsset
-        self.wallet = wallet
-        self.dataValidatingFactory = dataValidatingFactory
-        self.collator = collator
-        self.delegation = delegation
+    var history: [ParachainStakingScheduledRequest]? {
+        requests?.filter { ($0.whenExecutable > (round?.current) ?? 0) == true }
     }
 
     var bondMoreFlow: StakingBondMoreFlow? {
@@ -94,6 +42,56 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
             delegation: delegation,
             readyForRevoke: readyForRevoke
         )
+    }
+
+    init(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        collator: ParachainStakingCandidateInfo,
+        delegation: ParachainStakingDelegation
+    ) {
+        self.chainAsset = chainAsset
+        self.wallet = wallet
+        self.dataValidatingFactory = dataValidatingFactory
+        self.collator = collator
+        self.delegation = delegation
+    }
+
+    func decideRebondFlow(option _: StakingRebondOption) {
+        guard let delegation = delegation, let request = requests?.last else {
+            return
+        }
+
+        let delegationInfo = ParachainStakingDelegationInfo(
+            delegation: delegation,
+            collator: collator
+        )
+
+        stateListener?.decideShowConfirmRebondFlow(flow: .parachain(
+            delegation: delegationInfo,
+            request: request
+        ))
+    }
+
+    func setStateListener(_ stateListener: StakingBalanceModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func stakeMoreValidators(using _: Locale) -> [DataValidating] {
+        []
+    }
+
+    func stakeLessValidators(using _: Locale) -> [DataValidating] {
+        []
+    }
+
+    func revokeValidators(using _: Locale) -> [DataValidating] {
+        []
+    }
+
+    func unbondingMoreValidators(using _: Locale) -> [DataValidating] {
+        []
     }
 
     func calculateRevokeAmount() -> BigUInt? {
@@ -142,10 +140,6 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
     }
 
     func didReceiveDelegation(_ delegation: ParachainStakingDelegation?) {
-//        guard let delegation = delegation else {
-//            return
-//        }
-
         self.delegation = delegation
 
         stateListener?.modelStateDidChanged(viewModelState: self)

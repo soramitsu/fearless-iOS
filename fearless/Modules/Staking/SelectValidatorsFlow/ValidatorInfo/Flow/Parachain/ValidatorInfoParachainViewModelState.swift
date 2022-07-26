@@ -2,19 +2,18 @@ import Foundation
 
 final class ValidatorInfoParachainViewModelState: ValidatorInfoViewModelState {
     var stateListener: ValidatorInfoModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorInfoModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
     let collatorInfo: ParachainStakingCandidateInfo
+
+    var validatorAddress: String? {
+        collatorInfo.address
+    }
 
     init(collatorInfo: ParachainStakingCandidateInfo) {
         self.collatorInfo = collatorInfo
     }
 
-    var validatorAddress: String? {
-        collatorInfo.address
+    func setStateListener(_ stateListener: ValidatorInfoModelStateListener?) {
+        self.stateListener = stateListener
     }
 }
 

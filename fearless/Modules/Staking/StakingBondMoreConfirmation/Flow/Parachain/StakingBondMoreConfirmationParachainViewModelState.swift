@@ -2,28 +2,22 @@ import Foundation
 import BigInt
 
 final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreConfirmationViewModelState {
+    var stateListener: StakingBondMoreConfirmationModelStateListener?
+    var stashAccount: ChainAccountResponse?
+    var balance: Decimal?
+    var fee: Decimal?
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    let amount: Decimal
+    private var priceData: PriceData?
+    private let chainAsset: ChainAsset
+    private var wallet: MetaAccountModel
+    private lazy var callFactory = SubstrateCallFactory()
+
     var accountAddress: String? {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
-    var stateListener: StakingBondMoreConfirmationModelStateListener?
-
-    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    private let chainAsset: ChainAsset
-    private var wallet: MetaAccountModel
-    let amount: Decimal
-
-    var stashAccount: ChainAccountResponse?
-    var balance: Decimal?
-    private var priceData: PriceData?
-    var fee: Decimal?
-    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let candidate: ParachainStakingCandidateInfo
-
-    private lazy var callFactory = SubstrateCallFactory()
 
     init(
         chainAsset: ChainAsset,
@@ -101,6 +95,10 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         }
 
         return identifier
+    }
+
+    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
+        self.stateListener = stateListener
     }
 }
 

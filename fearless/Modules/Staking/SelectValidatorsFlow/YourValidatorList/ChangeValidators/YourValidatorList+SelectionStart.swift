@@ -8,7 +8,7 @@ extension YourValidatorList {
             chainAsset: ChainAsset,
             wallet: MetaAccountModel
         ) {
-            guard let nextView = CustomValidatorListViewFactory.createChangeYourValidatorsView(
+            guard let nextView = CustomValidatorListViewFactory.createView(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 flow: flow
@@ -26,10 +26,10 @@ extension YourValidatorList {
             wallet: MetaAccountModel,
             chainAsset: ChainAsset
         ) {
-            guard let nextView = RecommendedValidatorListViewFactory.createChangeYourValidatorsView(
+            guard let nextView = RecommendedValidatorListViewFactory.createView(
                 flow: flow,
-                wallet: wallet,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                wallet: wallet
             ) else {
                 return
             }

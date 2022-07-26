@@ -737,3 +737,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.reward.info.avg" = "Average APR";
 "parachain.staking.recommended.list.title" = "Suggested %d";
 "staking.stake.less.hint" = "Note: you can still cancel this initiation request. Once the exit delay period has passed (28 rounds in Moonbeam - which is 7 days), you can return to this staking dashboard and execute the request, after which you will see the unbonded funds in your free balance.";
+
+"staking.collator.my.oversubscribed.message" = "Oversubscribed. You will not receive rewards from the collator in this era.";
+"staking.collator.other.oversubscribed.message" = "Oversubscribed. Only the top staked delegators are paid rewards.";

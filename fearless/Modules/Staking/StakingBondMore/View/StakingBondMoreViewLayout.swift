@@ -104,6 +104,7 @@ final class StakingBondMoreViewLayout: UIView {
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)
         hintView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         addSubview(networkFeeFooterView)

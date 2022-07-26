@@ -3,21 +3,20 @@ import BigInt
 import FearlessUtils
 
 final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmViewModelState {
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
-            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
-
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.stateListener?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
-        ]
-    }
-
-    private var isCollator: Bool {
-        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
-    }
+    var stateListener: StakingUnbondConfirmModelStateListener?
+    let revoke: Bool
+    let candidate: ParachainStakingCandidateInfo
+    let delegation: ParachainStakingDelegation
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+    let dataValidatingFactory: StakingDataValidatingFactory
+    let inputAmount: Decimal
+    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private(set) var bonded: Decimal?
+    private(set) var balance: Decimal?
+    private(set) var minimalBalance: Decimal?
+    private(set) var minNominatorBonded: Decimal?
+    private(set) var fee: Decimal?
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard
@@ -68,26 +67,9 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
-    var stateListener: StakingUnbondConfirmModelStateListener?
-
-    func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
-        self.stateListener = stateListener
+    private var isCollator: Bool {
+        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
     }
-
-    let revoke: Bool
-    let candidate: ParachainStakingCandidateInfo
-    let delegation: ParachainStakingDelegation
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-    let inputAmount: Decimal
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
-
-    var bonded: Decimal?
-    var balance: Decimal?
-    var minimalBalance: Decimal?
-    var minNominatorBonded: Decimal?
-    var fee: Decimal?
 
     init(
         chainAsset: ChainAsset,
@@ -110,6 +92,22 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
             delegation.amount,
             precision: Int16(chainAsset.asset.precision)
         )
+    }
+
+    func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
+
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.stateListener?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
+        ]
     }
 }
 

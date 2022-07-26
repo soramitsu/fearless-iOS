@@ -2,12 +2,11 @@ import SoraFoundation
 
 final class SelectedValidatorListPresenter {
     weak var view: SelectedValidatorListViewProtocol?
-
-    let wireframe: SelectedValidatorListWireframeProtocol
-    let viewModelFactory: SelectedValidatorListViewModelFactoryProtocol
-    let viewModelState: SelectedValidatorListViewModelState
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
+    private let wireframe: SelectedValidatorListWireframeProtocol
+    private let viewModelFactory: SelectedValidatorListViewModelFactoryProtocol
+    private let viewModelState: SelectedValidatorListViewModelState
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     init(
         wireframe: SelectedValidatorListWireframeProtocol,
@@ -111,6 +110,4 @@ extension SelectedValidatorListPresenter: SelectedValidatorListModelStateListene
 
         view?.didChangeViewModel(viewModel, byRemovingItemAt: index)
     }
-
-    func didReceiveError(error _: SelectedValidatorListFlowError) {}
 }

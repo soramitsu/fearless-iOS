@@ -13,18 +13,17 @@ protocol StakingBalanceRelaychainStrategyOutput: AnyObject {
 
 final class StakingBalanceRelaychainStrategy: AccountFetching {
     weak var output: StakingBalanceRelaychainStrategyOutput?
-
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
-    var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
-    var stashControllerProvider: StreamableProvider<StashItem>?
-    var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
-    let connection: JSONRPCEngine
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
+    private let runtimeCodingService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
+    private var stashControllerProvider: StreamableProvider<StashItem>?
+    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    private let connection: JSONRPCEngine
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     init(
         output: StakingBalanceRelaychainStrategyOutput?,

@@ -47,60 +47,11 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         }
     }
 
-    static func createInitiatedBondingView(
-        flow: SelectedValidatorListFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate
-    ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = InitiatedBondingSelectedValidatorListWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            delegate: delegate,
-            with: wireframe
-        )
-    }
-
-    static func createChangeTargetsView(
-        flow: SelectedValidatorListFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate
-    ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsSelectedValidatorListWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            delegate: delegate,
-            with: wireframe
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        flow: SelectedValidatorListFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate
-    ) -> SelectedValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.SelectedListWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            delegate: delegate,
-            with: wireframe
-        )
-    }
-
     static func createView(
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate,
-        with wireframe: SelectedValidatorListWireframeProtocol
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol? {
         guard let container = createContainer(
             flow: flow,
@@ -109,6 +60,8 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
         ) else {
             return nil
         }
+
+        let wireframe = SelectedValidatorListWireframe()
 
         let presenter = SelectedValidatorListPresenter(
             wireframe: wireframe,

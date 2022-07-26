@@ -51,7 +51,7 @@ protocol SelectValidatorsStartModelStateListener: AnyObject {
     func didReceiveError(error: Error)
 }
 
-protocol SelectValidatorsStartViewModelState: SelectValidatorsStartUserInputHandler {
+protocol SelectValidatorsStartViewModelState {
     var stateListener: SelectValidatorsStartModelStateListener? { get set }
     var customValidatorListFlow: CustomValidatorListFlow? { get }
 
@@ -73,7 +73,3 @@ protocol SelectValidatorsStartViewModelFactoryProtocol {
 protocol SelectValidatorsStartStrategy {
     func setup()
 }
-
-protocol SelectValidatorsStartUserInputHandler {}
-
-extension SelectValidatorsStartUserInputHandler {}

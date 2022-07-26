@@ -1,7 +1,7 @@
 import SoraFoundation
 
 struct ValidatorListFilterViewModel {
-    let filterModel: ValidatorListFilterViewModelSection
+    let filterModel: ValidatorListFilterViewModelSection?
     let sortModel: ValidatorListFilterViewModelSection
     let canApply: Bool
     let canReset: Bool

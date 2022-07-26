@@ -138,26 +138,17 @@ final class ValidatorInfoViewLayout: UIView {
             value: exposure.delegations
         )
 
-        // TODO: ParachainStaking oversubsribed handle
-//        if exposure.oversubscribed {
-//            nominatorsView.borderView.borderType = .none
-//
-//            let hintTitle: String = {
-//                if let myNomination = exposure.myNomination, !myNomination.isRewarded {
-//                    return R.string.localizable.stakingValidatorMyOversubscribedMessage(
-//                        preferredLanguages: locale.rLanguages
-//                    )
-//                } else {
-//                    return R.string.localizable.stakingValidatorOtherOversubscribedMessage(
-//                        preferredLanguages: locale.rLanguages
-//                    )
-//                }
-//            }()
-//
-//            return addHintView(for: hintTitle, icon: R.image.iconWarning())
-//        } else {
-        return nominatorsView
-//        }
+        if exposure.oversubscribed {
+            nominatorsView.borderView.borderType = .none
+
+            let hintTitle: String = R.string.localizable.stakingCollatorOtherOversubscribedMessage(
+                preferredLanguages: locale.rLanguages
+            )
+
+            return addHintView(for: hintTitle, icon: R.image.iconWarning())
+        } else {
+            return nominatorsView
+        }
     }
 
     @discardableResult

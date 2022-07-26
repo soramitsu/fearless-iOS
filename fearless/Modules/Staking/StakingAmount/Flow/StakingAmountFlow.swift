@@ -17,9 +17,6 @@ protocol StakingAmountModelStateListener: AnyObject {
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var stateListener: StakingAmountModelStateListener? { get set }
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure { get }
-
-    func validators(using locale: Locale) -> [DataValidating]
-
     var amount: Decimal? { get set }
     var fee: Decimal? { get set }
     var bonding: InitiatedBonding? { get }
@@ -27,11 +24,8 @@ protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var learnMoreUrl: URL? { get }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?)
+    func validators(using locale: Locale) -> [DataValidating]
 }
-
-// extension StakingAmountViewModelState {
-//    var payoutAccount: ChainAccountResponse? { nil }
-// }
 
 struct StakingAmountDependencyContainer {
     let viewModelState: StakingAmountViewModelState

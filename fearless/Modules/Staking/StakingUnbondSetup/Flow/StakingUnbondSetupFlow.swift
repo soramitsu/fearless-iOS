@@ -1,8 +1,6 @@
 import UIKit
 import SoraFoundation
 
-enum StakingUnbondSetupFlowError: Error {}
-
 enum StakingUnbondSetupFlow {
     case relaychain
     case parachain(candidate: ParachainStakingCandidateInfo, delegation: ParachainStakingDelegation)
@@ -24,18 +22,15 @@ protocol StakingUnbondSetupModelStateListener: AnyObject {
 
 protocol StakingUnbondSetupViewModelState: StakingUnbondSetupUserInputHandler {
     var stateListener: StakingUnbondSetupModelStateListener? { get set }
-    func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?)
-
     var inputAmount: Decimal? { get }
     var amount: Decimal? { get }
     var bonded: Decimal? { get }
     var fee: Decimal? { get }
-
-    func validators(using locale: Locale) -> [DataValidating]
-
     var builderClosure: ExtrinsicBuilderClosure? { get }
-
     var confirmationFlow: StakingUnbondConfirmFlow? { get }
+
+    func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?)
+    func validators(using locale: Locale) -> [DataValidating]
 }
 
 struct StakingUnbondSetupDependencyContainer {
@@ -77,5 +72,3 @@ protocol StakingUnbondSetupUserInputHandler {
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ amount: Decimal)
 }
-
-extension StakingUnbondSetupUserInputHandler {}

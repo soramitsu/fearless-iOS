@@ -20,7 +20,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let storageFacade = SubstrateDataStorageFacade.shared
         let serviceFactory = StakingServiceFactory(
-            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            chainRegisty: chainRegistry,
             storageFacade: storageFacade,
             eventCenter: EventCenter.shared,
             operationManager: OperationManagerFacade.sharedManager
@@ -44,8 +44,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let signer = SigningWrapper(
             keystore: Keychain(),
-            metaId:
-            wallet.metaId,
+            metaId: wallet.metaId,
             accountResponse: accountResponse
         )
 
@@ -57,12 +56,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             operationManager: operationManager,
             logger: logger
         )
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
+
         let priceLocalSubcriptionFactory = PriceProviderFactory(storageFacade: storageFacade)
 
         let balanceViewModelFactory = BalanceViewModelFactory(

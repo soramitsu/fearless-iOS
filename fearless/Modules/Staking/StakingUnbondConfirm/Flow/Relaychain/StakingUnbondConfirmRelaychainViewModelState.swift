@@ -3,23 +3,21 @@ import BigInt
 import FearlessUtils
 
 final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmViewModelState {
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
-            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
-
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.stateListener?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.has(
-                controller: controller,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            )
-        ]
-    }
+    var stateListener: StakingUnbondConfirmModelStateListener?
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+    let dataValidatingFactory: StakingDataValidatingFactory
+    let inputAmount: Decimal
+    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private(set) var bonded: Decimal?
+    private(set) var balance: Decimal?
+    private(set) var minimalBalance: Decimal?
+    private(set) var minNominatorBonded: Decimal?
+    private(set) var nomination: Nomination?
+    private(set) var fee: Decimal?
+    private(set) var controller: ChainAccountResponse?
+    private(set) var stashItem: StashItem?
+    private(set) var payee: RewardDestinationArg?
 
     var builderClosure: ExtrinsicBuilderClosure? {
         { [weak self] builder in
@@ -44,27 +42,26 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         stashItem?.controller
     }
 
-    var stateListener: StakingUnbondConfirmModelStateListener?
-
-    func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
-        self.stateListener = stateListener
+    var shouldResetRewardDestination: Bool {
+        switch payee {
+        case .staked:
+            if let bonded = bonded, let minimalBalance = minimalBalance {
+                return bonded - inputAmount < minimalBalance
+            } else {
+                return false
+            }
+        default:
+            return false
+        }
     }
 
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-    let inputAmount: Decimal
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
-
-    var bonded: Decimal?
-    var balance: Decimal?
-    var minimalBalance: Decimal?
-    var minNominatorBonded: Decimal?
-    var nomination: Nomination?
-    var fee: Decimal?
-    var controller: ChainAccountResponse?
-    var stashItem: StashItem?
-    var payee: RewardDestinationArg?
+    private var shouldChill: Bool {
+        if let bonded = bonded, let minNominatorBonded = minNominatorBonded, nomination != nil {
+            return bonded - inputAmount < minNominatorBonded
+        } else {
+            return false
+        }
+    }
 
     init(
         chainAsset: ChainAsset,
@@ -76,6 +73,28 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.inputAmount = inputAmount
+    }
+
+    func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
+
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.stateListener?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
+
+            dataValidatingFactory.has(
+                controller: controller,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            )
+        ]
     }
 
     private func setupExtrinsicBuiler(
@@ -101,27 +120,6 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         }
 
         return resultBuilder
-    }
-
-    var shouldResetRewardDestination: Bool {
-        switch payee {
-        case .staked:
-            if let bonded = bonded, let minimalBalance = minimalBalance {
-                return bonded - inputAmount < minimalBalance
-            } else {
-                return false
-            }
-        default:
-            return false
-        }
-    }
-
-    var shouldChill: Bool {
-        if let bonded = bonded, let minNominatorBonded = minNominatorBonded, nomination != nil {
-            return bonded - inputAmount < minNominatorBonded
-        } else {
-            return false
-        }
     }
 }
 

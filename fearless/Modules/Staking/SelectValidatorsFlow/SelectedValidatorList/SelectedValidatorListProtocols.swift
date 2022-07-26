@@ -40,21 +40,7 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
 }
 
 protocol SelectedValidatorListViewFactoryProtocol {
-    static func createInitiatedBondingView(
-        flow: SelectedValidatorListFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate
-    ) -> SelectedValidatorListViewProtocol?
-
-    static func createChangeTargetsView(
-        flow: SelectedValidatorListFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        delegate: SelectedValidatorListDelegate
-    ) -> SelectedValidatorListViewProtocol?
-
-    static func createChangeYourValidatorsView(
+    static func createView(
         flow: SelectedValidatorListFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,

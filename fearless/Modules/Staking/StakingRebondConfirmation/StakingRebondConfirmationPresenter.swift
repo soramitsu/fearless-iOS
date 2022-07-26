@@ -104,15 +104,16 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteracto
 }
 
 extension StakingRebondConfirmationPresenter: StakingRebondConfirmationModelStateListener {
-    func didReceiveError(error _: StakingRebondConfirmationFlowError) {}
-
     func provideFeeViewModel() {
         let viewModel = confirmViewModelFactory.createFeeViewModel(viewModelState: viewModelState, priceData: priceData)
         view?.didReceiveFee(viewModel: viewModel)
     }
 
     func provideAssetViewModel() {
-        if let viewModel = confirmViewModelFactory.createAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData) {
+        if let viewModel = confirmViewModelFactory.createAssetBalanceViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        ) {
             view?.didReceiveAsset(viewModel: viewModel)
         }
     }

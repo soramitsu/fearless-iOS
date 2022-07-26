@@ -26,18 +26,16 @@ protocol StakingBondMoreConfirmationModelStateListener: AnyObject {
     func didSubmitBonding(result: Result<String, Error>)
 }
 
-protocol StakingBondMoreConfirmationViewModelState: StakingBondMoreConfirmationUserInputHandler {
+protocol StakingBondMoreConfirmationViewModelState {
     var stateListener: StakingBondMoreConfirmationModelStateListener? { get set }
-    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?)
-
     var amount: Decimal { get }
     var fee: Decimal? { get }
     var balance: Decimal? { get }
     var accountAddress: String? { get }
-
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var feeReuseIdentifier: String? { get }
 
+    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]
 }
 
@@ -51,7 +49,3 @@ protocol StakingBondMoreConfirmationStrategy {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
-
-protocol StakingBondMoreConfirmationUserInputHandler {}
-
-extension StakingBondMoreConfirmationUserInputHandler {}

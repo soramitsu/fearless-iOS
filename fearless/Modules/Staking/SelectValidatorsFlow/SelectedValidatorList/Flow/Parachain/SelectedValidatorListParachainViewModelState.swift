@@ -2,15 +2,9 @@ import Foundation
 
 final class SelectedValidatorListParachainViewModelState: SelectedValidatorListViewModelState {
     weak var delegate: SelectedValidatorListDelegate?
-
     var stateListener: SelectedValidatorListModelStateListener?
-
-    func setStateListener(_ stateListener: SelectedValidatorListModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
+    private(set) var selectedValidatorList: [ParachainStakingCandidateInfo]
     let maxTargets: Int
-    var selectedValidatorList: [ParachainStakingCandidateInfo]
     let bonding: InitiatedBonding
     let baseFlow: SelectedValidatorListFlow
 
@@ -20,6 +14,10 @@ final class SelectedValidatorListParachainViewModelState: SelectedValidatorListV
         self.maxTargets = maxTargets
         self.selectedValidatorList = selectedValidatorList
         self.bonding = bonding
+    }
+
+    func setStateListener(_ stateListener: SelectedValidatorListModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {

@@ -47,11 +47,3 @@ protocol ValidatorSearchViewFactoryProtocol {
         wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol?
 }
-
-// protocol ValidatorSearchViewModelFactoryProtocol {
-//    func createViewModel(
-//        from displayValidatorList: [SelectedValidatorInfo],
-//        selectedValidatorList: [SelectedValidatorInfo],
-//        locale: Locale
-//    ) -> ValidatorSearchViewModel
-// }

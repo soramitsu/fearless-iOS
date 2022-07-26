@@ -1,8 +1,6 @@
 import UIKit
 import SoraFoundation
 
-enum SelectValidatorsConfirmFlowError: Error {}
-
 enum SelectValidatorsConfirmFlow {
     case relaychainInitiated(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case relaychainExisting(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
@@ -22,20 +20,17 @@ protocol SelectValidatorsConfirmModelStateListener: AnyObject {
     func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState)
 }
 
-protocol SelectValidatorsConfirmViewModelState: SelectValidatorsConfirmUserInputHandler {
+protocol SelectValidatorsConfirmViewModelState {
     var stateListener: SelectValidatorsConfirmModelStateListener? { get set }
-    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?)
-
-    func validators(using locale: Locale) -> [DataValidating]
-
-    func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure?
-
     var amount: Decimal? { get }
     var fee: Decimal? { get }
-
     var payoutAccountAddress: String? { get }
     var walletAccountAddress: String? { get }
     var collatorAddress: String? { get }
+
+    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?)
+    func validators(using locale: Locale) -> [DataValidating]
+    func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure?
 }
 
 extension SelectValidatorsConfirmViewModelState {
@@ -74,7 +69,3 @@ protocol SelectValidatorsConfirmStrategy {
     func estimateFee(closure: ExtrinsicBuilderClosure?)
     func submitNomination(closure: ExtrinsicBuilderClosure?)
 }
-
-protocol SelectValidatorsConfirmUserInputHandler {}
-
-extension SelectValidatorsConfirmUserInputHandler {}

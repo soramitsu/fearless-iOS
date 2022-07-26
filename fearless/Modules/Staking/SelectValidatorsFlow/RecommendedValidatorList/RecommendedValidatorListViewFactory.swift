@@ -3,58 +3,16 @@ import SoraFoundation
 import FearlessUtils
 
 final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFactoryProtocol {
-    static func createInitiatedBondingView(
-        flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
-    ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = InitiatedBondingRecommendationWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            with: wireframe
-        )
-    }
-
-    static func createChangeTargetsView(
-        flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
-    ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsRecommendationWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            with: wireframe
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        flow: RecommendedValidatorListFlow,
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset
-    ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.RecommendationWireframe()
-        return createView(
-            flow: flow,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            with: wireframe
-        )
-    }
-
     static func createView(
         flow: RecommendedValidatorListFlow,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        with wireframe: RecommendedValidatorListWireframeProtocol
+        wallet: MetaAccountModel
     ) -> RecommendedValidatorListViewProtocol? {
         guard let container = createContainer(flow: flow, chainAsset: chainAsset) else {
             return nil
         }
 
+        let wireframe = RecommendedValidatorListWireframe()
         let view = RecommendedValidatorListViewController(nib: R.nib.recommendedValidatorListViewController)
 
         let presenter = RecommendedValidatorListPresenter(

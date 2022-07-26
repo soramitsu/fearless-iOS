@@ -9,8 +9,6 @@ protocol NetworkStakingInfoOperationFactoryProtocol {
 }
 
 class NetworkStakingInfoOperationFactory {
-    // MARK: - Private functions
-
     let durationOperationFactory: StakingDurationOperationFactoryProtocol
     init(durationFactory: StakingDurationOperationFactoryProtocol = StakingDurationOperationFactory()) {
         durationOperationFactory = durationFactory

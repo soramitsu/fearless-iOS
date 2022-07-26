@@ -101,12 +101,10 @@ final class SelectValidatorsStartRelaychainInitiatedViewModelState: SelectValida
 class SelectValidatorsStartRelaychainViewModelState: SelectValidatorsStartViewModelState {
     let initialTargets: [SelectedValidatorInfo]?
     let existingStashAddress: AccountAddress?
-
-    var electedValidators: [AccountAddress: ElectedValidatorInfo]?
-    var recommendedValidators: [ElectedValidatorInfo]?
-    var selectedValidators: SharedList<SelectedValidatorInfo>?
-    var maxNominations: Int?
-
+    private(set) var electedValidators: [AccountAddress: ElectedValidatorInfo]?
+    private(set) var recommendedValidators: [ElectedValidatorInfo]?
+    private(set) var selectedValidators: SharedList<SelectedValidatorInfo>?
+    private(set) var maxNominations: Int?
     var stateListener: SelectValidatorsStartModelStateListener?
 
     init(

@@ -15,17 +15,17 @@ protocol SelectValidatorsConfirmParachainStrategyOutput: AnyObject {
 }
 
 final class SelectValidatorsConfirmParachainStrategy {
-    let collatorAccountId: AccountId
-    let balanceAccountId: AccountId
-    let runtimeService: RuntimeCodingServiceProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
-    let signer: SigningWrapperProtocol
-    let operationManager: OperationManagerProtocol
-    let chainAsset: ChainAsset
-    let output: SelectValidatorsConfirmParachainStrategyOutput?
-    let collatorOperationFactory: ParachainCollatorOperationFactory
-    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
-    let eraValidatorService: EraValidatorServiceProtocol
+    private let collatorAccountId: AccountId
+    private let balanceAccountId: AccountId
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private let signer: SigningWrapperProtocol
+    private let operationManager: OperationManagerProtocol
+    private let chainAsset: ChainAsset
+    private let output: SelectValidatorsConfirmParachainStrategyOutput?
+    private let collatorOperationFactory: ParachainCollatorOperationFactory
+    private let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
         collatorAccountId: AccountId,
@@ -83,7 +83,7 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
 
                     strongSelf.output?.didReceiveAtStake(snapshot: atStake)
                 } catch {
-                    print("error: ", error)
+                    strongSelf.output?.didReceive(error: error)
                 }
             }
         }
@@ -92,8 +92,9 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
     }
 
     func fetchDelegatorState() {
-        let delegatorStateOperation = collatorOperationFactory.delegatorState { [unowned self] in
-            [self.balanceAccountId]
+        let balanceAccountId = balanceAccountId
+        let delegatorStateOperation = collatorOperationFactory.delegatorState {
+            [balanceAccountId]
         }
 
         delegatorStateOperation.targetOperation.completionBlock = { [weak self] in
@@ -113,7 +114,7 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
 
                     strongSelf.output?.didReceiveDelegatorState(state: delegatorState)
                 } catch {
-                    print("error: ", error)
+                    strongSelf.output?.didReceive(error: error)
                 }
             }
         }

@@ -2,21 +2,48 @@ import Foundation
 import BigInt
 
 final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewModelState {
-    var bonded: Decimal?
-    var balance: Decimal?
-    var inputAmount: Decimal?
-    var bondingDuration: UInt32?
-    var minimalBalance: Decimal?
-    var fee: Decimal?
-    var controller: ChainAccountResponse?
-    var stashItem: StashItem?
-
     var stateListener: StakingUnbondSetupModelStateListener?
-
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private(set) var bonded: Decimal?
+    private(set) var balance: Decimal?
+    private(set) var inputAmount: Decimal?
+    private(set) var bondingDuration: UInt32?
+    private(set) var minimalBalance: Decimal?
+    private(set) var fee: Decimal?
+    private(set) var controller: ChainAccountResponse?
+    private(set) var stashItem: StashItem?
+    private let dataValidatingFactory: StakingDataValidatingFactory
+    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+
+    var builderClosure: ExtrinsicBuilderClosure? {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
+            return nil
+        }
+
+        let unbondCall = callFactory.unbond(amount: amount)
+        let setPayeeCall = callFactory.setPayee(for: .stash)
+        let chillCall = callFactory.chill()
+
+        return { builder in
+            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
+        }
+    }
+
+    var confirmationFlow: StakingUnbondConfirmFlow? {
+        guard let inputAmount = inputAmount else {
+            return nil
+        }
+
+        return .relaychain(amount: inputAmount)
+    }
+
+    var amount: Decimal? {
+        inputAmount
+    }
 
     init(
         chainAsset: ChainAsset,
@@ -72,35 +99,6 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
         if fee == nil {
             stateListener?.updateFeeIfNeeded()
         }
-    }
-
-    var builderClosure: ExtrinsicBuilderClosure? {
-        guard
-            let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                precision: Int16(chainAsset.asset.precision)
-            ) else {
-            return nil
-        }
-
-        let unbondCall = callFactory.unbond(amount: amount)
-        let setPayeeCall = callFactory.setPayee(for: .stash)
-        let chillCall = callFactory.chill()
-
-        return { builder in
-            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
-        }
-    }
-
-    var confirmationFlow: StakingUnbondConfirmFlow? {
-        guard let inputAmount = inputAmount else {
-            return nil
-        }
-
-        return .relaychain(amount: inputAmount)
-    }
-
-    var amount: Decimal? {
-        inputAmount
     }
 }
 

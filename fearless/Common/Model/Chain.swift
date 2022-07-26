@@ -37,8 +37,9 @@ extension Chain {
         case .kusama: return .kusamaMain
         case .westend: return .genericSubstrate
         case .rococo: return .kusamaSecondary
-        default:
-            return .polkadotMain
+        case .moonbeam: return .moonbeam
+        case .moonriver: return .moonriver
+        case .moonbaseAlpha: return .moonbaseAlpha
         }
     }
 }

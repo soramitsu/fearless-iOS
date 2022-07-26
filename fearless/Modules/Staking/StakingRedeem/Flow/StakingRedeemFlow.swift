@@ -2,8 +2,6 @@ import UIKit
 import SoraFoundation
 import BigInt
 
-enum StakingRedeemFlowError: Error {}
-
 enum StakingRedeemFlow {
     case relaychain
     case parachain(
@@ -22,16 +20,15 @@ protocol StakingRedeemModelStateListener: AnyObject {
     func refreshFeeIfNeeded()
 }
 
-protocol StakingRedeemViewModelState: StakingRedeemUserInputHandler {
+protocol StakingRedeemViewModelState {
     var stateListener: StakingRedeemModelStateListener? { get set }
-    func setStateListener(_ stateListener: StakingRedeemModelStateListener?)
-
-    func validators(using locale: Locale) -> [DataValidating]
-
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var reuseIdentifier: String? { get }
     var fee: Decimal? { get }
     var address: String? { get }
+
+    func setStateListener(_ stateListener: StakingRedeemModelStateListener?)
+    func validators(using locale: Locale) -> [DataValidating]
 }
 
 struct StakingRedeemDependencyContainer {
@@ -56,7 +53,3 @@ protocol StakingRedeemStrategy {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
-
-protocol StakingRedeemUserInputHandler {}
-
-extension StakingRedeemUserInputHandler {}

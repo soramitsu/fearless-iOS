@@ -1,14 +1,18 @@
 import Foundation
 
-class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelState {
+final class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelState {
     let candidates: [ParachainStakingCandidateInfo]
     let maxTargets: Int
     let bonding: InitiatedBonding
     let selectedValidatorList: SharedList<ParachainStakingCandidateInfo>
     let chainAsset: ChainAsset
 
-    var filteredValidatorList: [ParachainStakingCandidateInfo] = []
-    var filter: CustomValidatorParachainListFilter = .recommendedFilter()
+    private(set) var filteredValidatorList: [ParachainStakingCandidateInfo] = []
+    private(set) var filter: CustomValidatorParachainListFilter = .recommendedFilter()
+
+    var filterApplied: Bool {
+        false
+    }
 
     init(
         candidates: [ParachainStakingCandidateInfo],
@@ -73,10 +77,6 @@ class CustomValidatorListParachainViewModelState: CustomValidatorListViewModelSt
             stakeAmount: bonding.amount
         )
     }
-
-    var filterApplied: Bool {
-        false
-    }
 }
 
 extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInputHandler {
@@ -85,13 +85,13 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
     }
 
     func changeIdentityFilterValue() {
-        filter.allowsNoIdentity = !filter.allowsNoIdentity
+        filter.allowsNoIdentity.toggle()
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func changeMinBondFilterValue() {
-        filter.allowsOversubscribed = !filter.allowsOversubscribed
+        filter.allowsOversubscribed.toggle()
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

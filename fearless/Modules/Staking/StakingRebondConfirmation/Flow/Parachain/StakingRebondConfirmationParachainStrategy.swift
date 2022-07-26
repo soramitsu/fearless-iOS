@@ -10,15 +10,15 @@ protocol StakingRebondConfirmationParachainStrategyOutput: AnyObject {
 }
 
 final class StakingRebondConfirmationParachainStrategy: AccountFetching {
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let chainAsset: ChainAsset
-    let keystore: KeystoreProtocol
-    let wallet: MetaAccountModel
-    let connection: JSONRPCEngine
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let chainAsset: ChainAsset
+    private let keystore: KeystoreProtocol
+    private let wallet: MetaAccountModel
+    private let connection: JSONRPCEngine
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     weak var output: StakingRebondConfirmationParachainStrategyOutput?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?

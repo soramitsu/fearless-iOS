@@ -1,10 +1,6 @@
 import Foundation
 
-protocol RecommendedValidatorListParachainStrategyOutput: AnyObject {}
-
-class RecommendedValidatorListParachainStrategy {
-    var output: RecommendedValidatorListParachainStrategyOutput?
-}
+final class RecommendedValidatorListParachainStrategy {}
 
 extension RecommendedValidatorListParachainStrategy: RecommendedValidatorListStrategy {
     func setup() {}

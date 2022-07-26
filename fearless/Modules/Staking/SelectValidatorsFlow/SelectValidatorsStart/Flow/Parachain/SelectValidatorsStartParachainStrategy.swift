@@ -11,9 +11,9 @@ protocol SelectValidatorsStartParachainStrategyOutput: AnyObject {
 }
 
 final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
-    let operationFactory: ParachainCollatorOperationFactory
-    let operationManager: OperationManagerProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
+    private let operationFactory: ParachainCollatorOperationFactory
+    private let operationManager: OperationManagerProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
     private weak var output: SelectValidatorsStartParachainStrategyOutput?
 
     init(
@@ -42,7 +42,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                         self?.requestTopDelegationsForEachCollator(collators: collators)
                     }
                 } catch {
-                    print("error: ", error)
+                    print("SelectValidatorsStartParachainStrategy.prepareRecommendedValidatorList error: ", error)
                 }
             }
         }
@@ -65,7 +65,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
 
                 self?.output?.didReceiveTopDelegations(delegations: delegations)
             } catch {
-                print("error: ", error)
+                print("SelectValidatorsStartParachainStrategy.requestTopDelegationsForEachCollator error: ", error)
             }
         }
 
@@ -87,7 +87,7 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
 
                 self?.output?.didReceiveBottomDelegations(delegations: delegations)
             } catch {
-                print("error: ", error)
+                print("SelectValidatorsStartParachainStrategy.requestBottomDelegationsForEachCollator error: ", error)
             }
         }
 

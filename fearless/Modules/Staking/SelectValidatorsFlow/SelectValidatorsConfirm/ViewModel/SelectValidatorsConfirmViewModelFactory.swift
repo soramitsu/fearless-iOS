@@ -4,7 +4,7 @@ import CommonWallet
 import SoraFoundation
 
 final class SelectValidatorsConfirmViewModelFactory {
-    private var iconGenerator: IconGenerating
+    private let iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
 
     init(iconGenerator: IconGenerating) {

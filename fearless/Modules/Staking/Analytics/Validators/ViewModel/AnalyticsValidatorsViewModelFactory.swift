@@ -4,7 +4,7 @@ import BigInt
 import IrohaCrypto
 
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
-    private var iconGenerator: IconGenerating
+    private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chain: ChainModel
     private let asset: AssetModel

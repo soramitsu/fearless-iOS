@@ -3,12 +3,6 @@ import SoraFoundation
 import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
-    func refresh() {
-        priceProvider?.refresh()
-        totalRewardProvider?.refresh()
-        rewardAnalyticsProvider?.refresh()
-    }
-
     func updatePrices() {
         updateAfterChainAssetSave()
         updateAfterSelectedAccountChange()

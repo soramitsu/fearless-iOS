@@ -51,7 +51,7 @@ final class ParachainStakingLocalSubscriptionFactory: SubstrateLocalSubscription
     }
 
     func getDelegatorState(chainId: ChainModel.Id, accountId: AccountId) throws -> AnyDataProvider<DecodedParachainDelegatorState> {
-        let codingPath = StorageCodingPath.delegatorStake
+        let codingPath = StorageCodingPath.delegatorState
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
             encodableElement: accountId,

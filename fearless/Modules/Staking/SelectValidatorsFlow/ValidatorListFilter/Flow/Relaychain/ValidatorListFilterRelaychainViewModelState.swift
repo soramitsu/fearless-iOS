@@ -2,17 +2,16 @@ import Foundation
 
 final class ValidatorListFilterRelaychainViewModelState: ValidatorListFilterViewModelState {
     var stateListener: ValidatorListFilterModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorListFilterModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
     let initialFilter: CustomValidatorRelaychainListFilter
     private(set) var currentFilter: CustomValidatorRelaychainListFilter
 
     init(filter: CustomValidatorRelaychainListFilter) {
         initialFilter = filter
         currentFilter = filter
+    }
+
+    func setStateListener(_ stateListener: ValidatorListFilterModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
@@ -28,11 +27,11 @@ extension ValidatorListFilterRelaychainViewModelState: ValidatorListFilterUserIn
 
         switch filter {
         case .withoutIdentity:
-            currentFilter.allowsNoIdentity = !currentFilter.allowsNoIdentity
+            currentFilter.allowsNoIdentity.toggle()
         case .slashed:
-            currentFilter.allowsSlashed = !currentFilter.allowsSlashed
+            currentFilter.allowsSlashed.toggle()
         case .oversubscribed:
-            currentFilter.allowsOversubscribed = !currentFilter.allowsOversubscribed
+            currentFilter.allowsOversubscribed.toggle()
         case .clusterLimit:
             let allowsUnlimitedClusters = currentFilter.allowsClusters == .unlimited
             currentFilter.allowsClusters = allowsUnlimitedClusters ?

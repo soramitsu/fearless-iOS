@@ -4,22 +4,9 @@ import SoraFoundation
 import SoraUI
 import CommonWallet
 
-class SelfSizingTableView: UITableView {
-    override var contentSize: CGSize {
-        didSet {
-            invalidateIntrinsicContentSize()
-            setNeedsLayout()
-        }
-    }
-
-    override var intrinsicContentSize: CGSize {
-        let height = min(.infinity, contentSize.height)
-        return CGSize(width: contentSize.width, height: height)
-    }
-}
-
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
+        static let delegationRowHeight: CGFloat = 175.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
         static let contentInset = UIEdgeInsets(
@@ -38,8 +25,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
-
-    var refreshControl: UIRefreshControl!
 
     let assetSelectionContainerView = UIView()
     let assetSelectionView: DetailsTriangularedView = {
@@ -91,14 +76,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupNetworkInfoView()
         setupAlertsView()
 //        setupAnalyticsView()
+        setupTableViewLayout()
         setupTableView()
         setupActionButton()
         setupLocalization()
         presenter?.setup()
-
-        refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(handlePullToRefresh), for: .valueChanged)
-        scrollView.addSubview(refreshControl)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -142,11 +124,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
         }
-    }
-
-    @objc func handlePullToRefresh() {
-        presenter?.performRefreshAction()
-        refreshControl.endRefreshing()
     }
 
     @IBAction func actionIcon() {
@@ -335,7 +312,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupTableView() {
+    private func setupTableViewLayout() {
         tableViewContainer.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
@@ -343,10 +320,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             make.top.equalToSuperview().offset(Constants.verticalSpacing)
             make.bottom.equalToSuperview().inset(Constants.bottomInset)
         }
-        tableView.allowsSelection = false
+
         stackView.addArrangedSubview(tableViewContainer)
-        tableView.delegate = self
+    }
+
+    private func setupTableView() {
+        tableView.allowsSelection = false
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.rowHeight = UIConstants.cellHeight
         tableView.registerClassForCell(DelegationInfoCell.self)
     }
@@ -651,15 +632,9 @@ extension StakingMainViewController: AlertsViewDelegate {
     }
 }
 
-extension StakingMainViewController: UITableViewDelegate {}
-
 extension StakingMainViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         delegationViewModels?.count ?? 0
-    }
-
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        175
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -672,5 +647,11 @@ extension StakingMainViewController: UITableViewDataSource {
         viewModel.locale = selectedLocale
         cell.bind(to: viewModel)
         return cell
+    }
+}
+
+extension StakingMainViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        Constants.delegationRowHeight
     }
 }

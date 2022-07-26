@@ -3,12 +3,12 @@ import SoraFoundation
 import SoraKeystore
 
 enum CustomValidatorListViewFactory {
-    private static func createView(
+    static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow,
-        with wireframe: CustomValidatorListWireframeProtocol
+        flow: CustomValidatorListFlow
     ) -> CustomValidatorListViewProtocol? {
+        let wireframe = CustomValidatorListWireframe()
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
@@ -116,47 +116,5 @@ extension CustomValidatorListViewFactory {
                 viewModelFactory: viewModelFactory
             )
         }
-    }
-
-    static func createInitiatedBondingView(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = InitBondingCustomValidatorListWireframe()
-        return createView(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            flow: flow,
-            with: wireframe
-        )
-    }
-
-    static func createChangeTargetsView(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = ChangeTargetsCustomValidatorListWireframe()
-        return createView(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            flow: flow,
-            with: wireframe
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        flow: CustomValidatorListFlow
-    ) -> CustomValidatorListViewProtocol? {
-        let wireframe = YourValidatorList.CustomListWireframe()
-        return createView(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            flow: flow,
-            with: wireframe
-        )
     }
 }

@@ -1,9 +1,9 @@
 import Foundation
 import BigInt
 
-class CustomValidatorParachainListComposer {
-    let filter: CustomValidatorParachainListFilter
-    let chainAsset: ChainAsset
+final class CustomValidatorParachainListComposer {
+    private let filter: CustomValidatorParachainListFilter
+    private let chainAsset: ChainAsset
 
     init(
         filter: CustomValidatorParachainListFilter,
