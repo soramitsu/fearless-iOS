@@ -67,6 +67,18 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         return view
     }()
 
+//    private var chainInfoContainerView: UIStackView = {
+//        let stackView = UIStackView()
+//        stackView.axis = .horizontal
+//        stackView.distribution = .equalSpacing
+//        stackView.spacing = UIConstants.defaultOffset
+//        return stackView
+//    }()
+
+    private var chainInfoContainerView = UIView()
+
+    private var chainIconsView = ChainCollectionView()
+
     private var skeletonView: SkrullableView?
 
     // MARK: - Lifecycle
@@ -88,10 +100,12 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
 
         assetIconImageView.kf.cancelDownloadTask()
 
-        chainOptionsView.stackView.arrangedSubviews.forEach { subview in
-            chainOptionsView.stackView.removeArrangedSubview(subview)
+        chainOptionsView.arrangedSubviews.forEach { subview in
+            chainOptionsView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
+
+        chainIconsView.prepareForReuse()
     }
 
     // MARK: - Public methods
@@ -113,9 +127,21 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
                 let view = ChainOptionsView()
                 view.bind(to: option)
 
-                chainOptionsView.stackView.addArrangedSubview(view)
+                chainOptionsView.addArrangedSubview(view)
             }
         }
+
+        let model = ChainCollectionViewModel(
+            maxImagesCount: 5,
+            chainImages: [
+                viewModel.imageViewModel,
+                viewModel.imageViewModel,
+                viewModel.imageViewModel,
+                viewModel.imageViewModel,
+                viewModel.imageViewModel
+            ]
+        )
+        chainIconsView.bind(viewModel: model)
 
         setDeactivated(!viewModel.chain.isSupported)
         controlSkeleton(for: viewModel)
@@ -171,8 +197,12 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             make.bottom.equalTo(separatorView.snp.bottom)
         }
 
-        contentStackView.addArrangedSubview(chainInfoView)
+        contentStackView.addArrangedSubview(chainInfoContainerView)
+        chainInfoContainerView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+        }
         chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
         contentStackView.addArrangedSubview(balanceView)
         balanceView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         balanceView.snp.makeConstraints { make in
@@ -185,23 +215,35 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             make.trailing.equalToSuperview()
         }
 
-        chainInfoView.addSubview(chainNameLabel)
+        chainInfoContainerView.addSubview(chainNameLabel)
         chainNameLabel.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
         }
-
-        chainInfoView.addSubview(chainOptionsView)
+        chainInfoContainerView.addSubview(chainOptionsView)
         chainOptionsView.snp.makeConstraints { make in
-            make.trailing.greaterThanOrEqualToSuperview()
+            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.bigOffset)
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.defaultOffset)
+        }
+        chainInfoContainerView.addSubview(chainIconsView)
+        chainIconsView.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(chainOptionsView.snp.trailing).offset(UIConstants.bigOffset)
+            make.top.bottom.trailing.equalToSuperview()
+            make.width.equalTo(80).priority(.low)
         }
 
-        chainOptionsView.stackView.snp.makeConstraints { make in
-            make.height.equalToSuperview()
-        }
+//        chainNameLabel.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 1000), for: .horizontal)
+//        chainOptionsView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 999), for: .horizontal)
+//        chainOptionsView.setContentHuggingPriority(UILayoutPriority(rawValue: 249), for: .horizontal)
+//        chainIconsView.setContentCompressionResistancePriority(UILayoutPriority(rawValue: 100), for: .horizontal)
 
-        chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+//        chainIconsView.setContentHuggingPriority(
+//            UILayoutPriority(rawValue: 1000),
+//            for: .horizontal
+//        )
+//        chainIconsView.setContentCompressionResistancePriority(
+//            UILayoutPriority(rawValue: 1000),
+//            for: .horizontal
+//        )
     }
 }
 
@@ -220,7 +262,7 @@ extension ChainAccountBalanceTableCell {
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()
-
+//        chainIconsView.startShimmeringAnimation()
         if viewModel.isColdBoot {
             startLoading()
             return
@@ -232,6 +274,7 @@ extension ChainAccountBalanceTableCell {
 
         stopLoadingIfNeeded()
         assetIconImageView.stopShimmeringAnimation()
+//        chainIconsView.stopShimmeringAnimation()
         chainNameLabel.apply(state: .normal(chainName))
         balanceView.keyLabel.apply(state: .normal(chainSymbol))
     }
