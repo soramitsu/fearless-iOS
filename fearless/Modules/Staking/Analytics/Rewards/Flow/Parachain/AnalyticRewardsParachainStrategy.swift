@@ -33,7 +33,7 @@ final class AnalyticsRewardsParachainStrategy {
 extension AnalyticsRewardsParachainStrategy: AnalyticsRewardsStrategy {
     func setup() {
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
-            fetchRewards(address: "0xb107c568224F4CD0619b40D5d91237A512B6f2F5")
+            fetchRewards(address: address)
         }
     }
 
