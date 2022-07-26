@@ -9,7 +9,7 @@ final class MainTabBarViewController: UITabBarController {
         return view
     }()
 
-    var presenter: MainTabBarPresenterProtocol
+    private var presenter: MainTabBarPresenterProtocol
 
     private var viewAppeared: Bool = false
 
@@ -42,33 +42,28 @@ final class MainTabBarViewController: UITabBarController {
 
         if !viewAppeared {
             viewAppeared = true
-            presenter.setup()
+            presenter.didLoad(view: self)
         }
 
         applyLocalization()
     }
 
     private func configureTabBar() {
+        let blurEffect = UIBlurEffect(style: .dark)
+
         if #available(iOS 13.0, *) {
             let appearance = UITabBarAppearance()
-
-            appearance.shadowImage = UIImage()
-
-            let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorGray()!]
-            let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
-
-            appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
-            appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
-            appearance.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
-            appearance.backgroundEffect = nil
+            appearance.backgroundEffect = blurEffect
             tabBar.standardAppearance = appearance
 
             if #available(iOS 15.0, *) {
                 tabBar.scrollEdgeAppearance = appearance
             }
         } else {
-            tabBar.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
-            tabBar.shadowImage = UIImage()
+            let blurView = UIVisualEffectView(effect: blurEffect)
+            blurView.frame = tabBar.bounds
+            blurView.autoresizingMask = .flexibleWidth
+            tabBar.insertSubview(blurView, at: 0)
         }
     }
 
