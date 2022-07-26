@@ -12,8 +12,14 @@ struct NetworkFeeFooterViewModel: NetworkFeeFooterViewModelProtocol {
     var balanceViewModel: LocalizableResource<BalanceViewModelProtocol>
 }
 
-enum StakingBondMoreViewModelFactory {
-    static func createViewModel(
+protocol NetworkFeeViewModelFactoryProtocol {
+    func createViewModel(
+        from balanceViewModel: LocalizableResource<BalanceViewModelProtocol>
+    ) -> LocalizableResource<NetworkFeeFooterViewModelProtocol>
+}
+
+final class NetworkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol {
+    func createViewModel(
         from balanceViewModel: LocalizableResource<BalanceViewModelProtocol>
     ) -> LocalizableResource<NetworkFeeFooterViewModelProtocol> {
         LocalizableResource { locale in

@@ -14,6 +14,7 @@ final class StakingBondMorePresenter {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private var priceData: PriceData?
+    private let networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
@@ -22,6 +23,7 @@ final class StakingBondMorePresenter {
         viewModelFactory: StakingBondMoreViewModelFactoryProtocol?,
         viewModelState: StakingBondMoreViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
@@ -32,6 +34,7 @@ final class StakingBondMorePresenter {
         self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
+        self.networkFeeViewModelFactory = networkFeeViewModelFactory
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.logger = logger
@@ -118,7 +121,7 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
         if let fee = viewModelState.fee {
             let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
             let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-            let viewModel = StakingBondMoreViewModelFactory.createViewModel(
+            let viewModel = networkFeeViewModelFactory.createViewModel(
                 from: balanceViewModel
             )
             view?.didReceiveFee(viewModel: viewModel)

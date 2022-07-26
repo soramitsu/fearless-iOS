@@ -41,6 +41,7 @@ struct StakingBondMoreViewFactory {
             viewModelFactory: container.viewModelFactory,
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
+            networkFeeViewModelFactory: NetworkFeeViewModelFactory(),
             chainAsset: chainAsset,
             wallet: wallet
         )
