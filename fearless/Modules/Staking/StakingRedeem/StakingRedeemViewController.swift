@@ -44,8 +44,6 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
-
         rootView.locale = selectedLocale
 
         applyAssetViewModel()
@@ -84,7 +82,7 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
         guard let confirmViewModel = confirmationViewModel else {
             return
         }
-
+        title = confirmViewModel.title.value(for: selectedLocale)
         rootView.bind(confirmationViewModel: confirmViewModel)
     }
 

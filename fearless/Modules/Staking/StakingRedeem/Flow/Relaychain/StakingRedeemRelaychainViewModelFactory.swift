@@ -38,12 +38,16 @@ final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFacto
 
         let address = relaychainViewModelState.controller?.toAddress() ?? ""
         let icon = try? iconGenerator.generateFromAddress(address)
+        let title = LocalizableResource { locale in
+            R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages)
+        }
 
         return StakingRedeemViewModel(
             senderAddress: address,
             senderIcon: icon,
             senderName: relaychainViewModelState.controller?.name,
-            amount: amount
+            amount: amount,
+            title: title
         )
     }
 

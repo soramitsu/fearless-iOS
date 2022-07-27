@@ -33,12 +33,16 @@ final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactor
 
         let address = relaychainViewModelState.address ?? ""
         let icon = try? iconGenerator.generateFromAddress(address)
+        let title = LocalizableResource { locale in
+            R.string.localizable.stakingRevokeTokens(preferredLanguages: locale.rLanguages)
+        }
 
         return StakingRedeemViewModel(
             senderAddress: address,
             senderIcon: icon,
             senderName: relaychainViewModelState.wallet.fetch(for: relaychainViewModelState.chainAsset.chain.accountRequest())?.name,
-            amount: amount
+            amount: amount,
+            title: title
         )
     }
 
