@@ -48,6 +48,10 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
         provideFeeViewModel()
         provideBondingDuration()
         provideAssetViewModel()
+        provideTitle()
+        provideAccountViewModel()
+        provideCollatorViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
 
@@ -108,7 +112,9 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
 
     func provideFeeViewModel() {
         if let fee = viewModelState.fee {
-            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            let feeViewModel = viewModelFactory.buildNetworkFeeViewModel(from: balanceViewModel)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {
             view?.didReceiveFee(viewModel: nil)
@@ -133,6 +139,10 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
         view?.didReceiveBonding(duration: bondingDurationViewModel)
     }
 
+    func provideTitle() {
+        view?.didReceiveTitle(viewModel: viewModelFactory.buildTitleViewModel())
+    }
+
     func updateFeeIfNeeded() {
         interactor.estimateFee(builderClosure: viewModelState.builderClosure)
     }
@@ -155,5 +165,10 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
         if let viewModel = viewModelFactory.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
             view?.didReceiveCollator(viewModel: viewModel)
         }
+    }
+
+    func provideHintsViewModel() {
+        let viewModel = viewModelFactory.buildHints()
+        view?.didReceiveHints(viewModel: viewModel)
     }
 }

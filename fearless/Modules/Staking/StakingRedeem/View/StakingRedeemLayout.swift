@@ -19,7 +19,7 @@ final class StakingRedeemLayout: UIView {
         return view
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -66,7 +66,7 @@ final class StakingRedeemLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
@@ -94,7 +94,7 @@ final class StakingRedeemLayout: UIView {
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         setNeedsLayout()
     }
@@ -119,9 +119,9 @@ final class StakingRedeemLayout: UIView {
             make.height.equalTo(72.0)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

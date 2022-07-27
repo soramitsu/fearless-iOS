@@ -24,7 +24,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     let leasingPeriodView = TitleMultiValueView()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -72,7 +72,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
     }
 
     func bind(estimatedReward: String?) {
@@ -112,7 +112,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages
@@ -157,9 +157,9 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

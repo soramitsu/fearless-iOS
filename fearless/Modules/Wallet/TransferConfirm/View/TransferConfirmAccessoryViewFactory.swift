@@ -8,7 +8,7 @@ struct TransferConfirmAccessoryViewFactory: CommonWallet.AccessoryViewFactoryPro
         target: Any?,
         completionSelector: Selector?
     ) -> CommonWallet.AccessoryViewProtocol {
-        let view = UIFactory().createNetworkFeeConfirmView()
+        let view = UIFactory().createNetworkFeeFooterView()
 
         if let target = target, let selector = completionSelector {
             view.actionButton.addTarget(target, action: selector, for: .touchUpInside)

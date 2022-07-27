@@ -43,6 +43,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
         provideConfirmationViewModel()
         provideAssetViewModel()
         provideFeeViewModel()
+        provideBondingDuration()
 
         interactor.setup()
 
@@ -112,6 +113,15 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
         } else {
             view?.didReceiveFee(viewModel: nil)
         }
+    }
+
+    func provideBondingDuration() {
+        guard let bondingDurationViewModel = confirmViewModelFactory
+            .buildBondingDurationViewModel(viewModelState: viewModelState) else {
+            return
+        }
+
+        view?.didReceiveBonding(duration: bondingDurationViewModel)
     }
 
     func provideAssetViewModel() {

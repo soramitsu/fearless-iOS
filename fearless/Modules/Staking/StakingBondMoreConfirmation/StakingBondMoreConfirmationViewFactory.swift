@@ -35,7 +35,8 @@ struct StakingBondMoreConfirmViewFactory {
             from: interactor,
             viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            wireframe: wireframe
+            wireframe: wireframe,
+            flow: flow
         )
 
         let view = StakingBondMoreConfirmationVC(
@@ -55,7 +56,8 @@ struct StakingBondMoreConfirmViewFactory {
         from interactor: StakingBondMoreConfirmationInteractorInputProtocol,
         viewModelState: StakingBondMoreConfirmationViewModelState,
         dataValidatingFactory: StakingDataValidatingFactory,
-        wireframe: StakingBondMoreConfirmationWireframe
+        wireframe: StakingBondMoreConfirmationWireframe,
+        flow: StakingBondMoreConfirmationFlow
     ) -> StakingBondMoreConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
@@ -63,11 +65,20 @@ struct StakingBondMoreConfirmViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let confirmationViewModelFactory = StakingBondMoreConfirmViewModelFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
-        )
+        var confirmationViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol
+        switch flow {
+        case .relaychain:
+            confirmationViewModelFactory = StakingBondMoreConfirmRelaychainViewModelFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+        case .parachain:
+            confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
+                chainAsset: chainAsset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+        }
 
         return StakingBondMoreConfirmationPresenter(
             interactor: interactor,

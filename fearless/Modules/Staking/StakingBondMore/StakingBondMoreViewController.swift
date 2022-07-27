@@ -9,7 +9,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
-    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var feeViewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -51,7 +51,11 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func setupActionButton() {
-        rootView.actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+        rootView.networkFeeFooterView.actionButton.addTarget(
+            self,
+            action: #selector(handleActionButton),
+            for: .touchUpInside
+        )
     }
 
     @objc
@@ -61,7 +65,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyAsset() {
@@ -80,13 +84,22 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func applyFee() {
         if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.networkFeeView.bind(viewModel: fee)
+            rootView.bind(feeViewModel: fee)
         }
     }
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    func didReceiveHints(viewModel: LocalizableResource<String>?) {
+        if let viewModel = viewModel {
+            rootView.hintView.detailsLabel.text = viewModel.value(for: selectedLocale)
+            rootView.hintView.isHidden = false
+        } else {
+            rootView.hintView.isHidden = true
+        }
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFee()
 
@@ -133,7 +146,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
         let iconSize = 2.0 * rootView.collatorView.iconRadius
 
         rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
-            R.color.colorWhite()!,
+            R.color.colorWhite() ?? UIColor.white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )
