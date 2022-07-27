@@ -53,7 +53,7 @@ struct ChainAsset: Equatable, Hashable {
     }
 }
 
-struct ChainAssetId: Equatable, Codable {
+struct ChainAssetId: Equatable, Codable, Hashable {
     let chainId: ChainModel.Id
     let assetId: AssetModel.Id
 }
@@ -89,6 +89,10 @@ extension ChainAsset {
         }
 
         return storagePath
+    }
+
+    var debugName: String {
+        "\(chain.name)-\(asset.name)"
     }
 }
 
