@@ -30,7 +30,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        rootView.networkFeeConfirmView.actionButton
+        rootView.networkFeeFooterView.actionButton
             .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
         applyLocalization()
         setupTable()
@@ -88,7 +88,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
 
     private func setupConfirmViewLocalization(_ locale: Locale) {
         let localizedViewModel = feeViewModel?.value(for: locale)
-        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: localizedViewModel)
+        rootView.networkFeeFooterView.bindBalance(viewModel: localizedViewModel)
     }
 
     func applyLocalization() {

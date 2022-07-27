@@ -276,7 +276,8 @@ final class StakingStateViewModelFactory {
             from: rewards,
             priceData: commonData.price,
             period: rewardsForPeriod.1,
-            selectedChartIndex: nil
+            selectedChartIndex: nil,
+            hasPendingRewards: chainAsset.stakingType == .relayChain
         )
         return LocalizableResource { locale in
             RewardAnalyticsWidgetViewModel(
@@ -567,6 +568,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             chainAsset: chainAsset,
             countdownInterval: countdownInterval
         )
+
+        let analyticsViewModel = createAnalyticsViewModel(
+            commonData: state.commonData,
+            chainAsset: chainAsset
+        )
+
         let alerts = stakingAlertParachainState(state)
         do {
             let rewardViewModel = try createEstimationViewModel(
@@ -577,7 +584,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             lastViewModel = .delegations(
                 rewardViewModel: rewardViewModel,
                 delegationViewModels: delegationViewModels,
-                alerts: alerts
+                alerts: alerts,
+                analyticsViewModel: analyticsViewModel
             )
         } catch {
             lastViewModel = .undefined

@@ -124,7 +124,7 @@ extension StakingBondMoreParachainViewModelState: StakingBondMoreViewModelState 
     }
 
     var bondMoreConfirmationFlow: StakingBondMoreConfirmationFlow? {
-        .parachain(amount: amount, candidate: candidate.owner)
+        .parachain(amount: amount, candidate: candidate)
     }
 }
 

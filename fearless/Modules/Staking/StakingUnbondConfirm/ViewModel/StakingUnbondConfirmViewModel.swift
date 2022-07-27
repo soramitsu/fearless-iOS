@@ -6,6 +6,8 @@ struct StakingUnbondConfirmViewModel {
     let senderAddress: AccountAddress
     let senderIcon: DrawableIcon?
     let senderName: String?
+    let collatorName: String?
+    let collatorIcon: DrawableIcon?
     let amount: LocalizableResource<String>
     let hints: LocalizableResource<[TitleIconViewModel]>
 }

@@ -25,7 +25,7 @@ final class WalletSendConfirmViewLayout: UIView {
         return view
     }()
 
-    let tipAndFeeView = UIFactory.default.createNetworkFeeConfirmView()
+    let tipAndFeeView = UIFactory.default.createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -148,6 +148,6 @@ final class WalletSendConfirmViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        tipAndFeeView.networkFeeView.bind(viewModel: feeViewModel)
+        tipAndFeeView.bindBalance(viewModel: feeViewModel)
     }
 }

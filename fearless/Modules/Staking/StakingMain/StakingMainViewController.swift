@@ -75,7 +75,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupAssetSelectionView()
         setupNetworkInfoView()
         setupAlertsView()
-//        setupAnalyticsView()
+        setupAnalyticsView()
         setupTableViewLayout()
         setupTableView()
         setupActionButton()
@@ -95,7 +95,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
-//        analyticsView.didAppearSkeleton()
+        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -108,7 +108,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
-//        analyticsView.didDisappearSkeleton()
+        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -119,7 +119,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
-//        analyticsView.didUpdateSkeletonLayout()
+        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
@@ -386,7 +386,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAnalyticsRewards(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
-        analyticsContainerView.isHidden = false
+        analyticsContainerView.isHidden = viewModel == nil
         analyticsView.bind(viewModel: viewModel)
     }
 }
@@ -488,22 +488,19 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .nominator(viewModel, alerts, _):
+        case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .validator(viewModel, alerts, _):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .delegations(
-            rewardViewModel: rewardViewModel,
-            delegationViewModels: delegationViewModels,
-            alerts: alerts
-        ):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .delegations(rewardViewModel, delegationViewModels, alerts, analyticsViewModel):
             applyDelegations(viewModels: delegationViewModels)
             applyRewards(viewModel: rewardViewModel)
             applyAlerts(alerts)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
         }
     }
 

@@ -52,7 +52,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             for: .touchUpInside
         )
 
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(proceed),
             for: .touchUpInside
@@ -74,9 +74,9 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             preferredLanguages: languages
         )
 
-        rootView.networkFeeConfirmView.actionButton.imageWithTitleView?.title =
+        rootView.networkFeeFooterView.actionButton.imageWithTitleView?.title =
             R.string.localizable.commonConfirm(preferredLanguages: languages)
-        rootView.networkFeeConfirmView.actionButton.invalidateLayout()
+        rootView.networkFeeFooterView.actionButton.invalidateLayout()
 
         rootView.amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
@@ -89,7 +89,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             preferredLanguages: languages
         )
 
-        rootView.networkFeeConfirmView.locale = selectedLocale
+        rootView.networkFeeFooterView.locale = selectedLocale
 
         rootView.selectedCollatorTitle.text = R.string.localizable.stakingSelectedCollator(preferredLanguages: languages)
 
@@ -101,7 +101,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     private func updateActionButton() {
         let isEnabled = (assetViewModel != nil)
-        rootView.networkFeeConfirmView.actionButton.set(enabled: isEnabled)
+        rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyConfirmationViewModel() {
@@ -192,7 +192,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     private func applyFeeViewModel() {
         let viewModel = feeViewModel?.value(for: selectedLocale)
-        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
+        rootView.networkFeeFooterView.bindBalance(viewModel: viewModel)
     }
 
     // MARK: Action
