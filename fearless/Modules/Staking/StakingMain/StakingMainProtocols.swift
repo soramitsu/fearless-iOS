@@ -185,9 +185,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showAnalytics(
         from view: ControllerBackedProtocol?,
         mode: AnalyticsContainerViewMode,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: AnalyticsRewardsFlow
     )
 
     func showYourValidatorInfo(
