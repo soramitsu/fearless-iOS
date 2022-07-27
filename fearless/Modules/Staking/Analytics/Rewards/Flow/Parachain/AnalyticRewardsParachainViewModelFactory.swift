@@ -118,7 +118,7 @@ final class AnalyticsRewardsParachainViewModelFactory: AnalyticsViewModelFactory
     }
 
     private func createSelectedChartData(
-        rewardsByDate: (Date, [SubqueryRewardItemData])?,
+        rewardsByDate: (date: Date, items: [SubqueryRewardItemData])?,
         defaultDate: Date,
         dateFormatter: DateFormatter,
         locale: Locale
@@ -131,14 +131,14 @@ final class AnalyticsRewardsParachainViewModelFactory: AnalyticsViewModelFactory
             )
         }
 
-        let yValue = rewardsByDate.1
+        let item = rewardsByDate.items
             .compactMap { Decimal.fromSubstrateAmount($0.amount, precision: assetInfo.assetPrecision) }
             .reduce(0.0, +)
 
         return AnalyticsSelectedChartData(
-            yValue: yValue,
-            dateTitle: dateFormatter.string(from: rewardsByDate.0),
-            sections: createSections(historyItems: rewardsByDate.1, locale: locale)
+            yValue: item,
+            dateTitle: dateFormatter.string(from: rewardsByDate.date),
+            sections: createSections(historyItems: rewardsByDate.items, locale: locale)
         )
     }
 

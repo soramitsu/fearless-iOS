@@ -75,8 +75,6 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
     }
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
-        // TODO: Parachain case if needed
-
         wireframe.showValidatorInfo(
             chainAsset: ChainAsset(chain: chain, asset: asset),
             wallet: selectedAccount,

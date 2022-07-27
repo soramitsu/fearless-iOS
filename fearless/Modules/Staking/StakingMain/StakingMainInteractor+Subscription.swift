@@ -36,7 +36,7 @@ extension StakingMainInteractor {
             }
 
             subscribeToControllerAccount(address: stashItem.controller, chain: chainAsset.chain)
-//            subscribeRewardsAnalytics(for: stashItem.stash)
+            subscribeRewardsAnalytics(for: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -148,12 +148,12 @@ extension StakingMainInteractor {
     }
 
     func subscribeRewardsAnalytics(for stash: AccountAddress) {
-        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url {
+        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url, selectedChainAsset?.stakingType == .paraChain {
             rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
         } else {
             presenter?.didReceieve(
                 subqueryRewards: .success(nil),
-                period: .month
+                period: .week
             )
         }
     }
@@ -313,6 +313,6 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
             return
         }
 
-        presenter?.didReceieve(subqueryRewards: result, period: .month)
+        presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
 }

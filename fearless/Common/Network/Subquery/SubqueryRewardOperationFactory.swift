@@ -73,8 +73,8 @@ final class SubqueryRewardOperationFactory {
         """
     }
 
-    private func prepareDelegatorHistoryRequestForAddress(
-        _ address: String,
+    private func prepareDelegatorHistoryRequest(
+        address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
@@ -100,7 +100,7 @@ final class SubqueryRewardOperationFactory {
                      ) {
                         nodes {
                             id
-                          delegatorHistoryElements(filter: { amount: {isNull: false}}) {
+                          delegatorHistoryElements(filter: { amount: {isNull: false}, \(timestampFilter)}) {
                               nodes {
                                 id
                                 amount
@@ -276,8 +276,8 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<SubqueryDelegatorHistoryData> {
-        let queryString = prepareDelegatorHistoryRequestForAddress(
-            address,
+        let queryString = prepareDelegatorHistoryRequest(
+            address: address,
             startTimestamp: startTimestamp,
             endTimestamp: endTimestamp
         )

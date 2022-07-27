@@ -6,8 +6,8 @@ import BigInt
 final class ParachainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
-    let address: AccountAddress
-    let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let address: AccountAddress
+    private let operationFactory: SubqueryRewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
@@ -29,10 +29,14 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
             endTimestamp: Int64(now)
         )
 
-        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
+        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> { [weak self] in
+            guard let strongSelf = self else {
+                throw CommonError.internal
+            }
+
             let rewards = try rewardOperation.extractNoCancellableResultData()
             return rewards.delegators.nodes.first(where: { historyElement in
-                historyElement.id.lowercased() == self.address.lowercased()
+                historyElement.id.lowercased() == strongSelf.address.lowercased()
             })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
                 guard
                     let timestamp = Int64(wrappedReward.timestamp)
@@ -44,7 +48,7 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
                     timestamp: timestamp,
                     validatorAddress: "",
                     era: EraIndex(0),
-                    stashAddress: self.address,
+                    stashAddress: strongSelf.address,
                     amount: wrappedReward.amount,
                     isReward: wrappedReward.type == 0
                 )
@@ -60,8 +64,8 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
 final class RelaychainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
-    let address: AccountAddress
-    let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let address: AccountAddress
+    private let operationFactory: SubqueryRewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,

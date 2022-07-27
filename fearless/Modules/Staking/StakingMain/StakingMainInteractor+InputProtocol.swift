@@ -52,8 +52,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 accountId: accountId
             )
 
-            if chainAsset.stakingType == .paraChain,
-               let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
                 subscribeRewardsAnalytics(for: address)
             }
         }
@@ -137,8 +136,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 accountId: accountId
             )
 
-            if chainAsset.stakingType == .paraChain,
-               let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
                 subscribeRewardsAnalytics(for: address)
             }
         }
@@ -244,8 +242,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 accountId: accountId
             )
 
-            if chainAsset.stakingType == .paraChain,
-               let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
                 subscribeRewardsAnalytics(for: address)
             }
         } else {
