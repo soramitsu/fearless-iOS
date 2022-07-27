@@ -47,7 +47,9 @@ final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFacto
             senderIcon: icon,
             senderName: relaychainViewModelState.controller?.name,
             amount: amount,
-            title: title
+            title: title,
+            collatorName: nil,
+            collatorIcon: nil
         )
     }
 
@@ -70,5 +72,11 @@ final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFacto
             balance: redeemableDecimal,
             priceData: priceData
         )
+    }
+
+    func buildHints() -> LocalizableResource<[TitleIconViewModel]> {
+        LocalizableResource { _ in
+            [TitleIconViewModel]()
+        }
     }
 }

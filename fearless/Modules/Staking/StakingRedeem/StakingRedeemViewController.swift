@@ -13,6 +13,7 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
     private var confirmationViewModel: StakingRedeemViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var hintsViewModel: LocalizableResource<[TitleIconViewModel]>?
 
     init(
         presenter: StakingRedeemPresenterProtocol,
@@ -86,6 +87,13 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
         rootView.bind(confirmationViewModel: confirmViewModel)
     }
 
+    private func applyHints() {
+        guard let viewModel = hintsViewModel else {
+            return
+        }
+        rootView.bind(hintViewModels: viewModel.value(for: selectedLocale))
+    }
+
     @objc private func actionConfirm() {
         presenter.confirm()
     }
@@ -109,6 +117,11 @@ extension StakingRedeemViewController: StakingRedeemViewProtocol {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFeeViewModel()
+    }
+
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>) {
+        hintsViewModel = viewModel
+        applyHints()
     }
 }
 
