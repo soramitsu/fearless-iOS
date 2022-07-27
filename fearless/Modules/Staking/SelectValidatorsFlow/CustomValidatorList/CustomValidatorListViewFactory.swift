@@ -13,7 +13,11 @@ enum CustomValidatorListViewFactory {
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet) else {
+        guard let container = createContainer(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
+        ) else {
             return nil
         }
 

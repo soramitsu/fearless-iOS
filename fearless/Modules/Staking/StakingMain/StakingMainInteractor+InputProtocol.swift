@@ -208,6 +208,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
 
+        clear(dataProvider: &delegatorStateProvider)
+
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
               let newSelectedAccount = selectedMetaAccount.fetch(for: selectedChain.accountRequest()) else {

@@ -37,7 +37,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
     let logger: LoggerProtocol?
-    let collatorOperationFactory: ParachainCollatorOperationFactory
+    var collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
@@ -148,6 +148,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             identityOperationFactory: identityOperationFactory,
             subqueryOperationFactory: subqueryOperationFactory
         )
+
+        self.collatorOperationFactory = collatorOperationFactory
 
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
@@ -351,37 +353,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
 //    Parachain
 
-    func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?, chainAsset: ChainAsset) {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return
-        }
-
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
-
-        let subqueryOperationFactory = SubqueryRewardOperationFactory(
-            url: chainAsset.chain.externalApi?.staking?.url
-        )
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: subqueryOperationFactory
-        )
-
+    func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?, chainAsset _: ChainAsset) {
         if let state = delegatorState {
             fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
 
