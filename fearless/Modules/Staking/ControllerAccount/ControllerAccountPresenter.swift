@@ -232,13 +232,11 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
                     accountInfo.data.available,
                     precision: Int16(asset.precision)
                 )
-                switch address {
-                case stashItem?.stash:
+                if address == stashItem?.stash {
                     balance = amount
-                case chosenAccountItem?.toAddress():
+                }
+                if address == chosenAccountItem?.toAddress() {
                     controllerBalance = amount
-                default:
-                    logger?.warning("Recieved \(String(describing: amount)) for unknown address \(address)")
                 }
             } else if chosenAccountItem?.toAddress() == address {
                 controllerBalance = nil
