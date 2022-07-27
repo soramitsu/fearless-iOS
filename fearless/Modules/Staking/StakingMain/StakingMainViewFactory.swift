@@ -272,7 +272,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let stakingAnalyticsLocalSubscriptionFactory = StakingAnalyticsLocalSubscriptionFactory(
+        let stakingAnalyticsLocalSubscriptionFactory = ParachainAnalyticsLocalSubscriptionFactory(
             storageFacade: storageFacade
         )
 

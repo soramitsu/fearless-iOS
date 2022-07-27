@@ -104,7 +104,7 @@ final class AnalyticsValidatorsInteractor {
             let stashAddress = stashItem?.stash
         else { return }
 
-        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: analyticsURL)
+        let subqueryRewardsSource = ParachainSubqueryRewardsSource(address: stashAddress, url: analyticsURL)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
