@@ -169,69 +169,21 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         }
     }
 
-    static func createInitiatedBondingView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsConfirmFlow
-    ) -> SelectValidatorsConfirmViewProtocol? {
-        let wireframe = SelectValidatorsConfirmWireframe()
-
-        return createView(
-            chainAsset: chainAsset,
-            flow: flow,
-            wallet: wallet,
-            wireframe: wireframe
-        )
-    }
-
-    static func createChangeTargetsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsConfirmFlow
-    ) -> SelectValidatorsConfirmViewProtocol? {
-        let wireframe = SelectValidatorsConfirmWireframe()
-        return createExistingBondingView(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            flow: flow,
-            wireframe: wireframe
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsConfirmFlow
-    ) -> SelectValidatorsConfirmViewProtocol? {
-        let wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
-        return createExistingBondingView(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            flow: flow,
-            wireframe: wireframe
-        )
-    }
-
-    private static func createExistingBondingView(
-        wallet: MetaAccountModel,
+    static func createView(
         chainAsset: ChainAsset,
         flow: SelectValidatorsConfirmFlow,
-        wireframe: SelectValidatorsConfirmWireframeProtocol
+        wallet: MetaAccountModel
     ) -> SelectValidatorsConfirmViewProtocol? {
-        createView(
-            chainAsset: chainAsset,
-            flow: flow,
-            wallet: wallet,
-            wireframe: wireframe
-        )
-    }
+        var wireframe: SelectValidatorsConfirmWireframeProtocol
+        switch flow {
+        case .relaychainInitiated:
+            wireframe = SelectValidatorsConfirmWireframe()
+        case .relaychainExisting:
+            wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
+        case .parachain:
+            wireframe = SelectValidatorsConfirmWireframe()
+        }
 
-    private static func createView(
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsConfirmFlow,
-        wallet: MetaAccountModel,
-        wireframe: SelectValidatorsConfirmWireframeProtocol
-    ) -> SelectValidatorsConfirmViewProtocol? {
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             formatterFactory: AssetBalanceFormatterFactory(),

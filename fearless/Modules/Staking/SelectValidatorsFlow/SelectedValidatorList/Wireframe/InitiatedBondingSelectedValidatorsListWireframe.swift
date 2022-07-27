@@ -6,10 +6,10 @@ final class InitiatedBondingSelectedValidatorListWireframe: SelectedValidatorLis
         chainAsset: ChainAsset
     ) {
         guard let confirmView = SelectValidatorsConfirmViewFactory
-            .createInitiatedBondingView(
-                wallet: wallet,
+            .createView(
                 chainAsset: chainAsset,
-                flow: flow
+                flow: flow,
+                wallet: wallet
             ) else {
             return
         }
