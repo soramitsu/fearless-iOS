@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 enum StakingBondMoreFlow {
     case relaychain
@@ -32,6 +33,7 @@ protocol StakingBondMoreViewModelState: StakingBondMoreUserInputHandler {
 protocol StakingBondMoreViewModelFactoryProtocol {
     func buildCollatorViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
     func buildAccountViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel?
+    func buildHintViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> LocalizableResource<String>?
 }
 
 struct StakingBondMoreDependencyContainer {

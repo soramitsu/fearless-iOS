@@ -3,14 +3,7 @@ import CommonWallet
 import SoraFoundation
 import FearlessUtils
 
-protocol StakingBondMoreConfirmViewModelFactoryProtocol {
-    func createViewModel(
-        account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel
-}
-
-final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
+final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     let asset: AssetModel
     let chain: ChainModel
 
@@ -29,8 +22,9 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
 
     func createViewModel(
         account: MetaAccountModel,
-        amount: Decimal
-    ) throws -> StakingBondMoreConfirmViewModel {
+        amount: Decimal,
+        state _: StakingBondMoreConfirmationViewModelState
+    ) throws -> StakingBondMoreConfirmViewModel? {
         let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in
@@ -45,7 +39,9 @@ final class StakingBondMoreConfirmViewModelFactory: StakingBondMoreConfirmViewMo
             senderAddress: address,
             senderIcon: icon,
             senderName: account.name,
-            amount: amount
+            amount: amount,
+            collatorName: nil,
+            collatorIcon: nil
         )
     }
 }

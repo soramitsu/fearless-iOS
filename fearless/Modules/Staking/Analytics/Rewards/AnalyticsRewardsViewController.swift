@@ -51,6 +51,7 @@ extension AnalyticsRewardsViewController: AnalyticsRewardsViewProtocol {
                 selectedPeriod: viewModel.selectedPeriod
             )
             rootView.tableView.reloadData()
+            rootView.headerView.pendingRewardsView.isHidden = !viewModel.hasPendingRewards
         case .error:
             rootView.tableView.refreshControl?.endRefreshing()
         }
