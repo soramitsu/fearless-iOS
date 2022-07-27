@@ -33,6 +33,7 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
             chainAsset.storagePath,
             chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         ) else {
+            completionBlock(chainAsset, nil)
             return
         }
 
