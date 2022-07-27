@@ -5,11 +5,13 @@ import BigInt
 
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
-    func didReceiveBonding(duration: LocalizableResource<String>)
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
     func didReceiveAccount(viewModel: AccountViewModel)
     func didReceiveCollator(viewModel: AccountViewModel)
+    func didReceiveTitle(viewModel: LocalizableResource<String>)
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>)
 }
 
 protocol StakingUnbondSetupPresenterProtocol: AnyObject {

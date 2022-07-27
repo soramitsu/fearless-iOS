@@ -6,6 +6,7 @@ protocol StakingUnbondConfirmViewProtocol: ControllerBackedProtocol, Localizable
     func didReceiveConfirmation(viewModel: StakingUnbondConfirmViewModel)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
 }
 
 protocol StakingUnbondConfirmPresenterProtocol: AnyObject {

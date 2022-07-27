@@ -74,7 +74,8 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             candidate: candidate,
             delegation: delegation,
             amount: inputAmount,
-            revoke: isRevoke
+            revoke: isRevoke,
+            bondingDuration: bondingDuration
         )
     }
 
