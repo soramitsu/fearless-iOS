@@ -187,7 +187,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .parachain(candidate, delegation, amount, revoke):
+        case let .parachain(candidate, delegation, amount, revoke, bondingDuration):
             let viewModelState = StakingUnbondConfirmParachainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
@@ -215,6 +215,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
 
             let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
                 asset: chainAsset.asset,
+                bondingDuration: bondingDuration,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 

@@ -43,7 +43,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     let selectedCollatorView = UIFactory.default.createAccountView(for: .options, filled: false)
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     private(set) var hintViews: [UIView] = []
 
@@ -109,8 +109,8 @@ final class SelectValidatorsConfirmViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(networkFeeConfirmView)
-        networkFeeConfirmView.snp.makeConstraints { make in
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
 
@@ -118,7 +118,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(networkFeeConfirmView.snp.top)
+            make.bottom.equalTo(networkFeeFooterView.snp.top)
         }
 
         stackView.addArrangedSubview(mainAccountView)

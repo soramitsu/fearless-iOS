@@ -14,7 +14,7 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         return tableView
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -41,14 +41,14 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.leading.bottom.trailing.equalToSuperview()
         }
 
-        addSubview(networkFeeConfirmView)
-        networkFeeConfirmView.snp.makeConstraints { make in
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }
 
     private func applyLocalization() {
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
         setNeedsLayout()
     }
 }

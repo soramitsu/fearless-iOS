@@ -1,6 +1,6 @@
 import CommonWallet
 
-extension NetworkFeeConfirmView: AccessoryViewProtocol {
+extension NetworkFeeFooterView: AccessoryViewProtocol {
     var extendsUnderSafeArea: Bool { true }
 
     var contentView: UIView {
@@ -18,7 +18,7 @@ extension NetworkFeeConfirmView: AccessoryViewProtocol {
 
     func bind(viewModel: AccessoryViewModelProtocol) {
         actionButton.imageWithTitleView?.title = viewModel.action
-        networkFeeView.titleLabel.text = viewModel.title
+        networkFeeView?.titleLabel.text = viewModel.title
         actionButton.invalidateLayout()
 
         if let amountViewModel = viewModel as? ExtrinisicConfirmViewModel {
@@ -26,7 +26,7 @@ extension NetworkFeeConfirmView: AccessoryViewProtocol {
                 amount: amountViewModel.amount,
                 price: amountViewModel.price
             )
-            networkFeeView.bind(viewModel: feeViewModel)
+            networkFeeView?.bind(viewModel: feeViewModel)
         }
     }
 }

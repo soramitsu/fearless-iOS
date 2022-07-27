@@ -5,9 +5,10 @@ import BigInt
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
     func didReceiveAccount(viewModel: AccountViewModel)
     func didReceiveCollator(viewModel: AccountViewModel)
+    func didReceiveHints(viewModel: LocalizableResource<String>?)
 }
 
 protocol StakingBondMorePresenterProtocol: AnyObject {
