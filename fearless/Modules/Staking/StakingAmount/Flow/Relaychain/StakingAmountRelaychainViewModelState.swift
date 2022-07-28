@@ -22,7 +22,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var maxNominations: Int?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
-    var amount: Decimal?
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    private var balance: Decimal?
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var inputResult: AmountInputResult?
 
     var bonding: InitiatedBonding? {
         guard let amount = amount else {
@@ -50,7 +53,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.amount = amount
+        inputResult = .absolute(amount ?? 0)
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
     }
@@ -91,7 +94,11 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
+        inputResult = .absolute(newValue)
+    }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
     }
 
     func selectPayoutAccount(payoutAccount: ChainAccountResponse?) {
@@ -104,6 +111,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         rewardDestination = .payout(account: payoutAccount)
 
         stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+    }
+
+    func updateBalance(_ balance: Decimal?) {
+        self.balance = balance
     }
 
     private func notifyListeners() {
