@@ -26,13 +26,13 @@ final class ParachainSubqueryRewardsSource {
 
 extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[SubqueryRewardItemData]?> {
-        let requestFactory = BlockNetworkRequestFactory { [weak self] in
-            guard let strongSelf = self else {
-                throw CommonError.internal
-            }
-            var request = URLRequest(url: strongSelf.url)
+        let url = self.url
+        let params = requestParams()
+        let address = self.address
 
-            let params = strongSelf.requestParams()
+        let requestFactory = BlockNetworkRequestFactory {
+            var request = URLRequest(url: url)
+
             let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(
@@ -43,11 +43,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<[SubqueryRewardItemData]?> { [weak self] data in
-            guard let strongSelf = self else {
-                throw CommonError.internal
-            }
-
+        let resultFactory = AnyNetworkResultFactory<[SubqueryRewardItemData]?> { data in
             let response = try JSONDecoder().decode(SubqueryResponse<SubqueryDelegatorHistoryData>.self, from: data)
 
             switch response {
@@ -55,7 +51,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                 throw error
             case let .data(response):
                 return response.delegators.nodes.first(where: { historyElement in
-                    historyElement.id.lowercased() == strongSelf.address.lowercased()
+                    historyElement.id.lowercased() == address.lowercased()
                 })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
                     guard
                         let timestamp = Int64(wrappedReward.timestamp)
@@ -67,7 +63,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                         timestamp: timestamp,
                         validatorAddress: "",
                         era: EraIndex(0),
-                        stashAddress: strongSelf.address,
+                        stashAddress: address,
                         amount: wrappedReward.amount,
                         isReward: wrappedReward.type == 0
                     )
@@ -143,14 +139,12 @@ final class RelaychainSubqueryRewardsSource {
 
 extension RelaychainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[SubqueryRewardItemData]?> {
-        let requestFactory = BlockNetworkRequestFactory { [weak self] in
-            guard let strongSelf = self else {
-                throw CommonError.internal
-            }
+        let url = self.url
+        let params = requestParams()
 
-            var request = URLRequest(url: strongSelf.url)
+        let requestFactory = BlockNetworkRequestFactory {
+            var request = URLRequest(url: url)
 
-            let params = strongSelf.requestParams()
             let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(

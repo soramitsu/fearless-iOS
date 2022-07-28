@@ -147,9 +147,9 @@ extension StakingMainInteractor {
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
     }
 
-    func subscribeRewardsAnalytics(for stash: AccountAddress) {
+    func subscribeRewardsAnalytics(for address: AccountAddress) {
         if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url, selectedChainAsset?.stakingType == .paraChain {
-            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
+            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: address, url: analyticsURL)
         } else {
             presenter?.didReceieve(
                 subqueryRewards: .success(nil),
@@ -306,12 +306,12 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
     StakingAnalyticsLocalSubscriptionHandler {
     func handleWeaklyRewardAnalytics(
         result: Result<[SubqueryRewardItemData]?, Error>,
-        address: AccountAddress,
+        address _: AccountAddress,
         url _: URL
     ) {
-        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
-            return
-        }
+//        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
+//            return
+//        }
 
         presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
