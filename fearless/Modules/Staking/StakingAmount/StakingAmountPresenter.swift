@@ -94,9 +94,7 @@ final class StakingAmountPresenter {
     }
 
     private func scheduleFeeEstimation() {
-        if !loadingFee, viewModelState?.fee == nil {
-            estimateFee()
-        }
+        estimateFee()
     }
 
     private func estimateFee() {
@@ -134,11 +132,14 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
 
             if newAmount > 0 {
-                viewModelState?.updateAmount(newAmount)
+                viewModelState?.selectAmountPercentage(percentage)
 
                 provideAmountInputViewModel()
                 provideAsset()
                 provideRewardDestination()
+
+                scheduleFeeEstimation()
+
             } else if let view = view {
                 wireframe.presentAmountTooHigh(
                     from: view,
@@ -257,8 +258,12 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
                 availableValue,
                 precision: Int16(asset.precision)
             )
+
+            viewModelState?.updateBalance(self.balance)
         } else {
             self.balance = 0.0
+
+            viewModelState?.updateBalance(0.0)
         }
 
         provideAsset()
