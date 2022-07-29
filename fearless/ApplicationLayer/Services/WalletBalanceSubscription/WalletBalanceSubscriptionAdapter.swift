@@ -1,7 +1,8 @@
 import Foundation
 import RobinHood
 
-typealias WalletBalancesResult = Result<[MetaAccountId: WalletBalance], Error>
+typealias WalletBalances = [MetaAccountId: WalletBalanceInfo]
+typealias WalletBalancesResult = Result<WalletBalances, Error>
 
 protocol WalletBalanceSubscriptionHandler: AnyObject {
     func handle(result: WalletBalancesResult)
@@ -24,6 +25,18 @@ protocol WalletBalanceSubscriptionAdapterProtocol {
     ///   - queue: The queue to which the result will be delivered
     ///   - handler: Called when WalletBalance will calculated
     func subscribeWalletsBalances(
+        deliverOn queue: DispatchQueue?,
+        handler: WalletBalanceSubscriptionHandler
+    )
+
+    /// Collects and counts all the information for `WalletBalance`, for ChainAsset
+    /// - Parameters:
+    ///   - chainAsset: ChainAsset
+    ///   - queue: The queue to which the result will be delivered
+    ///   - handler: Called when WalletBalance will calculated
+    func subscribeChainAssetBalance(
+        walletId: String,
+        chainAsset: ChainAsset,
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     )
@@ -91,7 +104,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverQueue = queue
         delegate = handler
 
-        fetchMetaAccount(by: walletId)
+        fetchMetaAccount(by: walletId, chainAsset: nil)
     }
 
     func subscribeWalletsBalances(
@@ -104,16 +117,21 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         fetchAllMetaAccounts()
     }
 
+    func subscribeChainAssetBalance(
+        walletId: String,
+        chainAsset: ChainAsset,
+        deliverOn queue: DispatchQueue?,
+        handler: WalletBalanceSubscriptionHandler
+    ) {
+        deliverQueue = queue
+        delegate = handler
+
+        fetchMetaAccount(by: walletId, chainAsset: chainAsset)
+    }
+
     // MARK: - Private methods
 
     private func buildBalance() {
-        guard
-            accountInfos.isNotEmpty,
-            prices.isNotEmpty
-        else {
-            return
-        }
-
         let builderBlock = BlockOperation {
             let walletBalances = self.walletBalanceBuilder.buildBalance(
                 for: self.accountInfos,
@@ -132,8 +150,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         operationQueue.addOperation(builderBlock)
     }
 
-    private func handle(_ wallets: [MetaAccountModel], _ chains: [ChainModel]) {
-        let chainAssets = chains.map(\.chainAssets).reduce([], +)
+    private func handle(_ wallets: [MetaAccountModel], _ chainAssets: [ChainAsset]) {
         let chainsAssetsMap = chainAssets.reduce(
             [ChainAssetId: ChainAsset]()
         ) { (result, chainAsset) -> [ChainAssetId: ChainAsset] in
@@ -152,7 +169,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         subscribeToPrices(for: chainAssets)
     }
 
-    private func fetchMetaAccount(by identifier: String) {
+    private func fetchMetaAccount(by identifier: String, chainAsset: ChainAsset?) {
         typealias MergeOperationResult = (metaAccount: MetaAccountModel?, chains: [ChainModel])
 
         let metaAccountOperation = metaAccountRepository.fetchOperation(
@@ -180,7 +197,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                     self?.handle(.failure(WalletBalanceError.accountMissing))
                     return
                 }
-                self?.handle([wallet], chains)
+
+                var chainAssets: [ChainAsset] = []
+                if let chainAsset = chainAsset {
+                    chainAssets.append(chainAsset)
+                } else {
+                    chainAssets = chains.map(\.chainAssets).reduce([], +)
+                }
+                self?.handle([wallet], chainAssets)
             case let .failure(error):
                 self?.handle(.failure(error))
             }
@@ -210,7 +234,8 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
             switch (metaAccountsResult, chainsResult) {
             case let (.success(wallets), .success(chains)):
-                self?.handle(wallets, chains)
+                let chainAssets = chains.map(\.chainAssets).reduce([], +)
+                self?.handle(wallets, chainAssets)
             case let (.failure(error), _):
                 self?.handle(.failure(error))
             case let (_, .failure(error)):
