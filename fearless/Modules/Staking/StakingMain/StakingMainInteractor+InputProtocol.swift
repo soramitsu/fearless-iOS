@@ -22,7 +22,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true
+        eraInfoOperationFactory = selectedChainAsset?.stakingType == .paraChain
             ? ParachainStakingInfoOperationFactory()
             : RelaychainStakingInfoOperationFactory()
 
