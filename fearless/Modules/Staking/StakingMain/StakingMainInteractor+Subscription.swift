@@ -180,19 +180,13 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
 
     func handleDelegationScheduledRequests(
         result _: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainAsset: ChainAsset,
-        accountId: AccountId
+        chainAsset _: ChainAsset,
+        accountId _: AccountId
     ) {
-        if let selectedChainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-            selectedChainAsset == chainAsset {
-            clear(dataProvider: &delegatorStateProvider)
-
-            delegatorStateProvider = subscribeToDelegatorState(
-                for: selectedChainAsset,
-                accountId: accountId
-            )
+        guard let collatorIds = collatorIds else {
+            return
         }
+        fetchCollatorsDelegations(accountIds: collatorIds)
     }
 }
 
