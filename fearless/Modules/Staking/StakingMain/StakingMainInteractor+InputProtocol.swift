@@ -22,7 +22,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
+        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true
+            ? ParachainStakingInfoOperationFactory()
+            : RelaychainStakingInfoOperationFactory()
 
         provideNewChain()
         provideSelectedAccount()
@@ -48,7 +50,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         if let chainAsset = selectedChainAsset,
            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 
@@ -129,10 +131,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideMaxNominatorsPerValidator(from: runtimeService)
 
-        if let chainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+        if
+            let chainAsset = selectedChainAsset,
+            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 
@@ -237,10 +241,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         performStashControllerSubscription()
 
-        if let chainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+        if
+            let chainAsset = selectedChainAsset,
+            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset.chain.chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 

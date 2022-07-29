@@ -50,19 +50,6 @@ extension LocalStorageKeyFactoryProtocol {
 
         return try createKey(from: storagePathData + elementData, key: chainId)
     }
-
-    func createFromStoragePath(
-        _ storagePath: StorageCodingPath,
-        accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> String {
-        let data = try StorageKeyFactory().createStorageKey(
-            moduleName: storagePath.moduleName,
-            storageName: storagePath.itemName
-        )
-
-        return try createKey(from: data + accountId, key: chainId)
-    }
 }
 
 final class LocalStorageKeyFactory: LocalStorageKeyFactoryProtocol {

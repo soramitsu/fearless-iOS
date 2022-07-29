@@ -3,29 +3,34 @@ import RobinHood
 
 protocol ParachainStakingLocalStorageSubscriber where Self: AnyObject {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol { get }
-
     var parachainStakingLocalSubscriptionHandler: ParachainStakingLocalSubscriptionHandler { get }
 
-    func subscribeToCandidatePool(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedParachainStakingCandidate>?
+    func subscribeToCandidatePool(
+        for chainId: ChainModel.Id
+    ) -> AnyDataProvider<DecodedParachainStakingCandidate>?
+
     func subscribeToDelegatorState(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         accountId: AccountId
     ) -> AnyDataProvider<DecodedParachainDelegatorState>?
+
     func subscribeToDelegationScheduledRequests(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         accountId: AccountId
     ) -> AnyDataProvider<DecodedParachainScheduledRequests>?
 }
 
 extension ParachainStakingLocalStorageSubscriber {
     func subscribeToDelegationScheduledRequests(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         accountId: AccountId
     ) -> AnyDataProvider<DecodedParachainScheduledRequests>? {
-        guard let delegationScheduledRequestsProvider = try? parachainStakingLocalSubscriptionFactory.getDelegationScheduledRequests(
-            chainId: chainId,
-            accountId: accountId
-        ) else {
+        guard let delegationScheduledRequestsProvider = try? parachainStakingLocalSubscriptionFactory
+            .getDelegationScheduledRequests(
+                chainAsset: chainAsset,
+                accountId: accountId
+            )
+        else {
             return nil
         }
 
@@ -33,7 +38,7 @@ extension ParachainStakingLocalStorageSubscriber {
             let delegationScheduledRequests = changes.reduceToLastChange()
             self?.parachainStakingLocalSubscriptionHandler.handleDelegationScheduledRequests(
                 result: .success(delegationScheduledRequests?.item),
-                chainId: chainId,
+                chainAsset: chainAsset,
                 accountId: accountId
             )
         }
@@ -41,7 +46,7 @@ extension ParachainStakingLocalStorageSubscriber {
         let failureClosure = { [weak self] (error: Error) in
             self?.parachainStakingLocalSubscriptionHandler.handleDelegationScheduledRequests(
                 result: .failure(error),
-                chainId: chainId,
+                chainAsset: chainAsset,
                 accountId: accountId
             )
             return
@@ -64,11 +69,11 @@ extension ParachainStakingLocalStorageSubscriber {
     }
 
     func subscribeToDelegatorState(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         accountId: AccountId
     ) -> AnyDataProvider<DecodedParachainDelegatorState>? {
         guard let delegatorStateProvider = try? parachainStakingLocalSubscriptionFactory.getDelegatorState(
-            chainId: chainId,
+            chainAsset: chainAsset,
             accountId: accountId
         ) else {
             return nil
@@ -78,7 +83,7 @@ extension ParachainStakingLocalStorageSubscriber {
             let delegatorState = changes.reduceToLastChange()
             self?.parachainStakingLocalSubscriptionHandler.handleDelegatorState(
                 result: .success(delegatorState?.item),
-                chainId: chainId,
+                chainAsset: chainAsset,
                 accountId: accountId
             )
         }
@@ -86,7 +91,7 @@ extension ParachainStakingLocalStorageSubscriber {
         let failureClosure = { [weak self] (error: Error) in
             self?.parachainStakingLocalSubscriptionHandler.handleDelegatorState(
                 result: .failure(error),
-                chainId: chainId,
+                chainAsset: chainAsset,
                 accountId: accountId
             )
             return
@@ -109,7 +114,9 @@ extension ParachainStakingLocalStorageSubscriber {
     }
 
     func subscribeToCandidatePool(for chainId: ChainModel.Id) -> AnyDataProvider<DecodedParachainStakingCandidate>? {
-        guard let candidatePoolProvider = try? parachainStakingLocalSubscriptionFactory.getCandidatePool(for: chainId) else {
+        guard let candidatePoolProvider = try? parachainStakingLocalSubscriptionFactory
+            .getCandidatePool(for: chainId)
+        else {
             return nil
         }
 
