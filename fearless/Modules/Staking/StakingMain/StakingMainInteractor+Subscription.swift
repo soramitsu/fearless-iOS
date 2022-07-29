@@ -177,6 +177,23 @@ extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, Paracha
             logger?.error(error.localizedDescription)
         }
     }
+
+    func handleDelegationScheduledRequests(
+        result _: Result<[ParachainStakingScheduledRequest]?, Error>,
+        chainAsset: ChainAsset,
+        accountId: AccountId
+    ) {
+        if let selectedChainAsset = selectedChainAsset,
+           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            selectedChainAsset == chainAsset {
+            clear(dataProvider: &delegatorStateProvider)
+
+            delegatorStateProvider = subscribeToDelegatorState(
+                for: selectedChainAsset,
+                accountId: accountId
+            )
+        }
+    }
 }
 
 extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler,

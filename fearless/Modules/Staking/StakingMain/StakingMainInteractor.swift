@@ -59,6 +59,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var scheduledRequestsProviders: [AnyDataProvider<DecodedParachainScheduledRequests>] = []
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -354,7 +355,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 //    Parachain
 
     func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?, chainAsset _: ChainAsset) {
-        if let state = delegatorState {
+        if let state = delegatorState, let chainAsset = selectedChainAsset {
+            for provider in scheduledRequestsProviders {
+                provider.removeObserver(self)
+            }
+
+            scheduledRequestsProviders.removeAll()
+
             fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
 
             let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
@@ -366,6 +373,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 DispatchQueue.main.async {
                     do {
                         let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+
+                        collators.forEach { collator in
+                            if let delegationScheduledRequestsProvider = self?.subscribeToDelegationScheduledRequests(for: chainAsset, accountId: collator.owner) {
+                                self?.scheduledRequestsProviders.append(delegationScheduledRequestsProvider)
+                            }
+                        }
+
                         let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
                             guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
                                 return nil
