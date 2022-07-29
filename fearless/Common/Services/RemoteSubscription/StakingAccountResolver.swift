@@ -73,8 +73,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
             let localKeyFactory = LocalStorageKeyFactory()
             let controllerLocalKey = try LocalStorageKeyFactory().createFromStoragePath(
                 .controller,
-                accountId: accountId,
-                chainId: chainAsset.chain.chainId
+                chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
             )
 
             let ledgerOperation = MapKeyEncodingOperation(
