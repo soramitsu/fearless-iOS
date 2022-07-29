@@ -306,12 +306,12 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
     StakingAnalyticsLocalSubscriptionHandler {
     func handleWeaklyRewardAnalytics(
         result: Result<[SubqueryRewardItemData]?, Error>,
-        address _: AccountAddress,
+        address: AccountAddress,
         url _: URL
     ) {
-//        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
-//            return
-//        }
+        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
+            return
+        }
 
         presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
