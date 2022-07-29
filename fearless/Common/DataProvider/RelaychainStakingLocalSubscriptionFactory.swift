@@ -85,7 +85,8 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
         let codingPath = StorageCodingPath.nominators
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+            accountId: accountId,
+            chainId: chainAsset.chain.chainId
         )
 
         return try getDataProvider(
@@ -103,7 +104,8 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
         let codingPath = StorageCodingPath.validatorPrefs
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+            accountId: accountId,
+            chainId: chainAsset.chain.chainId
         )
 
         return try getDataProvider(
@@ -121,7 +123,8 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
         let codingPath = StorageCodingPath.stakingLedger
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+            accountId: accountId,
+            chainId: chainAsset.chain.chainId
         )
 
         return try getDataProvider(
@@ -163,7 +166,8 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
         let codingPath = StorageCodingPath.payee
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+            accountId: accountId,
+            chainId: chainAsset.chain.chainId
         )
 
         return try getDataProvider(
