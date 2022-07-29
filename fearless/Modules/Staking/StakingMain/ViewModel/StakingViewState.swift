@@ -17,6 +17,7 @@ enum StakingViewState {
     case delegations(
         rewardViewModel: StakingEstimationViewModel,
         delegationViewModels: [DelegationInfoCellModel]?,
-        alerts: [StakingAlert]
+        alerts: [StakingAlert],
+        analyticsViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
     )
 }

@@ -14,11 +14,9 @@ final class StakingUnbondSetupLayout: UIView {
 
     let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
 
-    let networkFeeView = UIFactory.default.createNetworkFeeView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
-    let durationView = UIFactory.default.createTitleValueView()
-
-    let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
+    private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {
         didSet {
@@ -42,26 +40,48 @@ final class StakingUnbondSetupLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func applyLocalization() {
-        networkFeeView.locale = locale
+    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol) {
+        let balanceViewModel: BalanceViewModelProtocol = feeViewModel.balanceViewModel.value(for: locale)
+        networkFeeFooterView.actionTitle = feeViewModel.actionTitle
+        networkFeeFooterView.bindBalance(viewModel: balanceViewModel)
+        setNeedsLayout()
+    }
 
-        durationView.titleLabel.text = R.string.localizable
-            .stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
+    func bind(hintViewModels: [TitleIconViewModel]) {
+        hintViews.forEach { $0.removeFromSuperview() }
+
+        hintViews = hintViewModels.map { hint in
+            let view = IconDetailsView()
+            view.iconWidth = UIConstants.iconSize
+            view.detailsLabel.text = hint.title
+            view.imageView.image = hint.icon
+            return view
+        }
+
+        for (index, view) in hintViews.enumerated() {
+            if index > 0 {
+                contentView.stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                contentView.stackView.insertArranged(view: view, after: amountInputView)
+            }
+
+            view.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            }
+
+            contentView.stackView.setCustomSpacing(9, after: view)
+        }
+    }
+
+    private func applyLocalization() {
+        networkFeeFooterView.locale = locale
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-
-        actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
         addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
-        }
-
         contentView.stackView.addArrangedSubview(collatorView)
         contentView.stackView.addArrangedSubview(accountView)
 
@@ -69,11 +89,13 @@ final class StakingUnbondSetupLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
 
         accountView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
 
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
@@ -83,22 +105,15 @@ final class StakingUnbondSetupLayout: UIView {
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)
 
-        contentView.stackView.addArrangedSubview(networkFeeView)
-        networkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-        }
-
-        contentView.stackView.addArrangedSubview(durationView)
-        durationView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.leading.trailing.top.equalToSuperview()
+            make.bottom.equalTo(networkFeeFooterView.snp.top).inset(UIConstants.bigOffset)
         }
 
         accountView.isHidden = true
