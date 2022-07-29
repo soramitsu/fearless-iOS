@@ -59,6 +59,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var collatorIds: [AccountId]?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -366,6 +367,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 DispatchQueue.main.async {
                     do {
                         let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+
+                        self?.collatorIds = collators.map(\.owner)
+
                         let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
                             guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
                                 return nil

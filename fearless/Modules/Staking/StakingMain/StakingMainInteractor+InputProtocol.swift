@@ -112,6 +112,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &delegatorStateProvider)
+        collatorIds = nil
         performPriceSubscription()
 
         clearNominatorsLimitProviders()
@@ -213,6 +214,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         clearStashControllerSubscription()
 
         clear(dataProvider: &delegatorStateProvider)
+        collatorIds = nil
 
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
