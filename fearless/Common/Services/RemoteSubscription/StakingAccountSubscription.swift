@@ -146,8 +146,17 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             let requests = try createRequest(for: accountId)
 
             let localKeyFactory = LocalStorageKeyFactory()
-            let localKeys = try requests.map {
-                try localKeyFactory.createFromStoragePath($0.0, accountId: $0.1, chainId: chainAsset.chain.chainId)
+            let localKeys = try requests.map { request -> String in
+                let storagePath = request.0
+                let accountId = request.1
+                let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+
+                let localKey = try localKeyFactory.createFromStoragePath(
+                    storagePath,
+                    chainAssetKey: chainAssetKey
+                )
+
+                return localKey
             }
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
@@ -207,8 +216,17 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             let requests = try createRequest(for: stashItem)
 
             let localKeyFactory = LocalStorageKeyFactory()
-            let localKeys = try requests.map {
-                try localKeyFactory.createFromStoragePath($0.0, accountId: $0.1, chainId: chainAsset.chain.chainId)
+            let localKeys = try requests.map { request -> String in
+                let storageParh = request.0
+                let accountId = request.1
+                let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+
+                let localKey = try localKeyFactory.createFromStoragePath(
+                    storageParh,
+                    chainAssetKey: chainAssetKey
+                )
+
+                return localKey
             }
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
