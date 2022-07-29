@@ -124,10 +124,10 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
         fetchDelegationScheduledRequests()
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset.chain.chainId, accountId: accountId)
+            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset, accountId: accountId)
         }
 
-        delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(for: chainAsset.chain.chainId, accountId: collator.owner)
+        delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(for: chainAsset, accountId: collator.owner)
     }
 
     func refresh() {
@@ -140,10 +140,13 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
 extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
     func handleDelegatorState(
         result: Result<ParachainStakingDelegatorState?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) {
-        guard accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.chainId == chainId else {
+        guard
+            accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.chainId == chainAsset.chain.chainId
+        else {
             return
         }
         switch result {
@@ -159,10 +162,13 @@ extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscribe
 
     func handleDelegationScheduledRequests(
         result: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) {
-        guard accountId == collator.owner, chainAsset.chain.chainId == chainId else {
+        guard
+            accountId == collator.owner,
+            chainAsset.chain.chainId == chainAsset.chain.chainId
+        else {
             return
         }
 
