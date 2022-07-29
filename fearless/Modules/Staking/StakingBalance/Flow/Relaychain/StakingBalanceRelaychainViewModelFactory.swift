@@ -170,7 +170,8 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                     addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
                     daysLeftText: timeLeft,
                     tokenAmountText: tokenAmount,
-                    usdAmountText: usdAmount
+                    usdAmountText: usdAmount,
+                    timeInterval: nil
                 )
             }
     }

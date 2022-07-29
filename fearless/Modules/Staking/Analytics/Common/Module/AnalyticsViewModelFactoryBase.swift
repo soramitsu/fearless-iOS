@@ -206,7 +206,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 addressOrName: title,
                 daysLeftText: .init(string: subtitle),
                 tokenAmountText: tokenAmountText,
-                usdAmountText: txTimeText
+                usdAmountText: txTimeText,
+                timeInterval: nil
             )
             return AnalyticsRewardsItem(viewModel: viewModel, rawModel: itemData)
         }

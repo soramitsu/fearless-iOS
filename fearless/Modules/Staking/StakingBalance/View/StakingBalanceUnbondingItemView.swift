@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 final class StakingBalanceUnbondingItemView: UIView {
     private enum Constants {
@@ -38,8 +39,12 @@ final class StakingBalanceUnbondingItemView: UIView {
         return label
     }()
 
+    private lazy var timer = CountdownTimer()
+    private lazy var timeFormatter = TotalTimeFormatter()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
+        timer.delegate = self
         setupLayout()
     }
 
@@ -83,13 +88,38 @@ final class StakingBalanceUnbondingItemView: UIView {
             make.bottom.equalToSuperview().inset(Constants.verticalInset)
         }
     }
+
+    deinit {
+        timer.stop()
+    }
 }
 
 extension StakingBalanceUnbondingItemView {
     func bind(model: UnbondingItemViewModel) {
         titleLabel.text = model.addressOrName
-        daysLeftLabel.attributedText = model.daysLeftText
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
+        timer.stop()
+        if let interval = model.timeInterval {
+            timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+        }
+    }
+}
+
+extension StakingBalanceUnbondingItemView: CountdownTimerDelegate {
+    func didStart(with interval: TimeInterval) {
+        let intervalString = (try? timeFormatter.string(from: interval)) ?? ""
+        daysLeftLabel.text =
+            "\(R.string.localizable.stakingNextRound(preferredLanguages: Locale.current.rLanguages)): \(intervalString)"
+    }
+
+    func didCountdown(remainedInterval: TimeInterval) {
+        let intervalString = (try? timeFormatter.string(from: remainedInterval)) ?? ""
+        daysLeftLabel.text =
+            "\(R.string.localizable.stakingNextRound(preferredLanguages: Locale.current.rLanguages)): \(intervalString)"
+    }
+
+    func didStop(with _: TimeInterval) {
+        daysLeftLabel.text = ""
     }
 }

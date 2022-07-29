@@ -6,6 +6,7 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
     func didReceiveDelegation(_ delegation: ParachainStakingDelegation?)
     func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?)
+    func didReceiveCurrentBlock(currentBlock: UInt32?)
 }
 
 final class StakingBalanceParachainStrategy {
@@ -68,6 +69,17 @@ final class StakingBalanceParachainStrategy {
 
     private func fetchCurrentRound() {
         let roundOperation = operationFactory.round()
+        let currentBlockOperation = operationFactory.currentBlock()
+
+        currentBlockOperation.targetOperation.completionBlock = { [weak self] in
+            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
+
+            if let block = currentBlock, let currentBlockvalue = UInt32(block) {
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                }
+            }
+        }
 
         roundOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -76,7 +88,7 @@ final class StakingBalanceParachainStrategy {
             }
         }
 
-        operationManager.enqueue(operations: roundOperation.allOperations, in: .transient)
+        operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)
     }
 
     private func fetchDelegations() {
