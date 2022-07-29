@@ -10,6 +10,7 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     private(set) var delegation: ParachainStakingDelegation?
     private(set) var round: ParachainStakingRoundInfo?
     private(set) var requests: [ParachainStakingScheduledRequest]?
+    private(set) var currentBlock: UInt32?
 
     var rebondCases: [StakingRebondOption] {
         [.all]
@@ -135,6 +136,12 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
 
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?) {
         self.round = round
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    func didReceiveCurrentBlock(currentBlock: UInt32?) {
+        self.currentBlock = currentBlock
 
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
