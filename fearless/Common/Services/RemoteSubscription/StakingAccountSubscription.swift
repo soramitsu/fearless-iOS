@@ -147,7 +147,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
             let localKeyFactory = LocalStorageKeyFactory()
             let localKeys = try requests.map {
-                try localKeyFactory.createFromStoragePath($0.0, encodableElement: $0.1, chainId: chainAsset.chain.chainId)
+                try localKeyFactory.createFromStoragePath($0.0, accountId: $0.1, chainId: chainAsset.chain.chainId)
             }
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
