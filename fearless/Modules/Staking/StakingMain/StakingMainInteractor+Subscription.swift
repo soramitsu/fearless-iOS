@@ -89,6 +89,10 @@ extension StakingMainInteractor {
     }
 
     func performStashControllerSubscription() {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         guard let address = selectedAccount?.toAddress() else {
             presenter?.didReceive(stashItemError: ChainAccountFetchingError.accountNotExists)
             return
@@ -138,6 +142,10 @@ extension StakingMainInteractor {
     }
 
     func performNominatorLimitsSubscripion() {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         guard let chainId = selectedChainAsset?.chain.chainId else {
             return
         }
@@ -324,6 +332,7 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
             return
         }
 
+        print("Received subquery rewards: \(result)")
         presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
 }

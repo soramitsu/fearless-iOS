@@ -238,6 +238,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         fetchConstant(
             for: .maxNominatorRewardedPerValidator,
             runtimeCodingService: runtimeService,
