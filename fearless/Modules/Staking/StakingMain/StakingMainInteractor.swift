@@ -358,7 +358,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
 //    Parachain
 
-    func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?) {
+    func handleDelegatorState(
+        delegatorState: ParachainStakingDelegatorState?,
+        chainAsset _: ChainAsset
+    ) {
         if let state = delegatorState {
             fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
 

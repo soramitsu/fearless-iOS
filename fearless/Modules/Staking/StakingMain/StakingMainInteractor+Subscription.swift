@@ -169,16 +169,27 @@ extension StakingMainInteractor {
 
 extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
     func handleDelegatorState(
-        result: Result<ParachainStakingDelegatorState?, Error>) {
+        result: Result<ParachainStakingDelegatorState?, Error>,
+        chainAsset: ChainAsset,
+        accountId _: AccountId
+    ) {
+        guard
+            chainAsset == selectedChainAsset else {
+            return
+        }
         switch result {
         case let .success(delegatorState):
-            handleDelegatorState(delegatorState: delegatorState)
+            handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }
     }
 
-    func handleDelegationScheduledRequests() {
+    func handleDelegationScheduledRequests(
+        result _: Result<[ParachainStakingScheduledRequest]?, Error>,
+        chainAsset _: ChainAsset,
+        accountId _: AccountId
+    ) {
         guard let collatorIds = collatorIds else {
             return
         }
