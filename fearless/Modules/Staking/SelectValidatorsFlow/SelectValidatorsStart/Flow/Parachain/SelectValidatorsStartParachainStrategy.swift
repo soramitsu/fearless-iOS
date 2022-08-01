@@ -37,24 +37,12 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
         guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else { return }
         let wrapper = operationFactory.allElectedOperation()
 
-        wrapper.targetOperation.completionBlock = { [weak self] in
-            guard let strongSelf = self else { return }
+        var allSelectedCollators: [ParachainStakingCandidateInfo] = []
+        wrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async {
                 do {
-                    let response = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.requestDelegatorState(
-                        for: accountResponse.accountId,
-                        chainAsset: strongSelf.chainAsset
-                    ) { delegatorState in
-                        let usedCollatorsIds: [AccountId] = delegatorState?.delegations.map(\.owner) ?? []
-                        let selectedCandidates: [ParachainStakingCandidateInfo]? = response?.filter { candidate in
-                            !usedCollatorsIds.contains(candidate.owner)
-                        }
-                        self?.output?.didReceiveSelectedCandidates(selectedCandidates: selectedCandidates ?? [])
-
-                        if let collators = selectedCandidates {
-                            self?.requestTopDelegationsForEachCollator(collators: collators)
-                        }
+                    if let result = try wrapper.targetOperation.extractNoCancellableResultData() {
+                        allSelectedCollators = result
                     }
                 } catch {
                     print("SelectValidatorsStartParachainStrategy.prepareRecommendedValidatorList error: ", error)
@@ -62,7 +50,33 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
             }
         }
 
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let delegatorStateWrapper = operationFactory.createDelegatorStateOperation(
+            dependingOn: runtimeOperation
+        ) { [accountResponse.accountId] }
+        delegatorStateWrapper.targetOperation.completionBlock = { [weak self] in
+            guard let strongSelf = self else { return }
+            self?.requestDelegatorState(
+                for: accountResponse.accountId,
+                chainAsset: strongSelf.chainAsset
+            ) { delegatorState in
+                let usedCollatorsIds: [AccountId] = delegatorState?.delegations.map(\.owner) ?? []
+                let selectedCandidates: [ParachainStakingCandidateInfo]? = allSelectedCollators.filter { candidate in
+                    !usedCollatorsIds.contains(candidate.owner)
+                }
+                self?.output?.didReceiveSelectedCandidates(selectedCandidates: selectedCandidates ?? [])
+
+                if let collators = selectedCandidates {
+                    self?.requestTopDelegationsForEachCollator(collators: collators)
+                }
+            }
+        }
+        delegatorStateWrapper.addDependency(wrapper: wrapper)
+
+        operationManager.enqueue(
+            operations: [runtimeOperation] + wrapper.allOperations + delegatorStateWrapper.allOperations,
+            in: .transient
+        )
     }
 
     private func requestTopDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
