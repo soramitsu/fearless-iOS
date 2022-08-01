@@ -78,7 +78,9 @@ final class StakingRedeemRelaychainStrategy: RuntimeConstantFetching, AccountFet
             operationManager: operationManager
         )
 
-        signingWrapper = SigningWrapper(keystore: keystore, metaId: wallet.metaId, accountResponse: accountItem)
+        signingWrapper = SigningWrapper(keystore: keystore,
+                                        metaId: accountItem.walletId,
+                                        accountResponse: accountItem)
     }
 
     private func fetchSlashingSpansForStash(
