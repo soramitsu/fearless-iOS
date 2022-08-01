@@ -100,8 +100,13 @@ extension StakingBalanceUnbondingItemView {
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
         timer.stop()
-        if let interval = model.timeInterval {
+
+        if let interval = model.timeInterval, interval > 0 {
             timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+        } else {
+            daysLeftLabel.text = R.string.localizable.parachainStakingRequestFinished(
+                preferredLanguages: Locale.current.rLanguages
+            )
         }
     }
 }

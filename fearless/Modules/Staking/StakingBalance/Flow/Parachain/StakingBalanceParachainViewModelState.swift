@@ -11,6 +11,7 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
     private(set) var round: ParachainStakingRoundInfo?
     private(set) var requests: [ParachainStakingScheduledRequest]?
     private(set) var currentBlock: UInt32?
+    private(set) var subqueryData: [SubqueryDelegatorHistoryItem]?
 
     var rebondCases: [StakingRebondOption] {
         [.all]
@@ -120,6 +121,11 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
 }
 
 extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategyOutput {
+    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryElement?) {
+        self.subqueryData = subqueryData?.delegatorHistoryElements.nodes ?? []
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
     func didSetup() {
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
@@ -129,7 +135,7 @@ extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategy
             return
         }
 
-        self.requests = requests?.filter { $0.delegator == accountId }
+        self.requests = requests?.filter { $0.delegator == accountId } ?? []
 
         stateListener?.modelStateDidChanged(viewModelState: self)
     }

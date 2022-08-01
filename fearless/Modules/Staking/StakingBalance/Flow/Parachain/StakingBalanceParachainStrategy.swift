@@ -7,6 +7,7 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
     func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?)
     func didReceiveCurrentBlock(currentBlock: UInt32?)
+    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryElement?)
 }
 
 final class StakingBalanceParachainStrategy {
@@ -22,6 +23,7 @@ final class StakingBalanceParachainStrategy {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     private let logger: LoggerProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+    private let subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
 
     deinit {
         stakingAccountUpdatingService.clearSubscription()
@@ -36,7 +38,8 @@ final class StakingBalanceParachainStrategy {
         output: StakingBalanceParachainStrategyOutput?,
         parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
         logger: LoggerProtocol,
-        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
+        subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
     ) {
         self.collator = collator
         self.chainAsset = chainAsset
@@ -47,6 +50,27 @@ final class StakingBalanceParachainStrategy {
         self.parachainStakingLocalSubscriptionFactory = parachainStakingLocalSubscriptionFactory
         self.logger = logger
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.subqueryHistoryOperationFactory = subqueryHistoryOperationFactory
+    }
+
+    private func fetchSubqueryUnstakingHistory() {
+        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+            return
+        }
+
+        let operation = subqueryHistoryOperationFactory.createUnstakingHistoryOperation(
+            delegatorAddress: address,
+            collatorAddress: collator.address
+        )
+
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                let unstakingHistory = try? operation.extractNoCancellableResultData()
+                self?.output?.didReceiveSubqueryData(unstakingHistory)
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     private func fetchDelegationScheduledRequests() {
@@ -134,6 +158,7 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
         fetchDelegations()
         fetchCurrentRound()
         fetchDelegationScheduledRequests()
+        fetchSubqueryUnstakingHistory()
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             delegatorStateProvider = subscribeToDelegatorState(for: chainAsset, accountId: accountId)

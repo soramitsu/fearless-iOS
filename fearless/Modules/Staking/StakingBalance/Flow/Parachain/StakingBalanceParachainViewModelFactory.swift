@@ -170,23 +170,23 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
-        guard let round = viewModelState.round else {
+        guard let round = viewModelState.round,
+              let requests = viewModelState.requests,
+              let subqueryData = viewModelState.subqueryData else {
             return []
         }
 
-        return viewModelState.history?.compactMap { request in
+        let actualViewModels: [UnbondingItemViewModel] = requests.compactMap { request in
             var amount = BigUInt.zero
             var title: String = ""
             if case let .decrease(decreaseAmount) = request.action {
                 amount = decreaseAmount
                 title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
             }
-
             if case let .revoke(revokeAmount) = request.action {
                 amount = revokeAmount
                 title = R.string.localizable.parachainStakingRevoke(preferredLanguages: locale.rLanguages)
             }
-
             let unbondingAmountDecimal = Decimal
                 .fromSubstrateAmount(
                     amount,
@@ -207,7 +207,38 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 usdAmountText: usdAmount,
                 timeInterval: timeLeft
             )
-        } ?? []
+        }
+
+        let unstakings = subqueryData.sorted(by: { item1, item2 in
+            item1.blockNumber < item2.blockNumber
+        })
+
+        let historyViewModels: [UnbondingItemViewModel] = unstakings.compactMap { unstake in
+            let title: String = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+
+            let unbondingAmountDecimal = Decimal
+                .fromSubstrateAmount(
+                    unstake.amount,
+                    precision: precision
+                ) ?? .zero
+            let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+            let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
+            let timeLeft = timeLeftInterval(
+                unbondingRoundIndex: UInt32(unstake.blockNumber),
+                currentRound: round,
+                currentBlock: viewModelState.currentBlock
+            )
+
+            return UnbondingItemViewModel(
+                addressOrName: title,
+                daysLeftText: NSAttributedString(),
+                tokenAmountText: tokenAmount,
+                usdAmountText: usdAmount,
+                timeInterval: timeLeft
+            )
+        }
+
+        return actualViewModels + historyViewModels
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
@@ -231,6 +262,10 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     ) -> TimeInterval? {
         guard let unbondingRoundIndex = unbondingRoundIndex, let currentBlock = currentBlock else {
             return nil
+        }
+
+        guard unbondingRoundIndex > currentBlock else {
+            return 0
         }
 
         let difference = UInt32(abs(Int32(unbondingRoundIndex) - Int32(currentRound.current)))

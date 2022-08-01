@@ -34,7 +34,7 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
         let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
             let rewards = try rewardOperation.extractNoCancellableResultData()
             return rewards.delegators.nodes.first(where: { historyElement in
-                historyElement.id.lowercased() == address.lowercased()
+                historyElement.id?.lowercased() == address.lowercased()
             })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
                 guard
                     let timestamp = Int64(wrappedReward.timestamp)
