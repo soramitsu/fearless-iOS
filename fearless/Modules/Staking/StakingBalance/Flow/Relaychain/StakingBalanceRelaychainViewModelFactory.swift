@@ -171,7 +171,8 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                     daysLeftText: timeLeft,
                     tokenAmountText: tokenAmount,
                     usdAmountText: usdAmount,
-                    timeInterval: nil
+                    timeInterval: nil,
+                    locale: locale
                 )
             }
     }

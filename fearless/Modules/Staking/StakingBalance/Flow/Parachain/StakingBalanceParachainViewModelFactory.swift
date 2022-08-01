@@ -205,7 +205,8 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 daysLeftText: NSAttributedString(),
                 tokenAmountText: tokenAmount,
                 usdAmountText: usdAmount,
-                timeInterval: timeLeft
+                timeInterval: timeLeft,
+                locale: locale
             )
         }
 
@@ -234,7 +235,8 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 daysLeftText: NSAttributedString(),
                 tokenAmountText: tokenAmount,
                 usdAmountText: usdAmount,
-                timeInterval: timeLeft
+                timeInterval: timeLeft,
+                locale: locale
             )
         }
 

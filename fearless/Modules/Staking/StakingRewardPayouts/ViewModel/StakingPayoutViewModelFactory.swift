@@ -88,7 +88,8 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 daysLeftText: daysLeftText,
                 tokenAmountText: "+" + self.tokenAmountText(payout.reward, locale: locale),
                 usdAmountText: priceText(payout.reward, priceData: priceData, locale: locale),
-                timeInterval: nil
+                timeInterval: nil,
+                locale: locale
             )
         }
     }
