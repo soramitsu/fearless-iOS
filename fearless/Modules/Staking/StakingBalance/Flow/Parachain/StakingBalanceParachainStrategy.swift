@@ -65,8 +65,13 @@ final class StakingBalanceParachainStrategy {
 
         operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
-                let unstakingHistory = try? operation.extractNoCancellableResultData()
-                self?.output?.didReceiveSubqueryData(unstakingHistory)
+                do {
+                    let unstakingHistory = try operation.extractNoCancellableResultData()
+                    self?.output?.didReceiveSubqueryData(unstakingHistory)
+                } catch {
+                    self?.output?.didReceiveSubqueryData(nil)
+                    self?.logger.error(error.localizedDescription)
+                }
             }
         }
 

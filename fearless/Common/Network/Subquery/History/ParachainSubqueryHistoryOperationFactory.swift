@@ -14,13 +14,16 @@ protocol ParachainSubqueryHistoryOperationFactoryProtocol {
 }
 
 final class ParachainSubqueryHistoryOperationFactory {
-    let url: URL?
+    private let url: URL?
 
     init(url: URL?) {
         self.url = url
     }
 
-    private func prepareUnstakingHistoryRequest(delegatorAddress: String, collatorAddress: String) -> String {
+    private func prepareUnstakingHistoryRequest(
+        delegatorAddress: String,
+        collatorAddress: String
+    ) -> String {
         """
         query {
                 delegatorHistoryElements(
@@ -44,45 +47,14 @@ final class ParachainSubqueryHistoryOperationFactory {
                 }
             }
         """
-        /*
-         """
-                 {
-                             delegators(
-                                  filter: {
-                                      id: { equalToInsensitive:"\(delegatorAddress)"}
-                                 }
-                              ) {
-                                 nodes {
-                                     id
-                                                   delegatorHistoryElements(
-                                                   last: 20,
-                                                   filter: {
-                                                       collatorId: { equalToInsensitive: "\(collatorAddress)"},
-                                                       type: { equalTo: 1 }
-
-                                           },
-                                                   ) {
-                                                       nodes {
-                                                         id
-                                                         blockNumber
-                                                         delegatorId
-                                                         collatorId
-                                                         timestamp
-                                                         type
-                                                         roundId
-                                                         amount
-                                                       }
-                                                   }
-                                               }
-                              }
-                         }
-         """
-          */
     }
 }
 
 extension ParachainSubqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol {
-    func createUnstakingHistoryOperation(delegatorAddress: String, collatorAddress: String) -> BaseOperation<SubqueryDelegatorHistoryElement> {
+    func createUnstakingHistoryOperation(
+        delegatorAddress: String,
+        collatorAddress: String
+    ) -> BaseOperation<SubqueryDelegatorHistoryElement> {
         let queryString = prepareUnstakingHistoryRequest(
             delegatorAddress: delegatorAddress,
             collatorAddress: collatorAddress
