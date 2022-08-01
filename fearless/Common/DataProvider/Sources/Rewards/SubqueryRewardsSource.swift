@@ -51,7 +51,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                 throw error
             case let .data(response):
                 return response.delegators.nodes.first(where: { historyElement in
-                    historyElement.id.lowercased() == address.lowercased()
+                    historyElement.id?.lowercased() == address.lowercased()
                 })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
                     guard
                         let timestamp = Int64(wrappedReward.timestamp)
@@ -98,7 +98,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                              ) {
                                 nodes {
                                     id
-                                  delegatorHistoryElements(filter: { amount: {isNull: false}, \(timestampFilter)}) {
+                                  delegatorHistoryElements(orderBy: TIMESTAMP_DESC,filter: { amount: {isNull: false}, \(timestampFilter)}) {
                                       nodes {
                                         id
                                         amount

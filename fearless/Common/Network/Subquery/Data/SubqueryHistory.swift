@@ -153,7 +153,7 @@ struct SubqueryDelegatorHistoryData: Decodable {
 }
 
 struct SubqueryDelegatorHistoryElement: Decodable {
-    let id: String
+    let id: String?
     let delegatorHistoryElements: SubqueryDelegatorHistoryNodes
 }
 
@@ -167,12 +167,14 @@ struct SubqueryDelegatorHistoryItem: Decodable {
         case amount
         case type
         case timestamp
+        case blockNumber
     }
 
     let id: String
     @StringCodable var amount: BigUInt
     let type: Int
     let timestamp: String
+    let blockNumber: Int
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
@@ -180,6 +182,7 @@ struct SubqueryDelegatorHistoryItem: Decodable {
         id = try container.decode(String.self, forKey: .id)
         type = try container.decode(Int.self, forKey: .type)
         timestamp = try container.decode(String.self, forKey: .timestamp)
+        blockNumber = try container.decode(Int.self, forKey: .blockNumber)
 
         let amountValue = try? container.decode(Decimal.self, forKey: .amount)
         let amountString = amountValue?.toString(locale: nil, digits: 0)

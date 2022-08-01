@@ -39,6 +39,8 @@ final class StakingBalanceUnbondingItemView: UIView {
         return label
     }()
 
+    var locale = Locale.current
+
     private lazy var timer = CountdownTimer()
     private lazy var timeFormatter = TotalTimeFormatter()
 
@@ -96,12 +98,18 @@ final class StakingBalanceUnbondingItemView: UIView {
 
 extension StakingBalanceUnbondingItemView {
     func bind(model: UnbondingItemViewModel) {
+        locale = model.locale
         titleLabel.text = model.addressOrName
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
         timer.stop()
-        if let interval = model.timeInterval {
+
+        if let interval = model.timeInterval, interval > 0 {
             timer.start(with: interval, runLoop: RunLoop.current, mode: .tracking)
+        } else {
+            daysLeftLabel.text = R.string.localizable.parachainStakingRequestFinished(
+                preferredLanguages: locale.rLanguages
+            )
         }
     }
 }
@@ -110,13 +118,13 @@ extension StakingBalanceUnbondingItemView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
         let intervalString = (try? timeFormatter.string(from: interval)) ?? ""
         daysLeftLabel.text =
-            "\(R.string.localizable.stakingNextRound(preferredLanguages: Locale.current.rLanguages)): \(intervalString)"
+            "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
         let intervalString = (try? timeFormatter.string(from: remainedInterval)) ?? ""
         daysLeftLabel.text =
-            "\(R.string.localizable.stakingNextRound(preferredLanguages: Locale.current.rLanguages)): \(intervalString)"
+            "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
     }
 
     func didStop(with _: TimeInterval) {
