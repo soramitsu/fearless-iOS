@@ -302,14 +302,17 @@ extension SubqueryRewardOperationFactory: SubqueryRewardOperationFactoryProtocol
         }
 
         let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryData> { data in
-            let response = try JSONDecoder().decode(SubqueryResponse<SubqueryDelegatorHistoryData>.self, from: data)
-
-            switch response {
-            case let .errors(error):
-                throw error
-            case let .data(response):
-                return response
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
             }
+
+            guard let dataDict = json["data"] as? [String: Any] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+            }
+
+            let historyData = try SubqueryDelegatorHistoryData(json: dataDict)
+
+            return historyData
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)

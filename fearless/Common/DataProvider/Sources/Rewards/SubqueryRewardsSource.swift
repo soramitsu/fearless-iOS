@@ -44,30 +44,33 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
         }
 
         let resultFactory = AnyNetworkResultFactory<[SubqueryRewardItemData]?> { data in
-            let response = try JSONDecoder().decode(SubqueryResponse<SubqueryDelegatorHistoryData>.self, from: data)
+            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+            }
 
-            switch response {
-            case let .errors(error):
-                throw error
-            case let .data(response):
-                return response.delegators.nodes.first(where: { historyElement in
-                    historyElement.id?.lowercased() == address.lowercased()
-                })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
-                    guard
-                        let timestamp = Int64(wrappedReward.timestamp)
-                    else {
-                        return nil
-                    }
-                    return SubqueryRewardItemData(
-                        eventId: wrappedReward.id,
-                        timestamp: timestamp,
-                        validatorAddress: "",
-                        era: EraIndex(0),
-                        stashAddress: address,
-                        amount: wrappedReward.amount,
-                        isReward: wrappedReward.type.rawValue == 0
-                    )
+            guard let dataDict = json["data"] as? [String: Any] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+            }
+
+            let response = try SubqueryDelegatorHistoryData(json: dataDict)
+
+            return response.delegators.nodes.first(where: { historyElement in
+                historyElement.id?.lowercased() == address.lowercased()
+            })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
+                guard
+                    let timestamp = Int64(wrappedReward.timestamp)
+                else {
+                    return nil
                 }
+                return SubqueryRewardItemData(
+                    eventId: wrappedReward.id,
+                    timestamp: timestamp,
+                    validatorAddress: "",
+                    era: EraIndex(0),
+                    stashAddress: address,
+                    amount: wrappedReward.amount,
+                    isReward: wrappedReward.type.rawValue == 0
+                )
             }
         }
 
