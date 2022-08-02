@@ -172,7 +172,7 @@ struct SubqueryDelegatorHistoryItem: Decodable {
 
     let id: String
     @StringCodable var amount: BigUInt
-    let type: Int
+    let type: SubqueryDelegationAction
     let timestamp: String
     let blockNumber: Int
 
@@ -180,7 +180,7 @@ struct SubqueryDelegatorHistoryItem: Decodable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         id = try container.decode(String.self, forKey: .id)
-        type = try container.decode(Int.self, forKey: .type)
+        type = try container.decode(SubqueryDelegationAction.self, forKey: .type)
         timestamp = try container.decode(String.self, forKey: .timestamp)
         blockNumber = try container.decode(Int.self, forKey: .blockNumber)
 

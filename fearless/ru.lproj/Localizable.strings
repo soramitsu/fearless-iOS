@@ -747,3 +747,5 @@ and depending on the network state, may not be selected to participate";
 "parachain.staking.hint.reward.bond.more" = "Ваши награды будут увеличены, начиная со следующего раунда.";
 "parachain.staking.delegators.title" = "Делегаторы";
 "parachain.staking.request.finished" = "Завершен";
+"parachain.staking.delegate" = "Делегирование";
+"staking.history.title" = "Staking History";

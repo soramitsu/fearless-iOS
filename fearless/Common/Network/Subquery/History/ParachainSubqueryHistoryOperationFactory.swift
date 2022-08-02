@@ -10,7 +10,7 @@ protocol ParachainSubqueryHistoryOperationFactoryProtocol {
     func createUnstakingHistoryOperation(
         delegatorAddress: String,
         collatorAddress: String
-    ) -> BaseOperation<SubqueryDelegatorHistoryElement>
+    ) -> BaseOperation<SubqueryDelegatorHistoryData>
 }
 
 final class ParachainSubqueryHistoryOperationFactory {
@@ -25,27 +25,34 @@ final class ParachainSubqueryHistoryOperationFactory {
         collatorAddress: String
     ) -> String {
         """
-        query {
-                delegatorHistoryElements(
-                last: 20,
-                filter: {
-                    delegatorId: { equalToInsensitive: "\(delegatorAddress)"},
-                    collatorId: { equalToInsensitive: "\(collatorAddress)"},
-                    type: { equalTo: 1 }
-        }
-                ) {
-                    nodes {
-                      id
-                      blockNumber
-                      delegatorId
-                      collatorId
-                      timestamp
-                      type
-                      roundId
-                      amount
-                    }
-                }
-            }
+                        {
+                                    delegators(
+                                         filter: {
+                                             id: { equalToInsensitive:"\(delegatorAddress)"}
+                                        }
+                                     ) {
+                                        nodes {
+                                            id
+                                          delegatorHistoryElements(
+                                            orderBy: TIMESTAMP_DESC,
+                                            filter: {
+                                                amount: {isNull: false},
+                                                collatorId: { equalToInsensitive: "\(collatorAddress)"}
+                                                }) {
+                                              nodes {
+                                                                      id
+                                                                      blockNumber
+                                                                      delegatorId
+                                                                      collatorId
+                                                                      timestamp
+                                                                      type
+                                                                      roundId
+                                                                      amount
+                                              }
+                                          }
+                                        }
+                                     }
+                                }
         """
     }
 }
@@ -54,7 +61,7 @@ extension ParachainSubqueryHistoryOperationFactory: ParachainSubqueryHistoryOper
     func createUnstakingHistoryOperation(
         delegatorAddress: String,
         collatorAddress: String
-    ) -> BaseOperation<SubqueryDelegatorHistoryElement> {
+    ) -> BaseOperation<SubqueryDelegatorHistoryData> {
         let queryString = prepareUnstakingHistoryRequest(
             delegatorAddress: delegatorAddress,
             collatorAddress: collatorAddress
@@ -80,8 +87,8 @@ extension ParachainSubqueryHistoryOperationFactory: ParachainSubqueryHistoryOper
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryElement> { data in
-            let response = try JSONDecoder().decode(SubqueryResponse<SubqueryDelegatorHistoryElement>.self, from: data)
+        let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryData> { data in
+            let response = try JSONDecoder().decode(SubqueryResponse<SubqueryDelegatorHistoryData>.self, from: data)
 
             switch response {
             case let .errors(error):

@@ -121,8 +121,11 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
 }
 
 extension StakingBalanceParachainViewModelState: StakingBalanceParachainStrategyOutput {
-    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryElement?) {
-        self.subqueryData = subqueryData?.delegatorHistoryElements.nodes ?? []
+    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryData?) {
+        self.subqueryData = subqueryData?.delegators.nodes
+            .compactMap { $0.delegatorHistoryElements }
+            .compactMap { $0.nodes }
+            .reduce([], +) ?? []
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 

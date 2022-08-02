@@ -7,7 +7,7 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
     func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?)
     func didReceiveCurrentBlock(currentBlock: UInt32?)
-    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryElement?)
+    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryData?)
 }
 
 final class StakingBalanceParachainStrategy {

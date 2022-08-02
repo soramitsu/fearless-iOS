@@ -48,7 +48,7 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
                     era: EraIndex(0),
                     stashAddress: address,
                     amount: wrappedReward.amount,
-                    isReward: wrappedReward.type == 0
+                    isReward: wrappedReward.type.rawValue == 0
                 )
             }
         }

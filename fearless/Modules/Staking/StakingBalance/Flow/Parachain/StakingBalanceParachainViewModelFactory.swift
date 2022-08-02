@@ -157,7 +157,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         )
         return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
-                .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
+                .stakingHistoryTitle(preferredLanguages: locale.rLanguages),
             emptyListDescription: R.string.localizable
                 .stakingUnbondingEmptyList_v190(preferredLanguages: locale.rLanguages),
             unbondings: viewModels
@@ -181,11 +181,15 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             var title: String = ""
             if case let .decrease(decreaseAmount) = request.action {
                 amount = decreaseAmount
-                title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+                title = R.string.localizable.stakingUnbond_v190(
+                    preferredLanguages: locale.rLanguages
+                )
             }
             if case let .revoke(revokeAmount) = request.action {
                 amount = revokeAmount
-                title = R.string.localizable.parachainStakingRevoke(preferredLanguages: locale.rLanguages)
+                title = R.string.localizable.parachainStakingRevoke(
+                    preferredLanguages: locale.rLanguages
+                )
             }
             let unbondingAmountDecimal = Decimal
                 .fromSubstrateAmount(
@@ -210,12 +214,8 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             )
         }
 
-        let unstakings = subqueryData.sorted(by: { item1, item2 in
-            item1.blockNumber < item2.blockNumber
-        })
-
-        let historyViewModels: [UnbondingItemViewModel] = unstakings.compactMap { unstake in
-            let title: String = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+        let historyViewModels: [UnbondingItemViewModel] = subqueryData.compactMap { unstake in
+            let title: String = unstake.type.title(locale: locale) ?? ""
 
             let unbondingAmountDecimal = Decimal
                 .fromSubstrateAmount(
@@ -224,11 +224,11 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 ) ?? .zero
             let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
             let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-            let timeLeft = timeLeftInterval(
+            let timeLeft = unstake.blockNumber > viewModelState.currentBlock ?? 0 ? timeLeftInterval(
                 unbondingRoundIndex: UInt32(unstake.blockNumber),
                 currentRound: round,
                 currentBlock: viewModelState.currentBlock
-            )
+            ) : 0
 
             return UnbondingItemViewModel(
                 addressOrName: title,
@@ -266,7 +266,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             return nil
         }
 
-        guard unbondingRoundIndex > currentBlock else {
+        guard unbondingRoundIndex > currentRound.current else {
             return 0
         }
 

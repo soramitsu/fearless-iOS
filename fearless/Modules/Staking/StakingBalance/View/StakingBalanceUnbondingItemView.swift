@@ -118,13 +118,13 @@ extension StakingBalanceUnbondingItemView: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
         let intervalString = (try? timeFormatter.string(from: interval)) ?? ""
         daysLeftLabel.text =
-            "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
+            "\(intervalString)"
     }
 
     func didCountdown(remainedInterval: TimeInterval) {
         let intervalString = (try? timeFormatter.string(from: remainedInterval)) ?? ""
         daysLeftLabel.text =
-            "\(R.string.localizable.stakingNextRound(preferredLanguages: locale.rLanguages)): \(intervalString)"
+            "\(intervalString)"
     }
 
     func didStop(with _: TimeInterval) {

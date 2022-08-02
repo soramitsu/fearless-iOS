@@ -65,7 +65,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                         era: EraIndex(0),
                         stashAddress: address,
                         amount: wrappedReward.amount,
-                        isReward: wrappedReward.type == 0
+                        isReward: wrappedReward.type.rawValue == 0
                     )
                 }
             }
@@ -98,7 +98,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                              ) {
                                 nodes {
                                     id
-                                  delegatorHistoryElements(orderBy: TIMESTAMP_DESC,filter: { amount: {isNull: false}, \(timestampFilter)}) {
+                                  delegatorHistoryElements(orderBy: TIMESTAMP_DESC,filter: { amount: {isNull: false}, \(timestampFilter), type: { equalTo: 0 }}) {
                                       nodes {
                                         id
                                         blockNumber

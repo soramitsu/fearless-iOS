@@ -100,7 +100,7 @@ final class SubqueryRewardOperationFactory {
                      ) {
                         nodes {
                             id
-                          delegatorHistoryElements(orderBy: TIMESTAMP_DESC, filter: { amount: {isNull: false}, \(timestampFilter)}) {
+                          delegatorHistoryElements(orderBy: TIMESTAMP_DESC, filter: { amount: {isNull: false}, \(timestampFilter), type: { equalTo: 0 }}) {
                               nodes {
                                 id
                                 blockNumber
