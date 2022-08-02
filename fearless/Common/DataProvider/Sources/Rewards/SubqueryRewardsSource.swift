@@ -101,6 +101,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                                   delegatorHistoryElements(orderBy: TIMESTAMP_DESC,filter: { amount: {isNull: false}, \(timestampFilter)}) {
                                       nodes {
                                         id
+                                        blockNumber
                                         amount
                                         type
                                         timestamp

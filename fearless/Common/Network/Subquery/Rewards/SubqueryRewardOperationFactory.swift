@@ -103,6 +103,7 @@ final class SubqueryRewardOperationFactory {
                           delegatorHistoryElements(orderBy: TIMESTAMP_DESC, filter: { amount: {isNull: false}, \(timestampFilter)}) {
                               nodes {
                                 id
+                                blockNumber
                                 amount
                                 type
                                 timestamp
