@@ -1,9 +1,9 @@
 import Foundation
 
 enum SubqueryDelegationAction: Int, Decodable {
-    case reward = 2
-    case unstake = 1
     case stake = 0
+    case unstake = 1
+    case reward = 2
     case delegate = 3
     case unknown
 

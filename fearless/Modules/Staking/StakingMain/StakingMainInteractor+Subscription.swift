@@ -331,7 +331,6 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
             return
         }
 
-        print("Received subquery rewards: \(result)")
         presenter?.didReceieve(subqueryRewards: result, period: .week)
     }
 }
