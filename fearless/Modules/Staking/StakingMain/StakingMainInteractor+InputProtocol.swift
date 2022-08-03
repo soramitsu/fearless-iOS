@@ -51,6 +51,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 for: chainId,
                 accountId: accountId
             )
+
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+                subscribeRewardsAnalytics(for: address)
+            }
         }
 
         fetchParachainInfo()
@@ -131,6 +135,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 for: chainId,
                 accountId: accountId
             )
+
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+                subscribeRewardsAnalytics(for: address)
+            }
         }
 
         fetchParachainInfo()
@@ -233,6 +241,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
                 for: chainAsset.chain.chainId,
                 accountId: accountId
             )
+
+            if let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain) {
+                subscribeRewardsAnalytics(for: address)
+            }
         } else {
             presenter?.didReceive(delegationInfos: [])
         }
