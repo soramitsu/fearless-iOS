@@ -58,7 +58,7 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
     }
 }
 
-struct ChainAssetId: Equatable, Codable {
+struct ChainAssetId: Equatable, Codable, Hashable {
     let chainId: ChainModel.Id
     let assetId: AssetModel.Id
 }
@@ -95,6 +95,10 @@ extension ChainAsset {
 
         return storagePath
     }
+
+    var debugName: String {
+        "\(chain.name)-\(asset.name)"
+	}
 
     var hasStaking: Bool {
         let model: ChainAssetModel? = chain.assets.first { $0.asset.id == asset.id }
