@@ -13,7 +13,7 @@ final class WalletsManagmentPresenter {
     private let logger: Logger
 
     private var wallets: [ManagedMetaAccountModel] = []
-    private var balances: [MetaAccountId: WalletBalance] = [:]
+    private var balances: [MetaAccountId: WalletBalanceInfo] = [:]
 
     // MARK: - Constructors
 
@@ -107,7 +107,7 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
         }
     }
 
-    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalance], Error>) {
+    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>) {
         switch balances {
         case let .success(balances):
             self.balances = balances

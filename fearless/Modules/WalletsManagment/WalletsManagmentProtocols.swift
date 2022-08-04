@@ -21,7 +21,7 @@ protocol WalletsManagmentInteractorInput: AnyObject {
 
 protocol WalletsManagmentInteractorOutput: AnyObject {
     func didReceiveWallets(_ wallets: Result<[ManagedMetaAccountModel], Error>)
-    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalance], Error>)
+    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
     func didReceive(error: Error)
     func didCompleteSelection()
 }

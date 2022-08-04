@@ -6,7 +6,7 @@ protocol WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset],
         _ prices: [PriceData]
-    ) -> [MetaAccountId: WalletBalance]?
+    ) -> [MetaAccountId: WalletBalanceInfo]?
 }
 
 final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
@@ -15,10 +15,10 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset],
         _ prices: [PriceData]
-    ) -> [MetaAccountId: WalletBalance]? {
+    ) -> [MetaAccountId: WalletBalanceInfo]? {
         let walletBalanceMap = metaAccounts.reduce(
-            [MetaAccountId: WalletBalance]()
-        ) { (result, account) -> [MetaAccountId: WalletBalance]? in
+            [MetaAccountId: WalletBalanceInfo]()
+        ) { (result, account) -> [MetaAccountId: WalletBalanceInfo]? in
 
             let splitedChainAssets = split(chainAssets, for: account)
             let enabledChainAssets = splitedChainAssets.enabled
@@ -54,12 +54,14 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 return nil
             }
 
-            let walletBalance = WalletBalance(
+            let walletBalance = WalletBalanceInfo(
                 totalFiatValue: totalFiatValue,
                 enabledAssetFiatBalance: enabledAssetFiatBalance,
                 dayChangePercent: dayChangePercent.isNaN ? .zero : dayChangePercent,
                 dayChangeValue: totalDayChange,
-                currency: account.selectedCurrency
+                currency: account.selectedCurrency,
+                prices: prices,
+                accountInfos: accountInfos
             )
 
             var result = result

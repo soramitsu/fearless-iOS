@@ -4,7 +4,7 @@ import SoraFoundation
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(
         from wallets: [ManagedMetaAccountModel],
-        balances: [MetaAccountId: WalletBalance],
+        balances: [MetaAccountId: WalletBalanceInfo],
         locale: Locale
     ) -> [WalletsManagmentCellViewModel]
 }
@@ -18,7 +18,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
 
     func buildViewModel(
         from wallets: [ManagedMetaAccountModel],
-        balances: [MetaAccountId: WalletBalance],
+        balances: [MetaAccountId: WalletBalanceInfo],
         locale: Locale
     ) -> [WalletsManagmentCellViewModel] {
         wallets.compactMap { managedMetaAccount -> WalletsManagmentCellViewModel? in
