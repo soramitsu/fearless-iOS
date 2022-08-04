@@ -11,7 +11,7 @@ final class BalanceInfoPresenter {
     private let balanceInfoType: BalanceInfoType
     private let balanceInfoViewModelFactoryProtocol: BalanceInfoViewModelFactoryProtocol
 
-    private var balances: WalletBalances = [:]
+    private var balances: WalletBalanceInfos = [:]
 
     // MARK: - Constructors
 

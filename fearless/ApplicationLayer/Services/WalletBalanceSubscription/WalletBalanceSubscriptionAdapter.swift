@@ -1,8 +1,8 @@
 import Foundation
 import RobinHood
 
-typealias WalletBalances = [MetaAccountId: WalletBalanceInfo]
-typealias WalletBalancesResult = Result<WalletBalances, Error>
+typealias WalletBalanceInfos = [MetaAccountId: WalletBalanceInfo]
+typealias WalletBalancesResult = Result<WalletBalanceInfos, Error>
 
 protocol WalletBalanceSubscriptionHandler: AnyObject {
     func handle(result: WalletBalancesResult)

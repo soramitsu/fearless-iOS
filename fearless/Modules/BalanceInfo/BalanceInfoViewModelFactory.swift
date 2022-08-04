@@ -4,7 +4,7 @@ import SoraFoundation
 protocol BalanceInfoViewModelFactoryProtocol {
     func buildBalanceInfo(
         with type: BalanceInfoType,
-        balances: WalletBalances,
+        balances: WalletBalanceInfos,
         locale: Locale
     ) -> BalanceInfoViewModel
 }
@@ -18,7 +18,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
 
     func buildBalanceInfo(
         with type: BalanceInfoType,
-        balances: WalletBalances,
+        balances: WalletBalanceInfos,
         locale: Locale
     ) -> BalanceInfoViewModel {
         var balanceInfoViewModel: BalanceInfoViewModel
@@ -26,13 +26,13 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         switch type {
         case let .wallet(metaAccount):
             guard let info = balances[metaAccount.metaId] else {
-                return zeroBalance()
+                return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
             }
             balanceInfoViewModel = buildWalletBalance(with: info, locale: locale)
 
         case let .chainAsset(metaAccount, chainAsset):
             guard let info = balances[metaAccount.metaId] else {
-                return zeroBalance()
+                return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
             }
             balanceInfoViewModel = buildChainAssetBalance(
                 with: info,
@@ -76,7 +76,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
     ) -> BalanceInfoViewModel {
         let accountRequest = chainAsset.chain.accountRequest()
         guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
-            return zeroBalance()
+            return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
         }
 
         let dayChangeAttributedString = getDayChangeAttributedString(
@@ -98,7 +98,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             ),
             let balanceString = assetFormatter.stringFromDecimal(balance)
         else {
-            return zeroBalance()
+            return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
         }
 
         return BalanceInfoViewModel(
@@ -107,8 +107,11 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         )
     }
 
-    private func zeroBalance() -> BalanceInfoViewModel {
-        BalanceInfoViewModel(dayChangeAttributedString: nil, balanceString: "0")
+    private func zeroBalanceViewModel(currencySymbol: String) -> BalanceInfoViewModel {
+        BalanceInfoViewModel(
+            dayChangeAttributedString: nil,
+            balanceString: currencySymbol + "0"
+        )
     }
 
     private func tokenFormatter(
