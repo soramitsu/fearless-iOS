@@ -3,15 +3,13 @@ import RobinHood
 
 final class SelectValidatorsStartPresenter {
     weak var view: SelectValidatorsStartViewProtocol?
-    let wireframe: SelectValidatorsStartWireframeProtocol
-    let interactor: SelectValidatorsStartInteractorInputProtocol
-
-    let logger: LoggerProtocol?
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let viewModelState: SelectValidatorsStartViewModelState
-    let viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
-
+    private let wireframe: SelectValidatorsStartWireframeProtocol
+    private let interactor: SelectValidatorsStartInteractorInputProtocol
+    private let logger: LoggerProtocol?
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let viewModelState: SelectValidatorsStartViewModelState
+    private let viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
     private var electedValidators: [AccountAddress: ElectedValidatorInfo]?
     private var recommendedValidators: [ElectedValidatorInfo]?
     private var selectedValidators: SharedList<SelectedValidatorInfo>?

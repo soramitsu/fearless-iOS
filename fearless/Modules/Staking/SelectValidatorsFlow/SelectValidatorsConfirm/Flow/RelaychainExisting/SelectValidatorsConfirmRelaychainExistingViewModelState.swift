@@ -3,19 +3,17 @@ import RobinHood
 import BigInt
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
-    var amount: Decimal? { existingBonding.amount }
-
+    var amount: Decimal? { 0.0 }
+    var stateListener: SelectValidatorsConfirmModelStateListener?
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
     let existingBonding: ExistingBonding
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
-    var stateListener: SelectValidatorsConfirmModelStateListener?
     let operationManager: OperationManagerProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
-    var confirmationModel: SelectValidatorsConfirmRelaychainModel?
-
+    private(set) var confirmationModel: SelectValidatorsConfirmRelaychainModel?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -24,8 +22,17 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     private(set) var maxNominatorsCount: UInt32?
     private(set) var stakingDuration: StakingDuration?
 
-    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
-        self.stateListener = stateListener
+    var payoutAccountAddress: String? {
+        switch existingBonding.rewardDestination {
+        case let .payout(account):
+            return account
+        default:
+            return nil
+        }
+    }
+
+    var walletAccountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
     init(
@@ -47,17 +54,8 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         self.dataValidatingFactory = dataValidatingFactory
     }
 
-    var payoutAccountAddress: String? {
-        switch existingBonding.rewardDestination {
-        case let .payout(account):
-            return account
-        default:
-            return nil
-        }
-    }
-
-    var walletAccountAddress: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validators(using locale: Locale) -> [DataValidating] {
@@ -75,13 +73,32 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         )]
     }
 
+    func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
+        let targets = targets
+
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let callFactory = SubstrateCallFactory()
+
+            let nominateCall = try callFactory.nominate(targets: targets)
+
+            return try builder
+                .adding(call: nominateCall)
+        }
+
+        return closure
+    }
+
     private func createRewardDestinationOperation(
         for payoutAddress: String
     ) -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
-        let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation {
+        let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation { [weak self] in
+            guard let strongSelf = self else {
+                throw CommonError.internal
+            }
+
             let displayAddress = DisplayAddress(
-                address: self.wallet.fetch(for: self.chainAsset.chain.accountRequest())?.toAddress() ?? payoutAddress,
-                username: self.wallet.name
+                address: strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() ?? payoutAddress,
+                username: strongSelf.wallet.name
             )
 
             return RewardDestination.payout(account: displayAddress)
@@ -147,21 +164,6 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         }
 
         operationManager.enqueue(operations: dependencies + [mapOperation], in: .transient)
-    }
-
-    func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        let targets = targets
-
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let callFactory = SubstrateCallFactory()
-
-            let nominateCall = try callFactory.nominate(targets: targets)
-
-            return try builder
-                .adding(call: nominateCall)
-        }
-
-        return closure
     }
 }
 

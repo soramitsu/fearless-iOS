@@ -225,10 +225,6 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
             queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath, at: blockHash)
 
-//        queryWrapper.targetOperation.completionBlock = {
-//            print("queryWrapper Finished")
-//        }
-
         queryWrapper.allOperations.forEach { $0.addDependency(keysOperation) }
 
         let dependencies = [keysOperation] + queryWrapper.dependencies

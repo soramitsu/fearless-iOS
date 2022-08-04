@@ -65,18 +65,7 @@ final class ValidatorInfoParachainViewModelFactory {
         priceData: PriceData?,
         locale: Locale
     ) -> ValidatorInfoViewModel.ParachainExposure {
-        let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
-
         let delegationsCountString = "\(collatorInfo.metadata?.delegationCount ?? 0)"
-
-        let myNomination: ValidatorInfoViewModel.MyNomination?
-
-        switch collatorInfo.metadata?.status {
-        case let .active:
-            myNomination = ValidatorInfoViewModel.MyNomination(isRewarded: true)
-        case .idle, .leaving, .none:
-            myNomination = nil
-        }
 
         let totalStakeDecimal = Decimal.fromSubstrateAmount(
             collatorInfo.metadata?.totalCounted ?? BigUInt.zero,
@@ -119,14 +108,14 @@ final class ValidatorInfoParachainViewModelFactory {
             priceData: priceData
         ).value(for: locale).amount
 
-        // TODO: Oversubscribed real value
         return ValidatorInfoViewModel.ParachainExposure(
             delegations: delegationsCountString,
             totalStake: totalStake,
             estimatedReward: estimatedRewardString,
             minimumBond: minimumBondString,
             selfBonded: selfBondedString,
-            effectiveAmountBonded: effectiveAmountBondedString
+            effectiveAmountBonded: effectiveAmountBondedString,
+            oversubscribed: collatorInfo.oversubscribed
         )
     }
 
@@ -167,7 +156,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
     private func createNominatorsStakeTitle() -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages)
+            R.string.localizable.parachainStakingDelegatorsTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -207,7 +196,11 @@ extension ValidatorInfoParachainViewModelFactory: ValidatorInfoViewModelFactoryP
         let status: ValidatorInfoViewModel.StakingStatus
 
         if parachainViewModelState.collatorInfo.metadata != nil {
-            let exposure = createExposure(from: parachainViewModelState.collatorInfo, priceData: priceData, locale: locale)
+            let exposure = createExposure(
+                from: parachainViewModelState.collatorInfo,
+                priceData: priceData,
+                locale: locale
+            )
             status = .electedParachain(exposure: exposure)
         } else {
             status = .unelected

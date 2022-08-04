@@ -16,8 +16,6 @@ final class ValidatorInfoViewFactory {
             selectedMetaAccount: wallet
         )
 
-        let localizationManager = LocalizationManager.shared
-
         switch flow {
         case let .relaychain(validatorInfo, address):
             let storageRequestFactory = StorageRequestFactory(
@@ -34,7 +32,7 @@ final class ValidatorInfoViewFactory {
             }
 
             let serviceFactory = StakingServiceFactory(
-                chainRegisty: ChainRegistryFacade.sharedRegistry,
+                chainRegisty: chainRegistry,
                 storageFacade: SubstrateDataStorageFacade.shared,
                 eventCenter: EventCenter.shared,
                 operationManager: OperationManagerFacade.sharedManager
@@ -47,7 +45,10 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
-            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
+
             let collatorOperationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,

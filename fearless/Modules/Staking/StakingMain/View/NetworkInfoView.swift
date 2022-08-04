@@ -241,7 +241,6 @@ final class NetworkInfoView: UIView {
 
     private func setupSkeleton() {
         let spaceSize = networkInfoContainer.frame.size
-        print("SETUP SKELETON: \(spaceSize)")
         let skeletonView = Skrull(
             size: networkInfoContainer.frame.size,
             decorations: [],

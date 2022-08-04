@@ -168,9 +168,11 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
 
                 return UnbondingItemViewModel(
                     addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
-                    daysLeftText: timeLeft,
+                    daysLeftText: NSAttributedString(),
                     tokenAmountText: tokenAmount,
-                    usdAmountText: usdAmount
+                    usdAmountText: usdAmount,
+                    timeInterval: timeleft(unbondingEra: unbondingItem.era, eraCountdown: balanceData.eraCountdown),
+                    locale: locale
                 )
             }
     }
@@ -187,6 +189,12 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
         let price = balanceViewModelFactory
             .priceFromAmount(amount, priceData: priceData).value(for: locale)
         return price
+    }
+
+    private func timeleft(unbondingEra: EraIndex, eraCountdown: EraCountdown?) -> TimeInterval {
+        guard let eraCountdown = eraCountdown else { return 0 }
+
+        return eraCountdown.timeIntervalTillStart(targetEra: unbondingEra)
     }
 
     private func timeLeftAttributedString(

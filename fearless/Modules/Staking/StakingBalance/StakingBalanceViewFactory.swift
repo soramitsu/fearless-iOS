@@ -201,6 +201,9 @@ struct StakingBalanceViewFactory {
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
                 subqueryOperationFactory: subqueryOperationFactory
             )
+
+            let subqueryHistoryOperationFactory = ParachainSubqueryHistoryOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+
             let viewModelState = StakingBalanceParachainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
@@ -218,7 +221,8 @@ struct StakingBalanceViewFactory {
                 output: viewModelState,
                 parachainStakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 logger: Logger.shared,
-                stakingAccountUpdatingService: stakingAccountUpdatingService
+                stakingAccountUpdatingService: stakingAccountUpdatingService,
+                subqueryHistoryOperationFactory: subqueryHistoryOperationFactory
             )
 
             let viewModelFactory = StakingBalanceParachainViewModelFactory(

@@ -2,19 +2,13 @@ import Foundation
 
 final class ValidatorSearchRelaychainViewModelState: ValidatorSearchViewModelState {
     var stateListener: ValidatorSearchModelStateListener?
-
-    func setStateListener(_ stateListener: ValidatorSearchModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    var fullValidatorList: [SelectedValidatorInfo]
-    var selectedValidatorList: [SelectedValidatorInfo]
-    let referenceValidatorList: [SelectedValidatorInfo]
-    var filteredValidatorList: [SelectedValidatorInfo] = []
+    private(set) var fullValidatorList: [SelectedValidatorInfo]
+    private(set) var selectedValidatorList: [SelectedValidatorInfo]
+    private(set) var filteredValidatorList: [SelectedValidatorInfo] = []
     private var viewModel: ValidatorSearchViewModel?
     weak var delegate: ValidatorSearchRelaychainDelegate?
-
     var searchString: String = ""
+    let referenceValidatorList: [SelectedValidatorInfo]
 
     init(
         fullValidatorList: [SelectedValidatorInfo],
@@ -25,6 +19,10 @@ final class ValidatorSearchRelaychainViewModelState: ValidatorSearchViewModelSta
         self.selectedValidatorList = selectedValidatorList
         referenceValidatorList = selectedValidatorList
         self.delegate = delegate
+    }
+
+    func setStateListener(_ stateListener: ValidatorSearchModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validatorInfoFlow(index: Int) -> ValidatorInfoFlow? {
@@ -82,7 +80,7 @@ final class ValidatorSearchRelaychainViewModelState: ValidatorSearchViewModelSta
 
         let differsFromInitial = referenceValidatorList != selectedValidatorList
 
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        viewModel.cellViewModels[index].isSelected.toggle()
         viewModel.differsFromInitial = differsFromInitial
         self.viewModel = viewModel
 

@@ -16,7 +16,7 @@ protocol AccountViewModelFactoryProtocol {
     ) -> AccountViewModel
 }
 
-class AccountViewModelFactory: AccountViewModelFactoryProtocol {
+final class AccountViewModelFactory: AccountViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
 
     init(iconGenerator: IconGenerating) {

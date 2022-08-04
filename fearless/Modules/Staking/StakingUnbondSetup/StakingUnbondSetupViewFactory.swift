@@ -14,15 +14,17 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
-        guard let container = createContainer(chainAsset: chainAsset, wallet: wallet, dataValidatingFactory: dataValidatingFactory, flow: flow) else {
-            return nil
-        }
-
-        guard let interactor = createInteractor(
+        guard let container = createContainer(
             chainAsset: chainAsset,
             wallet: wallet,
-            strategy: container.strategy
-        ) else {
+            dataValidatingFactory: dataValidatingFactory,
+            flow: flow
+        ),
+            let interactor = createInteractor(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                strategy: container.strategy
+            ) else {
             return nil
         }
 

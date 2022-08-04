@@ -266,7 +266,7 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         }
 
         updateFillRestButton(visible: viewModel.fillRestButtonVisible, enabled: viewModel.fillRestButtonEnabled)
-        updateDeselectButton(visible: viewModel.deselectedButtonVisible, enabled: viewModel.deselectButtonEnabled)
+        updateDeselectButton(visible: viewModel.deselectButtonVisible, enabled: viewModel.deselectButtonEnabled)
         updateIdentityFitlerButton(visible: viewModel.identityButtonVisible, enabled: viewModel.identityButtonSelected)
         updateMinBondFilterButton(visible: viewModel.minBondButtonVisible, enabled: viewModel.minBondButtonSelected)
         updateProceedButton(title: viewModel.proceedButtonTitle)

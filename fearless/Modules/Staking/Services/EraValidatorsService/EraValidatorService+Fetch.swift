@@ -123,7 +123,7 @@ extension EraValidatorService {
             let newRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
                 storageFacade.createRepository(filter: filter)
 
-            return newRepository.replaceOperation { [weak self] in
+            return newRepository.replaceOperation {
                 let result = try exposures.extractNoCancellableResultData()
                 return result.compactMap { item in
                     if let data = item.data {

@@ -1,16 +1,12 @@
 import UIKit
 import SoraFoundation
 
-enum StakingRebondConfirmationFlowError: Error {}
-
 enum StakingRebondConfirmationFlow {
     case relaychain(variant: SelectedRebondVariant)
     case parachain(delegation: ParachainStakingDelegationInfo, request: ParachainStakingScheduledRequest)
 }
 
 protocol StakingRebondConfirmationModelStateListener: AnyObject {
-    func didReceiveError(error: StakingRebondConfirmationFlowError)
-
     func provideFeeViewModel()
     func provideAssetViewModel()
     func provideConfirmationViewModel()
@@ -18,7 +14,7 @@ protocol StakingRebondConfirmationModelStateListener: AnyObject {
     func feeParametersDidChanged()
 }
 
-protocol StakingRebondConfirmationViewModelState: StakingRebondConfirmationUserInputHandler {
+protocol StakingRebondConfirmationViewModelState {
     var stateListener: StakingRebondConfirmationModelStateListener? { get set }
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var reuseIdentifier: String? { get }
@@ -56,7 +52,3 @@ protocol StakingRebondConfirmationStrategy {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
     func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
-
-protocol StakingRebondConfirmationUserInputHandler {}
-
-extension StakingRebondConfirmationUserInputHandler {}

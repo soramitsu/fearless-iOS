@@ -14,6 +14,7 @@ final class StakingBondMorePresenter {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private var priceData: PriceData?
+    private let networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
@@ -22,6 +23,7 @@ final class StakingBondMorePresenter {
         viewModelFactory: StakingBondMoreViewModelFactoryProtocol?,
         viewModelState: StakingBondMoreViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
@@ -32,6 +34,7 @@ final class StakingBondMorePresenter {
         self.viewModelFactory = viewModelFactory
         self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
+        self.networkFeeViewModelFactory = networkFeeViewModelFactory
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.logger = logger
@@ -54,6 +57,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
         viewModelState.setStateListener(self)
 
         provideAmountInputViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
 
@@ -116,7 +120,11 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            let viewModel = networkFeeViewModelFactory.createViewModel(
+                from: balanceViewModel
+            )
             view?.didReceiveFee(viewModel: viewModel)
         } else {
             view?.didReceiveFee(viewModel: nil)
@@ -152,8 +160,21 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
     func provideCollatorViewModel() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        if let viewModel = viewModelFactory?.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
+        if let viewModel = viewModelFactory?.buildCollatorViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        ) {
             view?.didReceiveCollator(viewModel: viewModel)
         }
+    }
+
+    func provideHintsViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = viewModelFactory?.buildHintViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        )
+        view?.didReceiveHints(viewModel: viewModel)
     }
 }

@@ -4,16 +4,15 @@ import BigInt
 
 final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectValidatorsConfirmViewModelState {
     var amount: Decimal? { initiatedBonding.amount }
+    var stateListener: SelectValidatorsConfirmModelStateListener?
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
     let initiatedBonding: InitiatedBonding
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
-    var stateListener: SelectValidatorsConfirmModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
-    var confirmationModel: SelectValidatorsConfirmRelaychainModel?
-
+    private(set) var confirmationModel: SelectValidatorsConfirmRelaychainModel?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -22,8 +21,12 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
     private(set) var maxNominatorsCount: UInt32?
     private(set) var stakingDuration: StakingDuration?
 
-    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
-        self.stateListener = stateListener
+    var payoutAccountAddress: String? {
+        initiatedBonding.rewardDestination.payoutAccount?.toAddress()
+    }
+
+    var walletAccountAddress: String? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
     init(
@@ -42,12 +45,8 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
         self.dataValidatingFactory = dataValidatingFactory
     }
 
-    var payoutAccountAddress: String? {
-        initiatedBonding.rewardDestination.payoutAccount?.toAddress()
-    }
-
-    var walletAccountAddress: String? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validators(using locale: Locale) -> [DataValidating] {

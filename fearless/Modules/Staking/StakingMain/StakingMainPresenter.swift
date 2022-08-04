@@ -167,14 +167,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         interactor.setup()
     }
 
-    func performRefreshAction() {
-        interactor.refresh()
-    }
-
-    func viewWillAppear() {
-        interactor.refresh()
-    }
-
     func performAssetSelection() {
         wireframe.showChainAssetSelection(
             from: view,
@@ -446,12 +438,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return nomination != nil ? .includeValidatorsTab : .none
         }()
 
+        let flow: AnalyticsRewardsFlow = chainAsset.stakingType == .paraChain ? .parachain : .relaychain
+
         wireframe.showAnalytics(
             from: view,
             mode: isNominator.union(includeValidators),
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: flow
         )
     }
 
@@ -645,7 +639,18 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
         switch subqueryRewards {
         case let .success(rewards):
-            stateMachine.state.process(subqueryRewards: (rewards, period))
+            guard let chainAsset = chainAsset else {
+                return
+            }
+
+            // TODO: Remove once subquery will be fixed
+            let filteredRewards = rewards?.filter { item in
+                Decimal.fromSubstrateAmount(
+                    item.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0 < 1
+            }
+            stateMachine.state.process(subqueryRewards: (filteredRewards, period))
         case let .failure(error):
             handle(error: error)
         }

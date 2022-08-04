@@ -30,15 +30,12 @@ protocol ValidatorSearchModelStateListener: AnyObject {
 
 protocol ValidatorSearchViewModelState: ValidatorSearchUserInputHandler {
     var stateListener: ValidatorSearchModelStateListener? { get set }
-//    var selectedValidatorList: [SelectedValidatorInfo] { get set }
+    var searchString: String { get set }
 
     func setStateListener(_ stateListener: ValidatorSearchModelStateListener?)
     func updateViewModel(_ viewModel: ValidatorSearchViewModel?)
-    func reset()
-
-    var searchString: String { get set }
-
     func validatorInfoFlow(index: Int) -> ValidatorInfoFlow?
+    func reset()
 }
 
 struct ValidatorSearchDependencyContainer {
@@ -55,7 +52,6 @@ protocol ValidatorSearchViewModelFactoryProtocol {
 }
 
 protocol ValidatorSearchStrategy {
-    func setup()
     func performValidatorSearch(accountId: AccountId)
 }
 

@@ -4,41 +4,42 @@ import BigInt
 final class AnalyticsStakeInteractor {
     weak var presenter: AnalyticsStakeInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    private let assetId: WalletAssetId
-    private let chain: Chain
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+
+    private let operationManager: OperationManagerProtocol
+    private let chainAsset: ChainAsset
     private let selectedAccountAddress: AccountAddress
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
 
     init(
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
         selectedAccountAddress: AccountAddress,
-        assetId: WalletAssetId,
-        chain: Chain
+        chainAsset: ChainAsset
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.substrateProviderFactory = substrateProviderFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.operationManager = operationManager
         self.selectedAccountAddress = selectedAccountAddress
-        self.assetId = assetId
-        self.chain = chain
+        self.chainAsset = chainAsset
     }
 }
 
 extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     func setup() {
-        priceProvider = subscribeToPriceProvider(for: assetId)
-        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+        if let priceId = chainAsset.asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
+
+        stashItemProvider = subscribeStashItemProvider(for: selectedAccountAddress)
     }
 
     func fetchStakeHistory(stashAddress: AccountAddress) {
-        guard let analyticsURL = chain.analyticsURL else { return }
+        guard let analyticsURL = chainAsset.chain.externalApi?.staking?.url else { return }
         let subqueryStakeHistorySource = SubqueryStakeSource(address: stashAddress, url: analyticsURL)
         let fetchOperation = subqueryStakeHistorySource.fetchOperation()
 
@@ -56,14 +57,14 @@ extension AnalyticsStakeInteractor: AnalyticsStakeInteractorInputProtocol {
     }
 }
 
-extension AnalyticsStakeInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+extension AnalyticsStakeInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         presenter.didReceivePriceData(result: result)
     }
 }
 
-extension AnalyticsStakeInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
-    func handleStashItem(result: Result<StashItem?, Error>) {
+extension AnalyticsStakeInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
+    func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         presenter.didReceiveStashItem(result: result)
     }
 }

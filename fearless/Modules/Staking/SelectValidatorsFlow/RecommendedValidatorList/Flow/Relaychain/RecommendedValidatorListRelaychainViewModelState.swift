@@ -35,8 +35,8 @@ class RecommendedValidatorListRelaychainViewModelState: RecommendedValidatorList
         self.stateListener = stateListener
     }
 
-    var validators: [SelectedValidatorInfo]
-    var maxTargets: Int
+    private(set) var validators: [SelectedValidatorInfo]
+    private(set) var maxTargets: Int
 
     init(validators: [SelectedValidatorInfo], maxTargets: Int) {
         self.validators = validators

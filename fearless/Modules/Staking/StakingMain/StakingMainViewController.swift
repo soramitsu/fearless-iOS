@@ -4,22 +4,9 @@ import SoraFoundation
 import SoraUI
 import CommonWallet
 
-class SelfSizingTableView: UITableView {
-    override var contentSize: CGSize {
-        didSet {
-            invalidateIntrinsicContentSize()
-            setNeedsLayout()
-        }
-    }
-
-    override var intrinsicContentSize: CGSize {
-        let height = min(.infinity, contentSize.height)
-        return CGSize(width: contentSize.width, height: height)
-    }
-}
-
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
+        static let delegationRowHeight: CGFloat = 175.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
         static let contentInset = UIEdgeInsets(
@@ -38,8 +25,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
-
-    var refreshControl: UIRefreshControl!
 
     let assetSelectionContainerView = UIView()
     let assetSelectionView: DetailsTriangularedView = {
@@ -90,15 +75,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupAssetSelectionView()
         setupNetworkInfoView()
         setupAlertsView()
-//        setupAnalyticsView()
+        setupAnalyticsView()
+        setupTableViewLayout()
         setupTableView()
         setupActionButton()
         setupLocalization()
         presenter?.setup()
-
-        refreshControl = UIRefreshControl()
-        refreshControl.addTarget(self, action: #selector(handlePullToRefresh), for: .valueChanged)
-        scrollView.addSubview(refreshControl)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -113,7 +95,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
-//        analyticsView.didAppearSkeleton()
+        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -126,7 +108,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
-//        analyticsView.didDisappearSkeleton()
+        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -137,16 +119,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
-//        analyticsView.didUpdateSkeletonLayout()
+        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
         }
-    }
-
-    @objc func handlePullToRefresh() {
-        presenter?.performRefreshAction()
-        refreshControl.endRefreshing()
     }
 
     @IBAction func actionIcon() {
@@ -299,6 +276,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
+        actionButton.isHidden = false
         if let rewardView = stateView as? RewardEstimationView {
             return rewardView
         }
@@ -335,7 +313,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupTableView() {
+    private func setupTableViewLayout() {
         tableViewContainer.addSubview(tableView)
         tableView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
@@ -343,10 +321,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             make.top.equalToSuperview().offset(Constants.verticalSpacing)
             make.bottom.equalToSuperview().inset(Constants.bottomInset)
         }
-        tableView.allowsSelection = false
+
         stackView.addArrangedSubview(tableViewContainer)
-        tableView.delegate = self
+    }
+
+    private func setupTableView() {
+        tableView.allowsSelection = false
         tableView.dataSource = self
+        tableView.delegate = self
         tableView.rowHeight = UIConstants.cellHeight
         tableView.registerClassForCell(DelegationInfoCell.self)
     }
@@ -405,7 +387,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAnalyticsRewards(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
-        analyticsContainerView.isHidden = false
+        analyticsContainerView.isHidden = viewModel == nil
         analyticsView.bind(viewModel: viewModel)
     }
 }
@@ -494,6 +476,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard viewIfLoaded != nil else {
             return
         }
+        actionButton.isHidden = true
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {
@@ -507,22 +490,19 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .nominator(viewModel, alerts, _):
+        case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .validator(viewModel, alerts, _):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .delegations(
-            rewardViewModel: rewardViewModel,
-            delegationViewModels: delegationViewModels,
-            alerts: alerts
-        ):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .delegations(rewardViewModel, delegationViewModels, alerts, analyticsViewModel):
             applyDelegations(viewModels: delegationViewModels)
             applyRewards(viewModel: rewardViewModel)
             applyAlerts(alerts)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
         }
     }
 
@@ -651,15 +631,9 @@ extension StakingMainViewController: AlertsViewDelegate {
     }
 }
 
-extension StakingMainViewController: UITableViewDelegate {}
-
 extension StakingMainViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         delegationViewModels?.count ?? 0
-    }
-
-    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
-        175
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -672,5 +646,11 @@ extension StakingMainViewController: UITableViewDataSource {
         viewModel.locale = selectedLocale
         cell.bind(to: viewModel)
         return cell
+    }
+}
+
+extension StakingMainViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        Constants.delegationRowHeight
     }
 }

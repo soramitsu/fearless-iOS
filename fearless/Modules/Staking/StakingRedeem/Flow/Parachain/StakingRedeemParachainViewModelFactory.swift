@@ -4,11 +4,10 @@ import FearlessUtils
 import BigInt
 
 final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactoryProtocol {
-    let asset: AssetModel
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
-    private lazy var formatterFactory = AssetBalanceFormatterFactory()
+    private let asset: AssetModel
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private var iconGenerator: IconGenerating
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         asset: AssetModel,

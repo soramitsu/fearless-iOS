@@ -60,8 +60,6 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
         self.keystore = keystore
         self.signingWrapper = signingWrapper
         self.output = output
-
-        self.feeProxy.delegate = self
     }
 
     func handleStashAccountItem(_ accountItem: ChainAccountResponse) {
@@ -76,7 +74,7 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
 
         signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: wallet.metaId,
+            metaId: accountItem.walletId,
             accountResponse: accountItem
         )
     }

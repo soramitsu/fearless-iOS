@@ -2,24 +2,20 @@ import Foundation
 import BigInt
 
 final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
+    var stateListener: StakingRedeemModelStateListener?
+    let readyForRevoke: BigUInt
+    let delegation: ParachainStakingDelegation
+    let collator: ParachainStakingCandidateInfo
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
+    let dataValidatingFactory: StakingDataValidatingFactory
+
+    private(set) var activeEra: UInt32?
+    private(set) var balance: Decimal?
+    private(set) var minimalBalance: BigUInt?
+    private(set) var fee: Decimal?
+
     private lazy var callFactory = SubstrateCallFactory()
-
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
-            // TODO: Has redeemable check
-//            dataValidatingFactory.hasRedeemable(
-//                stakingLedger: stakingLedger,
-//                in: activeEra,
-//                locale: locale
-//            ),
-
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.stateListener?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
-        ]
-    }
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
@@ -42,19 +38,6 @@ final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
-    var stateListener: StakingRedeemModelStateListener?
-
-    func setStateListener(_ stateListener: StakingRedeemModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    let readyForRevoke: BigUInt
-    let delegation: ParachainStakingDelegation
-    let collator: ParachainStakingCandidateInfo
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -71,10 +54,19 @@ final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
         self.readyForRevoke = readyForRevoke
     }
 
-    private(set) var activeEra: UInt32?
-    private(set) var balance: Decimal?
-    private(set) var minimalBalance: BigUInt?
-    private(set) var fee: Decimal?
+    func setStateListener(_ stateListener: StakingRedeemModelStateListener?) {
+        self.stateListener = stateListener
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.stateListener?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
+        ]
+    }
 }
 
 extension StakingRedeemParachainViewModelState: StakingRedeemParachainStrategyOutput {

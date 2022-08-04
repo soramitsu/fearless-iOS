@@ -19,24 +19,22 @@ protocol StakingRedeemRelaychainStrategyOutput: AnyObject {
 
 final class StakingRedeemRelaychainStrategy: RuntimeConstantFetching, AccountFetching {
     weak var output: StakingRedeemRelaychainStrategyOutput?
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let slashesOperationFactory: SlashesOperationFactoryProtocol
-    let engine: JSONRPCEngine
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let keystore: KeystoreProtocol
-    let accountRepository: AnyDataProviderRepository<MetaAccountModel>
-
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let slashesOperationFactory: SlashesOperationFactoryProtocol
+    private let engine: JSONRPCEngine
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let keystore: KeystoreProtocol
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
-
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
 
@@ -80,7 +78,11 @@ final class StakingRedeemRelaychainStrategy: RuntimeConstantFetching, AccountFet
             operationManager: operationManager
         )
 
-        signingWrapper = SigningWrapper(keystore: keystore, metaId: wallet.metaId, accountResponse: accountItem)
+        signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: accountItem.walletId,
+            accountResponse: accountItem
+        )
     }
 
     private func fetchSlashingSpansForStash(

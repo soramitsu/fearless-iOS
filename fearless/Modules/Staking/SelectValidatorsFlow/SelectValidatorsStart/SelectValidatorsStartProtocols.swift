@@ -37,24 +37,9 @@ protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresenta
 }
 
 protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(
+    static func createView(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         flow: SelectValidatorsStartFlow
-    )
-        -> SelectValidatorsStartViewProtocol?
-
-    static func createChangeTargetsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsStartFlow
-    )
-        -> SelectValidatorsStartViewProtocol?
-
-    static func createChangeYourValidatorsView(
-        wallet: MetaAccountModel,
-        chainAsset: ChainAsset,
-        flow: SelectValidatorsStartFlow
-    )
-        -> SelectValidatorsStartViewProtocol?
+    ) -> SelectValidatorsStartViewProtocol?
 }

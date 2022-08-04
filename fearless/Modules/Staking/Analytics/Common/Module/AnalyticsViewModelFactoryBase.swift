@@ -34,7 +34,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         from data: [T],
         priceData: PriceData?,
         period: AnalyticsPeriod,
-        selectedChartIndex: Int?
+        selectedChartIndex: Int?,
+        hasPendingRewards: Bool
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
             let allDates = data.map(\.date)
@@ -89,7 +90,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 summaryViewModel: summaryViewModel,
                 selectedPeriod: period,
                 sections: sections,
-                emptyListDescription: T.emptyListDescription(for: locale)
+                emptyListDescription: T.emptyListDescription(for: locale),
+                hasPendingRewards: hasPendingRewards
             )
         }
     }
@@ -204,7 +206,9 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
                 addressOrName: title,
                 daysLeftText: .init(string: subtitle),
                 tokenAmountText: tokenAmountText,
-                usdAmountText: txTimeText
+                usdAmountText: txTimeText,
+                timeInterval: nil,
+                locale: locale
             )
             return AnalyticsRewardsItem(viewModel: viewModel, rawModel: itemData)
         }

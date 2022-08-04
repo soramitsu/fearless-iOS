@@ -14,17 +14,22 @@ protocol StakingUnbondConfirmParachainStrategyOutput: AnyObject {
 
 final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConstantFetching {
     weak var output: StakingUnbondConfirmParachainStrategyOutput?
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let operationManager: OperationManagerProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let connection: JSONRPCEngine
-    let keystore: KeystoreProtocol
-    let extrinsicService: ExtrinsicServiceProtocol?
-    let signingWrapper: SigningWrapperProtocol?
-    let eventCenter: EventCenterProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let connection: JSONRPCEngine
+    private let keystore: KeystoreProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol?
+    private let signingWrapper: SigningWrapperProtocol?
+    private let eventCenter: EventCenterProtocol
+    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
+    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private lazy var callFactory = SubstrateCallFactory()
 
     init(
         output: StakingUnbondConfirmParachainStrategyOutput?,
@@ -53,13 +58,6 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
         self.signingWrapper = signingWrapper
         self.eventCenter = eventCenter
     }
-
-    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
-    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var nominationProvider: AnyDataProvider<DecodedNomination>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-
-    private lazy var callFactory = SubstrateCallFactory()
 }
 
 extension StakingUnbondConfirmParachainStrategy: StakingUnbondConfirmStrategy {
@@ -71,8 +69,6 @@ extension StakingUnbondConfirmParachainStrategy: StakingUnbondConfirmStrategy {
                 handler: self
             )
         }
-
-        // TODO: fetch min bond
 
         fetchConstant(
             for: .existentialDeposit,

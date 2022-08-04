@@ -8,23 +8,40 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
-
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var minimumBond: Decimal?
     private(set) var counterForNominators: UInt32?
     private(set) var maxNominatorsCount: UInt32?
-    var fee: Decimal?
-    var amount: Decimal?
-
-    var assetViewModel: AssetBalanceViewModelProtocol?
-    var rewardDestinationViewModel: RewardDestinationViewModelProtocol?
-    var feeViewModel: BalanceViewModelProtocol?
-    var inputViewModel: AmountInputViewModelProtocol?
-
-    var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
+    private(set) var assetViewModel: AssetBalanceViewModelProtocol?
+    private(set) var rewardDestinationViewModel: RewardDestinationViewModelProtocol?
+    private(set) var feeViewModel: BalanceViewModelProtocol?
+    private(set) var inputViewModel: AmountInputViewModelProtocol?
+    private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
+    private(set) var maxNominations: Int?
     var payoutAccount: ChainAccountResponse?
+    var fee: Decimal?
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    private var balance: Decimal?
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var inputResult: AmountInputResult?
+
+    var bonding: InitiatedBonding? {
+        guard let amount = amount else {
+            return nil
+        }
+
+        return InitiatedBonding(amount: amount, rewardDestination: rewardDestination)
+    }
+
+    var learnMoreUrl: URL? {
+        ApplicationConfig.shared.learnPayoutURL
+    }
+
+    var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
+        buildExtrinsicBuilderClosure()
+    }
 
     init(
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -36,58 +53,9 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.amount = amount
+        inputResult = .absolute(amount ?? 0)
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
-    }
-
-    var bonding: InitiatedBonding? {
-        guard let amount = amount else {
-            return nil
-        }
-
-        return InitiatedBonding(amount: amount, rewardDestination: rewardDestination)
-    }
-
-    var learnMoreUrl: URL? {
-        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")
-    }
-
-    var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure {
-        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
-            guard let strongSelf = self else {
-                return builder
-            }
-
-            var modifiedBuilder = builder
-            let callFactory = SubstrateCallFactory()
-
-            if let amount = strongSelf.amount?.toSubstrateAmount(precision: Int16(strongSelf.chainAsset.asset.precision)),
-               let controllerAddress = strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() {
-                let bondCall = try callFactory.bond(
-                    amount: amount,
-                    controller: controllerAddress,
-                    rewardDestination: strongSelf.rewardDestination.accountAddress
-                )
-
-                modifiedBuilder = try modifiedBuilder.adding(call: bondCall)
-            }
-
-            if let controllerAddress = strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() {
-                let targets = Array(
-                    repeating: SelectedValidatorInfo(address: controllerAddress),
-                    count: SubstrateConstants.maxNominations
-                )
-
-                let nominateCall = try callFactory.nominate(targets: targets)
-                modifiedBuilder = try modifiedBuilder
-                    .adding(call: nominateCall)
-            }
-
-            return modifiedBuilder
-        }
-
-        return closure
     }
 
     func validators(using _: Locale) -> [DataValidating] {
@@ -103,10 +71,6 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
             hasExistingNomination: false,
             locale: selectedLocale
         )]
-    }
-
-    private func notifyListeners() {
-        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func selectPayoutDestination() {
@@ -130,7 +94,11 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
+        inputResult = .absolute(newValue)
+    }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
     }
 
     func selectPayoutAccount(payoutAccount: ChainAccountResponse?) {
@@ -144,9 +112,64 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
     }
+
+    func updateBalance(_ balance: Decimal?) {
+        self.balance = balance
+    }
+
+    private func notifyListeners() {
+        stateListener?.modelStateDidChanged(viewModelState: self)
+    }
+
+    private func buildExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure {
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
+
+            var modifiedBuilder = builder
+            let callFactory = SubstrateCallFactory()
+            let accountRequest = strongSelf.chainAsset.chain.accountRequest()
+
+            if
+                let amount = strongSelf.amount?.toSubstrateAmount(
+                    precision: Int16(strongSelf.chainAsset.asset.precision)
+                ),
+                let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress() {
+                let bondCall = try callFactory.bond(
+                    amount: amount,
+                    controller: controllerAddress,
+                    rewardDestination: strongSelf.rewardDestination.accountAddress
+                )
+
+                modifiedBuilder = try modifiedBuilder.adding(call: bondCall)
+            }
+
+            if
+                let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress(),
+                let maxNominators = strongSelf.maxNominations {
+                let targets = Array(
+                    repeating: SelectedValidatorInfo(address: controllerAddress),
+                    count: maxNominators
+                )
+
+                let nominateCall = try callFactory.nominate(targets: targets)
+                modifiedBuilder = try modifiedBuilder
+                    .adding(call: nominateCall)
+            }
+
+            return modifiedBuilder
+        }
+
+        return closure
+    }
 }
 
 extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategyOutput {
+    func didReceive(maxNominations: Int) {
+        self.maxNominations = maxNominations
+    }
+
     func didReceive(error _: Error) {}
 
     func didReceive(minimalBalance: BigUInt?) {
@@ -194,9 +217,13 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
         minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
     }
 
-    func didReceive(networkStakingInfoError _: Error) {}
+    func didReceive(networkStakingInfoError: Error) {
+        Logger.shared.error("StakingAmountRelaychainViewModelState.didReceiveNetworkStakingInfoError: \(networkStakingInfoError)")
+    }
 }
 
 extension StakingAmountRelaychainViewModelState: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        notifyListeners()
+    }
 }

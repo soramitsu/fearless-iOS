@@ -10,20 +10,19 @@ protocol AnalyticsRewardsPresenterProtocol: AnalyticsPresenterBaseProtocol {
 
 protocol AnalyticsRewardsInteractorInputProtocol: AnyObject {
     func setup()
-    func fetchRewards(stashAddress: AccountAddress)
+    func fetchRewards(address: AccountAddress)
 }
 
 protocol AnalyticsRewardsInteractorOutputProtocol: AnyObject {
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData]?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
 protocol AnalyticsRewardsWireframeProtocol: AnyObject {
     func showRewardDetails(
         _ rewardModel: AnalyticsRewardDetailsModel,
         from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
     )
 
     func showRewardPayoutsForNominator(
@@ -48,6 +47,7 @@ protocol AnalyticsRewardsViewModelFactoryProtocol {
         from data: [SubqueryRewardItemData],
         priceData: PriceData?,
         period: AnalyticsPeriod,
-        selectedChartIndex: Int?
+        selectedChartIndex: Int?,
+        hasPendingRewards: Bool
     ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }

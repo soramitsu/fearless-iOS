@@ -2,35 +2,29 @@ import Foundation
 import BigInt
 
 final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreConfirmationViewModelState {
+    var stateListener: StakingBondMoreConfirmationModelStateListener?
+    var stashAccount: ChainAccountResponse?
+    var balance: Decimal?
+    var fee: Decimal?
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    let amount: Decimal
+    private var priceData: PriceData?
+    private let chainAsset: ChainAsset
+    private var wallet: MetaAccountModel
+    private lazy var callFactory = SubstrateCallFactory()
+
     var accountAddress: String? {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
-    var stateListener: StakingBondMoreConfirmationModelStateListener?
-
-    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    private let chainAsset: ChainAsset
-    private var wallet: MetaAccountModel
-    let amount: Decimal
-
-    var stashAccount: ChainAccountResponse?
-    var balance: Decimal?
-    private var priceData: PriceData?
-    var fee: Decimal?
-    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let candidate: AccountId
-
-    private lazy var callFactory = SubstrateCallFactory()
+    let candidate: ParachainStakingCandidateInfo
 
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         amount: Decimal,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: AccountId
+        candidate: ParachainStakingCandidateInfo
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -55,7 +49,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
     }
 
     private var isCollator: Bool {
-        candidate == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        candidate.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
@@ -75,7 +69,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
                 newBuilder = try newBuilder.adding(call: call)
             } else {
                 let call = strongSelf.callFactory.delegatorBondMore(
-                    candidate: strongSelf.candidate,
+                    candidate: strongSelf.candidate.owner,
                     amount: amount
                 )
                 newBuilder = try newBuilder.adding(call: call)
@@ -96,11 +90,15 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
             let call = callFactory.candidateBondMore(amount: amount)
             identifier = call.callName
         } else {
-            let call = callFactory.delegatorBondMore(candidate: candidate, amount: amount)
+            let call = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
             identifier = call.callName
         }
 
         return identifier
+    }
+
+    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
+        self.stateListener = stateListener
     }
 }
 

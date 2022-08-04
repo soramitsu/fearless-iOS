@@ -104,7 +104,7 @@ final class ValidatorInfoViewLayout: UIView {
             )
         case .electedParachain:
             statusView.indicatorColor = R.color.colorGreen()!
-            statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusElected(
+            statusView.titleLabel.text = R.string.localizable.stakingNominatorStatusActive(
                 preferredLanguages: locale.rLanguages
             )
         }
@@ -134,30 +134,21 @@ final class ValidatorInfoViewLayout: UIView {
     @discardableResult
     func addDelegationsView(_ exposure: ValidatorInfoViewModel.ParachainExposure, locale: Locale) -> UIView {
         let nominatorsView = addTitleValueView(
-            for: R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages),
+            for: R.string.localizable.parachainStakingDelegatorsTitle(preferredLanguages: locale.rLanguages),
             value: exposure.delegations
         )
 
-        // TODO: ParachainStaking oversubsribed handle
-//        if exposure.oversubscribed {
-//            nominatorsView.borderView.borderType = .none
-//
-//            let hintTitle: String = {
-//                if let myNomination = exposure.myNomination, !myNomination.isRewarded {
-//                    return R.string.localizable.stakingValidatorMyOversubscribedMessage(
-//                        preferredLanguages: locale.rLanguages
-//                    )
-//                } else {
-//                    return R.string.localizable.stakingValidatorOtherOversubscribedMessage(
-//                        preferredLanguages: locale.rLanguages
-//                    )
-//                }
-//            }()
-//
-//            return addHintView(for: hintTitle, icon: R.image.iconWarning())
-//        } else {
-        return nominatorsView
-//        }
+        if exposure.oversubscribed {
+            nominatorsView.borderView.borderType = .none
+
+            let hintTitle: String = R.string.localizable.stakingCollatorOtherOversubscribedMessage(
+                preferredLanguages: locale.rLanguages
+            )
+
+            return addHintView(for: hintTitle, icon: R.image.iconWarning())
+        } else {
+            return nominatorsView
+        }
     }
 
     @discardableResult

@@ -4,7 +4,10 @@ import RobinHood
 import FearlessUtils
 
 struct ValidatorSearchViewFactory {
-    private static func createContainer(flow: ValidatorSearchFlow, chainAsset: ChainAsset) -> ValidatorSearchDependencyContainer? {
+    private static func createContainer(
+        flow: ValidatorSearchFlow,
+        chainAsset: ChainAsset
+    ) -> ValidatorSearchDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -19,7 +22,7 @@ struct ValidatorSearchViewFactory {
         )
 
         let serviceFactory = StakingServiceFactory(
-            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            chainRegisty: chainRegistry,
             storageFacade: SubstrateDataStorageFacade.shared,
             eventCenter: EventCenter.shared,
             operationManager: OperationManagerFacade.sharedManager
@@ -32,7 +35,10 @@ struct ValidatorSearchViewFactory {
             return nil
         }
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,

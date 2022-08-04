@@ -225,7 +225,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let storageFacade = SubstrateDataStorageFacade.shared
         let serviceFactory = StakingServiceFactory(
-            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            chainRegisty: chainRegistry,
             storageFacade: storageFacade,
             eventCenter: EventCenter.shared,
             operationManager: OperationManagerFacade.sharedManager
@@ -272,7 +272,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let stakingAnalyticsLocalSubscriptionFactory = StakingAnalyticsLocalSubscriptionFactory(
+        let stakingAnalyticsLocalSubscriptionFactory = ParachainAnalyticsLocalSubscriptionFactory(
             storageFacade: storageFacade
         )
 

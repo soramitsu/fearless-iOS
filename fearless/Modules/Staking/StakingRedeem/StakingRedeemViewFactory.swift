@@ -20,10 +20,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             wallet: wallet,
             flow: flow,
             dataValidatingFactory: dataValidatingFactory
-        ) else {
-            return nil
-        }
-        guard let interactor = createInteractor(
+        ), let interactor = createInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             container: container

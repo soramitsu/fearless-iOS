@@ -7,20 +7,20 @@ final class AnalyticsRewardDetailsPresenter {
     private let interactor: AnalyticsRewardDetailsInteractorInputProtocol
     private let viewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol
     private let rewardModel: AnalyticsRewardDetailsModel
-    private let chain: Chain
+    private let chainAsset: ChainAsset
 
     init(
         rewardModel: AnalyticsRewardDetailsModel,
         interactor: AnalyticsRewardDetailsInteractorInputProtocol,
         wireframe: AnalyticsRewardDetailsWireframeProtocol,
         viewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol,
-        chain: Chain
+        chainAsset: ChainAsset
     ) {
         self.rewardModel = rewardModel
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.chain = chain
+        self.chainAsset = chainAsset
     }
 
     private func copyEventId() {
@@ -33,7 +33,7 @@ final class AnalyticsRewardDetailsPresenter {
     }
 
     private func createPolkascanAction(locale: Locale) -> AlertPresentableAction? {
-        guard let url = chain.polkascanEventURL(rewardModel.eventId) else { return nil }
+        guard let url = chainAsset.chain.polkascanAddressURL(rewardModel.eventId) else { return nil }
         let polkascanTitle = R.string.localizable
             .transactionDetailsViewPolkascan(preferredLanguages: locale.rLanguages)
 
@@ -46,7 +46,7 @@ final class AnalyticsRewardDetailsPresenter {
 
     private func createSubscanAction(locale: Locale) -> AlertPresentableAction? {
         let blockNumber = String(rewardModel.eventId.prefix(while: { $0 != "-" }))
-        guard let url = chain.subscanBlockURL(blockNumber) else { return nil }
+        guard let url = chainAsset.chain.subscanAddressURL(blockNumber) else { return nil }
 
         let subscanTitle = R.string.localizable
             .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)

@@ -2,23 +2,114 @@ import Foundation
 import BigInt
 
 final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewModelState {
-    var bonded: Decimal?
-    var balance: Decimal?
-    var inputAmount: Decimal?
-    var bondingDuration: UInt32?
-    var minimalBalance: Decimal?
-    var fee: Decimal?
-    var controller: ChainAccountResponse?
-    private var topDelegations: ParachainStakingDelegations?
-
     var stateListener: StakingUnbondSetupModelStateListener?
-
     let delegation: ParachainStakingDelegation
     let candidate: ParachainStakingCandidateInfo
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
-    let dataValidatingFactory: StakingDataValidatingFactory
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let dataValidatingFactory: StakingDataValidatingFactory
+    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private(set) var bonded: Decimal?
+    private(set) var balance: Decimal?
+    private(set) var inputAmount: Decimal?
+    private(set) var bondingDuration: UInt32?
+    private(set) var minimalBalance: Decimal?
+    private(set) var fee: Decimal?
+    private(set) var controller: ChainAccountResponse?
+    private var topDelegations: ParachainStakingDelegations?
+
+    var builderClosure: ExtrinsicBuilderClosure? {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
+            return nil
+        }
+
+        return { [unowned self] builder in
+            var newBuilder = builder
+            if self.isRevoke {
+                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
+            } else {
+                if self.isCollator {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
+                } else {
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                }
+            }
+
+            return newBuilder
+        }
+    }
+
+    var reuseIdentifier: String? {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ) else {
+            return nil
+        }
+
+        var identifier = ""
+
+        if isRevoke {
+            identifier = callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
+        } else {
+            if isCollator {
+                identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
+            } else {
+                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+            }
+        }
+
+        return identifier
+    }
+
+    var confirmationFlow: StakingUnbondConfirmFlow? {
+        guard let inputAmount = amount else {
+            return nil
+        }
+
+        return .parachain(
+            candidate: candidate,
+            delegation: delegation,
+            amount: inputAmount,
+            revoke: isRevoke,
+            bondingDuration: bondingDuration
+        )
+    }
+
+    var accountAddress: AccountAddress? {
+        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
+    }
+
+    var amount: Decimal? {
+        isRevoke ? bonded : inputAmount
+    }
+
+    var minimumDelegation: Decimal? {
+        guard let minDelegationSubstrateValue = topDelegations?.delegations.map(\.amount).min(),
+              let minDelegationDecimal = Decimal.fromSubstrateAmount(
+                  minDelegationSubstrateValue,
+                  precision: Int16(chainAsset.asset.precision)
+              ) else {
+            return nil
+        }
+
+        return minDelegationDecimal
+    }
+
+    var isRevoke: Bool {
+        if let amount = inputAmount, let bonded = bonded, let minimumAmount = minimumDelegation {
+            return bonded - amount < minimumAmount || bonded == amount
+        }
+
+        return false
+    }
+
+    private var isCollator: Bool {
+        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    }
 
     init(
         chainAsset: ChainAsset,
@@ -77,98 +168,6 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         if fee == nil {
             stateListener?.updateFeeIfNeeded()
         }
-    }
-
-    private var isCollator: Bool {
-        delegation.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
-    }
-
-    var builderClosure: ExtrinsicBuilderClosure? {
-        guard
-            let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                precision: Int16(chainAsset.asset.precision)
-            ) else {
-            return nil
-        }
-
-        return { [unowned self] builder in
-            var newBuilder = builder
-            if self.isRevoke {
-                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
-            } else {
-                if self.isCollator {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
-                } else {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
-                }
-            }
-
-            return newBuilder
-        }
-    }
-
-    var reuseIdentifier: String? {
-        guard
-            let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                precision: Int16(chainAsset.asset.precision)
-            ) else {
-            return nil
-        }
-
-        var identifier = ""
-
-        if isRevoke {
-            identifier = callFactory.scheduleRevokeDelegation(candidate: candidate.owner).callName
-        } else {
-            if isCollator {
-                identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
-            } else {
-                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
-            }
-        }
-
-        return identifier
-    }
-
-    var confirmationFlow: StakingUnbondConfirmFlow? {
-        guard let inputAmount = amount else {
-            return nil
-        }
-
-        return .parachain(
-            candidate: candidate,
-            delegation: delegation,
-            amount: inputAmount,
-            revoke: isRevoke
-        )
-    }
-
-    var accountAddress: AccountAddress? {
-        wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
-    }
-
-    var amount: Decimal? {
-        isRevoke ? bonded : inputAmount
-    }
-
-    var minimumDelegation: Decimal? {
-        guard let minDelegationSubstrateValue = topDelegations?.delegations.map(\.amount).min(),
-              let minDelegationDecimal = Decimal.fromSubstrateAmount(
-                  minDelegationSubstrateValue,
-                  precision: Int16(chainAsset.asset.precision)
-              ) else {
-            return nil
-        }
-
-        return minDelegationDecimal
-    }
-
-    var isRevoke: Bool {
-        if let amount = inputAmount, let bonded = bonded, let minimumAmount = minimumDelegation {
-            return bonded - amount < minimumAmount || bonded == amount
-        }
-
-        return false
     }
 }
 

@@ -2,33 +2,10 @@ import Foundation
 
 final class ValidatorListFilterParachainViewModelFactory {
     private func createFilterViewModelSection(
-        from filter: CustomValidatorParachainListFilter,
-        locale: Locale
-    ) -> ValidatorListFilterViewModelSection {
-        let cellViewModels: [SelectableViewModel<TitleWithSubtitleViewModel>] =
-            ValidatorListParachainFilterRow.allCases.map { row in
-                switch row {
-                case .withoutIdentity:
-                    return SelectableViewModel(
-                        underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
-                        selectable: !filter.allowsNoIdentity
-                    )
-                case .oversubscribed:
-                    return SelectableViewModel(
-                        underlyingViewModel: row.titleSubtitleViewModel.value(for: locale),
-                        selectable: !filter.allowsOversubscribed
-                    )
-                }
-            }
-
-        let title = R.string.localizable.walletFiltersHeader(
-            preferredLanguages: locale.rLanguages
-        )
-
-        return ValidatorListFilterViewModelSection(
-            title: "",
-            cellViewModels: []
-        )
+        from _: CustomValidatorParachainListFilter,
+        locale _: Locale
+    ) -> ValidatorListFilterViewModelSection? {
+        nil
     }
 
     private func createSortViewModelSection(

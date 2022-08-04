@@ -183,8 +183,6 @@ extension StakingBalancePresenter: StakingBalanceModelStateListener {
         updateView()
     }
 
-    func didReceiveError(error _: StakingBalanceFlowError) {}
-
     func finishFlow() {
         wireframe.cancel(from: view)
     }

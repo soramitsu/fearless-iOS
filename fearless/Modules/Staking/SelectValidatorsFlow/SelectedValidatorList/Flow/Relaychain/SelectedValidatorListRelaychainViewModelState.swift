@@ -2,22 +2,25 @@ import Foundation
 
 final class SelectedValidatorListRelaychainViewModelState: SelectedValidatorListViewModelState {
     weak var delegate: SelectedValidatorListDelegate?
-
     var stateListener: SelectedValidatorListModelStateListener?
-
-    func setStateListener(_ stateListener: SelectedValidatorListModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
     let maxTargets: Int
-    var selectedValidatorList: [SelectedValidatorInfo]
     let baseFlow: SelectedValidatorListFlow
+    private(set) var selectedValidatorList: [SelectedValidatorInfo]
 
-    init(baseFlow: SelectedValidatorListFlow, maxTargets: Int, selectedValidatorList: [SelectedValidatorInfo], delegate: SelectedValidatorListDelegate?) {
+    init(
+        baseFlow: SelectedValidatorListFlow,
+        maxTargets: Int,
+        selectedValidatorList: [SelectedValidatorInfo],
+        delegate: SelectedValidatorListDelegate?
+    ) {
         self.baseFlow = baseFlow
         self.delegate = delegate
         self.maxTargets = maxTargets
         self.selectedValidatorList = selectedValidatorList
+    }
+
+    func setStateListener(_ stateListener: SelectedValidatorListModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {
@@ -30,7 +33,7 @@ final class SelectedValidatorListRelaychainViewModelState: SelectedValidatorList
             return .relaychainInitiated(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
         case let .relaychainExisting(_, maxTargets, state):
             return .relaychainExisting(targets: selectedValidatorList, maxTargets: maxTargets, bonding: state)
-        default:
+        case .parachain:
             return nil
         }
     }

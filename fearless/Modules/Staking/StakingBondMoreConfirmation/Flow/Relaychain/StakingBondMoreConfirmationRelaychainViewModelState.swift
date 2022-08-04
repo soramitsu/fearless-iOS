@@ -3,26 +3,44 @@ import BigInt
 
 final class StakingBondMoreConfirmationRelaychainViewModelState: StakingBondMoreConfirmationViewModelState {
     var stateListener: StakingBondMoreConfirmationModelStateListener?
-
-    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
-        self.stateListener = stateListener
-    }
-
-    private let chainAsset: ChainAsset
-    private var wallet: MetaAccountModel
-    let amount: Decimal
-
     var stashAccount: ChainAccountResponse?
     var balance: Decimal?
-    private var priceData: PriceData?
     var fee: Decimal?
-    private var stashItem: StashItem?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-
+    let amount: Decimal
+    let chainAsset: ChainAsset
+    private var priceData: PriceData?
     private lazy var callFactory = SubstrateCallFactory()
+    private var stashItem: StashItem?
+    private var wallet: MetaAccountModel
 
     var accountAddress: String? {
         stashItem?.controller
+    }
+
+    var builderClosure: ExtrinsicBuilderClosure? {
+        guard let amountValue = amount.toSubstrateAmount(
+            precision: Int16(chainAsset.asset.precision)
+        ) else {
+            return nil
+        }
+
+        let bondExtra = callFactory.bondExtra(amount: amountValue)
+
+        return { builder in
+            try builder.adding(call: bondExtra)
+        }
+    }
+
+    var feeReuseIdentifier: String? {
+        guard let amountValue = amount.toSubstrateAmount(
+            precision: Int16(chainAsset.asset.precision)
+        ) else {
+            return nil
+        }
+
+        let bondExtra = callFactory.bondExtra(amount: amountValue)
+        return bondExtra.callName
     }
 
     init(chainAsset: ChainAsset, wallet: MetaAccountModel, amount: Decimal, dataValidatingFactory: StakingDataValidatingFactoryProtocol) {
@@ -30,6 +48,10 @@ final class StakingBondMoreConfirmationRelaychainViewModelState: StakingBondMore
         self.wallet = wallet
         self.amount = amount
         self.dataValidatingFactory = dataValidatingFactory
+    }
+
+    func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
+        self.stateListener = stateListener
     }
 
     func validators(using locale: Locale) -> [DataValidating] {
@@ -50,32 +72,6 @@ final class StakingBondMoreConfirmationRelaychainViewModelState: StakingBondMore
                 locale: locale
             )
         ]
-    }
-
-    var builderClosure: ExtrinsicBuilderClosure? {
-        guard let amountValue = amount.toSubstrateAmount(
-            precision: Int16(chainAsset.asset.precision)
-        ) else {
-//            output?.didReceiveFee(result: .failure(CommonError.undefined))
-            return nil
-        }
-
-        let bondExtra = callFactory.bondExtra(amount: amountValue)
-
-        return { builder in
-            try builder.adding(call: bondExtra)
-        }
-    }
-
-    var feeReuseIdentifier: String? {
-        guard let amountValue = amount.toSubstrateAmount(
-            precision: Int16(chainAsset.asset.precision)
-        ) else {
-            return nil
-        }
-
-        let bondExtra = callFactory.bondExtra(amount: amountValue)
-        return bondExtra.callName
     }
 }
 

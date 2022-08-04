@@ -89,6 +89,10 @@ extension StakingMainInteractor {
     }
 
     func performStashControllerSubscription() {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         guard let address = selectedAccount?.toAddress() else {
             presenter?.didReceive(stashItemError: ChainAccountFetchingError.accountNotExists)
             return
@@ -138,6 +142,10 @@ extension StakingMainInteractor {
     }
 
     func performNominatorLimitsSubscripion() {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         guard let chainId = selectedChainAsset?.chain.chainId else {
             return
         }
@@ -147,35 +155,45 @@ extension StakingMainInteractor {
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainId)
     }
 
-    private func subscribeRewardsAnalytics(for _: AccountAddress) {
-//        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url {
-//            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: stash, url: analyticsURL)
-//        } else {
-//            presenter?.didReceieve(
-//                subqueryRewards: .success(nil),
-//                period: .week
-//            )
-//        }
+    func subscribeRewardsAnalytics(for address: AccountAddress) {
+        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url, selectedChainAsset?.stakingType == .paraChain {
+            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: address, url: analyticsURL)
+        } else {
+            presenter?.didReceieve(
+                subqueryRewards: .success(nil),
+                period: .week
+            )
+        }
     }
 }
 
 extension StakingMainInteractor: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
     func handleDelegatorState(
         result: Result<ParachainStakingDelegatorState?, Error>,
-        chainId _: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId _: AccountId
     ) {
         guard
-            let chainAsset = selectedChainAsset else {
+            chainAsset == selectedChainAsset else {
             return
         }
-
         switch result {
         case let .success(delegatorState):
             handleDelegatorState(delegatorState: delegatorState, chainAsset: chainAsset)
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }
+    }
+
+    func handleDelegationScheduledRequests(
+        result _: Result<[ParachainStakingScheduledRequest]?, Error>,
+        chainAsset _: ChainAsset,
+        accountId _: AccountId
+    ) {
+        guard let collatorIds = collatorIds else {
+            return
+        }
+        fetchCollatorsDelegations(accountIds: collatorIds)
     }
 }
 
@@ -309,7 +327,7 @@ extension StakingMainInteractor: StakingAnalyticsLocalStorageSubscriber,
         address: AccountAddress,
         url _: URL
     ) {
-        guard selectedAccount?.toAddress() == address else {
+        guard selectedAccount?.toAddress()?.lowercased() == address.lowercased() else {
             return
         }
 

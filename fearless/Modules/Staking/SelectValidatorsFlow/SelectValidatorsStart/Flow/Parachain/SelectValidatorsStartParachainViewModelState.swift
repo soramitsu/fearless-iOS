@@ -1,25 +1,21 @@
 import Foundation
 
-class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewModelState {
+final class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewModelState {
     let bonding: InitiatedBonding
     let chainAsset: ChainAsset
+    private(set) var maxDelegations: Int?
+    private(set) var maxTopDelegationsPerCandidate: Int?
+    private(set) var maxBottomDelegationsPerCandidate: Int?
+    private(set) var collatorsApr: [SubqueryCollatorData]?
+    private(set) var selectedCandidates: [ParachainStakingCandidateInfo]?
+    private(set) var recommendedCandidates: [ParachainStakingCandidateInfo]?
+    private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
+    var stateListener: SelectValidatorsStartModelStateListener?
 
     init(bonding: InitiatedBonding, chainAsset: ChainAsset) {
         self.bonding = bonding
         self.chainAsset = chainAsset
     }
-
-    var maxDelegations: Int?
-    var maxTopDelegationsPerCandidate: Int?
-    var maxBottomDelegationsPerCandidate: Int?
-
-    private(set) var collatorsApr: [SubqueryCollatorData]?
-    var selectedCandidates: [ParachainStakingCandidateInfo]?
-    var recommendedCandidates: [ParachainStakingCandidateInfo]?
-    private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
-    private var bottomDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
-
-    var stateListener: SelectValidatorsStartModelStateListener?
 
     func setStateListener(_ stateListener: SelectValidatorsStartModelStateListener?) {
         self.stateListener = stateListener
@@ -78,10 +74,6 @@ class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartViewMod
 }
 
 extension SelectValidatorsStartParachainViewModelState: SelectValidatorsStartParachainStrategyOutput {
-    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
-        bottomDelegationsByCollator = delegations
-    }
-
     func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
         topDelegationsByCollator = delegations
 

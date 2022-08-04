@@ -61,19 +61,33 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     }
 
     func proceed(
-        from _: ControllerBackedProtocol?,
-        flow _: SelectedValidatorListFlow,
-        delegate _: SelectedValidatorListDelegate,
-        chainAsset _: ChainAsset,
-        wallet _: MetaAccountModel
-    ) {}
+        from view: ControllerBackedProtocol?,
+        flow: SelectedValidatorListFlow,
+        delegate: SelectedValidatorListDelegate,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let listView = SelectedValidatorListViewFactory.createView(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            delegate: delegate
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            listView.controller,
+            animated: true
+        )
+    }
 
     func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel) {
         guard let confirmView = SelectValidatorsConfirmViewFactory
-            .createInitiatedBondingView(
-                wallet: wallet,
+            .createView(
                 chainAsset: chainAsset,
-                flow: flow
+                flow: flow,
+                wallet: wallet
             ) else {
             return
         }

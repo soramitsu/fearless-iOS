@@ -10,6 +10,14 @@ final class StakingBondMoreParachainViewModelFactory {
 }
 
 extension StakingBondMoreParachainViewModelFactory: StakingBondMoreViewModelFactoryProtocol {
+    func buildHintViewModel(viewModelState _: StakingBondMoreViewModelState, locale: Locale) -> LocalizableResource<String>? {
+        LocalizableResource { locale in
+            R.string.localizable.parachainStakingHintRewardBondMore(
+                preferredLanguages: locale.rLanguages
+            )
+        }
+    }
+
     func buildCollatorViewModel(viewModelState: StakingBondMoreViewModelState, locale: Locale) -> AccountViewModel? {
         guard let viewModelState = viewModelState as? StakingBondMoreParachainViewModelState else {
             return nil

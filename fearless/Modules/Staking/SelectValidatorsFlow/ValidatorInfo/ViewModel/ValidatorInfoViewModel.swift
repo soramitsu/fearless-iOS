@@ -22,6 +22,7 @@ struct ValidatorInfoViewModel {
         let minimumBond: String
         let selfBonded: String
         let effectiveAmountBonded: String
+        let oversubscribed: Bool
     }
 
     struct Exposure {
