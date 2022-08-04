@@ -2,8 +2,9 @@ import UIKit
 
 final class WalletOptionInteractor {
     // MARK: - Private properties
+
     private let wallet: ManagedMetaAccountModel
-    
+
     init(wallet: ManagedMetaAccountModel) {
         self.wallet = wallet
     }

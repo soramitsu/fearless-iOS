@@ -740,6 +740,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 
 "staking.collator.my.oversubscribed.message" = "Oversubscribed. You will not receive rewards from the collator in this era.";
 "staking.collator.other.oversubscribed.message" = "Oversubscribed. Only the top staked delegators are paid rewards.";
+"staking.revoke.tokens" = "Revoke tokens";
 "wallets.managment.add.new.wallet" = "Add New Wallet";
 "wallet.options.details" = "Wallet Details";
 "wallet.options.export" = "Export Wallet";

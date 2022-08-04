@@ -55,7 +55,6 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                     dayChange: nil
                 )
             }
-            
 
             let dayChange = getDayChangeAttributedString(
                 currency: walletBalance.currency,
