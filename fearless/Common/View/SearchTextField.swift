@@ -48,11 +48,11 @@ class SearchTextField: BackgroundedContentControl {
     }
 
     private func setClearRightButton() {
-        let deleteButton = UIButton()
-        deleteButton.setImage(R.image.deleteGrey(), for: .normal)
-        deleteButton.addTarget(self, action: #selector(handleDeleteButton), for: .touchUpInside)
+        let clearButton = UIButton()
+        clearButton.setImage(R.image.deleteGrey(), for: .normal)
+        clearButton.addTarget(self, action: #selector(handleDeleteButton), for: .touchUpInside)
 
-        textField.rightView = deleteButton
+        textField.rightView = clearButton
         textField.rightViewMode = .never
     }
 
