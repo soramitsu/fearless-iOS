@@ -23,15 +23,12 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
     ) -> [WalletsManagmentCellViewModel] {
         wallets.compactMap { managedMetaAccount -> WalletsManagmentCellViewModel? in
             let key = managedMetaAccount.info.metaId
-            guard let wallet = wallets.first(where: { $0.info.metaId == key }) else {
-                return nil
-            }
 
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
-                    isSelected: wallet.isSelected,
+                    isSelected: managedMetaAccount.isSelected,
                     address: "",
-                    walletName: wallet.info.name,
+                    walletName: managedMetaAccount.info.name,
                     fiatBalance: nil,
                     dayChange: nil
                 )
@@ -46,11 +43,11 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
                 walletBalance.totalFiatValue != .zero,
                 let totalFiatValue = balanceTokenFormatterValue.stringFromDecimal(walletBalance.totalFiatValue)
             else {
-                let fiatBalance = walletBalance.currency.symbol + "0"
+                let fiatBalance = balanceTokenFormatterValue.stringFromDecimal(.zero)
                 return WalletsManagmentCellViewModel(
-                    isSelected: wallet.isSelected,
+                    isSelected: managedMetaAccount.isSelected,
                     address: "",
-                    walletName: wallet.info.name,
+                    walletName: managedMetaAccount.info.name,
                     fiatBalance: fiatBalance,
                     dayChange: nil
                 )
@@ -64,9 +61,9 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             )
 
             let viewModel = WalletsManagmentCellViewModel(
-                isSelected: wallet.isSelected,
+                isSelected: managedMetaAccount.isSelected,
                 address: "",
-                walletName: wallet.info.name,
+                walletName: managedMetaAccount.info.name,
                 fiatBalance: totalFiatValue,
                 dayChange: dayChange
             )

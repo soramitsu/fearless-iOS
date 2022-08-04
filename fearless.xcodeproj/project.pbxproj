@@ -32,7 +32,7 @@
 		07DFA44F289A37F50035A8AB /* ModalSheetBlurPresentationDismissAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA44E289A37F50035A8AB /* ModalSheetBlurPresentationDismissAnimator.swift */; };
 		07DFA452289A5C870035A8AB /* WalletsManagmentCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA451289A5C870035A8AB /* WalletsManagmentCellViewModel.swift */; };
 		07DFA454289A69490035A8AB /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA453289A69490035A8AB /* Styles.swift */; };
-		07DFA456289B78E20035A8AB /* CopyableLableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA455289B78E10035A8AB /* CopyableLableView.swift */; };
+		07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA455289B78E10035A8AB /* CopyableLabelView.swift */; };
 		07DFA45A289B8D520035A8AB /* WalletBalanceInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */; };
 		07DFA468289B8D8E0035A8AB /* EducationStoriesRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA45C289B8D8E0035A8AB /* EducationStoriesRouter.swift */; };
 		07DFA469289B8D8E0035A8AB /* EducationStoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA45D289B8D8E0035A8AB /* EducationStoriesInteractor.swift */; };
@@ -2225,7 +2225,7 @@
 		07DFA44E289A37F50035A8AB /* ModalSheetBlurPresentationDismissAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalSheetBlurPresentationDismissAnimator.swift; sourceTree = "<group>"; };
 		07DFA451289A5C870035A8AB /* WalletsManagmentCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletsManagmentCellViewModel.swift; sourceTree = "<group>"; };
 		07DFA453289A69490035A8AB /* Styles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
-		07DFA455289B78E10035A8AB /* CopyableLableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CopyableLableView.swift; path = fearless/Common/View/CopyableLableView.swift; sourceTree = SOURCE_ROOT; };
+		07DFA455289B78E10035A8AB /* CopyableLabelView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = CopyableLabelView.swift; path = fearless/Common/View/CopyableLabelView.swift; sourceTree = SOURCE_ROOT; };
 		07DFA459289B8D520035A8AB /* WalletBalanceInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletBalanceInfo.swift; sourceTree = "<group>"; };
 		07DFA45C289B8D8E0035A8AB /* EducationStoriesRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesRouter.swift; sourceTree = "<group>"; };
 		07DFA45D289B8D8E0035A8AB /* EducationStoriesInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EducationStoriesInteractor.swift; sourceTree = "<group>"; };
@@ -7137,7 +7137,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				07DFA455289B78E10035A8AB /* CopyableLableView.swift */,
+				07DFA455289B78E10035A8AB /* CopyableLabelView.swift */,
 				FA4B92952844D0100003BCEF /* ShimmeredLabel.swift */,
 				FA4B92962844D0100003BCEF /* ShimmeredProtocol.swift */,
 				FA4B92942844D0100003BCEF /* UIImageView+Shimmered.swift */,
@@ -13483,7 +13483,7 @@
 				41831354E275074C7BBC4C28 /* NodeSelectionViewFactory.swift in Sources */,
 				6C0289728544A96852CCBF20 /* AddCustomNodeProtocols.swift in Sources */,
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
-				07DFA456289B78E20035A8AB /* CopyableLableView.swift in Sources */,
+				07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */,
 				AE552BD2B83A94626F109CA9 /* AddCustomNodePresenter.swift in Sources */,
 				4F12420C17B321F52D694E92 /* AddCustomNodeInteractor.swift in Sources */,
 				C3C7D60B36C778DA0A307BCC /* AddCustomNodeViewController.swift in Sources */,

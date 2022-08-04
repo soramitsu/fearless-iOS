@@ -93,7 +93,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
 
     // MARK: Action
 
-    @objc func actionDidCancel(gesture _: UITapGestureRecognizer) {
+    @objc private func actionDidCancel(gesture _: UITapGestureRecognizer) {
         guard let presenterDelegate = presenterDelegate else {
             dismiss(animated: true)
             return
@@ -107,9 +107,11 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
 
     // MARK: Interactive dismissal
 
-    @objc func didPan(sender: Any?) {
-        guard let panGestureRecognizer = sender as? UIPanGestureRecognizer else { return }
-        guard let view = panGestureRecognizer.view else { return }
+    @objc private func didPan(sender: Any?) {
+        guard
+            let panGestureRecognizer = sender as? UIPanGestureRecognizer,
+            let view = panGestureRecognizer.view
+        else { return }
 
         handlePan(from: panGestureRecognizer, on: view)
     }

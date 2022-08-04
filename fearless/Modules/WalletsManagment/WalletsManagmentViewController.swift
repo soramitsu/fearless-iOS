@@ -1,23 +1,15 @@
 import UIKit
 import SoraFoundation
 
-enum WalletsManagmentViewState {
-    case loadind
-    case loaded([WalletsManagmentCellViewModel])
-}
-
 final class WalletsManagmentViewController: UIViewController, ViewHolder {
     typealias RootViewType = WalletsManagmentViewLayout
 
     // MARK: Private properties
 
     private let output: WalletsManagmentViewOutput
-
-    private var state: WalletsManagmentViewState = .loadind {
+    private var viewModels: [WalletsManagmentCellViewModel] = [] {
         didSet {
-            DispatchQueue.main.async {
-                self.applyState()
-            }
+            rootView.tableView.reloadData()
         }
     }
 
@@ -52,15 +44,6 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
 
     // MARK: - Private methods
 
-    private func applyState() {
-        switch state {
-        case .loadind:
-            break
-        case .loaded:
-            rootView.tableView.reloadData()
-        }
-    }
-
     private func configureTableView() {
         rootView.tableView.backgroundColor = R.color.colorBlack()!
         rootView.tableView.separatorStyle = .none
@@ -93,8 +76,8 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
 // MARK: - WalletsManagmentViewInput
 
 extension WalletsManagmentViewController: WalletsManagmentViewInput {
-    func didReceiveState(_ state: WalletsManagmentViewState) {
-        self.state = state
+    func didReceiveViewModels(_ viewModels: [WalletsManagmentCellViewModel]) {
+        self.viewModels = viewModels
     }
 }
 
@@ -110,20 +93,11 @@ extension WalletsManagmentViewController: Localizable {
 
 extension WalletsManagmentViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        guard case .loaded = state else {
-            return 0
-        }
-
-        return 1
+        viewModels.count
     }
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        switch state {
-        case .loadind:
-            return 0
-        case let .loaded(viewModels):
-            return viewModels.count
-        }
+        viewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
@@ -138,10 +112,7 @@ extension WalletsManagmentViewController: UITableViewDataSource {
 
 extension WalletsManagmentViewController: UITableViewDelegate {
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard
-            case let .loaded(viewModels) = state,
-            let cell = cell as? WalletsManagmentTableCell
-        else {
+        guard let cell = cell as? WalletsManagmentTableCell else {
             return
         }
 

@@ -42,7 +42,7 @@ final class WalletsManagmentPresenter {
             locale: selectedLocale
         )
 
-        view?.didReceiveState(.loaded(viewModels))
+        view?.didReceiveViewModels(viewModels)
     }
 }
 
@@ -82,7 +82,6 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
     func didLoad(view: WalletsManagmentViewInput) {
         self.view = view
         interactor.setup(with: self)
-        view.didReceiveState(.loadind)
     }
 }
 

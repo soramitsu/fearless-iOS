@@ -2,7 +2,7 @@ import Foundation
 typealias WalletsManagmentModuleCreationResult = (view: WalletsManagmentViewInput, input: WalletsManagmentModuleInput)
 
 protocol WalletsManagmentViewInput: ControllerBackedProtocol {
-    func didReceiveState(_ state: WalletsManagmentViewState)
+    func didReceiveViewModels(_ viewModels: [WalletsManagmentCellViewModel])
 }
 
 protocol WalletsManagmentViewOutput: AnyObject {

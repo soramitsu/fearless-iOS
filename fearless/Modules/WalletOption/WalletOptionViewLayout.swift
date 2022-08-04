@@ -3,7 +3,6 @@ import SoraUI
 
 final class WalletOptionViewLayout: UIView {
     private enum Constants {
-        static let buttonHeight: CGFloat = 48.0
         static let indicatorSize = CGSize(width: 35.0, height: 2.0)
         static let headerHeight: CGFloat = 56.0
         static let cornerRadius: CGFloat = 20.0
@@ -112,7 +111,7 @@ final class WalletOptionViewLayout: UIView {
 
         buttons.forEach {
             $0.snp.makeConstraints { make in
-                make.height.equalTo(Constants.buttonHeight)
+                make.height.equalTo(UIConstants.actionHeight)
             }
         }
 

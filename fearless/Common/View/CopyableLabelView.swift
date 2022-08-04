@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class CopyableLableView: TriangularedBlurView {
+final class CopyableLabelView: TriangularedBlurView {
     private enum Constants {
         static let minIconImageViewSize = CGSize(width: 16, height: 16)
     }

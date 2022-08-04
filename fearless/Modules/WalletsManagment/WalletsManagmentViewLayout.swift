@@ -3,7 +3,6 @@ import SoraUI
 
 final class WalletsManagmentViewLayout: UIView {
     private enum Constants {
-        static let buttonHeight: CGFloat = 48.0
         static let headerHeight: CGFloat = 56.0
         static let cornerRadius: CGFloat = 20.0
         static let backButtonSize: CGFloat = 32.0
@@ -102,11 +101,11 @@ final class WalletsManagmentViewLayout: UIView {
         }
 
         addNewWalletButton.snp.makeConstraints { make in
-            make.height.equalTo(Constants.buttonHeight)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         importWalletButton.snp.makeConstraints { make in
-            make.height.equalTo(Constants.buttonHeight)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         buttonsVStackView.addArrangedSubview(addNewWalletButton)
