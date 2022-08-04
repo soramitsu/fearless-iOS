@@ -7,7 +7,7 @@ struct UIConstants {
     static let bigOffset: CGFloat = 16.0
     static let hugeOffset: CGFloat = 24.0
     static let actionBottomInset: CGFloat = 16.0
-    static let actionHeight: CGFloat = 52.0
+    static let actionHeight: CGFloat = 48.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
     static let verticalInset: CGFloat = 16.0
