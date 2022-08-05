@@ -93,6 +93,7 @@ private extension AccountInfoFetching {
                 for: chainAsset.chain.chainId
             )
         else {
+            completionBlock(chainAsset, nil)
             return
         }
 
@@ -115,6 +116,7 @@ private extension AccountInfoFetching {
         decodingOperation.completionBlock = {
             DispatchQueue.main.async {
                 guard let result = decodingOperation.result else {
+                    completionBlock(chainAsset, nil)
                     return
                 }
 
@@ -139,6 +141,7 @@ private extension AccountInfoFetching {
                 for: chainAsset.chain.chainId
             )
         else {
+            completionBlock(chainAsset, nil)
             return
         }
 
@@ -161,6 +164,7 @@ private extension AccountInfoFetching {
         decodingOperation.completionBlock = {
             DispatchQueue.main.async {
                 guard let result = decodingOperation.result else {
+                    completionBlock(chainAsset, nil)
                     return
                 }
                 switch result {
@@ -183,6 +187,7 @@ private extension AccountInfoFetching {
                 for: chainAsset.chain.chainId
             )
         else {
+            completionBlock(chainAsset, nil)
             return
         }
 
@@ -205,6 +210,7 @@ private extension AccountInfoFetching {
         decodingOperation.completionBlock = {
             DispatchQueue.main.async {
                 guard let result = decodingOperation.result else {
+                    completionBlock(chainAsset, nil)
                     return
                 }
 
