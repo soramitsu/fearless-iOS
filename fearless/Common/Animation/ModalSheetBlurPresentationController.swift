@@ -183,8 +183,16 @@ extension ModalSheetBlurPresentationController: ModalPresenterProtocol {
 extension ModalSheetBlurPresentationController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(
         _: UIGestureRecognizer,
-        shouldRecognizeSimultaneouslyWith _: UIGestureRecognizer
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
-        true
+        guard let scrollView = otherGestureRecognizer.view as? UIScrollView else {
+            return true
+        }
+
+        if scrollView.isTracking {
+            return false
+        }
+
+        return true
     }
 }
