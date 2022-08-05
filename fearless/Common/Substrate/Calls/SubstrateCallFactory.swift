@@ -355,9 +355,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         amount: BigUInt
     ) -> RuntimeCall<JoinPoolCall> {
         let args = JoinPoolCall(amount: amount, poolId: poolId)
+
         return RuntimeCall(
-            moduleName: "NominationPools",
-            callName: "Join",
+            callCodingPath: .nominationPoolJoin,
             args: args
         )
     }
@@ -374,9 +374,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             nominator: nominator,
             stateToggler: stateToggler
         )
+
         return RuntimeCall(
-            moduleName: "NominationPools",
-            callName: "Create",
+            callCodingPath: .createNominationPool,
             args: args
         )
     }
@@ -389,9 +389,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             poolId: poolId,
             metadata: metadata
         )
+
         return RuntimeCall(
-            moduleName: "NominationPools",
-            callName: "SetMetadata",
+            callCodingPath: .setPoolMetadata,
             args: args
         )
     }

@@ -1956,6 +1956,7 @@
 		FA67406F289B72D900096EA8 /* CreatePoolCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67406E289B72D900096EA8 /* CreatePoolCall.swift */; };
 		FA674091289B86C600096EA8 /* SetMetadataCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA674090289B86C600096EA8 /* SetMetadataCall.swift */; };
 		FA674093289BD10E00096EA8 /* StakingPoolMember.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA674092289BD10E00096EA8 /* StakingPoolMember.swift */; };
+		FA674095289CE31100096EA8 /* RuntimeCall+CallCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA674094289CE31100096EA8 /* RuntimeCall+CallCodingPath.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
 		FA6D407F2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6D407E2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift */; };
@@ -4155,6 +4156,7 @@
 		FA67406E289B72D900096EA8 /* CreatePoolCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreatePoolCall.swift; sourceTree = "<group>"; };
 		FA674090289B86C600096EA8 /* SetMetadataCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetMetadataCall.swift; sourceTree = "<group>"; };
 		FA674092289BD10E00096EA8 /* StakingPoolMember.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolMember.swift; sourceTree = "<group>"; };
+		FA674094289CE31100096EA8 /* RuntimeCall+CallCodingPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuntimeCall+CallCodingPath.swift"; sourceTree = "<group>"; };
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
 		FA6D407E2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListRelaychainViewModelState.swift; sourceTree = "<group>"; };
@@ -5712,6 +5714,7 @@
 				84A617252625AF51007B75E1 /* RuntimeMetadata+Internal.swift */,
 				AEAC690326EB891900346599 /* Logger+FearlessUtils.swift */,
 				8493D0E026FF4F5000A28008 /* ScaleCoder+Extension.swift */,
+				FA674094289CE31100096EA8 /* RuntimeCall+CallCodingPath.swift */,
 			);
 			path = FearlessUtils;
 			sourceTree = "<group>";
@@ -11459,6 +11462,7 @@
 				FA38C9CF27634A18005C5577 /* WalletSendConfirmViewModelFactory.swift in Sources */,
 				F462B364260C88050005AB01 /* UITableView+Reuse.swift in Sources */,
 				848919D726FB238E004DBAD5 /* JsonDataProviderFactory.swift in Sources */,
+				FA674095289CE31100096EA8 /* RuntimeCall+CallCodingPath.swift in Sources */,
 				846802A3265DA5530034F9B5 /* CrowdloanContributionSetupViewModel.swift in Sources */,
 				0716C85028880304004C8CB1 /* UIResponder.swift in Sources */,
 				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,

@@ -206,17 +206,17 @@ final class StakingPoolOperationFactory {
 extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolsOperation(era: EraIndex) -> CompoundOperationWrapper<[StakingPool]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let candidateInfoOperation = createBondedPoolsOperation(dependingOn: runtimeOperation) {
+        let bondedPoolsOperation = createBondedPoolsOperation(dependingOn: runtimeOperation) {
             [era]
         }
 
         let mapOperation = ClosureOperation<[StakingPool]?> {
-            try candidateInfoOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try bondedPoolsOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(candidateInfoOperation.targetOperation)
+        mapOperation.addDependency(bondedPoolsOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + candidateInfoOperation.allOperations
+        let dependencies = [runtimeOperation] + bondedPoolsOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
@@ -254,87 +254,87 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
 
     func fetchMinCreateBondOperation() -> CompoundOperationWrapper<BigUInt?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minJoinBondOperation = createMinJoinBondOperation(dependingOn: runtimeOperation)
+        let minCreateBondOperation = createMinJoinBondOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<BigUInt?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try minCreateBondOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(minJoinBondOperation.targetOperation)
+        mapOperation.addDependency(minCreateBondOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + minJoinBondOperation.allOperations
+        let dependencies = [runtimeOperation] + minCreateBondOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<[StakingPoolMember]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let poolMetadataOperation = createStakingPoolMembersOperation(dependingOn: runtimeOperation) {
+        let stakingPoolMembersOperation = createStakingPoolMembersOperation(dependingOn: runtimeOperation) {
             [accountId]
         }
 
         let mapOperation = ClosureOperation<[StakingPoolMember]?> {
-            try poolMetadataOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try stakingPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(poolMetadataOperation.targetOperation)
+        mapOperation.addDependency(stakingPoolMembersOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + poolMetadataOperation.allOperations
+        let dependencies = [runtimeOperation] + stakingPoolMembersOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func fetchMaxStakingPoolsCount() -> CompoundOperationWrapper<UInt32?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minJoinBondOperation = createMaxPoolsOperation(dependingOn: runtimeOperation)
+        let maxStakingPoolsCountOperation = createMaxPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxStakingPoolsCountOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(minJoinBondOperation.targetOperation)
+        mapOperation.addDependency(maxStakingPoolsCountOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + minJoinBondOperation.allOperations
+        let dependencies = [runtimeOperation] + maxStakingPoolsCountOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func fetchMaxPoolMembers() -> CompoundOperationWrapper<UInt32?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minJoinBondOperation = createMaxPoolMembersOperation(dependingOn: runtimeOperation)
+        let maxPoolMembersOperation = createMaxPoolMembersOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(minJoinBondOperation.targetOperation)
+        mapOperation.addDependency(maxPoolMembersOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + minJoinBondOperation.allOperations
+        let dependencies = [runtimeOperation] + maxPoolMembersOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func fetchCounterForBondedPools() -> CompoundOperationWrapper<UInt32?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minJoinBondOperation = createCounterForBondedPoolsOperation(dependingOn: runtimeOperation)
+        let counterForBondedPoolsOperation = createCounterForBondedPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try counterForBondedPoolsOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(minJoinBondOperation.targetOperation)
+        mapOperation.addDependency(counterForBondedPoolsOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + minJoinBondOperation.allOperations
+        let dependencies = [runtimeOperation] + counterForBondedPoolsOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func fetchMaxPoolMembersPerPool() -> CompoundOperationWrapper<UInt32?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minJoinBondOperation = createMaxPoolMembersPerPoolOperation(dependingOn: runtimeOperation)
+        let maxPoolMembersPerPoolOperation = createMaxPoolMembersPerPoolOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxPoolMembersPerPoolOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 
-        mapOperation.addDependency(minJoinBondOperation.targetOperation)
+        mapOperation.addDependency(maxPoolMembersPerPoolOperation.targetOperation)
 
-        let dependencies = [runtimeOperation] + minJoinBondOperation.allOperations
+        let dependencies = [runtimeOperation] + maxPoolMembersPerPoolOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
