@@ -3,7 +3,6 @@ import SoraUI
 
 final class WalletOptionViewLayout: UIView {
     private enum Constants {
-        static let indicatorSize = CGSize(width: 35.0, height: 2.0)
         static let headerHeight: CGFloat = 56.0
         static let cornerRadius: CGFloat = 20.0
     }
@@ -95,16 +94,11 @@ final class WalletOptionViewLayout: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
         }
 
-        let indicator = RoundedView()
-        indicator.roundingCorners = .allCorners
-        indicator.cornerRadius = Constants.indicatorSize.height / 2.0
-        indicator.fillColor = R.color.colorLightGray()!
-        indicator.highlightedFillColor = R.color.colorLightGray()!
-        indicator.shadowOpacity = 0.0
+        let indicator = UIFactory.default.createIndicatorView()
 
         navView.addSubview(indicator)
         indicator.snp.makeConstraints { make in
-            make.size.equalTo(Constants.indicatorSize)
+            make.size.equalTo(UIConstants.indicatorSize)
             make.top.equalTo(navView.snp.top)
             make.centerX.equalTo(navView.snp.centerX)
         }
