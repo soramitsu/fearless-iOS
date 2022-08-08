@@ -158,7 +158,7 @@ final class UIFactory: UIFactoryProtocol {
         switch layout {
         case .largeIconTitleSubtitle, .singleTitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
-        case .smallIconTitleSubtitle:
+        case .smallIconTitleSubtitle, .smallIconTitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
         }
 
