@@ -6,7 +6,7 @@ protocol WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset],
         _ prices: [PriceData]
-    ) -> [MetaAccountId: WalletBalance]?
+    ) -> [MetaAccountId: WalletBalanceInfo]?
 }
 
 final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
@@ -15,10 +15,10 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         _ metaAccounts: [MetaAccountModel],
         _ chainAssets: [ChainAsset],
         _ prices: [PriceData]
-    ) -> [MetaAccountId: WalletBalance]? {
+    ) -> [MetaAccountId: WalletBalanceInfo]? {
         let walletBalanceMap = metaAccounts.reduce(
-            [MetaAccountId: WalletBalance]()
-        ) { (result, account) -> [MetaAccountId: WalletBalance]? in
+            [MetaAccountId: WalletBalanceInfo]()
+        ) { (result, account) -> [MetaAccountId: WalletBalanceInfo]? in
 
             let splitedChainAssets = split(chainAssets, for: account)
             let enabledChainAssets = splitedChainAssets.enabled
@@ -46,7 +46,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             let disabledTotalDayChange = disabledAssetFiatBalanceInfo.totalDayChange
             let totalDayChange = enabledTotalDayChange + disabledTotalDayChange
 
-            let dayChangePercent = (totalDayChange / totalFiatValue) * 100
+            let dayChangePercent = (totalDayChange / totalFiatValue)
 
             let isLoaded = enabledAssetFiatBalanceInfo.isLoaded && disabledAssetFiatBalanceInfo.isLoaded
 
@@ -54,12 +54,14 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 return nil
             }
 
-            let walletBalance = WalletBalance(
+            let walletBalance = WalletBalanceInfo(
                 totalFiatValue: totalFiatValue,
                 enabledAssetFiatBalance: enabledAssetFiatBalance,
-                dayChangePercent: dayChangePercent,
+                dayChangePercent: dayChangePercent.isNaN ? .zero : dayChangePercent,
                 dayChangeValue: totalDayChange,
-                currency: account.selectedCurrency
+                currency: account.selectedCurrency,
+                prices: prices,
+                accountInfos: accountInfos
             )
 
             var result = result
@@ -79,6 +81,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var accountInfosCount = 0
         var totalBalance: Decimal = .zero
         var totalDayChange: Decimal = .zero
+        var enabledAccountInfos: [ChainAssetKey: AccountInfo?] = [:]
 
         chainAssets.forEach { chainAsset in
             let accountRequest = chainAsset.chain.accountRequest()
@@ -87,6 +90,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             }
             let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
             let accountInfo = accountInfos[chainAssetKey] ?? nil
+            enabledAccountInfos[chainAssetKey] = accountInfo
 
             let balance = getFiatBalance(
                 for: chainAsset,
@@ -94,7 +98,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 prices
             )
 
-            if accountInfos.keys.contains(chainAssetKey) {
+            if enabledAccountInfos.keys.contains(chainAssetKey) {
                 accountInfosCount += 1
             }
 
@@ -123,6 +127,15 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
                 return
             }
             let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+
+            if let chainIdForFilter = metaAccount.chainIdForFilter {
+                if chainAsset.chain.chainId == chainIdForFilter {
+                    enabledChainAssets.append(chainAsset)
+                } else {
+                    disabledChainAssets.append(chainAsset)
+                }
+                return
+            }
 
             if
                 let assetIdsEnabled = metaAccount.assetIdsEnabled,
@@ -154,7 +167,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         }
 
         let total = priceDecimal * balanceDecimal
-        let dayChange = total * (priceData.fiatDayChange ?? .zero)
+        let dayChange = total * (priceData.fiatDayChange ?? .zero) / 100
         let dayFiatBalance = AssetFiatBalanceInfo(total: total, dayChange: dayChange)
 
         return dayFiatBalance
