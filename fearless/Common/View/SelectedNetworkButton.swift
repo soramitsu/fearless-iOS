@@ -3,13 +3,6 @@ import UIKit
 import SoraUI
 
 final class SelectedNetworkButton: UIButton {
-    var dotIsVisible: Bool = true {
-        didSet {
-            dotIsVisible
-                ? setDot()
-                : setImage(nil, for: .normal)
-        }
-    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
