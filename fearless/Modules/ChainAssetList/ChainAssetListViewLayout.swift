@@ -1,7 +1,6 @@
 import UIKit
 
 final class ChainAssetListViewLayout: UIView {
-    
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -20,10 +19,10 @@ final class ChainAssetListViewLayout: UIView {
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
+
     private func setupLayout() {
         addSubview(tableView)
-        
+
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }

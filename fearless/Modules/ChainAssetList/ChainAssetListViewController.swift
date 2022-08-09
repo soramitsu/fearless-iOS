@@ -5,11 +5,13 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAssetListViewLayout
 
     // MARK: Private properties
+
     private let output: ChainAssetListViewOutput
-    
-    private var sections: [AssetListTableSection]
+
+    private var sections: [ChainAssetListTableSection] = []
 
     // MARK: - Constructor
+
     init(
         output: ChainAssetListViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -25,6 +27,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = ChainAssetListViewLayout()
     }
@@ -32,24 +35,26 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
-        
+
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - ChainAssetListViewInput
+
 extension ChainAssetListViewController: ChainAssetListViewInput {
-    func didReceive(viewModel: AssetListViewModel) {
-        self.sections = viewModel.sections
+    func didReceive(viewModel: ChainAssetListViewModel) {
+        sections = viewModel.sections
         rootView.tableView.reloadData()
     }
 }
 
 // MARK: - Localizable
+
 extension ChainAssetListViewController: Localizable {
     func applyLocalization() {}
 }
@@ -63,18 +68,22 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
         cell.bind(to: sections[indexPath.section].cellViewModels[indexPath.row])
     }
+
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        output.didSelectViewModel(sections[indexPath.section].cellViewModels[indexPath.row])
+    }
 }
 
 extension ChainAssetListViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
+    func numberOfSections(in _: UITableView) -> Int {
         sections.count
     }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         sections[section].cellViewModels.count
     }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+
+    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
             return UITableViewCell()
         }

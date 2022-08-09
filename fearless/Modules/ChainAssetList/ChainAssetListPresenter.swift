@@ -3,24 +3,26 @@ import SoraFoundation
 
 final class ChainAssetListPresenter {
     // MARK: Private properties
+
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
 
-    private let viewModelFactory: AssetListViewModelFactoryProtocol
+    private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private let wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
-    
+
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
-    
+
     // MARK: - Constructors
+
     init(
         interactor: ChainAssetListInteractorInput,
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
-        viewModelFactory: AssetListViewModelFactoryProtocol
+        viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
@@ -28,34 +30,50 @@ final class ChainAssetListPresenter {
         self.viewModelFactory = viewModelFactory
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
-    
+
     private func provideViewModel() {
         guard let chainAssets = chainAssets else {
             return
         }
-        
+
         let viewModel = viewModelFactory.buildViewModel(
             selectedMetaAccount: wallet,
             chainAssets: chainAssets,
             locale: selectedLocale,
             accountInfos: accountInfos,
-            prices: prices)
+            prices: prices
+        )
 
         view?.didReceive(viewModel: viewModel)
     }
 }
 
 // MARK: - ChainAssetListViewOutput
+
 extension ChainAssetListPresenter: ChainAssetListViewOutput {
     func didLoad(view: ChainAssetListViewInput) {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
+        if viewModel.chainAsset.chain.isSupported {
+            router.showChainAccount(from: view, chainAsset: viewModel.chainAsset)
+        } else {
+            router.presentWarningAlert(
+                from: view,
+                config: WarningAlertConfig.unsupportedChainConfig(with: selectedLocale)
+            ) { [weak self] in
+                self?.router.showAppstoreUpdatePage()
+            }
+        }
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput
+
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
@@ -63,8 +81,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             self.chainAssets = chainAssets
             provideViewModel()
         case let .failure(error):
-            break
-//            _ = wireframe.present(error: error, from: view, locale: selectedLocale)
+            router.present(error: error, from: view, locale: selectedLocale)
         }
     }
 
@@ -77,8 +94,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfos[key] = accountInfo
         case let .failure(error):
-            break
-//            wireframe.present(error: error, from: view, locale: selectedLocale)
+            router.present(error: error, from: view, locale: selectedLocale)
         }
         provideViewModel()
     }
@@ -89,8 +105,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             let priceDataUpdated = (pricesData: priceDataResult, updated: true)
             prices = priceDataUpdated
         case let .failure(error):
-            break
-//            wireframe.present(error: error, from: view, locale: selectedLocale)
+            router.present(error: error, from: view, locale: selectedLocale)
         }
 
         provideViewModel()
@@ -98,6 +113,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 }
 
 // MARK: - Localizable
+
 extension ChainAssetListPresenter: Localizable {
     func applyLocalization() {}
 }

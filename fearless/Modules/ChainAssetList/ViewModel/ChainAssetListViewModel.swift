@@ -1,10 +1,10 @@
-struct AssetListTableSection {
+struct ChainAssetListTableSection {
     let cellViewModels: [ChainAccountBalanceCellViewModel]
     let title: String?
     let expandable: Bool
 }
 
-struct AssetListViewModel {
-    let sections: [AssetListTableSection]
+struct ChainAssetListViewModel {
+    let sections: [ChainAssetListTableSection]
     let isColdBoot: Bool
 }

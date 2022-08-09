@@ -3,8 +3,9 @@ import RobinHood
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
+
     private weak var output: ChainAssetListInteractorOutput?
-    
+
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let assetRepository: AnyDataProviderRepository<AssetModel>
@@ -13,7 +14,7 @@ final class ChainAssetListInteractor {
     private var chainAssets: [ChainAsset]?
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    weak var presenter: AssetListInteractorOutput?
+    weak var presenter: ChainAssetListInteractorOutput?
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -31,11 +32,12 @@ final class ChainAssetListInteractor {
 }
 
 // MARK: - ChainAssetListInteractorInput
+
 extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     func setup(with output: ChainAssetListInteractorOutput) {
         self.output = output
     }
-    
+
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]

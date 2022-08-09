@@ -1,19 +1,67 @@
 import UIKit
 import SoraFoundation
+import RobinHood
 
 final class ChainAssetListAssembly {
-    static func configureModule() -> ChainAssetListModuleCreationResult? {
+    static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-            
-        let interactor = ChainAssetListInteractor()
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            meta: wallet
+        )
+
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
+        )
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let assetRepository = SubstrateDataStorageFacade.shared.createRepository(
+            mapper: AnyCoreDataMapper(AssetModelMapper())
+        )
+
+        let interactor = ChainAssetListInteractor(
+            chainAssetFetching: chainAssetFetching,
+            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            assetRepository: AnyDataProviderRepository(assetRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
         let router = ChainAssetListRouter()
-        
+        let viewModelFactory = ChainAssetListViewModelFactory(
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+        )
+
         let presenter = ChainAssetListPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            wallet: wallet,
+            viewModelFactory: viewModelFactory
         )
-        
+
         let view = ChainAssetListViewController(
             output: presenter,
             localizationManager: localizationManager

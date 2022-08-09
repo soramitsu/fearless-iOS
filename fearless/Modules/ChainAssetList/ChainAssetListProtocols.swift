@@ -1,11 +1,12 @@
 typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, input: ChainAssetListModuleInput)
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
-    func didReceive(viewModel: AssetListViewModel)
+    func didReceive(viewModel: ChainAssetListViewModel)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
+    func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -22,7 +23,12 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-protocol ChainAssetListRouterInput: AnyObject {}
+protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
+    func showChainAccount(
+        from view: ChainAssetListViewInput?,
+        chainAsset: ChainAsset
+    )
+}
 
 protocol ChainAssetListModuleInput: AnyObject {
     func updateChainAssets(

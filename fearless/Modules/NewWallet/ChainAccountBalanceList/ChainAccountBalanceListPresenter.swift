@@ -71,8 +71,12 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
     }
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
-        if viewModel.chain.isSupported {
-            wireframe.showChainAccount(from: view, chain: viewModel.chain, asset: viewModel.asset)
+        if viewModel.chainAsset.chain.isSupported {
+            wireframe.showChainAccount(
+                from: view,
+                chain: viewModel.chainAsset.chain,
+                asset: viewModel.chainAsset.asset
+            )
         } else {
             wireframe.presentWarningAlert(
                 from: view,
