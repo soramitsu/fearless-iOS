@@ -74,7 +74,6 @@ final class FWSegmentedControl: UIControl {
         }
 
         self.segments = segments
-        clearSegments()
         setupSegments()
     }
 
