@@ -117,7 +117,7 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             }
         }
 
-        setDeactivated(!viewModel.chain.isSupported)
+        setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
     }
 
