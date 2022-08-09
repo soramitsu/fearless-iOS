@@ -51,7 +51,7 @@ class SwipableTableViewCell: UITableViewCell {
 
     var rightMenuButtons: [SwipeButtonProtocol] = []
     var leftMenuButtons: [SwipeButtonProtocol] = []
-    
+
     var closeSwipeAnimationDuration: TimeInterval {
         0.3
     }

@@ -1,13 +1,14 @@
 import UIKit
 import SoraUI
 
+// swiftlint:disable file_length type_body_length function_body_length
 struct UIConstants {
     static let minimalOffset: CGFloat = 4.0
     static let defaultOffset: CGFloat = 8.0
     static let bigOffset: CGFloat = 16.0
     static let hugeOffset: CGFloat = 24.0
     static let actionBottomInset: CGFloat = 16.0
-    static let actionHeight: CGFloat = 52.0
+    static let actionHeight: CGFloat = 48.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
     static let verticalInset: CGFloat = 16.0
@@ -31,6 +32,7 @@ struct UIConstants {
     static let amountViewHeight: CGFloat = 72
     static let swipeTableActionButtonWidth: CGFloat = 88
     static let iconSize: CGFloat = 24
+    static let indicatorSize = CGSize(width: 35.0, height: 2.0)
 }
 
 enum AccountViewMode {
@@ -58,39 +60,26 @@ protocol UIFactoryProtocol {
         target: Any?,
         spacing: CGFloat
     ) -> UIToolbar
-
     func createCommonInputView() -> CommonInputView
     func createAmountInputView(filled: Bool) -> AmountInputView
-
     func createAmountAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
-
     func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView
     func createIdentityView(isSingleTitle: Bool) -> DetailsTriangularedView
-
     func createNetworkFeeView() -> NetworkFeeView
-
     func createNetworkFeeFooterView() -> NetworkFeeFooterView
-
     func createTitleValueView() -> TitleValueView
-
     func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition) -> IconTitleValueView
-
     func createTitleValueSelectionView() -> TitleValueSelectionView
-
     func createHintView() -> HintView
-
     func createLearnMoreView() -> LearnMoreView
-
     func createRewardSelectionView() -> RewardSelectionView
-
     func createInfoIndicatingView() -> ImageWithTitleView
-
     func createChainAssetSelectionView() -> DetailsTriangularedView
-
     func createWalletReferralBonusButton() -> GradientButton
+    func createIndicatorView() -> RoundedView
 }
 
 extension UIFactoryProtocol {
@@ -569,5 +558,15 @@ final class UIFactory: UIFactoryProtocol {
         containerView.stackView.alignment = .fill
         containerView.stackView.spacing = UIConstants.defaultOffset
         return containerView
+    }
+
+    func createIndicatorView() -> RoundedView {
+        let indicator = RoundedView()
+        indicator.roundingCorners = .allCorners
+        indicator.cornerRadius = UIConstants.indicatorSize.height / 2.0
+        indicator.fillColor = R.color.colorLightGray()!
+        indicator.highlightedFillColor = R.color.colorLightGray()!
+        indicator.shadowOpacity = 0.0
+        return indicator
     }
 }
