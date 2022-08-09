@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 protocol AssetListViewModelFactoryProtocol {
-    func buildChainAccountBalanceListViewModel(
+    func buildViewModel(
         selectedMetaAccount: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -13,19 +13,20 @@ protocol AssetListViewModelFactoryProtocol {
 
 final class AssetListViewModelFactory: AssetListViewModelFactoryProtocol {
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    
+
     init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
     }
-    
-    func buildChainAccountBalanceListViewModel(
+
+    func buildViewModel(
         selectedMetaAccount: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
-        accountInfos: [ChainAssetKey : AccountInfo?],
+        accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated
     ) -> AssetListViewModel {
         var enabledChainAssets: [ChainAsset] = chainAssets
+        var hiddenChainAssets: [ChainAsset] = []
 
         if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
             enabledChainAssets = enabledChainAssets
@@ -35,11 +36,18 @@ final class AssetListViewModelFactory: AssetListViewModelFactoryProtocol {
                             $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
                         ) == true
                 }
+            hiddenChainAssets = chainAssets
+                .filter {
+                    assetIdsEnabled
+                        .contains(
+                            $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+                        ) == false
+                }
         }
 
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
-        enabledChainAssets.forEach { chainAsset in
+        chainAssets.forEach { chainAsset in
             guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return
             }
@@ -53,7 +61,7 @@ final class AssetListViewModelFactory: AssetListViewModelFactoryProtocol {
             )
         }
 
-        let viewModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
+        let activeSectionCellModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -68,6 +76,26 @@ final class AssetListViewModelFactory: AssetListViewModelFactoryProtocol {
                 selectedMetaAccount: selectedMetaAccount
             )
         }
+
+        let hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = hiddenChainAssets.compactMap { chainAsset in
+            let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
+            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
+
+            return buildChainAccountBalanceCellViewModel(
+                chainAssets: enabledChainAssets,
+                chainAsset: chainAsset,
+                priceData: priceData,
+                priceDataUpdated: prices.updated,
+                accountInfos: accountInfos,
+                locale: locale,
+                currency: selectedMetaAccount.selectedCurrency,
+                selectedMetaAccount: selectedMetaAccount
+            )
+        }
+
+        let activeSection = AssetListTableSection(cellViewModels: activeSectionCellModels, title: nil, expandable: false)
+        // Lokalise
+        let hiddenSection = AssetListTableSection(cellViewModels: hiddenSectionCellModels, title: "Hidden Assets", expandable: true)
 
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
             chainAssets.contains { chainAsset in
@@ -84,7 +112,7 @@ final class AssetListViewModelFactory: AssetListViewModelFactoryProtocol {
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
         return AssetListViewModel(
-            accountViewModels: viewModels,
+            sections: [activeSection, hiddenSection],
             isColdBoot: isColdBoot
         )
     }
@@ -100,7 +128,7 @@ private extension AssetListViewModelFactory {
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
     }
-    
+
     func buildChainAccountBalanceCellViewModel(
         chainAssets: [ChainAsset],
         chainAsset: ChainAsset,
@@ -181,7 +209,7 @@ private extension AssetListViewModelFactory {
             return viewModel
         }
     }
-    
+
     func getBalanceString(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
@@ -209,7 +237,7 @@ private extension AssetListViewModelFactory {
 
         return balance
     }
-    
+
     func getFiatBalanceString(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
@@ -227,7 +255,7 @@ private extension AssetListViewModelFactory {
             )
         )
     }
-    
+
     func getFiatBalance(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
@@ -254,7 +282,7 @@ private extension AssetListViewModelFactory {
 
         return totalBalanceDecimal
     }
-    
+
     private func getPriceAttributedString(
         priceData: PriceData?,
         locale: Locale,

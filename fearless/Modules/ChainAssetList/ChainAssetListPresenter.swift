@@ -1,24 +1,36 @@
-final class AssetListPresenter {
-    private let interactor: AssetListInteractorInput
+import Foundation
+import SoraFoundation
+
+final class ChainAssetListPresenter {
+    // MARK: Private properties
+    private weak var view: ChainAssetListViewInput?
+    private let router: ChainAssetListRouterInput
+    private let interactor: ChainAssetListInteractorInput
+
     private let viewModelFactory: AssetListViewModelFactoryProtocol
     private let wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
     
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
-
+    
+    // MARK: - Constructors
     init(
-        interactor: AssetListInteractorInput,
+        interactor: ChainAssetListInteractorInput,
+        router: ChainAssetListRouterInput,
+        localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: AssetListViewModelFactoryProtocol
     ) {
         self.interactor = interactor
+        self.router = router
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
+        self.localizationManager = localizationManager
     }
-}
-
-private extension AssetListPresenter {
+    
+    // MARK: - Private methods
+    
     private func provideViewModel() {
         guard let chainAssets = chainAssets else {
             return
@@ -27,24 +39,24 @@ private extension AssetListPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             selectedMetaAccount: wallet,
             chainAssets: chainAssets,
-            locale: <#T##Locale#>,
+            locale: selectedLocale,
             accountInfos: accountInfos,
             prices: prices)
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+        view?.didReceive(viewModel: viewModel)
     }
 }
 
-extension AssetListPresenter: AssetListModuleInput {
-    func updateChainAssets(
-        using filters: [ChainAssetsFetching.Filter],
-        sorts: [ChainAssetsFetching.SortDescriptor]
-    ) {
-        interactor.updateChainAssets(using: filters, sorts: sorts)
+// MARK: - ChainAssetListViewOutput
+extension ChainAssetListPresenter: ChainAssetListViewOutput {
+    func didLoad(view: ChainAssetListViewInput) {
+        self.view = view
+        interactor.setup(with: self)
     }
 }
 
-extension AssetListPresenter: AssetListInteractorOutput {
+// MARK: - ChainAssetListInteractorOutput
+extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
@@ -82,5 +94,19 @@ extension AssetListPresenter: AssetListInteractorOutput {
         }
 
         provideViewModel()
+    }
+}
+
+// MARK: - Localizable
+extension ChainAssetListPresenter: Localizable {
+    func applyLocalization() {}
+}
+
+extension ChainAssetListPresenter: ChainAssetListModuleInput {
+    func updateChainAssets(
+        using filters: [ChainAssetsFetching.Filter],
+        sorts: [ChainAssetsFetching.SortDescriptor]
+    ) {
+        interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }

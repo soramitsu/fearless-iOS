@@ -1,7 +1,10 @@
-import Foundation
+import UIKit
 import RobinHood
 
-final class AssetListInteractor {
+final class ChainAssetListInteractor {
+    // MARK: - Private properties
+    private weak var output: ChainAssetListInteractorOutput?
+    
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let assetRepository: AnyDataProviderRepository<AssetModel>
@@ -27,7 +30,12 @@ final class AssetListInteractor {
     }
 }
 
-extension AssetListInteractor: AssetListInteractorInput {
+// MARK: - ChainAssetListInteractorInput
+extension ChainAssetListInteractor: ChainAssetListInteractorInput {
+    func setup(with output: ChainAssetListInteractorOutput) {
+        self.output = output
+    }
+    
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
@@ -45,18 +53,18 @@ extension AssetListInteractor: AssetListInteractorInput {
                 self?.subscribeToAccountInfo(for: chainAssets)
                 self?.subscribeToPrice(for: chainAssets)
                 DispatchQueue.main.async {
-                    self?.presenter?.didReceiveChainAssets(result: .success(chainAssets))
+                    self?.output?.didReceiveChainAssets(result: .success(chainAssets))
                 }
             case let .failure(error):
                 DispatchQueue.main.async {
-                    self?.presenter?.didReceiveChainAssets(result: .failure(error))
+                    self?.output?.didReceiveChainAssets(result: .failure(error))
                 }
             }
         }
     }
 }
 
-private extension AssetListInteractor {
+private extension ChainAssetListInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId)
         pricesProvider = subscribeToPrices(for: pricesIds)
@@ -86,7 +94,7 @@ private extension AssetListInteractor {
     }
 }
 
-extension AssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
@@ -97,12 +105,12 @@ extension AssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubscripti
             break
         }
 
-        presenter?.didReceivePricesData(result: result)
+        output?.didReceivePricesData(result: result)
     }
 }
 
-extension AssetListInteractor: AccountInfoSubscriptionAdapterHandler {
+extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainAsset)
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
