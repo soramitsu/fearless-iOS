@@ -34,6 +34,7 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		07DE95D028A20AFA00E9C2CB /* FWSegmentedControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95CF28A20AF900E9C2CB /* FWSegmentedControl.swift */; };
 		07DFA4442897AEB40035A8AB /* WalletsManagmentTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA4432897AEB40035A8AB /* WalletsManagmentTableCell.swift */; };
 		07DFA4462897EE370035A8AB /* WalletsManagmentViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA4452897EE370035A8AB /* WalletsManagmentViewModelFactory.swift */; };
 		07DFA4492899186B0035A8AB /* ModalSheetBlurPresentationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DFA4482899186B0035A8AB /* ModalSheetBlurPresentationFactory.swift */; };
@@ -2238,6 +2239,7 @@
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
+		07DE95CF28A20AF900E9C2CB /* FWSegmentedControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FWSegmentedControl.swift; sourceTree = "<group>"; };
 		07DFA4432897AEB40035A8AB /* WalletsManagmentTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletsManagmentTableCell.swift; sourceTree = "<group>"; };
 		07DFA4452897EE370035A8AB /* WalletsManagmentViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletsManagmentViewModelFactory.swift; sourceTree = "<group>"; };
 		07DFA4482899186B0035A8AB /* ModalSheetBlurPresentationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalSheetBlurPresentationFactory.swift; sourceTree = "<group>"; };
@@ -7183,6 +7185,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				07DE95CF28A20AF900E9C2CB /* FWSegmentedControl.swift */,
 				07DFA455289B78E10035A8AB /* CopyableLabelView.swift */,
 				FA4B92952844D0100003BCEF /* ShimmeredLabel.swift */,
 				FA4B92962844D0100003BCEF /* ShimmeredProtocol.swift */,
@@ -12710,6 +12713,7 @@
 				84CFF1E626526FBC00DB7CF7 /* StakingBondMoreInteractor.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
 				84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */,
+				07DE95D028A20AFA00E9C2CB /* FWSegmentedControl.swift in Sources */,
 				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
 				8430AB002602338D005B1066 /* PendingNominatorState.swift in Sources */,
 				AE7129BC2608C069000AA3F5 /* RelaychainStakingInfoOperationFactory.swift in Sources */,
