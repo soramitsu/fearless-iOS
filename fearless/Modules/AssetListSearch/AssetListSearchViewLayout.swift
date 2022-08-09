@@ -39,6 +39,8 @@ final class AssetListSearchViewLayout: UIView {
     }
 
     private func setupLayout() {
+        backgroundColor = R.color.colorBlack()
+
         addSubview(backgroundImageView)
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

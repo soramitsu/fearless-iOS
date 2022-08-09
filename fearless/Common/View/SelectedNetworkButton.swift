@@ -6,7 +6,7 @@ final class SelectedNetworkButton: UIButton {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setDot()
-        addBlurView()
+        setup()
     }
 
     @available(*, unavailable)
@@ -49,17 +49,9 @@ final class SelectedNetworkButton: UIButton {
         )
     }
 
-    private func addBlurView() {
-        let blur = UIBlurEffect(style: .dark)
-        let blurView = UIVisualEffectView(effect: blur)
-        insertSubview(blurView, at: 0)
-        blurView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-
-        if let imageView = self.imageView {
-            bringSubviewToFront(imageView)
-        }
+    private func setup() {
+        backgroundColor = R.color.colorWhite8()
+        contentEdgeInsets = UIEdgeInsets(top: 2, left: 18, bottom: 2, right: 18)
     }
 
     private func setDot() {

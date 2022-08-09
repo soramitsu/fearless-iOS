@@ -28,7 +28,14 @@ final class FWSegmentedControl: UIControl {
 
     // MARK: - Private properties
 
-    private let containerView = TriangularedBlurView()
+    private let containerView: TriangularedView = {
+        let containerView = TriangularedView()
+        containerView.fillColor = R.color.colorWhite8()!
+        containerView.highlightedFillColor = R.color.colorWhite8()!
+        containerView.shadowOpacity = 0
+        return containerView
+    }()
+
     private let backgroundView = UIView()
     private let selectedContainerView = UIView()
     private let sliderView = SliderView()

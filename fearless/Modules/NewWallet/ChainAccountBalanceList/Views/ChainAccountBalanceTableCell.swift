@@ -3,7 +3,7 @@ import Kingfisher
 import simd
 import SoraUI
 
-final class ChainAccountBalanceTableCell: UITableViewCell {
+final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     enum LayoutConstants {
         static let cellHeight: CGFloat = 80
         static let assetImageTopOffset: CGFloat = 11
@@ -14,7 +14,13 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         static let balancePriceRowSize = CGSize(width: 56.0, height: 6.0)
     }
 
-    private var backgroundTriangularedView = TriangularedBlurView()
+    private var backgroundTriangularedView: TriangularedView = {
+        let containerView = TriangularedView()
+        containerView.fillColor = R.color.colorWhite8()!
+        containerView.highlightedFillColor = R.color.colorWhite8()!
+        containerView.shadowOpacity = 0
+        return containerView
+    }()
 
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -124,6 +130,9 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
     // MARK: - Private methods
 
     private func configure() {
+        leftMenuButtons = createLeftButtons()
+        rightMenuButtons = createRightButtons()
+
         backgroundColor = .clear
 
         separatorInset = UIEdgeInsets(
@@ -136,13 +145,24 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         selectionStyle = .none
     }
 
+    private func createLeftButtons() -> [SwipeButtonProtocol] {
+        [
+            SwipeCellButton.createSendButton(),
+            SwipeCellButton.createReceiveButton(),
+            SwipeCellButton.createTeleportButton()
+        ]
+    }
+
+    private func createRightButtons() -> [SwipeButtonProtocol] {
+        [
+            SwipeCellButton.createHideButton()
+        ]
+    }
+
     private func setupLayout() {
-        contentView.addSubview(backgroundTriangularedView)
+        cloudView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
             make.height.equalTo(LayoutConstants.cellHeight)
         }
 
@@ -319,5 +339,49 @@ extension ChainAccountBalanceTableCell {
                 size: LayoutConstants.balancePriceRowSize
             )
         ]
+    }
+}
+
+class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
+    init(frame: CGRect, type: SwipableCellButtonType) {
+        self.type = type
+        super.init(frame: frame)
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    var type: SwipableCellButtonType
+}
+
+extension VerticalContentButton {
+    static func createSendButton() -> SwipeCellButton {
+        let button = SwipeCellButton(frame: .zero, type: .send)
+        button.setImage(R.image.iconSwipeSend(), for: .normal)
+        button.setTitle("Send", for: .normal)
+        return button
+    }
+
+    static func createReceiveButton() -> SwipeCellButton {
+        let button = SwipeCellButton(frame: .zero, type: .send)
+        button.setImage(R.image.iconSwipeReceive(), for: .normal)
+        button.setTitle("Receive", for: .normal)
+        return button
+    }
+
+    static func createTeleportButton() -> SwipeCellButton {
+        let button = SwipeCellButton(frame: .zero, type: .send)
+        button.setImage(R.image.iconSwipeTeleport(), for: .normal)
+        button.setTitle("Teleport", for: .normal)
+        return button
+    }
+
+    static func createHideButton() -> SwipeCellButton {
+        let button = SwipeCellButton(frame: .zero, type: .send)
+        button.setImage(R.image.iconSwipeHide(), for: .normal)
+        button.setTitle("Hide", for: .normal)
+        return button
     }
 }

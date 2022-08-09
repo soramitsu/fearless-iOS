@@ -42,7 +42,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
             target: self,
             action: #selector(actionDidCancel(gesture:))
         )
-        containerView?.addGestureRecognizer(cancellationGesture)
+//        containerView?.addGestureRecognizer(cancellationGesture)
     }
 
     private func attachPanGesture() {

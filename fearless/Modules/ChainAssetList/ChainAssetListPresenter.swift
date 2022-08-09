@@ -47,6 +47,7 @@ final class ChainAssetListPresenter {
         )
 
         view?.didReceive(viewModel: viewModel)
+        print("viewModelviewModel", viewModel.sections.count)
     }
 }
 

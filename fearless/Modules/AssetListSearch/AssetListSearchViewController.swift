@@ -45,5 +45,7 @@ extension AssetListSearchViewController: AssetListSearchViewInput {}
 // MARK: - Localizable
 
 extension AssetListSearchViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

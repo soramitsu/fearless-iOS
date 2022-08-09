@@ -91,7 +91,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.logger = logger
-        eventCenter.add(observer: self, dispatchIn: .global())
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     // MARK: - Public methods
@@ -132,22 +132,18 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     // MARK: - Private methods
 
     private func buildBalance() {
-        let builderBlock = BlockOperation {
-            let walletBalances = self.walletBalanceBuilder.buildBalance(
-                for: self.accountInfos,
-                self.metaAccounts,
-                self.chainAssets.values.map { $0 },
-                self.prices
-            )
+        let walletBalances = walletBalanceBuilder.buildBalance(
+            for: accountInfos,
+            metaAccounts,
+            chainAssets.values.map { $0 },
+            prices
+        )
 
-            guard let walletBalances = walletBalances else {
-                return
-            }
-
-            self.handle(.success(walletBalances))
+        guard let walletBalances = walletBalances else {
+            return
         }
 
-        operationQueue.addOperation(builderBlock)
+        handle(.success(walletBalances))
     }
 
     private func handle(_ wallets: [MetaAccountModel], _ chainAssets: [ChainAsset]) {

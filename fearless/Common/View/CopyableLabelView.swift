@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class CopyableLabelView: TriangularedBlurView {
+final class CopyableLabelView: UIView {
     private enum Constants {
         static let minIconImageViewSize = CGSize(width: 16, height: 16)
     }
@@ -51,7 +51,7 @@ final class CopyableLabelView: TriangularedBlurView {
 
     private func setupLayout() {
         layer.masksToBounds = true
-        cornerCut = []
+        backgroundColor = R.color.colorWhite8()
 
         let hStackView = UIFactory.default.createHorizontalStackView(spacing: 6)
         hStackView.distribution = .fillProportionally

@@ -165,7 +165,8 @@ private extension ChainAssetsFetching {
                 for: chainAsset,
                 accountId: accountId
             ) { chainAsset, accountInfo in
-                accountInfos[chainAsset] = accountInfo
+                let lock = NSLock()
+                lock.with { accountInfos[chainAsset] = accountInfo }
                 semaphore.signal()
             }
         }

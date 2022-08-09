@@ -41,6 +41,7 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         rootView.tableView.registerClassForCell(C.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+        rootView.tableView.allowsSelection = true
     }
 
     // MARK: - UITableView DataSource

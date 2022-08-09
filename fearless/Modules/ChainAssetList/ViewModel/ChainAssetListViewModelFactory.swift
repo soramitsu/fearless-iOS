@@ -93,9 +93,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-//        let activeSection = ChainAssetListTableSection(cellViewModels: activeSectionCellModels, title: nil, expandable: false)
-//        // Lokalise
-//        let hiddenSection = ChainAssetListTableSection(cellViewModels: hiddenSectionCellModels, title: "Hidden Assets", expandable: true)
+        let activeSection = ChainAssetListTableSection(cellViewModels: activeSectionCellModels, title: nil, expandable: false)
+        // Lokalise
+        let hiddenSection = ChainAssetListTableSection(cellViewModels: hiddenSectionCellModels, title: "Hidden Assets", expandable: true)
 
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
             chainAssets.contains { chainAsset in
@@ -113,7 +113,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
         return ChainAssetListViewModel(
             sections: [
-                //                activeSection, hiddenSection
+                activeSection, hiddenSection
             ],
             isColdBoot: isColdBoot
         )
