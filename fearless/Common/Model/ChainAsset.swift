@@ -98,7 +98,7 @@ extension ChainAsset {
 
     var debugName: String {
         "\(chain.name)-\(asset.name)"
-	}
+    }
 
     var hasStaking: Bool {
         let model: ChainAssetModel? = chain.assets.first { $0.asset.id == asset.id }

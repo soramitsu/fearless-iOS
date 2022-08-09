@@ -3,7 +3,6 @@ import UIKit
 import SoraUI
 
 final class SelectedNetworkButton: UIButton {
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setDot()
