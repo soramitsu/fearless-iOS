@@ -2,7 +2,10 @@ import UIKit
 import SoraFoundation
 
 final class StakingPoolStartAssembly {
-    static func configureModule(chainAsset: ChainAsset) -> StakingPoolStartModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) -> StakingPoolStartModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = StakingPoolStartInteractor()
@@ -13,7 +16,9 @@ final class StakingPoolStartAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            wallet: wallet,
+            chainAsset: chainAsset
         )
 
         let view = StakingPoolStartViewController(

@@ -6,9 +6,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         amount _: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount _: MetaAccountModel
+        selectedAccount: MetaAccountModel
     ) {
         guard let poolStartModule = StakingPoolStartAssembly.configureModule(
+            wallet: selectedAccount,
             chainAsset: ChainAsset(chain: chain, asset: asset)
         ) else {
             return

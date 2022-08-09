@@ -4,5 +4,5 @@ import BigInt
 
 struct JoinPoolCall: Codable {
     @StringCodable var amount: BigUInt
-    let poolId: UInt32
+    let poolId: String
 }

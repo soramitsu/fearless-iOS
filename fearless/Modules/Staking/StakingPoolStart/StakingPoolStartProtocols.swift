@@ -20,7 +20,13 @@ protocol StakingPoolStartInteractorInput: AnyObject {
 
 protocol StakingPoolStartInteractorOutput: AnyObject {}
 
-protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresentable {}
+protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresentable {
+    func presentJoinFlow(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
+}
 
 protocol StakingPoolStartModuleInput: AnyObject {}
 

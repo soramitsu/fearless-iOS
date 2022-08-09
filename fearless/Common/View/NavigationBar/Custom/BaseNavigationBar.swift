@@ -30,6 +30,18 @@ class BaseNavigationBar: BaseTopBar {
         backgroundColor = .black.withAlphaComponent(0.4)
     }
 
+    override func layoutIfNeeded() {
+        super.layoutIfNeeded()
+
+        backButton.layer.cornerRadius = backButton.frame.size.height / 2
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        backButton.layer.cornerRadius = backButton.frame.size.height / 2
+    }
+
     override func setupLayout() {
         super.setupLayout()
 

@@ -8,6 +8,8 @@ final class StakingPoolStartPresenter {
     private let router: StakingPoolStartRouterInput
     private let interactor: StakingPoolStartInteractorInput
     private let viewModelFactory: StakingPoolStartViewModelFactoryProtocol
+    private let wallet: MetaAccountModel
+    private let chainAsset: ChainAsset
 
     // MARK: - Constructors
 
@@ -15,11 +17,15 @@ final class StakingPoolStartPresenter {
         interactor: StakingPoolStartInteractorInput,
         router: StakingPoolStartRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        viewModelFactory: StakingPoolStartViewModelFactoryProtocol
+        viewModelFactory: StakingPoolStartViewModelFactoryProtocol,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
+        self.wallet = wallet
+        self.chainAsset = chainAsset
         self.localizationManager = localizationManager
     }
 
@@ -45,7 +51,9 @@ extension StakingPoolStartPresenter: StakingPoolStartViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapJoinPoolButton() {}
+    func didTapJoinPoolButton() {
+        router.presentJoinFlow(chainAsset: chainAsset, wallet: wallet, from: view)
+    }
 
     func didTapCreatePoolButton() {}
 
