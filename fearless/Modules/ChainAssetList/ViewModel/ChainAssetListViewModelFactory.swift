@@ -3,6 +3,7 @@ import SoraFoundation
 
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
+        displayType: AssetListDisplayType,
         selectedMetaAccount: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -19,6 +20,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     func buildViewModel(
+        displayType: AssetListDisplayType,
         selectedMetaAccount: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -61,12 +63,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let activeSectionCellModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
+        var activeSectionCellModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
             return buildChainAccountBalanceCellViewModel(
-                chainAssets: enabledChainAssets,
+                chainAssets: chainAssets,
                 chainAsset: chainAsset,
                 priceData: priceData,
                 priceDataUpdated: prices.updated,
@@ -77,12 +79,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = hiddenChainAssets.compactMap { chainAsset in
+        var hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = hiddenChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
             return buildChainAccountBalanceCellViewModel(
-                chainAssets: enabledChainAssets,
+                chainAssets: chainAssets,
                 chainAsset: chainAsset,
                 priceData: priceData,
                 priceDataUpdated: prices.updated,
@@ -91,6 +93,27 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 currency: selectedMetaAccount.selectedCurrency,
                 selectedMetaAccount: selectedMetaAccount
             )
+        }
+
+        switch displayType {
+        case .chain:
+            break
+        case .assetChains:
+            var uniqueActiveViewModels: [ChainAccountBalanceCellViewModel] = []
+            for model in activeSectionCellModels {
+                if !uniqueActiveViewModels.contains(where: { $0.chainAsset.asset.name == model.chainAsset.asset.name }) {
+                    uniqueActiveViewModels.append(model)
+                }
+            }
+            activeSectionCellModels = uniqueActiveViewModels
+
+            var uniqueHiddenViewModels: [ChainAccountBalanceCellViewModel] = []
+            for model in hiddenSectionCellModels {
+                if !uniqueHiddenViewModels.contains(where: { $0.chainAsset.asset.name == model.chainAsset.asset.name }) {
+                    uniqueHiddenViewModels.append(model)
+                }
+            }
+            hiddenSectionCellModels = uniqueHiddenViewModels
         }
 
         let activeSection = ChainAssetListTableSection(cellViewModels: activeSectionCellModels, title: nil, expandable: false)
@@ -180,7 +203,16 @@ private extension ChainAssetListViewModelFactory {
             isColdBoot = !accountInfos.keys.contains(key)
         }
 
+        let containsChainAssets = chainAssets.filter {
+            $0.asset.name == chainAsset.asset.name
+        }
+
+        if containsChainAssets.count > 1 {
+            print()
+        }
+
         let viewModel = ChainAccountBalanceCellViewModel(
+            assetContainsChainAssets: containsChainAssets,
             chainAsset: chainAsset,
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),

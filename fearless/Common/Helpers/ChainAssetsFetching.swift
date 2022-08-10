@@ -130,13 +130,14 @@ private extension ChainAssetsFetching {
         if sortDescriptors.contains(where: { $0.balanceRequired }) {
             getAccountInfo(
                 for: chainAssets,
-                completionBlock: { accountInfos in
-                    let sorts: [Sort] = self.convertSorts(
+                completionBlock: { [weak self] accountInfos in
+                    guard let strongSelf = self else { return }
+                    let sorts: [Sort] = strongSelf.convertSorts(
                         sortDescriptors: sortDescriptors,
                         accountInfos: accountInfos
                     )
 
-                    completionBlock(.success(self.sort(chainAssets: chainAssets, sorts: sorts)))
+                    completionBlock(.success(strongSelf.sort(chainAssets: chainAssets, sorts: sorts)))
                 }
             )
         } else {

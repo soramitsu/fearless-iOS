@@ -1,6 +1,11 @@
 import Foundation
 import SoraFoundation
 
+enum AssetListDisplayType {
+    case chain
+    case assetChains
+}
+
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
@@ -14,6 +19,7 @@ final class ChainAssetListPresenter {
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
+    private var displayType: AssetListDisplayType = .assetChains
 
     // MARK: - Constructors
 
@@ -39,6 +45,7 @@ final class ChainAssetListPresenter {
         }
 
         let viewModel = viewModelFactory.buildViewModel(
+            displayType: displayType,
             selectedMetaAccount: wallet,
             chainAssets: chainAssets,
             locale: selectedLocale,
@@ -47,7 +54,6 @@ final class ChainAssetListPresenter {
         )
 
         view?.didReceive(viewModel: viewModel)
-        print("viewModelviewModel", viewModel.sections.count)
     }
 }
 
@@ -124,6 +130,7 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }
