@@ -45,7 +45,6 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
     }()
 
     let chainInfoView = UIView()
-
     let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var balanceView: HorizontalKeyValueView = {
@@ -68,9 +67,7 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
     }()
 
     private var chainInfoContainerView = UIView()
-
     private var chainIconsView = ChainCollectionView()
-
     private var skeletonView: SkrullableView?
 
     // MARK: - Lifecycle

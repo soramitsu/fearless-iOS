@@ -7,7 +7,7 @@ struct ChainCollectionViewModel {
 }
 
 final class ChainCollectionView: UIView, ShimmeredProtocol {
-    enum Constants {
+    private enum Constants {
         static let elementSize: CGFloat = 16
         static let elementsSpacing: CGFloat = 2
     }
@@ -104,12 +104,12 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
     }
 }
 
-extension ImageViewModelProtocol {
-    func loadAssetChainsIcon(on imageView: UIImageView, animated _: Bool) {
+private extension ImageViewModelProtocol {
+    func loadAssetChainsIcon(on imageView: UIImageView, animated: Bool) {
         loadImage(
             on: imageView,
             targetSize: CGSize(width: 16.0, height: 16.0),
-            animated: true,
+            animated: animated,
             cornerRadius: 0
         )
     }
