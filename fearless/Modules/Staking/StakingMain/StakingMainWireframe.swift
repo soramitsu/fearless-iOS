@@ -45,7 +45,6 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        // TODO: add parachain case
         guard let recommendedView = SelectValidatorsStartViewFactory
             .createView(
                 wallet: selectedAccount,
@@ -263,15 +262,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     func showAnalytics(
         from view: ControllerBackedProtocol?,
         mode: AnalyticsContainerViewMode,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: AnalyticsRewardsFlow
     ) {
         let analyticsView = AnalyticsContainerViewFactory.createView(
             mode: mode,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         )
         analyticsView.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)

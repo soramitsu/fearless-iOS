@@ -4,7 +4,7 @@ final class StakingBMConfirmationViewLayout: UIView {
     let stackView: UIStackView = {
         let view = UIStackView()
         view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
         view.axis = .vertical
         view.alignment = .center
         view.distribution = .fill
@@ -12,6 +12,14 @@ final class StakingBMConfirmationViewLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+
+    let collatorView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.subtitleLabel?.lineBreakMode = .byTruncatingTail
+        view.actionImage = nil
+        view.isHidden = true
+        return view
+    }()
 
     let amountView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
@@ -21,13 +29,13 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     let hintView: IconDetailsView = {
         let view = IconDetailsView()
-        view.iconWidth = 24.0
+        view.iconWidth = UIConstants.iconSize
         view.imageView.contentMode = .top
         view.imageView.image = R.image.iconGeneralReward()
         return view
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -61,9 +69,22 @@ final class StakingBMConfirmationViewLayout: UIView {
             accountView.subtitle = confirmationViewModel.senderAddress
         }
 
+        if let collatorName = confirmationViewModel.collatorName {
+            collatorView.subtitle = collatorName
+            let iconSize = 2.0 * collatorView.iconRadius
+            collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
+                R.color.colorWhite()!,
+                size: CGSize(width: iconSize, height: iconSize),
+                contentScale: UIScreen.main.scale
+            )
+            collatorView.isHidden = false
+        } else {
+            collatorView.isHidden = true
+        }
+
         let iconSize = 2.0 * accountView.iconRadius
         accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
-            R.color.colorWhite()!,
+            R.color.colorWhite() ?? .white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )
@@ -74,7 +95,7 @@ final class StakingBMConfirmationViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
@@ -98,6 +119,7 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
+        collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -106,7 +128,7 @@ final class StakingBMConfirmationViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         setNeedsLayout()
     }
@@ -118,28 +140,35 @@ final class StakingBMConfirmationViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
+        stackView.addArrangedSubview(collatorView)
+        collatorView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
+
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
         }
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
 
-        stackView.setCustomSpacing(16.0, after: accountView)
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        stackView.setCustomSpacing(16.0, after: amountView)
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
         stackView.addArrangedSubview(hintView)
         hintView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

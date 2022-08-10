@@ -6,6 +6,7 @@ struct AnalyticsRewardsViewModel: AnalyticsBaseViewModel, Equatable {
     let selectedPeriod: AnalyticsPeriod
     let sections: [AnalyticsRewardSection]
     let emptyListDescription: String
+    let hasPendingRewards: Bool
 }
 
 extension AnalyticsRewardsViewModel {

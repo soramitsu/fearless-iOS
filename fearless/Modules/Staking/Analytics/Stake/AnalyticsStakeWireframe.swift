@@ -4,11 +4,13 @@ final class AnalyticsStakeWireframe: AnalyticsStakeWireframeProtocol {
     func showRewardDetails(
         _ rewardModel: AnalyticsRewardDetailsModel,
         from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
     ) {
         guard let rewardDetailsView = AnalyticsRewardDetailsViewFactory.createView(
             rewardModel: rewardModel,
-            wallet: wallet
+            wallet: wallet,
+            chainAsset: chainAsset
         )
         else { return }
 

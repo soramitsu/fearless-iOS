@@ -72,8 +72,14 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
             senderAddress: address,
             senderIcon: icon,
             senderName: controller.name,
+            collatorName: nil,
+            collatorIcon: nil,
             amount: amount,
             hints: hints
         )
+    }
+
+    func buildBondingDurationViewModel(viewModelState _: StakingUnbondConfirmViewModelState) -> LocalizableResource<TitleWithSubtitleViewModel>? {
+        nil
     }
 }

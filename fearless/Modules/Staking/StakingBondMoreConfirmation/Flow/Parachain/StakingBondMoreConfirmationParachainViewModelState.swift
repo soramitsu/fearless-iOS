@@ -7,7 +7,6 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
     var balance: Decimal?
     var fee: Decimal?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let candidate: AccountId
     let amount: Decimal
     private var priceData: PriceData?
     private let chainAsset: ChainAsset
@@ -18,8 +17,39 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
     }
 
+    let candidate: ParachainStakingCandidateInfo
+
+    init(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        amount: Decimal,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        candidate: ParachainStakingCandidateInfo
+    ) {
+        self.chainAsset = chainAsset
+        self.wallet = wallet
+        self.amount = amount
+        self.dataValidatingFactory = dataValidatingFactory
+        self.candidate = candidate
+    }
+
+    func validators(using locale: Locale) -> [DataValidating] {
+        [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.stateListener?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            )
+        ]
+    }
+
     private var isCollator: Bool {
-        candidate == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        candidate.owner == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
@@ -39,7 +69,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
                 newBuilder = try newBuilder.adding(call: call)
             } else {
                 let call = strongSelf.callFactory.delegatorBondMore(
-                    candidate: strongSelf.candidate,
+                    candidate: strongSelf.candidate.owner,
                     amount: amount
                 )
                 newBuilder = try newBuilder.adding(call: call)
@@ -60,44 +90,15 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
             let call = callFactory.candidateBondMore(amount: amount)
             identifier = call.callName
         } else {
-            let call = callFactory.delegatorBondMore(candidate: candidate, amount: amount)
+            let call = callFactory.delegatorBondMore(candidate: candidate.owner, amount: amount)
             identifier = call.callName
         }
 
         return identifier
     }
 
-    init(
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        amount: Decimal,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: AccountId
-    ) {
-        self.chainAsset = chainAsset
-        self.wallet = wallet
-        self.amount = amount
-        self.dataValidatingFactory = dataValidatingFactory
-        self.candidate = candidate
-    }
-
     func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {
         self.stateListener = stateListener
-    }
-
-    func validators(using locale: Locale) -> [DataValidating] {
-        [
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.stateListener?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: amount,
-                locale: locale
-            )
-        ]
     }
 }
 
