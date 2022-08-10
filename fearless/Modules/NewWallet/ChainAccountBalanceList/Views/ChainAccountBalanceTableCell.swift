@@ -133,6 +133,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
         guard viewModel.assetContainsChainAssets.count > 1 else {
+            chainIconsView.clear()
             return
         }
 

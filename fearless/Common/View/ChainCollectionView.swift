@@ -42,7 +42,7 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
         layoutSubviews()
     }
 
-    private func clear() {
+    func clear() {
         containerView.subviews.forEach { subview in
             if let imageView = subview as? UIImageView {
                 imageView.kf.cancelDownloadTask()
