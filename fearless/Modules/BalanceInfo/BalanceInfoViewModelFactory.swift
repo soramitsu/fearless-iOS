@@ -133,7 +133,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
         let dayChangePercent = dayChange.percentString(locale: locale) ?? ""
 
-        var dayChangeValue: String = balanceTokenFormatterValue.stringFromDecimal(dayChangeValue) ?? ""
+        var dayChangeValue: String = balanceTokenFormatterValue.stringFromDecimal(abs(dayChangeValue)) ?? ""
         dayChangeValue = "(\(dayChangeValue))"
         let priceWithChangeString = [dayChangePercent, dayChangeValue].joined(separator: " ")
         let priceWithChangeAttributed = NSMutableAttributedString(string: priceWithChangeString)

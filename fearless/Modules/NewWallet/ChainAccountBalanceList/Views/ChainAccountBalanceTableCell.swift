@@ -51,7 +51,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     }()
 
     let chainInfoView = UIView()
-
     let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var balanceView: HorizontalKeyValueView = {
@@ -73,6 +72,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         return view
     }()
 
+    private var chainInfoContainerView = UIView()
+    private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
     // MARK: - Lifecycle
@@ -94,8 +95,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
         assetIconImageView.kf.cancelDownloadTask()
 
-        chainOptionsView.stackView.arrangedSubviews.forEach { subview in
-            chainOptionsView.stackView.removeArrangedSubview(subview)
+        chainOptionsView.arrangedSubviews.forEach { subview in
+            chainOptionsView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
     }
@@ -119,15 +120,31 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
                 let view = ChainOptionsView()
                 view.bind(to: option)
 
-                chainOptionsView.stackView.addArrangedSubview(view)
+                chainOptionsView.addArrangedSubview(view)
             }
         }
 
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
+        bindChainIcons(viewModel: viewModel)
     }
 
     // MARK: - Private methods
+
+    private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
+        guard viewModel.assetContainsChainAssets.count > 1 else {
+            return
+        }
+
+        let chainIcons = viewModel.assetContainsChainAssets.map {
+            $0.chain.icon.map { RemoteImageViewModel(url: $0) }
+        }
+        let chainIconsViewModel = ChainCollectionViewModel(
+            maxImagesCount: 3,
+            chainImages: chainIcons
+        )
+        chainIconsView.bind(viewModel: chainIconsViewModel)
+    }
 
     private func configure() {
         leftMenuButtons = createLeftButtons()
@@ -191,8 +208,12 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.bottom.equalTo(separatorView.snp.bottom)
         }
 
-        contentStackView.addArrangedSubview(chainInfoView)
+        contentStackView.addArrangedSubview(chainInfoContainerView)
+        chainInfoContainerView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+        }
         chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
         contentStackView.addArrangedSubview(balanceView)
         balanceView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         balanceView.snp.makeConstraints { make in
@@ -205,23 +226,21 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.trailing.equalToSuperview()
         }
 
-        chainInfoView.addSubview(chainNameLabel)
+        chainInfoContainerView.addSubview(chainNameLabel)
         chainNameLabel.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
         }
-
-        chainInfoView.addSubview(chainOptionsView)
+        chainInfoContainerView.addSubview(chainOptionsView)
         chainOptionsView.snp.makeConstraints { make in
-            make.trailing.greaterThanOrEqualToSuperview()
+            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.bigOffset)
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.defaultOffset)
         }
-
-        chainOptionsView.stackView.snp.makeConstraints { make in
-            make.height.equalToSuperview()
+        chainInfoContainerView.addSubview(chainIconsView)
+        chainIconsView.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(chainOptionsView.snp.trailing).offset(UIConstants.bigOffset)
+            make.top.bottom.trailing.equalToSuperview()
+            make.width.equalTo(90).priority(.low)
         }
-
-        chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     }
 }
 
@@ -236,11 +255,10 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
         let chainName = viewModel.assetName?.uppercased()
-        let chainSymbol = viewModel.chainAsset.asset.name.uppercased() + "+\(viewModel.assetContainsChainAssets.count)"
+        let chainSymbol = viewModel.chainAsset.asset.name.uppercased()
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()
-
         if viewModel.isColdBoot {
             startLoading()
             return

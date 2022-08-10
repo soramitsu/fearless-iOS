@@ -85,6 +85,7 @@
 		07F2B75128A26AD200280C38 /* ChainAssetListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B74828A26AD200280C38 /* ChainAssetListViewController.swift */; };
 		07F2B75228A26AD200280C38 /* ChainAssetListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B74928A26AD200280C38 /* ChainAssetListPresenter.swift */; };
 		07F2B75328A26AD200280C38 /* ChainAssetListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B74A28A26AD200280C38 /* ChainAssetListInteractor.swift */; };
+		07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
 		0A4820F04EC9DA9DD515EC3A /* MainNftContainerRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1CA1EF5BF1151E0DFB298C /* MainNftContainerRouter.swift */; };
@@ -2338,6 +2339,7 @@
 		07F2B74928A26AD200280C38 /* ChainAssetListPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListPresenter.swift; sourceTree = "<group>"; };
 		07F2B74A28A26AD200280C38 /* ChainAssetListInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListInteractor.swift; sourceTree = "<group>"; };
 		07F2B75428A35B4B00280C38 /* AssetChains.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetChains.swift; sourceTree = "<group>"; };
+		07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainCollectionView.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
 		0892AD886F2BE499C075C701 /* MainNftContainerProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = MainNftContainerProtocols.swift; sourceTree = "<group>"; };
 		08EB1FC5907B5165836318C4 /* AnalyticsValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsTests.swift; sourceTree = "<group>"; };
@@ -5214,7 +5216,6 @@
 			children = (
 				5C5FA2792ED844447E5F4AB2 /* MainNftContainerTests.swift */,
 			);
-			name = MainNftContainer;
 			path = MainNftContainer;
 			sourceTree = "<group>";
 		};
@@ -5254,7 +5255,6 @@
 				0BCBF6D6D48704B27B2DBB79 /* MainNftContainerViewLayout.swift */,
 				B5E69C4F66805399A3DB4ED8 /* MainNftContainerAssembly.swift */,
 			);
-			name = MainNftContainer;
 			path = MainNftContainer;
 			sourceTree = "<group>";
 		};
@@ -7395,6 +7395,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				07F2B75628A3A4B800280C38 /* ChainCollectionView.swift */,
 				07DE95D128A20FF100E9C2CB /* FWSegmentedControl.swift */,
 				07DFA455289B78E10035A8AB /* CopyableLabelView.swift */,
 				07DE95CD28A16C7C00E9C2CB /* SearchTextField.swift */,
@@ -11761,7 +11762,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -11798,7 +11799,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -11907,6 +11908,7 @@
 				8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */,
 				846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */,
 				8423B0E0251A759000B8687C /* Chain.swift in Sources */,
+				07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */,
 				8473D40D2657E9DC00B394B2 /* MultiSigner.swift in Sources */,
 				FA17B4B527E858CB006E0735 /* JsonLoadingFailedAlertConfig.swift in Sources */,
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
