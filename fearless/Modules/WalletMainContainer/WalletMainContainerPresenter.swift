@@ -4,10 +4,10 @@ import SoraFoundation
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
+    weak var assetListModuleInput: ChainAssetListModuleInput?
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
-    private let assetListModuleInput: ChainAssetListModuleInput
 
     private var selectedMetaAccount: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
@@ -23,14 +23,12 @@ final class WalletMainContainerPresenter {
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
-        assetListModuleInput: ChainAssetListModuleInput,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
-        self.assetListModuleInput = assetListModuleInput
         self.localizationManager = localizationManager
     }
 
@@ -65,7 +63,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSearch() {
-        router.showSearch(from: view)
+//        router.showSearch(from: view)
     }
 
     func didTapSelectNetwork() {
@@ -86,10 +84,10 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         selectedChain = chain
         provideViewModel()
         guard let chainId = chain?.chainId else {
-            assetListModuleInput.updateChainAssets(using: [], sorts: [])
+            assetListModuleInput?.updateChainAssets(using: [], sorts: [])
             return
         }
-        assetListModuleInput.updateChainAssets(using: [.chainId(chainId)], sorts: [])
+        assetListModuleInput?.updateChainAssets(using: [.chainId(chainId)], sorts: [])
     }
 
     func didReceiveError(_ error: Error) {
@@ -127,9 +125,33 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
         guard let chainId = chain?.chainId else {
-            assetListModuleInput.updateChainAssets(using: [], sorts: [])
+            assetListModuleInput?.updateChainAssets(using: [], sorts: [])
             return
         }
-        assetListModuleInput.updateChainAssets(using: [.chainId(chainId)], sorts: [])
+        assetListModuleInput?.updateChainAssets(using: [.chainId(chainId)], sorts: [])
+    }
+}
+
+extension WalletMainContainerPresenter: ChainAssetListModuleOutput {
+    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
+        switch actionType {
+        case .send:
+            router.showSendFlow(
+                from: view,
+                chainAsset: viewModel.chainAsset,
+                selectedMetaAccount: selectedMetaAccount,
+                transferFinishBlock: nil
+            )
+        case .receive:
+            router.showReceiveFlow(
+                from: view,
+                chainAsset: viewModel.chainAsset,
+                selectedMetaAccount: selectedMetaAccount
+            )
+        case .teleport:
+            break
+        case .hide:
+            break
+        }
     }
 }

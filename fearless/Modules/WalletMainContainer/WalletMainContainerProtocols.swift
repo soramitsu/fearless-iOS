@@ -42,6 +42,18 @@ protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
     )
     func showCreateNewWallet(from view: WalletMainContainerViewInput?)
     func showImportWallet(from view: WalletMainContainerViewInput?)
+    func showSendFlow(
+        from view: WalletMainContainerViewInput?,
+        chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
+    )
+
+    func showReceiveFlow(
+        from view: WalletMainContainerViewInput?,
+        chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel
+    )
 }
 
 protocol WalletMainContainerModuleInput: AnyObject {}

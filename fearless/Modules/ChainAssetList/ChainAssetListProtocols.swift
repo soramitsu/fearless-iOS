@@ -7,6 +7,7 @@ protocol ChainAssetListViewInput: ControllerBackedProtocol {
 protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
+    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -37,4 +38,6 @@ protocol ChainAssetListModuleInput: AnyObject {
     )
 }
 
-protocol ChainAssetListModuleOutput: AnyObject {}
+protocol ChainAssetListModuleOutput: AnyObject {
+    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
+}

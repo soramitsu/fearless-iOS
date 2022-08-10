@@ -343,9 +343,10 @@ extension ChainAccountBalanceTableCell {
 }
 
 class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
-    init(frame: CGRect, type: SwipableCellButtonType) {
+    init(type: SwipableCellButtonType) {
         self.type = type
-        super.init(frame: frame)
+        super.init(frame: .zero)
+        tag = type.rawValue
     }
 
     @available(*, unavailable)
@@ -358,29 +359,33 @@ class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
 
 extension VerticalContentButton {
     static func createSendButton() -> SwipeCellButton {
-        let button = SwipeCellButton(frame: .zero, type: .send)
+        let button = SwipeCellButton(type: .send)
         button.setImage(R.image.iconSwipeSend(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         button.setTitle("Send", for: .normal)
         return button
     }
 
     static func createReceiveButton() -> SwipeCellButton {
-        let button = SwipeCellButton(frame: .zero, type: .send)
+        let button = SwipeCellButton(type: .receive)
         button.setImage(R.image.iconSwipeReceive(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         button.setTitle("Receive", for: .normal)
         return button
     }
 
     static func createTeleportButton() -> SwipeCellButton {
-        let button = SwipeCellButton(frame: .zero, type: .send)
+        let button = SwipeCellButton(type: .teleport)
         button.setImage(R.image.iconSwipeTeleport(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         button.setTitle("Teleport", for: .normal)
         return button
     }
 
     static func createHideButton() -> SwipeCellButton {
-        let button = SwipeCellButton(frame: .zero, type: .send)
+        let button = SwipeCellButton(type: .hide)
         button.setImage(R.image.iconSwipeHide(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
         button.setTitle("Hide", for: .normal)
         return button
     }

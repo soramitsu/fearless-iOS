@@ -12,6 +12,7 @@ final class ChainAssetListPresenter {
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
+    private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private let wallet: MetaAccountModel
@@ -24,12 +25,14 @@ final class ChainAssetListPresenter {
     // MARK: - Constructors
 
     init(
+        moduleOutput: ChainAssetListModuleOutput?,
         interactor: ChainAssetListInteractorInput,
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
+        self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -76,6 +79,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 self?.router.showAppstoreUpdatePage()
             }
         }
+    }
+
+    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
+        moduleOutput?.didTapAction(actionType: actionType, viewModel: viewModel)
     }
 }
 
