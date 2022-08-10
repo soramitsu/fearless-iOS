@@ -7,12 +7,12 @@ struct ChainCollectionViewModel {
 }
 
 final class ChainCollectionView: UIView, ShimmeredProtocol {
-    private lazy var containerStack: UIStackView = {
-        let view = UIStackView()
-        view.axis = .horizontal
-        view.distribution = .fillEqually
-        return view
-    }()
+    enum Constants {
+        static let elementSize: CGFloat = 16
+        static let elementsSpacing: CGFloat = 2
+    }
+
+    private var containerView = UIView()
 
     private var viewModel: ChainCollectionViewModel?
     private var imageViews: [UIImageView] = []
@@ -35,80 +35,83 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        clear()
         setupImageViews()
-    }
-
-    func prepareForReuse() {
-        clear()
-    }
-
-    func startShimmeringAnimation() {
-        imageViews.forEach { imageView in
-            imageView.startShimmeringAnimation()
-        }
-    }
-
-    func stopShimmeringAnimation() {
-        imageViews.forEach { imageView in
-            imageView.stopShimmeringAnimation()
-        }
     }
 
     func bind(viewModel: ChainCollectionViewModel) {
-        clear()
         self.viewModel = viewModel
-        setupImageViews()
+        layoutSubviews()
     }
 
     private func clear() {
         imageViews = []
-        containerStack.arrangedSubviews.forEach { subview in
-            containerStack.removeArrangedSubview(subview)
+        containerView.subviews.forEach { subview in
+            if let imageView = subview as? UIImageView {
+                imageView.kf.cancelDownloadTask()
+            }
+            subview.removeFromSuperview()
         }
     }
 
     private func setupImageViews() {
+        clear()
         guard let viewModel = viewModel else {
             return
         }
         viewModel.chainImages.forEach { [weak self] imageViewModel in
             let imageView = UIImageView()
-            imageView.snp.makeConstraints { make in
-                make.size.equalTo(16)
-            }
             imageView.contentMode = .scaleAspectFit
-//            imageView.startShimmeringAnimation()
             imageViewModel?.loadAssetChainsIcon(on: imageView, animated: false)
             self?.imageViews.append(imageView)
         }
-        let availableStackSubviewsCount = min(Int(frame.width / 16), viewModel.maxImagesCount)
+        let availableStackSubviewsCount = min(
+            Int(frame.width / (Constants.elementSize + Constants.elementsSpacing)),
+            viewModel.maxImagesCount
+        )
         var availableImageViews = imageViews
         if availableStackSubviewsCount < viewModel.chainImages.count {
 //            We should save place for label
-            let availableImageViewsCount = Int(frame.width / 16) - 1
+            let availableImageViewsCount = Int(
+                frame.width / (Constants.elementSize + Constants.elementsSpacing)
+            ) - 1
             let prefix: Int = min(availableImageViewsCount, viewModel.maxImagesCount)
             availableImageViews = Array(imageViews.prefix(prefix > 0 ? prefix : 0))
         }
-        availableImageViews.forEach { imageView in
-            containerStack.addArrangedSubview(imageView)
-        }
-        if availableStackSubviewsCount < viewModel.chainImages.count {
+        if availableImageViews.count < imageViews.count {
+            moreLabel.frame = CGRect(
+                x: frame.width - Constants.elementSize,
+                y: 0,
+                width: Constants.elementSize,
+                height: Constants.elementSize
+            )
             moreLabel.text = "+\(viewModel.chainImages.count - availableStackSubviewsCount)"
-            containerStack.addArrangedSubview(moreLabel)
+            containerView.addSubview(moreLabel)
+        }
+        availableImageViews.forEach { imageView in
+            let xPosition = frame.width - CGFloat(containerView.subviews.count + 1) * (Constants.elementSize + Constants.elementsSpacing)
+            imageView.frame = CGRect(
+                x: xPosition,
+                y: 0,
+                width: Constants.elementSize,
+                height: Constants.elementSize
+            )
+            containerView.addSubview(imageView)
         }
     }
 
     private func setupLayout() {
-        addSubview(containerStack)
-        containerStack.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
+        addSubview(containerView)
+        containerView.frame = frame
     }
 }
 
 extension ImageViewModelProtocol {
     func loadAssetChainsIcon(on imageView: UIImageView, animated _: Bool) {
-        loadImage(on: imageView, targetSize: CGSize(width: 16.0, height: 16.0), animated: true, cornerRadius: 0)
+        loadImage(
+            on: imageView,
+            targetSize: CGSize(width: 16.0, height: 16.0),
+            animated: true,
+            cornerRadius: 0
+        )
     }
 }
