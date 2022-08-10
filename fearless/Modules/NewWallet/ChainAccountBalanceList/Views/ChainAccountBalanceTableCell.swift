@@ -121,18 +121,6 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             }
         }
 
-        let model = ChainCollectionViewModel(
-            maxImagesCount: 3,
-            chainImages: [
-                viewModel.imageViewModel,
-                viewModel.imageViewModel,
-                viewModel.imageViewModel,
-                viewModel.imageViewModel,
-                viewModel.imageViewModel
-            ]
-        )
-        chainIconsView.bind(viewModel: model)
-
         setDeactivated(!viewModel.chain.isSupported)
         controlSkeleton(for: viewModel)
     }

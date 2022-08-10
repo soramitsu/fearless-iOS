@@ -15,7 +15,6 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
     private var containerView = UIView()
 
     private var viewModel: ChainCollectionViewModel?
-    private var imageViews: [UIImageView] = []
     private let moreLabel: UILabel = {
         let label = UILabel()
         label.font = .capsTitle
@@ -44,7 +43,6 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
     }
 
     private func clear() {
-        imageViews = []
         containerView.subviews.forEach { subview in
             if let imageView = subview as? UIImageView {
                 imageView.kf.cancelDownloadTask()
@@ -58,11 +56,12 @@ final class ChainCollectionView: UIView, ShimmeredProtocol {
         guard let viewModel = viewModel else {
             return
         }
-        viewModel.chainImages.forEach { [weak self] imageViewModel in
+        var imageViews: [UIImageView] = []
+        viewModel.chainImages.forEach { imageViewModel in
             let imageView = UIImageView()
             imageView.contentMode = .scaleAspectFit
             imageViewModel?.loadAssetChainsIcon(on: imageView, animated: false)
-            self?.imageViews.append(imageView)
+            imageViews.append(imageView)
         }
         let availableStackSubviewsCount = min(
             Int(frame.width / (Constants.elementSize + Constants.elementsSpacing)),
