@@ -178,18 +178,7 @@ private extension ChainAssetListViewModelFactory {
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfo = accountInfos[key] ?? nil
         }
-        let balance = getBalanceString(
-            for: chainAsset,
-            accountInfo: accountInfo,
-            locale: locale
-        )
-        let totalAmountString = getFiatBalanceString(
-            for: chainAsset,
-            accountInfo: accountInfo,
-            priceData: priceData,
-            locale: locale,
-            currency: currency
-        )
+
         let priceAttributedString = getPriceAttributedString(
             priceData: priceData,
             locale: locale,
@@ -207,6 +196,22 @@ private extension ChainAssetListViewModelFactory {
             $0.asset.name == chainAsset.asset.name
         }
 
+        let totalAssetBalance = getBalanceString(
+            for: containsChainAssets,
+            accountInfos: accountInfos,
+            locale: locale,
+            selectedMetaAccount: selectedMetaAccount
+        )
+
+        let totalFiatBalance = getFiatBalanceString(
+            for: containsChainAssets,
+            accountInfos: accountInfos,
+            priceData: priceData,
+            locale: locale,
+            currency: currency,
+            selectedMetaAccount: selectedMetaAccount
+        )
+
         if containsChainAssets.count > 1 {
             print()
         }
@@ -218,7 +223,7 @@ private extension ChainAssetListViewModelFactory {
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: icon,
             balanceString: .init(
-                value: .text(balance),
+                value: .text(totalAssetBalance),
                 isUpdated: priceDataUpdated
             ),
             priceAttributedString: .init(
@@ -226,7 +231,7 @@ private extension ChainAssetListViewModelFactory {
                 isUpdated: priceDataUpdated
             ),
             totalAmountString: .init(
-                value: .text(totalAmountString),
+                value: .text(totalFiatBalance),
                 isUpdated: priceDataUpdated
             ),
             options: options,
@@ -244,13 +249,22 @@ private extension ChainAssetListViewModelFactory {
     }
 
     func getBalanceString(
-        for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?,
-        locale: Locale
+        for chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        locale: Locale,
+        selectedMetaAccount: MetaAccountModel
     ) -> String? {
-        let balance = getBalance(for: chainAsset, accountInfo: accountInfo)
-        let digits = balance > 0 ? 4 : 0
-        return balance.toString(locale: locale, digits: digits)
+        let totalAssetBalance = chainAssets.compactMap { chainAsset -> Decimal in
+            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
+                return getBalance(for: chainAsset, accountInfo: accountInfo)
+            }
+
+            return Decimal.zero
+        }.reduce(0, +)
+
+        let digits = totalAssetBalance > 0 ? 4 : 0
+        return totalAssetBalance.toString(locale: locale, digits: digits)
     }
 
     func getBalance(
@@ -272,21 +286,28 @@ private extension ChainAssetListViewModelFactory {
     }
 
     func getFiatBalanceString(
-        for chainAsset: ChainAsset,
-        accountInfo: AccountInfo?,
+        for chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
         priceData: PriceData?,
         locale: Locale,
-        currency: Currency
+        currency: Currency,
+        selectedMetaAccount: MetaAccountModel
     ) -> String? {
-        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
+        let totalFiatBalance = chainAssets.compactMap { chainAsset -> Decimal in
+            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
+                return getFiatBalance(
+                    for: chainAsset,
+                    accountInfo: accountInfo,
+                    priceData: priceData
+                )
+            }
 
-        return balanceTokenFormatterValue.stringFromDecimal(
-            getFiatBalance(
-                for: chainAsset,
-                accountInfo: accountInfo,
-                priceData: priceData
-            )
-        )
+            return Decimal.zero
+        }.reduce(0, +)
+
+        let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
+        return balanceTokenFormatterValue.stringFromDecimal(totalFiatBalance)
     }
 
     func getFiatBalance(

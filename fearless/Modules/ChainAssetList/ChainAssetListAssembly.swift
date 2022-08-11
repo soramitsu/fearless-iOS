@@ -3,7 +3,10 @@ import SoraFoundation
 import RobinHood
 
 final class ChainAssetListAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        delegate: ChainAssetListModuleOutput?
+    ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -56,6 +59,7 @@ final class ChainAssetListAssembly {
         )
 
         let presenter = ChainAssetListPresenter(
+            moduleOutput: delegate,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,

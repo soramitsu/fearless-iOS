@@ -87,7 +87,18 @@ extension ChainAssetListViewController: UITableViewDataSource {
         guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
             return UITableViewCell()
         }
+        cell.delegate = self
 
         return cell
+    }
+}
+
+extension ChainAssetListViewController: SwipableTableViewCellDelegate {
+    func swipeCellDidTap(on actionType: SwipableCellButtonType, with indexPath: IndexPath?) {
+        guard let indexPath = indexPath else {
+            return
+        }
+        let viewModelForAction = sections[indexPath.section].cellViewModels[indexPath.row]
+        output.didTapAction(actionType: actionType, viewModel: viewModelForAction)
     }
 }
