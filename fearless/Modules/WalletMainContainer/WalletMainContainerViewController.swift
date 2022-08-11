@@ -9,24 +9,18 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
     private let output: WalletMainContainerViewOutput
 
     private let balanceInfoViewController: UIViewController
-    private let assetListViewController: UIViewController
-    private let nftViewController: UIViewController
-    private lazy var pageControllers: [UIViewController] = {
-        [assetListViewController, nftViewController]
-    }()
+    private let pageControllers: [UIViewController]
 
     // MARK: - Constructor
 
     init(
         balanceInfoViewController: UIViewController,
-        assetListViewController: UIViewController,
-        nftViewController: UIViewController,
+        pageControllers: [UIViewController],
         output: WalletMainContainerViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.balanceInfoViewController = balanceInfoViewController
-        self.assetListViewController = assetListViewController
-        self.nftViewController = nftViewController
+        self.pageControllers = pageControllers
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager

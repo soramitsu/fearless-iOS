@@ -746,3 +746,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "wallet.options.export" = "Export Wallet";
 "wallet.options.delete" = "Delete Wallet";
 "wallet.options.title" = "Wallet option";
+"hidden.assets" = "Hidden assets";
+"nft.stub.title" = "Sumimasen!";
+"nft.stub.text" = "NFTs are going to be here soon";

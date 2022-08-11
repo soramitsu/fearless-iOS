@@ -3,6 +3,14 @@ import UIKit
 import SoraUI
 
 final class SelectedNetworkButton: UIButton {
+    private enum Constants {
+        static let verticvalInset: CGFloat = 2
+        static let horizontalInset: CGFloat = 18
+        static let imageVerticalPosition: CGFloat = 3
+        static let imageWidth: CGFloat = 12
+        static let imageHeight: CGFloat = 6
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setDot()
@@ -27,9 +35,9 @@ final class SelectedNetworkButton: UIButton {
         imageAttachment.image = R.image.dropTriangle()
         imageAttachment.bounds = CGRect(
             x: 0,
-            y: 3,
-            width: 12,
-            height: 6
+            y: Constants.imageVerticalPosition,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
         )
 
         let imageString = NSAttributedString(attachment: imageAttachment)
@@ -42,7 +50,7 @@ final class SelectedNetworkButton: UIButton {
         let rect = super.imageRect(forContentRect: contentRect)
 
         return CGRect(
-            x: rect.minX - 6,
+            x: rect.minX - Constants.imageWidth / 2,
             y: rect.minY,
             width: rect.width,
             height: rect.height
@@ -51,7 +59,12 @@ final class SelectedNetworkButton: UIButton {
 
     private func setup() {
         backgroundColor = R.color.colorWhite8()
-        contentEdgeInsets = UIEdgeInsets(top: 2, left: 18, bottom: 2, right: 18)
+        contentEdgeInsets = UIEdgeInsets(
+            top: Constants.verticvalInset,
+            left: Constants.horizontalInset,
+            bottom: Constants.verticvalInset,
+            right: Constants.horizontalInset
+        )
     }
 
     private func setDot() {

@@ -16,44 +16,42 @@ final class WalletMainContainerViewLayout: UIView {
 
     weak var delegate: WalletMainContainerViewDelegate?
 
-    let backgroundImageView: UIImageView = {
+    private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.image = R.image.backgroundImage()
         return imageView
     }()
 
-    let contentView: UIStackView = {
+    private let contentView: UIStackView = {
         let view = UIFactory.default.createVerticalStackView()
         view.alignment = .center
-//        view.stackView.isLayoutMarginsRelativeArrangement = true
-//        view.stackView.layoutMargins = UIEdgeInsets(top: 0, left: 16.0, bottom: 0.0, right: 16.0)
         return view
     }()
 
     // MARK: - Navigation view properties
 
-    let navigationContainerView = UIView()
+    private let navigationContainerView = UIView()
 
-    let switchWalletButton: UIButton = {
+    private let switchWalletButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconFearlessRounded(), for: .normal)
         return button
     }()
 
-    let walletNameTitle: UILabel = {
+    private let walletNameTitle: UILabel = {
         let label = UILabel()
         label.font = .h4Title
         return label
     }()
 
-    let selectNetworkButton: SelectedNetworkButton = {
+    private let selectNetworkButton: SelectedNetworkButton = {
         let button = SelectedNetworkButton()
         button.titleLabel?.font = .p1Paragraph
         return button
     }()
 
-    let scanQRButton: UIButton = {
+    private let scanQRButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = R.color.colorWhite8()
         button.setImage(R.image.iconScanQr(), for: .normal)
@@ -62,7 +60,7 @@ final class WalletMainContainerViewLayout: UIView {
         return button
     }()
 
-    let searchButton: UIButton = {
+    private let searchButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = R.color.colorWhite8()
         button.setImage(R.image.iconSearchWhite(), for: .normal)
@@ -73,19 +71,19 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - Wallet balance view
 
-    let walletBalanceVStackView = UIFactory.default.createVerticalStackView(spacing: 4)
-    var walletBalanceViewContainer = UIView()
+    private let walletBalanceVStackView = UIFactory.default.createVerticalStackView(spacing: 4)
+    let walletBalanceViewContainer = UIView()
 
     // MARK: - Address label
 
-    let addressCopyableLabel: CopyableLabelView = {
+    private let addressCopyableLabel: CopyableLabelView = {
         let label = CopyableLabelView()
         return label
     }()
 
     // MARK: - FWSegmentedControl
 
-    let segmentedControl: FWSegmentedControl = {
+    private let segmentedControl: FWSegmentedControl = {
         let segment = FWSegmentedControl()
         let items = ["Currencies", "NFTs"]
         segment.setSegmentItems(items)
@@ -94,7 +92,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - UIPageViewController
 
-    let pageViewControllerContainer = UIView()
+    private let pageViewControllerContainer = UIView()
 
     let pageViewController: UIPageViewController = {
         let pageController = UIPageViewController(
@@ -264,8 +262,6 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupListLayout() {
-//        contentView.stackView.setCustomSpacing(16, after: segmentedControl)
-//        contentView.stackView.addArrangedSubview(pageViewControllerContainer)
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in

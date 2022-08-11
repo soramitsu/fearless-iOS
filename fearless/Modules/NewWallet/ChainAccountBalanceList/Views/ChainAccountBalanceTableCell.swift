@@ -132,13 +132,11 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     // MARK: - Private methods
 
     private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
-        guard viewModel.assetContainsChainAssets.count > 1 else {
-            chainIconsView.clear()
-            return
-        }
-
-        let chainIcons = viewModel.assetContainsChainAssets.map {
-            $0.chain.icon.map { RemoteImageViewModel(url: $0) }
+        var chainIcons: [RemoteImageViewModel?] = []
+        if viewModel.assetContainsChainAssets.count > 1 {
+            chainIcons = viewModel.assetContainsChainAssets.map {
+                $0.chain.icon.map { RemoteImageViewModel(url: $0) }
+            }
         }
         let chainIconsViewModel = ChainCollectionViewModel(
             maxImagesCount: 5,

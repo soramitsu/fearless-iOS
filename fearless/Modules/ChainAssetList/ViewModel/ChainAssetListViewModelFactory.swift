@@ -27,26 +27,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated
     ) -> ChainAssetListViewModel {
-        var enabledChainAssets: [ChainAsset] = chainAssets
-        var hiddenChainAssets: [ChainAsset] = []
-
-        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
-            enabledChainAssets = enabledChainAssets
-                .filter {
-                    assetIdsEnabled
-                        .contains(
-                            $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
-                        ) == true
-                }
-            hiddenChainAssets = chainAssets
-                .filter {
-                    assetIdsEnabled
-                        .contains(
-                            $0.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
-                        ) == false
-                }
-        }
-
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
@@ -63,7 +43,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        var activeSectionCellModels: [ChainAccountBalanceCellViewModel] = enabledChainAssets.compactMap { chainAsset in
+        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = chainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -79,46 +59,40 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        var hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = hiddenChainAssets.compactMap { chainAsset in
-            let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
-            let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
+        var activeSectionCellModels: [ChainAccountBalanceCellViewModel] = []
+        var hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = []
 
-            return buildChainAccountBalanceCellViewModel(
-                chainAssets: chainAssets,
-                chainAsset: chainAsset,
-                priceData: priceData,
-                priceDataUpdated: prices.updated,
-                accountInfos: accountInfos,
-                locale: locale,
-                currency: selectedMetaAccount.selectedCurrency,
-                selectedMetaAccount: selectedMetaAccount
-            )
+        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
+            let cellModelsDivide = chainAssetCellModels.divide(predicate: { [assetIdsEnabled] cellModel in
+                assetIdsEnabled.contains { assetId in
+                    assetId == cellModel.chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+                }
+            })
+            activeSectionCellModels = cellModelsDivide.slice
+            hiddenSectionCellModels = cellModelsDivide.remainder
+        } else {
+            activeSectionCellModels = chainAssetCellModels
         }
 
         switch displayType {
         case .chain:
             break
         case .assetChains:
-            var uniqueActiveViewModels: [ChainAccountBalanceCellViewModel] = []
-            for model in activeSectionCellModels {
-                if !uniqueActiveViewModels.contains(where: { $0.chainAsset.asset.name == model.chainAsset.asset.name }) {
-                    uniqueActiveViewModels.append(model)
-                }
-            }
-            activeSectionCellModels = uniqueActiveViewModels
-
-            var uniqueHiddenViewModels: [ChainAccountBalanceCellViewModel] = []
-            for model in hiddenSectionCellModels {
-                if !uniqueHiddenViewModels.contains(where: { $0.chainAsset.asset.name == model.chainAsset.asset.name }) {
-                    uniqueHiddenViewModels.append(model)
-                }
-            }
-            hiddenSectionCellModels = uniqueHiddenViewModels
+            activeSectionCellModels = activeSectionCellModels.uniq(predicate: { $0.chainAsset.asset.name })
+            hiddenSectionCellModels = hiddenSectionCellModels.uniq(predicate: { $0.chainAsset.asset.name })
         }
 
-        let activeSection = ChainAssetListTableSection(cellViewModels: activeSectionCellModels, title: nil, expandable: false)
+        let activeSection = ChainAssetListTableSection(
+            cellViewModels: activeSectionCellModels,
+            title: nil,
+            expandable: false
+        )
         // Lokalise
-        let hiddenSection = ChainAssetListTableSection(cellViewModels: hiddenSectionCellModels, title: "Hidden Assets", expandable: true)
+        let hiddenSection = ChainAssetListTableSection(
+            cellViewModels: hiddenSectionCellModels,
+            title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
+            expandable: true
+        )
 
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
             chainAssets.contains { chainAsset in
@@ -211,10 +185,6 @@ private extension ChainAssetListViewModelFactory {
             currency: currency,
             selectedMetaAccount: selectedMetaAccount
         )
-
-        if containsChainAssets.count > 1 {
-            print()
-        }
 
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: containsChainAssets,
@@ -337,7 +307,7 @@ private extension ChainAssetListViewModelFactory {
         return totalBalanceDecimal
     }
 
-    private func getPriceAttributedString(
+    func getPriceAttributedString(
         priceData: PriceData?,
         locale: Locale,
         currency: Currency

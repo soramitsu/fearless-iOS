@@ -63,7 +63,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSearch() {
-//        router.showSearch(from: view)
+        router.showSearch(from: view)
     }
 
     func didTapSelectNetwork() {

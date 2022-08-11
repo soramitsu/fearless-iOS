@@ -46,8 +46,7 @@ final class WalletMainContainerAssembly {
 
         let view = WalletMainContainerViewController(
             balanceInfoViewController: balanceInfoModule.view.controller,
-            assetListViewController: assetListModule.view.controller,
-            nftViewController: nftModule.view.controller,
+            pageControllers: [assetListModule.view.controller, nftModule.view.controller],
             output: presenter,
             localizationManager: localizationManager
         )
