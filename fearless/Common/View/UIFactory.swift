@@ -551,13 +551,13 @@ final class UIFactory: UIFactoryProtocol {
         return button
     }
 
-    func createChainOptionsView() -> ScrollableContainerView {
-        let containerView = ScrollableContainerView()
-        containerView.stackView.axis = .horizontal
-        containerView.stackView.distribution = .fillProportionally
-        containerView.stackView.alignment = .fill
-        containerView.stackView.spacing = UIConstants.defaultOffset
-        return containerView
+    func createChainOptionsView() -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillProportionally
+        stackView.alignment = .fill
+        stackView.spacing = UIConstants.defaultOffset
+        return stackView
     }
 
     func createIndicatorView() -> RoundedView {
