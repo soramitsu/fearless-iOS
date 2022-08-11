@@ -1,13 +1,18 @@
 import Foundation
+import RobinHood
 
 typealias ChainAssetKey = String
 
-struct ChainAsset: Equatable, Hashable {
+struct ChainAsset: Equatable, Hashable, Identifiable {
     let chain: ChainModel
     let asset: AssetModel
 
     var chainAssetType: ChainAssetType {
         chain.assets.first(where: { $0.assetId == asset.id })?.type ?? .normal
+    }
+
+    var identifier: String {
+        chain.identifier + asset.identifier
     }
 
     var currencyId: CurrencyId? {
@@ -93,6 +98,11 @@ extension ChainAsset {
 
     var debugName: String {
         "\(chain.name)-\(asset.name)"
+	}
+
+    var hasStaking: Bool {
+        let model: ChainAssetModel? = chain.assets.first { $0.asset.id == asset.id }
+        return model?.staking != nil
     }
 }
 
