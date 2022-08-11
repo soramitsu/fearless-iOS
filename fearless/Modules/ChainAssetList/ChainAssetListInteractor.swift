@@ -29,6 +29,9 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
     }
+
+    var filters: [ChainAssetsFetching.Filter] = []
+    var sorts: [ChainAssetsFetching.SortDescriptor] = []
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -42,6 +45,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        self.filters = filters
+        self.sorts = sorts
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts

@@ -44,8 +44,8 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
 
     private enum Sort {
         case price(SortOrder)
-        case balance(SortOrder, [ChainAsset: AccountInfo?])
-        case usdBalance(SortOrder, [ChainAsset: AccountInfo?])
+        case balance(SortOrder, [ChainAssetKey: AccountInfo?])
+        case usdBalance(SortOrder, [ChainAssetKey: AccountInfo?])
         case assetName(SortOrder)
         case chainName(SortOrder)
         case isTest(SortOrder)
@@ -57,6 +57,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
     private let operationQueue: OperationQueue
     private let meta: MetaAccountModel
     private let accountInfoFetching: AccountInfoFetching
+    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
 
     init(
         chainRepository: AnyDataProviderRepository<ChainModel>,
@@ -152,10 +153,9 @@ private extension ChainAssetsFetching {
 
     private func getAccountInfo(
         for chainAssets: [ChainAsset],
-        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+        completionBlock: @escaping ([ChainAssetKey: AccountInfo?]) -> Void
     ) {
         let semaphore = DispatchSemaphore(value: chainAssets.count)
-        var accountInfos: [ChainAsset: AccountInfo?] = [:]
         chainAssets.forEach { [weak self] chainAsset in
             guard let strongSelf = self,
                   let accountId = strongSelf.meta.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
@@ -165,9 +165,9 @@ private extension ChainAssetsFetching {
             strongSelf.accountInfoFetching.fetch(
                 for: chainAsset,
                 accountId: accountId
-            ) { chainAsset, accountInfo in
-                let lock = NSLock()
-                lock.with { accountInfos[chainAsset] = accountInfo }
+            ) { [weak self] chainAsset, accountInfo in
+                guard let strongSelf = self else { return }
+                strongSelf.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
                 semaphore.signal()
             }
         }
@@ -250,7 +250,7 @@ private extension ChainAssetsFetching {
 
     private func convertSorts(
         sortDescriptors: [SortDescriptor],
-        accountInfos: [ChainAsset: AccountInfo?]?
+        accountInfos: [ChainAssetKey: AccountInfo?]?
     ) -> [Sort] {
         sortDescriptors.map { sortDescriptor in
             switch sortDescriptor {
@@ -295,14 +295,18 @@ private extension ChainAssetsFetching {
         }
     }
 
-    func sortByBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAsset: AccountInfo?]) -> [ChainAsset] {
+    func sortByBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAssetKey: AccountInfo?]) -> [ChainAsset] {
         chainAssets.sorted { chainAsset0, chainAsset1 in
             var balance0 = Decimal.zero
             var balance1 = Decimal.zero
-            if let accountInfo0: AccountInfo? = accountInfos[chainAsset0] {
+            guard let accountId0 = self.meta.fetch(for: chainAsset0.chain.accountRequest())?.accountId,
+                  let accountId1 = self.meta.fetch(for: chainAsset0.chain.accountRequest())?.accountId else {
+                return false
+            }
+            if let accountInfo0 = accountInfos[chainAsset0.uniqueKey(accountId: accountId0)] {
                 balance0 = getBalance(for: chainAsset0, accountInfo: accountInfo0)
             }
-            if let accountInfo1 = accountInfos[chainAsset1] {
+            if let accountInfo1: AccountInfo? = accountInfos[chainAsset1.uniqueKey(accountId: accountId1)] {
                 balance1 = getBalance(for: chainAsset1, accountInfo: accountInfo1)
             }
             switch order {
@@ -314,14 +318,18 @@ private extension ChainAssetsFetching {
         }
     }
 
-    func sortByUsdBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAsset: AccountInfo?]) -> [ChainAsset] {
+    func sortByUsdBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAssetKey: AccountInfo?]) -> [ChainAsset] {
         chainAssets.sorted { chainAsset0, chainAsset1 in
             var usdBalance0 = Decimal.zero
             var usdBalance1 = Decimal.zero
-            if let accountInfo0: AccountInfo? = accountInfos[chainAsset0] {
+            guard let accountId0 = self.meta.fetch(for: chainAsset0.chain.accountRequest())?.accountId,
+                  let accountId1 = self.meta.fetch(for: chainAsset0.chain.accountRequest())?.accountId else {
+                return false
+            }
+            if let accountInfo0 = accountInfos[chainAsset0.uniqueKey(accountId: accountId0)] {
                 usdBalance0 = getBalance(for: chainAsset0, accountInfo: accountInfo0)
             }
-            if let accountInfo1 = accountInfos[chainAsset1] {
+            if let accountInfo1 = accountInfos[chainAsset1.uniqueKey(accountId: accountId1)] {
                 usdBalance1 = getBalance(for: chainAsset1, accountInfo: accountInfo1)
             }
             switch order {

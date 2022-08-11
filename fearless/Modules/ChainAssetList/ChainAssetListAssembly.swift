@@ -21,11 +21,12 @@ final class ChainAssetListAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .background
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             accountInfoFetching: accountInfoFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            operationQueue: operationQueue,
             meta: wallet
         )
 
