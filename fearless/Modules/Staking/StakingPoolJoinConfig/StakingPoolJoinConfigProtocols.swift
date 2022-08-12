@@ -1,6 +1,9 @@
 import CommonWallet
 
-typealias StakingPoolJoinConfigModuleCreationResult = (view: StakingPoolJoinConfigViewInput, input: StakingPoolJoinConfigModuleInput)
+typealias StakingPoolJoinConfigModuleCreationResult = (
+    view: StakingPoolJoinConfigViewInput,
+    input: StakingPoolJoinConfigModuleInput
+)
 
 protocol StakingPoolJoinConfigViewInput: ControllerBackedProtocol {
     func didReceiveAccountViewModel(_ accountViewModel: AccountViewModel)
@@ -28,7 +31,14 @@ protocol StakingPoolJoinConfigInteractorOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
 }
 
-protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable {}
+protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable {
+    func presentPoolsList(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        inputAmount: Decimal
+    )
+}
 
 protocol StakingPoolJoinConfigModuleInput: AnyObject {}
 

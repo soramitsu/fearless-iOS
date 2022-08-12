@@ -41,9 +41,13 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
+        rootView.continueButton.addTarget(
+            self,
+            action: #selector(continueButtonClicked),
+            for: .touchUpInside
+        )
 
         navigationController?.setNavigationBarHidden(true, animated: true)
-
         setupBalanceAccessoryView()
     }
 
@@ -57,6 +61,10 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
 
     @objc private func backButtonClicked() {
         output.didTapBackButton()
+    }
+
+    @objc private func continueButtonClicked() {
+        output.didTapContinueButton()
     }
 }
 

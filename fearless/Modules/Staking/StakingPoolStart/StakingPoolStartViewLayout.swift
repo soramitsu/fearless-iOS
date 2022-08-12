@@ -16,6 +16,7 @@ final class StakingPoolStartViewLayout: UIView {
         bar.set(.push)
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorAlmostBlack()
         return bar
     }()
 
@@ -114,6 +115,8 @@ final class StakingPoolStartViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = R.color.colorAlmostBlack()
+
         setupLayout()
     }
 

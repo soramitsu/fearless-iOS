@@ -6,4 +6,5 @@
     sortedImports, \
     sortedSwitchCases, \
     trailingCommas, \
-    wrapMultilineStatementBraces
+    wrapMultilineStatementBraces, \
+    preferKeyPath

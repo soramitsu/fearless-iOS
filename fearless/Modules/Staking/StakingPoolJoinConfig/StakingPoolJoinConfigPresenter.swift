@@ -98,7 +98,16 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapContinueButton() {}
+    func didTapContinueButton() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+
+        router.presentPoolsList(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            inputAmount: inputAmount
+        )
+    }
 
     func didLoad(view: StakingPoolJoinConfigViewInput) {
         self.view = view
