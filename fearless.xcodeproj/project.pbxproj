@@ -1563,6 +1563,7 @@
 		C63CB31E284F790F0071AF26 /* DelegationInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */; };
 		C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */; };
 		C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */; };
+		C65A6596288FEEB400679D65 /* ChainCollectionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6595288FEEB300679D65 /* ChainCollectionView.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
 		C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */; };
 		C65A6594288E5E0500679D65 /* NSLockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6593288E5E0500679D65 /* NSLockExtension.swift */; };
@@ -3826,6 +3827,7 @@
 		C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCell.swift; sourceTree = "<group>"; };
 		C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCellModel.swift; sourceTree = "<group>"; };
 		C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainFlow.swift; sourceTree = "<group>"; };
+		C65A6595288FEEB300679D65 /* ChainCollectionView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainCollectionView.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
 		C65A6593288E5E0500679D65 /* NSLockExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLockExtension.swift; sourceTree = "<group>"; };
