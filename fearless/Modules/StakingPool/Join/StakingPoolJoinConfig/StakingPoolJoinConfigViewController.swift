@@ -49,6 +49,8 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
 
         navigationController?.setNavigationBarHidden(true, animated: true)
         setupBalanceAccessoryView()
+
+        rootView.amountView.textField.delegate = self
     }
 
     // MARK: - Private methods
@@ -80,10 +82,11 @@ extension StakingPoolJoinConfigViewController: StakingPoolJoinConfigViewInput {
     }
 
     func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
-        self.amountInputViewModel = amountInputViewModel
-        amountInputViewModel.observable.remove(observer: self)
-        amountInputViewModel.observable.add(observer: self)
         rootView.amountView.fieldText = amountInputViewModel.displayAmount
+        self.amountInputViewModel = amountInputViewModel
+        self.amountInputViewModel?.observable.remove(observer: self)
+
+        self.amountInputViewModel?.observable.add(observer: self)
     }
 
     func didReceive(locale: Locale) {
@@ -117,5 +120,15 @@ extension StakingPoolJoinConfigViewController: AmountInputViewModelObserver {
 
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
         output.updateAmount(amount)
+    }
+}
+
+extension StakingPoolJoinConfigViewController: UITextFieldDelegate {
+    func textField(
+        _: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }

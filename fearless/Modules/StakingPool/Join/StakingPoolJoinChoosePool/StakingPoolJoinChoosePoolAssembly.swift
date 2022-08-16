@@ -6,15 +6,15 @@ final class StakingPoolJoinChoosePoolAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        inputAmount _: Decimal
+        inputAmount: Decimal
     ) -> StakingPoolJoinChoosePoolModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
-            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
             return nil
         }
 
@@ -43,7 +43,10 @@ final class StakingPoolJoinChoosePoolAssembly {
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            inputAmount: inputAmount,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
 
         let view = StakingPoolJoinChoosePoolViewController(

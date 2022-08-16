@@ -14,6 +14,7 @@ final class StakingPoolJoinConfigPresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     private var inputResult: AmountInputResult?
     private var balance: Decimal?
@@ -21,6 +22,7 @@ final class StakingPoolJoinConfigPresenter {
     private var amountViewModel: AmountInputViewModelProtocol?
     private var fee: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var minJoinBond: Decimal?
 
     // MARK: - Constructors
 
@@ -32,7 +34,8 @@ final class StakingPoolJoinConfigPresenter {
         accountViewModelFactory: AccountViewModelFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
@@ -41,6 +44,7 @@ final class StakingPoolJoinConfigPresenter {
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.logger = logger
+        self.dataValidatingFactory = dataValidatingFactory
         self.localizationManager = localizationManager
     }
 
@@ -86,12 +90,10 @@ final class StakingPoolJoinConfigPresenter {
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
-        provideInputViewModel()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
-        provideInputViewModel()
     }
 
     func didTapBackButton() {
@@ -100,13 +102,32 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
 
     func didTapContinueButton() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        DataValidationRunner(validators: [
+            dataValidatingFactory.canNominate(
+                amount: inputAmount,
+                minimalBalance: minJoinBond,
+                minNominatorBond: minJoinBond,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.interactor.estimateFee()
+            }),
 
-        router.presentPoolsList(
-            from: view,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            inputAmount: inputAmount
-        )
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: inputAmount,
+                locale: selectedLocale
+            )
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.presentPoolsList(
+                from: strongSelf.view,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                inputAmount: inputAmount
+            )
+        }
     }
 
     func didLoad(view: StakingPoolJoinConfigViewInput) {
@@ -169,6 +190,17 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceiveFee.error: \(error)")
         }
+    }
+
+    func didReceiveMinBond(_ minJoinBond: BigUInt?) {
+        guard let minJoinBond = minJoinBond else {
+            return
+        }
+
+        self.minJoinBond = Decimal.fromSubstrateAmount(
+            minJoinBond,
+            precision: Int16(chainAsset.asset.precision)
+        )
     }
 }
 

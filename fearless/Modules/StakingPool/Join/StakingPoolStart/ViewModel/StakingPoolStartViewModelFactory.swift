@@ -7,10 +7,10 @@ enum StakingPoolStartViewModelFactoryError: Error {
 
 protocol StakingPoolStartViewModelFactoryProtocol {
     func buildViewModel(
-        rewardsDelayInDays: Int,
-        apr: Decimal,
-        unstakePeriodInDays: Int,
-        rewardsFreqInDays: Int,
+        rewardsDelay: TimeInterval?,
+        apr: Decimal?,
+        unstakePeriod: TimeInterval?,
+        rewardsFreq: TimeInterval?,
         locale: Locale
     ) -> StakingPoolStartViewModel
 }
@@ -48,21 +48,22 @@ final class StakingPoolStartViewModelFactory {
     }
 
     private func buildRewardsDelayViewModel(
-        rewardsDelayInDays: Int,
+        rewardsDelay: TimeInterval?,
         locale: Locale
-    ) -> DetailsTriangularedAttributedViewModel {
-        let daysStringValue = R.string.localizable.stakingPoolRewardsDelay(
-            format: rewardsDelayInDays,
-            preferredLanguages: locale.rLanguages
-        )
+    ) -> DetailsTriangularedAttributedViewModel? {
+        guard let rewardsDelay = rewardsDelay else {
+            return nil
+        }
+
+        let timeString = rewardsDelay.readableValue(locale: locale)
 
         let title = R.string.localizable.stakingPoolStartEarnRewardTitle(
-            daysStringValue,
+            timeString,
             preferredLanguages: locale.rLanguages
         )
         let nsTitle = title as NSString
 
-        let range = nsTitle.range(of: daysStringValue)
+        let range = nsTitle.range(of: timeString)
 
         let image = R.image.iconChart()!
 
@@ -77,10 +78,14 @@ final class StakingPoolStartViewModelFactory {
     }
 
     private func buildEstimatedRewardViewModel(
-        apr: Decimal,
+        apr: Decimal?,
         locale: Locale
     ) -> DetailsTriangularedAttributedViewModel? {
-        guard let percentString = NumberFormatter.percentPlain.stringFromDecimal(apr) else {
+        guard let apr = apr else {
+            return nil
+        }
+
+        guard let percentString = NumberFormatter.percent.stringFromDecimal(apr) else {
             return nil
         }
 
@@ -104,20 +109,21 @@ final class StakingPoolStartViewModelFactory {
     }
 
     private func buildUnstakeViewModel(
-        unstakePeriod: Int,
+        unstakePeriod: TimeInterval?,
         locale: Locale
-    ) -> DetailsTriangularedAttributedViewModel {
-        let unstakePeriodString = R.string.localizable.stakingPoolUnstakeDelay(
-            format: unstakePeriod,
-            preferredLanguages: locale.rLanguages
-        )
+    ) -> DetailsTriangularedAttributedViewModel? {
+        guard let unstakePeriod = unstakePeriod else {
+            return nil
+        }
+
+        let timeString = unstakePeriod.readableValue(locale: locale)
         let title = R.string.localizable.stakingPoolStartUnstakePeriodText(
-            unstakePeriodString,
+            timeString,
             preferredLanguages: locale.rLanguages
         )
 
         let nsTitle = title as NSString
-        let range = nsTitle.range(of: unstakePeriodString)
+        let range = nsTitle.range(of: timeString)
 
         let attributedTitle = NSMutableAttributedString(string: title)
         attributedTitle.addAttribute(
@@ -132,24 +138,21 @@ final class StakingPoolStartViewModelFactory {
     }
 
     private func buildRewardFreqViewModel(
-        rewardsFreq: Int,
+        rewardsFreq: TimeInterval?,
         locale: Locale
-    ) -> DetailsTriangularedAttributedViewModel {
-        let rewardsFreqString = R.string.localizable.stakingPoolRewardsFreq(
-            format: rewardsFreq,
-            preferredLanguages: locale.rLanguages
-        )
-        let daysString = R.string.localizable.commonDaysFormat(
-            format: rewardsFreq,
-            preferredLanguages: locale.rLanguages
-        )
+    ) -> DetailsTriangularedAttributedViewModel? {
+        guard let rewardsFreq = rewardsFreq else {
+            return nil
+        }
+
+        let timeString = rewardsFreq.readableValue(locale: locale)
         let title = R.string.localizable.stakingPoolStartRewardFreqText(
-            daysString,
+            timeString,
             preferredLanguages: locale.rLanguages
         )
 
         let nsTitle = title as NSString
-        let range = nsTitle.range(of: rewardsFreqString)
+        let range = nsTitle.range(of: timeString)
 
         let attributedTitle = NSMutableAttributedString(string: title)
         attributedTitle.addAttribute(
@@ -166,15 +169,15 @@ final class StakingPoolStartViewModelFactory {
 
 extension StakingPoolStartViewModelFactory: StakingPoolStartViewModelFactoryProtocol {
     func buildViewModel(
-        rewardsDelayInDays: Int,
-        apr: Decimal,
-        unstakePeriodInDays: Int,
-        rewardsFreqInDays: Int,
+        rewardsDelay: TimeInterval?,
+        apr: Decimal?,
+        unstakePeriod: TimeInterval?,
+        rewardsFreq: TimeInterval?,
         locale: Locale
     ) -> StakingPoolStartViewModel {
         let description = buildDescriptionText(locale: locale)
         let delayDetailsViewModel = buildRewardsDelayViewModel(
-            rewardsDelayInDays: rewardsDelayInDays,
+            rewardsDelay: rewardsDelay,
             locale: locale
         )
         let estimatedRewardViewModel = buildEstimatedRewardViewModel(
@@ -182,11 +185,11 @@ extension StakingPoolStartViewModelFactory: StakingPoolStartViewModelFactoryProt
             locale: locale
         )
         let unstakePeriodViewModel = buildUnstakeViewModel(
-            unstakePeriod: unstakePeriodInDays,
+            unstakePeriod: unstakePeriod,
             locale: locale
         )
         let rewardsFreqViewModel = buildRewardFreqViewModel(
-            rewardsFreq: rewardsFreqInDays,
+            rewardsFreq: rewardsFreq,
             locale: locale
         )
 

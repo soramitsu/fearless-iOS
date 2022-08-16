@@ -223,12 +223,6 @@ final class StakingPoolStartViewLayout: UIView {
     }
 
     func bind(viewModel: StakingPoolStartViewModel) {
-        earnRewardsLabel.isHidden = viewModel.descriptionText == nil
-        delayView.isHidden = viewModel.delayDetailsViewModel == nil
-        estimatedRewardView.isHidden = viewModel.estimatedRewardViewModel == nil
-        unstakePeriodView.isHidden = viewModel.unstakePeriodViewModel == nil
-        rewardsFreqView.isHidden = viewModel.rewardsFreqViewModel == nil
-
         earnRewardsLabel.attributedText = viewModel.descriptionText
         delayView.iconImage = viewModel.delayDetailsViewModel?.icon
         delayView.titleLabel.attributedText = viewModel.delayDetailsViewModel?.title

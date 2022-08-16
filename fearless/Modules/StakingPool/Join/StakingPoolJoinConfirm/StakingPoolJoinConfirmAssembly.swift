@@ -1,12 +1,16 @@
 import UIKit
 import SoraFoundation
-import RobinHood
+import SoraKeystore
 
-final class StakingPoolJoinConfigAssembly {
+final class StakingPoolJoinConfirmAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
-    ) -> StakingPoolJoinConfigModuleCreationResult? {
+        wallet: MetaAccountModel,
+        inputAmount: Decimal,
+        selectedPool: StakingPool
+    ) -> StakingPoolJoinConfirmModuleCreationResult? {
+        let localizationManager = LocalizationManager.shared
+
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -32,52 +36,51 @@ final class StakingPoolJoinConfigAssembly {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            selectedMetaAccount: wallet
-        )
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let signingWrapper = SigningWrapper(
+            keystore: Keychain(),
+            metaId: wallet.metaId,
+            accountResponse: accountResponse
+        )
 
-        let localizationManager = LocalizationManager.shared
-
-        let interactor = StakingPoolJoinConfigInteractor(
-            accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+        let interactor = StakingPoolJoinConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
             wallet: wallet,
             extrinsicService: extrinsicService,
-            feeProxy: feeProxy
+            feeProxy: feeProxy,
+            amount: inputAmount,
+            pool: selectedPool,
+            signingWrapper: signingWrapper
         )
-        let router = StakingPoolJoinConfigRouter()
+        let router = StakingPoolJoinConfirmRouter()
 
-        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
-        let accountViewModelFactory = AccountViewModelFactory(iconGenerator: iconGenerator)
+        let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
+        let viewModelFactory = StakingPoolJoinConfirmViewModelFactory(
+            chainAsset: chainAsset,
+            assetBalanceFormatterFactory: assetBalanceFormatterFactory
+        )
+
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: wallet
         )
 
-        let presenter = StakingPoolJoinConfigPresenter(
+        let presenter = StakingPoolJoinConfirmPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
-            balanceViewModelFactory: balanceViewModelFactory,
-            accountViewModelFactory: accountViewModelFactory,
+            viewModelFactory: viewModelFactory,
+            inputAmount: inputAmount,
+            pool: selectedPool,
             wallet: wallet,
             chainAsset: chainAsset,
-            logger: Logger.shared
+            balanceViewModelFactory: balanceViewModelFactory,
+            logger: logger
         )
 
-        let view = StakingPoolJoinConfigViewController(
+        let view = StakingPoolJoinConfirmViewController(
             output: presenter,
             localizationManager: localizationManager
         )

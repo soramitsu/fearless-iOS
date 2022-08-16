@@ -1,16 +1,18 @@
 import Foundation
 
-final class StakingPoolJoinConfigRouter: StakingPoolJoinConfigRouterInput {
-    func presentPoolsList(
+final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInput {
+    func presentConfirm(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        inputAmount: Decimal
+        inputAmount: Decimal,
+        selectedPool: StakingPool
     ) {
-        guard let module = StakingPoolJoinChoosePoolAssembly.configureModule(
+        guard let module = StakingPoolJoinConfirmAssembly.configureModule(
             chainAsset: chainAsset,
             wallet: wallet,
-            inputAmount: inputAmount
+            inputAmount: inputAmount,
+            selectedPool: selectedPool
         ) else {
             return
         }

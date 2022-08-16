@@ -5,7 +5,7 @@ typealias StakingPoolJoinChoosePoolModuleCreationResult = (
     input: StakingPoolJoinChoosePoolModuleInput
 )
 
-protocol StakingPoolJoinChoosePoolViewInput: ControllerBackedProtocol {
+protocol StakingPoolJoinChoosePoolViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(cellViewModels: [StakingPoolListTableCellModel])
     func didReceive(locale: Locale)
 }
@@ -13,6 +13,7 @@ protocol StakingPoolJoinChoosePoolViewInput: ControllerBackedProtocol {
 protocol StakingPoolJoinChoosePoolViewOutput: AnyObject {
     func didLoad(view: StakingPoolJoinChoosePoolViewInput)
     func didTapBackButton()
+    func didTapContinueButton()
 }
 
 protocol StakingPoolJoinChoosePoolInteractorInput: AnyObject {
@@ -24,7 +25,15 @@ protocol StakingPoolJoinChoosePoolInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
 }
 
-protocol StakingPoolJoinChoosePoolRouterInput: AnyObject, PushDismissable {}
+protocol StakingPoolJoinChoosePoolRouterInput: AnyObject, PushDismissable {
+    func presentConfirm(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        inputAmount: Decimal,
+        selectedPool: StakingPool
+    )
+}
 
 protocol StakingPoolJoinChoosePoolModuleInput: AnyObject {}
 

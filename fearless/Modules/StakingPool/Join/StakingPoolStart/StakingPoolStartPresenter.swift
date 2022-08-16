@@ -11,6 +11,9 @@ final class StakingPoolStartPresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
 
+    private var stakingDuration: StakingDuration?
+    private var calculator: RewardCalculatorEngineProtocol?
+
     // MARK: - Constructors
 
     init(
@@ -32,11 +35,13 @@ final class StakingPoolStartPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        let apr = calculator?.calculateAvgReturn(isCompound: true, period: .year)
+
         let viewModel = viewModelFactory.buildViewModel(
-            rewardsDelayInDays: 2,
-            apr: 18,
-            unstakePeriodInDays: 7,
-            rewardsFreqInDays: 2,
+            rewardsDelay: stakingDuration?.era,
+            apr: apr,
+            unstakePeriod: stakingDuration?.unlocking,
+            rewardsFreq: stakingDuration?.era,
             locale: selectedLocale
         )
 
@@ -69,15 +74,31 @@ extension StakingPoolStartPresenter: StakingPoolStartViewOutput {
         self.view = view
         interactor.setup(with: self)
 
-        provideViewModel()
-
         view.didReceive(locale: selectedLocale)
+
+        provideViewModel()
     }
 }
 
 // MARK: - StakingPoolStartInteractorOutput
 
-extension StakingPoolStartPresenter: StakingPoolStartInteractorOutput {}
+extension StakingPoolStartPresenter: StakingPoolStartInteractorOutput {
+    func didReceive(stakingDuration: StakingDuration) {
+        self.stakingDuration = stakingDuration
+
+        provideViewModel()
+    }
+
+    func didReceive(error _: Error) {}
+
+    func didReceive(calculator: RewardCalculatorEngineProtocol) {
+        self.calculator = calculator
+
+        provideViewModel()
+    }
+
+    func didReceive(calculatorError _: Error) {}
+}
 
 // MARK: - Localizable
 

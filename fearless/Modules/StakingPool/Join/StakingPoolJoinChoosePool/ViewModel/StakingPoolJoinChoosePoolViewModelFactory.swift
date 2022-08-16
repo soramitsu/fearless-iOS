@@ -10,8 +10,8 @@ protocol StakingPoolJoinChoosePoolViewModelFactoryProtocol {
 }
 
 final class StakingPoolJoinChoosePoolViewModelFactory {
-    let chainAsset: ChainAsset
-    let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
     init(
         chainAsset: ChainAsset,
@@ -49,7 +49,12 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
                 amountString,
                 preferredLanguages: locale.rLanguages
             )
-            let stakedAmountAttributedString = NSAttributedString(string: stakedString)
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorGreen(),
+                range: (stakedString as NSString).range(of: amountString)
+            )
 
             let name = pool.name.count > 0 ? pool.name : pool.id
             return StakingPoolListTableCellModel(

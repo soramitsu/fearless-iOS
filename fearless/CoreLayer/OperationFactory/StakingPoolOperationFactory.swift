@@ -68,8 +68,8 @@ final class StakingPoolOperationFactory {
 
     private func createMinJoinBondOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<BigUInt>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<BigUInt>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMinJoinBond)] },
@@ -84,8 +84,8 @@ final class StakingPoolOperationFactory {
 
     private func createMinCreateBondOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<BigUInt>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<BigUInt>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMinCreateBond)] },
@@ -267,7 +267,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let minJoinBondOperation = createMinJoinBondOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<BigUInt?> {
-            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try minJoinBondOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(minJoinBondOperation.targetOperation)
@@ -279,9 +279,9 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
 
     func fetchMinCreateBondOperation() -> CompoundOperationWrapper<BigUInt?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
-        let minCreateBondOperation = createMinJoinBondOperation(dependingOn: runtimeOperation)
+        let minCreateBondOperation = createMinCreateBondOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<BigUInt?> {
-            try minCreateBondOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try minCreateBondOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(minCreateBondOperation.targetOperation)

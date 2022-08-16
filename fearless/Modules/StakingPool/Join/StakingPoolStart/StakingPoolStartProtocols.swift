@@ -18,7 +18,12 @@ protocol StakingPoolStartInteractorInput: AnyObject {
     func setup(with output: StakingPoolStartInteractorOutput)
 }
 
-protocol StakingPoolStartInteractorOutput: AnyObject {}
+protocol StakingPoolStartInteractorOutput: AnyObject {
+    func didReceive(stakingDuration: StakingDuration)
+    func didReceive(error: Error)
+    func didReceive(calculator: RewardCalculatorEngineProtocol)
+    func didReceive(calculatorError: Error)
+}
 
 protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresentable {
     func presentJoinFlow(

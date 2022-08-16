@@ -56,10 +56,20 @@ final class StakingPoolJoinChoosePoolViewController: UIViewController, ViewHolde
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.continueButton.addTarget(
+            self,
+            action: #selector(continueButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     @objc private func backButtonClicked() {
         output.didTapBackButton()
+    }
+
+    @objc private func continueButtonClicked() {
+        output.didTapContinueButton()
     }
 }
 

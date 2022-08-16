@@ -9,4 +9,12 @@ extension TimeInterval {
     var daysFromSeconds: Int { Int(self / Self.secondsInDay) }
     var hoursFromSeconds: Int { Int(self / Self.secondsInHour) }
     var intervalsInDay: Int { self > 0.0 ? Int(Self.secondsInDay / self) : 0 }
+
+    func readableValue(locale: Locale) -> String {
+        if daysFromSeconds > 0 {
+            return R.string.localizable.commonDaysFormat(format: daysFromSeconds, preferredLanguages: locale.rLanguages)
+        }
+
+        return R.string.localizable.commonHoursFormat(format: hoursFromSeconds, preferredLanguages: locale.rLanguages)
+    }
 }

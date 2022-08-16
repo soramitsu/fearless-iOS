@@ -6,12 +6,14 @@ final class StakingPoolJoinConfigInteractor {
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private weak var output: StakingPoolJoinConfigInteractorOutput?
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let callFactory = SubstrateCallFactory()
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let operationManager: OperationManagerProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -22,7 +24,9 @@ final class StakingPoolJoinConfigInteractor {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         extrinsicService: ExtrinsicServiceProtocol,
-        feeProxy: ExtrinsicFeeProxyProtocol
+        feeProxy: ExtrinsicFeeProxyProtocol,
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -30,6 +34,8 @@ final class StakingPoolJoinConfigInteractor {
         self.wallet = wallet
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
+        self.stakingPoolOperationFactory = stakingPoolOperationFactory
+        self.operationManager = operationManager
     }
 
     private var feeReuseIdentifier: String? {
@@ -57,6 +63,16 @@ final class StakingPoolJoinConfigInteractor {
             try builder.adding(call: joinPool)
         }
     }
+
+    private func fetchRuntimeData() {
+        let minJoinBondOperation = stakingPoolOperationFactory.fetchMinJoinBondOperation()
+        minJoinBondOperation.targetOperation.completionBlock = { [weak self] in
+            let minJoinBond = try? minJoinBondOperation.targetOperation.extractNoCancellableResultData()
+            self?.output?.didReceiveMinBond(minJoinBond)
+        }
+
+        operationManager.enqueue(operations: minJoinBondOperation.allOperations, in: .transient)
+    }
 }
 
 // MARK: - StakingPoolJoinConfigInteractorInput
@@ -77,6 +93,8 @@ extension StakingPoolJoinConfigInteractor: StakingPoolJoinConfigInteractorInput 
                 handler: self
             )
         }
+
+        fetchRuntimeData()
     }
 
     func estimateFee() {

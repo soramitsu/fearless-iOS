@@ -780,3 +780,4 @@ and depending on the network state, may not be selected to participate";
 "pool.staking.state.toggler" = "State toggler";
 "pool.staking.title" = "Pool staking";
 "common.watch" = "Watch";
+"pool.staking.start.confirm.amount.title" = "Joining to pool\n%@";

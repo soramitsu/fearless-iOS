@@ -1,4 +1,5 @@
 import CommonWallet
+import BigInt
 
 typealias StakingPoolJoinConfigModuleCreationResult = (
     view: StakingPoolJoinConfigViewInput,
@@ -29,9 +30,10 @@ protocol StakingPoolJoinConfigInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveMinBond(_ minJoinBond: BigUInt?)
 }
 
-protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable {
+protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable, StakingErrorPresentable, AlertPresentable, ErrorPresentable {
     func presentPoolsList(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

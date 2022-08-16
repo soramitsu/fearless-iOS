@@ -8,6 +8,9 @@ final class StakingPoolJoinChoosePoolPresenter {
     private let router: StakingPoolJoinChoosePoolRouterInput
     private let interactor: StakingPoolJoinChoosePoolInteractorInput
     private let viewModelFactory: StakingPoolJoinChoosePoolViewModelFactoryProtocol
+    private let inputAmount: Decimal
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     private var selectedPoolId: String?
     private var pools: [StakingPool]?
@@ -18,11 +21,17 @@ final class StakingPoolJoinChoosePoolPresenter {
         interactor: StakingPoolJoinChoosePoolInteractorInput,
         router: StakingPoolJoinChoosePoolRouterInput,
         localizationManager: LocalizationManagerProtocol,
-        viewModelFactory: StakingPoolJoinChoosePoolViewModelFactoryProtocol
+        viewModelFactory: StakingPoolJoinChoosePoolViewModelFactoryProtocol,
+        inputAmount: Decimal,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
+        self.inputAmount = inputAmount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -35,6 +44,7 @@ final class StakingPoolJoinChoosePoolPresenter {
             cellsDelegate: self,
             selectedPoolId: selectedPoolId
         )
+
         view?.didReceive(cellViewModels: cellViewModels)
     }
 }
@@ -47,10 +57,26 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolViewOutpu
         interactor.setup(with: self)
 
         view.didReceive(locale: selectedLocale)
+
+        view.didStartLoading()
     }
 
     func didTapBackButton() {
         router.dismiss(view: view)
+    }
+
+    func didTapContinueButton() {
+        guard let pool = pools?.first(where: { $0.id == selectedPoolId }) else {
+            return
+        }
+
+        router.presentConfirm(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            inputAmount: inputAmount,
+            selectedPool: pool
+        )
     }
 }
 
@@ -60,6 +86,8 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolInteracto
     func didReceivePools(_ pools: [StakingPool]?) {
         self.pools = pools
         provideViewModel()
+
+        view?.didStopLoading()
     }
 
     func didReceiveError(_: Error) {}
