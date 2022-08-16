@@ -38,13 +38,6 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
         toViewController.view.frame = beginFrame
         containerView.frame = screenBounds
 
-        let blur = UIBlurEffect(style: .dark)
-        let blurView = UIVisualEffectView(effect: blur)
-        blurView.tag = Self.UIVisualEffectViewFearlessTag
-        blurView.alpha = 0
-        blurView.frame = screenBounds
-        containerView.addSubview(blurView)
-
         containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
         toViewController.view.snp.makeConstraints { make in
             make.top.greaterThanOrEqualTo(containerView.safeAreaLayoutGuide.snp.top)
@@ -54,7 +47,6 @@ extension ModalSheetBlurPresentationAppearanceAnimator: UIViewControllerAnimated
         toViewController.view.layoutIfNeeded()
 
         let animationBlock: () -> Void = {
-            blurView.alpha = 0.98
             toViewController.view.frame = screenBounds
         }
 

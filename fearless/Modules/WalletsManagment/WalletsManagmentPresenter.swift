@@ -100,7 +100,9 @@ extension WalletsManagmentPresenter: WalletsManagmentInteractorOutput {
         switch wallets {
         case let .success(wallets):
             self.wallets = wallets
-            provideViewModel()
+            DispatchQueue.main.async {
+                self.provideViewModel()
+            }
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
         }

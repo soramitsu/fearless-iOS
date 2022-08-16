@@ -3,7 +3,10 @@ import SoraFoundation
 import RobinHood
 
 final class ChainAssetListAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        delegate: ChainAssetListModuleOutput?
+    ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -21,11 +24,12 @@ final class ChainAssetListAssembly {
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .background
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             accountInfoFetching: accountInfoFetching,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            operationQueue: operationQueue,
             meta: wallet
         )
 
@@ -55,6 +59,7 @@ final class ChainAssetListAssembly {
         )
 
         let presenter = ChainAssetListPresenter(
+            moduleOutput: delegate,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,

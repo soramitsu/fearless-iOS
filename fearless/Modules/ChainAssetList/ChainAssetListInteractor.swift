@@ -12,6 +12,8 @@ final class ChainAssetListInteractor {
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var chainAssets: [ChainAsset]?
+    private var filters: [ChainAssetsFetching.Filter] = []
+    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     weak var presenter: ChainAssetListInteractorOutput?
@@ -42,6 +44,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        self.filters = filters
+        self.sorts = sorts
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts

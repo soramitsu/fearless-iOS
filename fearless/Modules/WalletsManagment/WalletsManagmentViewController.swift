@@ -93,7 +93,7 @@ extension WalletsManagmentViewController: Localizable {
 
 extension WalletsManagmentViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        viewModels.count
+        1
     }
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {

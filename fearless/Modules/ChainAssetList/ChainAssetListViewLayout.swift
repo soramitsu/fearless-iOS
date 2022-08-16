@@ -4,15 +4,15 @@ final class ChainAssetListViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
-        view.refreshControl = UIRefreshControl()
         view.separatorStyle = .none
-        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
+        view.contentInset = UIEdgeInsets(top: UIConstants.bigOffset, left: 0, bottom: UIConstants.bigOffset, right: 0)
 
         return view
     }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupLayout()
     }
 
     @available(*, unavailable)

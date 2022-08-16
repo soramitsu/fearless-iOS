@@ -106,9 +106,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createWalletController() -> UIViewController? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let viewController = ChainAccountBalanceListViewFactory.createView(
-                  selectedMetaAccount: selectedMetaAccount
-              )?.controller
+              let viewController = WalletMainContainerAssembly.configureModule(selectedMetaAccount: selectedMetaAccount)?.view.controller
         else {
             return nil
         }

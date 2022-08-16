@@ -37,12 +37,20 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
         }
     }
 
-    private func attachCancellationGesture() {
+    private func attachCancellationGestureOnBlur() {
         let cancellationGesture = UITapGestureRecognizer(
             target: self,
             action: #selector(actionDidCancel(gesture:))
         )
-        containerView?.addGestureRecognizer(cancellationGesture)
+        cancellationGesture.cancelsTouchesInView = false
+
+        let blur = UIBlurEffect(style: .dark)
+        let blurView = UIVisualEffectView(effect: blur)
+        blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
+        blurView.frame = containerView?.bounds ?? .zero
+        blurView.addGestureRecognizer(cancellationGesture)
+
+        containerView?.addSubview(blurView)
     }
 
     private func attachPanGesture() {
@@ -54,7 +62,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
     // MARK: Presentation overridings
 
     override func presentationTransitionWillBegin() {
-        attachCancellationGesture()
+        attachCancellationGestureOnBlur()
         attachPanGesture()
 
         animateBackgroundAlpha(fromValue: 0.0, toValue: 1)

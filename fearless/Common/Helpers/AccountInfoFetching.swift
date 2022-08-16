@@ -129,6 +129,7 @@ private extension AccountInfoFetching {
                 }
             }
         }
+        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
     }
 
     func handleAccountInfo(
@@ -175,6 +176,7 @@ private extension AccountInfoFetching {
                 }
             }
         }
+        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
     }
 
     func handleEquilibrium(
@@ -223,5 +225,6 @@ private extension AccountInfoFetching {
                 }
             }
         }
+        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
     }
 }

@@ -1,12 +1,18 @@
 import Foundation
 import SoraFoundation
 
+enum AssetListDisplayType {
+    case chain
+    case assetChains
+}
+
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
+    private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private let wallet: MetaAccountModel
@@ -14,16 +20,19 @@ final class ChainAssetListPresenter {
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
+    private var displayType: AssetListDisplayType = .assetChains
 
     // MARK: - Constructors
 
     init(
+        moduleOutput: ChainAssetListModuleOutput?,
         interactor: ChainAssetListInteractorInput,
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
+        self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -39,6 +48,7 @@ final class ChainAssetListPresenter {
         }
 
         let viewModel = viewModelFactory.buildViewModel(
+            displayType: displayType,
             selectedMetaAccount: wallet,
             chainAssets: chainAssets,
             locale: selectedLocale,
@@ -69,6 +79,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 self?.router.showAppstoreUpdatePage()
             }
         }
+    }
+
+    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
+        moduleOutput?.didTapAction(actionType: actionType, viewModel: viewModel)
     }
 }
 
@@ -123,6 +137,7 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }
