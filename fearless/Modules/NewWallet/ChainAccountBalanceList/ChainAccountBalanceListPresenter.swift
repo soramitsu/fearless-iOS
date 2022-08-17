@@ -45,7 +45,9 @@ final class ChainAccountBalanceListPresenter {
             sortedKeys: sortedKeys
         )
 
-        view?.didReceive(state: .loaded(viewModel: viewModel))
+        DispatchQueue.main.async {
+            self.view?.didReceive(state: .loaded(viewModel: viewModel))
+        }
     }
 
     private func priceUpdateDidStart() {

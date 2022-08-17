@@ -7,6 +7,7 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
+    private let chainRegistry: ChainRegistryProtocol
     private let settings: SelectedWalletSettings
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
@@ -14,12 +15,14 @@ final class RootInteractor {
     private let logger: LoggerProtocol?
 
     init(
+        chainRegistry: ChainRegistryProtocol,
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
         logger: LoggerProtocol? = nil
     ) {
+        self.chainRegistry = chainRegistry
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
@@ -71,5 +74,7 @@ extension RootInteractor: RootInteractorInputProtocol {
                 self.logger?.error("Selected account setup failed: \(error)")
             }
         }
+
+        chainRegistry.hotBoot()
     }
 }

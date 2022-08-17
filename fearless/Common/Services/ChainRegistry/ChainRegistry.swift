@@ -6,29 +6,29 @@ protocol ChainRegistryProtocol: AnyObject {
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
-
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
-
     func chainsUnsubscribe(_ target: AnyObject)
-
     func syncUp()
+    func hotBoot()
+    func subscribeToChians()
 }
 
 final class ChainRegistry {
-    let runtimeProviderPool: RuntimeProviderPoolProtocol
-    let connectionPool: ConnectionPoolProtocol
-    let chainSyncService: ChainSyncServiceProtocol
-    let runtimeSyncService: RuntimeSyncServiceProtocol
-    let commonTypesSyncService: CommonTypesSyncServiceProtocol
-    let chainProvider: StreamableProvider<ChainModel>
-    let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
-    let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
-    let logger: LoggerProtocol?
-    let eventCenter: EventCenterProtocol
+    private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
+    private let runtimeProviderPool: RuntimeProviderPoolProtocol
+    private let connectionPool: ConnectionPoolProtocol
+    private let chainSyncService: ChainSyncServiceProtocol
+    private let runtimeSyncService: RuntimeSyncServiceProtocol
+    private let commonTypesSyncService: CommonTypesSyncServiceProtocol
+    private let chainProvider: StreamableProvider<ChainModel>
+    private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
+    private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
+    private let logger: LoggerProtocol?
+    private let eventCenter: EventCenterProtocol
 
     private var chains: [ChainModel] = []
 
@@ -37,6 +37,7 @@ final class ChainRegistry {
     private let mutex = NSLock()
 
     init(
+        snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
         runtimeProviderPool: RuntimeProviderPoolProtocol,
         connectionPool: ConnectionPoolProtocol,
         chainSyncService: ChainSyncServiceProtocol,
@@ -47,6 +48,7 @@ final class ChainRegistry {
         logger: LoggerProtocol? = nil,
         eventCenter: EventCenterProtocol
     ) {
+        self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
         self.connectionPool = connectionPool
         self.chainSyncService = chainSyncService
@@ -58,8 +60,6 @@ final class ChainRegistry {
         self.eventCenter = eventCenter
 
         connectionPool.setDelegate(self)
-
-        subscribeToChains()
     }
 
     private func subscribeToChains() {
@@ -102,7 +102,7 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: newChain)
+                    runtimeProviderPool.setupRuntimeProvider(for: newChain)
 
                     runtimeSyncService.register(chain: newChain, with: connection)
 
@@ -113,7 +113,7 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
                     chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -167,6 +167,14 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return Set(runtimeVersionSubscriptions.keys)
+    }
+
+    func hotBoot() {
+        snapshotHotBootBuilder.startHotBoot()
+    }
+
+    func subscribeToChians() {
+        subscribeToChains()
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
