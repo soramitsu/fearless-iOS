@@ -55,6 +55,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     // MARK: - Private properties
 
+    private let lock = NSLock()
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
@@ -304,7 +305,9 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            lock.with {
+                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            }
             buildBalance()
         case let .failure(error):
             logger.error("""
