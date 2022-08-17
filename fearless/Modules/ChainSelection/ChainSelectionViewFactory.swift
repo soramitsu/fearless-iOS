@@ -11,7 +11,8 @@ struct ChainSelectionViewFactory {
         selectedMetaAccount: MetaAccountModel,
         includeAllNetworksCell: Bool,
         showBalances: Bool,
-        chainModels: [ChainModel]?
+        chainModels: [ChainModel]?,
+        assetSelectionType: AssetSelectionType
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             for: repositoryFilter,
@@ -37,33 +38,65 @@ struct ChainSelectionViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = ChainSelectionPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            selectedChainId: selectedChainId,
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
-            includeAllNetworksCell: includeAllNetworksCell,
-            showBalances: showBalances,
-            selectedMetaAccount: selectedMetaAccount,
-            localizationManager: localizationManager
-        )
-
-        let title = LocalizableResource { locale in
-            R.string.localizable.commonSelectNetwork(
-                preferredLanguages: locale.rLanguages
+        switch assetSelectionType {
+        case .normal:
+            let presenter = ChainSelectionPresenter(
+                interactor: interactor,
+                wireframe: wireframe,
+                selectedChainId: selectedChainId,
+                assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+                includeAllNetworksCell: includeAllNetworksCell,
+                showBalances: showBalances,
+                selectedMetaAccount: selectedMetaAccount,
+                localizationManager: localizationManager
             )
+
+            let title = LocalizableResource { locale in
+                R.string.localizable.commonSelectNetwork(
+                    preferredLanguages: locale.rLanguages
+                )
+            }
+
+            let view = ChainSelectionViewController(
+                nibName: R.nib.selectionListViewController.name,
+                localizedTitle: title,
+                presenter: presenter,
+                localizationManager: localizationManager
+            )
+
+            presenter.view = view
+            interactor.presenter = presenter
+
+            return view
+        case .staking:
+            let presenter = ChainSelectionPresenter(
+                interactor: interactor,
+                wireframe: wireframe,
+                selectedChainId: selectedChainId,
+                assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+                includeAllNetworksCell: includeAllNetworksCell,
+                showBalances: showBalances,
+                selectedMetaAccount: selectedMetaAccount,
+                localizationManager: localizationManager
+            )
+
+            let title = LocalizableResource { locale in
+                R.string.localizable.commonSelectNetwork(
+                    preferredLanguages: locale.rLanguages
+                )
+            }
+
+            let view = StakingChainSelectionViewController(
+                nibName: R.nib.selectionListViewController.name,
+                localizedTitle: title,
+                presenter: presenter,
+                localizationManager: localizationManager
+            )
+
+            presenter.view = view
+            interactor.presenter = presenter
+
+            return view
         }
-
-        let view = ChainSelectionViewController(
-            nibName: R.nib.selectionListViewController.name,
-            localizedTitle: title,
-            presenter: presenter,
-            localizationManager: localizationManager
-        )
-
-        presenter.view = view
-        interactor.presenter = presenter
-
-        return view
     }
 }

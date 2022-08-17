@@ -91,7 +91,7 @@ protocol SubstrateCallFactoryProtocol {
     func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
 
     func joinPool(
-        poolId: UInt32,
+        poolId: String,
         amount: BigUInt
     ) -> RuntimeCall<JoinPoolCall>
 
@@ -351,7 +351,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     }
 
     func joinPool(
-        poolId: UInt32,
+        poolId: String,
         amount: BigUInt
     ) -> RuntimeCall<JoinPoolCall> {
         let args = JoinPoolCall(amount: amount, poolId: poolId)

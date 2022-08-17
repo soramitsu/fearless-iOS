@@ -13,6 +13,7 @@ class BaseNavigationBar: BaseTopBar {
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
+        button.layer.masksToBounds = true
         return button
     }()
 
@@ -29,10 +30,26 @@ class BaseNavigationBar: BaseTopBar {
         backgroundColor = .black.withAlphaComponent(0.4)
     }
 
+    override func layoutIfNeeded() {
+        super.layoutIfNeeded()
+
+        backButton.layer.cornerRadius = backButton.frame.size.height / 2
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        backButton.layer.cornerRadius = backButton.frame.size.height / 2
+    }
+
     override func setupLayout() {
         super.setupLayout()
 
         setLeftViews([backButton])
+
+        backButton.snp.makeConstraints { make in
+            make.size.equalTo(CGSize(width: 32, height: 32))
+        }
     }
 
     func set(_ style: NavigationStyle) {

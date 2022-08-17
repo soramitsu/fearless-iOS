@@ -825,7 +825,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
 }
 
 extension StakingMainPresenter: AssetSelectionDelegate {
-    func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
+    func assetSelection(
+        view _: ChainSelectionViewProtocol,
+        didCompleteWith chainAsset: ChainAsset,
+        context _: Any?
+    ) {
         interactor.save(chainAsset: chainAsset)
     }
 }

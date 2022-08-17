@@ -2,12 +2,18 @@ import Foundation
 import RobinHood
 import SoraFoundation
 
-struct AssetSelectionViewFactory {
+enum AssetSelectionType {
+    case normal
+    case staking
+}
+
+enum AssetSelectionViewFactory {
     static func createView(
         delegate: AssetSelectionDelegate,
-        selectedChain: ChainAsset?,
+        type: AssetSelectionStakingType,
         selectedMetaAccount: MetaAccountModel,
-        assetFilter: @escaping AssetSelectionFilter
+        assetFilter: @escaping AssetSelectionFilter,
+        assetSelectionType: AssetSelectionType
     ) -> ChainSelectionViewProtocol? {
         let repository = ChainRepositoryFactory().createRepository(
             for: nil,
@@ -33,30 +39,59 @@ struct AssetSelectionViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = AssetSelectionPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            assetFilter: assetFilter,
-            selectedChainAsset: selectedChain,
-            selectedMetaAccount: selectedMetaAccount,
-            assetBalanceFormatterFactory: assetBalanceFormatterFactory,
-            localizationManager: localizationManager
-        )
+        switch assetSelectionType {
+        case .normal:
+            let presenter = AssetSelectionPresenter(
+                interactor: interactor,
+                wireframe: wireframe,
+                assetFilter: assetFilter,
+                type: type,
+                selectedMetaAccount: selectedMetaAccount,
+                assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+                localizationManager: localizationManager
+            )
 
-        let title = LocalizableResource { locale in
-            R.string.localizable.commonSelectAsset(preferredLanguages: locale.rLanguages)
+            let title = LocalizableResource { locale in
+                R.string.localizable.commonSelectAsset(preferredLanguages: locale.rLanguages)
+            }
+
+            let view = ChainSelectionViewController(
+                nibName: R.nib.selectionListViewController.name,
+                localizedTitle: title,
+                presenter: presenter,
+                localizationManager: localizationManager
+            )
+
+            presenter.view = view
+            interactor.presenter = presenter
+
+            return view
+        case .staking:
+            let presenter = StakingAssetSelectionPresenter(
+                interactor: interactor,
+                wireframe: wireframe,
+                assetFilter: assetFilter,
+                type: type,
+                selectedMetaAccount: selectedMetaAccount,
+                assetBalanceFormatterFactory: assetBalanceFormatterFactory,
+                localizationManager: localizationManager
+            )
+
+            let title = LocalizableResource { locale in
+                R.string.localizable.commonSelectAsset(preferredLanguages: locale.rLanguages)
+            }
+
+            let view = StakingChainSelectionViewController(
+                nibName: R.nib.selectionListViewController.name,
+                localizedTitle: title,
+                presenter: presenter,
+                localizationManager: localizationManager
+            )
+
+            presenter.view = view
+            interactor.presenter = presenter
+
+            return view
         }
-
-        let view = ChainSelectionViewController(
-            nibName: R.nib.selectionListViewController.name,
-            localizedTitle: title,
-            presenter: presenter,
-            localizationManager: localizationManager
-        )
-
-        presenter.view = view
-        interactor.presenter = presenter
-
-        return view
     }
 }
