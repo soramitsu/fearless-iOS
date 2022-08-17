@@ -3,6 +3,7 @@ import FearlessUtils
 import CommonWallet
 import IrohaCrypto
 import XNetworking
+import BigInt
 
 struct SubqueryPageInfo: Decodable {
     let startCursor: String?
@@ -82,6 +83,19 @@ struct SubqueryHistoryElement: Decodable {
     let transfer: SubqueryTransfer?
 }
 
+struct SubqueryCollatorDataResponse: Decodable {
+    struct HistoryElements: Decodable {
+        let nodes: [SubqueryCollatorData]
+    }
+
+    let collatorRounds: HistoryElements
+}
+
+struct SubqueryCollatorData: Decodable, Equatable {
+    let collatorId: String
+    let apr: Double
+}
+
 public struct SubqueryHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let pageInfo: SubqueryPageInfo
@@ -128,5 +142,48 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             asset: asset,
             addressFactory: addressFactory
         )
+    }
+}
+
+struct SubqueryDelegatorHistoryData: Decodable {
+    struct HistoryElements: Decodable {
+        let nodes: [SubqueryDelegatorHistoryElement]
+    }
+
+    let delegators: HistoryElements
+}
+
+struct SubqueryDelegatorHistoryElement: Decodable {
+    let id: String
+    let delegatorHistoryElements: SubqueryDelegatorHistoryNodes
+}
+
+struct SubqueryDelegatorHistoryNodes: Decodable {
+    let nodes: [SubqueryDelegatorHistoryItem]
+}
+
+struct SubqueryDelegatorHistoryItem: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case id
+        case amount
+        case type
+        case timestamp
+    }
+
+    let id: String
+    @StringCodable var amount: BigUInt
+    let type: Int
+    let timestamp: String
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(String.self, forKey: .id)
+        type = try container.decode(Int.self, forKey: .type)
+        timestamp = try container.decode(String.self, forKey: .timestamp)
+
+        let amountValue = try? container.decode(Decimal.self, forKey: .amount)
+        let amountString = amountValue?.toString(locale: nil, digits: 0)
+        amount = BigUInt(stringLiteral: amountString ?? "0")
     }
 }

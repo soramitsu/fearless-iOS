@@ -7,81 +7,62 @@ final class ValidatorListFilterPresenter {
 
     let wireframe: ValidatorListFilterWireframeProtocol
     let viewModelFactory: ValidatorListFilterViewModelFactoryProtocol
-
+    let viewModelState: ValidatorListFilterViewModelState
     let asset: AssetModel
-    let initialFilter: CustomValidatorListFilter
-    private(set) var currentFilter: CustomValidatorListFilter
 
     init(
         wireframe: ValidatorListFilterWireframeProtocol,
         viewModelFactory: ValidatorListFilterViewModelFactoryProtocol,
+        viewModelState: ValidatorListFilterViewModelState,
         asset: AssetModel,
-        filter: CustomValidatorListFilter,
         localizationManager: LocalizationManager
     ) {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.viewModelState = viewModelState
         self.asset = asset
-        initialFilter = filter
-        currentFilter = filter
         self.localizationManager = localizationManager
     }
 
     private func provideViewModels() {
-        let viewModel = viewModelFactory.createViewModel(
-            from: currentFilter,
-            initialFilter: initialFilter,
-            token: asset.id,
+        guard let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            token: asset.symbol.uppercased(),
             locale: selectedLocale
-        )
+        ) else {
+            return
+        }
+
         view?.didUpdateViewModel(viewModel)
     }
 }
 
 extension ValidatorListFilterPresenter: ValidatorListFilterPresenterProtocol {
-    func setup() {
-        provideViewModels()
-    }
-
     func toggleFilterItem(at index: Int) {
-        guard let filter = ValidatorListFilterRow(rawValue: index) else {
-            return
-        }
-
-        switch filter {
-        case .withoutIdentity:
-            currentFilter.allowsNoIdentity = !currentFilter.allowsNoIdentity
-        case .slashed:
-            currentFilter.allowsSlashed = !currentFilter.allowsSlashed
-        case .oversubscribed:
-            currentFilter.allowsOversubscribed = !currentFilter.allowsOversubscribed
-        case .clusterLimit:
-            let allowsUnlimitedClusters = currentFilter.allowsClusters == .unlimited
-            currentFilter.allowsClusters = allowsUnlimitedClusters ?
-                .limited(amount: StakingConstants.targetsClusterLimit) :
-                .unlimited
-        }
-
-        provideViewModels()
+        viewModelState.toggleFilterItem(at: index)
     }
 
     func selectFilterItem(at index: Int) {
-        guard let sortRow = ValidatorListSortRow(rawValue: index) else {
-            return
-        }
-
-        currentFilter.sortedBy = sortRow.sortCriterion
-        provideViewModels()
-    }
-
-    func applyFilter() {
-        delegate?.didUpdate(currentFilter)
-        wireframe.close(view)
+        viewModelState.selectFilterItem(at: index)
     }
 
     func resetFilter() {
-        currentFilter = CustomValidatorListFilter.recommendedFilter()
+        viewModelState.resetFilter()
+    }
+
+    func setup() {
         provideViewModels()
+
+        viewModelState.setStateListener(self)
+    }
+
+    func applyFilter() {
+        guard let flow = viewModelState.validatorListFilterFlow() else {
+            return
+        }
+
+        delegate?.didUpdate(with: flow)
+        wireframe.close(view)
     }
 }
 
@@ -90,5 +71,11 @@ extension ValidatorListFilterPresenter: Localizable {
         if let view = view, view.isSetup {
             provideViewModels()
         }
+    }
+}
+
+extension ValidatorListFilterPresenter: ValidatorListFilterModelStateListener {
+    func modelStateDidChanged(viewModelState _: ValidatorListFilterViewModelState) {
+        provideViewModels()
     }
 }

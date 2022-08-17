@@ -1,6 +1,10 @@
 import UIKit
 
 final class StakingUnbondConfirmLayout: UIView {
+    private enum Constants {
+        static let spacingBetweenHints: CGFloat = 9
+    }
+
     let stackView: UIStackView = {
         let view = UIStackView()
         view.isLayoutMarginsRelativeArrangement = true
@@ -8,6 +12,12 @@ final class StakingUnbondConfirmLayout: UIView {
         view.axis = .vertical
         view.alignment = .center
         view.distribution = .fill
+        return view
+    }()
+
+    lazy var collatorView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.isHidden = true
         return view
     }()
 
@@ -19,7 +29,7 @@ final class StakingUnbondConfirmLayout: UIView {
         return view
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     private(set) var hintViews: [UIView] = []
 
@@ -55,9 +65,22 @@ final class StakingUnbondConfirmLayout: UIView {
             accountView.subtitle = confirmationViewModel.senderAddress
         }
 
+        if let collatorName = confirmationViewModel.collatorName {
+            collatorView.isHidden = false
+            collatorView.subtitle = collatorName
+            let iconSize = 2.0 * collatorView.iconRadius
+            collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
+                R.color.colorWhite() ?? .white,
+                size: CGSize(width: iconSize, height: iconSize),
+                contentScale: UIScreen.main.scale
+            )
+        } else {
+            collatorView.isHidden = true
+        }
+
         let iconSize = 2.0 * accountView.iconRadius
-        accountView.iconImage = confirmationViewModel.senderIcon.imageWithFillColor(
-            R.color.colorWhite()!,
+        accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
+            R.color.colorWhite() ?? .white,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )
@@ -70,7 +93,7 @@ final class StakingUnbondConfirmLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
@@ -97,7 +120,7 @@ final class StakingUnbondConfirmLayout: UIView {
 
         hintViews = hints.map { hint in
             let view = IconDetailsView()
-            view.iconWidth = 24.0
+            view.iconWidth = UIConstants.iconSize
             view.detailsLabel.text = hint.title
             view.imageView.image = hint.icon
             return view
@@ -114,17 +137,19 @@ final class StakingUnbondConfirmLayout: UIView {
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             }
 
-            stackView.setCustomSpacing(9, after: view)
+            stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)
         }
     }
 
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
+        collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
+
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         setNeedsLayout()
     }
@@ -136,24 +161,31 @@ final class StakingUnbondConfirmLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
+        stackView.addArrangedSubview(collatorView)
+        collatorView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
+
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
-        stackView.setCustomSpacing(16.0, after: accountView)
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        stackView.setCustomSpacing(16.0, after: amountView)
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

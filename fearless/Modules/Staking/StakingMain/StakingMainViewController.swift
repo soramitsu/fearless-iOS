@@ -6,11 +6,18 @@ import CommonWallet
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
+        static let delegationRowHeight: CGFloat = 175.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
+        static let contentInset = UIEdgeInsets(
+            top: UIConstants.bigOffset,
+            left: 0,
+            bottom: UIConstants.bigOffset,
+            right: 0
+        )
     }
 
-    var presenter: StakingMainPresenterProtocol!
+    var presenter: StakingMainPresenterProtocol?
 
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var stackView: UIStackView!
@@ -31,14 +38,28 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
     private lazy var analyticsContainerView = UIView()
+    private lazy var tableViewContainer = UIView()
     private lazy var analyticsView = RewardAnalyticsWidgetView()
+    private lazy var actionButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDefaultStyle()
+        return button
+    }()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
+    private lazy var tableView: SelfSizingTableView = {
+        let tableView = SelfSizingTableView()
+        tableView.separatorStyle = .none
+        tableView.backgroundColor = UIColor.clear
+        return tableView
+    }()
+
     private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
+    private var delegationViewModels: [DelegationInfoCellModel]?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -54,9 +75,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupAssetSelectionView()
         setupNetworkInfoView()
         setupAlertsView()
-//        setupAnalyticsView()
+        setupAnalyticsView()
+        setupTableViewLayout()
+        setupTableView()
+        setupActionButton()
         setupLocalization()
-        presenter.setup()
+        presenter?.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -71,7 +95,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidAppear(animated)
 
         networkInfoView.didAppearSkeleton()
-//        analyticsView.didAppearSkeleton()
+        analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
@@ -84,7 +108,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
 
         networkInfoView.didDisappearSkeleton()
-//        analyticsView.didDisappearSkeleton()
+        analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didDisappearSkeleton()
@@ -95,7 +119,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLayoutSubviews()
 
         networkInfoView.didUpdateSkeletonLayout()
-//        analyticsView.didUpdateSkeletonLayout()
+        analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didUpdateSkeletonLayout()
@@ -103,7 +127,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     @IBAction func actionIcon() {
-        presenter.performAccountAction()
+        presenter?.performAccountAction()
     }
 
     // MARK: - Private functions
@@ -177,7 +201,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     @objc
     private func handleAnalyticsWidgetTap() {
-        presenter.performAnalyticsAction()
+        presenter?.performAnalyticsAction()
     }
 
     private func configureStoriesView() {
@@ -240,10 +264,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         applyConstraints(for: containerView, innerView: stateView)
 
-        stackView.insertArranged(view: containerView, after: alertsContainerView)
+        stackView.addArrangedSubview(containerView)
 
         stateContainerView = containerView
         self.stateView = stateView
+
+        stackView.removeArrangedSubview(tableViewContainer)
+        stackView.addArrangedSubview(tableViewContainer)
 
         return stateView
     }
@@ -285,15 +312,46 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
+    private func setupTableViewLayout() {
+        tableViewContainer.addSubview(tableView)
+        tableView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().offset(Constants.verticalSpacing)
+            make.bottom.equalToSuperview().inset(Constants.bottomInset)
+        }
+
+        stackView.addArrangedSubview(tableViewContainer)
+    }
+
+    private func setupTableView() {
+        tableView.allowsSelection = false
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.rowHeight = UIConstants.cellHeight
+        tableView.registerClassForCell(DelegationInfoCell.self)
+    }
+
+    private func setupActionButton() {
+        view.addSubview(actionButton)
+        actionButton.addTarget(self, action: #selector(actionButtonClicked), for: .touchUpInside)
+        actionButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+        }
+    }
+
+    @objc
+    private func actionButtonClicked() {
+        presenter?.performMainAction()
+    }
+
     private func applyNominator(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         let nominatorView = setupNominatorViewIfNeeded()
         nominatorView?.delegate = self
         nominatorView?.bind(viewModel: viewModel)
-    }
-
-    private func applyBonded(viewModel: StakingEstimationViewModel) {
-        let rewardView = setupRewardEstimationViewIfNeeded()
-        rewardView?.bind(viewModel: viewModel)
     }
 
     private func applyNoStash(viewModel: StakingEstimationViewModel) {
@@ -308,6 +366,19 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         validatorView?.bind(viewModel: viewModel)
     }
 
+    private func applyRewards(viewModel: StakingEstimationViewModel) {
+        let rewardView = setupRewardEstimationViewIfNeeded()
+        rewardView?.bind(viewModel: viewModel)
+    }
+
+    private func applyDelegations(viewModels: [DelegationInfoCellModel]?) {
+        delegationViewModels = viewModels
+        delegationViewModels?.forEach { model in
+            model.delegate = self
+        }
+        tableView.reloadData()
+    }
+
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsContainerView.isHidden = alerts.isEmpty
         alertsView.bind(alerts: alerts)
@@ -315,7 +386,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAnalyticsRewards(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?) {
-        analyticsContainerView.isHidden = false
+        analyticsContainerView.isHidden = viewModel == nil
         analyticsView.bind(viewModel: viewModel)
     }
 }
@@ -327,11 +398,14 @@ extension StakingMainViewController: Localizable {
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .stakingStartTitle(preferredLanguages: languages)
 
         networkInfoView.locale = locale
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
+        tableView.reloadData()
     }
 
     func applyLocalization() {
@@ -344,41 +418,43 @@ extension StakingMainViewController: Localizable {
 
 extension StakingMainViewController: RewardEstimationViewDelegate {
     func rewardEstimationView(_: RewardEstimationView, didChange amount: Decimal?) {
-        presenter.updateAmount(amount ?? 0.0)
+        presenter?.updateAmount(amount ?? 0.0)
     }
 
     func rewardEstimationView(_: RewardEstimationView, didSelect percentage: Float) {
-        presenter.selectAmountPercentage(percentage)
-    }
-
-    func rewardEstimationDidStartAction(_: RewardEstimationView) {
-        presenter.performMainAction()
+        presenter?.selectAmountPercentage(percentage)
     }
 
     func rewardEstimationDidRequestInfo(_: RewardEstimationView) {
-        presenter.performRewardInfoAction()
+        presenter?.performRewardInfoAction()
     }
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
+    func didReceive(stakingEstimationViewModel: StakingEstimationViewModel) {
+        let rewardView = setupRewardEstimationViewIfNeeded()
+        rewardView?.bind(viewModel: stakingEstimationViewModel)
+    }
+
     func didRecieveNetworkStakingInfo(
         viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
     ) {
+        guard networkInfoView != nil else {
+            return
+        }
         networkInfoView.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModel) {
+        guard viewIfLoaded != nil else {
+            return
+        }
         assetIconViewModel?.cancel(on: assetSelectionView.iconView)
 
         assetIconViewModel = viewModel.assetIcon
         balanceViewModel = viewModel.balanceViewModel
 
-        let sideSize = iconButtonWidth.constant - iconButton.contentInsets.left
-            - iconButton.contentInsets.right
-        let size = CGSize(width: sideSize, height: sideSize)
-        let icon = try? iconGenerator?.generateFromAddress(viewModel.address)
-            .imageWithFillColor(R.color.colorWhite()!, size: size, contentScale: UIScreen.main.scale)
-        iconButton.imageWithTitleView?.iconImage = icon
+        iconButton.imageWithTitleView?.iconImage = R.image.iconFearlessRounded()
         iconButton.invalidateLayout()
 
         networkInfoView.bind(chainName: viewModel.chainName)
@@ -396,20 +472,35 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func didReceiveStakingState(viewModel: StakingViewState) {
+        guard viewIfLoaded != nil else {
+            return
+        }
+        if case .delegations = viewModel {
+            tableView.isHidden = false
+        } else {
+            tableView.isHidden = true
+            applyDelegations(viewModels: nil)
+        }
+
         switch viewModel {
         case .undefined:
             clearStateView()
         case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .nominator(viewModel, alerts, _):
+        case let .nominator(viewModel, alerts, analyticsViewModel):
             applyNominator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
-        case let .validator(viewModel, alerts, _):
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .validator(viewModel, alerts, analyticsViewModel):
             applyValidator(viewModel: viewModel)
             applyAlerts(alerts)
-//            applyAnalyticsRewards(viewModel: analyticsViewModel)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
+        case let .delegations(rewardViewModel, delegationViewModels, alerts, analyticsViewModel):
+            applyDelegations(viewModels: delegationViewModels)
+            applyRewards(viewModel: rewardViewModel)
+            applyAlerts(alerts)
+            applyAnalyticsRewards(viewModel: analyticsViewModel)
         }
     }
 
@@ -418,7 +509,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     @objc func actionAssetSelection() {
-        presenter.performAssetSelection()
+        presenter?.performAssetSelection()
     }
 }
 
@@ -428,7 +519,7 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
     }
 
     func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
-        presenter.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
+        presenter?.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }
 
@@ -483,22 +574,32 @@ extension StakingMainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
 
-        presenter.selectStory(at: indexPath.row)
+        presenter?.selectStory(at: indexPath.row)
     }
 }
 
 // MARK: - StakingStateViewDelegate
 
+extension StakingMainViewController: DelegationInfoCellModelDelegate {
+    func didReceiveMoreAction(delegationInfo: ParachainStakingDelegationInfo) {
+        presenter?.performParachainManageStakingAction(for: delegationInfo)
+    }
+
+    func didReceiveStatusAction() {
+        presenter?.performDelegationStatusAction()
+    }
+}
+
 extension StakingMainViewController: StakingStateViewDelegate {
     func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {
-        presenter.performManageStakingAction()
+        presenter?.performManageStakingAction()
     }
 
     func stakingStateViewDidReceiveStatusAction(_ view: StakingStateView) {
         if view is NominatorStateView {
-            presenter.performNominationStatusAction()
+            presenter?.performNominationStatusAction()
         } else if view is ValidatorStateView {
-            presenter.performValidationStatusAction()
+            presenter?.performValidationStatusAction()
         }
     }
 }
@@ -509,15 +610,45 @@ extension StakingMainViewController: AlertsViewDelegate {
     func didSelectStakingAlert(_ alert: StakingAlert) {
         switch alert {
         case .nominatorChangeValidators, .nominatorAllOversubscribed:
-            presenter.performChangeValidatorsAction()
+            presenter?.performChangeValidatorsAction()
         case .bondedSetValidators:
-            presenter.performSetupValidatorsForBondedAction()
+            presenter?.performSetupValidatorsForBondedAction()
         case .nominatorLowStake:
-            presenter.performBondMoreAction()
+            presenter?.performBondMoreAction()
         case .redeemUnbonded:
-            presenter.performRedeemAction()
+            presenter?.performRedeemAction()
+        case let .collatorLeaving(_, delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
+        case let .collatorLowStake(_, delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
+        case let .parachainRedeemUnbonded(delegation):
+            presenter?.performParachainManageStakingAction(for: delegation)
         case .waitingNextEra:
             break
         }
+    }
+}
+
+extension StakingMainViewController: UITableViewDataSource {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        delegationViewModels?.count ?? 0
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard
+            let cell = tableView.dequeueReusableCellWithType(DelegationInfoCell.self),
+            let viewModel = delegationViewModels?[indexPath.row]
+        else {
+            return UITableViewCell()
+        }
+        viewModel.locale = selectedLocale
+        cell.bind(to: viewModel)
+        return cell
+    }
+}
+
+extension StakingMainViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        Constants.delegationRowHeight
     }
 }

@@ -22,10 +22,6 @@ final class WalletDetailsPresenter {
         )
     }()
 
-    private lazy var iconGenerator = {
-        PolkadotIconGenerator()
-    }
-
     init(
         interactor: WalletDetailsInteractorInputProtocol,
         wireframe: WalletDetailsWireframeProtocol,

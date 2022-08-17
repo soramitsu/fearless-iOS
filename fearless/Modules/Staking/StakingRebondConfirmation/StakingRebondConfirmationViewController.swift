@@ -54,7 +54,7 @@ final class StakingRebondConfirmationViewController: UIViewController, ViewHolde
     }
 
     private func configureActions() {
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(actionConfirm),
             for: .touchUpInside

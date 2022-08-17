@@ -40,12 +40,10 @@ final class RecommendedValidatorListViewController: UIViewController {
 
     private func updateHeaderView() {
         if let viewModel = viewModel {
-            let languages = selectedLocale.rLanguages
             let title = viewModel
                 .itemsCountString.value(for: selectedLocale)
 
-            let details = R.string.localizable
-                .stakingFilterTitleRewards(preferredLanguages: languages)
+            let details = viewModel.rewardColumnTitle
 
             headerView?.bind(
                 title: title.uppercased(),
@@ -58,10 +56,6 @@ final class RecommendedValidatorListViewController: UIViewController {
         let languages = selectedLocale.rLanguages
         title = R.string.localizable
             .stakingRecommendedSectionTitle(preferredLanguages: languages)
-
-        continueButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: languages)
-        continueButton.invalidateLayout()
 
         updateHeaderView()
     }
@@ -85,7 +79,7 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
 
         let items = viewModel?.itemViewModels ?? []
         cell.bind(viewModel: items[indexPath.row].value(for: selectedLocale))
-
+        cell.delegate = self
         return cell
     }
 
@@ -97,8 +91,18 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
 
 extension RecommendedValidatorListViewController: RecommendedValidatorListViewProtocol {
     func didReceive(viewModel: RecommendedValidatorListViewModelProtocol) {
+        title = viewModel.title
+
         self.viewModel = viewModel
         updateHeaderView()
+
+        continueButton.imageWithTitleView?.title = viewModel.continueButtonTitle
+
+        if viewModel.continueButtonEnabled {
+            continueButton.applyEnabledStyle()
+        } else {
+            continueButton.applyDisabledStyle()
+        }
 
         tableView.reloadData()
     }
@@ -109,6 +113,14 @@ extension RecommendedValidatorListViewController {
         if isViewLoaded {
             setupLocalization()
             view.setNeedsLayout()
+        }
+    }
+}
+
+extension RecommendedValidatorListViewController: RecommendedValidatorCellDelegate {
+    func didTapInfoButton(in cell: RecommendedValidatorCell) {
+        if let indexPath = tableView.indexPath(for: cell) {
+            presenter.showValidatorInfoAt(index: indexPath.row)
         }
     }
 }

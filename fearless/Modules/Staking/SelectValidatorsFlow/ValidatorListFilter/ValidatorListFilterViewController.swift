@@ -6,6 +6,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
 
     private enum Constants {
         static let headerId = "validatorListFilterHeaderId"
+        static let headerHeight: CGFloat = 28
     }
 
     let presenter: ValidatorListFilterPresenterProtocol
@@ -54,6 +55,9 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(TitleSubtitleSwitchTableViewCell.self)
         rootView.tableView.registerClassForCell(ValidatorListFilterSortCell.self)
 
+        if #available(iOS 15.0, *) {
+            rootView.tableView.sectionHeaderTopPadding = 0
+        }
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
@@ -117,7 +121,7 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
 
         switch section {
         case 0:
-            return viewModel.filterModel.cellViewModels.count
+            return viewModel.filterModel?.cellViewModels.count ?? 0
         case 1:
             return viewModel.sortModel.cellViewModels.count
         default:
@@ -130,11 +134,12 @@ extension ValidatorListFilterViewController: UITableViewDataSource {
 
         switch indexPath.section {
         case 0:
-            let item = viewModel.filterModel.cellViewModels[indexPath.row]
             let cell = tableView.dequeueReusableCellWithType(TitleSubtitleSwitchTableViewCell.self)!
-
-            cell.bind(viewModel: item)
             cell.delegate = self
+
+            if let item = viewModel.filterModel?.cellViewModels[indexPath.row] {
+                cell.bind(viewModel: item)
+            }
 
             return cell
 
@@ -167,7 +172,7 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
         let sectionTitle: String = {
             switch section {
             case 0:
-                return viewModel?.filterModel.title ?? ""
+                return viewModel?.filterModel?.title ?? ""
             case 1:
                 return viewModel?.sortModel.title ?? ""
             default:
@@ -175,9 +180,34 @@ extension ValidatorListFilterViewController: UITableViewDelegate {
             }
         }()
 
+        if sectionTitle.isEmpty {
+            return nil
+        }
+
         view.bind(title: sectionTitle, icon: nil)
 
         return view
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        switch section {
+        case 0:
+            guard !(viewModel?.filterModel?.cellViewModels.isEmpty ?? true) else {
+                return .leastNormalMagnitude
+            }
+            return Constants.headerHeight
+        case 1:
+            guard !(viewModel?.sortModel.cellViewModels.isEmpty ?? true) else {
+                return .leastNormalMagnitude
+            }
+            return Constants.headerHeight
+        default:
+            return .leastNormalMagnitude
+        }
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        .leastNormalMagnitude
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {

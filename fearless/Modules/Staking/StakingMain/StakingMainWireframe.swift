@@ -46,11 +46,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         selectedAccount: MetaAccountModel
     ) {
         guard let recommendedView = SelectValidatorsStartViewFactory
-            .createChangeTargetsView(
-                selectedAccount: selectedAccount,
-                asset: asset,
-                chain: chain,
-                state: existingBonding
+            .createView(
+                wallet: selectedAccount,
+                chainAsset: ChainAsset(chain: chain, asset: asset),
+                flow: .relaychainExisting(state: existingBonding)
             )
         else {
             return
@@ -72,7 +71,11 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(storiesView.controller, animated: true, completion: nil)
     }
 
-    func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal) {
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        maxReward: (title: String, amount: Decimal),
+        avgReward: (title: String, amount: Decimal)
+    ) {
         let infoVew = ModalInfoFactory.createRewardDetails(for: maxReward, avgReward: avgReward)
 
         view?.controller.present(infoVew, animated: true, completion: nil)
@@ -124,14 +127,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showStakingBalance(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBalanceFlow
     ) {
         guard let stakingBalance = StakingBalanceViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let controller = stakingBalance.controller
         controller.hidesBottomBarWhenPushed = true
@@ -218,31 +221,33 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(
             from: bondMoreView.controller
         )
+
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow
     ) {
         guard let redeemView = StakingRedeemViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            redeemCompletion: nil
         ) else {
             return
         }
@@ -257,32 +262,30 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     func showAnalytics(
         from view: ControllerBackedProtocol?,
         mode: AnalyticsContainerViewMode,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: AnalyticsRewardsFlow
     ) {
         let analyticsView = AnalyticsContainerViewFactory.createView(
             mode: mode,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         )
         analyticsView.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)
     }
 
     func showYourValidatorInfo(
-        _ stashAddress: AccountAddress,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
+        flow: ValidatorInfoFlow,
         from view: ControllerBackedProtocol?
     ) {
         guard let validatorInfoView = ValidatorInfoViewFactory.createView(
-            address: stashAddress,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
+            flow: flow
         ) else {
             return
         }

@@ -23,6 +23,12 @@ extension NumberFormatter {
         return numberFormatter
     }
 
+    static var percentPlain: NumberFormatter {
+        let numberFormatter = percentBase
+        numberFormatter.multiplier = 1
+        return numberFormatter
+    }
+
     static var percent: NumberFormatter {
         percentBase
     }
@@ -35,6 +41,20 @@ extension NumberFormatter {
         numberFormatter.usesGroupingSeparator = true
         numberFormatter.alwaysShowsDecimalSeparator = false
         numberFormatter.positivePrefix = numberFormatter.plusSign
+        return numberFormatter
+    }
+
+    static var percentPlainAPY: NumberFormatter {
+        let numberFormatter = percentBase
+        numberFormatter.percentSymbol = "% APY"
+        numberFormatter.multiplier = 1
+        return numberFormatter
+    }
+
+    static var percentPlainAPR: NumberFormatter {
+        let numberFormatter = percentBase
+        numberFormatter.percentSymbol = "% APR"
+        numberFormatter.multiplier = 1
         return numberFormatter
     }
 

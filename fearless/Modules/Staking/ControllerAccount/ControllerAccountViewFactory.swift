@@ -25,7 +25,7 @@ struct ControllerAccountViewFactory {
 
         let viewModelFactory = ControllerAccountViewModelFactory(
             currentAccountItem: account,
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -81,7 +81,7 @@ struct ControllerAccountViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,

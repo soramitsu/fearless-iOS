@@ -71,8 +71,8 @@ class ManageAssetsTableViewCell: UITableViewCell {
 
         chainIconImageView.kf.cancelDownloadTask()
 
-        chainOptionsView.stackView.arrangedSubviews.forEach { subview in
-            chainOptionsView.stackView.removeArrangedSubview(subview)
+        chainOptionsView.arrangedSubviews.forEach { subview in
+            chainOptionsView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
     }
@@ -209,7 +209,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
                 let view = ChainOptionsView()
                 view.bind(to: option)
 
-                chainOptionsView.stackView.addArrangedSubview(view)
+                chainOptionsView.addArrangedSubview(view)
             }
         }
 

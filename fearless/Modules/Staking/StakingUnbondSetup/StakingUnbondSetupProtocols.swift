@@ -5,9 +5,13 @@ import BigInt
 
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
-    func didReceiveBonding(duration: LocalizableResource<String>)
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
+    func didReceiveAccount(viewModel: AccountViewModel)
+    func didReceiveCollator(viewModel: AccountViewModel)
+    func didReceiveTitle(viewModel: LocalizableResource<String>)
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>)
 }
 
 protocol StakingUnbondSetupPresenterProtocol: AnyObject {
@@ -20,18 +24,11 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
 
 protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee()
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveBondingDuration(result: Result<UInt32, Error>)
-    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
 protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
@@ -39,17 +36,16 @@ protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable
     func close(view: StakingUnbondSetupViewProtocol?)
     func proceed(
         view: StakingUnbondSetupViewProtocol?,
-        amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        flow: StakingUnbondConfirmFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 
 protocol StakingUnbondSetupViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondSetupFlow
     ) -> StakingUnbondSetupViewProtocol?
 }

@@ -7,53 +7,30 @@ protocol RecommendedValidatorListViewProtocol: ControllerBackedProtocol, Localiz
 protocol RecommendedValidatorListPresenterProtocol: AnyObject {
     func setup()
     func selectedValidatorAt(index: Int)
+    func showValidatorInfoAt(index: Int)
     func proceed()
 }
 
 protocol RecommendedValidatorListWireframeProtocol: AnyObject {
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: SelectedValidatorInfo,
-        from view: RecommendedValidatorListViewProtocol?,
-        wallet: MetaAccountModel
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: RecommendedValidatorListViewProtocol?
     )
 
     func proceed(
-        from view: RecommendedValidatorListViewProtocol?,
-        targets: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel
+        from _: RecommendedValidatorListViewProtocol?,
+        flow _: SelectValidatorsConfirmFlow,
+        wallet _: MetaAccountModel,
+        chainAsset _: ChainAsset
     )
 }
 
 protocol RecommendedValidatorListViewFactoryProtocol: AnyObject {
-    static func createInitiatedBondingView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        with state: InitiatedBonding
-    ) -> RecommendedValidatorListViewProtocol?
-
-    static func createChangeTargetsView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        with state: ExistingBonding
-    ) -> RecommendedValidatorListViewProtocol?
-
-    static func createChangeYourValidatorsView(
-        for validators: [SelectedValidatorInfo],
-        maxTargets: Int,
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        with state: ExistingBonding
+    static func createView(
+        flow: RecommendedValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> RecommendedValidatorListViewProtocol?
 }

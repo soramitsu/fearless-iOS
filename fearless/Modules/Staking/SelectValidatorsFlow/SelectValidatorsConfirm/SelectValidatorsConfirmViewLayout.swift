@@ -10,7 +10,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     var stackView: UIStackView { contentView.stackView }
 
-    let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+    let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
     let amountView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
@@ -33,7 +33,17 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         return view
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let selectedCollatorContainer = UIView()
+    let selectedCollatorTitle: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = .white
+        return label
+    }()
+
+    let selectedCollatorView = UIFactory.default.createAccountView(for: .options, filled: false)
+
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     private(set) var hintViews: [UIView] = []
 
@@ -99,8 +109,8 @@ final class SelectValidatorsConfirmViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(networkFeeConfirmView)
-        networkFeeConfirmView.snp.makeConstraints { make in
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
 
@@ -108,7 +118,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(networkFeeConfirmView.snp.top)
+            make.bottom.equalTo(networkFeeFooterView.snp.top)
         }
 
         stackView.addArrangedSubview(mainAccountView)
@@ -131,6 +141,27 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         rewardDestinationView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
+        }
+
+        stackView.addArrangedSubview(selectedCollatorContainer)
+        selectedCollatorContainer.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
+        stackView.setCustomSpacing(16.0, after: selectedCollatorContainer)
+
+        selectedCollatorContainer.addSubview(selectedCollatorTitle)
+        selectedCollatorContainer.addSubview(selectedCollatorView)
+
+        selectedCollatorTitle.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        selectedCollatorView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(selectedCollatorTitle.snp.bottom).offset(UIConstants.defaultOffset)
         }
 
         stackView.addArrangedSubview(validatorsView)

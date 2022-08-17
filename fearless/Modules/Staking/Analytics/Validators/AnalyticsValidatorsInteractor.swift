@@ -5,7 +5,7 @@ import FearlessUtils
 
 final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
@@ -26,7 +26,7 @@ final class AnalyticsValidatorsInteractor {
 
     init(
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         engine: JSONRPCEngine,
@@ -104,7 +104,7 @@ final class AnalyticsValidatorsInteractor {
             let stashAddress = stashItem?.stash
         else { return }
 
-        let subqueryRewardsSource = SubqueryRewardsSource(address: stashAddress, url: analyticsURL)
+        let subqueryRewardsSource = ParachainSubqueryRewardsSource(address: stashAddress, url: analyticsURL)
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
@@ -136,7 +136,7 @@ extension AnalyticsValidatorsInteractor: AnalyticsValidatorsInteractorInputProto
     }
 }
 
-extension AnalyticsValidatorsInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension AnalyticsValidatorsInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         switch result {
         case let .success(stashItem):

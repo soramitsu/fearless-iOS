@@ -27,7 +27,7 @@ final class ManagedConnectionItemMapper: CoreDataMapperProtocol {
             let identifier = entity.chainId,
             let url = URL(string: identifier),
             let title = entity.name,
-            let networkType = SNAddressType(rawValue: UInt8(entity.addressPrefix))
+            let networkType = SNAddressType(rawValue: UInt16(entity.addressPrefix))
         else {
             throw ManagedAccountItemMapperError.invalidEntity
         }

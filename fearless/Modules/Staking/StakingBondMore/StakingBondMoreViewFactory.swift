@@ -6,33 +6,44 @@ import CommonWallet
 
 struct StakingBondMoreViewFactory {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) -> StakingBondMoreViewProtocol? {
+        let wireframe = StakingBondMoreWireframe()
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        guard let container = createContainer(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            dataValidatingFactory: dataValidatingFactory
+        ) else {
+            return nil
+        }
+
         guard let interactor = createInteractor(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
         ) else { return nil }
 
-        let wireframe = StakingBondMoreWireframe()
-
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedAccount
+            selectedMetaAccount: wallet
         )
 
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingBondMorePresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            networkFeeViewModelFactory: NetworkFeeViewModelFactory(),
+            chainAsset: chainAsset,
+            wallet: wallet
         )
         let viewController = StakingBondMoreViewController(
             presenter: presenter,
@@ -47,17 +58,36 @@ struct StakingBondMoreViewFactory {
     }
 
     private static func createInteractor(
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        strategy: StakingBondMoreStrategy
     ) -> StakingBondMoreInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        let interactor = StakingBondMoreInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+
+            strategy: strategy
+        )
+
+        return interactor
+    }
+
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) -> StakingBondMoreDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -70,7 +100,7 @@ struct StakingBondMoreViewFactory {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -82,8 +112,7 @@ struct StakingBondMoreViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
@@ -106,24 +135,62 @@ struct StakingBondMoreViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let interactor = StakingBondMoreInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            substrateProviderFactory: substrateProviderFactory,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            chainAsset: chainAsset,
-            selectedAccount: selectedAccount,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            connection: connection
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            selectedMetaAccount: wallet
         )
 
-        return interactor
+        switch flow {
+        case .relaychain:
+            let viewModelState = StakingBondMoreRelaychainViewModelState(
+                chainAsset: chainAsset,
+                dataValidatingFactory: dataValidatingFactory
+            )
+
+            let strategy = StakingBondMoreRelaychainStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                output: viewModelState,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                connection: connection,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager
+            )
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: nil
+            )
+        case let .parachain(candidate):
+            let viewModelState = StakingBondMoreParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                candidate: candidate
+            )
+            let strategy = StakingBondMoreParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                output: viewModelState,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager
+            )
+
+            let viewModelFactory = StakingBondMoreParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)))
+
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }

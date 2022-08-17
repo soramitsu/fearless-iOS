@@ -35,7 +35,8 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
-            chainDateCalculator: ChainDateCalculator()
+            chainDateCalculator: ChainDateCalculator(),
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(

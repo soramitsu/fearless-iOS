@@ -3,16 +3,16 @@ import SoraFoundation
 import BigInt
 
 final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol {
-    let chain: Chain
+    let chainAsset: ChainAsset
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var txDateFormatter = DateFormatter.txDetails
 
     init(
-        chain: Chain,
+        chainAsset: ChainAsset,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
@@ -37,7 +37,7 @@ final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewMo
         guard
             let tokenDecimal = Decimal.fromSubstrateAmount(
                 amount,
-                precision: chain.addressType.precision
+                precision: Int16(chainAsset.asset.precision)
             )
         else { return "" }
 

@@ -8,7 +8,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     var extrinsicService: ExtrinsicServiceProtocol
@@ -32,7 +32,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
@@ -139,7 +139,7 @@ extension StakingRewardDestConfirmInteractor: AccountInfoSubscriptionAdapterHand
     }
 }
 
-extension StakingRewardDestConfirmInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRewardDestConfirmInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let stashItem = try result.get()

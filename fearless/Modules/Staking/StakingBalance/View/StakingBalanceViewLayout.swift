@@ -10,6 +10,14 @@ final class StakingBalanceViewLayout: UIView {
         return blurView
     }()
 
+    let scrollView: UIScrollView = {
+        let scrollView = UIScrollView()
+        scrollView.alwaysBounceVertical = true
+        return scrollView
+    }()
+
+    let refreshControl = UIRefreshControl()
+
     var navBarBlurViewHeightConstraint: Constraint!
     let balanceWidget = StakingBalanceWidgetView()
     let actionsWidget = StakingBalanceActionsWidgetView()
@@ -37,12 +45,13 @@ final class StakingBalanceViewLayout: UIView {
             self.navBarBlurViewHeightConstraint.activate()
         }
 
-        let scrollView = UIScrollView()
         addSubview(scrollView)
         scrollView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.bottom.trailing.equalToSuperview()
         }
+
+        scrollView.addSubview(refreshControl)
 
         let contentView = UIView()
         scrollView.addSubview(contentView)

@@ -13,9 +13,9 @@ PODS:
     - SoraFoundation/NotificationHandlers (~> 1.0.0)
     - SoraFoundation/NumberProcessing (~> 1.0.0)
     - SoraUI (~> 1.10.0)
-  - Cuckoo (1.8.0):
-    - Cuckoo/Swift (= 1.8.0)
-  - Cuckoo/Swift (1.8.0)
+  - Cuckoo (1.8.1):
+    - Cuckoo/Swift (= 1.8.1)
+  - Cuckoo/Swift (1.8.1)
   - FearlessUtils (0.14.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
@@ -118,14 +118,14 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.8.1):
-    - Sourcery/CLI-Only (= 1.8.1)
-  - Sourcery/CLI-Only (1.8.1)
+  - Sourcery (1.8.2):
+    - Sourcery/CLI-Only (= 1.8.2)
+  - Sourcery/CLI-Only (1.8.2)
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.47.1)
+  - SwiftLint (0.48.0)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - X-Networking (0.0.32)
@@ -207,7 +207,7 @@ SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
-  Cuckoo: 33cc15762a936352265c30396069f1cb160d9596
+  Cuckoo: be1dc6cac793247a0873348e3343bd232577d162
   FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
@@ -223,11 +223,11 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: 4d44d4ea26a682a4a9875ec7c1870a1e7b8e183f
+  Sourcery: ad4aba88367fbaf0c1ae6ec4ba3282db1b571624
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: f80f1be7fa96d30e0aa68e58d45d4ea1ccaac519
+  SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   X-Networking: aa9e1ae12a2e5ba912e038f7d227c9e4d922e5f6

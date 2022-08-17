@@ -1,8 +1,10 @@
 import Foundation
 import RobinHood
 
+typealias MetaAccountId = String
+
 struct MetaAccountModel: Equatable, Codable {
-    let metaId: String
+    let metaId: MetaAccountId
     let name: String
     let substrateAccountId: Data
     let substrateCryptoType: UInt8

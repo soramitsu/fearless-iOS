@@ -3,11 +3,11 @@ import RobinHood
 import FearlessUtils
 import BigInt
 
-final class WeaklyAnalyticsRewardSource {
+final class ParachainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
-    let address: AccountAddress
-    let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let address: AccountAddress
+    private let operationFactory: SubqueryRewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
@@ -18,12 +18,70 @@ final class WeaklyAnalyticsRewardSource {
     }
 }
 
-extension WeaklyAnalyticsRewardSource: SingleValueProviderSourceProtocol {
+extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[SubqueryRewardItemData]?> {
         let now = Date().timeIntervalSince1970
         let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
 
-        let rewardOperation = operationFactory.createOperation(
+        let rewardOperation = operationFactory.createDelegatorRewardsOperation(
+            address: address,
+            startTimestamp: Int64(sevenDaysAgo),
+            endTimestamp: Int64(now)
+        )
+
+        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> { [weak self] in
+            guard let strongSelf = self else {
+                throw CommonError.internal
+            }
+
+            let rewards = try rewardOperation.extractNoCancellableResultData()
+            return rewards.delegators.nodes.first(where: { historyElement in
+                historyElement.id.lowercased() == strongSelf.address.lowercased()
+            })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
+                guard
+                    let timestamp = Int64(wrappedReward.timestamp)
+                else {
+                    return nil
+                }
+                return SubqueryRewardItemData(
+                    eventId: wrappedReward.id,
+                    timestamp: timestamp,
+                    validatorAddress: "",
+                    era: EraIndex(0),
+                    stashAddress: strongSelf.address,
+                    amount: wrappedReward.amount,
+                    isReward: wrappedReward.type == 0
+                )
+            }
+        }
+
+        mappingOperation.addDependency(rewardOperation)
+
+        return CompoundOperationWrapper(targetOperation: mappingOperation, dependencies: [rewardOperation])
+    }
+}
+
+final class RelaychainWeaklyAnalyticsRewardSource {
+    typealias Model = [SubqueryRewardItemData]
+
+    private let address: AccountAddress
+    private let operationFactory: SubqueryRewardOperationFactoryProtocol
+
+    init(
+        address: AccountAddress,
+        operationFactory: SubqueryRewardOperationFactoryProtocol
+    ) {
+        self.address = address
+        self.operationFactory = operationFactory
+    }
+}
+
+extension RelaychainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtocol {
+    func fetchOperation() -> CompoundOperationWrapper<[SubqueryRewardItemData]?> {
+        let now = Date().timeIntervalSince1970
+        let sevenDaysAgo = Date().addingTimeInterval(-(.secondsInDay * 7)).timeIntervalSince1970
+
+        let rewardOperation = operationFactory.createHistoryOperation(
             address: address,
             startTimestamp: Int64(sevenDaysAgo),
             endTimestamp: Int64(now)

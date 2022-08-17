@@ -5,11 +5,16 @@ import FearlessUtils
 import RobinHood
 
 final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
-    private let iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
+
     var dataStorageFacade: StorageFacadeProtocol
 
-    init(dataStorageFacade: StorageFacadeProtocol) {
+    init(
+        dataStorageFacade: StorageFacadeProtocol,
+        iconGenerator: IconGenerating
+    ) {
         self.dataStorageFacade = dataStorageFacade
+        self.iconGenerator = iconGenerator
     }
 
     func createContactViewModelFromContact(

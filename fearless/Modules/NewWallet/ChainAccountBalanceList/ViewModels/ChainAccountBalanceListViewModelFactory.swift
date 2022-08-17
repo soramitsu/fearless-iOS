@@ -239,8 +239,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
         }
 
         let viewModel = ChainAccountBalanceCellViewModel(
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
+            assetContainsChainAssets: [chainAsset],
+            chainAsset: chainAsset,
             assetName: title,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: icon,

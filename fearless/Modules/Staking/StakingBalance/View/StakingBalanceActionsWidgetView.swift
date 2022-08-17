@@ -62,7 +62,10 @@ final class StakingBalanceActionsWidgetView: UIView {
         bondMoreButton.imageWithTitleView?.title = viewModel.bondTitle
         unbondButton.imageWithTitleView?.title = viewModel.unbondTitle
         redeemButton.imageWithTitleView?.title = viewModel.redeemTitle
+        redeemButton.imageWithTitleView?.iconImage = viewModel.redeemIcon
         redeemButton.isEnabled = viewModel.redeemActionIsAvailable
+        bondMoreButton.isEnabled = viewModel.stakeMoreActionAvailable
+        unbondButton.isEnabled = viewModel.stakeLessActionAvailable
     }
 }
 

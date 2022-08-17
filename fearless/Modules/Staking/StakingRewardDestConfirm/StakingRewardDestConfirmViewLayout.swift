@@ -22,7 +22,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
 
     private(set) var separatorView = UIFactory.default.createSeparatorView()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -100,7 +100,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
                 .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
             insertPayoutViewIfNeeded()
 
-            payoutAccountView?.iconImage = icon.imageWithFillColor(
+            payoutAccountView?.iconImage = icon?.imageWithFillColor(
                 R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
@@ -113,7 +113,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
@@ -126,7 +126,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
         payoutAccountView?.title = R.string.localizable
             .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         setNeedsLayout()
     }
@@ -158,9 +158,9 @@ final class StakingRewardDestConfirmViewLayout: UIView {
             make.height.equalTo(UIConstants.separatorHeight)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

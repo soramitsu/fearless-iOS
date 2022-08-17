@@ -75,7 +75,7 @@ final class SubqueryRewardSource {
     }
 
     private func fetch() {
-        let remoteOperation = operationFactory.createOperation(address: address)
+        let remoteOperation = operationFactory.createHistoryOperation(address: address)
 
         remoteOperation.completionBlock = {
             DispatchQueue.global(qos: .userInitiated).async {
