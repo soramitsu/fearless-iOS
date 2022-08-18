@@ -14,6 +14,7 @@ protocol ChainRegistryProtocol: AnyObject {
     func chainsUnsubscribe(_ target: AnyObject)
     func syncUp()
     func hotBoot()
+    func coldBoot()
     func subscribeToChians()
 }
 
@@ -167,6 +168,11 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return Set(runtimeVersionSubscriptions.keys)
+    }
+
+    func coldBoot() {
+        subscribeToChians()
+        syncUpServices()
     }
 
     func hotBoot() {

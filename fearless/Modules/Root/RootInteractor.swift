@@ -66,15 +66,15 @@ extension RootInteractor: RootInteractorInputProtocol {
             switch result {
             case let .success(maybeMetaAccount):
                 if let metaAccount = maybeMetaAccount {
+                    self.chainRegistry.hotBoot()
                     self.logger?.debug("Selected account: \(metaAccount.metaId)")
                 } else {
+                    self.chainRegistry.coldBoot()
                     self.logger?.debug("No selected account")
                 }
             case let .failure(error):
                 self.logger?.error("Selected account setup failed: \(error)")
             }
         }
-
-        chainRegistry.hotBoot()
     }
 }
