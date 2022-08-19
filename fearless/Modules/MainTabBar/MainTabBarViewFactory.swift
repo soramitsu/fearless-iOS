@@ -7,6 +7,7 @@ import FearlessUtils
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
+    static let stakingIndex: Int = 2
 
     static func createView() -> MainTabBarViewProtocol? {
         guard
@@ -64,9 +65,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let stakingController = createStakingController(for: localizationManager) else {
-            return nil
-        }
+        let stakingController = createStakingController(
+            for: localizationManager,
+            moduleOutput: presenter
+        )
 
         // TODO: Move setup to loading state
         let crowdloanState = CrowdloanSharedState()
@@ -137,6 +139,30 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return crowdloanController
     }
 
+    static func reloadStakingView(
+        on view: MainTabBarViewProtocol,
+        stakingType: AssetSelectionStakingType,
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController? {
+        let localizationManager = LocalizationManager.shared
+
+//        let stakingState = StakingSharedState()
+//        stakingState.settings.setup()
+
+        switch stakingType {
+        case let .normal:
+            let stakingViewController = createStakingController(for: localizationManager, moduleOutput: moduleOutput)
+            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+
+            return stakingViewController
+        case let .pool:
+            let stakingViewController = createPoolStakingController(for: localizationManager, moduleOutput: moduleOutput)
+            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+
+            return stakingViewController
+        }
+    }
+
     static func createWalletController(
         localizationManager: LocalizationManagerProtocol
     ) -> UIViewController? {
@@ -180,10 +206,47 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createStakingController(
-        for localizationManager: LocalizationManagerProtocol
-    ) -> UIViewController? {
+        for localizationManager: LocalizationManagerProtocol,
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController {
         // TODO: Remove when staking is fixed
-        let viewController = StakingMainViewFactory.createView()?.controller ?? UIViewController()
+        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
+
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let icon = R.image.iconTabStaking()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        viewController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
+            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+            viewController?.tabBarItem.title = currentTitle
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+        return navigationController
+    }
+
+    static func createPoolStakingController(
+        for localizationManager: LocalizationManagerProtocol,
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController {
+        // TODO: Remove when staking is fixed
+        let module = StakingPoolMainAssembly.configureModule(moduleOutput: moduleOutput)
+        guard let viewController = module?.view.controller else {
+            return UIViewController()
+        }
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)

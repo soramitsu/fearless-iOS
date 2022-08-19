@@ -87,3 +87,9 @@ extension MainTabBarPresenter: ReachabilityListenerDelegate {
             : networkStatusPresenter.didDecideUnreachableStatusPresentation()
     }
 }
+
+extension MainTabBarPresenter: StakingMainModuleOutput {
+    func didSwitchStakingType(_ type: AssetSelectionStakingType) {
+        wireframe.replaceStaking(on: view, type: type, moduleOutput: self)
+    }
+}

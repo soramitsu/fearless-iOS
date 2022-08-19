@@ -24,12 +24,10 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
 
 protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func showNewWalletView(on view: MainTabBarViewProtocol?)
-
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
-
     func presentAccountImport(on view: MainTabBarViewProtocol?)
-
     func logout(from _: MainTabBarViewProtocol?)
+    func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {

@@ -20,6 +20,7 @@ final class StakingMainPresenter {
 
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
+    private weak var moduleOutput: StakingMainModuleOutput?
 
     var chainAsset: ChainAsset? {
         stateMachine.viewState { (state: BaseStakingState) in state.commonData.chainAsset }
@@ -50,7 +51,8 @@ final class StakingMainPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?,
         selectedMetaAccount: MetaAccountModel,
-        eventCenter: EventCenter
+        eventCenter: EventCenter,
+        moduleOutput: StakingMainModuleOutput?
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
@@ -66,6 +68,7 @@ final class StakingMainPresenter {
 
         stateMachine.delegate = self
         self.eventCenter.add(observer: self, dispatchIn: .main)
+        self.moduleOutput = moduleOutput
     }
 
     private func provideStakingInfo() {
@@ -828,9 +831,20 @@ extension StakingMainPresenter: AssetSelectionDelegate {
     func assetSelection(
         view _: ChainSelectionViewProtocol,
         didCompleteWith chainAsset: ChainAsset,
-        context _: Any?
+        context: Any?
     ) {
+        guard let type = context as? AssetSelectionStakingType, let chainAsset = type.chainAsset else {
+            return
+        }
+
         interactor.save(chainAsset: chainAsset)
+
+        switch type {
+        case .normal:
+            break
+        case .pool:
+            moduleOutput?.didSwitchStakingType(type)
+        }
     }
 }
 
