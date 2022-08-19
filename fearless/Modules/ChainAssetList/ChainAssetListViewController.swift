@@ -85,40 +85,6 @@ extension ChainAssetListViewController: Localizable {
     func applyLocalization() {}
 }
 
-// extension ChainAssetListViewController: UITableViewDelegate {
-//    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-//        guard let cell = cell as? ChainAccountBalanceTableCell
-//        else {
-//            return
-//        }
-//
-//        cell.bind(to: sections[indexPath.section].cellViewModels[indexPath.row])
-//    }
-//
-//    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-//        output.didSelectViewModel(sections[indexPath.section].cellViewModels[indexPath.row])
-//    }
-// }
-//
-// extension ChainAssetListViewController: UITableViewDataSource {
-//    func numberOfSections(in _: UITableView) -> Int {
-//        sections.count
-//    }
-//
-//    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-//        sections[section].cellViewModels.count
-//    }
-//
-//    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
-//        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
-//            return UITableViewCell()
-//        }
-//        cell.delegate = self
-//
-//        return cell
-//    }
-// }
-
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {
     func swipeCellDidTap(on actionType: SwipableCellButtonType, with indexPath: IndexPath?) {
         guard let indexPath = indexPath else {

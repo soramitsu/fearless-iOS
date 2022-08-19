@@ -114,7 +114,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 activeSection: activeSectionCellModels,
                 hiddenSection: hiddenSectionCellModels
             ],
-            isColdBoot: false
+            isColdBoot: isColdBoot
         )
     }
 }
@@ -207,7 +207,7 @@ private extension ChainAssetListViewModelFactory {
                 isUpdated: priceDataUpdated
             ),
             options: options,
-            isColdBoot: false,
+            isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated
         )
 
