@@ -81,7 +81,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
 }
 
 extension ConnectionPool: WebSocketEngineDelegate {
-    func webSocketDidChangeState(engine: WebSocketEngine, from _: WebSocketEngine.State, to newState: WebSocketEngine.State) {
+    func webSocketDidChangeState(
+        engine: WebSocketEngine,
+        from _: WebSocketEngine.State,
+        to newState: WebSocketEngine.State
+    ) {
         guard let previousUrl = engine.url else {
             return
         }
@@ -90,7 +94,7 @@ extension ConnectionPool: WebSocketEngineDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
-//                delegate?.connectionNeedsReconnect(url: previousUrl)
+                delegate?.connectionNeedsReconnect(url: previousUrl)
             }
         case .connected:
             break

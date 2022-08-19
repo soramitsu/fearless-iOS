@@ -136,13 +136,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
 
         let storageOperationFactory = StorageRequestFactory(
@@ -165,7 +158,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 

@@ -3,6 +3,11 @@ import RobinHood
 
 protocol RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol
+    func createHotRuntimeProvider(
+        for chain: ChainModel,
+        runtimeItem: RuntimeMetadataItem,
+        commonTypes: Data
+    ) -> RuntimeProviderProtocol
 }
 
 final class RuntimeProviderFactory {
@@ -41,6 +46,36 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
         return RuntimeProvider(
             chainModel: chain,
             snapshotOperationFactory: snapshotOperationFactory,
+            snapshotHotOperationFactory: nil,
+            eventCenter: eventCenter,
+            operationQueue: operationQueue,
+            logger: logger,
+            repository: repository
+        )
+    }
+
+    func createHotRuntimeProvider(
+        for chain: ChainModel,
+        runtimeItem: RuntimeMetadataItem,
+        commonTypes: Data
+    ) -> RuntimeProviderProtocol {
+        let snapshotOperationFactory = RuntimeSnapshotFactory(
+            chainId: chain.chainId,
+            filesOperationFactory: fileOperationFactory,
+            repository: repository
+        )
+
+        let snapshotHotOperationFactory = RuntimeHotBootSnapshotFactory(
+            chainId: chain.chainId,
+            runtimeItem: runtimeItem,
+            commonTypes: commonTypes,
+            filesOperationFactory: fileOperationFactory
+        )
+
+        return RuntimeProvider(
+            chainModel: chain,
+            snapshotOperationFactory: snapshotOperationFactory,
+            snapshotHotOperationFactory: snapshotHotOperationFactory,
             eventCenter: eventCenter,
             operationQueue: operationQueue,
             logger: logger,

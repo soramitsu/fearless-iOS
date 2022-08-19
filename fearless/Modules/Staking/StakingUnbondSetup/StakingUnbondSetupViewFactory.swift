@@ -110,17 +110,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -130,7 +121,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
         let storageOperationFactory = StorageRequestFactory(
@@ -202,7 +193,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 delegation: delegation
             )
             let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
-                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+                accountViewModelFactory:
+                AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
             )
             return StakingUnbondSetupDependencyContainer(
                 viewModelState: viewModelState,
