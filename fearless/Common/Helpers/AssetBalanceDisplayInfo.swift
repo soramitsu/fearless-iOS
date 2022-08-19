@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-struct AssetBalanceDisplayInfo {
+struct AssetBalanceDisplayInfo: Hashable {
     let displayPrecision: UInt16
     let assetPrecision: Int16
     let symbol: String

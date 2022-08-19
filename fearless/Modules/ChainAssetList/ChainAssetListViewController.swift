@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import DiffableDataSources
 
 final class ChainAssetListViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChainAssetListViewLayout
@@ -9,6 +10,8 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     private let output: ChainAssetListViewOutput
 
     private var sections: [ChainAssetListTableSection] = []
+    private var cellsForSections: [ChainAssetListTableSection: [ChainAccountBalanceCellViewModel]] = [:]
+    private var dataSource: TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>?
 
     // MARK: - Constructor
 
@@ -35,21 +38,44 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
-
-        rootView.tableView.delegate = self
-        rootView.tableView.dataSource = self
-        rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
+        configureTableView()
     }
 
     // MARK: - Private methods
+}
+
+private extension ChainAssetListViewController {
+    func configureTableView() {
+        rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
+        dataSource = TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>(
+            tableView: rootView.tableView
+        ) { tableView, indexPath, model in
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: ChainAccountBalanceTableCell.self.reuseIdentifier,
+                for: indexPath
+            ) as? ChainAccountBalanceTableCell else {
+                return UITableViewCell()
+            }
+            cell.bind(to: model)
+            cell.delegate = self
+            return cell
+        }
+        dataSource?.defaultRowAnimation = .fade
+    }
 }
 
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
-        sections = viewModel.sections
-        rootView.tableView.reloadData()
+        var snapshot = DiffableDataSourceSnapshot<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>()
+        snapshot.appendSections(viewModel.sections)
+        viewModel.sections.forEach { section in
+            if let cells = viewModel.cellsForSections[section] {
+                snapshot.appendItems(cells, toSection: section)
+            }
+        }
+        dataSource?.apply(snapshot, animatingDifferences: true)
     }
 }
 
@@ -59,46 +85,47 @@ extension ChainAssetListViewController: Localizable {
     func applyLocalization() {}
 }
 
-extension ChainAssetListViewController: UITableViewDelegate {
-    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
-        guard let cell = cell as? ChainAccountBalanceTableCell
-        else {
-            return
-        }
-
-        cell.bind(to: sections[indexPath.section].cellViewModels[indexPath.row])
-    }
-
-    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        output.didSelectViewModel(sections[indexPath.section].cellViewModels[indexPath.row])
-    }
-}
-
-extension ChainAssetListViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        sections.count
-    }
-
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        sections[section].cellViewModels.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
-            return UITableViewCell()
-        }
-        cell.delegate = self
-
-        return cell
-    }
-}
+// extension ChainAssetListViewController: UITableViewDelegate {
+//    func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
+//        guard let cell = cell as? ChainAccountBalanceTableCell
+//        else {
+//            return
+//        }
+//
+//        cell.bind(to: sections[indexPath.section].cellViewModels[indexPath.row])
+//    }
+//
+//    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+//        output.didSelectViewModel(sections[indexPath.section].cellViewModels[indexPath.row])
+//    }
+// }
+//
+// extension ChainAssetListViewController: UITableViewDataSource {
+//    func numberOfSections(in _: UITableView) -> Int {
+//        sections.count
+//    }
+//
+//    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+//        sections[section].cellViewModels.count
+//    }
+//
+//    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+//        guard let cell = tableView.dequeueReusableCellWithType(ChainAccountBalanceTableCell.self) else {
+//            return UITableViewCell()
+//        }
+//        cell.delegate = self
+//
+//        return cell
+//    }
+// }
 
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {
     func swipeCellDidTap(on actionType: SwipableCellButtonType, with indexPath: IndexPath?) {
         guard let indexPath = indexPath else {
             return
         }
-        let viewModelForAction = sections[indexPath.section].cellViewModels[indexPath.row]
-        output.didTapAction(actionType: actionType, viewModel: viewModelForAction)
+        if let viewModelForAction = cellsForSections[sections[indexPath.section]]?[indexPath.row] {
+            output.didTapAction(actionType: actionType, viewModel: viewModelForAction)
+        }
     }
 }

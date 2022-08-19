@@ -1,7 +1,7 @@
 import Foundation
 import Kingfisher
 
-struct ChainAccountBalanceCellViewModel {
+struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]
     let chainAsset: ChainAsset
     let assetName: String?
@@ -13,4 +13,24 @@ struct ChainAccountBalanceCellViewModel {
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
     var priceDataWasUpdated: Bool
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(chainAsset.chainAssetId)
+        hasher.combine(balanceString)
+        hasher.combine(isColdBoot)
+    }
+}
+
+extension ChainAccountBalanceCellViewModel: Equatable {
+    static func == (lhs: ChainAccountBalanceCellViewModel, rhs: ChainAccountBalanceCellViewModel) -> Bool {
+        lhs.assetContainsChainAssets == rhs.assetContainsChainAssets &&
+            lhs.chainAsset == rhs.chainAsset &&
+            lhs.assetName == rhs.assetName &&
+            lhs.assetInfo == rhs.assetInfo &&
+            lhs.balanceString == rhs.balanceString &&
+            lhs.priceAttributedString == rhs.priceAttributedString &&
+            lhs.totalAmountString == rhs.totalAmountString &&
+            lhs.options == rhs.options &&
+            lhs.priceDataWasUpdated == rhs.priceDataWasUpdated
+    }
 }

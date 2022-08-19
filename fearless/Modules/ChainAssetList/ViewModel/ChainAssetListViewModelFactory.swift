@@ -83,13 +83,11 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let activeSection = ChainAssetListTableSection(
-            cellViewModels: activeSectionCellModels,
             title: nil,
             expandable: false
         )
-        // Lokalise
+
         let hiddenSection = ChainAssetListTableSection(
-            cellViewModels: hiddenSectionCellModels,
             title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
             expandable: true
         )
@@ -112,7 +110,11 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             sections: [
                 activeSection, hiddenSection
             ],
-            isColdBoot: isColdBoot
+            cellsForSections: [
+                activeSection: activeSectionCellModels,
+                hiddenSection: hiddenSectionCellModels
+            ],
+            isColdBoot: false
         )
     }
 }
@@ -205,7 +207,7 @@ private extension ChainAssetListViewModelFactory {
                 isUpdated: priceDataUpdated
             ),
             options: options,
-            isColdBoot: isColdBoot,
+            isColdBoot: false,
             priceDataWasUpdated: priceDataUpdated
         )
 
