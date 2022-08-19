@@ -13,8 +13,8 @@ protocol ChainRegistryProtocol: AnyObject {
     )
     func chainsUnsubscribe(_ target: AnyObject)
     func syncUp()
-    func hotBoot()
-    func coldBoot()
+    func performHotBoot()
+    func performColdBoot()
     func subscribeToChians()
 }
 
@@ -61,30 +61,6 @@ final class ChainRegistry {
         self.eventCenter = eventCenter
 
         connectionPool.setDelegate(self)
-    }
-
-    private func subscribeToChains() {
-        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
-            self?.handle(changes: changes)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.logger?.error("Unexpected error chains listener setup: \(error)")
-        }
-
-        let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false,
-            refreshWhenEmpty: false
-        )
-
-        chainProvider.addObserver(
-            self,
-            deliverOn: DispatchQueue.global(qos: .userInitiated),
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -170,17 +146,37 @@ extension ChainRegistry: ChainRegistryProtocol {
         return Set(runtimeVersionSubscriptions.keys)
     }
 
-    func coldBoot() {
+    func performColdBoot() {
         subscribeToChians()
         syncUpServices()
     }
 
-    func hotBoot() {
+    func performHotBoot() {
         snapshotHotBootBuilder.startHotBoot()
     }
 
     func subscribeToChians() {
-        subscribeToChains()
+        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
+            self?.handle(changes: changes)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.logger?.error("Unexpected error chains listener setup: \(error)")
+        }
+
+        let options = StreamableProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false,
+            refreshWhenEmpty: false
+        )
+
+        chainProvider.addObserver(
+            self,
+            deliverOn: DispatchQueue.global(qos: .userInitiated),
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {

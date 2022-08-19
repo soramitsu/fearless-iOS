@@ -4,8 +4,6 @@ import RobinHood
 protocol WalletLocalSubscriptionFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }
     var processingQueue: DispatchQueue? { get }
-    var chainRegistry: ChainRegistryProtocol { get }
-    var logger: Logger { get }
 
     func getAccountProvider(
         for accountId: AccountId,
@@ -27,10 +25,10 @@ final class WalletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtoc
         logger: Logger.shared
     )
 
-    var operationManager: OperationManagerProtocol
-    var processingQueue: DispatchQueue?
-    var chainRegistry: ChainRegistryProtocol
-    var logger: Logger
+    let operationManager: OperationManagerProtocol
+    let processingQueue: DispatchQueue?
+    private let chainRegistry: ChainRegistryProtocol
+    private let logger: Logger
 
     init(
         operationManager: OperationManagerProtocol,
