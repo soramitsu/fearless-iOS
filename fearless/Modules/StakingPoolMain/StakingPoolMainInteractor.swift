@@ -11,6 +11,9 @@ final class StakingPoolMainInteractor {
     private let settings: StakingAssetSettings
     private let rewardCalculationService: RewardCalculatorServiceProtocol
     private var chainAsset: ChainAsset
+    private let operationQueue: OperationQueue
+
+    private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -19,7 +22,8 @@ final class StakingPoolMainInteractor {
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         rewardCalculationService: RewardCalculatorServiceProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        operationQueue: OperationQueue
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -28,6 +32,7 @@ final class StakingPoolMainInteractor {
         self.rewardCalculationService = rewardCalculationService
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
+        self.operationQueue = operationQueue
     }
 
     private func updateAfterChainAssetSave() {
@@ -38,6 +43,17 @@ final class StakingPoolMainInteractor {
         chainAsset = newSelectedChainAsset
         updateWithChainAsset(chainAsset)
     }
+
+    private func fetchRewardCalculator() {
+        let fetchRewardCalculatorOperation = rewardCalculationService.fetchCalculatorOperation()
+
+        fetchRewardCalculatorOperation.completionBlock = { [weak self] in
+            let rewardCalculatorEngine = try? fetchRewardCalculatorOperation.extractNoCancellableResultData()
+            self?.output?.didReceive(rewardCalculatorEngine: rewardCalculatorEngine)
+        }
+
+        operationQueue.addOperation(fetchRewardCalculatorOperation)
+    }
 }
 
 // MARK: - StakingPoolMainInteractorInput
@@ -47,16 +63,27 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         self.output = output
 
         updateWithChainAsset(chainAsset)
+
+        rewardCalculationService.setup()
+
+        fetchRewardCalculator()
     }
 
     func updateWithChainAsset(_ chainAsset: ChainAsset) {
+        clear(singleValueProvider: &priceProvider)
+
         self.chainAsset = chainAsset
 
-        if let wallet = selectedWalletSettings.value, let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+        if let wallet = selectedWalletSettings.value,
+           let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
         }
 
         output?.didReceive(chainAsset: chainAsset)
+
+        if let priceId = chainAsset.asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
     }
 
     func save(chainAsset: ChainAsset) {
@@ -71,6 +98,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
     }
 }
 
+extension StakingPoolMainInteractor: AnyProviderAutoCleaning {}
+
 extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
@@ -82,6 +111,17 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
             output?.didReceive(accountInfo: accountInfo)
         case let .failure(error):
             output?.didReceive(balanceError: error)
+        }
+    }
+}
+
+extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        switch result {
+        case let .success(priceData):
+            output?.didReceive(priceData: priceData)
+        case let .failure(error):
+            output?.didReceive(priceError: error)
         }
     }
 }

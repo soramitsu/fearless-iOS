@@ -10,6 +10,7 @@ final class StakingPoolMainViewLayout: UIView {
             bottom: UIConstants.bigOffset,
             right: 0
         )
+        static let birdButtonSize = CGSize(width: 40, height: 40)
     }
 
     let contentView: ScrollableContainerView = {
@@ -25,12 +26,27 @@ final class StakingPoolMainViewLayout: UIView {
         return imageView
     }()
 
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h1Title
+        label.textColor = .white
+        return label
+    }()
+
+    let walletSelectionButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconBirdGreen(), for: .normal)
+        return button
+    }()
+
     let assetSelectionContainerView = UIView()
     let assetSelectionView: DetailsTriangularedView = {
         let view = UIFactory.default.createChainAssetSelectionView()
         view.borderWidth = 0.0
         return view
     }()
+
+    let rewardCalculatorView = StakingRewardCalculatorView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -48,6 +64,9 @@ final class StakingPoolMainViewLayout: UIView {
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+        addSubview(titleLabel)
+        addSubview(walletSelectionButton)
+
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -72,6 +91,14 @@ final class StakingPoolMainViewLayout: UIView {
 
         assetSelectionContainerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
+        }
+
+        contentView.stackView.addArrangedSubview(rewardCalculatorView)
+
+        rewardCalculatorView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+//            make.height.equalTo(232)
         }
     }
 
@@ -115,5 +142,9 @@ final class StakingPoolMainViewLayout: UIView {
 
     func bind(balanceViewModel: BalanceViewModelProtocol) {
         assetSelectionView.subtitle = balanceViewModel.amount
+    }
+
+    func bind(estimationViewModel: StakingEstimationViewModel) {
+        rewardCalculatorView.bind(viewModel: estimationViewModel)
     }
 }

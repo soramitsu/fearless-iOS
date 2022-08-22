@@ -25,4 +25,14 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        maxReward: (title: String, amount: Decimal),
+        avgReward: (title: String, amount: Decimal)
+    ) {
+        let infoVew = ModalInfoFactory.createRewardDetails(for: maxReward, avgReward: avgReward)
+
+        view?.controller.present(infoVew, animated: true, completion: nil)
+    }
 }

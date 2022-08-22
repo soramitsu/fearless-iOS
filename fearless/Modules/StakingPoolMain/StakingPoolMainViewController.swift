@@ -45,6 +45,8 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder {
             action: #selector(actionAssetSelection),
             for: .touchUpInside
         )
+
+        rootView.rewardCalculatorView.delegate = self
     }
 
     @objc func actionAssetSelection() {
@@ -62,10 +64,28 @@ extension StakingPoolMainViewController: StakingPoolMainViewInput {
     func didReceiveChainAsset(_ chainAsset: ChainAsset) {
         rootView.bind(chainAsset: chainAsset)
     }
+
+    func didReceiveEstimationViewModel(_ viewModel: StakingEstimationViewModel) {
+        rootView.bind(estimationViewModel: viewModel)
+    }
 }
 
 // MARK: - Localizable
 
 extension StakingPoolMainViewController: Localizable {
     func applyLocalization() {}
+}
+
+extension StakingPoolMainViewController: RewardCalculatorViewDelegate {
+    func rewardCalculatorView(_: StakingRewardCalculatorView, didChange amount: Decimal?) {
+        output.updateAmount(amount ?? 0.0)
+    }
+
+    func rewardCalculatorView(_: StakingRewardCalculatorView, didSelect percentage: Float) {
+        output.selectAmountPercentage(percentage)
+    }
+
+    func rewardCalculatorDidRequestInfo(_: StakingRewardCalculatorView) {
+        output.performRewardInfoAction()
+    }
 }

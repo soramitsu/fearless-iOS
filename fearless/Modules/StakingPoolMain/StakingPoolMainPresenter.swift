@@ -9,10 +9,15 @@ final class StakingPoolMainPresenter {
     private let interactor: StakingPoolMainInteractorInput
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private weak var moduleOutput: StakingMainModuleOutput?
+    private let viewModelFactory: StakingPoolMainViewModelFactoryProtocol
 
     private var accountInfo: AccountInfo?
     private var chainAsset: ChainAsset?
     private var balance: Decimal?
+    private var rewardCalculatorEngine: RewardCalculatorEngineProtocol?
+    private var priceData: PriceData?
+
+    private var inputResult: AmountInputResult?
 
     // MARK: - Constructors
 
@@ -21,13 +26,15 @@ final class StakingPoolMainPresenter {
         router: StakingPoolMainRouterInput,
         localizationManager: LocalizationManagerProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        moduleOutput: StakingMainModuleOutput?
+        moduleOutput: StakingMainModuleOutput?,
+        viewModelFactory: StakingPoolMainViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.localizationManager = localizationManager
         self.moduleOutput = moduleOutput
+        self.viewModelFactory = viewModelFactory
+        self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
@@ -42,8 +49,32 @@ final class StakingPoolMainPresenter {
             balance = 0.0
         }
 
-        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(balance ?? 0.0, priceData: nil)
-        view?.didReceiveBalanceViewModel(balanceViewModel.value(for: selectedLocale))
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+            balance ?? 0.0,
+            priceData: nil
+        ).value(for: selectedLocale)
+
+        DispatchQueue.main.async {
+            self.view?.didReceiveBalanceViewModel(balanceViewModel)
+        }
+    }
+
+    private func provideRewardEstimationViewModel() {
+        guard let chainAsset = chainAsset else {
+            return
+        }
+
+        let viewModel = viewModelFactory.createEstimationViewModel(
+            for: chainAsset,
+            accountInfo: accountInfo,
+            amount: inputResult?.absoluteValue(from: balance ?? 0.0),
+            priceData: priceData,
+            calculatorEngine: rewardCalculatorEngine
+        )
+
+        DispatchQueue.main.async {
+            self.view?.didReceiveEstimationViewModel(viewModel)
+        }
     }
 }
 
@@ -62,13 +93,45 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
             delegate: self
         )
     }
+
+    func performRewardInfoAction() {
+        guard let rewardCalculator = rewardCalculatorEngine else {
+            return
+        }
+
+        let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
+        let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+        let maxRewardTitle = rewardCalculator.maxEarningsTitle(locale: selectedLocale)
+        let avgRewardTitle = rewardCalculator.avgEarningTitle(locale: selectedLocale)
+
+        router.showRewardDetails(
+            from: view,
+            maxReward: (maxRewardTitle, maxReward),
+            avgReward: (avgRewardTitle, avgReward)
+        )
+    }
+
+    func updateAmount(_ newValue: Decimal) {
+        inputResult = .absolute(newValue)
+
+        provideRewardEstimationViewModel()
+    }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
+
+        provideRewardEstimationViewModel()
+    }
 }
 
 // MARK: - StakingPoolMainInteractorOutput
 
 extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
-    func didReceive(accountInfo _: AccountInfo?) {
+    func didReceive(accountInfo: AccountInfo?) {
+        self.accountInfo = accountInfo
+
         provideBalanceViewModel()
+        provideRewardEstimationViewModel()
     }
 
     func didReceive(balanceError _: Error) {}
@@ -77,8 +140,23 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         self.chainAsset = chainAsset
 
         provideBalanceViewModel()
+        provideRewardEstimationViewModel()
 
         view?.didReceiveChainAsset(chainAsset)
+    }
+
+    func didReceive(rewardCalculatorEngine: RewardCalculatorEngineProtocol?) {
+        self.rewardCalculatorEngine = rewardCalculatorEngine
+
+        provideRewardEstimationViewModel()
+    }
+
+    func didReceive(priceError _: Error) {}
+
+    func didReceive(priceData: PriceData?) {
+        self.priceData = priceData
+
+        provideRewardEstimationViewModel()
     }
 }
 

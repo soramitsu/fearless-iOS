@@ -94,7 +94,8 @@ final class StakingPoolMainAssembly {
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             rewardCalculationService: rewardCalculatorService,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            operationQueue: OperationQueue()
         )
 
         let router = StakingPoolMainRouter()
@@ -103,12 +104,14 @@ final class StakingPoolMainAssembly {
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: wallet
         )
+        let viewModelFactory = StakingPoolMainViewModelFactory(wallet: wallet)
         let presenter = StakingPoolMainPresenter(
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
             balanceViewModelFactory: balanceViewModelFactory,
-            moduleOutput: moduleOutput
+            moduleOutput: moduleOutput,
+            viewModelFactory: viewModelFactory
         )
 
         let view = StakingPoolMainViewController(
