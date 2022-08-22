@@ -100,14 +100,6 @@ struct WalletSendConfirmViewFactory {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
@@ -137,7 +129,7 @@ struct WalletSendConfirmViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

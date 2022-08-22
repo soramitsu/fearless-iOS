@@ -88,7 +88,9 @@ final class AssetSelectionPresenter {
             )
         }
 
-        view?.didReload()
+        DispatchQueue.main.async {
+            self.view?.didReload()
+        }
     }
 }
 

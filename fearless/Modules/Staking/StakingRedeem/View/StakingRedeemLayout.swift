@@ -1,6 +1,10 @@
 import UIKit
 
 final class StakingRedeemLayout: UIView {
+    enum Constants {
+        static let hintsSpacing: CGFloat = 9
+    }
+
     let stackView: UIStackView = {
         let view = UIStackView()
         view.isLayoutMarginsRelativeArrangement = true
@@ -13,6 +17,14 @@ final class StakingRedeemLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
+    let collatorView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.iconImage = nil
+        view.isUserInteractionEnabled = false
+        view.isHidden = true
+        return view
+    }()
+
     let amountView: AmountInputView = {
         let view = UIFactory().createAmountInputView(filled: true)
         view.isUserInteractionEnabled = false
@@ -20,6 +32,8 @@ final class StakingRedeemLayout: UIView {
     }()
 
     let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
+
+    private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {
         didSet {
@@ -45,6 +59,19 @@ final class StakingRedeemLayout: UIView {
     }
 
     func bind(confirmationViewModel: StakingRedeemViewModel) {
+        if let collatorName = confirmationViewModel.collatorName {
+            collatorView.isHidden = false
+            collatorView.subtitle = collatorName
+        } else {
+            collatorView.isHidden = true
+        }
+
+        let iconSize = 2.0 * accountView.iconRadius
+        collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
+            R.color.colorWhite() ?? .white,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
         if let senderName = confirmationViewModel.senderName {
             accountView.subtitleLabel?.lineBreakMode = .byTruncatingTail
             accountView.subtitle = senderName
@@ -53,7 +80,6 @@ final class StakingRedeemLayout: UIView {
             accountView.subtitle = confirmationViewModel.senderAddress
         }
 
-        let iconSize = 2.0 * accountView.iconRadius
         accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
             R.color.colorWhite()!,
             size: CGSize(width: iconSize, height: iconSize),
@@ -88,8 +114,35 @@ final class StakingRedeemLayout: UIView {
         setNeedsLayout()
     }
 
+    func bind(hintViewModels: [TitleIconViewModel]) {
+        hintViews.forEach { $0.removeFromSuperview() }
+
+        hintViews = hintViewModels.map { hint in
+            let view = IconDetailsView()
+            view.iconWidth = UIConstants.iconSize
+            view.detailsLabel.text = hint.title
+            view.imageView.image = hint.icon
+            return view
+        }
+
+        for (index, view) in hintViews.enumerated() {
+            if index > 0 {
+                stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                stackView.insertArranged(view: view, after: amountView)
+            }
+
+            view.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            }
+
+            stackView.setCustomSpacing(Constants.hintsSpacing, after: view)
+        }
+    }
+
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
+        collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -106,18 +159,26 @@ final class StakingRedeemLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
+        stackView.addArrangedSubview(collatorView)
+        collatorView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(52)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
-        stackView.setCustomSpacing(16.0, after: accountView)
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
+        stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
 
         addSubview(networkFeeFooterView)
 

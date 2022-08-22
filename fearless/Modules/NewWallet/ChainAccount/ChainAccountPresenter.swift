@@ -80,7 +80,9 @@ final class ChainAccountPresenter {
             chainAssetModel: chainAssetModel
         )
 
-        view?.didReceiveState(.loaded(chainAccountViewModel))
+        DispatchQueue.main.async {
+            self.view?.didReceiveState(.loaded(chainAccountViewModel))
+        }
     }
 }
 

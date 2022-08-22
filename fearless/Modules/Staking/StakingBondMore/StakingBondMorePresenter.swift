@@ -137,7 +137,9 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
             balance: viewModelState.balance,
             priceData: priceData
         )
-        view?.didReceiveAsset(viewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveAsset(viewModel: viewModel)
+        }
     }
 
     func didReceiveInsufficientlyFundsError() {

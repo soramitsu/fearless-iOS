@@ -71,8 +71,8 @@ struct StakingRewardDestSetupViewFactory {
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
+        else {
             return nil
         }
 
@@ -83,20 +83,8 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: operationManager
         )
 
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -104,22 +92,8 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: operationManager,
             logger: Logger.shared
         )
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let keystore = Keychain()
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: selectedAccount.metaId,
-            accountResponse: accountResponse
-        )
 
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -179,7 +153,7 @@ struct StakingRewardDestSetupViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             substrateProviderFactory: substrateProviderFactory,

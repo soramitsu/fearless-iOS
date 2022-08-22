@@ -76,7 +76,9 @@ final class StakingAmountPresenter {
             balance: balance,
             priceData: priceData
         )
-        view?.didReceiveAsset(viewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveAsset(viewModel: viewModel)
+        }
     }
 
     private func provideFee() {
@@ -270,8 +272,10 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
         let locale = view?.localizationManager?.selectedLocale
 
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            logger.error("Did receive error: \(error)")
+        DispatchQueue.main.async {
+            if !self.wireframe.present(error: error, from: self.view, locale: locale) {
+                self.logger.error("Did receive error: \(error)")
+            }
         }
     }
 

@@ -5,7 +5,7 @@ import FearlessUtils
 import SoraFoundation
 
 final class MainTabBarInteractor {
-    weak var presenter: MainTabBarInteractorOutputProtocol?
+    private weak var presenter: MainTabBarInteractorOutputProtocol?
 
     private let eventCenter: EventCenterProtocol
     private let keystoreImportService: KeystoreImportServiceProtocol
@@ -42,7 +42,9 @@ final class MainTabBarInteractor {
 }
 
 extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
-    func setup() {
+    func setup(with output: MainTabBarInteractorOutputProtocol) {
+        presenter = output
+
         applicationHandler.delegate = self
         eventCenter.add(observer: self, dispatchIn: .main)
         keystoreImportService.add(observer: self)
