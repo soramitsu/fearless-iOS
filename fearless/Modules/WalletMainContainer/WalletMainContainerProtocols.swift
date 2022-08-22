@@ -13,6 +13,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapOnQR()
     func didTapSearch()
     func didTapSelectNetwork()
+    func didTapOnBalance()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
@@ -48,11 +49,14 @@ protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
         selectedMetaAccount: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
-
     func showReceiveFlow(
         from view: WalletMainContainerViewInput?,
         chainAsset: ChainAsset,
         selectedMetaAccount: MetaAccountModel
+    )
+    func showSelectCurrency(
+        from view: WalletMainContainerViewInput?,
+        wallet: MetaAccountModel
     )
 }
 

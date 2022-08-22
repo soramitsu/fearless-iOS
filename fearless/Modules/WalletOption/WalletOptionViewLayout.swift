@@ -1,6 +1,12 @@
 import UIKit
 import SoraUI
 
+protocol WalletOptionViewLayoutDelegate: AnyObject {
+    func walletDetailsDidTap()
+    func exportWalletDidTap()
+    func deleteWalletDidTap()
+}
+
 final class WalletOptionViewLayout: UIView {
     private enum Constants {
         static let headerHeight: CGFloat = 56.0
@@ -38,6 +44,8 @@ final class WalletOptionViewLayout: UIView {
         return button
     }()
 
+    weak var delegate: WalletOptionViewLayoutDelegate?
+
     var locale: Locale = .current {
         didSet {
             applyLocale()
@@ -55,11 +63,34 @@ final class WalletOptionViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        setupActions()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleWalletDetailsDidTap() {
+        delegate?.walletDetailsDidTap()
+    }
+
+    @objc private func handleWalletExportDidTap() {
+        delegate?.exportWalletDidTap()
+    }
+
+    @objc private func handleDeleteWalletDidTap() {
+        delegate?.deleteWalletDidTap()
+    }
+
+    // MARK: - Private methods
+
+    private func setupActions() {
+        walletDetailsButton.addTarget(self, action: #selector(handleWalletDetailsDidTap), for: .touchUpInside)
+        exportWalletButton.addTarget(self, action: #selector(handleWalletExportDidTap), for: .touchUpInside)
+        deleteWalletButton.addTarget(self, action: #selector(handleDeleteWalletDidTap), for: .touchUpInside)
     }
 
     private func applyLocale() {

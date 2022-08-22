@@ -6,16 +6,19 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder {
 
     // MARK: Private properties
 
+    private let isModal: Bool
     private let output: SelectCurrencyViewOutput
     private var viewModels: [SelectCurrencyCellViewModel]?
 
     // MARK: - Constructor
 
     init(
+        isModal: Bool,
         output: SelectCurrencyViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
+        self.isModal = isModal
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -28,29 +31,26 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = SelectCurrencyViewLayout()
+        view = SelectCurrencyViewLayout(isModal: isModal)
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupNavigationBar()
+        setupActions()
         setupTableView()
         output.didLoad(view: self)
     }
 
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
     // MARK: - Private methods
 
-    private func setupNavigationBar() {
-        let rightBarButtonItem = UIBarButtonItem(
-            title: R.string.localizable.commonDone(preferredLanguages: selectedLocale.rLanguages),
-            style: .plain,
-            target: self,
-            action: #selector(actionDone)
-        )
-        rightBarButtonItem.setupDefaultTitleStyle(with: .h4Title)
-        navigationItem.rightBarButtonItem = rightBarButtonItem
-        navigationController?.navigationBar.backgroundColor = R.color.colorBlack()
-        title = R.string.localizable.commonCurrency(preferredLanguages: selectedLocale.rLanguages)
+    private func setupActions() {
+        rootView.rightButton.addTarget(self, action: #selector(actionDone), for: .touchUpInside)
+        rootView.backButton.addTarget(self, action: #selector(back), for: .touchUpInside)
     }
 
     private func setupTableView() {
@@ -60,9 +60,13 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(SelectCurrencyTableCell.self)
     }
 
-    @objc func actionDone() {
+    @objc private func actionDone() {
         guard let selectedViewModel = viewModels?.first(where: { $0.isSelected == true }) else { return }
         output.didSelect(viewModel: selectedViewModel)
+    }
+
+    @objc private func back() {
+        output.back()
     }
 }
 
@@ -91,7 +95,12 @@ extension SelectCurrencyViewController: UITableViewDelegate {
         }
         viewModels[indexPath.row].isSelected = true
         self.viewModels = viewModels
-        tableView.reloadData()
+
+        if isModal {
+            actionDone()
+        } else {
+            tableView.reloadData()
+        }
     }
 }
 
@@ -107,5 +116,7 @@ extension SelectCurrencyViewController: SelectCurrencyViewInput {
 // MARK: - Localizable
 
 extension SelectCurrencyViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

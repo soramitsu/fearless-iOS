@@ -47,13 +47,11 @@ final class WalletMainContainerInteractor {
                 return
             }
 
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(chain):
-                    self?.output?.didReceiveSelectedChain(chain)
-                case let .failure(error):
-                    self?.output?.didReceiveError(error)
-                }
+            switch result {
+            case let .success(chain):
+                self?.output?.didReceiveSelectedChain(chain)
+            case let .failure(error):
+                self?.output?.didReceiveError(error)
             }
         }
 
@@ -73,11 +71,9 @@ final class WalletMainContainerInteractor {
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
-                    DispatchQueue.main.async {
-                        self?.selectedMetaAccount = account
-                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                        self?.fetchSelectedChainName()
-                    }
+                    self?.selectedMetaAccount = account
+                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                    self?.fetchSelectedChainName()
                 case .failure:
                     break
                 }
@@ -105,6 +101,16 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
+        eventCenter.add(observer: self, dispatchIn: .global())
         fetchSelectedChainName()
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension WalletMainContainerInteractor: EventVisitorProtocol {
+    func processWalletNameChanged(event: WalletNameChanged) {
+        selectedMetaAccount = event.wallet
+        output?.didReceiveAccount(selectedMetaAccount)
     }
 }

@@ -33,6 +33,7 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        rootView.delegate = self
     }
 
     // MARK: - Private methods
@@ -40,12 +41,32 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
 
 // MARK: - WalletOptionViewInput
 
-extension WalletOptionViewController: WalletOptionViewInput {}
+extension WalletOptionViewController: WalletOptionViewInput {
+    func deleteButtonIsVisible(_ isVisible: Bool) {
+        rootView.deleteWalletButton.isHidden = !isVisible
+    }
+}
 
 // MARK: - Localizable
 
 extension WalletOptionViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
+    }
+}
+
+// MARK: - WalletOptionViewLayoutDelegate
+
+extension WalletOptionViewController: WalletOptionViewLayoutDelegate {
+    func walletDetailsDidTap() {
+        output.walletDetailsDidTap()
+    }
+
+    func exportWalletDidTap() {
+        output.exportWalletDidTap()
+    }
+
+    func deleteWalletDidTap() {
+        output.deleteWalletDidTap()
     }
 }

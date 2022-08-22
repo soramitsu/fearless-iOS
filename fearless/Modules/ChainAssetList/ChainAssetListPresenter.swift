@@ -17,7 +17,7 @@ final class ChainAssetListPresenter {
     private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
@@ -93,6 +93,11 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
+    func didReceiveWallet(wallet: MetaAccountModel) {
+        self.wallet = wallet
+        provideViewModel()
+    }
+
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):

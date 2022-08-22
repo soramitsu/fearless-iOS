@@ -281,7 +281,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
             metaAccounts[index] = event.account
         }
-        buildBalance()
+        pricesProvider?.refresh()
     }
 
     func processChainsUpdated(event: ChainsUpdatedEvent) {

@@ -6,6 +6,7 @@ protocol WalletMainContainerViewDelegate: AnyObject {
     func searchDidTap()
     func selectNetworkDidTap()
     func didSelect(_ segmentIndex: Int)
+    func balanceDidTap()
 }
 
 final class WalletMainContainerViewLayout: UIView {
@@ -15,6 +16,12 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     weak var delegate: WalletMainContainerViewDelegate?
+
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
 
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -140,6 +147,17 @@ final class WalletMainContainerViewLayout: UIView {
         scanQRButton.addTarget(self, action: #selector(handleScanQRTap), for: .touchUpInside)
         searchButton.addTarget(self, action: #selector(handleSearchTap), for: .touchUpInside)
         selectNetworkButton.addTarget(self, action: #selector(handleSelectNetworkTap), for: .touchUpInside)
+
+        let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
+        walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
+    }
+
+    private func applyLocalization() {
+        let localizedItems = [
+            R.string.localizable.сurrenciesStubText(preferredLanguages: locale.rLanguages),
+            "NFTs"
+        ]
+        segmentedControl.setSegmentItems(localizedItems)
     }
 
     // MARK: - Actions
@@ -158,6 +176,10 @@ final class WalletMainContainerViewLayout: UIView {
 
     @objc private func handleSelectNetworkTap() {
         delegate?.selectNetworkDidTap()
+    }
+
+    @objc private func handleBalanceDidTap() {
+        delegate?.balanceDidTap()
     }
 
     // MARK: - Private layout methods

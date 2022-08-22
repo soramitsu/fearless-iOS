@@ -85,7 +85,9 @@ extension WalletMainContainerViewController: WalletMainContainerViewInput {
 // MARK: - Localizable
 
 extension WalletMainContainerViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 // MARK: - WalletMainContainerViewDelegate
@@ -113,6 +115,10 @@ extension WalletMainContainerViewController: WalletMainContainerViewDelegate {
 
     func selectNetworkDidTap() {
         output.didTapSelectNetwork()
+    }
+
+    func balanceDidTap() {
+        output.didTapOnBalance()
     }
 }
 

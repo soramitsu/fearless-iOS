@@ -3,11 +3,13 @@ import Foundation
 final class WalletsManagmentRouter: WalletsManagmentRouterInput {
     func showOptions(
         from view: WalletsManagmentViewInput?,
-        metaAccount: ManagedMetaAccountModel
+        metaAccount: ManagedMetaAccountModel,
+        delegate: WalletOptionModuleOutput?
     ) {
         guard
             let walletOptionsController = WalletOptionAssembly.configureModule(
-                with: metaAccount
+                with: metaAccount,
+                delegate: delegate
             )?.view.controller
         else {
             return
