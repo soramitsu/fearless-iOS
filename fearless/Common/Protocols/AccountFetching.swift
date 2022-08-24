@@ -128,7 +128,8 @@ extension AccountFetching {
                     cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
                     isEthereumBased: chainAccount.ethereumBased,
-                    isChainAccount: true
+                    isChainAccount: true,
+                    walletId: meta.metaId
                 )
                 closure(.success(account))
                 return true
@@ -206,7 +207,8 @@ extension AccountFetching {
                                 cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
                                 isEthereumBased: false,
-                                isChainAccount: true
+                                isChainAccount: true,
+                                walletId: meta.metaId
                             ))
                         }
                     }

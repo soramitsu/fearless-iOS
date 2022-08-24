@@ -11,6 +11,7 @@ protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(paymentInfo: RuntimeDispatchInfo)
     func didReceive(networkStakingInfo: NetworkStakingInfo)
     func didReceive(networkStakingInfoError _: Error)
+    func didReceive(maxNominations: Int)
 }
 
 class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
@@ -50,18 +51,31 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         self.eraValidatorService = eraValidatorService
         self.existentialDepositService = existentialDepositService
     }
+
+    private func fetchMaxNominations() {
+        fetchConstant(
+            for: .maxNominations,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<Int, Error>) in
+            switch result {
+            case let .success(value):
+                self?.output?.didReceive(maxNominations: value)
+            case let .failure(error):
+                self?.output?.didReceive(error: error)
+            }
+        }
+    }
 }
 
 extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
     func setup() {
+        fetchMaxNominations()
         eraValidatorService.setup()
-
         provideNetworkStakingInfo()
 
         minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
-
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
-
         maxNominatorsCountProvider = subscribeMaxNominatorsCount(for: chainAsset.chain.chainId)
 
         existentialDepositService.fetchExistentialDeposit(
