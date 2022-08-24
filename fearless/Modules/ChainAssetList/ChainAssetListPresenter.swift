@@ -9,7 +9,7 @@ enum AssetListDisplayType {
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
-    private let lock = NSLock()
+    private let lock = ReaderWriterLock()
 
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
@@ -54,8 +54,12 @@ final class ChainAssetListPresenter {
             selectedMetaAccount: wallet,
             chainAssets: chainAssets,
             locale: selectedLocale,
-            accountInfos: accountInfos,
-            prices: prices
+            accountInfos: lock.concurrentlyRead { [unowned self] in
+                self.accountInfos
+            },
+            prices: lock.concurrentlyRead { [unowned self] in
+                self.prices
+            }
         )
 
         DispatchQueue.main.async {
@@ -113,30 +117,33 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.with {
-                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            lock.exclusivelyWrite { [unowned self] in
+                guard let accountId = self.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                     return
                 }
                 let key = chainAsset.uniqueKey(accountId: accountId)
-                accountInfos[key] = accountInfo
+                self.accountInfos[key] = accountInfo
             }
+
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
             }
         }
-        guard chainAssets?.count == accountInfos.keys.count else {
-            return
+        lock.concurrentlyRead { [unowned self] in
+            guard self.chainAssets?.count == self.accountInfos.keys.count else {
+                return
+            }
+            self.provideViewModel()
         }
-        provideViewModel()
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(priceDataResult):
             let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-            lock.with {
-                prices = priceDataUpdated
+            lock.exclusivelyWrite { [unowned self] in
+                self.prices = priceDataUpdated
             }
         case let .failure(error):
             DispatchQueue.main.async {

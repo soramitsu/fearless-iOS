@@ -55,7 +55,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     // MARK: - Private properties
 
-    private let lock = NSLock()
+    private let lock = ReaderWriterLock()
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
@@ -134,10 +134,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private func buildBalance() {
         let walletBalances = walletBalanceBuilder.buildBalance(
-            for: accountInfos,
+            for: lock.concurrentlyRead { [unowned self] in
+                self.accountInfos
+            },
             metaAccounts,
             chainAssets.values.map { $0 },
-            prices
+            lock.concurrentlyRead { [unowned self] in
+                self.prices
+            }
         )
 
         guard let walletBalances = walletBalances else {
@@ -305,8 +309,8 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.with {
-                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            lock.exclusivelyWrite { [unowned self] in
+                self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
             buildBalance()
         case let .failure(error):
@@ -326,7 +330,9 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
-            self.prices = prices
+            lock.exclusivelyWrite { [unowned self] in
+                self.prices = prices
+            }
             buildBalance()
         case let .failure(error):
             handle(.failure(error))

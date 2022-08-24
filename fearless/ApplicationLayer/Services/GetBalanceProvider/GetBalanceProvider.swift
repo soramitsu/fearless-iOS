@@ -132,10 +132,12 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
             prices: prices,
             metaAccount: metaAccount
         ) { [weak self] totalBalanceString in
-            self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
-                metaAccount: metaAccount,
-                balance: totalBalanceString
-            )
+            DispatchQueue.main.async {
+                self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
+                    metaAccount: metaAccount,
+                    balance: totalBalanceString
+                )
+            }
         }
     }
 
@@ -153,9 +155,11 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
             accountsInfos: accountInfos,
             prices: prices
         ) { [weak self] managedMetaAccounts in
-            self?.managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
-                managedMetaAccounts: managedMetaAccounts
-            )
+            DispatchQueue.main.async {
+                self?.managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
+                    managedMetaAccounts: managedMetaAccounts
+                )
+            }
         }
     }
 
