@@ -46,9 +46,10 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     private func setup() {
-        rootView.delegate = self
+        rootView.segmentedControl.delegate = self
         setupEmbededBalanceView()
         setupPageViewController()
+        setupActions()
     }
 
     private func setupEmbededBalanceView() {
@@ -66,11 +67,41 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
     }
 
     private func setupPageViewController() {
-        rootView.pageViewController.delegate = self
-
         addChild(rootView.pageViewController)
 
         rootView.pageViewController.setViewControllers([pageControllers[0]], direction: .forward, animated: false)
+    }
+
+    private func setupActions() {
+        rootView.switchWalletButton.addTarget(self, action: #selector(handleSwitchWalletTap), for: .touchUpInside)
+        rootView.scanQRButton.addTarget(self, action: #selector(handleScanQRTap), for: .touchUpInside)
+        rootView.searchButton.addTarget(self, action: #selector(handleSearchTap), for: .touchUpInside)
+        rootView.selectNetworkButton.addTarget(self, action: #selector(handleSelectNetworkTap), for: .touchUpInside)
+
+        let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
+        rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleSwitchWalletTap() {
+        output.didTapOnSwitchWallet()
+    }
+
+    @objc private func handleScanQRTap() {
+        output.didTapOnQR()
+    }
+
+    @objc private func handleSearchTap() {
+        output.didTapSearch()
+    }
+
+    @objc private func handleSelectNetworkTap() {
+        output.didTapSelectNetwork()
+    }
+
+    @objc private func handleBalanceDidTap() {
+        output.didTapOnBalance()
     }
 }
 
@@ -90,9 +121,9 @@ extension WalletMainContainerViewController: Localizable {
     }
 }
 
-// MARK: - WalletMainContainerViewDelegate
+// MARK: - FWSegmentedControlDelegate
 
-extension WalletMainContainerViewController: WalletMainContainerViewDelegate {
+extension WalletMainContainerViewController: FWSegmentedControlDelegate {
     func didSelect(_ segmentIndex: Int) {
         rootView.pageViewController.setViewControllers(
             [pageControllers[segmentIndex]],
@@ -100,31 +131,7 @@ extension WalletMainContainerViewController: WalletMainContainerViewDelegate {
             animated: true
         )
     }
-
-    func switchWalletDidTap() {
-        output.didTapOnSwitchWallet()
-    }
-
-    func scanQRDidTap() {
-        output.didTapOnQR()
-    }
-
-    func searchDidTap() {
-        output.didTapSearch()
-    }
-
-    func selectNetworkDidTap() {
-        output.didTapSelectNetwork()
-    }
-
-    func balanceDidTap() {
-        output.didTapOnBalance()
-    }
 }
-
-// MARK: - UIPageViewControllerDelegate
-
-extension WalletMainContainerViewController: UIPageViewControllerDelegate {}
 
 extension UIPageViewController.NavigationDirection {
     init?(from segmentIndex: Int) {

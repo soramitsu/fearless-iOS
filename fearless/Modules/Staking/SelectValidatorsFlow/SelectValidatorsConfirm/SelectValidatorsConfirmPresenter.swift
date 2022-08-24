@@ -223,9 +223,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
             return
         }
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(assetViewModel: viewModel)
-        }
+        view?.didReceive(assetViewModel: viewModel)
     }
 
     func didStartNomination() {

@@ -72,9 +72,7 @@ final class WalletSendConfirmPresenter {
             locale: selectedLocale
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
-        }
+        view?.didReceive(state: .loaded(viewModel))
     }
 
     private func provideReceiverAccountViewModel() -> AccountViewModel? {

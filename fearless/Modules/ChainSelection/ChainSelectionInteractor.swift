@@ -76,9 +76,7 @@ extension ChainSelectionInteractor: AccountInfoSubscriptionAdapterHandler {
         accountId: AccountId,
         chainAsset: ChainAsset
     ) {
-        DispatchQueue.main.async {
-            let key = chainAsset.uniqueKey(accountId: accountId)
-            self.presenter.didReceiveAccountInfo(result: result, for: key)
-        }
+        let key = chainAsset.uniqueKey(accountId: accountId)
+        presenter.didReceiveAccountInfo(result: result, for: key)
     }
 }

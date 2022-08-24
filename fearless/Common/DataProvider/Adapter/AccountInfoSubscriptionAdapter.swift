@@ -84,10 +84,12 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
         accountId: AccountId,
         chainAsset: ChainAsset
     ) {
-        handler?.handleAccountInfo(
-            result: result,
-            accountId: accountId,
-            chainAsset: chainAsset
-        )
+        DispatchQueue.main.async {
+            self.handler?.handleAccountInfo(
+                result: result,
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
+        }
     }
 }

@@ -55,7 +55,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     // MARK: - Private properties
 
-    private let lock = ReaderWriterLock()
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
@@ -134,14 +133,10 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     private func buildBalance() {
         let walletBalances = walletBalanceBuilder.buildBalance(
-            for: lock.concurrentlyRead { [unowned self] in
-                self.accountInfos
-            },
+            for: accountInfos,
             metaAccounts,
             chainAssets.values.map { $0 },
-            lock.concurrentlyRead { [unowned self] in
-                self.prices
-            }
+            prices
         )
 
         guard let walletBalances = walletBalances else {
@@ -309,8 +304,9 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.exclusivelyWrite { [unowned self] in
-                self.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            guard chainAssets.count == accountInfos.keys.count else {
+                return
             }
             buildBalance()
         case let .failure(error):
@@ -330,9 +326,7 @@ extension WalletBalanceSubscriptionAdapter: PriceLocalSubscriptionHandler {
     func handlePrices(result: Result<[PriceData], Error>) {
         switch result {
         case let .success(prices):
-            lock.exclusivelyWrite { [unowned self] in
-                self.prices = prices
-            }
+            self.prices = prices
             buildBalance()
         case let .failure(error):
             handle(.failure(error))
