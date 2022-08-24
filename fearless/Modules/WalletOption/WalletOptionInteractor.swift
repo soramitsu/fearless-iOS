@@ -34,19 +34,19 @@ final class WalletOptionInteractor {
             }
             switch result {
             case let .success(wallets):
-                self?.output?.deleteButtonIsVisible(wallets.count > 1)
+                self?.output?.setDeleteButtonIsVisible(wallets.count > 1)
             case .failure:
                 break
             }
         }
 
         guard let selectedWallet = SelectedWalletSettings.shared.value else {
-            output?.deleteButtonIsVisible(false)
+            output?.setDeleteButtonIsVisible(false)
             return
         }
 
         if selectedWallet.identifier == wallet.identifier {
-            output?.deleteButtonIsVisible(false)
+            output?.setDeleteButtonIsVisible(false)
         } else {
             operationQueue.addOperation(operation)
         }

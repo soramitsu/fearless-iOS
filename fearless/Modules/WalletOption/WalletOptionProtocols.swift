@@ -1,7 +1,7 @@
 typealias WalletOptionModuleCreationResult = (view: WalletOptionViewInput, input: WalletOptionModuleInput)
 
 protocol WalletOptionViewInput: ControllerBackedProtocol {
-    func deleteButtonIsVisible(_ isVisible: Bool)
+    func setDeleteButtonIsVisible(_ isVisible: Bool)
 }
 
 protocol WalletOptionViewOutput: AnyObject {
@@ -17,7 +17,7 @@ protocol WalletOptionInteractorInput: AnyObject {
 }
 
 protocol WalletOptionInteractorOutput: AnyObject {
-    func deleteButtonIsVisible(_ isVisible: Bool)
+    func setDeleteButtonIsVisible(_ isVisible: Bool)
     func walletRemoved()
 }
 

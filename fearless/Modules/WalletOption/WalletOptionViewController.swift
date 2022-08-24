@@ -42,7 +42,7 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
 // MARK: - WalletOptionViewInput
 
 extension WalletOptionViewController: WalletOptionViewInput {
-    func deleteButtonIsVisible(_ isVisible: Bool) {
+    func setDeleteButtonIsVisible(_ isVisible: Bool) {
         rootView.deleteWalletButton.isHidden = !isVisible
     }
 }

@@ -78,9 +78,9 @@ extension WalletOptionPresenter: WalletOptionViewOutput {
 // MARK: - WalletOptionInteractorOutput
 
 extension WalletOptionPresenter: WalletOptionInteractorOutput {
-    func deleteButtonIsVisible(_ isVisible: Bool) {
+    func setDeleteButtonIsVisible(_ isVisible: Bool) {
         DispatchQueue.main.async {
-            self.view?.deleteButtonIsVisible(isVisible)
+            self.view?.setDeleteButtonIsVisible(isVisible)
         }
     }
 

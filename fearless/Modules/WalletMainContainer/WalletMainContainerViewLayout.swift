@@ -155,7 +155,7 @@ final class WalletMainContainerViewLayout: UIView {
     private func applyLocalization() {
         let localizedItems = [
             R.string.localizable.сurrenciesStubText(preferredLanguages: locale.rLanguages),
-            "NFTs"
+            R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
         ]
         segmentedControl.setSegmentItems(localizedItems)
     }
