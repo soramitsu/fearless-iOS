@@ -13,9 +13,9 @@ PODS:
     - SoraFoundation/NotificationHandlers (~> 1.0.0)
     - SoraFoundation/NumberProcessing (~> 1.0.0)
     - SoraUI (~> 1.10.0)
-  - Cuckoo (1.6.0):
-    - Cuckoo/Swift (= 1.6.0)
-  - Cuckoo/Swift (1.6.0)
+  - Cuckoo (1.9.0):
+    - Cuckoo/Swift (= 1.9.0)
+  - Cuckoo/Swift (1.9.0)
   - FearlessUtils (0.14.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
@@ -118,14 +118,14 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.7.0):
-    - Sourcery/CLI-Only (= 1.7.0)
-  - Sourcery/CLI-Only (1.7.0)
+  - Sourcery (1.8.2):
+    - Sourcery/CLI-Only (= 1.8.2)
+  - Sourcery/CLI-Only (1.8.2)
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.46.5)
+  - SwiftLint (0.48.0)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
@@ -134,7 +134,7 @@ DEPENDENCIES:
   - Charts
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `bd8bc7a841d8726201b84d774c7cd860765ac2a8`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `8e1f1d691aa619d180884990e282916981a93acf`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -184,7 +184,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: bd8bc7a841d8726201b84d774c7cd860765ac2a8
+    :commit: 8e1f1d691aa619d180884990e282916981a93acf
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -192,7 +192,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: bd8bc7a841d8726201b84d774c7cd860765ac2a8
+    :commit: 8e1f1d691aa619d180884990e282916981a93acf
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -203,7 +203,7 @@ SPEC CHECKSUMS:
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
-  Cuckoo: 4da01933dfcc88b23a3bb3ac95314d35c93e7c3d
+  Cuckoo: 95d684e0eb8181bcd37827dc0e857abc484a688f
   FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
@@ -219,15 +219,15 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: 60248db99c17da7147b83acb9aca4266657c1f2e
+  Sourcery: ad4aba88367fbaf0c1ae6ec4ba3282db1b571624
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 2c16e8fa99dac2e440dc0c70ea74d2532048f6cf
+  SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: e7212c5889b9f495a304bbabb1a01cc3173a6e00
+PODFILE CHECKSUM: 5d3c9b688676b597c79208631401b6b0c2b86232
 
 COCOAPODS: 1.11.3

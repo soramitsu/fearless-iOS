@@ -81,7 +81,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
 }
 
 extension ConnectionPool: WebSocketEngineDelegate {
-    func webSocketDidChangeState(engine: WebSocketEngine, from _: WebSocketEngine.State, to newState: WebSocketEngine.State) {
+    func webSocketDidChangeState(
+        engine: WebSocketEngine,
+        from _: WebSocketEngine.State,
+        to newState: WebSocketEngine.State
+    ) {
         guard let previousUrl = engine.url else {
             return
         }

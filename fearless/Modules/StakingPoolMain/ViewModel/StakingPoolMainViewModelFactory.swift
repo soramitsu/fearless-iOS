@@ -10,6 +10,13 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         priceData: PriceData?,
         calculatorEngine: RewardCalculatorEngineProtocol?
     ) -> StakingEstimationViewModel
+
+    func replaceBalanceViewModelFactory(balanceViewModelFactory: BalanceViewModelFactoryProtocol?)
+
+    func buildNetworkInfoViewModels(
+        networkInfo: StakingPoolNetworkInfo,
+        chainAsset: ChainAsset
+    ) -> [LocalizableResource<NetworkInfoContentViewModel>]
 }
 
 final class StakingPoolMainViewModelFactory {
@@ -39,9 +46,9 @@ final class StakingPoolMainViewModelFactory {
     }
 
     private func getRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
-        if let factory = rewardViewModelFactory {
-            return factory
-        }
+//        if let factory = rewardViewModelFactory {
+//            return factory
+//        }
 
         let factory = RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
@@ -106,6 +113,10 @@ final class StakingPoolMainViewModelFactory {
 }
 
 extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtocol {
+    func replaceBalanceViewModelFactory(balanceViewModelFactory: BalanceViewModelFactoryProtocol?) {
+        self.balanceViewModelFactory = balanceViewModelFactory
+    }
+
     func createEstimationViewModel(
         for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
@@ -143,5 +154,100 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
             inputLimit: StakingConstants.maxAmount,
             amount: amount
         )
+    }
+
+    func buildNetworkInfoViewModels(
+        networkInfo: StakingPoolNetworkInfo,
+        chainAsset: ChainAsset
+    ) -> [LocalizableResource<NetworkInfoContentViewModel>] {
+        var viewModels: [LocalizableResource<NetworkInfoContentViewModel>] = []
+
+        if let minJoinBond = networkInfo.minJoinBond,
+           let minJoinBondDecimal = Decimal.fromSubstrateAmount(
+               minJoinBond,
+               precision: Int16(chainAsset.asset.precision)
+           ) {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                let minJoinBondValueString = self.balanceViewModelFactory?.amountFromValue(minJoinBondDecimal)
+                    .value(for: locale) ?? ""
+
+                return NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMinCreateTitle(preferredLanguages: locale.rLanguages),
+                    value: minJoinBondValueString,
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let minCreateBond = networkInfo.minCreateBond,
+           let minCreateBondDecimal = Decimal.fromSubstrateAmount(
+               minCreateBond,
+               precision: Int16(chainAsset.asset.precision)
+           ) {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                let minCreateBondValueString = self.balanceViewModelFactory?.amountFromValue(minCreateBondDecimal)
+                    .value(for: locale) ?? ""
+
+                return NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMinCreateTitle(preferredLanguages: locale.rLanguages),
+                    value: minCreateBondValueString,
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let existingPoolsCount = networkInfo.existingPoolsCount {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainExistingPoolsTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(existingPoolsCount)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let possiblePoolsCount = networkInfo.possiblePoolsCount {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainPossiblePoolsTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(possiblePoolsCount)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let maxMembersInPool = networkInfo.maxMembersInPool {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMaxMembersInpoolTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(maxMembersInPool)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let maxPoolsMembers = networkInfo.maxPoolsMembers {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMaxPoolMembersTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(maxPoolsMembers)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        return viewModels
     }
 }

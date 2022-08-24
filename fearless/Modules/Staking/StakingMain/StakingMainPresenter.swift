@@ -91,7 +91,9 @@ final class StakingMainPresenter {
 
     private func provideState() {
         let state = stateViewModelFactory.createViewModel(from: stateMachine.state)
-        view?.didReceiveStakingState(viewModel: state)
+        DispatchQueue.main.async {
+            self.view?.didReceiveStakingState(viewModel: state)
+        }
     }
 
     private func provideMainViewModel() {
@@ -108,7 +110,9 @@ final class StakingMainPresenter {
             selectedMetaAccount: selectedMetaAccount
         )
 
-        view?.didReceive(viewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceive(viewModel: viewModel)
+        }
     }
 
     func setupValidators(for bondedState: BondedState) {

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingPoolMainViewController: UIViewController, ViewHolder {
+final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolMainViewLayout
 
     // MARK: Private properties
@@ -35,6 +35,8 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
 
         configure()
+
+        navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
     // MARK: - Private methods
@@ -47,6 +49,9 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder {
         )
 
         rootView.rewardCalculatorView.delegate = self
+        rootView.networkInfoView.delegate = self
+
+        rootView.networkInfoView.collectionView.isHidden = true
     }
 
     @objc func actionAssetSelection() {
@@ -57,6 +62,10 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder {
 // MARK: - StakingPoolMainViewInput
 
 extension StakingPoolMainViewController: StakingPoolMainViewInput {
+    func didReceiveNetworkInfoViewModels(_ viewModels: [LocalizableResource<NetworkInfoContentViewModel>]) {
+        rootView.bind(viewModels: viewModels)
+    }
+
     func didReceiveBalanceViewModel(_ balanceViewModel: BalanceViewModelProtocol) {
         rootView.bind(balanceViewModel: balanceViewModel)
     }
@@ -87,5 +96,15 @@ extension StakingPoolMainViewController: RewardCalculatorViewDelegate {
 
     func rewardCalculatorDidRequestInfo(_: StakingRewardCalculatorView) {
         output.performRewardInfoAction()
+    }
+}
+
+extension StakingPoolMainViewController: NetworkInfoViewDelegate {
+    func animateAlongsideWithInfo(view _: NetworkInfoView) {
+        rootView.contentView.scrollView.layoutIfNeeded()
+    }
+
+    func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
+        output.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
     }
 }

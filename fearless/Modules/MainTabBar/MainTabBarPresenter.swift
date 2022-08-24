@@ -4,7 +4,7 @@ import SoraFoundation
 import FearlessUtils
 
 final class MainTabBarPresenter {
-    weak var view: MainTabBarViewProtocol?
+    private weak var view: MainTabBarViewProtocol?
     private let interactor: MainTabBarInteractorInputProtocol
     private let wireframe: MainTabBarWireframeProtocol
     private let appVersionObserver: AppVersionObserver
@@ -37,8 +37,10 @@ final class MainTabBarPresenter {
 }
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
-    func setup() {
-        interactor.setup()
+    func didLoad(view: MainTabBarViewProtocol) {
+        self.view = view
+
+        interactor.setup(with: self)
 
         appVersionObserver.checkVersion(from: view, callback: nil)
         try? reachability?.add(listener: self)

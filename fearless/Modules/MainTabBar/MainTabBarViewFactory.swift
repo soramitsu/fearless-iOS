@@ -57,63 +57,40 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             localizationManager: localizationManager
         )
 
-        guard
-            let walletController = createWalletController(
-                localizationManager: localizationManager
-            )
-        else {
-            return nil
-        }
-
-        let stakingController = createStakingController(
-            for: localizationManager,
-            moduleOutput: presenter
-        )
-
-        // TODO: Move setup to loading state
-        let crowdloanState = CrowdloanSharedState()
-        crowdloanState.settings.setup()
-
-        guard let crowdloanController = createCrowdloanController(
-            for: localizationManager,
-            state: crowdloanState
-        ) else {
-            return nil
-        }
-
-        guard let settingsController = createProfileController(for: localizationManager) else {
-            return nil
-        }
-
         let view = MainTabBarViewController(
             presenter: presenter,
             localizationManager: localizationManager
         )
-        view.viewControllers = [
-            walletController,
-            crowdloanController,
-            stakingController,
-            settingsController
-        ]
-
-        view.presenter = presenter
-        presenter.view = view
-        interactor.presenter = presenter
+        view.viewControllers = createViewControllers(stakingModuleOutput: presenter)
 
         return view
+    }
+
+    static func createViewControllers(stakingModuleOutput: StakingMainModuleOutput?) -> [UIViewController]? {
+        var viewControllers: [UIViewController] = []
+        if let walletController = createWalletController() {
+            viewControllers.append(walletController)
+        }
+
+        if let crowdloanController = createCrowdloanController() {
+            viewControllers.append(crowdloanController)
+        }
+
+        let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
+        viewControllers.append(stakingController)
+
+        if let settingsController = createProfileController() {
+            viewControllers.append(settingsController)
+        }
+
+        return viewControllers
     }
 
     static func reloadWalletView(
         on view: MainTabBarViewProtocol,
         wireframe _: MainTabBarWireframeProtocol
     ) {
-        let localizationManager = LocalizationManager.shared
-
-        guard
-            let walletController = createWalletController(
-                localizationManager: localizationManager
-            )
-        else {
+        guard let walletController = createWalletController() else {
             return
         }
 
@@ -121,16 +98,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func reloadCrowdloanView(on view: MainTabBarViewProtocol) -> UIViewController? {
-        let localizationManager = LocalizationManager.shared
-
-        // TODO: Move setup to loading state
-        let crowdloanState = CrowdloanSharedState()
-        crowdloanState.settings.setup()
-
-        guard let crowdloanController = createCrowdloanController(
-            for: localizationManager,
-            state: crowdloanState
-        ) else {
+        guard let crowdloanController = createCrowdloanController() else {
             return nil
         }
 
@@ -146,92 +114,56 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     ) -> UIViewController? {
         let localizationManager = LocalizationManager.shared
 
-//        let stakingState = StakingSharedState()
-//        stakingState.settings.setup()
-
         switch stakingType {
-        case let .normal:
-            let stakingViewController = createStakingController(for: localizationManager, moduleOutput: moduleOutput)
+        case .normal:
+            let stakingViewController = createStakingController(moduleOutput: moduleOutput)
             view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
 
             return stakingViewController
-        case let .pool:
-            let stakingViewController = createPoolStakingController(for: localizationManager, moduleOutput: moduleOutput)
+        case .pool:
+            let stakingViewController = createPoolStakingController(moduleOutput: moduleOutput)
             view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
 
             return stakingViewController
         }
     }
 
-    static func createWalletController(
-        localizationManager: LocalizationManagerProtocol
-    ) -> UIViewController? {
-        do {
-            guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-                  let viewController = ChainAccountBalanceListViewFactory.createView(
-                      selectedMetaAccount: selectedMetaAccount
-                  )?.controller else {
-                return nil
-            }
-
-            let localizableTitle = LocalizableResource { locale in
-                R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
-            }
-
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            let icon = R.image.iconTabWallet()
-            let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
-                .withRenderingMode(.alwaysOriginal)
-            let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
-                .withRenderingMode(.alwaysOriginal)
-            viewController.tabBarItem = createTabBarItem(
-                title: currentTitle,
-                normalImage: normalIcon,
-                selectedImage: selectedIcon
-            )
-
-            localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
-                let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-                viewController?.tabBarItem.title = currentTitle
-            }
-
-            let navigationController = FearlessNavigationController(rootViewController: viewController)
-
-            return navigationController
-        } catch {
-            Logger.shared.error("Can't create wallet: \(error)")
-
+    static func createWalletController() -> UIViewController? {
+        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
+              let viewController = WalletMainContainerAssembly.configureModule(selectedMetaAccount: selectedMetaAccount)?.view.controller
+        else {
             return nil
         }
+
+        let icon = R.image.iconTabWallet()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        viewController.tabBarItem = createTabBarItem(
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+        return navigationController
     }
 
     static func createStakingController(
-        for localizationManager: LocalizationManagerProtocol,
         moduleOutput: StakingMainModuleOutput?
     ) -> UIViewController {
-        // TODO: Remove when staking is fixed
         let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let icon = R.image.iconTabStaking()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(
-            title: currentTitle,
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-
-        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            viewController?.tabBarItem.title = currentTitle
-        }
 
         let navigationController = FearlessNavigationController(rootViewController: viewController)
 
@@ -239,134 +171,86 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createPoolStakingController(
-        for localizationManager: LocalizationManagerProtocol,
         moduleOutput: StakingMainModuleOutput?
     ) -> UIViewController {
-        // TODO: Remove when staking is fixed
         let module = StakingPoolMainAssembly.configureModule(moduleOutput: moduleOutput)
         guard let viewController = module?.view.controller else {
             return UIViewController()
         }
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let icon = R.image.iconTabStaking()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(
-            title: currentTitle,
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-
-        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            viewController?.tabBarItem.title = currentTitle
-        }
 
         let navigationController = FearlessNavigationController(rootViewController: viewController)
 
         return navigationController
     }
 
-    static func createProfileController(
-        for localizationManager: LocalizationManagerProtocol
-    ) -> UIViewController? {
+    static func createProfileController() -> UIViewController? {
         // TODO: Remove when settings fixed
         let viewController = ProfileViewFactory.createView()?.controller ?? UIViewController()
-
         let navigationController = FearlessNavigationController(rootViewController: viewController)
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let icon = R.image.iconTabSettings()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         navigationController.tabBarItem = createTabBarItem(
-            title: currentTitle,
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
 
-        localizationManager.addObserver(with: navigationController) { [weak navigationController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            navigationController?.tabBarItem.title = currentTitle
-        }
-
         return navigationController
     }
 
-    static func createCrowdloanController(
-        for localizationManager: LocalizationManagerProtocol,
-        state: CrowdloanSharedState
-    ) -> UIViewController? {
+    static func createCrowdloanController() -> UIViewController? {
+        let crowdloanState = CrowdloanSharedState()
+        crowdloanState.settings.setup()
+
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
               let crowloanView = CrowdloanListViewFactory.createView(
-                  with: state,
+                  with: crowdloanState,
                   selectedMetaAccount: selectedMetaAccount
-              ) else {
+              )
+        else {
             return nil
         }
 
         let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarCrowdloanTitle_v190(preferredLanguages: locale.rLanguages)
-        }
-
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let icon = R.image.iconTabCrowloan()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         navigationController.tabBarItem = createTabBarItem(
-            title: currentTitle,
             normalImage: normalIcon,
             selectedImage: selectedIcon
         )
-
-        localizationManager.addObserver(with: navigationController) { [weak navigationController] _, _ in
-            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            navigationController?.tabBarItem.title = currentTitle
-        }
 
         return navigationController
     }
 
     static func createTabBarItem(
-        title: String,
         normalImage: UIImage?,
         selectedImage: UIImage?
     ) -> UITabBarItem {
         let tabBarItem = UITabBarItem(
-            title: title,
+            title: nil,
             image: normalImage,
             selectedImage: selectedImage
         )
 
-        // Style is set here for compatibility reasons for iOS 12.x and less.
-        // For iOS 13 styling see MainTabBarViewController's 'configure' method.
-
-        if #available(iOS 13.0, *) {
-            return tabBarItem
-        }
-
-        let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorGray()!]
-        let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
-
-        tabBarItem.setTitleTextAttributes(normalAttributes, for: .normal)
-        tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)
+        tabBarItem.imageInsets = UIEdgeInsets(top: 10, left: 0, bottom: -10, right: 0)
+        tabBarItem.title = nil
 
         return tabBarItem
     }

@@ -159,7 +159,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNetworkInfoView() {
-        guard let networkInfoView = R.nib.networkInfoView(owner: self) else { return }
+        let networkInfoView = NetworkInfoView()
+        networkInfoView.descriptionLabel.isHidden = true
 
         self.networkInfoView = networkInfoView
 

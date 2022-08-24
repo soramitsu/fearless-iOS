@@ -33,9 +33,8 @@ final class StakingPoolJoinConfigAssembly {
         let logger = Logger.shared
 
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
             operationManager: operationManager,
+            chainRegistry: chainRegistry,
             logger: logger
         )
 

@@ -7,11 +7,11 @@ protocol MainTabBarViewProtocol: ControllerBackedProtocol {
 }
 
 protocol MainTabBarPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: MainTabBarViewProtocol)
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with output: MainTabBarInteractorOutputProtocol)
 }
 
 protocol MainTabBarInteractorOutputProtocol: AnyObject {

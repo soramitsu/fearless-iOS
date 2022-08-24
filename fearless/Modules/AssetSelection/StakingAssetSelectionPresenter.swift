@@ -169,7 +169,10 @@ extension StakingAssetSelectionPresenter: ChainSelectionInteractorOutputProtocol
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAssetKey: ChainAssetKey) {
         accountInfoResults[chainAssetKey] = result
-        updateView()
+
+        DispatchQueue.main.async {
+            self.updateView()
+        }
     }
 }
 

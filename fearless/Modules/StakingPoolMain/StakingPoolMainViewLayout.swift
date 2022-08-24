@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {
@@ -11,12 +12,13 @@ final class StakingPoolMainViewLayout: UIView {
             right: 0
         )
         static let birdButtonSize = CGSize(width: 40, height: 40)
+        static let networkInfoHeight: CGFloat = 292
     }
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = .zero
         return view
     }()
 
@@ -48,15 +50,30 @@ final class StakingPoolMainViewLayout: UIView {
 
     let rewardCalculatorView = StakingRewardCalculatorView()
 
+    let networkInfoView = NetworkInfoView()
+
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func applyLocalization() {
+        titleLabel.text = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
+        networkInfoView.titleControl.titleLabel.text = R.string.localizable.poolStakingTitle(preferredLanguages: locale.rLanguages)
+        networkInfoView.descriptionLabel.text = R.string.localizable.poolStakingMainDescriptionTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -69,8 +86,10 @@ final class StakingPoolMainViewLayout: UIView {
 
         addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(walletSelectionButton.snp.bottom).offset(UIConstants.defaultOffset)
         }
+
         assetSelectionContainerView.translatesAutoresizingMaskIntoConstraints = false
 
         let backgroundView = TriangularedBlurView()
@@ -93,12 +112,34 @@ final class StakingPoolMainViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
         }
 
+        contentView.stackView.addArrangedSubview(networkInfoView)
         contentView.stackView.addArrangedSubview(rewardCalculatorView)
+
+        networkInfoView.collectionView.snp.makeConstraints { make in
+            make.height.equalTo(0)
+        }
 
         rewardCalculatorView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-//            make.height.equalTo(232)
+        }
+
+        titleLabel.snp.makeConstraints { make in
+            make.centerY.equalTo(walletSelectionButton.snp.centerY)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        }
+
+        walletSelectionButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.equalTo(safeAreaLayoutGuide.snp.top)
+            make.size.equalTo(Constants.birdButtonSize)
+            make.leading.equalTo(titleLabel.snp.trailing).offset(UIConstants.bigOffset)
+        }
+
+        networkInfoView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(Constants.networkInfoHeight)
         }
     }
 
@@ -146,5 +187,9 @@ final class StakingPoolMainViewLayout: UIView {
 
     func bind(estimationViewModel: StakingEstimationViewModel) {
         rewardCalculatorView.bind(viewModel: estimationViewModel)
+    }
+
+    func bind(viewModels: [LocalizableResource<NetworkInfoContentViewModel>]) {
+        networkInfoView.bind(viewModels: viewModels)
     }
 }

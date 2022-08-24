@@ -1,4 +1,7 @@
 import UIKit
+import FearlessUtils
+import RobinHood
+import SoraKeystore
 
 final class StakingPoolMainInteractor {
     // MARK: - Private properties
@@ -9,9 +12,13 @@ final class StakingPoolMainInteractor {
     private let selectedWalletSettings: SelectedWalletSettings
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private let settings: StakingAssetSettings
-    private let rewardCalculationService: RewardCalculatorServiceProtocol
+    private var rewardCalculationService: RewardCalculatorServiceProtocol
     private var chainAsset: ChainAsset
-    private let operationQueue: OperationQueue
+    private var wallet: MetaAccountModel
+    private let operationManager: OperationManagerProtocol
+    private let stakingServiceFactory: StakingServiceFactoryProtocol
+    private let logger: LoggerProtocol?
+    private let commonSettings: SettingsManagerProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
@@ -23,7 +30,11 @@ final class StakingPoolMainInteractor {
         rewardCalculationService: RewardCalculatorServiceProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         chainAsset: ChainAsset,
-        operationQueue: OperationQueue
+        wallet: MetaAccountModel,
+        operationManager: OperationManagerProtocol,
+        stakingServiceFactory: StakingServiceFactoryProtocol,
+        logger: LoggerProtocol?,
+        commonSettings: SettingsManagerProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -32,7 +43,63 @@ final class StakingPoolMainInteractor {
         self.rewardCalculationService = rewardCalculationService
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
-        self.operationQueue = operationQueue
+        self.wallet = wallet
+        self.operationManager = operationManager
+        self.stakingServiceFactory = stakingServiceFactory
+        self.logger = logger
+        self.commonSettings = commonSettings
+    }
+
+    private func updateDependencies() {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
+            return
+        }
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let subqueryOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: subqueryOperationFactory
+        )
+
+        do {
+            let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
+                for: chainAsset.chain
+            )
+
+            let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
+                for: chainAsset,
+                assetPrecision: Int16(chainAsset.asset.precision),
+                validatorService: eraValidatorService,
+                collatorOperationFactory: collatorOperationFactory
+            )
+
+            rewardCalculationService = rewardCalculatorService
+
+            eraValidatorService.setup()
+            rewardCalculatorService.setup()
+        } catch {
+            logger?.error("Couldn't create shared state")
+        }
     }
 
     private func updateAfterChainAssetSave() {
@@ -41,7 +108,24 @@ final class StakingPoolMainInteractor {
         }
 
         chainAsset = newSelectedChainAsset
+
+        updateDependencies()
+
         updateWithChainAsset(chainAsset)
+    }
+
+    private func updateAfterSelectedAccountChange() {
+        guard let newSelectedWallet = SelectedWalletSettings.shared.value else {
+            return
+        }
+
+        wallet = newSelectedWallet
+
+        if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+        }
+
+        output?.didReceive(wallet: newSelectedWallet)
     }
 
     private func fetchRewardCalculator() {
@@ -52,7 +136,69 @@ final class StakingPoolMainInteractor {
             self?.output?.didReceive(rewardCalculatorEngine: rewardCalculatorEngine)
         }
 
-        operationQueue.addOperation(fetchRewardCalculatorOperation)
+        operationManager.enqueue(operations: [fetchRewardCalculatorOperation], in: .transient)
+    }
+
+    private func fetchNetworkInfo() {
+        let fetchMinJoinBondOperation = stakingPoolOperationFactory.fetchMinJoinBondOperation()
+        let fetchMinCreateBondOperation = stakingPoolOperationFactory.fetchMinCreateBondOperation()
+        let maxStakingPoolsCountOperation = stakingPoolOperationFactory.fetchMaxStakingPoolsCount()
+        let maxPoolsMembersOperation = stakingPoolOperationFactory.fetchMaxPoolMembers()
+        let existingPoolsCountOperation = stakingPoolOperationFactory.fetchCounterForBondedPools()
+        let maxPoolMembersPerPoolOperation = stakingPoolOperationFactory.fetchMaxPoolMembersPerPool()
+
+        let mapOperation = ClosureOperation<StakingPoolNetworkInfo> {
+            let minJoinBond = try? fetchMinJoinBondOperation.targetOperation.extractNoCancellableResultData()
+            let minCreateBond = try? fetchMinCreateBondOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolsCount = try? maxStakingPoolsCountOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolsMembers = try? maxPoolsMembersOperation.targetOperation.extractNoCancellableResultData()
+            let existingPoolsCount = try? existingPoolsCountOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolMembersPerPool = try? maxPoolMembersPerPoolOperation.targetOperation.extractNoCancellableResultData()
+
+            return StakingPoolNetworkInfo(
+                minJoinBond: minJoinBond,
+                minCreateBond: minCreateBond,
+                existingPoolsCount: existingPoolsCount,
+                possiblePoolsCount: maxPoolsCount,
+                maxMembersInPool: maxPoolMembersPerPool,
+                maxPoolsMembers: maxPoolsMembers
+            )
+        }
+
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let networkInfo = try mapOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(networkInfo: networkInfo)
+                } catch {
+                    self?.output?.didReceive(networkInfoError: error)
+                }
+            }
+        }
+
+        let dependencies = [fetchMinJoinBondOperation.targetOperation,
+                            fetchMinCreateBondOperation.targetOperation,
+                            maxStakingPoolsCountOperation.targetOperation,
+                            maxPoolsMembersOperation.targetOperation,
+                            existingPoolsCountOperation.targetOperation,
+                            maxPoolMembersPerPoolOperation.targetOperation]
+
+        dependencies.forEach {
+            mapOperation.addDependency($0)
+        }
+
+        var allOperations: [Operation] = [mapOperation]
+        allOperations.append(contentsOf: fetchMinJoinBondOperation.allOperations)
+        allOperations.append(contentsOf: fetchMinCreateBondOperation.allOperations)
+        allOperations.append(contentsOf: maxStakingPoolsCountOperation.allOperations)
+        allOperations.append(contentsOf: maxPoolsMembersOperation.allOperations)
+        allOperations.append(contentsOf: existingPoolsCountOperation.allOperations)
+        allOperations.append(contentsOf: maxPoolMembersPerPoolOperation.allOperations)
+
+        operationManager.enqueue(
+            operations: allOperations,
+            in: .transient
+        )
     }
 }
 
@@ -84,6 +230,9 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
+
+        fetchRewardCalculator()
+        fetchNetworkInfo()
     }
 
     func save(chainAsset: ChainAsset) {
@@ -93,8 +242,12 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         settings.save(value: chainAsset, runningCompletionIn: .main) { [weak self] _ in
             self?.updateAfterChainAssetSave()
-//            self?.updateAfterSelectedAccountChange()
+            self?.updateAfterSelectedAccountChange()
         }
+    }
+
+    func saveNetworkInfoViewExpansion(isExpanded: Bool) {
+        commonSettings.stakingNetworkExpansion = isExpanded
     }
 }
 

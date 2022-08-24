@@ -7,12 +7,18 @@ final class StakingPoolMainPresenter {
     private weak var view: StakingPoolMainViewInput?
     private let router: StakingPoolMainRouterInput
     private let interactor: StakingPoolMainInteractorInput
-    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private var balanceViewModelFactory: BalanceViewModelFactoryProtocol {
+        didSet {
+            viewModelFactory.replaceBalanceViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+        }
+    }
+
     private weak var moduleOutput: StakingMainModuleOutput?
     private let viewModelFactory: StakingPoolMainViewModelFactoryProtocol
 
+    private var wallet: MetaAccountModel
+    private var chainAsset: ChainAsset
     private var accountInfo: AccountInfo?
-    private var chainAsset: ChainAsset?
     private var balance: Decimal?
     private var rewardCalculatorEngine: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
@@ -27,20 +33,24 @@ final class StakingPoolMainPresenter {
         localizationManager: LocalizationManagerProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         moduleOutput: StakingMainModuleOutput?,
-        viewModelFactory: StakingPoolMainViewModelFactoryProtocol
+        viewModelFactory: StakingPoolMainViewModelFactoryProtocol,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
         self.balanceViewModelFactory = balanceViewModelFactory
         self.moduleOutput = moduleOutput
         self.viewModelFactory = viewModelFactory
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private methods
 
     private func provideBalanceViewModel() {
-        if let availableValue = accountInfo?.data.available, let chainAsset = chainAsset {
+        if let availableValue = accountInfo?.data.available {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
                 precision: Int16(chainAsset.asset.precision)
@@ -60,10 +70,6 @@ final class StakingPoolMainPresenter {
     }
 
     private func provideRewardEstimationViewModel() {
-        guard let chainAsset = chainAsset else {
-            return
-        }
-
         let viewModel = viewModelFactory.createEstimationViewModel(
             for: chainAsset,
             accountInfo: accountInfo,
@@ -122,6 +128,10 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
 
         provideRewardEstimationViewModel()
     }
+
+    func networkInfoViewDidChangeExpansion(isExpanded: Bool) {
+        interactor.saveNetworkInfoViewExpansion(isExpanded: isExpanded)
+    }
 }
 
 // MARK: - StakingPoolMainInteractorOutput
@@ -137,6 +147,11 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     func didReceive(balanceError _: Error) {}
 
     func didReceive(chainAsset: ChainAsset) {
+        balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
+
         self.chainAsset = chainAsset
 
         provideBalanceViewModel()
@@ -158,6 +173,25 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
         provideRewardEstimationViewModel()
     }
+
+    func didReceive(wallet: MetaAccountModel) {
+        self.wallet = wallet
+
+        balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
+
+        provideBalanceViewModel()
+        provideRewardEstimationViewModel()
+    }
+
+    func didReceive(networkInfo: StakingPoolNetworkInfo) {
+        let viewModels = viewModelFactory.buildNetworkInfoViewModels(networkInfo: networkInfo, chainAsset: chainAsset)
+        view?.didReceiveNetworkInfoViewModels(viewModels)
+    }
+
+    func didReceive(networkInfoError _: Error) {}
 }
 
 // MARK: - Localizable

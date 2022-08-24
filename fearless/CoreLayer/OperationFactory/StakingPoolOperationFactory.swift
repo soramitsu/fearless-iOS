@@ -133,8 +133,8 @@ final class StakingPoolOperationFactory {
 
     private func createMaxPoolMembersOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<UInt32>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<UInt32>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPoolMembers)] },
@@ -149,8 +149,8 @@ final class StakingPoolOperationFactory {
 
     private func createMaxPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<UInt32>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<UInt32>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPools)] },
@@ -165,8 +165,8 @@ final class StakingPoolOperationFactory {
 
     private func createMaxPoolMembersPerPoolOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<UInt32>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<UInt32>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPoolMembersPerPool)] },
@@ -181,8 +181,8 @@ final class StakingPoolOperationFactory {
 
     private func createCounterForBondedPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[StorageResponse<UInt32>]> {
-        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<UInt32>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolCounterForBondedPools)] },
@@ -312,7 +312,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxStakingPoolsCountOperation = createMaxPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try maxStakingPoolsCountOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxStakingPoolsCountOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(maxStakingPoolsCountOperation.targetOperation)
@@ -326,7 +326,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxPoolMembersOperation = createMaxPoolMembersOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try maxPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(maxPoolMembersOperation.targetOperation)
@@ -340,7 +340,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let counterForBondedPoolsOperation = createCounterForBondedPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try counterForBondedPoolsOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try counterForBondedPoolsOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(counterForBondedPoolsOperation.targetOperation)
@@ -354,7 +354,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxPoolMembersPerPoolOperation = createMaxPoolMembersPerPoolOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
-            try maxPoolMembersPerPoolOperation.targetOperation.extractNoCancellableResultData().first?.value
+            try maxPoolMembersPerPoolOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
         }
 
         mapOperation.addDependency(maxPoolMembersPerPoolOperation.targetOperation)

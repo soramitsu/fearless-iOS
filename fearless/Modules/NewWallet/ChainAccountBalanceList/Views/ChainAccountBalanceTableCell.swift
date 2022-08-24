@@ -3,7 +3,7 @@ import Kingfisher
 import simd
 import SoraUI
 
-final class ChainAccountBalanceTableCell: UITableViewCell {
+final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     enum LayoutConstants {
         static let cellHeight: CGFloat = 80
         static let assetImageTopOffset: CGFloat = 11
@@ -14,7 +14,13 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         static let balancePriceRowSize = CGSize(width: 56.0, height: 6.0)
     }
 
-    private var backgroundTriangularedView = TriangularedBlurView()
+    private var backgroundTriangularedView: TriangularedView = {
+        let containerView = TriangularedView()
+        containerView.fillColor = R.color.colorWhite8()!
+        containerView.highlightedFillColor = R.color.colorWhite8()!
+        containerView.shadowOpacity = 0
+        return containerView
+    }()
 
     private var assetIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -45,7 +51,6 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
     }()
 
     let chainInfoView = UIView()
-
     let chainOptionsView = UIFactory.default.createChainOptionsView()
 
     private var balanceView: HorizontalKeyValueView = {
@@ -67,6 +72,8 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         return view
     }()
 
+    private var chainInfoContainerView = UIView()
+    private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
     // MARK: - Lifecycle
@@ -88,8 +95,8 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
 
         assetIconImageView.kf.cancelDownloadTask()
 
-        chainOptionsView.stackView.arrangedSubviews.forEach { subview in
-            chainOptionsView.stackView.removeArrangedSubview(subview)
+        chainOptionsView.arrangedSubviews.forEach { subview in
+            chainOptionsView.removeArrangedSubview(subview)
             subview.removeFromSuperview()
         }
     }
@@ -113,17 +120,35 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
                 let view = ChainOptionsView()
                 view.bind(to: option)
 
-                chainOptionsView.stackView.addArrangedSubview(view)
+                chainOptionsView.addArrangedSubview(view)
             }
         }
 
-        setDeactivated(!viewModel.chain.isSupported)
+        setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
+        bindChainIcons(viewModel: viewModel)
     }
 
     // MARK: - Private methods
 
+    private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
+        var chainIcons: [RemoteImageViewModel?] = []
+        if viewModel.assetContainsChainAssets.count > 1 {
+            chainIcons = viewModel.assetContainsChainAssets.map {
+                $0.chain.icon.map { RemoteImageViewModel(url: $0) }
+            }
+        }
+        let chainIconsViewModel = ChainCollectionViewModel(
+            maxImagesCount: 5,
+            chainImages: chainIcons
+        )
+        chainIconsView.bind(viewModel: chainIconsViewModel)
+    }
+
     private func configure() {
+        leftMenuButtons = createLeftButtons()
+        rightMenuButtons = createRightButtons()
+
         backgroundColor = .clear
 
         separatorInset = UIEdgeInsets(
@@ -136,13 +161,24 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
         selectionStyle = .none
     }
 
+    private func createLeftButtons() -> [SwipeButtonProtocol] {
+        [
+            SwipeCellButton.createSendButton(),
+            SwipeCellButton.createReceiveButton(),
+            SwipeCellButton.createTeleportButton()
+        ]
+    }
+
+    private func createRightButtons() -> [SwipeButtonProtocol] {
+        [
+            SwipeCellButton.createHideButton()
+        ]
+    }
+
     private func setupLayout() {
-        contentView.addSubview(backgroundTriangularedView)
+        cloudView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.equalToSuperview()
+            make.edges.equalToSuperview()
             make.height.equalTo(LayoutConstants.cellHeight)
         }
 
@@ -171,8 +207,12 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             make.bottom.equalTo(separatorView.snp.bottom)
         }
 
-        contentStackView.addArrangedSubview(chainInfoView)
+        contentStackView.addArrangedSubview(chainInfoContainerView)
+        chainInfoContainerView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+        }
         chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
         contentStackView.addArrangedSubview(balanceView)
         balanceView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         balanceView.snp.makeConstraints { make in
@@ -185,23 +225,21 @@ final class ChainAccountBalanceTableCell: UITableViewCell {
             make.trailing.equalToSuperview()
         }
 
-        chainInfoView.addSubview(chainNameLabel)
+        chainInfoContainerView.addSubview(chainNameLabel)
         chainNameLabel.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
         }
-
-        chainInfoView.addSubview(chainOptionsView)
+        chainInfoContainerView.addSubview(chainOptionsView)
         chainOptionsView.snp.makeConstraints { make in
-            make.trailing.greaterThanOrEqualToSuperview()
+            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.bigOffset)
             make.top.bottom.equalToSuperview()
-            make.leading.equalTo(chainNameLabel.snp.trailing).offset(UIConstants.defaultOffset)
         }
-
-        chainOptionsView.stackView.snp.makeConstraints { make in
-            make.height.equalToSuperview()
+        chainInfoContainerView.addSubview(chainIconsView)
+        chainIconsView.snp.makeConstraints { make in
+            make.leading.greaterThanOrEqualTo(chainOptionsView.snp.trailing).offset(UIConstants.bigOffset)
+            make.top.bottom.trailing.equalToSuperview()
+            make.width.equalTo(90).priority(.low)
         }
-
-        chainNameLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
     }
 }
 
@@ -216,11 +254,10 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
         let chainName = viewModel.assetName?.uppercased()
-        let chainSymbol = viewModel.assetInfo?.symbol.uppercased()
+        let chainSymbol = viewModel.chainAsset.asset.name.uppercased()
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()
-
         if viewModel.isColdBoot {
             startLoading()
             return
@@ -319,5 +356,54 @@ extension ChainAccountBalanceTableCell {
                 size: LayoutConstants.balancePriceRowSize
             )
         ]
+    }
+}
+
+class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
+    init(type: SwipableCellButtonType) {
+        self.type = type
+        super.init(frame: .zero)
+        tag = type.rawValue
+    }
+
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    var type: SwipableCellButtonType
+}
+
+extension VerticalContentButton {
+    static func createSendButton() -> SwipeCellButton {
+        let button = SwipeCellButton(type: .send)
+        button.setImage(R.image.iconSwipeSend(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.setTitle("Send", for: .normal)
+        return button
+    }
+
+    static func createReceiveButton() -> SwipeCellButton {
+        let button = SwipeCellButton(type: .receive)
+        button.setImage(R.image.iconSwipeReceive(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.setTitle("Receive", for: .normal)
+        return button
+    }
+
+    static func createTeleportButton() -> SwipeCellButton {
+        let button = SwipeCellButton(type: .teleport)
+        button.setImage(R.image.iconSwipeTeleport(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.setTitle("Teleport", for: .normal)
+        return button
+    }
+
+    static func createHideButton() -> SwipeCellButton {
+        let button = SwipeCellButton(type: .hide)
+        button.setImage(R.image.iconSwipeHide(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.setTitle("Hide", for: .normal)
+        return button
     }
 }
