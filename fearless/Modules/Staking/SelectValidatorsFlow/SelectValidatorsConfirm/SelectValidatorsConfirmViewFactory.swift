@@ -235,31 +235,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             return nil
         }
 
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        let chain = chainAsset.chain
-
-        let storageFacade = SubstrateDataStorageFacade.shared
-
-        guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return nil
-        }
-
-        let logger = Logger.shared
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 

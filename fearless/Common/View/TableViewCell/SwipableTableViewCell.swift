@@ -28,9 +28,22 @@ class SwipableTableViewCell: UITableViewCell {
     /// they position appropriately as the cell transitions in to and out of editing mode.
     let cloudView = UIView()
     /// Backgrount view for action swipe menu from left side
-    var leftMenuBackgroundView = TriangularedBlurView()
+    var leftMenuBackgroundView: TriangularedView = {
+        let containerView = TriangularedView()
+        containerView.fillColor = R.color.colorWhite8()!
+        containerView.highlightedFillColor = R.color.colorWhite8()!
+        containerView.shadowOpacity = 0
+        return containerView
+    }()
+
     /// Backgrount view for action swipe menu from right side
-    var rightMenuBackgroundView = TriangularedBlurView()
+    var rightMenuBackgroundView: TriangularedView = {
+        let containerView = TriangularedView()
+        containerView.fillColor = R.color.colorWhite8()!
+        containerView.highlightedFillColor = R.color.colorWhite8()!
+        containerView.shadowOpacity = 0
+        return containerView
+    }()
 
     var cloudViewEdgeInsets: UIEdgeInsets {
         UIEdgeInsets(
@@ -411,7 +424,7 @@ extension SwipableTableViewCell {
             return super.gestureRecognizerShouldBegin(gestureRecognizer)
         }
 
-        if leftMenuButtons.isEmpty || rightMenuButtons.isEmpty {
+        if leftMenuButtons.isEmpty, rightMenuButtons.isEmpty {
             return false
         }
 

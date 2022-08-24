@@ -63,7 +63,9 @@ final class AccountInfoUpdatingService {
         for change in changes {
             switch change {
             case let .insert(newItem):
-                if chainIdsWithCodersReady.contains(newItem.chainId) {
+                if
+                    chainIdsWithCodersReady.contains(newItem.chainId)
+                    || (chainRegistry.availableChainIds?.contains(newItem.chainId) ?? false) {
                     newItem.chainAssets.forEach {
                         addSubscriptionIfNeeded(for: $0)
                     }

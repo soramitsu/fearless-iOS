@@ -214,11 +214,18 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
     }
 
     func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState) {
-        guard let viewModel = viewModelFactory.buildAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData, balance: balance) else {
+        guard
+            let viewModel = viewModelFactory.buildAssetBalanceViewModel(
+                viewModelState: viewModelState,
+                priceData: priceData,
+                balance: balance
+            ) else {
             return
         }
 
-        view?.didReceive(assetViewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceive(assetViewModel: viewModel)
+        }
     }
 
     func didStartNomination() {

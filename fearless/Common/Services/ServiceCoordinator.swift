@@ -20,23 +20,6 @@ final class ServiceCoordinator {
         self.accountInfoService = accountInfoService
         self.githubPhishingService = githubPhishingService
     }
-
-    private func setup(chainRegistry: ChainRegistryProtocol) {
-        chainRegistry.syncUp()
-
-        let semaphore = DispatchSemaphore(value: 0)
-
-        chainRegistry.chainsSubscribe(
-            self,
-            runningInQueue: DispatchQueue.global()
-        ) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
-        }
-
-        semaphore.wait()
-    }
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
@@ -63,7 +46,8 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        setup(chainRegistry: chainRegistry)
+        chainRegistry.subscribeToChians()
+        chainRegistry.syncUp()
 
         githubPhishingService.setup()
         accountInfoService.setup()
