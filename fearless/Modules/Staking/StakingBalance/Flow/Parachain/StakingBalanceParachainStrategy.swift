@@ -6,6 +6,8 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
     func didReceiveDelegation(_ delegation: ParachainStakingDelegation?)
     func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?)
+    func didReceiveCurrentBlock(currentBlock: UInt32?)
+    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryData?)
 }
 
 final class StakingBalanceParachainStrategy {
@@ -21,6 +23,7 @@ final class StakingBalanceParachainStrategy {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     private let logger: LoggerProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+    private let subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
 
     deinit {
         stakingAccountUpdatingService.clearSubscription()
@@ -35,7 +38,8 @@ final class StakingBalanceParachainStrategy {
         output: StakingBalanceParachainStrategyOutput?,
         parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
         logger: LoggerProtocol,
-        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
+        subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
     ) {
         self.collator = collator
         self.chainAsset = chainAsset
@@ -46,6 +50,32 @@ final class StakingBalanceParachainStrategy {
         self.parachainStakingLocalSubscriptionFactory = parachainStakingLocalSubscriptionFactory
         self.logger = logger
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.subqueryHistoryOperationFactory = subqueryHistoryOperationFactory
+    }
+
+    private func fetchSubqueryUnstakingHistory() {
+        guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+            return
+        }
+
+        let operation = subqueryHistoryOperationFactory.createUnstakingHistoryOperation(
+            delegatorAddress: address,
+            collatorAddress: collator.address
+        )
+
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let unstakingHistory = try operation.extractNoCancellableResultData()
+                    self?.output?.didReceiveSubqueryData(unstakingHistory)
+                } catch {
+                    self?.output?.didReceiveSubqueryData(nil)
+                    self?.logger.error(error.localizedDescription)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     private func fetchDelegationScheduledRequests() {
@@ -68,6 +98,17 @@ final class StakingBalanceParachainStrategy {
 
     private func fetchCurrentRound() {
         let roundOperation = operationFactory.round()
+        let currentBlockOperation = operationFactory.currentBlock()
+
+        currentBlockOperation.targetOperation.completionBlock = { [weak self] in
+            let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
+
+            if let block = currentBlock, let currentBlockValue = UInt32(block) {
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveCurrentBlock(currentBlock: currentBlockValue)
+                }
+            }
+        }
 
         roundOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -76,7 +117,7 @@ final class StakingBalanceParachainStrategy {
             }
         }
 
-        operationManager.enqueue(operations: roundOperation.allOperations, in: .transient)
+        operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)
     }
 
     private func fetchDelegations() {
@@ -122,12 +163,13 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
         fetchDelegations()
         fetchCurrentRound()
         fetchDelegationScheduledRequests()
+        fetchSubqueryUnstakingHistory()
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset.chain.chainId, accountId: accountId)
+            delegatorStateProvider = subscribeToDelegatorState(for: chainAsset, accountId: accountId)
         }
 
-        delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(for: chainAsset.chain.chainId, accountId: collator.owner)
+        delegationScheduledRequestsProvider = subscribeToDelegationScheduledRequests(for: chainAsset, accountId: collator.owner)
     }
 
     func refresh() {
@@ -140,10 +182,13 @@ extension StakingBalanceParachainStrategy: StakingBalanceStrategy {
 extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscriber, ParachainStakingLocalSubscriptionHandler {
     func handleDelegatorState(
         result: Result<ParachainStakingDelegatorState?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) {
-        guard accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.chainId == chainId else {
+        guard
+            accountId == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.chainId == chainAsset.chain.chainId
+        else {
             return
         }
         switch result {
@@ -159,10 +204,13 @@ extension StakingBalanceParachainStrategy: ParachainStakingLocalStorageSubscribe
 
     func handleDelegationScheduledRequests(
         result: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) {
-        guard accountId == collator.owner, chainAsset.chain.chainId == chainId else {
+        guard
+            accountId == collator.owner,
+            chainAsset.chain.chainId == chainAsset.chain.chainId
+        else {
             return
         }
 

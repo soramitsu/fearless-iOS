@@ -608,7 +608,9 @@ extension ParachainCollatorOperationFactory {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    func delegatorState(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegatorState]?> {
+    func delegatorState(
+        accountIdsClosure: @escaping () throws -> [AccountId]
+    ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegatorState]?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let delegatorStateWrapper = createDelegatorStateOperation(
             dependingOn: runtimeOperation,

@@ -7,10 +7,10 @@ extension YourValidatorList {
             chainAsset: ChainAsset
         ) {
             guard let confirmView = SelectValidatorsConfirmViewFactory
-                .createChangeYourValidatorsView(
-                    wallet: wallet,
+                .createView(
                     chainAsset: chainAsset,
-                    flow: flow
+                    flow: flow,
+                    wallet: wallet
                 ) else {
                 return
             }

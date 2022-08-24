@@ -10,7 +10,6 @@ final class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartV
     private(set) var selectedCandidates: [ParachainStakingCandidateInfo]?
     private(set) var recommendedCandidates: [ParachainStakingCandidateInfo]?
     private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
-    private var bottomDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
     var stateListener: SelectValidatorsStartModelStateListener?
 
     init(bonding: InitiatedBonding, chainAsset: ChainAsset) {
@@ -75,10 +74,6 @@ final class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartV
 }
 
 extension SelectValidatorsStartParachainViewModelState: SelectValidatorsStartParachainStrategyOutput {
-    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
-        bottomDelegationsByCollator = delegations
-    }
-
     func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations]) {
         topDelegationsByCollator = delegations
 

@@ -156,7 +156,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
     private func createNominatorsStakeTitle() -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages)
+            R.string.localizable.parachainStakingDelegatorsTitle(preferredLanguages: locale.rLanguages)
         }
     }
 

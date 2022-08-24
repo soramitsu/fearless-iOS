@@ -17,7 +17,7 @@ protocol StakingAmountModelStateListener: AnyObject {
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
     var stateListener: StakingAmountModelStateListener? { get set }
     var feeExtrinsicBuilderClosure: ExtrinsicBuilderClosure { get }
-    var amount: Decimal? { get set }
+    var amount: Decimal? { get }
     var fee: Decimal? { get set }
     var bonding: InitiatedBonding? { get }
     var payoutAccount: ChainAccountResponse? { get }
@@ -25,6 +25,7 @@ protocol StakingAmountViewModelState: StakingAmountUserInputHandler {
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]
+    func updateBalance(_ balance: Decimal?)
 }
 
 struct StakingAmountDependencyContainer {

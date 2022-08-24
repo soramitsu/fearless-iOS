@@ -3,7 +3,7 @@ import RobinHood
 import BigInt
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
-    var amount: Decimal? { existingBonding.amount }
+    var amount: Decimal? { 0.0 }
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
