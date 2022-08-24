@@ -32,7 +32,7 @@ enum AnalyticsContainerViewFactory {
             with: wallet,
             chainAsset: chainAsset
         ) : nil
-        let validatorsModule = mode.contains(.includeValidatorsTab)
+        let validatorsModule = (mode.contains(.includeValidatorsTab) && flow == .relaychain)
             ? AnalyticsValidatorsViewFactory.createView(
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,

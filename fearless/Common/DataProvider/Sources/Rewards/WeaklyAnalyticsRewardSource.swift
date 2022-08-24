@@ -29,14 +29,12 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
             endTimestamp: Int64(now)
         )
 
-        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> { [weak self] in
-            guard let strongSelf = self else {
-                throw CommonError.internal
-            }
+        let address = self.address
 
+        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
             let rewards = try rewardOperation.extractNoCancellableResultData()
             return rewards.delegators.nodes.first(where: { historyElement in
-                historyElement.id.lowercased() == strongSelf.address.lowercased()
+                historyElement.id?.lowercased() == address.lowercased()
             })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
                 guard
                     let timestamp = Int64(wrappedReward.timestamp)
@@ -48,9 +46,9 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
                     timestamp: timestamp,
                     validatorAddress: "",
                     era: EraIndex(0),
-                    stashAddress: strongSelf.address,
+                    stashAddress: address,
                     amount: wrappedReward.amount,
-                    isReward: wrappedReward.type == 0
+                    isReward: wrappedReward.type.rawValue == 0
                 )
             }
         }

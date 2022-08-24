@@ -7,21 +7,26 @@ protocol SelectValidatorsStartParachainStrategyOutput: AnyObject {
     func didReceiveMaxBottomDelegationsPerCandidate(result: Result<Int, Error>)
     func didReceiveSelectedCandidates(selectedCandidates: [ParachainStakingCandidateInfo])
     func didReceiveTopDelegations(delegations: [AccountAddress: ParachainStakingDelegations])
-    func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations])
 }
 
 final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
+    private let wallet: MetaAccountModel
+    private let chainAsset: ChainAsset
     private let operationFactory: ParachainCollatorOperationFactory
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private weak var output: SelectValidatorsStartParachainStrategyOutput?
 
     init(
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         operationFactory: ParachainCollatorOperationFactory,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         output: SelectValidatorsStartParachainStrategyOutput?
     ) {
+        self.wallet = wallet
+        self.chainAsset = chainAsset
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
@@ -29,17 +34,15 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
     }
 
     private func prepareRecommendedValidatorList() {
+        guard let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else { return }
         let wrapper = operationFactory.allElectedOperation()
 
-        wrapper.targetOperation.completionBlock = { [weak self] in
+        var allSelectedCollators: [ParachainStakingCandidateInfo] = []
+        wrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async {
                 do {
-                    let response = try wrapper.targetOperation.extractNoCancellableResultData()
-
-                    self?.output?.didReceiveSelectedCandidates(selectedCandidates: response ?? [])
-
-                    if let collators = response {
-                        self?.requestTopDelegationsForEachCollator(collators: collators)
+                    if let result = try wrapper.targetOperation.extractNoCancellableResultData() {
+                        allSelectedCollators = result
                     }
                 } catch {
                     print("SelectValidatorsStartParachainStrategy.prepareRecommendedValidatorList error: ", error)
@@ -47,7 +50,33 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
             }
         }
 
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let delegatorStateWrapper = operationFactory.createDelegatorStateOperation(
+            dependingOn: runtimeOperation
+        ) { [accountResponse.accountId] }
+        delegatorStateWrapper.targetOperation.completionBlock = { [weak self] in
+            guard let strongSelf = self else { return }
+            self?.requestDelegatorState(
+                for: accountResponse.accountId,
+                chainAsset: strongSelf.chainAsset
+            ) { delegatorState in
+                let usedCollatorsIds: [AccountId] = delegatorState?.delegations.map(\.owner) ?? []
+                let selectedCandidates: [ParachainStakingCandidateInfo]? = allSelectedCollators.filter { candidate in
+                    !usedCollatorsIds.contains(candidate.owner)
+                }
+                self?.output?.didReceiveSelectedCandidates(selectedCandidates: selectedCandidates ?? [])
+
+                if let collators = selectedCandidates {
+                    self?.requestTopDelegationsForEachCollator(collators: collators)
+                }
+            }
+        }
+        delegatorStateWrapper.addDependency(wrapper: wrapper)
+
+        operationManager.enqueue(
+            operations: [runtimeOperation] + wrapper.allOperations + delegatorStateWrapper.allOperations,
+            in: .transient
+        )
     }
 
     private func requestTopDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
@@ -72,26 +101,31 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
         operationManager.enqueue(operations: topDelegationsOperation.allOperations, in: .transient)
     }
 
-    private func requestBottomDelegationsForEachCollator(collators: [ParachainStakingCandidateInfo]) {
-        let bottomDelegationsOperation = operationFactory.collatorBottomDelegations {
-            collators.map(\.owner)
+    private func requestDelegatorState(
+        for accountId: AccountId,
+        chainAsset: ChainAsset,
+        completionBlock: @escaping (ParachainStakingDelegatorState?) -> Void
+    ) {
+        let delegatorStateOperation = operationFactory.delegatorState {
+            [accountId]
         }
-
-        bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
+        delegatorStateOperation.targetOperation.completionBlock = {
             do {
-                let response = try bottomDelegationsOperation.targetOperation.extractNoCancellableResultData()
+                let address = try AddressFactory.address(
+                    for: accountId,
+                    chainFormat: chainAsset.chain.chainFormat
+                )
 
-                guard let delegations = response else {
-                    return
-                }
+                let response = try delegatorStateOperation.targetOperation.extractNoCancellableResultData()
+                let delegatorState = response?[address]
 
-                self?.output?.didReceiveBottomDelegations(delegations: delegations)
+                completionBlock(delegatorState)
             } catch {
-                print("SelectValidatorsStartParachainStrategy.requestBottomDelegationsForEachCollator error: ", error)
+                print("SelectValidatorsStartParachainStrategy.requestDelegatorState error: ", error)
             }
         }
 
-        operationManager.enqueue(operations: bottomDelegationsOperation.allOperations, in: .transient)
+        operationManager.enqueue(operations: delegatorStateOperation.allOperations, in: .transient)
     }
 }
 

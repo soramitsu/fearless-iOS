@@ -6,10 +6,10 @@ final class ChangeTargetsSelectedValidatorListWireframe: SelectedValidatorListWi
         chainAsset: ChainAsset
     ) {
         guard let confirmView = SelectValidatorsConfirmViewFactory
-            .createChangeTargetsView(
-                wallet: wallet,
+            .createView(
                 chainAsset: chainAsset,
-                flow: flow
+                flow: flow,
+                wallet: wallet
             ) else {
             return
         }

@@ -147,7 +147,7 @@ struct StakingRebondConfirmationViewFactory {
 
         let signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: wallet.metaId,
+            metaId: accountResponse.walletId,
             accountResponse: accountResponse
         )
 
