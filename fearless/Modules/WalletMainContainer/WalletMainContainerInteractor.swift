@@ -43,15 +43,19 @@ final class WalletMainContainerInteractor {
 
         operation.completionBlock = { [weak self] in
             guard let result = operation.result else {
-                self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
+                }
                 return
             }
 
-            switch result {
-            case let .success(chain):
-                self?.output?.didReceiveSelectedChain(chain)
-            case let .failure(error):
-                self?.output?.didReceiveError(error)
+            DispatchQueue.main.async {
+                switch result {
+                case let .success(chain):
+                    self?.output?.didReceiveSelectedChain(chain)
+                case let .failure(error):
+                    self?.output?.didReceiveError(error)
+                }
             }
         }
 
@@ -101,7 +105,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
-        eventCenter.add(observer: self, dispatchIn: .global())
+        eventCenter.add(observer: self, dispatchIn: .main)
         fetchSelectedChainName()
     }
 }

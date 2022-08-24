@@ -41,9 +41,7 @@ final class WalletMainContainerPresenter {
             locale: selectedLocale
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceiveViewModel(viewModel)
-        }
+        view?.didReceiveViewModel(viewModel)
     }
 }
 

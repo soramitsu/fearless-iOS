@@ -32,11 +32,43 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupActions()
         output.didLoad(view: self)
-        rootView.delegate = self
     }
 
     // MARK: - Private methods
+
+    private func setupActions() {
+        rootView.walletDetailsButton.addTarget(
+            self,
+            action: #selector(handleWalletDetailsDidTap),
+            for: .touchUpInside
+        )
+        rootView.exportWalletButton.addTarget(
+            self,
+            action: #selector(handleWalletExportDidTap),
+            for: .touchUpInside
+        )
+        rootView.deleteWalletButton.addTarget(
+            self,
+            action: #selector(handleDeleteWalletDidTap),
+            for: .touchUpInside
+        )
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleWalletDetailsDidTap() {
+        output.walletDetailsDidTap()
+    }
+
+    @objc private func handleWalletExportDidTap() {
+        output.exportWalletDidTap()
+    }
+
+    @objc private func handleDeleteWalletDidTap() {
+        output.deleteWalletDidTap()
+    }
 }
 
 // MARK: - WalletOptionViewInput
@@ -52,21 +84,5 @@ extension WalletOptionViewController: WalletOptionViewInput {
 extension WalletOptionViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
-    }
-}
-
-// MARK: - WalletOptionViewLayoutDelegate
-
-extension WalletOptionViewController: WalletOptionViewLayoutDelegate {
-    func walletDetailsDidTap() {
-        output.walletDetailsDidTap()
-    }
-
-    func exportWalletDidTap() {
-        output.exportWalletDidTap()
-    }
-
-    func deleteWalletDidTap() {
-        output.deleteWalletDidTap()
     }
 }

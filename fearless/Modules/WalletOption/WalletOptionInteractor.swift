@@ -26,20 +26,6 @@ final class WalletOptionInteractor {
     // MARK: - Private methods
 
     private func checkDeleteButtonVisibles() {
-        let operation = metaAccountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            guard let result = operation.result else {
-                return
-            }
-            switch result {
-            case let .success(wallets):
-                self?.output?.setDeleteButtonIsVisible(wallets.count > 1)
-            case .failure:
-                break
-            }
-        }
-
         guard let selectedWallet = SelectedWalletSettings.shared.value else {
             output?.setDeleteButtonIsVisible(false)
             return
@@ -47,8 +33,6 @@ final class WalletOptionInteractor {
 
         if selectedWallet.identifier == wallet.identifier {
             output?.setDeleteButtonIsVisible(false)
-        } else {
-            operationQueue.addOperation(operation)
         }
     }
 }
