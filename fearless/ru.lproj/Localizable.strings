@@ -758,3 +758,5 @@ and depending on the network state, may not be selected to participate";
 "hidden.assets" = "Скрытые активы";
 "nft.stub.title" = "Извините!";
 "nft.stub.text" = "NFTs скоро будут здесь";
+"сurrencies.stub.text" = "Токены";
+"nfts.stub" = "NFTs";

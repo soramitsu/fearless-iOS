@@ -105,6 +105,8 @@ final class SelectableExportAccountTableCell: UITableViewCell {
     // MARK: - Private methods
 
     private func setupLayout() {
+        backgroundColor = R.color.colorBlack()!
+
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.edges.equalTo(Constants.edges)

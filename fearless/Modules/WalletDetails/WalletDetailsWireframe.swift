@@ -3,7 +3,11 @@ import UIKit
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func close(_ view: WalletDetailsViewProtocol) {
         if view.controller.presentingViewController != nil {
-            view.controller.navigationController?.dismiss(animated: true)
+            if let navigationController = view.controller.navigationController {
+                navigationController.dismiss(animated: true)
+            } else {
+                view.controller.dismiss(animated: true)
+            }
         } else {
             view.controller.navigationController?.popViewController(animated: true)
         }
