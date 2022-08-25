@@ -10,7 +10,7 @@ final class StakingPoolMainInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let selectedWalletSettings: SelectedWalletSettings
-    private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
+    private var stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private let settings: StakingAssetSettings
     private var rewardCalculationService: RewardCalculatorServiceProtocol
     private var chainAsset: ChainAsset
@@ -109,6 +109,20 @@ final class StakingPoolMainInteractor {
         } catch {
             logger?.error("Couldn't create shared state")
         }
+
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: requestFactory,
+            runtimeService: runtimeService,
+            engine: connection
+        )
+
+        self.stakingPoolOperationFactory = stakingPoolOperationFactory
     }
 
     private func updateAfterChainAssetSave() {
