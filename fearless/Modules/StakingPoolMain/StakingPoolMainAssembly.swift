@@ -85,6 +85,15 @@ final class StakingPoolMainAssembly {
         }
 
         let localizationManager = LocalizationManager.shared
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let eraCountdownOperationFactory = EraCountdownOperationFactory(
+            storageRequestFactory: storageRequestFactory
+        )
 
         let interactor = StakingPoolMainInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -98,7 +107,10 @@ final class StakingPoolMainAssembly {
             operationManager: OperationManagerFacade.sharedManager,
             stakingServiceFactory: serviceFactory,
             logger: Logger.shared,
-            commonSettings: SettingsManager.shared
+            commonSettings: SettingsManager.shared,
+            eraValidatorService: eraValidatorService,
+            chainRegistry: chainRegistry,
+            eraCountdownOperationFactory: eraCountdownOperationFactory
         )
 
         let router = StakingPoolMainRouter()

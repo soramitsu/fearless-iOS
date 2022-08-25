@@ -8,6 +8,7 @@ protocol StakingPoolMainViewInput: ControllerBackedProtocol {
     func didReceiveChainAsset(_ chainAsset: ChainAsset)
     func didReceiveEstimationViewModel(_ viewModel: StakingEstimationViewModel)
     func didReceiveNetworkInfoViewModels(_ viewModels: [LocalizableResource<NetworkInfoContentViewModel>])
+    func didReceiveNominatorStateViewModel(_ viewModel: LocalizableResource<NominationViewModelProtocol>?)
 }
 
 protocol StakingPoolMainViewOutput: AnyObject {
@@ -36,6 +37,12 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(networkInfoError: Error)
+    func didReceive(stakeInfo: StakingPoolMember?)
+    func didReceive(stakeInfoError: Error)
+    func didReceive(era: EraIndex)
+    func didReceive(eraStakersInfo: EraStakersInfo)
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
+    func didReceive(eraStakersInfoError: Error)
 }
 
 protocol StakingPoolMainRouterInput: AnyObject {

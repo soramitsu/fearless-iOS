@@ -77,6 +77,10 @@ extension StakingPoolMainViewController: StakingPoolMainViewInput {
     func didReceiveEstimationViewModel(_ viewModel: StakingEstimationViewModel) {
         rootView.bind(estimationViewModel: viewModel)
     }
+
+    func didReceiveNominatorStateViewModel(_ viewModel: LocalizableResource<NominationViewModelProtocol>?) {
+        rootView.bind(nominatorStateViewModel: viewModel)
+    }
 }
 
 // MARK: - Localizable

@@ -8,7 +8,7 @@ protocol StakingPoolOperationFactoryProtocol {
     func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<[String]?>
     func fetchMinJoinBondOperation() -> CompoundOperationWrapper<BigUInt?>
     func fetchMinCreateBondOperation() -> CompoundOperationWrapper<BigUInt?>
-    func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<[StakingPoolMember]?>
+    func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<StakingPoolMember?>
     func fetchMaxStakingPoolsCount() -> CompoundOperationWrapper<UInt32?>
     func fetchMaxPoolMembers() -> CompoundOperationWrapper<UInt32?>
     func fetchCounterForBondedPools() -> CompoundOperationWrapper<UInt32?>
@@ -117,8 +117,8 @@ final class StakingPoolOperationFactory {
     private func createStakingPoolMembersOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         paramsClosure: @escaping () throws -> [AccountId]
-    ) -> CompoundOperationWrapper<[StorageResponse<[StakingPoolMember]>]> {
-        let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<[StakingPoolMember]>]> =
+    ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolMember>]> {
+        let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolMember>]> =
             storageRequestFactory.queryItems(
                 engine: engine,
                 keyParams: paramsClosure,
@@ -291,13 +291,13 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<[StakingPoolMember]?> {
+    func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<StakingPoolMember?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let stakingPoolMembersOperation = createStakingPoolMembersOperation(dependingOn: runtimeOperation) {
             [accountId]
         }
 
-        let mapOperation = ClosureOperation<[StakingPoolMember]?> {
+        let mapOperation = ClosureOperation<StakingPoolMember?> {
             try stakingPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
         }
 

@@ -167,6 +167,7 @@ final class NetworkInfoView: UIView {
 
     func bind(viewModels: [LocalizableResource<NetworkInfoContentViewModel>]) {
         self.viewModels = viewModels
+        stackTableView.clear()
 
         if viewModels.isEmpty {
             startLoading()

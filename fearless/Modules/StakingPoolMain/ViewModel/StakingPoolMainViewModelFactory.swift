@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import FearlessUtils
 
 protocol StakingPoolMainViewModelFactoryProtocol {
     func createEstimationViewModel(
@@ -17,6 +18,13 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         networkInfo: StakingPoolNetworkInfo,
         chainAsset: ChainAsset
     ) -> [LocalizableResource<NetworkInfoContentViewModel>]
+
+    func buildNominatorStateViewModel(
+        stakeInfo: StakingPoolMember,
+        priceData: PriceData?,
+        chainAsset: ChainAsset,
+        era: EraIndex?
+    ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
 final class StakingPoolMainViewModelFactory {
@@ -249,5 +257,61 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         }
 
         return viewModels
+    }
+
+    func buildNominatorStateViewModel(
+        stakeInfo: StakingPoolMember,
+        priceData: PriceData?,
+        chainAsset: ChainAsset,
+        era: EraIndex?
+    ) -> LocalizableResource<NominationViewModelProtocol>? {
+        let totalStakeAmount = Decimal.fromSubstrateAmount(stakeInfo.points, precision: Int16(chainAsset.asset.precision)) ?? 0.0
+        let totalRewardAmount = Decimal.fromSubstrateAmount(stakeInfo.lastRecordedRewardCounter, precision: Int16(chainAsset.asset.precision)) ?? 0.0
+
+        var redeemableViewModel: StakingUnitInfoViewModel?
+        var unstakingViewModel: StakingUnitInfoViewModel?
+
+        guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(totalRewardAmount, priceData: priceData)
+        else {
+            return nil
+        }
+
+        return LocalizableResource { [weak self] locale in
+            if let era = era,
+               let redeemableAmount = Decimal.fromSubstrateAmount(
+                   stakeInfo.redeemable(inEra: era),
+                   precision: Int16(chainAsset.asset.precision)
+               ),
+               let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(redeemableAmount, priceData: priceData) {
+                redeemableViewModel = StakingUnitInfoViewModel(value: redeemable.value(for: locale).amount, subtitle: redeemable.value(for: locale).price)
+            }
+
+            if let era = era,
+               let unstakingAmount = Decimal.fromSubstrateAmount(
+                   stakeInfo.unbonding(inEra: era),
+                   precision: Int16(chainAsset.asset.precision)
+               ),
+               let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData) {
+                unstakingViewModel = StakingUnitInfoViewModel(value: unstaking.value(for: locale).amount, subtitle: unstaking.value(for: locale).price)
+            }
+
+            var status: NominationViewStatus = .undefined
+
+            if let era = era {
+                status = .active(era: era)
+            }
+
+            return NominationViewModel(
+                totalStakedAmount: totalStake.value(for: locale).amount,
+                totalStakedPrice: totalStake.value(for: locale).price ?? "",
+                totalRewardAmount: totalReward.value(for: locale).amount,
+                totalRewardPrice: totalReward.value(for: locale).price ?? "",
+                status: status,
+                hasPrice: priceData != nil,
+                redeemableViewModel: redeemableViewModel,
+                unstakingViewModel: unstakingViewModel
+            )
+        }
     }
 }

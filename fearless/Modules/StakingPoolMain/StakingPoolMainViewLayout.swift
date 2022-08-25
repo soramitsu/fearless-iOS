@@ -13,6 +13,7 @@ final class StakingPoolMainViewLayout: UIView {
         )
         static let birdButtonSize = CGSize(width: 40, height: 40)
         static let networkInfoHeight: CGFloat = 292
+        static let nominatorStateViewHeight: CGFloat = 232
     }
 
     let contentView: ScrollableContainerView = {
@@ -51,6 +52,8 @@ final class StakingPoolMainViewLayout: UIView {
     let rewardCalculatorView = StakingRewardCalculatorView()
 
     let networkInfoView = NetworkInfoView()
+
+    let nominatorStateView = NominatorStateView()
 
     var locale = Locale.current {
         didSet {
@@ -114,6 +117,7 @@ final class StakingPoolMainViewLayout: UIView {
 
         contentView.stackView.addArrangedSubview(networkInfoView)
         contentView.stackView.addArrangedSubview(rewardCalculatorView)
+        contentView.stackView.addArrangedSubview(nominatorStateView)
 
         networkInfoView.collectionView.snp.makeConstraints { make in
             make.height.equalTo(0)
@@ -141,6 +145,14 @@ final class StakingPoolMainViewLayout: UIView {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(Constants.networkInfoHeight)
         }
+
+        nominatorStateView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(Constants.nominatorStateViewHeight)
+        }
+
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: networkInfoView)
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -191,5 +203,14 @@ final class StakingPoolMainViewLayout: UIView {
 
     func bind(viewModels: [LocalizableResource<NetworkInfoContentViewModel>]) {
         networkInfoView.bind(viewModels: viewModels)
+    }
+
+    func bind(nominatorStateViewModel: LocalizableResource<NominationViewModelProtocol>?) {
+        nominatorStateView.isHidden = nominatorStateViewModel == nil
+        rewardCalculatorView.isHidden = nominatorStateViewModel != nil
+
+        if let nominatorStateViewModel = nominatorStateViewModel {
+            nominatorStateView.bind(viewModel: nominatorStateViewModel)
+        }
     }
 }

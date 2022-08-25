@@ -19,6 +19,9 @@ final class StakingPoolMainInteractor {
     private let stakingServiceFactory: StakingServiceFactoryProtocol
     private let logger: LoggerProtocol?
     private let commonSettings: SettingsManagerProtocol
+    private var eraValidatorService: EraValidatorServiceProtocol
+    private let chainRegistry: ChainRegistryProtocol
+    private var eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
@@ -34,7 +37,10 @@ final class StakingPoolMainInteractor {
         operationManager: OperationManagerProtocol,
         stakingServiceFactory: StakingServiceFactoryProtocol,
         logger: LoggerProtocol?,
-        commonSettings: SettingsManagerProtocol
+        commonSettings: SettingsManagerProtocol,
+        eraValidatorService: EraValidatorServiceProtocol,
+        chainRegistry: ChainRegistryProtocol,
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -48,6 +54,9 @@ final class StakingPoolMainInteractor {
         self.stakingServiceFactory = stakingServiceFactory
         self.logger = logger
         self.commonSettings = commonSettings
+        self.eraValidatorService = eraValidatorService
+        self.chainRegistry = chainRegistry
+        self.eraCountdownOperationFactory = eraCountdownOperationFactory
     }
 
     private func updateDependencies() {
@@ -126,6 +135,8 @@ final class StakingPoolMainInteractor {
         }
 
         output?.didReceive(wallet: newSelectedWallet)
+
+        fetchStakeInfo()
     }
 
     private func fetchRewardCalculator() {
@@ -137,6 +148,76 @@ final class StakingPoolMainInteractor {
         }
 
         operationManager.enqueue(operations: [fetchRewardCalculatorOperation], in: .transient)
+    }
+
+    private func fetchStakeInfo() {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return
+        }
+
+        let stakeInfoOperation = stakingPoolOperationFactory.fetchStakingPoolMembers(accountId: accountId)
+
+        stakeInfoOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let stakeInfo = try? stakeInfoOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(stakeInfo: stakeInfo)
+                } catch {
+                    self?.output?.didReceive(stakeInfoError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: stakeInfoOperation.allOperations, in: .transient)
+    }
+
+    func provideEraStakersInfo() {
+        let operation = eraValidatorService.fetchInfoOperation()
+
+        operation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try operation.extractNoCancellableResultData()
+                    self?.output?.didReceive(eraStakersInfo: info)
+                    self?.fetchEraCompletionTime()
+                } catch {
+                    self?.output?.didReceive(eraStakersInfoError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
+
+    func fetchEraCompletionTime() {
+        let chainId = chainAsset.chain.chainId
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            output?.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
+
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            output?.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
+        let operationWrapper = eraCountdownOperationFactory.fetchCountdownOperationWrapper(
+            for: connection,
+            runtimeService: runtimeService
+        )
+
+        operationWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(eraCountdownResult: .success(result))
+                } catch {
+                    self?.output?.didReceive(eraCountdownResult: .failure(error))
+                }
+            }
+        }
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }
 
     private func fetchNetworkInfo() {
@@ -213,6 +294,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         rewardCalculationService.setup()
 
         fetchRewardCalculator()
+        fetchStakeInfo()
     }
 
     func updateWithChainAsset(_ chainAsset: ChainAsset) {
@@ -233,6 +315,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         fetchRewardCalculator()
         fetchNetworkInfo()
+        fetchStakeInfo()
+        provideEraStakersInfo()
     }
 
     func save(chainAsset: ChainAsset) {

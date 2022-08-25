@@ -47,10 +47,10 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
 
         titleLabel.text = viewModel.name == nil ?
             R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages) : viewModel.name
-        stakeAmountView.valueTop.text = viewModel.totalStakedAmount
-        stakeAmountView.valueBottom.text = viewModel.totalStakedPrice
-        rewardAmountView.valueTop.text = viewModel.totalRewardAmount
-        rewardAmountView.valueBottom.text = viewModel.totalRewardPrice
+        stakeAmountView.valueLabel.text = viewModel.totalStakedAmount
+        stakeAmountView.subtitleLabel.text = viewModel.totalStakedPrice
+        rewardAmountView.valueLabel.text = viewModel.totalRewardAmount
+        rewardAmountView.subtitleLabel.text = viewModel.totalRewardPrice
 
         toggleStatus(true)
 

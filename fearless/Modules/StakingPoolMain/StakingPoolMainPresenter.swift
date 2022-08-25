@@ -22,6 +22,10 @@ final class StakingPoolMainPresenter {
     private var balance: Decimal?
     private var rewardCalculatorEngine: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
+    private var era: EraIndex?
+    private var eraStakersInfo: EraStakersInfo?
+    private var eraCountdown: EraCountdown?
+    private var stakeInfo: StakingPoolMember?
 
     private var inputResult: AmountInputResult?
 
@@ -82,6 +86,23 @@ final class StakingPoolMainPresenter {
             self.view?.didReceiveEstimationViewModel(viewModel)
         }
     }
+
+    private func provideStakeInfoViewModel() {
+        guard let stakeInfo = stakeInfo else {
+            view?.didReceiveNominatorStateViewModel(nil)
+
+            return
+        }
+
+        let viewModel = viewModelFactory.buildNominatorStateViewModel(
+            stakeInfo: stakeInfo,
+            priceData: priceData,
+            chainAsset: chainAsset,
+            era: eraStakersInfo?.activeEra
+        )
+
+        view?.didReceiveNominatorStateViewModel(viewModel)
+    }
 }
 
 // MARK: - StakingPoolMainViewOutput
@@ -90,6 +111,8 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
     func didLoad(view: StakingPoolMainViewInput) {
         self.view = view
         interactor.setup(with: self)
+
+        view.didReceiveNominatorStateViewModel(nil)
     }
 
     func performAssetSelection() {
@@ -137,6 +160,27 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
 // MARK: - StakingPoolMainInteractorOutput
 
 extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
+    func didReceive(era: EraIndex) {
+        self.era = era
+    }
+
+    func didReceive(eraStakersInfo: EraStakersInfo) {
+        self.eraStakersInfo = eraStakersInfo
+
+        provideStakeInfoViewModel()
+    }
+
+    func didReceive(eraCountdownResult: Result<EraCountdown, Error>) {
+        switch eraCountdownResult {
+        case let .success(eraCountdown):
+            self.eraCountdown = eraCountdown
+        case let .failure(error):
+            break
+        }
+    }
+
+    func didReceive(eraStakersInfoError _: Error) {}
+
     func didReceive(accountInfo: AccountInfo?) {
         self.accountInfo = accountInfo
 
@@ -172,6 +216,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         self.priceData = priceData
 
         provideRewardEstimationViewModel()
+        provideStakeInfoViewModel()
     }
 
     func didReceive(wallet: MetaAccountModel) {
@@ -192,6 +237,13 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     }
 
     func didReceive(networkInfoError _: Error) {}
+
+    func didReceive(stakeInfo: StakingPoolMember?) {
+        self.stakeInfo = stakeInfo
+        provideStakeInfoViewModel()
+    }
+
+    func didReceive(stakeInfoError _: Error) {}
 }
 
 // MARK: - Localizable
