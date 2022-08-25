@@ -20,6 +20,7 @@ final class ChainAccountPresenter {
     private var minimumBalance: BigUInt?
     private var balanceLocks: BalanceLocks?
     private var currency: Currency?
+    private let balanceInfoModule: BalanceInfoModuleInput
 
     private lazy var rampProvider = RampProvider()
     private lazy var moonpayProvider: PurchaseProviderProtocol = {
@@ -37,7 +38,8 @@ final class ChainAccountPresenter {
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
         selectedMetaAccount: MetaAccountModel,
-        moduleOutput: ChainAccountModuleOutput?
+        moduleOutput: ChainAccountModuleOutput?,
+        balanceInfoModule: BalanceInfoModuleInput
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -45,39 +47,13 @@ final class ChainAccountPresenter {
         self.logger = logger
         self.selectedMetaAccount = selectedMetaAccount
         self.moduleOutput = moduleOutput
+        self.balanceInfoModule = balanceInfoModule
     }
 
     func provideViewModel() {
-        guard let currency = currency else {
-            return
-        }
-
-        let accountBalanceViewModel = viewModelFactory.buildAccountBalanceViewModel(
-            accountInfo: accountInfo,
-            priceData: priceData,
-            asset: chainAsset.asset,
-            locale: selectedLocale,
-            currency: currency
-        )
-
-        let assetInfoViewModel = viewModelFactory.buildAssetInfoViewModel(
-            chain: chainAsset.chain,
-            assetModel: chainAsset.asset,
-            priceData: priceData,
-            locale: selectedLocale,
-            currency: currency
-        )
-
-        let chainOptionsViewModel = viewModelFactory.buildChainOptionsViewModel(chain: chainAsset.chain)
-
-        let allAssets = Array(chainAsset.chain.assets)
-        let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
-
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
-            accountBalanceViewModel: accountBalanceViewModel,
-            assetInfoViewModel: assetInfoViewModel,
-            chainOptionsViewModel: chainOptionsViewModel,
-            chainAssetModel: chainAssetModel
+            chainAsset: chainAsset,
+            wallet: selectedMetaAccount
         )
 
         DispatchQueue.main.async {
@@ -116,6 +92,7 @@ private extension ChainAccountPresenter {
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func setup() {
         interactor.setup()
+        provideViewModel()
     }
 
     func didTapBackButton() {
@@ -187,6 +164,16 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
                 currency: currency
             )
         }
+    }
+
+    func didTapSelectNetwork() {
+        wireframe.showSelectNetwork(
+            from: view,
+            wallet: selectedMetaAccount,
+            selectedChainId: chainAsset.chain.chainId,
+            chainModels: interactor.availableChainAssets.map(\.chain),
+            delegate: self
+        )
     }
 }
 
@@ -293,6 +280,14 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
         self.currency = currency
         provideViewModel()
     }
+
+    func didUpdate(chainAsset: ChainAsset) {
+        provideViewModel()
+        balanceInfoModule.replace(infoType: .chainAsset(
+            metaAccount: selectedMetaAccount,
+            chainAsset: chainAsset
+        ))
+    }
 }
 
 extension ChainAccountPresenter: Localizable {
@@ -304,5 +299,17 @@ extension ChainAccountPresenter: Localizable {
 extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
         wireframe.presentPurchaseWebView(from: view, action: getPurchaseActions()[index])
+    }
+}
+
+extension ChainAccountPresenter: SelectNetworkDelegate {
+    func chainSelection(
+        view _: SelectNetworkViewInput,
+        didCompleteWith chain: ChainModel?
+    ) {
+        guard let chain = chain else {
+            return
+        }
+        interactor.update(chain: chain)
     }
 }

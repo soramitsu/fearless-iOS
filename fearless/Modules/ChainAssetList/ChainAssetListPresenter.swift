@@ -74,7 +74,11 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
         if viewModel.chainAsset.chain.isSupported {
-            router.showChainAccount(from: view, chainAsset: viewModel.chainAsset)
+            router.showChainAccount(
+                from: view,
+                chainAsset: viewModel.chainAsset,
+                availableChainAssets: viewModel.assetContainsChainAssets
+            )
         } else {
             router.presentWarningAlert(
                 from: view,

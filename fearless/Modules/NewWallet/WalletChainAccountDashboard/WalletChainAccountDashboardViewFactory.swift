@@ -1,7 +1,10 @@
 import Foundation
 
 struct WalletChainAccountDashboardViewFactory {
-    static func createView(chain: ChainModel, asset: AssetModel) -> WalletChainAccountDashboardViewProtocol? {
+    static func createView(
+        chainAsset: ChainAsset,
+        availableChainAssets: [ChainAsset]
+    ) -> WalletChainAccountDashboardViewProtocol? {
         let interactor = WalletChainAccountDashboardInteractor()
         let wireframe = WalletChainAccountDashboardWireframe()
 
@@ -12,14 +15,15 @@ struct WalletChainAccountDashboardViewFactory {
         guard
             let selectedMetaAccount = SelectedWalletSettings.shared.value,
             let historyModule = WalletTransactionHistoryViewFactory.createView(
-                asset: asset,
-                chain: chain,
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
                 selectedAccount: selectedMetaAccount
             ),
             let chainAccountModule = ChainAccountViewFactory.createView(
-                chainAsset: ChainAsset(chain: chain, asset: asset),
+                chainAsset: chainAsset,
                 selectedMetaAccount: selectedMetaAccount,
-                moduleOutput: presenter
+                moduleOutput: presenter,
+                availableChainAssets: availableChainAssets
             )
         else {
             return nil

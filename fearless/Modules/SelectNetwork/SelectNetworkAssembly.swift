@@ -8,6 +8,7 @@ final class SelectNetworkAssembly {
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
+        includingAllNetworks: Bool = true,
         delegate: SelectNetworkDelegate?
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -29,6 +30,7 @@ final class SelectNetworkAssembly {
             viewModelFactory: viewModelFactory,
             selectedMetaAccount: wallet,
             selectedChainId: selectedChainId,
+            includingAllNetworks: includingAllNetworks,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager

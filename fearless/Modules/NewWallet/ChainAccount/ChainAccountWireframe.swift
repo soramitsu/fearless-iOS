@@ -183,6 +183,28 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         importController.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(importController, animated: true)
     }
+
+    func showSelectNetwork(
+        from view: ChainAccountViewProtocol?,
+        wallet: MetaAccountModel,
+        selectedChainId: ChainModel.Id?,
+        chainModels: [ChainModel]?,
+        delegate: SelectNetworkDelegate?
+    ) {
+        guard
+            let module = SelectNetworkAssembly.configureModule(
+                wallet: wallet,
+                selectedChainId: selectedChainId,
+                chainModels: chainModels,
+                includingAllNetworks: false,
+                delegate: delegate
+            )
+        else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }
 
 private extension ChainAccountWireframe {

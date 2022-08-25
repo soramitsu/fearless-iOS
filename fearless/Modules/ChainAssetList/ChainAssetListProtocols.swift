@@ -27,7 +27,8 @@ protocol ChainAssetListInteractorOutput: AnyObject {
 protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
     func showChainAccount(
         from view: ChainAssetListViewInput?,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        availableChainAssets: [ChainAsset]
     )
 }
 

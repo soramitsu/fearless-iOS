@@ -9,7 +9,7 @@ final class ChainAccountInteractor {
     var chainAsset: ChainAsset
 
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -21,8 +21,10 @@ final class ChainAccountInteractor {
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
     private let settingsManager: SettingsManager
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let operationQueue: OperationQueue
+    let availableChainAssets: [ChainAsset]
 
-    var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    var accountInfoProvider: AnyDataProviderRepository<DecodedAccountInfo>?
 
     init(
         selectedMetaAccount: MetaAccountModel,
@@ -38,7 +40,9 @@ final class ChainAccountInteractor {
         repository: AnyDataProviderRepository<MetaAccountModel>,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
         settingsManager: SettingsManager,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        operationQueue: OperationQueue,
+        availableChainAssets: [ChainAsset]
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainAsset = chainAsset
@@ -54,6 +58,8 @@ final class ChainAccountInteractor {
         self.availableExportOptionsProvider = availableExportOptionsProvider
         self.settingsManager = settingsManager
         self.existentialDepositService = existentialDepositService
+        self.operationQueue = operationQueue
+        self.availableChainAssets = availableChainAssets
     }
 
     private func subscribeToAccountInfo() {
@@ -153,6 +159,15 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             default:
                 self?.presenter?.didReceiveExportOptions(options: [.keystore])
             }
+        }
+    }
+
+    func update(chain: ChainModel) {
+        if let newChainAsset = availableChainAssets.first(where: { $0.chain == chain }) {
+            chainAsset = newChainAsset
+            presenter?.didUpdate(chainAsset: chainAsset)
+        } else {
+            assertionFailure("Unable chain selected")
         }
     }
 }

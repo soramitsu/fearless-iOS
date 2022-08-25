@@ -19,6 +19,8 @@ protocol BalanceInfoInteractorOutput: AnyObject {
 
 protocol BalanceInfoRouterInput: AnyObject {}
 
-protocol BalanceInfoModuleInput: AnyObject {}
+protocol BalanceInfoModuleInput: AnyObject {
+    func replace(infoType: BalanceInfoType)
+}
 
 protocol BalanceInfoModuleOutput: AnyObject {}

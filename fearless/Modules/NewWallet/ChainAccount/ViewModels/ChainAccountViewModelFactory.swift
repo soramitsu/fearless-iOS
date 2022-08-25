@@ -2,29 +2,9 @@ import Foundation
 
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
-        accountBalanceViewModel: AccountBalanceViewModel,
-        assetInfoViewModel: AssetInfoViewModel,
-        chainOptionsViewModel: ChainOptionsViewModel,
-        chainAssetModel: ChainAssetModel?
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> ChainAccountViewModel
-
-    func buildAccountBalanceViewModel(
-        accountInfo: AccountInfo?,
-        priceData: PriceData?,
-        asset: AssetModel,
-        locale: Locale,
-        currency: Currency
-    ) -> AccountBalanceViewModel
-
-    func buildAssetInfoViewModel(
-        chain: ChainModel,
-        assetModel: AssetModel,
-        priceData: PriceData?,
-        locale: Locale,
-        currency: Currency
-    ) -> AssetInfoViewModel
-
-    func buildChainOptionsViewModel(chain: ChainModel) -> ChainOptionsViewModel
 }
 
 class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
@@ -35,82 +15,22 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
     }
 
     func buildChainAccountViewModel(
-        accountBalanceViewModel: AccountBalanceViewModel,
-        assetInfoViewModel: AssetInfoViewModel,
-        chainOptionsViewModel: ChainOptionsViewModel,
-        chainAssetModel: ChainAssetModel?
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> ChainAccountViewModel {
-        ChainAccountViewModel(
-            accountBalanceViewModel: accountBalanceViewModel,
-            assetInfoViewModel: assetInfoViewModel,
-            chainOptionsViewModel: chainOptionsViewModel,
-            chainAsset: chainAssetModel
-        )
-    }
-
-    func buildAccountBalanceViewModel(
-        accountInfo: AccountInfo?,
-        priceData: PriceData?,
-        asset: AssetModel,
-        locale: Locale,
-        currency: Currency
-    ) -> AccountBalanceViewModel {
-        let totalAssetValues = AssetAmountValues(
-            asset: asset,
-            amount: accountInfo?.data.total ?? 0,
-            priceData: priceData
-        )
-
-        let transferableAssetValues = AssetAmountValues(
-            asset: asset,
-            amount: accountInfo?.data.available ?? 0,
-            priceData: priceData
-        )
-
-        let lockedAssetValues = AssetAmountValues(
-            asset: asset,
-            amount: accountInfo?.data.locked ?? 0,
-            priceData: priceData
-        )
-
-        let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let fiatFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo).value(for: locale)
-        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: asset.displayInfo).value(for: locale)
-
-        return AccountBalanceViewModel(
-            totalAmountString: assetFormatter.stringFromDecimal(totalAssetValues.decimalAmount),
-            totalAmountFiatString: fiatFormatter.stringFromDecimal(totalAssetValues.fiatAmount),
-            transferableAmountString: assetFormatter.stringFromDecimal(transferableAssetValues.decimalAmount),
-            transferableAmountFiatString: fiatFormatter.stringFromDecimal(transferableAssetValues.fiatAmount),
-            lockedAmountString: assetFormatter.stringFromDecimal(lockedAssetValues.decimalAmount),
-            lockedAmountFiatString: fiatFormatter.stringFromDecimal(lockedAssetValues.fiatAmount),
-            isEmptyAccount: accountInfo == nil
-        )
-    }
-
-    func buildAssetInfoViewModel(
-        chain: ChainModel,
-        assetModel: AssetModel,
-        priceData: PriceData?,
-        locale: Locale,
-        currency: Currency
-    ) -> AssetInfoViewModel {
-        AssetInfoViewModel(
-            assetInfo: assetModel.displayInfo,
-            imageViewModel: assetModel.displayInfo.icon.map { buildRemoteImageViewModel(url: $0) },
-            priceAttributedString: buildPriceViewModel(
-                for: assetModel,
-                priceData: priceData,
-                locale: locale,
-                currency: currency
-            ), chainViewModel: buildChainOptionsViewModel(chain: chain)
-        )
-    }
-
-    func buildChainOptionsViewModel(chain: ChainModel) -> ChainOptionsViewModel {
-        ChainOptionsViewModel(
-            text: chain.name,
-            icon: chain.icon.map { RemoteImageViewModel(url: $0) }
+        var address: String?
+        if
+            let chainAccountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()),
+            let address1 = try? AddressFactory.address(for: chainAccountResponse.accountId, chain: chainAsset.chain) {
+            address = address1
+        }
+        let allAssets = Array(chainAsset.chain.assets)
+        let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
+        return ChainAccountViewModel(
+            walletName: wallet.name,
+            selectedChainName: chainAsset.chain.name,
+            address: address,
+            chainAssetModel: chainAssetModel
         )
     }
 }
