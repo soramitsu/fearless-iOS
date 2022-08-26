@@ -13,7 +13,8 @@ protocol StakingPoolMainViewInput: ControllerBackedProtocol {
 
 protocol StakingPoolMainViewOutput: AnyObject {
     func didLoad(view: StakingPoolMainViewInput)
-    func performAssetSelection()
+    func didTapSelectAsset()
+    func didTapStartStaking()
     func performRewardInfoAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
@@ -56,6 +57,13 @@ protocol StakingPoolMainRouterInput: AnyObject {
         from view: ControllerBackedProtocol?,
         maxReward: (title: String, amount: Decimal),
         avgReward: (title: String, amount: Decimal)
+    )
+
+    func showSetupAmount(
+        from view: ControllerBackedProtocol?,
+        amount _: Decimal?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

@@ -1,6 +1,24 @@
 import Foundation
 
 final class StakingPoolMainRouter: StakingPoolMainRouterInput {
+    func showSetupAmount(
+        from view: ControllerBackedProtocol?,
+        amount _: Decimal?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let poolStartModule = StakingPoolStartAssembly.configureModule(
+            wallet: wallet,
+            chainAsset: chainAsset
+        ) else {
+            return
+        }
+
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: poolStartModule.view.controller)
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
     func showChainAssetSelection(
         from view: StakingPoolMainViewInput?,
         type: AssetSelectionStakingType,

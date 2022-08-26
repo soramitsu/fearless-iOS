@@ -63,18 +63,18 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     }
 
     private func setupExtrinsicService(_ account: ChainAccountResponse) {
-//        extrinsicService = ExtrinsicService(
-//            accountId: account.accountId,
-//            chainFormat: chain.chainFormat,
-//            cryptoType: account.cryptoType,
-//            runtimeRegistry: runtimeService,
-//            engine: connection,
-//            operationManager: operationManager
-//        )
+        extrinsicService = ExtrinsicService(
+            accountId: account.accountId,
+            chainFormat: chainAsset.chain.chainFormat,
+            cryptoType: account.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
 
         signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: selectedAccount.metaId,
+            metaId: account.walletId,
             accountResponse: account
         )
     }

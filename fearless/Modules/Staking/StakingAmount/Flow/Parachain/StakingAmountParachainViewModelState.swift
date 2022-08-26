@@ -2,7 +2,6 @@ import Foundation
 import BigInt
 
 class StakingAmountParachainViewModelState: StakingAmountViewModelState {
-    var amount: Decimal?
     var fee: Decimal?
 
     var stateListener: StakingAmountModelStateListener?
@@ -12,6 +11,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    private var balance: Decimal?
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var inputResult: AmountInputResult?
 
     init(
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -22,7 +25,7 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.amount = amount
+        inputResult = .absolute(amount ?? 0)
     }
 
     var payoutAccount: ChainAccountResponse? { nil }
@@ -51,8 +54,8 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
             let call = SubstrateCallFactory().delegate(
                 candidate: accountId,
                 amount: amount,
-                candidateDelegationCount: 0,
-                delegationCount: 0
+                candidateDelegationCount: UInt32.max,
+                delegationCount: UInt32.max
             )
 
             return try builder.adding(call: call)
@@ -89,7 +92,15 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
+        inputResult = .absolute(newValue)
+    }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
+    }
+
+    func updateBalance(_ balance: Decimal?) {
+        self.balance = balance
     }
 }
 

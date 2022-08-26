@@ -112,8 +112,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         stakingType: AssetSelectionStakingType,
         moduleOutput: StakingMainModuleOutput?
     ) -> UIViewController? {
-        let localizationManager = LocalizationManager.shared
-
         switch stakingType {
         case .normal:
             let stakingViewController = createStakingController(moduleOutput: moduleOutput)

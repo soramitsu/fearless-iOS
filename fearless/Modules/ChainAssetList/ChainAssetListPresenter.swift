@@ -9,15 +9,13 @@ enum AssetListDisplayType {
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
-    private let lock = NSLock()
-
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
     private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private var chainAssets: [ChainAsset]?
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
@@ -93,6 +91,11 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
+    func didReceiveWallet(wallet: MetaAccountModel) {
+        self.wallet = wallet
+        provideViewModel()
+    }
+
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
@@ -108,17 +111,15 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.with {
-                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                    return
-                }
-                let key = chainAsset.uniqueKey(accountId: accountId)
-                accountInfos[key] = accountInfo
+
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
             }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            accountInfos[key] = accountInfo
+
         case let .failure(error):
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
+            router.present(error: error, from: view, locale: selectedLocale)
         }
         guard chainAssets?.count == accountInfos.keys.count else {
             return
@@ -130,13 +131,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         switch result {
         case let .success(priceDataResult):
             let priceDataUpdated = (pricesData: priceDataResult, updated: true)
-            lock.with {
-                prices = priceDataUpdated
-            }
+            prices = priceDataUpdated
         case let .failure(error):
-            DispatchQueue.main.async {
-                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
-            }
+            router.present(error: error, from: view, locale: selectedLocale)
         }
 
         provideViewModel()

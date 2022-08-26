@@ -74,7 +74,7 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
 
         signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: wallet.metaId,
+            metaId: accountItem.walletId,
             accountResponse: accountItem
         )
     }

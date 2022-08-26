@@ -76,6 +76,10 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
         fetchWallets()
         fetchBalances()
     }
+
+    func fetchWalletsFromRepo() {
+        fetchWallets()
+    }
 }
 
 // MARK: - WalletBalanceSubscriptionHandler

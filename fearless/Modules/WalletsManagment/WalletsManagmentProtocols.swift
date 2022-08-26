@@ -17,6 +17,7 @@ protocol WalletsManagmentViewOutput: AnyObject {
 protocol WalletsManagmentInteractorInput: AnyObject {
     func setup(with output: WalletsManagmentInteractorOutput)
     func select(wallet: ManagedMetaAccountModel)
+    func fetchWalletsFromRepo()
 }
 
 protocol WalletsManagmentInteractorOutput: AnyObject {
@@ -29,7 +30,8 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
 protocol WalletsManagmentRouterInput: AlertPresentable, ErrorPresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
-        metaAccount: ManagedMetaAccountModel
+        metaAccount: ManagedMetaAccountModel,
+        delegate: WalletOptionModuleOutput?
     )
     func dissmis(
         view: WalletsManagmentViewInput?,

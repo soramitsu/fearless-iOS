@@ -44,7 +44,13 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
     private func configure() {
         rootView.assetSelectionView.addTarget(
             self,
-            action: #selector(actionAssetSelection),
+            action: #selector(selectAssetButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.startStakingButton.addTarget(
+            self,
+            action: #selector(startStakingButtonClicked),
             for: .touchUpInside
         )
 
@@ -54,8 +60,12 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
         rootView.networkInfoView.collectionView.isHidden = true
     }
 
-    @objc func actionAssetSelection() {
-        output.performAssetSelection()
+    @objc private func selectAssetButtonClicked() {
+        output.didTapSelectAsset()
+    }
+
+    @objc private func startStakingButtonClicked() {
+        output.didTapStartStaking()
     }
 }
 

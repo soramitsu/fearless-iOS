@@ -19,9 +19,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var feeViewModel: BalanceViewModelProtocol?
     private(set) var inputViewModel: AmountInputViewModelProtocol?
     private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
+    private(set) var maxNominations: Int?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
-    var amount: Decimal?
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    private var balance: Decimal?
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var inputResult: AmountInputResult?
 
     var bonding: InitiatedBonding? {
         guard let amount = amount else {
@@ -49,7 +53,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.amount = amount
+        inputResult = .absolute(amount ?? 0)
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
     }
@@ -90,7 +94,11 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
+        inputResult = .absolute(newValue)
+    }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
     }
 
     func selectPayoutAccount(payoutAccount: ChainAccountResponse?) {
@@ -105,6 +113,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
     }
 
+    func updateBalance(_ balance: Decimal?) {
+        self.balance = balance
+    }
+
     private func notifyListeners() {
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
@@ -117,9 +129,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
             var modifiedBuilder = builder
             let callFactory = SubstrateCallFactory()
+            let accountRequest = strongSelf.chainAsset.chain.accountRequest()
 
-            if let amount = strongSelf.amount?.toSubstrateAmount(precision: Int16(strongSelf.chainAsset.asset.precision)),
-               let controllerAddress = strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() {
+            if
+                let amount = strongSelf.amount?.toSubstrateAmount(
+                    precision: Int16(strongSelf.chainAsset.asset.precision)
+                ),
+                let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress() {
                 let bondCall = try callFactory.bond(
                     amount: amount,
                     controller: controllerAddress,
@@ -129,10 +145,12 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                 modifiedBuilder = try modifiedBuilder.adding(call: bondCall)
             }
 
-            if let controllerAddress = strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() {
+            if
+                let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress(),
+                let maxNominators = strongSelf.maxNominations {
                 let targets = Array(
                     repeating: SelectedValidatorInfo(address: controllerAddress),
-                    count: SubstrateConstants.maxNominations
+                    count: maxNominators
                 )
 
                 let nominateCall = try callFactory.nominate(targets: targets)
@@ -148,6 +166,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 }
 
 extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategyOutput {
+    func didReceive(maxNominations: Int) {
+        self.maxNominations = maxNominations
+    }
+
     func didReceive(error _: Error) {}
 
     func didReceive(minimalBalance: BigUInt?) {

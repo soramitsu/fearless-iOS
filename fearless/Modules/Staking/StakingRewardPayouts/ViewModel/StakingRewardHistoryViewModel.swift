@@ -5,4 +5,6 @@ struct StakingRewardHistoryCellViewModel: Equatable {
     let daysLeftText: NSAttributedString
     let tokenAmountText: String
     let usdAmountText: String?
+    let timeInterval: TimeInterval?
+    let locale: Locale
 }

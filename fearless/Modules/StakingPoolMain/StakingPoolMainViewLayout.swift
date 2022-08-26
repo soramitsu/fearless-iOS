@@ -55,6 +55,12 @@ final class StakingPoolMainViewLayout: UIView {
 
     let nominatorStateView = NominatorStateView()
 
+    let startStakingButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDefaultStyle()
+        return button
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -75,22 +81,32 @@ final class StakingPoolMainViewLayout: UIView {
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
-        networkInfoView.titleControl.titleLabel.text = R.string.localizable.poolStakingTitle(preferredLanguages: locale.rLanguages)
-        networkInfoView.descriptionLabel.text = R.string.localizable.poolStakingMainDescriptionTitle(preferredLanguages: locale.rLanguages)
+        networkInfoView.titleControl.titleLabel.text = R.string.localizable.poolStakingTitle(
+            preferredLanguages: locale.rLanguages
+        )
+        networkInfoView.descriptionLabel.text = R.string.localizable.poolStakingMainDescriptionTitle(
+            preferredLanguages: locale.rLanguages
+        )
+        startStakingButton.imageWithTitleView?.title = R.string.localizable.stakingStartTitle(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     private func setupLayout() {
         addSubview(backgroundImageView)
+        addSubview(titleLabel)
+        addSubview(walletSelectionButton)
+        addSubview(contentView)
+        addSubview(startStakingButton)
+
         backgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-        addSubview(titleLabel)
-        addSubview(walletSelectionButton)
 
-        addSubview(contentView)
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
             make.top.equalTo(walletSelectionButton.snp.bottom).offset(UIConstants.defaultOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         assetSelectionContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -143,7 +159,6 @@ final class StakingPoolMainViewLayout: UIView {
         networkInfoView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(Constants.networkInfoHeight)
         }
 
         nominatorStateView.snp.makeConstraints { make in
@@ -152,7 +167,19 @@ final class StakingPoolMainViewLayout: UIView {
             make.height.equalTo(Constants.nominatorStateViewHeight)
         }
 
+        startStakingButton.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: networkInfoView)
+
+        contentView.scrollView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: UIConstants.bigOffset * 2 + UIConstants.actionHeight,
+            right: 0
+        )
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -208,6 +235,7 @@ final class StakingPoolMainViewLayout: UIView {
     func bind(nominatorStateViewModel: LocalizableResource<NominationViewModelProtocol>?) {
         nominatorStateView.isHidden = nominatorStateViewModel == nil
         rewardCalculatorView.isHidden = nominatorStateViewModel != nil
+        startStakingButton.isHidden = nominatorStateViewModel != nil
 
         if let nominatorStateViewModel = nominatorStateViewModel {
             nominatorStateView.bind(viewModel: nominatorStateViewModel)

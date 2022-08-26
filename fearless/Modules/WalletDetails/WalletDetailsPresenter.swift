@@ -207,7 +207,7 @@ private extension WalletDetailsPresenter {
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
         var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
-        if let polkascanUrl = chain.polkascanAddressURL(address) {
+        if let polkascanUrl = chain.polkascanAddressURL(address), chain.isPolkadotOrKusama {
             actions.append(.polkascan(url: polkascanUrl))
         }
         if let subscanUrl = chain.subscanAddressURL(address) {

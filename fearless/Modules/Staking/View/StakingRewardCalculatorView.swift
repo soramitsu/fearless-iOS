@@ -173,6 +173,8 @@ class StakingRewardCalculatorView: UIView {
         backgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+
+        infoButton.addTarget(self, action: #selector(infoTouchUpInside), for: .touchUpInside)
     }
 
     private func applyWidgetViewModel() {
@@ -276,19 +278,19 @@ class StakingRewardCalculatorView: UIView {
     }
 
     func startLoadingIfNeeded() {
-//        guard skeletonView == nil else {
-//            return
-//        }
-//
-//        monthlyTitleLabel.alpha = 0.0
-//        monthlyAmountLabel.alpha = 0.0
-//        monthlyFiatAmountLabel.alpha = 0.0
-//
-//        yearlyTitleLabel.alpha = 0.0
-//        yearlyAmountLabel.alpha = 0.0
-//        yearlyFiatAmountLabel.alpha = 0.0
-//
-//        setupSkeleton()
+        guard skeletonView == nil else {
+            return
+        }
+
+        monthlyTitleLabel.alpha = 0.0
+        monthlyAmountLabel.alpha = 0.0
+        monthlyFiatAmountLabel.alpha = 0.0
+
+        yearlyTitleLabel.alpha = 0.0
+        yearlyAmountLabel.alpha = 0.0
+        yearlyFiatAmountLabel.alpha = 0.0
+
+        setupSkeleton()
     }
 
     func stopLoadingIfNeeded() {
@@ -379,7 +381,7 @@ class StakingRewardCalculatorView: UIView {
         ]
     }
 
-    @IBAction private func infoTouchUpInside() {
+    @objc private func infoTouchUpInside() {
         delegate?.rewardCalculatorDidRequestInfo(self)
     }
 }

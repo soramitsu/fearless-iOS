@@ -22,11 +22,25 @@ class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
     }
 
     func proceed(
-        from _: SelectedValidatorListViewProtocol?,
-        flow _: SelectValidatorsConfirmFlow,
-        wallet _: MetaAccountModel,
-        chainAsset _: ChainAsset
-    ) {}
+        from view: SelectedValidatorListViewProtocol?,
+        flow: SelectValidatorsConfirmFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) {
+        guard let confirmView = SelectValidatorsConfirmViewFactory
+            .createView(
+                chainAsset: chainAsset,
+                flow: flow,
+                wallet: wallet
+            ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            confirmView.controller,
+            animated: true
+        )
+    }
 
     func dismiss(_ view: ControllerBackedProtocol?) {
         view?.controller

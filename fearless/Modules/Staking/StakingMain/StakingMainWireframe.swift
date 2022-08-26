@@ -3,34 +3,23 @@ import Foundation
 final class StakingMainWireframe: StakingMainWireframeProtocol {
     func showSetupAmount(
         from view: StakingMainViewProtocol?,
-        amount _: Decimal?,
+        amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        guard let poolStartModule = StakingPoolStartAssembly.configureModule(
-            wallet: selectedAccount,
-            chainAsset: ChainAsset(chain: chain, asset: asset)
+        guard let amountView = StakingAmountViewFactory.createView(
+            with: amount,
+            chain: chain,
+            asset: asset,
+            selectedAccount: selectedAccount
         ) else {
             return
         }
 
-        let navigationController = ImportantFlowViewFactory.createNavigation(from: poolStartModule.view.controller)
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: amountView.controller)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
-
-//        guard let amountView = StakingAmountViewFactory.createView(
-//            with: amount,
-//            chain: chain,
-//            asset: asset,
-//            selectedAccount: selectedAccount
-//        ) else {
-//            return
-//        }
-//
-//        let navigationController = ImportantFlowViewFactory.createNavigation(from: amountView.controller)
-//
-//        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showManageStaking(

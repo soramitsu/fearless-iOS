@@ -132,7 +132,9 @@ extension AccountManagementInteractor: EventVisitorProtocol {
 
 extension AccountManagementInteractor: GetBalanceManagedMetaAccountsHandler {
     func handleManagedMetaAccountsBalance(managedMetaAccounts: [ManagedMetaAccountModel]) {
-        let changes = managedMetaAccounts.map { DataProviderChange.update(newItem: $0) }
-        presenter?.didReceive(changes: changes)
+        DispatchQueue.main.async {
+            let changes = managedMetaAccounts.map { DataProviderChange.update(newItem: $0) }
+            self.presenter?.didReceive(changes: changes)
+        }
     }
 }

@@ -33,7 +33,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         stakeTitleLabel.text = R.string.localizable
             .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
-            .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
+            .stakingFilterTitleRewardsApr(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {
@@ -49,8 +49,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages) : viewModel.name
         stakeAmountView.valueLabel.text = viewModel.totalStakedAmount
         stakeAmountView.subtitleLabel.text = viewModel.totalStakedPrice
-        rewardAmountView.valueLabel.text = viewModel.totalRewardAmount
-        rewardAmountView.subtitleLabel.text = viewModel.totalRewardPrice
+        rewardAmountView.valueLabel.text = viewModel.apr
 
         toggleStatus(true)
 
@@ -60,7 +59,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
             skeletonOptions.insert(.stake)
         }
 
-        if viewModel.totalRewardAmount.isEmpty {
+        if viewModel.apr.isEmpty {
             skeletonOptions.insert(.rewards)
         }
 

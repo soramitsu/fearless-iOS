@@ -7,10 +7,10 @@ final class ChangeTargetsRecommendationWireframe: RecommendedValidatorListWirefr
         wallet: MetaAccountModel,
         chainAsset: ChainAsset
     ) {
-        guard let confirmView = SelectValidatorsConfirmViewFactory.createChangeTargetsView(
-            wallet: wallet,
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createView(
             chainAsset: chainAsset,
-            flow: flow
+            flow: flow,
+            wallet: wallet
         ) else {
             return
         }

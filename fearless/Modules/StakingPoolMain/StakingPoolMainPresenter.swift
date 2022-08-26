@@ -115,11 +115,20 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         view.didReceiveNominatorStateViewModel(nil)
     }
 
-    func performAssetSelection() {
+    func didTapSelectAsset() {
         router.showChainAssetSelection(
             from: view,
             type: .pool(chainAsset: chainAsset),
             delegate: self
+        )
+    }
+
+    func didTapStartStaking() {
+        router.showSetupAmount(
+            from: view,
+            amount: nil,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 

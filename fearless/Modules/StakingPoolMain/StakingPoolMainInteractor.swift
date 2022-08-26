@@ -312,6 +312,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
     }
 
     func updateWithChainAsset(_ chainAsset: ChainAsset) {
+        output?.didReceive(rewardCalculatorEngine: nil)
         clear(singleValueProvider: &priceProvider)
 
         self.chainAsset = chainAsset

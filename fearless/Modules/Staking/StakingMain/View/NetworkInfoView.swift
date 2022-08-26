@@ -33,7 +33,6 @@ final class NetworkInfoView: UIView {
             bottom: 0,
             right: UIConstants.bigOffset
         )
-        control.identityIconAngle = 180
         control.layoutType = .flexible
         return control
     }()
@@ -104,8 +103,8 @@ final class NetworkInfoView: UIView {
 
     private func setupManualLayout() {
         addSubview(backgroundView)
-        addSubview(networkInfoContainer)
         addSubview(titleControl)
+        addSubview(networkInfoContainer)
 
         networkInfoContainer.addSubview(descriptionLabel)
         networkInfoContainer.addSubview(collectionView)
@@ -117,6 +116,7 @@ final class NetworkInfoView: UIView {
         titleControl.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
+            make.bottom.lessThanOrEqualToSuperview()
         }
 
         networkInfoContainer.snp.makeConstraints { make in
@@ -133,7 +133,7 @@ final class NetworkInfoView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalToSuperview()
-            make.height.equalTo(60)
+            make.height.equalTo(70)
         }
 
         setupLayout()
@@ -149,6 +149,8 @@ final class NetworkInfoView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
+
+        titleControl.addTarget(self, action: #selector(actionToggleExpansion), for: .touchUpInside)
     }
 
     func setExpanded(_ value: Bool, animated: Bool) {
@@ -301,7 +303,8 @@ final class NetworkInfoView: UIView {
             networkInfoContainer.alpha = 1.0
             delegate?.didChangeExpansion(isExpanded: true, view: self)
         } else {
-            networkInfoContainer.snp.updateConstraints { make in
+            networkInfoContainer.snp.remakeConstraints { make in
+                make.leading.trailing.bottom.equalToSuperview()
                 make.height.equalTo(0)
             }
             networkInfoContainer.alpha = 0.0
@@ -326,6 +329,18 @@ final class NetworkInfoView: UIView {
         stackTableView.addView(view: activeNominatorsView)
         stackTableView.addView(view: unstakingPeriodView)
 
+        totalStakeView.valueLabel.text = "loading"
+        totalStakeView.subtitleLabel.text = "loading"
+
+        minimumStakeView.valueLabel.text = "loading"
+        minimumStakeView.subtitleLabel.text = "loading"
+
+        activeNominatorsView.valueLabel.text = "loading"
+        activeNominatorsView.subtitleLabel.text = "loading"
+
+        unstakingPeriodView.valueLabel.text = "loading"
+        unstakingPeriodView.subtitleLabel.text = "loading"
+
         setupSkeleton()
     }
 
@@ -345,23 +360,25 @@ final class NetworkInfoView: UIView {
     }
 
     private func setupSkeleton() {
-//        let spaceSize = networkInfoContainer.frame.size
-//        let skeletonView = Skrull(
-//            size: networkInfoContainer.frame.size,
-//            decorations: [],
-//            skeletons: createSkeletons(for: spaceSize)
-//        )
-//        .fillSkeletonStart(R.color.colorSkeletonStart()!)
-//        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
-//        .build()
-//
-//        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
-//        skeletonView.autoresizingMask = []
-//        networkInfoContainer.insertSubview(skeletonView, at: 0)
-//
-//        self.skeletonView = skeletonView
-//
-//        skeletonView.startSkrulling()
+        layoutSubviews()
+
+        let spaceSize = networkInfoContainer.frame.size
+        let skeletonView = Skrull(
+            size: networkInfoContainer.frame.size,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        networkInfoContainer.insertSubview(skeletonView, at: 0)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
     }
 
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
@@ -372,40 +389,40 @@ final class NetworkInfoView: UIView {
 
         return [
             SingleSkeleton.createRow(
-                inPlaceOf: totalStakeView.titleLabel,
+                inPlaceOf: totalStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 size: smallRowSize
             ),
             SingleSkeleton.createRow(
-                under: totalStakeView.titleLabel,
+                under: totalStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0, y: rowOffset),
                 size: bigRowSize
             ),
             SingleSkeleton.createRow(
-                under: totalStakeView.titleLabel,
+                under: totalStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0, y: bigRowSize.height + verticalSpacing + rowOffset),
                 size: smallRowSize
             ),
             SingleSkeleton.createRow(
-                inPlaceOf: minimumStakeView.titleLabel,
+                inPlaceOf: minimumStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 size: smallRowSize
             ),
             SingleSkeleton.createRow(
-                under: minimumStakeView.valueLabel,
+                under: minimumStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0, y: rowOffset),
                 size: bigRowSize
             ),
             SingleSkeleton.createRow(
-                under: minimumStakeView.valueLabel,
+                under: minimumStakeView,
                 containerView: networkInfoContainer,
                 spaceSize: spaceSize,
                 offset: CGPoint(x: 0, y: bigRowSize.height + verticalSpacing + rowOffset),

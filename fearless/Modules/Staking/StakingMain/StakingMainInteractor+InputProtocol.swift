@@ -22,7 +22,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.chain.isEthereumBased == true ? ParachainStakingInfoOperationFactory() : RelaychainStakingInfoOperationFactory()
+        eraInfoOperationFactory = selectedChainAsset?.stakingType == .paraChain
+            ? ParachainStakingInfoOperationFactory()
+            : RelaychainStakingInfoOperationFactory()
 
         provideNewChain()
         provideSelectedAccount()
@@ -48,7 +50,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         if let chainAsset = selectedChainAsset,
            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 
@@ -110,6 +112,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &delegatorStateProvider)
+        collatorIds = nil
         performPriceSubscription()
 
         clearNominatorsLimitProviders()
@@ -129,10 +132,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideRewardCalculator(from: sharedState.rewardCalculationService)
         provideMaxNominatorsPerValidator(from: runtimeService)
 
-        if let chainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+        if
+            let chainAsset = selectedChainAsset,
+            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 
@@ -186,9 +191,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         currentBlockOperation.targetOperation.completionBlock = { [weak self] in
             let currentBlock = try? currentBlockOperation.targetOperation.extractNoCancellableResultData()
 
-            if let block = currentBlock, let currentBlockvalue = UInt32(block) {
+            if let block = currentBlock, let currentBlockValue = UInt32(block) {
                 DispatchQueue.main.async {
-                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockvalue)
+                    self?.presenter?.didReceiveCurrentBlock(currentBlock: currentBlockValue)
                 }
             }
         }
@@ -207,6 +212,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         clearAccountRemoteSubscription()
         accountInfoSubscriptionAdapter.reset()
         clearStashControllerSubscription()
+
+        clear(dataProvider: &delegatorStateProvider)
+        collatorIds = nil
 
         guard let selectedChain = selectedChainAsset?.chain,
               let selectedMetaAccount = selectedWalletSettings.value,
@@ -235,10 +243,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         performStashControllerSubscription()
 
-        if let chainAsset = selectedChainAsset,
-           let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId, chainAsset.chain.isEthereumBased {
+        if
+            let chainAsset = selectedChainAsset,
+            let accountId = selectedWalletSettings.value?.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            chainAsset.chain.isEthereumBased {
             delegatorStateProvider = subscribeToDelegatorState(
-                for: chainAsset.chain.chainId,
+                for: chainAsset,
                 accountId: accountId
             )
 
