@@ -76,8 +76,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         if viewModel.chainAsset.chain.isSupported {
             router.showChainAccount(
                 from: view,
-                chainAsset: viewModel.chainAsset,
-                availableChainAssets: viewModel.assetContainsChainAssets
+                chainAsset: viewModel.chainAsset
             )
         } else {
             router.presentWarningAlert(

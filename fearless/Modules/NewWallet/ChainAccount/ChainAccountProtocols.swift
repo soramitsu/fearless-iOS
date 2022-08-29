@@ -45,7 +45,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 
@@ -53,7 +53,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     )
 
     func presentBuyFlow(

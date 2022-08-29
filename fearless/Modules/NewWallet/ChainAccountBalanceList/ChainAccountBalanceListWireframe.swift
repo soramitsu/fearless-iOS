@@ -4,12 +4,10 @@ import UIKit
 final class ChainAccountBalanceListWireframe: ChainAccountBalanceListWireframeProtocol {
     func showChainAccount(
         from view: ChainAccountBalanceListViewProtocol?,
-        chainAsset: ChainAsset,
-        availableChainAssets: [ChainAsset]
+        chainAsset: ChainAsset
     ) {
         guard let chainAccountView = WalletChainAccountDashboardViewFactory.createView(
-            chainAsset: chainAsset,
-            availableChainAssets: availableChainAssets
+            chainAsset: chainAsset
         ) else {
             return
         }

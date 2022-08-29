@@ -43,15 +43,6 @@ final class ChainAccountViewLayout: UIView {
         return label
     }()
 
-    private let moreButton: UIButton = {
-        let button = UIButton()
-        button.backgroundColor = R.color.colorWhite8()
-        button.setImage(R.image.iconHorMore(), for: .normal)
-        button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
-        button.clipsToBounds = true
-        return button
-    }()
-
     // MARK: - Wallet balance view
 
     private let walletBalanceVStackView = UIFactory.default.createVerticalStackView(spacing: 4)
@@ -226,8 +217,8 @@ private extension ChainAccountViewLayout {
             make.centerY.equalToSuperview()
         }
 
-        accessoryButtonHStackView.addArrangedSubview(moreButton)
-        moreButton.snp.makeConstraints { make in
+        accessoryButtonHStackView.addArrangedSubview(optionsButton)
+        optionsButton.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.accessoryButtonSize)
         }
 

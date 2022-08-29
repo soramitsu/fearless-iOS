@@ -32,8 +32,7 @@ protocol ChainAccountBalanceListInteractorOutputProtocol: AnyObject {
 protocol ChainAccountBalanceListWireframeProtocol: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
     func showChainAccount(
         from view: ChainAccountBalanceListViewProtocol?,
-        chainAsset: ChainAsset,
-        availableChainAssets: [ChainAsset]
+        chainAsset: ChainAsset
     )
     func showManageAssets(
         from view: ChainAccountBalanceListViewProtocol?,

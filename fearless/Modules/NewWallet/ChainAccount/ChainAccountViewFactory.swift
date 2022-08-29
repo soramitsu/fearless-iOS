@@ -13,9 +13,8 @@ struct ChainAccountModule {
 enum ChainAccountViewFactory {
     static func createView(
         chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel,
-        moduleOutput: ChainAccountModuleOutput?,
-        availableChainAssets: [ChainAsset]
+        wallet: MetaAccountModel,
+        moduleOutput: ChainAccountModuleOutput
     ) -> ChainAccountModule? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -47,8 +46,8 @@ enum ChainAccountViewFactory {
         var subscriptionContainer: StorageSubscriptionContainer?
 
         let localStorageIdFactory = LocalStorageKeyFactory()
-        if let address = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
-           let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+        if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
+           let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountStorageKey = try? StorageKeyFactory().accountInfoKeyForId(accountId),
            let localStorageKey = try? localStorageIdFactory.createKey(
                from: accountStorageKey,
@@ -100,12 +99,36 @@ enum ChainAccountViewFactory {
             engine: connection
         )
 
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .background
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: operationQueue,
+            meta: wallet
+        )
+
         let interactor = ChainAccountInteractor(
-            selectedMetaAccount: selectedMetaAccount,
+            wallet: wallet,
             chainAsset: chainAsset,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: wallet
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             storageRequestFactory: storageRequestFactory,
@@ -118,8 +141,7 @@ enum ChainAccountViewFactory {
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
             settingsManager: SettingsManager.shared,
             existentialDepositService: existentialDepositService,
-            operationQueue: OperationQueue(),
-            availableChainAssets: availableChainAssets
+            chainAssetFetching: chainAssetFetching
         )
 
         let wireframe = ChainAccountWireframe()
@@ -128,7 +150,7 @@ enum ChainAccountViewFactory {
         let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
 
         guard let balanceInfoModule = Self.configureBalanceInfoModule(
-            wallet: selectedMetaAccount,
+            wallet: wallet,
             chainAsset: chainAsset
         )
         else {
@@ -140,7 +162,7 @@ enum ChainAccountViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,
-            selectedMetaAccount: selectedMetaAccount,
+            wallet: wallet,
             moduleOutput: moduleOutput,
             balanceInfoModule: balanceInfoModule.input
         )

@@ -3,12 +3,10 @@ import Foundation
 final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showChainAccount(
         from view: ChainAssetListViewInput?,
-        chainAsset: ChainAsset,
-        availableChainAssets: [ChainAsset]
+        chainAsset: ChainAsset
     ) {
         guard let chainAssetView = WalletChainAccountDashboardViewFactory.createView(
-            chainAsset: chainAsset,
-            availableChainAssets: availableChainAssets
+            chainAsset: chainAsset
         ) else {
             return
         }

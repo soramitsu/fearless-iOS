@@ -10,13 +10,13 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         let searchView = SearchPeopleViewFactory.createView(
             chain: chain,
             asset: asset,
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             transferFinishBlock: transferFinishBlock
         )
 
@@ -33,10 +33,10 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     ) {
         let receiveView = ReceiveAssetViewFactory.createView(
-            account: selectedMetaAccount,
+            account: wallet,
             chain: chain,
             asset: asset
         )

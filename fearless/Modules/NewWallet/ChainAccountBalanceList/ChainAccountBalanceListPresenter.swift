@@ -76,8 +76,7 @@ extension ChainAccountBalanceListPresenter: ChainAccountBalanceListPresenterProt
         if viewModel.chainAsset.chain.isSupported {
             wireframe.showChainAccount(
                 from: view,
-                chainAsset: viewModel.chainAsset,
-                availableChainAssets: viewModel.assetContainsChainAssets
+                chainAsset: viewModel.chainAsset
             )
         } else {
             wireframe.presentWarningAlert(
