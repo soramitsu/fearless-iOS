@@ -57,7 +57,12 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         redeemableView.subtitleLabel.text = viewModel.redeemableViewModel?.subtitle
 
         unstakingView.valueLabel.text = viewModel.unstakingViewModel?.value
-        unstakingView.subtitleLabel.text = viewModel.unstakingViewModel?.value
+        unstakingView.subtitleLabel.text = viewModel.unstakingViewModel?.subtitle
+
+        print("Total staked price: ", viewModel.totalStakedPrice)
+        print("Total reward price: ", viewModel.totalRewardPrice)
+        print("Redeemable price: ", viewModel.redeemableViewModel?.subtitle)
+        print("Unstaking price: ", viewModel.unstakingViewModel?.subtitle)
 
         if case .undefined = viewModel.status {
             toggleStatus(false)

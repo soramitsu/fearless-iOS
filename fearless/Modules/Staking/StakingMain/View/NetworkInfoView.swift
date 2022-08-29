@@ -329,18 +329,6 @@ final class NetworkInfoView: UIView {
         stackTableView.addView(view: activeNominatorsView)
         stackTableView.addView(view: unstakingPeriodView)
 
-        totalStakeView.valueLabel.text = "loading"
-        totalStakeView.subtitleLabel.text = "loading"
-
-        minimumStakeView.valueLabel.text = "loading"
-        minimumStakeView.subtitleLabel.text = "loading"
-
-        activeNominatorsView.valueLabel.text = "loading"
-        activeNominatorsView.subtitleLabel.text = "loading"
-
-        unstakingPeriodView.valueLabel.text = "loading"
-        unstakingPeriodView.subtitleLabel.text = "loading"
-
         setupSkeleton()
     }
 
@@ -360,9 +348,18 @@ final class NetworkInfoView: UIView {
     }
 
     private func setupSkeleton() {
+        guard !expanded else {
+            return
+        }
+
         layoutSubviews()
 
         let spaceSize = networkInfoContainer.frame.size
+
+        guard spaceSize.height > 0 else {
+            return
+        }
+
         let skeletonView = Skrull(
             size: networkInfoContainer.frame.size,
             decorations: [],

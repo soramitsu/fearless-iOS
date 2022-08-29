@@ -4,6 +4,7 @@ import SoraKeystore
 import FearlessUtils
 
 final class StakingPoolMainAssembly {
+    // swiftlint:disable function_body_length
     static func configureModule(moduleOutput: StakingMainModuleOutput?) -> StakingPoolMainModuleCreationResult? {
         guard let wallet = SelectedWalletSettings.shared.value else {
             return nil
@@ -95,6 +96,37 @@ final class StakingPoolMainAssembly {
             storageRequestFactory: storageRequestFactory
         )
 
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let substrateDataProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
+        let childSubscriptionFactory = ChildSubscriptionFactory(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager,
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
+
+        let stakingAccountUpdatingService = PoolStakingAccountUpdatingService(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            substrateRepositoryFactory: substrateRepositoryFactory,
+            substrateDataProviderFactory: substrateDataProviderFactory,
+            childSubscriptionFactory: childSubscriptionFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let interactor = StakingPoolMainInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             selectedWalletSettings: SelectedWalletSettings.shared,
@@ -110,7 +142,10 @@ final class StakingPoolMainAssembly {
             commonSettings: SettingsManager.shared,
             eraValidatorService: eraValidatorService,
             chainRegistry: chainRegistry,
-            eraCountdownOperationFactory: eraCountdownOperationFactory
+            eraCountdownOperationFactory: eraCountdownOperationFactory,
+            eventCenter: EventCenter.shared,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            stakingAccountUpdatingService: stakingAccountUpdatingService
         )
 
         let router = StakingPoolMainRouter()

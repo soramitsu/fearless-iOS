@@ -4,6 +4,8 @@ import SoraFoundation
 final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolMainViewLayout
 
+    var keyboardHandler: KeyboardHandler?
+
     // MARK: Private properties
 
     private let output: StakingPoolMainViewOutput
@@ -39,6 +41,19 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
     // MARK: - Private methods
 
     private func configure() {
@@ -54,6 +69,12 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
             for: .touchUpInside
         )
 
+        rootView.walletSelectionButton.addTarget(
+            self,
+            action: #selector(selectAccountButtonClicked),
+            for: .touchUpInside
+        )
+
         rootView.rewardCalculatorView.delegate = self
         rootView.networkInfoView.delegate = self
 
@@ -66,6 +87,10 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
 
     @objc private func startStakingButtonClicked() {
         output.didTapStartStaking()
+    }
+
+    @objc private func selectAccountButtonClicked() {
+        output.didTapAccountSelection()
     }
 }
 
@@ -120,5 +145,27 @@ extension StakingPoolMainViewController: NetworkInfoViewDelegate {
 
     func didChangeExpansion(isExpanded: Bool, view _: NetworkInfoView) {
         output.networkInfoViewDidChangeExpansion(isExpanded: isExpanded)
+    }
+}
+
+extension StakingPoolMainViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let scrollViewOffset = view.bounds.height - rootView.contentView.frame.maxY
+
+        var contentInsets = rootView.contentView.scrollView.contentInset
+        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
+        rootView.contentView.scrollView.contentInset = contentInsets
+
+        if contentInsets.bottom > 0.0 {
+            let firstResponderView = rootView.rewardCalculatorView
+            let fieldFrame = rootView.contentView.scrollView.convert(
+                firstResponderView.frame,
+                from: firstResponderView.superview
+            )
+
+            rootView.contentView.scrollView.scrollRectToVisible(fieldFrame, animated: true)
+        }
     }
 }

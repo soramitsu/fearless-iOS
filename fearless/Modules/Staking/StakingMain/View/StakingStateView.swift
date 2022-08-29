@@ -164,7 +164,7 @@ class StakingStateView: UIView {
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16.0)
-            make.top.equalTo(stakeContainer.snp.bottom).offset(25.0)
+            make.top.equalTo(stakeContainer.snp.bottom).offset(12.0)
             make.bottom.equalToSuperview()
             make.height.equalTo(44.0)
         }

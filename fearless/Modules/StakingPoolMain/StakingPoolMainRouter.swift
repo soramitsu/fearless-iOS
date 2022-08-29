@@ -53,4 +53,17 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
 
         view?.controller.present(infoVew, animated: true, completion: nil)
     }
+
+    func showAccountsSelection(from view: ControllerBackedProtocol?) {
+        guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
+            return
+        }
+
+        accountsView.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(
+            accountsView.controller,
+            animated: true
+        )
+    }
 }

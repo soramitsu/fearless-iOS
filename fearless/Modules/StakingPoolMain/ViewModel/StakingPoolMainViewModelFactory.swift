@@ -265,6 +265,12 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         chainAsset: ChainAsset,
         era: EraIndex?
     ) -> LocalizableResource<NominationViewModelProtocol>? {
+        var status: NominationViewStatus = .undefined
+
+        if let era = era {
+            status = .active(era: era)
+        }
+
         let totalStakeAmount = Decimal.fromSubstrateAmount(stakeInfo.points, precision: Int16(chainAsset.asset.precision)) ?? 0.0
         let totalRewardAmount = Decimal.fromSubstrateAmount(stakeInfo.lastRecordedRewardCounter, precision: Int16(chainAsset.asset.precision)) ?? 0.0
 
@@ -294,12 +300,6 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                ),
                let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData) {
                 unstakingViewModel = StakingUnitInfoViewModel(value: unstaking.value(for: locale).amount, subtitle: unstaking.value(for: locale).price)
-            }
-
-            var status: NominationViewStatus = .undefined
-
-            if let era = era {
-                status = .active(era: era)
             }
 
             return NominationViewModel(

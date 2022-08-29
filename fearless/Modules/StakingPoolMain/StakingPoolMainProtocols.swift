@@ -15,6 +15,7 @@ protocol StakingPoolMainViewOutput: AnyObject {
     func didLoad(view: StakingPoolMainViewInput)
     func didTapSelectAsset()
     func didTapStartStaking()
+    func didTapAccountSelection()
     func performRewardInfoAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
@@ -65,6 +66,8 @@ protocol StakingPoolMainRouterInput: AnyObject {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
+
+    func showAccountsSelection(from view: ControllerBackedProtocol?)
 }
 
 protocol StakingPoolMainModuleInput: AnyObject {}

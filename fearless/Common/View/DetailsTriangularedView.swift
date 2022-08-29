@@ -17,7 +17,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         backgroundView as? TriangularedView
     }
 
-    private(set) var titleLabel: UILabel!
+    private(set) var titleLabel: ShimmeredLabel!
     private(set) var subtitleLabel: UILabel?
     private(set) var actionButton: TriangularedButton?
 
@@ -297,7 +297,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
 
         if titleLabel == nil {
-            titleLabel = UILabel()
+            titleLabel = ShimmeredLabel()
             contentView?.addSubview(titleLabel)
         }
 

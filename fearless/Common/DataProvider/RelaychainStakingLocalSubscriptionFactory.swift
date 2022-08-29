@@ -38,10 +38,33 @@ protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
     func getStashItemProvider(
         for address: AccountAddress
     ) -> StreamableProvider<StashItem>
+
+    func getPoolMembersProvider(
+        for chainAsset: ChainAsset,
+        accountId: AccountId
+    ) throws -> AnyDataProvider<DecodedPoolMember>
 }
 
 final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
     RelaychainStakingLocalSubscriptionFactoryProtocol {
+    func getPoolMembersProvider(
+        for chainAsset: ChainAsset,
+        accountId: AccountId
+    ) throws -> AnyDataProvider<DecodedPoolMember> {
+        let codingPath = StorageCodingPath.stakingPoolMembers
+        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+            codingPath,
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+        )
+
+        return try getDataProvider(
+            for: localKey,
+            chainId: chainAsset.chain.chainId,
+            storageCodingPath: codingPath,
+            shouldUseFallback: false
+        )
+    }
+
     func getMinNominatorBondProvider(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedBigUInt> {
         let codingPath = StorageCodingPath.minNominatorBond
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(codingPath, chainId: chainId)

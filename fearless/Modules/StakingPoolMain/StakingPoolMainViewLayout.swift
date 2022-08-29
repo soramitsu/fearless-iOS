@@ -49,7 +49,11 @@ final class StakingPoolMainViewLayout: UIView {
         return view
     }()
 
-    let rewardCalculatorView = StakingRewardCalculatorView()
+    let rewardCalculatorView: StakingRewardCalculatorView = {
+        let rewardCalculatorView = StakingRewardCalculatorView()
+        rewardCalculatorView.uiFactory = UIFactory.default
+        return rewardCalculatorView
+    }()
 
     let networkInfoView = NetworkInfoView()
 
@@ -90,6 +94,7 @@ final class StakingPoolMainViewLayout: UIView {
         startStakingButton.imageWithTitleView?.title = R.string.localizable.stakingStartTitle(
             preferredLanguages: locale.rLanguages
         )
+        rewardCalculatorView.locale = locale
     }
 
     private func setupLayout() {
@@ -164,7 +169,7 @@ final class StakingPoolMainViewLayout: UIView {
         nominatorStateView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(Constants.nominatorStateViewHeight)
+//            make.height.equalTo(Constants.nominatorStateViewHeight)
         }
 
         startStakingButton.snp.makeConstraints { make in

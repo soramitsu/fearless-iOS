@@ -132,6 +132,10 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         )
     }
 
+    func didTapAccountSelection() {
+        router.showAccountsSelection(from: view)
+    }
+
     func performRewardInfoAction() {
         guard let rewardCalculator = rewardCalculatorEngine else {
             return
@@ -223,6 +227,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceive(priceData: PriceData?) {
         self.priceData = priceData
+        print("Price data: ", priceData)
 
         provideRewardEstimationViewModel()
         provideStakeInfoViewModel()

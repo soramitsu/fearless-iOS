@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-struct StakingPoolMember: Decodable {
+struct StakingPoolMember: Decodable, Equatable {
     enum CodingKeys: String, CodingKey {
         case poolId
         case points

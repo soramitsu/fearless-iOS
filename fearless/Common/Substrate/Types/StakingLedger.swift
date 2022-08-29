@@ -13,6 +13,12 @@ struct StakingLedger: Decodable, Equatable {
 struct UnlockChunk: Decodable, Equatable {
     @StringCodable var value: BigUInt
     @StringCodable var era: UInt32
+
+    init(from decoder: Decoder) throws {
+        var container = try decoder.unkeyedContainer()
+        era = try container.decode(StringScaleMapper<UInt32>.self).value
+        value = try container.decode(StringScaleMapper<BigUInt>.self).value
+    }
 }
 
 extension StakingLedger {

@@ -41,12 +41,22 @@ final class StakingPoolJoinConfirmViewController: UIViewController, ViewHolder, 
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.continueButton.addTarget(
+            self,
+            action: #selector(confirmButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private methods
 
     @objc private func backButtonClicked() {
         output.didTapBackButton()
+    }
+
+    @objc private func confirmButtonClicked() {
+        output.didTapConfirmButton()
     }
 }
 

@@ -227,10 +227,15 @@ final class StakingPoolStartViewLayout: UIView {
         delayView.iconImage = viewModel.delayDetailsViewModel?.icon
         delayView.titleLabel.attributedText = viewModel.delayDetailsViewModel?.title
         estimatedRewardView.iconImage = viewModel.estimatedRewardViewModel?.icon
-        estimatedRewardView.titleLabel.attributedText = viewModel.estimatedRewardViewModel?.title
         unstakePeriodView.iconImage = viewModel.unstakePeriodViewModel?.icon
         unstakePeriodView.titleLabel.attributedText = viewModel.unstakePeriodViewModel?.title
         rewardsFreqView.iconImage = viewModel.rewardsFreqViewModel?.icon
         rewardsFreqView.titleLabel.attributedText = viewModel.rewardsFreqViewModel?.title
+
+        if let estimatedRewardTitle = viewModel.estimatedRewardViewModel?.title {
+            estimatedRewardView.titleLabel.apply(state: .normalAttributed(estimatedRewardTitle))
+        } else {
+            estimatedRewardView.titleLabel.apply(state: .updating(R.string.localizable.stakingValidatorEstimatedReward(preferredLanguages: locale.rLanguages)))
+        }
     }
 }

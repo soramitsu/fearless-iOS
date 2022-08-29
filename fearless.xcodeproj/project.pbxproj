@@ -1854,6 +1854,8 @@
 		FA169FA528B7A37400E8D2DC /* ParachainSubqueryHistoryOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA169F9F28B7A37300E8D2DC /* ParachainSubqueryHistoryOperationFactory.swift */; };
 		FA169FA628B7A37400E8D2DC /* SubqueryDelegationAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA169FA128B7A37300E8D2DC /* SubqueryDelegationAction.swift */; };
 		FA169FA728B7A37400E8D2DC /* SubqueryRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA169FA328B7A37300E8D2DC /* SubqueryRewardOperationFactory.swift */; };
+		FA169FA928BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA169FA828BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift */; };
+		FA169FAB28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA169FAA28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift */; };
 		FA176BB52851A96500258125 /* ParachainStakingRoundInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */; };
 		FA176BB82851B42700258125 /* StakingBalanceParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB72851B42700258125 /* StakingBalanceParachainViewModelFactory.swift */; };
 		FA176BBA2851B59000258125 /* StakingBalanceParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA176BB92851B59000258125 /* StakingBalanceParachainStrategy.swift */; };
@@ -4208,6 +4210,8 @@
 		FA169F9F28B7A37300E8D2DC /* ParachainSubqueryHistoryOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainSubqueryHistoryOperationFactory.swift; sourceTree = "<group>"; };
 		FA169FA128B7A37300E8D2DC /* SubqueryDelegationAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryDelegationAction.swift; sourceTree = "<group>"; };
 		FA169FA328B7A37300E8D2DC /* SubqueryRewardOperationFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SubqueryRewardOperationFactory.swift; sourceTree = "<group>"; };
+		FA169FA828BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoolStakingAccountSubscription.swift; sourceTree = "<group>"; };
+		FA169FAA28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoolStakingAccountUpdatingService.swift; sourceTree = "<group>"; };
 		FA176BB42851A96500258125 /* ParachainStakingRoundInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingRoundInfo.swift; sourceTree = "<group>"; };
 		FA176BB72851B42700258125 /* StakingBalanceParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA176BB92851B59000258125 /* StakingBalanceParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceParachainStrategy.swift; sourceTree = "<group>"; };
@@ -5838,6 +5842,8 @@
 				84786E2325FBA2A50089DFF7 /* StakingAccountSubscription.swift */,
 				845C407A27027AA000BFA50B /* SubscriptionStorageKeys.swift */,
 				845C407C2702812E00BFA50B /* StakingAccountUpdatingService.swift */,
+				FA169FA828BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift */,
+				FA169FAA28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift */,
 			);
 			path = RemoteSubscription;
 			sourceTree = "<group>";
@@ -12499,6 +12505,7 @@
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				842349C52624E98C0066ACFE /* MultiAddress+Query.swift in Sources */,
 				84155DED2539817200A27058 /* ApplicationService.swift in Sources */,
+				FA169FAB28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift in Sources */,
 				8409C264252210A70049B5C8 /* WalletDisplayAmountView.swift in Sources */,
 				841493DC2604C144000D8D1A /* SubscanRewardData.swift in Sources */,
 				84403D7F25E91BC100494FD4 /* SuperIdentity.swift in Sources */,
@@ -12827,6 +12834,7 @@
 				F4871DF326D63E8700D27F23 /* AnalyticsRewardDetailsViewModelFactory.swift in Sources */,
 				84873B0426029B75000A83EE /* StakingEstimationViewModel.swift in Sources */,
 				AE6F7FE32685E812002BBC3E /* ValidatorListFilterViewLayout.swift in Sources */,
+				FA169FA928BCBA1F00E8D2DC /* PoolStakingAccountSubscription.swift in Sources */,
 				84038FF026FFBE0600C73F3F /* JsonLocalStorageSubscriber.swift in Sources */,
 				84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,

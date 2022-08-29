@@ -22,8 +22,12 @@ final class StakingPoolMainInteractor {
     private var eraValidatorService: EraValidatorServiceProtocol
     private let chainRegistry: ChainRegistryProtocol
     private var eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+    private let eventCenter: EventCenterProtocol
+    private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+    private let stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -40,7 +44,10 @@ final class StakingPoolMainInteractor {
         commonSettings: SettingsManagerProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
         chainRegistry: ChainRegistryProtocol,
-        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
+        eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
+        eventCenter: EventCenterProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -57,6 +64,9 @@ final class StakingPoolMainInteractor {
         self.eraValidatorService = eraValidatorService
         self.chainRegistry = chainRegistry
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
+        self.eventCenter = eventCenter
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.stakingAccountUpdatingService = stakingAccountUpdatingService
     }
 
     private func updateDependencies() {
@@ -142,10 +152,13 @@ final class StakingPoolMainInteractor {
             return
         }
 
+        stakingAccountUpdatingService.clearSubscription()
+
         wallet = newSelectedWallet
 
         if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+            try? stakingAccountUpdatingService.setupSubscription(for: accountId, chainAsset: chainAsset, chainFormat: chainAsset.chain.chainFormat, stakingType: .relayChain)
         }
 
         output?.didReceive(wallet: newSelectedWallet)
@@ -309,17 +322,23 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         fetchRewardCalculator()
         fetchStakeInfo()
+
+        eventCenter.add(observer: self)
     }
 
     func updateWithChainAsset(_ chainAsset: ChainAsset) {
         output?.didReceive(rewardCalculatorEngine: nil)
         clear(singleValueProvider: &priceProvider)
+        clear(dataProvider: &poolMemberProvider)
+        stakingAccountUpdatingService.clearSubscription()
 
         self.chainAsset = chainAsset
 
         if let wallet = selectedWalletSettings.value,
            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+            poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
+            try? stakingAccountUpdatingService.setupSubscription(for: accountId, chainAsset: chainAsset, chainFormat: chainAsset.chain.chainFormat, stakingType: .relayChain)
         }
 
         output?.didReceive(chainAsset: chainAsset)
@@ -368,12 +387,32 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
         switch result {
         case let .success(priceData):
+            print("did receive price data: ", priceId)
             output?.didReceive(priceData: priceData)
         case let .failure(error):
             output?.didReceive(priceError: error)
+        }
+    }
+}
+
+extension StakingPoolMainInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
+        updateAfterSelectedAccountChange()
+    }
+}
+
+extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
+    func handlePoolMember(result: Result<StakingPoolMember?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        DispatchQueue.main.async { [weak self] in
+            switch result {
+            case let .success(poolMember):
+                self?.output?.didReceive(stakeInfo: poolMember)
+            case let .failure(error):
+                self?.output?.didReceive(stakeInfoError: error)
+            }
         }
     }
 }
