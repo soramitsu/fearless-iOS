@@ -9,8 +9,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
 
     private let output: ChainAssetListViewOutput
 
-    private var sections: [ChainAssetListTableSection] = []
-    private var cellsForSections: [ChainAssetListTableSection: [ChainAccountBalanceCellViewModel]] = [:]
+    private var viewModel: ChainAssetListViewModel?
     private var dataSource: TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>?
 
     // MARK: - Constructor
@@ -47,6 +46,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
 private extension ChainAssetListViewController {
     func configureTableView() {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
+        rootView.tableView.delegate = self
         dataSource = TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>(
             tableView: rootView.tableView
         ) { tableView, indexPath, model in
@@ -62,12 +62,20 @@ private extension ChainAssetListViewController {
         }
         dataSource?.defaultRowAnimation = .fade
     }
+
+    func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
+        if let section = viewModel?.sections[indexPath.section], let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
+            return cellModel
+        }
+        return nil
+    }
 }
 
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
+        self.viewModel = viewModel
         var snapshot = DiffableDataSourceSnapshot<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>()
         snapshot.appendSections(viewModel.sections)
         viewModel.sections.forEach { section in
@@ -90,8 +98,16 @@ extension ChainAssetListViewController: SwipableTableViewCellDelegate {
         guard let indexPath = indexPath else {
             return
         }
-        if let viewModelForAction = cellsForSections[sections[indexPath.section]]?[indexPath.row] {
+        if let viewModelForAction = cellViewModel(for: indexPath) {
             output.didTapAction(actionType: actionType, viewModel: viewModelForAction)
         }
+    }
+}
+
+extension ChainAssetListViewController: UITableViewDelegate {
+    func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let viewModel = cellViewModel(for: indexPath) else { return }
+
+        output.didSelectViewModel(viewModel)
     }
 }
