@@ -112,6 +112,7 @@ final class ChainRegistryFactory {
             commonTypesSyncService: commonTypesSyncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
             logger: Logger.shared,
             eventCenter: EventCenter.shared
         )

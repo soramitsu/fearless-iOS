@@ -756,3 +756,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "nft.stub.text" = "NFTs are going to be here soon";
 "сurrencies.stub.text" = "Сurrencies";
 "nfts.stub" = "NFTs";
+"network.issue.unavailable" = "The network is unavailable, you can wait or ask a question to the community";

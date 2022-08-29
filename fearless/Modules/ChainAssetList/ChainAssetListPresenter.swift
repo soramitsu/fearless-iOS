@@ -9,6 +9,8 @@ enum AssetListDisplayType {
 final class ChainAssetListPresenter {
     // MARK: Private properties
 
+    private let lock = ReaderWriterLock()
+
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
@@ -21,6 +23,7 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
+    private var chainsWithIssues: [ChainModel] = []
 
     // MARK: - Constructors
 
@@ -47,17 +50,22 @@ final class ChainAssetListPresenter {
             return
         }
 
-        let viewModel = viewModelFactory.buildViewModel(
-            displayType: displayType,
-            selectedMetaAccount: wallet,
-            chainAssets: chainAssets,
-            locale: selectedLocale,
-            accountInfos: accountInfos,
-            prices: prices
-        )
+        DispatchQueue.global().async {
+            let viewModel = self.viewModelFactory.buildViewModel(
+                displayType: self.displayType,
+                selectedMetaAccount: self.wallet,
+                chainAssets: chainAssets,
+                locale: self.selectedLocale,
+                accountInfos: self.lock.concurrentlyRead { [unowned self] in
+                    self.accountInfos
+                },
+                prices: self.prices,
+                chainsWithIssues: self.chainsWithIssues
+            )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(viewModel: viewModel)
+            DispatchQueue.main.async {
+                self.view?.didReceive(viewModel: viewModel)
+            }
         }
     }
 }
@@ -85,6 +93,25 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
         moduleOutput?.didTapAction(actionType: actionType, viewModel: viewModel)
+    }
+
+    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
+        let topUpAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            style: UIFactory.default.createMainActionButton(),
+            handler: nil
+        )
+        let title = viewModel.chainAsset.chain.name + " "
+            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
+        let sheetViewModel = SheetAlertPresentableViewModel(
+            title: title,
+            titleStyle: .defaultTitle,
+            subtitle: subtitle,
+            subtitleStyle: .defaultSubtitle,
+            actions: [topUpAction]
+        )
+        router.present(viewModel: sheetViewModel, from: view)
     }
 }
 
@@ -135,6 +162,11 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             router.present(error: error, from: view, locale: selectedLocale)
         }
 
+        provideViewModel()
+    }
+
+    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel]) {
+        chainsWithIssues = chains
         provideViewModel()
     }
 }

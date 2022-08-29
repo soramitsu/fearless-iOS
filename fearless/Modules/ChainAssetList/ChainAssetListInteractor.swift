@@ -15,6 +15,7 @@ final class ChainAssetListInteractor {
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let eventCenter: EventCenter
+    private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     weak var presenter: ChainAssetListInteractorOutput?
@@ -25,7 +26,8 @@ final class ChainAssetListInteractor {
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
-        eventCenter: EventCenter
+        eventCenter: EventCenter,
+        networkIssuesCenter: NetworkIssuesCenterProtocol
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -33,6 +35,7 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        self.networkIssuesCenter = networkIssuesCenter
     }
 }
 
@@ -42,7 +45,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     func setup(with output: ChainAssetListInteractorOutput) {
         self.output = output
 
-        eventCenter.add(observer: self, dispatchIn: .global())
+        eventCenter.add(observer: self, dispatchIn: .main)
+        networkIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateChainAssets(
@@ -130,5 +134,13 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didReceiveWallet(wallet: event.account)
         pricesProvider?.refresh()
+    }
+}
+
+extension ChainAssetListInteractor: NetworkIssuesCenterListener {
+    func chainsWithIssues(_ chains: [ChainModel]) {
+        DispatchQueue.main.async {
+            self.output?.didReceiveChainsWithNetworkIssues(chains)
+        }
     }
 }

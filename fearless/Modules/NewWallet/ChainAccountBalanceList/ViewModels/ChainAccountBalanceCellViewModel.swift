@@ -13,4 +13,5 @@ struct ChainAccountBalanceCellViewModel {
     let options: [ChainOptionsViewModel]?
     var isColdBoot: Bool
     var priceDataWasUpdated: Bool
+    let isNetworkIssues: Bool
 }
