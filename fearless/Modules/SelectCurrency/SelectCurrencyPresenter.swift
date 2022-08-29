@@ -58,6 +58,10 @@ extension SelectCurrencyPresenter: SelectCurrencyViewOutput {
         interactor.didSelect(currency)
         router.proceed(from: view)
     }
+
+    func back() {
+        router.back(from: view)
+    }
 }
 
 // MARK: - SelectCurrencyInteractorOutput

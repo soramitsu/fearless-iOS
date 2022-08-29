@@ -6,7 +6,7 @@ import IrohaCrypto
 final class SelectValidatorsStartInteractor: RuntimeConstantFetching {
     weak var presenter: SelectValidatorsStartInteractorOutputProtocol?
 
-    let strategy: SelectValidatorsStartStrategy
+    private let strategy: SelectValidatorsStartStrategy
 
     init(strategy: SelectValidatorsStartStrategy) {
         self.strategy = strategy

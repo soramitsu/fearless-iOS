@@ -12,8 +12,7 @@ enum DelegationViewStatus {
 protocol DelegationViewModelProtocol {
     var totalStakedAmount: String { get }
     var totalStakedPrice: String { get }
-    var totalRewardAmount: String { get }
-    var totalRewardPrice: String { get }
+    var apr: String { get }
     var status: DelegationViewStatus { get }
     var hasPrice: Bool { get }
     var name: String? { get }
@@ -23,8 +22,7 @@ protocol DelegationViewModelProtocol {
 struct DelegationViewModel: DelegationViewModelProtocol {
     let totalStakedAmount: String
     let totalStakedPrice: String
-    let totalRewardAmount: String
-    let totalRewardPrice: String
+    let apr: String
     let status: DelegationViewStatus
     let hasPrice: Bool
     let name: String?

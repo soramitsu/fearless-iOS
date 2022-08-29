@@ -64,7 +64,7 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         guard let wallet = wallets[safe: indexPath.row] else {
             return
         }
-        router.showOptions(from: view, metaAccount: wallet)
+        router.showOptions(from: view, metaAccount: wallet, delegate: self)
     }
 
     func didTapNewWallet() {
@@ -128,3 +128,11 @@ extension WalletsManagmentPresenter: Localizable {
 }
 
 extension WalletsManagmentPresenter: WalletsManagmentModuleInput {}
+
+// MARK: - WalletOptionModuleOutput
+
+extension WalletsManagmentPresenter: WalletOptionModuleOutput {
+    func walletWasRemoved() {
+        interactor.fetchWalletsFromRepo()
+    }
+}

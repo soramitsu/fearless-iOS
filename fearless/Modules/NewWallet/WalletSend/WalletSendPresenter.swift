@@ -66,9 +66,7 @@ final class WalletSendPresenter {
             amountInputViewModel: provideInputViewModel()
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
-        }
+        view?.didReceive(state: .loaded(viewModel))
     }
 
     private func provideAccountViewModel() -> AccountViewModel? {

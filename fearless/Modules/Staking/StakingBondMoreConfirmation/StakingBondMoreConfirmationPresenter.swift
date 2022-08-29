@@ -124,9 +124,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
             priceData: priceData
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceiveAsset(viewModel: viewModel)
-        }
+        view?.didReceiveAsset(viewModel: viewModel)
     }
 
     func provideConfirmationViewModel() {
@@ -139,9 +137,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
                 return
             }
 
-            DispatchQueue.main.async {
-                self.view?.didReceiveConfirmation(viewModel: viewModel)
-            }
+            view?.didReceiveConfirmation(viewModel: viewModel)
         } catch {
             logger?.error("Did receive view model factory error: \(error)")
         }

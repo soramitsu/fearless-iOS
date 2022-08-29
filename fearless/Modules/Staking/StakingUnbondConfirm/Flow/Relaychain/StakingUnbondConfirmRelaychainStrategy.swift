@@ -78,7 +78,7 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
 
         signingWrapper = SigningWrapper(
             keystore: keystore,
-            metaId: wallet.metaId,
+            metaId: accountItem.walletId,
             accountResponse: accountItem
         )
     }

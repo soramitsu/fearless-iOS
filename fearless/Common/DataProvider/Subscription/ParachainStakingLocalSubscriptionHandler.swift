@@ -7,12 +7,12 @@ protocol ParachainStakingLocalSubscriptionHandler {
     )
     func handleDelegatorState(
         result: Result<ParachainStakingDelegatorState?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     )
     func handleDelegationScheduledRequests(
         result: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     )
 }
@@ -24,12 +24,12 @@ extension ParachainStakingLocalSubscriptionHandler {
     ) {}
     func handleDelegatorState(
         result _: Result<ParachainStakingDelegatorState?, Error>,
-        chainId _: ChainModel.Id,
+        chainAsset _: ChainAsset,
         accountId _: AccountId
     ) {}
     func handleDelegationScheduledRequests(
         result _: Result<[ParachainStakingScheduledRequest]?, Error>,
-        chainId _: ChainModel.Id,
+        chainAsset _: ChainAsset,
         accountId _: AccountId
     ) {}
 }

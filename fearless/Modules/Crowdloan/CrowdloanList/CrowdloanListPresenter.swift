@@ -77,9 +77,7 @@ final class CrowdloanListPresenter {
             locale: selectedLocale
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(chainInfo: viewModel, wikiCrowdloan: wikiCrowdloan)
-        }
+        view?.didReceive(chainInfo: viewModel, wikiCrowdloan: wikiCrowdloan)
     }
 
     private func createMetadataResult() -> Result<CrowdloanMetadata, Error>? {

@@ -43,7 +43,9 @@ final class WalletMainContainerInteractor {
 
         operation.completionBlock = { [weak self] in
             guard let result = operation.result else {
-                self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveError(BaseOperationError.unexpectedDependentResult)
+                }
                 return
             }
 
@@ -73,11 +75,9 @@ final class WalletMainContainerInteractor {
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
-                    DispatchQueue.main.async {
-                        self?.selectedMetaAccount = account
-                        self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
-                        self?.fetchSelectedChainName()
-                    }
+                    self?.selectedMetaAccount = account
+                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                    self?.fetchSelectedChainName()
                 case .failure:
                     break
                 }
@@ -105,6 +105,16 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
+        eventCenter.add(observer: self, dispatchIn: .main)
         fetchSelectedChainName()
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension WalletMainContainerInteractor: EventVisitorProtocol {
+    func processWalletNameChanged(event: WalletNameChanged) {
+        selectedMetaAccount = event.wallet
+        output?.didReceiveAccount(selectedMetaAccount)
     }
 }

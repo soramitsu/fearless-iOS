@@ -76,9 +76,7 @@ final class StakingAmountPresenter {
             balance: balance,
             priceData: priceData
         )
-        DispatchQueue.main.async {
-            self.view?.didReceiveAsset(viewModel: viewModel)
-        }
+        view?.didReceiveAsset(viewModel: viewModel)
     }
 
     private func provideFee() {
@@ -96,9 +94,7 @@ final class StakingAmountPresenter {
     }
 
     private func scheduleFeeEstimation() {
-        if !loadingFee, viewModelState?.fee == nil {
-            estimateFee()
-        }
+        estimateFee()
     }
 
     private func estimateFee() {
@@ -136,11 +132,14 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
 
             if newAmount > 0 {
-                viewModelState?.updateAmount(newAmount)
+                viewModelState?.selectAmountPercentage(percentage)
 
                 provideAmountInputViewModel()
                 provideAsset()
                 provideRewardDestination()
+
+                scheduleFeeEstimation()
+
             } else if let view = view {
                 wireframe.presentAmountTooHigh(
                     from: view,
@@ -259,8 +258,12 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
                 availableValue,
                 precision: Int16(asset.precision)
             )
+
+            viewModelState?.updateBalance(self.balance)
         } else {
             self.balance = 0.0
+
+            viewModelState?.updateBalance(0.0)
         }
 
         provideAsset()
@@ -272,10 +275,8 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
         let locale = view?.localizationManager?.selectedLocale
 
-        DispatchQueue.main.async {
-            if !self.wireframe.present(error: error, from: self.view, locale: locale) {
-                self.logger.error("Did receive error: \(error)")
-            }
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            logger.error("Did receive error: \(error)")
         }
     }
 

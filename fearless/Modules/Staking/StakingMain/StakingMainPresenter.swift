@@ -88,9 +88,7 @@ final class StakingMainPresenter {
 
     private func provideState() {
         let state = stateViewModelFactory.createViewModel(from: stateMachine.state)
-        DispatchQueue.main.async {
-            self.view?.didReceiveStakingState(viewModel: state)
-        }
+        view?.didReceiveStakingState(viewModel: state)
     }
 
     private func provideMainViewModel() {
@@ -107,9 +105,7 @@ final class StakingMainPresenter {
             selectedMetaAccount: selectedMetaAccount
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(viewModel: viewModel)
-        }
+        view?.didReceive(viewModel: viewModel)
     }
 
     func setupValidators(for bondedState: BondedState) {
@@ -643,7 +639,18 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
         switch subqueryRewards {
         case let .success(rewards):
-            stateMachine.state.process(subqueryRewards: (rewards, period))
+            guard let chainAsset = chainAsset else {
+                return
+            }
+
+            // TODO: Remove once subquery will be fixed
+            let filteredRewards = rewards?.filter { item in
+                Decimal.fromSubstrateAmount(
+                    item.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0 < 1
+            }
+            stateMachine.state.process(subqueryRewards: (filteredRewards, period))
         case let .failure(error):
             handle(error: error)
         }

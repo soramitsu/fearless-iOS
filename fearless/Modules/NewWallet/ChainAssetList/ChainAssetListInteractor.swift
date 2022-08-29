@@ -14,6 +14,7 @@ final class ChainAssetListInteractor {
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
+    private let eventCenter: EventCenter
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     weak var presenter: ChainAssetListInteractorOutput?
@@ -23,13 +24,15 @@ final class ChainAssetListInteractor {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         assetRepository: AnyDataProviderRepository<AssetModel>,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        eventCenter: EventCenter
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
+        self.eventCenter = eventCenter
     }
 }
 
@@ -38,6 +41,8 @@ final class ChainAssetListInteractor {
 extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     func setup(with output: ChainAssetListInteractorOutput) {
         self.output = output
+
+        eventCenter.add(observer: self, dispatchIn: .global())
     }
 
     func updateChainAssets(
@@ -118,5 +123,12 @@ extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubsc
 extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
+    }
+}
+
+extension ChainAssetListInteractor: EventVisitorProtocol {
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        output?.didReceiveWallet(wallet: event.account)
+        pricesProvider?.refresh()
     }
 }

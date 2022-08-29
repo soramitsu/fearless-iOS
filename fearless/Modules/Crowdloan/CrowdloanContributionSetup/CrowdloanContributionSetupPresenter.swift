@@ -81,9 +81,7 @@ final class CrowdloanContributionSetupPresenter {
             priceData: priceData
         ).value(for: selectedLocale)
 
-        DispatchQueue.main.async {
-            self.view?.didReceiveAsset(viewModel: assetViewModel)
-        }
+        view?.didReceiveAsset(viewModel: assetViewModel)
     }
 
     private func provideFeeViewModel() {
@@ -122,9 +120,7 @@ final class CrowdloanContributionSetupPresenter {
             locale: selectedLocale
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceiveCrowdloan(viewModel: viewModel)
-        }
+        view?.didReceiveCrowdloan(viewModel: viewModel)
     }
 
     private func provideEstimatedRewardViewModel() {

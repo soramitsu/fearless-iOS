@@ -276,6 +276,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
+        actionButton.isHidden = false
         if let rewardView = stateView as? RewardEstimationView {
             return rewardView
         }
@@ -475,6 +476,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard viewIfLoaded != nil else {
             return
         }
+        actionButton.isHidden = true
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {

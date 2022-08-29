@@ -75,6 +75,13 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             delegate: self
         )
     }
+
+    func didTapOnBalance() {
+        router.showSelectCurrency(
+            from: view,
+            wallet: selectedMetaAccount
+        )
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
@@ -103,7 +110,9 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 // MARK: - Localizable
 
 extension WalletMainContainerPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        provideViewModel()
+    }
 }
 
 extension WalletMainContainerPresenter: WalletMainContainerModuleInput {}
