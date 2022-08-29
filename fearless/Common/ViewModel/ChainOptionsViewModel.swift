@@ -5,11 +5,7 @@ struct ChainOptionsViewModel {
     let icon: ImageViewModelProtocol?
 }
 
-extension ChainOptionsViewModel: Hashable {
-    func hash(into hasher: inout Hasher) {
-        hasher.combine(text)
-    }
-
+extension ChainOptionsViewModel: Equatable {
     static func == (lhs: ChainOptionsViewModel, rhs: ChainOptionsViewModel) -> Bool {
         lhs.text == rhs.text
     }
