@@ -9,113 +9,29 @@ final class ChainAccountInteractor {
     var chainAsset: ChainAsset
     var availableChainAssets: [ChainAsset] = []
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private var wallet: MetaAccountModel
-    private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let connection: JSONRPCEngine
     private let eventCenter: EventCenterProtocol
-    private let transactionSubscription: StorageSubscriptionContainer?
     private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
-    private let settingsManager: SettingsManager
-    private let existentialDepositService: ExistentialDepositServiceProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
-
-    var accountInfoProvider: AnyDataProviderRepository<DecodedAccountInfo>?
 
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        connection: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
         eventCenter: EventCenterProtocol,
-        transactionSubscription: StorageSubscriptionContainer?,
         repository: AnyDataProviderRepository<MetaAccountModel>,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
-        settingsManager: SettingsManager,
-        existentialDepositService: ExistentialDepositServiceProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.connection = connection
-        self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.eventCenter = eventCenter
-        self.transactionSubscription = transactionSubscription
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
-        self.settingsManager = settingsManager
-        self.existentialDepositService = existentialDepositService
         self.chainAssetFetching = chainAssetFetching
-    }
-
-    private func subscribeToAccountInfo() {
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
-        } else {
-            presenter?.didReceiveAccountInfo(
-                result: .failure(ChainAccountFetchingError.accountNotExists),
-                for: chainAsset.chain.chainId
-            )
-        }
-    }
-
-    private func fetchBalanceLocks() {
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
-            balanceLocksOperation.targetOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    do {
-                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
-                        self?.presenter?.didReceiveBalanceLocks(result: .success(balanceLocks))
-                    } catch {
-                        self?.presenter?.didReceiveBalanceLocks(result: .failure(error))
-                    }
-                }
-            }
-            operationManager.enqueue(
-                operations: balanceLocksOperation.allOperations,
-                in: .transient
-            )
-        }
-    }
-
-    private func createBalanceLocksFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<BalanceLocks?> {
-        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<BalanceLocks>]> = storageRequestFactory.queryItems(
-            engine: connection,
-            keyParams: { [accountId] },
-            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
-            storagePath: .balanceLocks
-        )
-
-        let mapOperation = ClosureOperation<BalanceLocks?> {
-            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
-        }
-
-        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
-
-        let dependencies = [coderFactoryOperation] + wrapper.allOperations
-
-        dependencies.forEach { mapOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
-    }
-
-    private func provideSelectedCurrency() {
-        presenter?.didReceive(currency: wallet.selectedCurrency)
     }
 
     private func getAvailableChainAssets() {
@@ -136,16 +52,7 @@ final class ChainAccountInteractor {
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
-
-        subscribeToAccountInfo()
-        fetchMinimalBalance()
-        fetchBalanceLocks()
-        provideSelectedCurrency()
         getAvailableChainAssets()
-
-        if let priceId = chainAsset.asset.priceId {
-            _ = subscribeToPrice(for: priceId)
-        }
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -185,34 +92,6 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 }
 
-extension ChainAccountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        presenter?.didReceivePriceData(result: result, for: priceId)
-    }
-}
-
-extension ChainAccountInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainAsset: ChainAsset
-    ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainAsset.chain.chainId)
-    }
-}
-
-extension ChainAccountInteractor: RuntimeConstantFetching {
-    func fetchMinimalBalance() {
-        existentialDepositService.fetchExistentialDeposit(
-            chainAsset: chainAsset
-        ) { [weak self] result in
-            self?.presenter?.didReceiveMinimumBalance(result: result)
-        }
-    }
-}
-
-extension ChainAccountInteractor: AnyProviderAutoCleaning {}
-
 extension ChainAccountInteractor: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
@@ -221,15 +100,6 @@ extension ChainAccountInteractor: EventVisitorProtocol {
         }) {
             chainAsset = ChainAsset(chain: updated, asset: chainAsset.asset)
         }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        accountInfoSubscriptionAdapter.reset()
-        subscribeToAccountInfo()
-    }
-
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        presenter?.didReceive(currency: event.account.selectedCurrency)
     }
 }
 

@@ -100,10 +100,6 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         presenter.didTapBuyButton()
     }
 
-    @objc private func lockedInfoButtonClicked() {
-        presenter.didTapInfoButton()
-    }
-
     @objc private func optionsButtonClicked() {
         presenter.didTapOptionsButton()
     }

@@ -12,7 +12,6 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapReceiveButton()
     func didTapBuyButton()
     func didTapOptionsButton()
-    func didTapInfoButton()
     func didTapSelectNetwork()
 }
 
@@ -26,12 +25,7 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
-    func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveExportOptions(options: [ExportOption])
-    func didReceive(currency: Currency)
     func didUpdate(chainAsset: ChainAsset)
 }
 
@@ -65,13 +59,6 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func presentPurchaseWebView(
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
-    )
-
-    func presentLockedInfo(
-        from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
     )
 
     func presentChainActionsFlow(

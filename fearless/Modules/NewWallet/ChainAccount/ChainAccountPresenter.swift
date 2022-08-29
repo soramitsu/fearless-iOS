@@ -14,12 +14,6 @@ final class ChainAccountPresenter {
 
     let wallet: MetaAccountModel
     weak var moduleOutput: ChainAccountModuleOutput?
-
-    private var accountInfo: AccountInfo?
-    private var priceData: PriceData?
-    private var minimumBalance: BigUInt?
-    private var balanceLocks: BalanceLocks?
-    private var currency: Currency?
     private let balanceInfoModule: BalanceInfoModuleInput
 
     private lazy var rampProvider = RampProvider()
@@ -133,39 +127,6 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         interactor.getAvailableExportOptions(for: address)
     }
 
-    func didTapInfoButton() {
-        if let info = accountInfo,
-           let free = Decimal.fromSubstratePerbill(value: info.data.free),
-           let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
-           let miscFrozen = Decimal.fromSubstratePerbill(value: info.data.miscFrozen),
-           let feeFrozen = Decimal.fromSubstratePerbill(value: info.data.feeFrozen),
-           let minBalance = minimumBalance,
-           let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
-           let locks = balanceLocks,
-           let currency = currency {
-            var price: Decimal = 0
-            if let priceData = priceData, let decimalPrice = Decimal(string: priceData.price) {
-                price = decimalPrice
-            }
-            let balanceContext = BalanceContext(
-                free: free,
-                reserved: reserved,
-                miscFrozen: miscFrozen,
-                feeFrozen: feeFrozen,
-                price: price,
-                priceChange: priceData?.fiatDayChange ?? 0,
-                minimalBalance: decimalMinBalance,
-                balanceLocks: locks
-            )
-            wireframe.presentLockedInfo(
-                from: view,
-                balanceContext: balanceContext,
-                info: chainAsset.asset.displayInfo,
-                currency: currency
-            )
-        }
-    }
-
     func didTapSelectNetwork() {
         wireframe.showSelectNetwork(
             from: view,
@@ -178,46 +139,6 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
 }
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for _: ChainModel.Id) {
-        switch result {
-        case let .success(accountInfo):
-            self.accountInfo = accountInfo
-            provideViewModel()
-        case let .failure(error):
-            logger.error("ChainAccountPresenter:didReceiveAccountInfo:error:\(error)")
-        }
-    }
-
-    func didReceivePriceData(result: Result<PriceData?, Error>, for _: AssetModel.PriceId) {
-        switch result {
-        case let .success(priceData):
-            if priceData != nil {
-                self.priceData = priceData
-                provideViewModel()
-            }
-        case let .failure(error):
-            logger.error("ChainAccountPresenter:didReceivePriceData:error:\(error)")
-        }
-    }
-
-    func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
-        switch result {
-        case let .success(minimumBalance):
-            self.minimumBalance = minimumBalance
-        case let .failure(error):
-            logger.error("Did receive minimum balance error: \(error)")
-        }
-    }
-
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>) {
-        switch result {
-        case let .success(balanceLocks):
-            self.balanceLocks = balanceLocks
-        case let .failure(error):
-            logger.error("Did receive balance locks error: \(error)")
-        }
-    }
-
     func didReceiveExportOptions(options: [ExportOption]) {
         let items: [ChainAction] = [.export, .switchNode, .replace]
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -268,11 +189,6 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             chain: chainAsset.chain,
             callback: selectionCallback
         )
-    }
-
-    func didReceive(currency: Currency) {
-        self.currency = currency
-        provideViewModel()
     }
 
     func didUpdate(chainAsset: ChainAsset) {
