@@ -15,6 +15,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case chainId(ChainModel.Id)
         case hasStaking(Bool)
         case hasCrowdloans(Bool)
+        case assetName(String)
     }
 
     enum SortDescriptor {
@@ -120,6 +121,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter { chainAsset in
                 chainAsset.hasStaking == hasStaking
             }
+        case let .assetName(name):
+            return chainAssets.filter { $0.asset.name == name }
         }
     }
 

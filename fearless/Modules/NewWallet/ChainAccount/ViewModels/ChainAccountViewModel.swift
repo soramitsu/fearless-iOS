@@ -1,8 +1,8 @@
 import Foundation
 
 struct ChainAccountViewModel {
-    let accountBalanceViewModel: AccountBalanceViewModel
-    let assetInfoViewModel: AssetInfoViewModel
-    let chainOptionsViewModel: ChainOptionsViewModel
-    let chainAsset: ChainAssetModel?
+    let walletName: String
+    let selectedChainName: String
+    let address: String?
+    let chainAssetModel: ChainAssetModel?
 }
