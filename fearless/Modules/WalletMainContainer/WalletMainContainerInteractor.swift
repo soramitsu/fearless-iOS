@@ -11,7 +11,7 @@ final class WalletMainContainerInteractor {
     private var selectedMetaAccount: MetaAccountModel
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
-    private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private let chainsIssuesCenter: ChainsIssuesCenter
 
     // MARK: - Constructor
 
@@ -21,14 +21,14 @@ final class WalletMainContainerInteractor {
         selectedMetaAccount: MetaAccountModel,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
-        networkIssuesCenter: NetworkIssuesCenterProtocol
+        chainsIssuesCenter: ChainsIssuesCenter
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainRepository = chainRepository
         self.accountRepository = accountRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.networkIssuesCenter = networkIssuesCenter
+        self.chainsIssuesCenter = chainsIssuesCenter
     }
 
     // MARK: - Private methods
@@ -61,30 +61,6 @@ final class WalletMainContainerInteractor {
                 case let .failure(error):
                     self?.output?.didReceiveError(error)
                 }
-            }
-        }
-
-        operationQueue.addOperation(operation)
-    }
-
-    private func fetchMissingAccounts() {
-        let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            guard let result = operation.result else {
-                return
-            }
-
-            switch result {
-            case let .success(chains):
-                let missingAccounts = chains.filter { chain in
-                    self?.selectedMetaAccount.fetch(for: chain.accountRequest()) == nil
-                }
-                DispatchQueue.main.async {
-                    self?.output?.didReceiceMissingAccounts(missingAccounts: missingAccounts)
-                }
-            case .failure:
-                break
             }
         }
 
@@ -135,9 +111,8 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
-        networkIssuesCenter.addIssuesListener(self, getExisting: true)
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
-        fetchMissingAccounts()
     }
 }
 
@@ -150,12 +125,12 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     }
 }
 
-// MARK: - NetworkIssuesCenterListener
+// MARK: - ChainsIssuesCenterListener
 
-extension WalletMainContainerInteractor: NetworkIssuesCenterListener {
-    func handleChainsWithIssues(_ chains: [ChainModel]) {
+extension WalletMainContainerInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
         DispatchQueue.main.async {
-            self.output?.didReceiveChainsWithNetworkIssues(chains)
+            self.output?.didReceiveChainsIssues(chainsIssues: issues)
         }
     }
 }

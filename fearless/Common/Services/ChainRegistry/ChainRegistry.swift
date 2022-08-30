@@ -17,8 +17,6 @@ protocol ChainRegistryProtocol: AnyObject {
     func performHotBoot()
     func performColdBoot()
     func subscribeToChians()
-    func connect()
-    func connected()
 }
 
 final class ChainRegistry {
@@ -142,31 +140,6 @@ final class ChainRegistry {
 }
 
 extension ChainRegistry: ChainRegistryProtocol {
-    // TODO: - Removed after demo
-    func connect() {
-        if let polkadot = chains.first(where: { $0.name == "Polkadot" }) {
-            let reconnectedEvent = ChainReconnectingEvent(chain: polkadot, state: .connecting(attempt: 5))
-            eventCenter.notify(with: reconnectedEvent)
-        }
-
-        if let efinity = chains.first(where: { $0.name == "Efinity" }) {
-            let reconnectedEvent = ChainReconnectingEvent(chain: efinity, state: .connecting(attempt: 5))
-            eventCenter.notify(with: reconnectedEvent)
-        }
-    }
-
-    func connected() {
-        if let polkadot = chains.first(where: { $0.name == "Polkadot" }) {
-            let reconnectedEvent = ChainReconnectingEvent(chain: polkadot, state: .connected)
-            eventCenter.notify(with: reconnectedEvent)
-        }
-
-        if let efinity = chains.first(where: { $0.name == "Efinity" }) {
-            let reconnectedEvent = ChainReconnectingEvent(chain: efinity, state: .connected)
-            eventCenter.notify(with: reconnectedEvent)
-        }
-    }
-
     var availableChainIds: Set<ChainModel.Id>? {
         mutex.lock()
 
@@ -279,11 +252,11 @@ extension ChainRegistry: ConnectionPoolDelegate {
 
         guard let failedChain = failedChain else { return }
         let reconnectedEvent = ChainReconnectingEvent(chain: failedChain, state: state)
-//        eventCenter.notify(with: reconnectedEvent)
+        eventCenter.notify(with: reconnectedEvent)
 
         switch state {
         case let .connecting(attempt):
-            if attempt > 5 {
+            if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
 //                connectionNeedsReconnect(for: failedChain, previusUrl: url)
             }

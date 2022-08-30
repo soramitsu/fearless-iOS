@@ -8,10 +8,10 @@ final class NetworkIssuesNotificationPresenter {
     private let router: NetworkIssuesNotificationRouterInput
     private let interactor: NetworkIssuesNotificationInteractorInput
 
-    private let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let viewModelFactory: NetworkIssuesNotificationViewModelFactoryProtocol
 
-    private let issues: [ChainIssue]
+    private var issues: [ChainIssue]
     private var viewModel: [NetworkIssuesNotificationCellViewModel] = []
 
     // MARK: - Constructors
@@ -53,8 +53,8 @@ final class NetworkIssuesNotificationPresenter {
                 meta: wallet,
                 chain: chain
             )
-        ) { [weak self] _ in
-//            self?.interactor.markUnused(chain: chain)
+        ) { [weak self] chain in
+            self?.interactor.markUnused(chain: chain)
         }
     }
 
@@ -114,7 +114,16 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationViewOutpu
 
 // MARK: - NetworkIssuesNotificationInteractorOutput
 
-extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteractorOutput {}
+extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteractorOutput {
+    func didReceiveChainsIssues(issues: [ChainIssue]) {
+        self.issues = issues
+        provideViewModel()
+    }
+
+    func didReceiveWallet(wallet: MetaAccountModel) {
+        self.wallet = wallet
+    }
+}
 
 // MARK: - Localizable
 

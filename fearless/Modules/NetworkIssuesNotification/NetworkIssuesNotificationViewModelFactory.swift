@@ -40,12 +40,12 @@ final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotification
             var buttonType: NetworkIssuesActionButtonType
 
             if chain.nodes.count == 1 {
-                issueDescription = R.string.localizable.networkIssueNetworkUnavailible(
+                issueDescription = R.string.localizable.networkIssueStub(
                     preferredLanguages: locale.rLanguages
                 )
                 buttonType = .networkUnavailible
             } else {
-                issueDescription = R.string.localizable.networkIssueNodeUnavailible(
+                issueDescription = R.string.localizable.networkIssueNodeUnavailable(
                     preferredLanguages: locale.rLanguages
                 )
                 buttonType = .switchNode(
