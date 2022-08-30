@@ -6,6 +6,8 @@ enum AssetListDisplayType {
     case assetChains
 }
 
+typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
+
 final class ChainAssetListPresenter {
     // MARK: Private properties
 

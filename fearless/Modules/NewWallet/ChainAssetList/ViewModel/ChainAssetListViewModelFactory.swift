@@ -83,13 +83,11 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let activeSection = ChainAssetListTableSection(
-            cellViewModels: activeSectionCellModels,
             title: nil,
             expandable: false
         )
-        // Lokalise
+
         let hiddenSection = ChainAssetListTableSection(
-            cellViewModels: hiddenSectionCellModels,
             title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
             expandable: true
         )
@@ -111,6 +109,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         return ChainAssetListViewModel(
             sections: [
                 activeSection, hiddenSection
+            ],
+            cellsForSections: [
+                activeSection: activeSectionCellModels,
+                hiddenSection: hiddenSectionCellModels
             ],
             isColdBoot: isColdBoot
         )
