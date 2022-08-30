@@ -79,8 +79,8 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         bottomCloseButton.imageWithTitleView?.title = R.string.localizable.commonClose(
             preferredLanguages: locale.rLanguages
         )
-        titleLabel.text = "Notification"
-        networkIssueLabel.text = "Network Issues"
+        titleLabel.text = R.string.localizable.networkIssueNotofication(preferredLanguages: locale.rLanguages)
+        networkIssueLabel.text = R.string.localizable.networkIssueStub(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {

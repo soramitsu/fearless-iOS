@@ -757,3 +757,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "сurrencies.stub.text" = "Сurrencies";
 "nfts.stub" = "NFTs";
 "network.issue.unavailable" = "The network is unavailable, you can wait or ask a question to the community";
+"network.issue.notofication" = "Notification";
+"network.issue.stub" = "Network Issues";
+"network.issue.network.unavailable" = "Network is unavailable";
+"network.issue.node.unavailable" = "Node is unavailable";

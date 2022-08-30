@@ -60,7 +60,7 @@ final class ChainAssetListPresenter {
                     self.accountInfos
                 },
                 prices: self.prices,
-                chainsWithIssues: self.chainsWithIssues
+                chainsWithIssues: self.chainsWithIssues.map { $0.chainId }
             )
 
             DispatchQueue.main.async {
@@ -96,7 +96,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
-        let topUpAction = SheetAlertPresentableAction(
+        let closeAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
             style: UIFactory.default.createMainActionButton(),
             handler: nil
@@ -106,10 +106,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
-            titleStyle: .defaultTitle,
             subtitle: subtitle,
-            subtitleStyle: .defaultSubtitle,
-            actions: [topUpAction]
+            actions: [closeAction]
         )
         router.present(viewModel: sheetViewModel, from: view)
     }

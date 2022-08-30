@@ -138,7 +138,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 }
 
 extension ChainAssetListInteractor: NetworkIssuesCenterListener {
-    func chainsWithIssues(_ chains: [ChainModel]) {
+    func handleChainsWithIssues(_ chains: [ChainModel]) {
         DispatchQueue.main.async {
             self.output?.didReceiveChainsWithNetworkIssues(chains)
         }

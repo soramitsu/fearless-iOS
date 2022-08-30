@@ -59,7 +59,7 @@ final class NetworkIssuesNotificationPresenter {
     }
 
     private func showSheetAlert(for chain: ChainModel) {
-        let topUpAction = SheetAlertPresentableAction(
+        let closepAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
             style: UIFactory.default.createMainActionButton(),
             handler: nil
@@ -72,7 +72,7 @@ final class NetworkIssuesNotificationPresenter {
             titleStyle: .defaultTitle,
             subtitle: subtitle,
             subtitleStyle: .defaultSubtitle,
-            actions: [topUpAction]
+            actions: [closepAction]
         )
         router.present(viewModel: sheetViewModel, from: view)
     }

@@ -47,6 +47,7 @@ final class NetworkIssuesNotificationViewController: UIViewController, ViewHolde
     private func configure() {
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+        rootView.tableView.allowsSelection = false
         rootView.tableView.registerClassForCell(NetworkIssuesNotificationTableCell.self)
 
         rootView.closeButton.addTarget(self, action: #selector(handleDismiss), for: .touchUpInside)
@@ -79,10 +80,6 @@ extension NetworkIssuesNotificationViewController: Localizable {
 // MARK: - UITableViewDataSource
 
 extension NetworkIssuesNotificationViewController: UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        1
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModel.count
     }

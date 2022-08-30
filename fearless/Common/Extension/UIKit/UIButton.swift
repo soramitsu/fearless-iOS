@@ -2,7 +2,7 @@ import Foundation
 import UIKit
 
 extension UIButton {
-    func textAndImage(spacing: CGFloat) {
+    func setTextAndImage(spacing: CGFloat) {
         let insetAmount = spacing / 2
         let isRTL = UIView.userInterfaceLayoutDirection(for: semanticContentAttribute) == .rightToLeft
         if isRTL {

@@ -35,7 +35,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             walletName: selectedMetaAccount.name,
             selectedChainName: networkName,
             address: address,
-            isNetworkIssues: chainsWithNetworkIssues.isNotEmpty || missingAccounts.isNotEmpty
+            hasNetworkIssues: chainsWithNetworkIssues.isNotEmpty || missingAccounts.isNotEmpty
         )
     }
 }

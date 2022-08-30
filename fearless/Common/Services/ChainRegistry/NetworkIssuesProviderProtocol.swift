@@ -1,7 +1,7 @@
 import Foundation
 
 protocol NetworkIssuesCenterListener: AnyObject {
-    func chainsWithIssues(_ chains: [ChainModel])
+    func handleChainsWithIssues(_ chains: [ChainModel])
 }
 
 protocol NetworkIssuesCenterProtocol {
@@ -48,7 +48,7 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
 
         guard getExisting, _chainsWithIssues.isNotEmpty else { return }
         let chains = Array(_chainsWithIssues)
-        (weakListener.target as? NetworkIssuesCenterListener)?.chainsWithIssues(chains)
+        (weakListener.target as? NetworkIssuesCenterListener)?.handleChainsWithIssues(chains)
     }
 
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener) {
@@ -78,7 +78,7 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
     private func notify() {
         let chains = Array(_chainsWithIssues)
         issuesListeners.forEach {
-            ($0.target as? NetworkIssuesCenterListener)?.chainsWithIssues(chains)
+            ($0.target as? NetworkIssuesCenterListener)?.handleChainsWithIssues(chains)
         }
     }
 }

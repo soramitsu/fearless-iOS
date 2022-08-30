@@ -52,14 +52,6 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
     let warningButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconWarning(), for: .normal)
-//        button.contentVerticalAlignment = .fill
-//        button.contentHorizontalAlignment = .fill
-//        button.imageEdgeInsets = UIEdgeInsets(
-//            top: 13,
-//            left: 24,
-//            bottom: 13,
-//            right: 0
-//        )
         return button
     }()
 

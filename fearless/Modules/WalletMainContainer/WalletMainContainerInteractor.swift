@@ -67,7 +67,7 @@ final class WalletMainContainerInteractor {
         operationQueue.addOperation(operation)
     }
 
-    private func searchMissingAccounts() {
+    private func fetchMissingAccounts() {
         let operation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         operation.completionBlock = { [weak self] in
@@ -137,7 +137,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         networkIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
-        searchMissingAccounts()
+        fetchMissingAccounts()
     }
 }
 
@@ -153,7 +153,7 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
 // MARK: - NetworkIssuesCenterListener
 
 extension WalletMainContainerInteractor: NetworkIssuesCenterListener {
-    func chainsWithIssues(_ chains: [ChainModel]) {
+    func handleChainsWithIssues(_ chains: [ChainModel]) {
         DispatchQueue.main.async {
             self.output?.didReceiveChainsWithNetworkIssues(chains)
         }

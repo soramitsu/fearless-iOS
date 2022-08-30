@@ -10,7 +10,7 @@ protocol ChainAssetListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel]
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAssetListViewModel
 }
 
@@ -28,7 +28,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel]
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -141,7 +141,7 @@ private extension ChainAssetListViewModelFactory {
         locale: Locale,
         currency: Currency,
         selectedMetaAccount: MetaAccountModel,
-        chainsWithIssues: [ChainModel]
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         var icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
         var title = chainAsset.chain.name
@@ -174,13 +174,7 @@ private extension ChainAssetListViewModelFactory {
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
-        var isNetworkIssues = false
-        containsChainAssets.forEach {
-            if chainsWithIssues.contains($0.chain) {
-                isNetworkIssues = true
-                return
-            }
-        }
+        let isNetworkIssues = containsChainAssets.first(where: { chainsWithIssues.contains($0.chain.chainId) }) != nil
 
         let totalAssetBalance = getBalanceString(
             for: containsChainAssets,

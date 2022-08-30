@@ -7,6 +7,7 @@ protocol NetworkIssuesNotificationViewModelFactoryProtocol {
     ) -> [NetworkIssuesNotificationCellViewModel]
 }
 
+// swiftlint:disable type_name
 final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotificationViewModelFactoryProtocol {
     func buildViewModel(
         for issues: [ChainIssue],
@@ -15,58 +16,76 @@ final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotification
         issues.map { issue in
             switch issue {
             case let .network(chains: chains):
-                return chains.map { chain in
-
-                    let imageViewViewModel = chain.icon.map { buildRemoteImageViewModel(url: $0) }
-
-                    let chainNameTitle = chain.name + " "
-                        + R.string.localizable.commonNetwork(
-                            preferredLanguages: locale.rLanguages
-                        )
-
-                    var issueDescription: String
-                    var buttonType: NetworkIssuesActionButtonType
-
-                    if chain.nodes.count == 1 {
-                        issueDescription = "Network is unavailible"
-                        buttonType = .networkUnavailible
-                    } else {
-                        issueDescription = "Node is unavailible "
-                        buttonType = .switchNode(
-                            title: R.string.localizable.switchNode(
-                                preferredLanguages: locale.rLanguages
-                            )
-                        )
-                    }
-
-                    return NetworkIssuesNotificationCellViewModel(
-                        imageViewViewModel: imageViewViewModel,
-                        chainNameTitle: chainNameTitle,
-                        issueDescription: issueDescription,
-                        buttonType: buttonType,
-                        chain: chain
-                    )
-                }
+                return buildNetworkIssueViewModel(for: chains, locale: locale)
             case let .missingAccount(chains: chains):
-                return chains.map { chain in
-
-                    let imageViewViewModel = chain.icon.map { buildRemoteImageViewModel(url: $0) }
-                    let issueDescription = R.string.localizable.manageAssetsAccountMissingText(
-                        preferredLanguages: locale.rLanguages
-                    )
-
-                    return NetworkIssuesNotificationCellViewModel(
-                        imageViewViewModel: imageViewViewModel,
-                        chainNameTitle: chain.name,
-                        issueDescription: issueDescription,
-                        buttonType: .missingAccount(
-                            title: R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
-                        ),
-                        chain: chain
-                    )
-                }
+                return buildMissingAccountViewModel(for: chains, locale: locale)
             }
         }.reduce([], +)
+    }
+
+    private func buildNetworkIssueViewModel(
+        for chains: [ChainModel],
+        locale: Locale
+    ) -> [NetworkIssuesNotificationCellViewModel] {
+        chains.map { chain in
+
+            let imageViewViewModel = chain.icon.map { buildRemoteImageViewModel(url: $0) }
+
+            let chainNameTitle = chain.name + " "
+                + R.string.localizable.commonNetwork(
+                    preferredLanguages: locale.rLanguages
+                )
+
+            var issueDescription: String
+            var buttonType: NetworkIssuesActionButtonType
+
+            if chain.nodes.count == 1 {
+                issueDescription = R.string.localizable.networkIssueNetworkUnavailible(
+                    preferredLanguages: locale.rLanguages
+                )
+                buttonType = .networkUnavailible
+            } else {
+                issueDescription = R.string.localizable.networkIssueNodeUnavailible(
+                    preferredLanguages: locale.rLanguages
+                )
+                buttonType = .switchNode(
+                    title: R.string.localizable.switchNode(
+                        preferredLanguages: locale.rLanguages
+                    )
+                )
+            }
+
+            return NetworkIssuesNotificationCellViewModel(
+                imageViewViewModel: imageViewViewModel,
+                chainNameTitle: chainNameTitle,
+                issueDescription: issueDescription,
+                buttonType: buttonType,
+                chain: chain
+            )
+        }
+    }
+
+    private func buildMissingAccountViewModel(
+        for chains: [ChainModel],
+        locale: Locale
+    ) -> [NetworkIssuesNotificationCellViewModel] {
+        chains.map { chain in
+
+            let imageViewViewModel = chain.icon.map { buildRemoteImageViewModel(url: $0) }
+            let issueDescription = R.string.localizable.manageAssetsAccountMissingText(
+                preferredLanguages: locale.rLanguages
+            )
+
+            return NetworkIssuesNotificationCellViewModel(
+                imageViewViewModel: imageViewViewModel,
+                chainNameTitle: chain.name,
+                issueDescription: issueDescription,
+                buttonType: .missingAccount(
+                    title: R.string.localizable.accountsAddAccount(preferredLanguages: locale.rLanguages)
+                ),
+                chain: chain
+            )
+        }
     }
 }
 

@@ -14,6 +14,20 @@ struct SheetAlertPresentableViewModel {
     let subtitle: String?
     let subtitleStyle: SheetAlertPresentableStyle?
     let actions: [SheetAlertPresentableAction]
+
+    init(
+        title: String,
+        titleStyle: SheetAlertPresentableStyle = .defaultTitle,
+        subtitle: String?,
+        subtitleStyle: SheetAlertPresentableStyle? = .defaultSubtitle,
+        actions: [SheetAlertPresentableAction]
+    ) {
+        self.title = title
+        self.titleStyle = titleStyle
+        self.subtitle = subtitle
+        self.subtitleStyle = subtitleStyle
+        self.actions = actions
+    }
 }
 
 protocol SheetAlertPresentable {
@@ -28,13 +42,7 @@ extension SheetAlertPresentable {
         viewModel: SheetAlertPresentableViewModel,
         from view: ControllerBackedProtocol?
     ) {
-        var currentController = view?.controller
-
-        if currentController == nil {
-            currentController = UIApplication.shared.delegate?.window??.rootViewController
-        }
-
-        guard let controller = currentController else {
+        guard let controller = view?.controller else {
             return
         }
 

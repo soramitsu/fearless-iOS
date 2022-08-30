@@ -50,10 +50,6 @@ final class SheetAlertViewLayout: UIView {
         super.init(frame: .zero)
         applyStyle(viewModel: viewModel)
         setupLayout()
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
         bind(viewModel: viewModel)
     }
 

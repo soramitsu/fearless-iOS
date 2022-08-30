@@ -86,7 +86,7 @@ final class WalletMainContainerViewLayout: UIView {
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         button.layer.cornerRadius = Constants.issuesButtonSize.height / 2
-        button.textAndImage(spacing: 5)
+        button.setTextAndImage(spacing: 5)
         return button
     }()
 
@@ -130,7 +130,7 @@ final class WalletMainContainerViewLayout: UIView {
             addressCopyableLabel.isHidden = true
         }
 
-        issuesButton.isHidden = !viewModel.isNetworkIssues
+        issuesButton.isHidden = !viewModel.hasNetworkIssues
     }
 
     // MARK: - Private methods
