@@ -71,7 +71,11 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
             return
         }
 
-        view?.controller.navigationController?.pushViewController(controller, animated: true)
+        let navigationController = FearlessNavigationController(
+            rootViewController: controller
+        )
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     private func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
@@ -81,6 +85,10 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
             return
         }
 
-        view?.controller.navigationController?.pushViewController(importController, animated: true)
+        let navigationController = FearlessNavigationController(
+            rootViewController: importController
+        )
+
+        view?.controller.present(navigationController, animated: true)
     }
 }
