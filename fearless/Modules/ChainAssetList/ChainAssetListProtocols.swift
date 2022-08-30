@@ -8,6 +8,7 @@ protocol ChainAssetListViewOutput: AnyObject {
     func didLoad(view: ChainAssetListViewInput)
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel)
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
+    func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel)
 }
 
 protocol ChainAssetListInteractorInput: AnyObject {
@@ -23,9 +24,10 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
+    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel])
 }
 
-protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable {
+protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable, SheetAlertPresentable {
     func showChainAccount(
         from view: ChainAssetListViewInput?,
         chainAsset: ChainAsset

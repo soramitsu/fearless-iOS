@@ -9,12 +9,12 @@ protocol ConnectionPoolProtocol {
 }
 
 protocol ConnectionPoolDelegate: AnyObject {
-    func connectionNeedsReconnect(url: URL)
+    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
 }
 
-class ConnectionPool {
-    let connectionFactory: ConnectionFactoryProtocol
-    weak var delegate: ConnectionPoolDelegate?
+final class ConnectionPool {
+    private let connectionFactory: ConnectionFactoryProtocol
+    private weak var delegate: ConnectionPoolDelegate?
 
     private var mutex = NSLock()
 
@@ -90,16 +90,6 @@ extension ConnectionPool: WebSocketEngineDelegate {
             return
         }
 
-        switch newState {
-        case let .connecting(attempt):
-            if attempt > 1 {
-                // temporary disable autobalance , maybe this causing crashes
-//                delegate?.connectionNeedsReconnect(url: previousUrl)
-            }
-        case .connected:
-            break
-        default:
-            break
-        }
+        delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
     }
 }

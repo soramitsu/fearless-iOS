@@ -1,6 +1,11 @@
 import Foundation
 import SoraFoundation
 
+enum ChainIssue {
+    case network(chains: [ChainModel])
+    case missingAccount(chains: [ChainModel])
+}
+
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
@@ -15,6 +20,9 @@ final class WalletMainContainerPresenter {
     // MARK: - State
 
     private var selectedChain: ChainModel?
+    private var issues: [ChainIssue] = []
+    private var chainsWithNetworkIssues: [ChainModel] = []
+    private var missingAccounts: [ChainModel] = []
 
     // MARK: - Constructors
 
@@ -38,6 +46,8 @@ final class WalletMainContainerPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             selectedChain: selectedChain,
             selectedMetaAccount: selectedMetaAccount,
+            chainsWithNetworkIssues: chainsWithNetworkIssues,
+            missingAccounts: missingAccounts,
             locale: selectedLocale
         )
 
@@ -59,11 +69,13 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapOnQR() {
-        router.showScanQr(from: view)
+//        router.showScanQr(from: view)
+        ChainRegistryFacade.sharedRegistry.connected()
     }
 
     func didTapSearch() {
-        router.showSearch(from: view)
+//        router.showSearch(from: view)
+        ChainRegistryFacade.sharedRegistry.connect()
     }
 
     func didTapSelectNetwork() {
@@ -82,11 +94,28 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             wallet: selectedMetaAccount
         )
     }
+
+    func didTapIssueButton() {
+        let issues: [ChainIssue] = [
+            .network(chains: chainsWithNetworkIssues),
+            .missingAccount(chains: missingAccounts)
+        ]
+        router.showIssueNotification(
+            from: view,
+            issues: issues,
+            wallet: selectedMetaAccount
+        )
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
+    func didReceiceMissingAccounts(missingAccounts: [ChainModel]) {
+        self.missingAccounts = missingAccounts
+        provideViewModel()
+    }
+
     func didReceiveSelectedChain(_ chain: ChainModel?) {
         selectedChain = chain
         provideViewModel()
@@ -103,6 +132,11 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
     func didReceiveAccount(_ account: MetaAccountModel) {
         selectedMetaAccount = account
+        provideViewModel()
+    }
+
+    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel]) {
+        chainsWithNetworkIssues = chains
         provideViewModel()
     }
 }

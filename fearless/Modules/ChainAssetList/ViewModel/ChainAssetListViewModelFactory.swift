@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 
+// swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
         displayType: AssetListDisplayType,
@@ -8,7 +9,8 @@ protocol ChainAssetListViewModelFactoryProtocol {
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated
+        prices: PriceDataUpdated,
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAssetListViewModel
 }
 
@@ -25,7 +27,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
-        prices: PriceDataUpdated
+        prices: PriceDataUpdated,
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -55,7 +58,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 accountInfos: accountInfos,
                 locale: locale,
                 currency: selectedMetaAccount.selectedCurrency,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: selectedMetaAccount,
+                chainsWithIssues: chainsWithIssues
             )
         }
 
@@ -136,7 +140,8 @@ private extension ChainAssetListViewModelFactory {
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         currency: Currency,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        chainsWithIssues: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         var icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
         var title = chainAsset.chain.name
@@ -169,6 +174,7 @@ private extension ChainAssetListViewModelFactory {
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
+        let isNetworkIssues = containsChainAssets.first(where: { chainsWithIssues.contains($0.chain.chainId) }) != nil
 
         let totalAssetBalance = getBalanceString(
             for: containsChainAssets,
@@ -206,7 +212,8 @@ private extension ChainAssetListViewModelFactory {
             ),
             options: options,
             isColdBoot: isColdBoot,
-            priceDataWasUpdated: priceDataUpdated
+            priceDataWasUpdated: priceDataUpdated,
+            isNetworkIssues: isNetworkIssues
         )
 
         if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),

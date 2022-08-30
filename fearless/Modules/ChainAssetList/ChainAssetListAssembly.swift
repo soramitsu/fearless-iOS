@@ -52,7 +52,8 @@ final class ChainAssetListAssembly {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            networkIssuesCenter: NetworkIssuesCenter.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

@@ -258,7 +258,8 @@ class ChainAccountBalanceListViewModelFactory: ChainAccountBalanceListViewModelF
             ),
             options: options,
             isColdBoot: isColdBoot,
-            priceDataWasUpdated: priceDataUpdated
+            priceDataWasUpdated: priceDataUpdated,
+            isNetworkIssues: false
         )
 
         if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
