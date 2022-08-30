@@ -760,3 +760,5 @@ and depending on the network state, may not be selected to participate";
 "nft.stub.text" = "NFTs скоро будут здесь";
 "сurrencies.stub.text" = "Токены";
 "nfts.stub" = "NFTs";
+"search.textfield.placeholder" = "Публичный адрес";
+"choose.recipient.title" = "Выберите получателя";

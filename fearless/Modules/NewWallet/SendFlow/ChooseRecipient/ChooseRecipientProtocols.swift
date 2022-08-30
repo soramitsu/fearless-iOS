@@ -1,0 +1,49 @@
+import CommonWallet
+
+protocol ChooseRecipientViewProtocol: ControllerBackedProtocol {
+    func didReceive(viewModel: ChooseRecipientViewModel)
+    func didReceive(locale: Locale)
+    func didReceive(address: String)
+}
+
+protocol ChooseRecipientPresenterProtocol: AnyObject {
+    func setup()
+    func searchTextDidChanged(_ text: String)
+    func didTapBackButton()
+    func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel)
+    func didTapScanButton()
+    func didTapHistoryButton()
+    func didTapPasteButton()
+}
+
+protocol ChooseRecipientInteractorInputProtocol: AnyObject {
+    func performSearch(query: String)
+}
+
+protocol ChooseRecipientInteractorOutputProtocol: AnyObject {
+    func didReceive(searchResult: Result<[SearchData]?, Error>)
+}
+
+protocol ChooseRecipientWireframeProtocol: AnyObject {
+    func close(_ view: ControllerBackedProtocol?)
+    func presentSendAmount(
+        from view: ControllerBackedProtocol?,
+        to address: String,
+        asset: AssetModel,
+        chain: ChainModel,
+        wallet: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
+    )
+
+    func presentScan(
+        from view: ControllerBackedProtocol?,
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        moduleOutput: WalletScanQRModuleOutput?
+    )
+
+    func presentHistory(
+        from view: ControllerBackedProtocol?
+    )
+}
