@@ -13,6 +13,7 @@ final class TitleValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = UIFont.p1Paragraph
+        label.textAlignment = .right
         return label
     }()
 
@@ -25,9 +26,18 @@ final class TitleValueView: UIView {
         return view
     }()
 
+    var equalsLabelsWidth: Bool = false {
+        didSet {
+            if equalsLabelsWidth {
+                valueLabel.snp.makeConstraints { make in
+                    make.width.equalTo(titleLabel.snp.width)
+                }
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-
         setupLayout()
     }
 

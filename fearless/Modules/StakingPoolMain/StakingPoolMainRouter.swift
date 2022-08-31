@@ -3,13 +3,14 @@ import Foundation
 final class StakingPoolMainRouter: StakingPoolMainRouterInput {
     func showSetupAmount(
         from view: ControllerBackedProtocol?,
-        amount _: Decimal?,
+        amount: Decimal?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
         guard let poolStartModule = StakingPoolStartAssembly.configureModule(
             wallet: wallet,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            amount: amount
         ) else {
             return
         }

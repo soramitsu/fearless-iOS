@@ -128,5 +128,16 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolListTableCellModelDeleg
         provideViewModel()
     }
 
-    func showPoolInfo(poolId _: String) {}
+    func showPoolInfo(poolId: String) {
+        guard let pool = pools?.first(where: { $0.id == poolId }) else {
+            return
+        }
+
+        router.presentPoolInfo(
+            stakingPool: pool,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
+    }
 }

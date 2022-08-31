@@ -5,12 +5,12 @@ import FearlessUtils
 final class StakingPoolStartAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        amount: Decimal?
     ) -> StakingPoolStartModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
@@ -60,7 +60,8 @@ final class StakingPoolStartAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             wallet: wallet,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            amount: amount
         )
 
         let view = StakingPoolStartViewController(

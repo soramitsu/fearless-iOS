@@ -38,6 +38,9 @@ final class StakingPoolStartViewLayout: UIView {
         view.titleLabel.textColor = .white.withAlphaComponent(0.5)
         view.titleLabel.numberOfLines = 0
         view.layout = .smallIconTitleButton
+        view.isUserInteractionEnabled = true
+        view.contentView?.isUserInteractionEnabled = true
+        view.backgroundView?.isUserInteractionEnabled = true
 
         return view
     }()

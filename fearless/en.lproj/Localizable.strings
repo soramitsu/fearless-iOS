@@ -810,3 +810,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.common" = "pool";
 "staking.pool.sort.pool.members" = "Number of members";
 "pool.staking.main.min.join.title" = "Min. to join a pool";
+"index.common" = "Index";
+"state.common" = "State";
+"members.common" = "Members";
+"staking.pool.info.title" = "Pool Info";
+"roles.common" = "Roles";

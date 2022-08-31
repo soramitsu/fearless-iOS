@@ -35,7 +35,8 @@ final class StakingPoolJoinConfigPresenter {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         logger: LoggerProtocol?,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        amount: Decimal?
     ) {
         self.interactor = interactor
         self.router = router
@@ -45,6 +46,11 @@ final class StakingPoolJoinConfigPresenter {
         self.chainAsset = chainAsset
         self.logger = logger
         self.dataValidatingFactory = dataValidatingFactory
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
+
         self.localizationManager = localizationManager
     }
 

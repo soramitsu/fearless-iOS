@@ -41,6 +41,13 @@ protocol StakingPoolJoinChoosePoolRouterInput: AnyObject, PushDismissable {
         callback: ModalPickerSelectionCallback?,
         from view: ControllerBackedProtocol?
     )
+
+    func presentPoolInfo(
+        stakingPool: StakingPool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol StakingPoolJoinChoosePoolModuleInput: AnyObject {}

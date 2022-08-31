@@ -6,7 +6,8 @@ import FearlessUtils
 final class StakingPoolJoinConfigAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        amount: Decimal?
     ) -> StakingPoolJoinConfigModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -91,7 +92,8 @@ final class StakingPoolJoinConfigAssembly {
             wallet: wallet,
             chainAsset: chainAsset,
             logger: Logger.shared,
-            dataValidatingFactory: dataValidatingFactory
+            dataValidatingFactory: dataValidatingFactory,
+            amount: amount
         )
 
         let view = StakingPoolJoinConfigViewController(

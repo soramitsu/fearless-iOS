@@ -126,7 +126,7 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
     func didTapStartStaking() {
         router.showSetupAmount(
             from: view,
-            amount: nil,
+            amount: inputResult?.absoluteValue(from: balance ?? 0.0),
             chainAsset: chainAsset,
             wallet: wallet
         )
@@ -227,7 +227,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceive(priceData: PriceData?) {
         self.priceData = priceData
-        print("Price data: ", priceData)
 
         provideRewardEstimationViewModel()
         provideStakeInfoViewModel()

@@ -10,6 +10,7 @@ final class StakingPoolStartPresenter {
     private let viewModelFactory: StakingPoolStartViewModelFactoryProtocol
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
+    private let amount: Decimal?
 
     private var stakingDuration: StakingDuration?
     private var calculator: RewardCalculatorEngineProtocol?
@@ -22,13 +23,15 @@ final class StakingPoolStartPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: StakingPoolStartViewModelFactoryProtocol,
         wallet: MetaAccountModel,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        amount: Decimal?
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
+        self.amount = amount
         self.localizationManager = localizationManager
     }
 
@@ -57,7 +60,7 @@ extension StakingPoolStartPresenter: StakingPoolStartViewOutput {
     }
 
     func didTapJoinPoolButton() {
-        router.presentJoinFlow(chainAsset: chainAsset, wallet: wallet, from: view)
+        router.presentJoinFlow(chainAsset: chainAsset, wallet: wallet, amount: amount, from: view)
     }
 
     func didTapCreatePoolButton() {}

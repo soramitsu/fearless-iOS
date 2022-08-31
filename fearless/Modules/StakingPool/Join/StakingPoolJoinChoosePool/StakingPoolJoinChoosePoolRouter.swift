@@ -38,4 +38,21 @@ final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInpu
 
         view?.controller.present(picker, animated: true)
     }
+
+    func presentPoolInfo(
+        stakingPool: StakingPool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = StakingPoolInfoAssembly.configureModule(
+            stakingPool: stakingPool,
+            chainAsset: chainAsset,
+            wallet: wallet
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }

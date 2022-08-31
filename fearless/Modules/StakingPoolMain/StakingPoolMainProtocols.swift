@@ -62,7 +62,7 @@ protocol StakingPoolMainRouterInput: AnyObject {
 
     func showSetupAmount(
         from view: ControllerBackedProtocol?,
-        amount _: Decimal?,
+        amount: Decimal?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
