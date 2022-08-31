@@ -209,7 +209,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         cloudView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(LayoutConstants.cellHeight)
         }
 
         backgroundTriangularedView.addSubview(assetIconImageView)

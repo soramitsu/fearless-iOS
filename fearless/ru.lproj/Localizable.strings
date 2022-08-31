@@ -513,7 +513,7 @@
 "wallet.account.locks.vesting" = "Вестинг";
 "wallet.account.locks.democracy" = "Демократия";
 "username.setup.choose.title" = "Псевдоним кошелька";
-"common.select.network" = "Выбрать сеть";
+"common.select.network" = "Выбрать Сеть";
 "common.select.asset" = "Выбор актива";
 "parachain.crowdloans" = "Краудлоуны парачейнов";
 "crowdloan.confirmation.name" = "%@ краудлоун";

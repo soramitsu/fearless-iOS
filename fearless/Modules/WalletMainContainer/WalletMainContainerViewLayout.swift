@@ -232,10 +232,6 @@ final class WalletMainContainerViewLayout: UIView {
 
         contentView.setCustomSpacing(32, after: navigationContainerView)
         contentView.addArrangedSubview(walletBalanceVStackView)
-
-        walletBalanceVStackView.snp.makeConstraints { make in
-            make.height.greaterThanOrEqualTo(80)
-        }
     }
 
     private func setupSegmentedLayout() {
