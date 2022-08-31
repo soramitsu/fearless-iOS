@@ -16,11 +16,17 @@ final class ChainAssetListInteractor {
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let eventCenter: EventCenter
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private var wallet: MetaAccountModel
+
+    private lazy var accountInfosDeliveryQueue = {
+        DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
+    }()
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     weak var presenter: ChainAssetListInteractorOutput?
 
     init(
+        wallet: MetaAccountModel,
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -29,6 +35,7 @@ final class ChainAssetListInteractor {
         eventCenter: EventCenter,
         networkIssuesCenter: NetworkIssuesCenterProtocol
     ) {
+        self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -65,15 +72,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
             switch result {
             case let .success(chainAssets):
+                self?.output?.didReceiveChainAssets(result: .success(chainAssets))
                 self?.subscribeToAccountInfo(for: chainAssets)
                 self?.subscribeToPrice(for: chainAssets)
-                DispatchQueue.main.async {
-                    self?.output?.didReceiveChainAssets(result: .success(chainAssets))
-                }
             case let .failure(error):
-                DispatchQueue.main.async {
-                    self?.output?.didReceiveChainAssets(result: .failure(error))
-                }
+                self?.output?.didReceiveChainAssets(result: .failure(error))
             }
         }
     }
@@ -86,7 +89,11 @@ private extension ChainAssetListInteractor {
     }
 
     func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
-        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: chainAssets,
+            handler: self,
+            deliveryOn: accountInfosDeliveryQueue
+        )
     }
 
     func updatePrices(with priceData: [PriceData]) {
@@ -133,14 +140,15 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
 extension ChainAssetListInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didReceiveWallet(wallet: event.account)
-        pricesProvider?.refresh()
+        if wallet.selectedCurrency != event.account.selectedCurrency {
+            pricesProvider?.refresh()
+        }
+        wallet = event.account
     }
 }
 
 extension ChainAssetListInteractor: NetworkIssuesCenterListener {
     func handleChainsWithIssues(_ chains: [ChainModel]) {
-        DispatchQueue.main.async {
-            self.output?.didReceiveChainsWithNetworkIssues(chains)
-        }
+        output?.didReceiveChainsWithNetworkIssues(chains)
     }
 }

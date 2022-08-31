@@ -47,6 +47,7 @@ final class ChainAssetListAssembly {
         )
 
         let interactor = ChainAssetListInteractor(
+            wallet: wallet,
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

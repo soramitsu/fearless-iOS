@@ -65,7 +65,9 @@ private extension ChainAssetListViewController {
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        if let section = viewModel?.sections[indexPath.section], let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
+        if
+            let section = viewModel?.sections[indexPath.section],
+            let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
             return cellModel
         }
         return nil
