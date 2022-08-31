@@ -46,7 +46,8 @@ final class StakingPoolJoinChoosePoolAssembly {
             viewModelFactory: viewModelFactory,
             inputAmount: inputAmount,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            filterFactory: TitleSwitchTableViewCellModelFactory()
         )
 
         let view = StakingPoolJoinChoosePoolViewController(

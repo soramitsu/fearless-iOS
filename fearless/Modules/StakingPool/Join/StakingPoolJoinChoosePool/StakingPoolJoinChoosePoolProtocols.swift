@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 typealias StakingPoolJoinChoosePoolModuleCreationResult = (
     view: StakingPoolJoinChoosePoolViewInput,
@@ -14,6 +15,7 @@ protocol StakingPoolJoinChoosePoolViewOutput: AnyObject {
     func didLoad(view: StakingPoolJoinChoosePoolViewInput)
     func didTapBackButton()
     func didTapContinueButton()
+    func didTapOptionsButton()
 }
 
 protocol StakingPoolJoinChoosePoolInteractorInput: AnyObject {
@@ -32,6 +34,12 @@ protocol StakingPoolJoinChoosePoolRouterInput: AnyObject, PushDismissable {
         wallet: MetaAccountModel,
         inputAmount: Decimal,
         selectedPool: StakingPool
+    )
+
+    func presentOptions(
+        options: [SortPickerTableViewCellModel],
+        callback: ModalPickerSelectionCallback?,
+        from view: ControllerBackedProtocol?
     )
 }
 

@@ -44,7 +44,7 @@ final class StakingPoolMainViewLayout: UIView {
 
     let assetSelectionContainerView = UIView()
     let assetSelectionView: DetailsTriangularedView = {
-        let view = UIFactory.default.createChainAssetSelectionView()
+        let view = UIFactory.default.createChainAssetSelectionView(layout: .largeIconTitleInfoSubtitle)
         view.borderWidth = 0.0
         return view
     }()
@@ -74,8 +74,8 @@ final class StakingPoolMainViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        setupLayout()
         applyLocalization()
+        setupLayout()
     }
 
     @available(*, unavailable)
@@ -93,6 +93,11 @@ final class StakingPoolMainViewLayout: UIView {
         )
         startStakingButton.imageWithTitleView?.title = R.string.localizable.stakingStartTitle(
             preferredLanguages: locale.rLanguages
+        )
+
+        assetSelectionView.additionalInfoView?.setTitle(
+            R.string.localizable.poolCommon(preferredLanguages: locale.rLanguages).uppercased(),
+            for: .normal
         )
         rewardCalculatorView.locale = locale
     }
@@ -169,7 +174,6 @@ final class StakingPoolMainViewLayout: UIView {
         nominatorStateView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-//            make.height.equalTo(Constants.nominatorStateViewHeight)
         }
 
         startStakingButton.snp.makeConstraints { make in
@@ -222,7 +226,6 @@ final class StakingPoolMainViewLayout: UIView {
         }
 
         assetSelectionView.title = chainAsset.asset.name
-        assetSelectionView.iconImage = nil
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol) {

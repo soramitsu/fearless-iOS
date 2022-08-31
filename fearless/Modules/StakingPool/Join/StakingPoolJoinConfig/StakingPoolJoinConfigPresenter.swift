@@ -76,6 +76,16 @@ final class StakingPoolJoinConfigPresenter {
         view?.didReceiveAssetBalanceViewModel(assetBalanceViewModel)
     }
 
+    private func provideFeeViewModel() {
+        guard let fee = fee else {
+            view?.didReceiveFeeViewModel(nil)
+            return
+        }
+
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        view?.didReceiveFeeViewModel(feeViewModel.value(for: selectedLocale))
+    }
+
     private func provideInputViewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
 
@@ -154,6 +164,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
 
             provideAssetVewModel()
             provideInputViewModel()
+            provideFeeViewModel()
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceivePriceData.error: \(error)")
         }
@@ -187,6 +198,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
             }
 
             provideAssetVewModel()
+            provideFeeViewModel()
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceiveFee.error: \(error)")
         }
@@ -207,7 +219,9 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
 // MARK: - Localizable
 
 extension StakingPoolJoinConfigPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        provideFeeViewModel()
+    }
 }
 
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigModuleInput {}

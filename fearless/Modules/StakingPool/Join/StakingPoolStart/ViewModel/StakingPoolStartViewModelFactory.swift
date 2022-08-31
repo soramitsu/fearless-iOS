@@ -57,7 +57,7 @@ final class StakingPoolStartViewModelFactory {
 
         let timeString = rewardsDelay.readableValue(locale: locale)
 
-        let title = R.string.localizable.stakingPoolStartEarnRewardTitle(
+        let title = R.string.localizable.stakingPoolRewardsDelayText(
             timeString,
             preferredLanguages: locale.rLanguages
         )

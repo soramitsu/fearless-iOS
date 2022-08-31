@@ -11,6 +11,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case largeIconTitleSubtitle
         case smallIconTitleSubtitle
         case smallIconTitleButton
+        case largeIconTitleInfoSubtitle
     }
 
     var triangularedBackgroundView: TriangularedView? {
@@ -20,7 +21,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
     private(set) var titleLabel: ShimmeredLabel!
     private(set) var subtitleLabel: UILabel?
     private(set) var actionButton: TriangularedButton?
-
+    private(set) var additionalInfoView: UIButton?
     var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
     var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
 
@@ -31,6 +32,16 @@ class DetailsTriangularedView: BackgroundedContentControl {
         didSet {
             setNeedsLayout()
         }
+    }
+
+    func makeAdditionalInfoView() -> UIButton {
+        let button = UIButton()
+        button.backgroundColor = .white.withAlphaComponent(0.16)
+        button.setTitleColor(R.color.colorTransparentText(), for: .normal)
+        button.layer.cornerRadius = 3
+        button.titleLabel?.font = UIFont.capsTitle
+        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+        return button
     }
 
     var iconRadius: CGFloat = 16.0 {
@@ -65,6 +76,17 @@ class DetailsTriangularedView: BackgroundedContentControl {
                     actionButton.imageWithTitleView?.titleFont = .h6Title
                     contentView?.addSubview(actionButton)
                     self.actionButton = actionButton
+                }
+            case .largeIconTitleInfoSubtitle:
+                if subtitleLabel == nil {
+                    let label = UILabel()
+                    subtitleLabel = label
+                    contentView?.addSubview(label)
+                }
+                if additionalInfoView == nil {
+                    let view = makeAdditionalInfoView()
+                    additionalInfoView = view
+                    contentView?.addSubview(view)
                 }
             }
 
@@ -111,7 +133,51 @@ class DetailsTriangularedView: BackgroundedContentControl {
             layoutSingleTitle()
         case .smallIconTitleButton:
             layoutSmallIconTitleButton()
+        case .largeIconTitleInfoSubtitle:
+            layoutLargeIconTitleInfoSubtitle()
         }
+    }
+
+    private func layoutLargeIconTitleInfoSubtitle() {
+        let titleHeight = titleLabel.intrinsicContentSize.height
+        let titleWidth = titleLabel.intrinsicContentSize.width
+
+        let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.minY + contentInsets.top,
+            width: titleWidth,
+            height: titleHeight
+        )
+
+        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
+        subtitleLabel?.frame = CGRect(
+            x: labelX,
+            y: bounds.maxY - contentInsets.bottom - subtitleHeight,
+            width: trailing - labelX,
+            height: subtitleHeight
+        )
+
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: bounds.midY - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
+        }
+
+        let titleInsets: UIEdgeInsets = additionalInfoView?.titleEdgeInsets ?? .zero
+        let additionalWidth = (additionalInfoView?.intrinsicContentSize.width ?? 0.0) + titleInsets.left + titleInsets.right
+        additionalInfoView?.frame = CGRect(
+            x: titleLabel.frame.origin.x + titleLabel.frame.size.width + UIConstants.defaultOffset,
+            y: bounds.minY + contentInsets.top,
+            width: additionalWidth,
+            height: titleHeight
+        )
     }
 
     private func layoutSmallIconTitleButton() {

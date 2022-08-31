@@ -5,7 +5,8 @@ protocol StakingPoolJoinChoosePoolViewModelFactoryProtocol {
         pools: [StakingPool]?,
         locale: Locale,
         cellsDelegate: StakingPoolListTableCellModelDelegate?,
-        selectedPoolId: String?
+        selectedPoolId: String?,
+        sort: PoolSortOption
     ) -> [StakingPoolListTableCellModel]
 }
 
@@ -27,13 +28,23 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
         pools: [StakingPool]?,
         locale: Locale,
         cellsDelegate: StakingPoolListTableCellModelDelegate?,
-        selectedPoolId: String?
+        selectedPoolId: String?,
+        sort: PoolSortOption
     ) -> [StakingPoolListTableCellModel] {
         guard let pools = pools else {
             return []
         }
 
-        return pools.compactMap { pool -> StakingPoolListTableCellModel in
+        let sortedPools = pools.sorted { pool1, pool2 in
+            switch sort {
+            case .totalStake:
+                return pool1.info.points < pool2.info.points
+            case .numberOfMembers:
+                return pool1.info.memberCounter < pool2.info.memberCounter
+            }
+        }
+
+        return sortedPools.compactMap { pool -> StakingPoolListTableCellModel in
             let membersCountString = R.string.localizable.poolStakingChoosepoolMembersCountTitle(
                 Int(pool.info.memberCounter),
                 preferredLanguages: locale.rLanguages
@@ -52,7 +63,7 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorGreen(),
+                value: R.color.colorColdGreen(),
                 range: (stakedString as NSString).range(of: amountString)
             )
 

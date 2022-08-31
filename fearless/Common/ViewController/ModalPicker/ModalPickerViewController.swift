@@ -31,6 +31,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     var selectionCallback: ModalPickerSelectionCallback?
     var localizedTitle: LocalizableResource<String>?
+
     var icon: UIImage?
     var actionType: ModalPickerViewAction = .none
 
@@ -40,6 +41,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var headerHeight: CGFloat = 40.0
     var cellIdentifier: String = "modalPickerCellId"
     var selectedIndex: Int = 0
+    var headerBorderType: BorderType = .bottom
 
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
@@ -98,6 +100,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
             centerHeader()
             configureCloseItem()
         }
+
+        headerBackgroundView.borderType = headerBorderType
     }
 
     private func setupLocalization() {

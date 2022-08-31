@@ -11,7 +11,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         bar.set(.push)
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
-        bar.backgroundColor = R.color.colorAlmostBlack()
+        bar.backgroundColor = R.color.colorBlack19()
         return bar
     }()
 
@@ -23,8 +23,32 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         return view
     }()
 
-    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
-    let amountView: AmountInputView = UIFactory.default.createAmountInputView(filled: true)
+    let accountView: DetailsTriangularedView = {
+        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.strokeWidth = 0.5
+        return view
+    }()
+
+    let amountView: AmountInputView = {
+        let view = UIFactory.default.createAmountInputView(filled: true)
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.strokeWidth = 0.5
+        return view
+    }()
+
+    let feeView: NetworkFeeFooterView = {
+        let view = UIFactory.default.createNetworkFeeFooterView()
+        view.backgroundColor = R.color.colorBlack19()
+        view.networkFeeView?.borderType = .none
+        return view
+    }()
 
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -40,7 +64,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.color.colorAlmostBlack()
+        backgroundColor = R.color.colorBlack19()
         setupLayout()
     }
 
@@ -96,15 +120,16 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         ))
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        continueButton.imageWithTitleView?.title = R.string.localizable.poolStakingJoinButtonTitle(
+        feeView.actionButton.imageWithTitleView?.title = R.string.localizable.poolStakingJoinButtonTitle(
             preferredLanguages: locale.rLanguages
         )
+        feeView.locale = locale
     }
 
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
-        addSubview(continueButton)
+        addSubview(feeView)
 
         contentView.stackView.addArrangedSubview(accountView)
         contentView.stackView.addArrangedSubview(amountView)
@@ -116,14 +141,12 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(continueButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(feeView.snp.bottom).offset(UIConstants.bigOffset)
         }
 
-        continueButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
+        feeView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         accountView.snp.makeConstraints { make in
@@ -137,5 +160,8 @@ final class StakingPoolJoinConfigViewLayout: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
+
+        feeView.networkFeeView?.borderType = .none
+        feeView.networkFeeView?.borderView.borderType = .none
     }
 }

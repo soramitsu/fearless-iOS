@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInput {
     func presentConfirm(
@@ -21,5 +22,20 @@ final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInpu
             module.view.controller,
             animated: true
         )
+    }
+
+    func presentOptions(
+        options: [SortPickerTableViewCellModel],
+        callback: ModalPickerSelectionCallback?,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let picker = ModalPickerFactory.createPickerForSortOptions(
+            options: options,
+            callback: callback
+        ) else {
+            return
+        }
+
+        view?.controller.present(picker, animated: true)
     }
 }

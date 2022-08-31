@@ -16,22 +16,23 @@ final class StakingPoolStartViewLayout: UIView {
         bar.set(.push)
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
-        bar.backgroundColor = R.color.colorAlmostBlack()
+        bar.backgroundColor = R.color.colorBlack19()
+
         return bar
     }()
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 0.0, right: 0.0)
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
 
     let whatIsStakingView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
-        view.fillColor = R.color.colorDarkGray()!
-        view.highlightedFillColor = R.color.colorDarkGray()!
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
         view.iconImage = R.image.iconBook()
         view.titleLabel.font = .h6Title
         view.titleLabel.textColor = .white.withAlphaComponent(0.5)
@@ -45,14 +46,15 @@ final class StakingPoolStartViewLayout: UIView {
         let label = UILabel()
         label.textAlignment = .center
         label.numberOfLines = 0
+        label.textColor = R.color.colorStrokeGray()
         label.font = .h2Title
         return label
     }()
 
     let delayView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
-        view.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         view.titleLabel.numberOfLines = 0
         view.titleLabel.font = .h4Title
         view.layout = .singleTitle
@@ -62,8 +64,8 @@ final class StakingPoolStartViewLayout: UIView {
 
     let estimatedRewardView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
-        view.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         view.titleLabel.numberOfLines = 0
         view.titleLabel.font = .h4Title
         view.layout = .singleTitle
@@ -73,8 +75,8 @@ final class StakingPoolStartViewLayout: UIView {
 
     let unstakePeriodView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
-        view.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         view.titleLabel.numberOfLines = 4
         view.titleLabel.font = .h4Title
         view.layout = .singleTitle
@@ -84,8 +86,8 @@ final class StakingPoolStartViewLayout: UIView {
 
     let rewardsFreqView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
-        view.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         view.titleLabel.numberOfLines = 0
         view.titleLabel.font = .h4Title
         view.layout = .singleTitle
@@ -102,8 +104,8 @@ final class StakingPoolStartViewLayout: UIView {
     let createButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
-        button.triangularedView?.fillColor = R.color.colorDarkGray()!
-        button.triangularedView?.highlightedFillColor = R.color.colorDarkGray()!
+        button.triangularedView?.fillColor = R.color.colorBlack1()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack1()!
         return button
     }()
 
@@ -115,7 +117,7 @@ final class StakingPoolStartViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.color.colorAlmostBlack()
+        backgroundColor = R.color.colorBlack19()
 
         setupLayout()
     }

@@ -374,9 +374,14 @@ extension StakingPoolMainInteractor: AnyProviderAutoCleaning {}
 extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainAsset _: ChainAsset
+        accountId: AccountId,
+        chainAsset: ChainAsset
     ) {
+        guard self.chainAsset.chainAssetId == chainAsset.chainAssetId,
+              wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
+            return
+        }
+
         switch result {
         case let .success(accountInfo):
             output?.didReceive(accountInfo: accountInfo)
@@ -388,6 +393,10 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
 
 extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        guard chainAsset.asset.priceId == priceId else {
+            return
+        }
+
         switch result {
         case let .success(priceData):
             print("did receive price data: ", priceId)
@@ -405,7 +414,12 @@ extension StakingPoolMainInteractor: EventVisitorProtocol {
 }
 
 extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
-    func handlePoolMember(result: Result<StakingPoolMember?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handlePoolMember(result: Result<StakingPoolMember?, Error>, accountId: AccountId, chainId: ChainModel.Id) {
+        guard chainAsset.chain.chainId == chainId,
+              wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
+            return
+        }
+
         DispatchQueue.main.async { [weak self] in
             switch result {
             case let .success(poolMember):

@@ -78,7 +78,7 @@ protocol UIFactoryProtocol {
     func createLearnMoreView() -> LearnMoreView
     func createRewardSelectionView() -> RewardSelectionView
     func createInfoIndicatingView() -> ImageWithTitleView
-    func createChainAssetSelectionView() -> DetailsTriangularedView
+    func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
 }
@@ -146,7 +146,7 @@ final class UIFactory: UIFactoryProtocol {
         }
 
         switch layout {
-        case .largeIconTitleSubtitle, .singleTitle:
+        case .largeIconTitleSubtitle, .singleTitle, .largeIconTitleInfoSubtitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
         case .smallIconTitleSubtitle, .smallIconTitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
@@ -528,9 +528,9 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createChainAssetSelectionView() -> DetailsTriangularedView {
+    func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout = .largeIconTitleSubtitle) -> DetailsTriangularedView {
         let view = DetailsTriangularedView()
-        view.layout = .largeIconTitleSubtitle
+        view.layout = layout
         view.fillColor = .clear
         view.highlightedFillColor = R.color.colorCellSelection()!
         view.titleLabel.textColor = R.color.colorWhite()

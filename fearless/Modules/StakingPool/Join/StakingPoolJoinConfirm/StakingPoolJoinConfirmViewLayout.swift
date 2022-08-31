@@ -6,7 +6,7 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         bar.set(.push)
         bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
-        bar.backgroundColor = R.color.colorAlmostBlack()
+        bar.backgroundColor = R.color.colorBlack19()
         return bar
     }()
 
@@ -29,10 +29,11 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
 
     let infoBackground: TriangularedView = {
         let view = TriangularedView()
-        view.fillColor = R.color.colorDarkGray()!
-        view.highlightedFillColor = R.color.colorDarkGray()!
-        view.strokeColor = .clear
-        view.highlightedStrokeColor = .clear
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
         view.shadowOpacity = 0.0
 
         return view
@@ -44,10 +45,39 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         return imageView
     }()
 
-    let infoViewsStackView = UIFactory.default.createVerticalStackView()
-    let accountView = TitleMultiValueView()
-    let selectedPoolView = TitleMultiValueView()
-    let feeView = NetworkFeeView()
+    let infoViewsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+    let accountView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        return view
+    }()
+
+    let selectedPoolView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        return view
+    }()
+
+    let feeView: NetworkFeeView = {
+        let view = NetworkFeeView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.tokenLabel.font = .h5Title
+        view.tokenLabel.textColor = .white
+        view.fiatLabel?.font = .p1Paragraph
+        view.fiatLabel?.textColor = R.color.colorStrokeGray()
+        return view
+    }()
 
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -63,7 +93,7 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = R.color.colorAlmostBlack()
+        backgroundColor = R.color.colorBlack19()
         setupLayout()
         configure()
     }
@@ -81,8 +111,6 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
-//        feeView.valueTop.text = feeViewModel?.amount
-//        feeView.valueBottom.text = feeViewModel?.price
     }
 
     func bind(confirmViewModel: StakingPoolJoinConfirmViewModel) {
@@ -98,6 +126,9 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         accountView.valueTop.textAlignment = .right
         selectedPoolView.valueBottom.textAlignment = .right
         selectedPoolView.valueTop.textAlignment = .right
+        accountView.borderView.isHidden = true
+        selectedPoolView.borderView.isHidden = true
+        feeView.borderType = .none
     }
 
     private func applyLocalization() {

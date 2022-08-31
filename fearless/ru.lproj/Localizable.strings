@@ -804,3 +804,6 @@ and depending on the network state, may not be selected to participate";
 "network.issue.stub" = "Проблемы с сетью";
 "network.issue.network.unavailable" = "Сеть не доступна";
 "network.issue.node.unavailable" = "Нода не доступна";
+"pool.common" = "pool";
+"staking.pool.sort.pool.members" = "Number of members";
+"pool.staking.main.min.join.title" = "Min. to join a pool";

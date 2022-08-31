@@ -65,6 +65,10 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
     func setup(with output: StakingPoolJoinConfirmInteractorOutput) {
         self.output = output
         feeProxy.delegate = self
+
+        if let priceId = chainAsset.asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
+        }
     }
 
     func estimateFee() {

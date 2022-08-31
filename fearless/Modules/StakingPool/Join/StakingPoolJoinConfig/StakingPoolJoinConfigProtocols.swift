@@ -11,6 +11,7 @@ protocol StakingPoolJoinConfigViewInput: ControllerBackedProtocol {
     func didReceiveAssetBalanceViewModel(_ assetBalanceViewModel: AssetBalanceViewModelProtocol)
     func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol)
     func didReceive(locale: Locale)
+    func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?)
 }
 
 protocol StakingPoolJoinConfigViewOutput: AnyObject {

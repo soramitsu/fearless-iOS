@@ -180,7 +180,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                     .value(for: locale) ?? ""
 
                 return NetworkInfoContentViewModel(
-                    title: R.string.localizable.poolStakingMainMinCreateTitle(preferredLanguages: locale.rLanguages),
+                    title: R.string.localizable.poolStakingMainMinJoinTitle(preferredLanguages: locale.rLanguages),
                     value: minJoinBondValueString,
                     details: nil
                 )

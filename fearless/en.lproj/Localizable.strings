@@ -807,3 +807,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issue.stub" = "Network Issues";
 "network.issue.network.unavailable" = "Network is unavailable";
 "network.issue.node.unavailable" = "Node is unavailable";
+"pool.common" = "pool";
+"staking.pool.sort.pool.members" = "Number of members";
+"pool.staking.main.min.join.title" = "Min. to join a pool";
