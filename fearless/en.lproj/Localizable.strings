@@ -525,7 +525,7 @@ will appear here";
 "wallet.account.locks.vesting" = "Vesting";
 "wallet.account.locks.democracy" = "Democracy";
 "username.setup.choose.title" = "Wallet nickname";
-"common.select.network" = "Select network";
+"common.select.network" = "Select Network";
 "common.select.asset" = "Select asset";
 "parachain.crowdloans" = "Parachain Crowdloans";
 "crowdloan.confirmation.name" = "%@ Crowdloan";

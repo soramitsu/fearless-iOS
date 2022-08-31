@@ -107,6 +107,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return crowdloanController
     }
 
+    @discardableResult
     static func reloadStakingView(
         on view: MainTabBarViewProtocol,
         stakingType: AssetSelectionStakingType,
