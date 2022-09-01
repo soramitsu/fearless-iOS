@@ -1,11 +1,6 @@
 import Foundation
 import SoraFoundation
 
-enum ChainIssue {
-    case network(chains: [ChainModel])
-    case missingAccount(chains: [ChainModel])
-}
-
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
@@ -21,8 +16,6 @@ final class WalletMainContainerPresenter {
 
     private var selectedChain: ChainModel?
     private var issues: [ChainIssue] = []
-    private var chainsWithNetworkIssues: [ChainModel] = []
-    private var missingAccounts: [ChainModel] = []
 
     // MARK: - Constructors
 
@@ -46,8 +39,7 @@ final class WalletMainContainerPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             selectedChain: selectedChain,
             selectedMetaAccount: selectedMetaAccount,
-            chainsWithNetworkIssues: chainsWithNetworkIssues,
-            missingAccounts: missingAccounts,
+            chainsIssues: issues,
             locale: selectedLocale
         )
 
@@ -94,10 +86,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapIssueButton() {
-        let issues: [ChainIssue] = [
-            .network(chains: chainsWithNetworkIssues),
-            .missingAccount(chains: missingAccounts)
-        ]
         router.showIssueNotification(
             from: view,
             issues: issues,
@@ -109,11 +97,6 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
 // MARK: - WalletMainContainerInteractorOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
-    func didReceiceMissingAccounts(missingAccounts: [ChainModel]) {
-        self.missingAccounts = missingAccounts
-        provideViewModel()
-    }
-
     func didReceiveSelectedChain(_ chain: ChainModel?) {
         selectedChain = chain
         provideViewModel()
@@ -133,8 +116,8 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel]) {
-        chainsWithNetworkIssues = chains
+    func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
+        issues = chainsIssues
         provideViewModel()
     }
 }

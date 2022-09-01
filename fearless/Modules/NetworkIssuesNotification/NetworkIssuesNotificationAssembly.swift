@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import RobinHood
 
 final class NetworkIssuesNotificationAssembly {
     static func configureModule(
@@ -8,7 +9,32 @@ final class NetworkIssuesNotificationAssembly {
     ) -> NetworkIssuesNotificationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = NetworkIssuesNotificationInteractor()
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createRepository()
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: []
+        )
+
+        let missingAccountHelper = MissingAccountsHelper(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper
+        )
+
+        let interactor = NetworkIssuesNotificationInteractor(
+            wallet: wallet,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: EventCenter.shared,
+            chainsIssuesCenter: chainsIssuesCenter
+        )
         let router = NetworkIssuesNotificationRouter()
 
         let presenter = NetworkIssuesNotificationPresenter(

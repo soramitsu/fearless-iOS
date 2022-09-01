@@ -1,5 +1,8 @@
 import Foundation
-typealias NetworkIssuesNotificationModuleCreationResult = (view: NetworkIssuesNotificationViewInput, input: NetworkIssuesNotificationModuleInput)
+typealias NetworkIssuesNotificationModuleCreationResult = (
+    view: NetworkIssuesNotificationViewInput,
+    input: NetworkIssuesNotificationModuleInput
+)
 
 protocol NetworkIssuesNotificationViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: [NetworkIssuesNotificationCellViewModel])
@@ -13,11 +16,15 @@ protocol NetworkIssuesNotificationViewOutput: AnyObject {
 
 protocol NetworkIssuesNotificationInteractorInput: AnyObject {
     func setup(with output: NetworkIssuesNotificationInteractorOutput)
+    func markUnused(chain: ChainModel)
 }
 
-protocol NetworkIssuesNotificationInteractorOutput: AnyObject {}
+protocol NetworkIssuesNotificationInteractorOutput: AnyObject {
+    func didReceiveWallet(wallet: MetaAccountModel)
+    func didReceiveChainsIssues(issues: [ChainIssue])
+}
 
-protocol NetworkIssuesNotificationRouterInput: AnyObject, SheetAlertPresentable, AlertPresentable {
+protocol NetworkIssuesNotificationRouterInput: SheetAlertPresentable, AlertPresentable {
     func dismiss(view: ControllerBackedProtocol?)
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,

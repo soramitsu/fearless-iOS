@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 
+// swiftlint:disable type_name
 typealias StakingPoolJoinChoosePoolModuleCreationResult = (
     view: StakingPoolJoinChoosePoolViewInput,
     input: StakingPoolJoinChoosePoolModuleInput

@@ -131,7 +131,7 @@ PODS:
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.49.0)
+  - SwiftLint (0.48.0)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
@@ -234,7 +234,7 @@ SPEC CHECKSUMS:
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 414d099c0f305c6c73e56139efb468666e535ece
+  SwiftLint: 284cea64b6187c5d6bd83e9a548a64104d546447
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7

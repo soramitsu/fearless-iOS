@@ -107,7 +107,6 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         actionButton.isHidden = true
         warningButton.isHidden = false
 
-        actionButton.imageWithTitleView?.iconImage = R.image.iconWarning()
         actionButton.triangularedView?.fillColor = .clear
         actionButton.triangularedView?.highlightedFillColor = .clear
 

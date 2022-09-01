@@ -4,8 +4,7 @@ protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
         selectedChain: ChainModel?,
         selectedMetaAccount: MetaAccountModel,
-        chainsWithNetworkIssues: [ChainModel],
-        missingAccounts: [ChainModel],
+        chainsIssues: [ChainIssue],
         locale: Locale
     ) -> WalletMainContainerViewModel
 }
@@ -14,8 +13,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
     func buildViewModel(
         selectedChain: ChainModel?,
         selectedMetaAccount: MetaAccountModel,
-        chainsWithNetworkIssues: [ChainModel],
-        missingAccounts: [ChainModel],
+        chainsIssues: [ChainIssue],
         locale: Locale
     ) -> WalletMainContainerViewModel {
         let networkName = selectedChain?.name
@@ -35,7 +33,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             walletName: selectedMetaAccount.name,
             selectedChainName: networkName,
             address: address,
-            hasNetworkIssues: chainsWithNetworkIssues.isNotEmpty || missingAccounts.isNotEmpty
+            hasNetworkIssues: chainsIssues.isNotEmpty
         )
     }
 }

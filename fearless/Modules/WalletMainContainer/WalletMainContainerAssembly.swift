@@ -13,13 +13,25 @@ final class WalletMainContainerAssembly {
             sortDescriptors: []
         )
 
+        let missingAccountHelper = MissingAccountsHelper(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: selectedMetaAccount,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper
+        )
+
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
             selectedMetaAccount: selectedMetaAccount,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            networkIssuesCenter: NetworkIssuesCenter.shared
+            chainsIssuesCenter: chainsIssuesCenter
         )
 
         let router = WalletMainContainerRouter()

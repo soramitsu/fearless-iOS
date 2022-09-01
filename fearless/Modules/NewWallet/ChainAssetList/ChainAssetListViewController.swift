@@ -117,8 +117,10 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
 extension ChainAssetListViewController: ChainAccountBalanceTableCellDelegate {
     func issueButtonTapped(with indexPath: IndexPath?) {
-        guard let indexPath = indexPath,
-              let viewModel = cellViewModel(for: indexPath) else {
+        guard
+            let indexPath = indexPath,
+            let viewModel = cellViewModel(for: indexPath)
+        else {
             return
         }
 
