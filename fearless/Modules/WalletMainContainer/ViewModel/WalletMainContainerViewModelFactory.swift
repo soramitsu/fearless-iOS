@@ -29,11 +29,21 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
             address = address1
         }
 
+        var chainsWithIssues: [ChainModel] = []
+        chainsIssues.forEach { chainsIssue in
+            switch chainsIssue {
+            case let .missingAccount(chains):
+                chainsWithIssues += chains
+            case let .network(chains):
+                chainsWithIssues += chains
+            }
+        }
+
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedChainName: networkName,
             address: address,
-            hasNetworkIssues: chainsIssues.isNotEmpty
+            hasNetworkIssues: chainsWithIssues.isNotEmpty
         )
     }
 }
