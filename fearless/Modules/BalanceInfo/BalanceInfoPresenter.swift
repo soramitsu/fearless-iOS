@@ -8,7 +8,7 @@ final class BalanceInfoPresenter {
     private let router: BalanceInfoRouterInput
     private let interactor: BalanceInfoInteractorInput
 
-    private let balanceInfoType: BalanceInfoType
+    private var balanceInfoType: BalanceInfoType
     private let balanceInfoViewModelFactoryProtocol: BalanceInfoViewModelFactoryProtocol
 
     private var balances: WalletBalanceInfos = [:]
@@ -73,4 +73,9 @@ extension BalanceInfoPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension BalanceInfoPresenter: BalanceInfoModuleInput {}
+extension BalanceInfoPresenter: BalanceInfoModuleInput {
+    func replace(infoType: BalanceInfoType) {
+        balanceInfoType = infoType
+        interactor.fetchBalance(for: infoType)
+    }
+}

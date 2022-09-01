@@ -148,11 +148,6 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
-        guard let chainId = chain?.chainId else {
-            assetListModuleInput?.updateChainAssets(using: [], sorts: [])
-            return
-        }
-        assetListModuleInput?.updateChainAssets(using: [.chainId(chainId)], sorts: [])
     }
 }
 

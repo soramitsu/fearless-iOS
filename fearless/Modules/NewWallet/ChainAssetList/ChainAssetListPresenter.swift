@@ -26,6 +26,12 @@ final class ChainAssetListPresenter {
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
     private var chainsWithIssues: [ChainModel] = []
+    private var accountInfosFetched = false
+    private var pricesFetched = false
+
+    private lazy var factoryOperationQueue: OperationQueue = {
+        OperationQueue()
+    }()
 
     // MARK: - Constructors
 
@@ -48,11 +54,23 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        guard let chainAssets = chainAssets else {
+        guard
+            let chainAssets = chainAssets,
+            accountInfosFetched,
+            pricesFetched
+        else {
             return
         }
 
-        DispatchQueue.global().async {
+        factoryOperationQueue.operations.forEach { $0.cancel() }
+        factoryOperationQueue.cancelAllOperations()
+
+        let operationBlock = BlockOperation()
+        operationBlock.addExecutionBlock { [unowned operationBlock] in
+            guard !operationBlock.isCancelled else {
+                return
+            }
+
             let viewModel = self.viewModelFactory.buildViewModel(
                 displayType: self.displayType,
                 selectedMetaAccount: self.wallet,
@@ -69,6 +87,8 @@ final class ChainAssetListPresenter {
                 self.view?.didReceive(viewModel: viewModel)
             }
         }
+
+        factoryOperationQueue.addOperation(operationBlock)
     }
 }
 
@@ -82,7 +102,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
     func didSelectViewModel(_ viewModel: ChainAccountBalanceCellViewModel) {
         if viewModel.chainAsset.chain.isSupported {
-            router.showChainAccount(from: view, chainAsset: viewModel.chainAsset)
+            router.showChainAccount(
+                from: view,
+                chainAsset: viewModel.chainAsset
+            )
         } else {
             router.presentWarningAlert(
                 from: view,
@@ -120,14 +143,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
-        provideViewModel()
     }
 
     func didReceiveChainAssets(result: Result<[ChainAsset], Error>) {
         switch result {
         case let .success(chainAssets):
             self.chainAssets = chainAssets
-            provideViewModel()
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -138,19 +159,25 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                return
-            }
-            let key = chainAsset.uniqueKey(accountId: accountId)
-            accountInfos[key] = accountInfo
 
+            lock.exclusivelyWrite { [unowned self] in
+                guard let accountId = self.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                    return
+                }
+                let key = chainAsset.uniqueKey(accountId: accountId)
+                self.accountInfos[key] = accountInfo
+
+                guard chainAssets?.count == accountInfos.keys.count else {
+                    return
+                }
+                accountInfosFetched = true
+                provideViewModel()
+            }
         case let .failure(error):
-            router.present(error: error, from: view, locale: selectedLocale)
+            DispatchQueue.main.async {
+                self.router.present(error: error, from: self.view, locale: self.selectedLocale)
+            }
         }
-        guard chainAssets?.count == accountInfos.keys.count else {
-            return
-        }
-        provideViewModel()
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {
@@ -164,6 +191,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             router.present(error: error, from: view, locale: selectedLocale)
         }
 
+        pricesFetched = true
         provideViewModel()
     }
 
@@ -184,6 +212,10 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        pricesFetched = false
+        accountInfosFetched = false
+        accountInfos = [:]
+
         filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }

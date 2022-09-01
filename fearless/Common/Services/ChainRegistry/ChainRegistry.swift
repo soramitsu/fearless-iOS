@@ -156,6 +156,7 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func performHotBoot() {
+        guard chains.isEmpty else { return }
         snapshotHotBootBuilder.startHotBoot()
     }
 

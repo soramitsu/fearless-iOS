@@ -304,6 +304,7 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
+
             accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             guard chainAssets.count == accountInfos.keys.count else {
                 return

@@ -7,6 +7,7 @@ import FearlessUtils
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
     static let crowdloanIndex: Int = 1
+    static let stakingIndex: Int = 2
 
     static func createView() -> MainTabBarViewProtocol? {
         guard
@@ -60,27 +61,29 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             presenter: presenter,
             localizationManager: localizationManager
         )
-        view.viewControllers = createViewControllers()
+        view.viewControllers = createViewControllers(stakingModuleOutput: presenter)
 
         return view
     }
 
-    static func createViewControllers() -> [UIViewController]? {
-        guard
-            let walletController = createWalletController(),
-            let stakingController = createStakingController(),
-            let crowdloanController = createCrowdloanController(),
-            let settingsController = createProfileController()
-        else {
-            return nil
+    static func createViewControllers(stakingModuleOutput: StakingMainModuleOutput?) -> [UIViewController]? {
+        var viewControllers: [UIViewController] = []
+        if let walletController = createWalletController() {
+            viewControllers.append(walletController)
         }
 
-        return [
-            walletController,
-            crowdloanController,
-            stakingController,
-            settingsController
-        ]
+        if let crowdloanController = createCrowdloanController() {
+            viewControllers.append(crowdloanController)
+        }
+
+        let stakingController = createStakingController(moduleOutput: stakingModuleOutput)
+        viewControllers.append(stakingController)
+
+        if let settingsController = createProfileController() {
+            viewControllers.append(settingsController)
+        }
+
+        return viewControllers
     }
 
     static func reloadWalletView(
@@ -102,6 +105,26 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
 
         return crowdloanController
+    }
+
+    @discardableResult
+    static func reloadStakingView(
+        on view: MainTabBarViewProtocol,
+        stakingType: AssetSelectionStakingType,
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController? {
+        switch stakingType {
+        case .normal:
+            let stakingViewController = createStakingController(moduleOutput: moduleOutput)
+            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+
+            return stakingViewController
+        case .pool:
+            let stakingViewController = createPoolStakingController(moduleOutput: moduleOutput)
+            view.didReplaceView(for: stakingViewController, for: Self.stakingIndex)
+
+            return stakingViewController
+        }
     }
 
     static func createWalletController() -> UIViewController? {
@@ -126,9 +149,33 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createStakingController() -> UIViewController? {
-        // TODO: Remove when staking is fixed
-        let viewController = StakingMainViewFactory.createView()?.controller ?? UIViewController()
+    static func createStakingController(
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController {
+        let viewController = StakingMainViewFactory.createView(moduleOutput: moduleOutput)?.controller ?? UIViewController()
+
+        let icon = R.image.iconTabStaking()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        viewController.tabBarItem = createTabBarItem(
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+        return navigationController
+    }
+
+    static func createPoolStakingController(
+        moduleOutput: StakingMainModuleOutput?
+    ) -> UIViewController {
+        let module = StakingPoolMainAssembly.configureModule(moduleOutput: moduleOutput)
+        guard let viewController = module?.view.controller else {
+            return UIViewController()
+        }
 
         let icon = R.image.iconTabStaking()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?

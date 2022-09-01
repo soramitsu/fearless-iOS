@@ -42,7 +42,7 @@ class StakingStateView: UIView {
         return label
     }()
 
-    let stakeAmountView: MultiValueView = createMultiValueView()
+    let stakeAmountView: StakingUnitInfoView = createMultiValueView()
 
     let stakeContainer: UIStackView = createStackView()
 
@@ -55,7 +55,10 @@ class StakingStateView: UIView {
         return label
     }()
 
-    let rewardAmountView: MultiValueView = createMultiValueView()
+    let rewardAmountView: StakingUnitInfoView = createMultiValueView()
+
+    let redeemableView: StakingUnitInfoView = createMultiValueView()
+    let unstakingView: StakingUnitInfoView = createMultiValueView()
 
     let borderView: BorderedContainerView = {
         let view = UIFactory.default.createBorderedContainerView()
@@ -144,6 +147,8 @@ class StakingStateView: UIView {
         stakeContainer.addArrangedSubview(stakeTitleLabel)
         stakeContainer.addArrangedSubview(stakeAmountView)
 
+        stakeContainer.addArrangedSubview(redeemableView)
+
         addSubview(rewardsContainer)
         rewardsContainer.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(16.0)
@@ -154,10 +159,12 @@ class StakingStateView: UIView {
         rewardsContainer.addArrangedSubview(rewardTitleLabel)
         rewardsContainer.addArrangedSubview(rewardAmountView)
 
+        rewardsContainer.addArrangedSubview(unstakingView)
+
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16.0)
-            make.top.equalTo(stakeContainer.snp.bottom).offset(25.0)
+            make.top.equalTo(stakeContainer.snp.bottom).offset(12.0)
             make.bottom.equalToSuperview()
             make.height.equalTo(44.0)
         }
@@ -358,16 +365,8 @@ extension StakingStateView {
         return button
     }
 
-    private static func createMultiValueView() -> MultiValueView {
-        let view = MultiValueView()
-        view.valueTop.font = .p0Digits
-        view.valueTop.textColor = R.color.colorWhite()
-        view.valueTop.textAlignment = .left
-        view.valueBottom.font = .p2Paragraph
-        view.valueBottom.textColor = R.color.colorTransparentText()
-        view.valueBottom.textAlignment = .left
-        view.spacing = 4.0
-        return view
+    private static func createMultiValueView() -> StakingUnitInfoView {
+        StakingUnitInfoView()
     }
 
     private static func createStackView() -> UIStackView {

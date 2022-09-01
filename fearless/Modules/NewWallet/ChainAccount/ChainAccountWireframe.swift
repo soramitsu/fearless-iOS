@@ -10,13 +10,13 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         let searchView = SearchPeopleViewFactory.createView(
             chain: chain,
             asset: asset,
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             transferFinishBlock: transferFinishBlock
         )
 
@@ -33,10 +33,10 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     ) {
         let receiveView = ReceiveAssetViewFactory.createView(
-            account: selectedMetaAccount,
+            account: wallet,
             chain: chain,
             asset: asset
         )
@@ -99,21 +99,6 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
                 view?.controller.present(webViewController, animated: true, completion: nil)
             }
         })
-    }
-
-    func presentLockedInfo(
-        from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
-    ) {
-        let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
-            balanceContext,
-            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
-            precision: info.assetPrecision,
-            currency: currency
-        )
-        view?.controller.present(balanceLocksController, animated: true)
     }
 
     func presentNodeSelection(
@@ -182,6 +167,28 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         }
         importController.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(importController, animated: true)
+    }
+
+    func showSelectNetwork(
+        from view: ChainAccountViewProtocol?,
+        wallet: MetaAccountModel,
+        selectedChainId: ChainModel.Id?,
+        chainModels: [ChainModel]?,
+        delegate: SelectNetworkDelegate?
+    ) {
+        guard
+            let module = SelectNetworkAssembly.configureModule(
+                wallet: wallet,
+                selectedChainId: selectedChainId,
+                chainModels: chainModels,
+                includingAllNetworks: false,
+                delegate: delegate
+            )
+        else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
     }
 }
 

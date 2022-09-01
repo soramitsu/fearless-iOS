@@ -189,6 +189,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var fiatsURL: URL? {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
     }
+
+    var poolStakingAboutURL: URL? {
+        URL(string: "https://wiki.polkadot.network/docs/learn-nomination-pools")
+    }
 }
 
 private enum GitHubUrl {

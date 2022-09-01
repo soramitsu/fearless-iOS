@@ -42,6 +42,7 @@ final class NetworkFeeFooterView: UIView {
             let balanceView = NetworkFeeView()
             contentStackView.insertArranged(view: balanceView, before: actionButton)
             networkFeeView = balanceView
+            networkFeeView?.locale = locale
             networkFeeView?.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)
             }
