@@ -77,6 +77,7 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
         rootView.scanQRButton.addTarget(self, action: #selector(handleScanQRTap), for: .touchUpInside)
         rootView.searchButton.addTarget(self, action: #selector(handleSearchTap), for: .touchUpInside)
         rootView.selectNetworkButton.addTarget(self, action: #selector(handleSelectNetworkTap), for: .touchUpInside)
+        rootView.issuesButton.addTarget(self, action: #selector(handleIssueButtonDidTap), for: .touchUpInside)
 
         let walletBalanceTapGesture = UITapGestureRecognizer(target: self, action: #selector(handleBalanceDidTap))
         rootView.walletBalanceViewContainer.addGestureRecognizer(walletBalanceTapGesture)
@@ -102,6 +103,10 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
 
     @objc private func handleBalanceDidTap() {
         output.didTapOnBalance()
+    }
+
+    @objc private func handleIssueButtonDidTap() {
+        output.didTapIssueButton()
     }
 }
 

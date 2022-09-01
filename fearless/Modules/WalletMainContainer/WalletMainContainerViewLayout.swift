@@ -4,6 +4,7 @@ final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
+        static let issuesButtonSize = CGSize(width: 130, height: 24)
     }
 
     var locale: Locale = .current {
@@ -72,19 +73,26 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel: CopyableLabelView = {
-        let label = CopyableLabelView()
-        return label
+    private let addressCopyableLabel = CopyableLabelView()
+
+    // MARK: - Ussues button
+
+    let issuesButton: UIButton = {
+        let button = UIButton()
+        button.semanticContentAttribute = .forceRightToLeft
+        button.setImage(R.image.iconWarning(), for: .normal)
+        button.setTitle("Network Issues", for: .normal)
+        button.titleLabel?.font = .h6Title
+        button.layer.masksToBounds = true
+        button.backgroundColor = R.color.colorWhite8()
+        button.layer.cornerRadius = Constants.issuesButtonSize.height / 2
+        button.setTextAndImage(spacing: 5)
+        return button
     }()
 
     // MARK: - FWSegmentedControl
 
-    let segmentedControl: FWSegmentedControl = {
-        let segment = FWSegmentedControl()
-        let items = ["Currencies", "NFTs"]
-        segment.setSegmentItems(items)
-        return segment
-    }()
+    let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
 
@@ -121,6 +129,8 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
+
+        issuesButton.isHidden = !viewModel.hasNetworkIssues
     }
 
     // MARK: - Private methods
@@ -206,6 +216,10 @@ final class WalletMainContainerViewLayout: UIView {
             make.height.equalTo(24)
         }
 
+        issuesButton.snp.makeConstraints { make in
+            make.size.equalTo(Constants.issuesButtonSize)
+        }
+
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.height.equalTo(58)
         }
@@ -213,6 +227,8 @@ final class WalletMainContainerViewLayout: UIView {
         walletBalanceVStackView.distribution = .fill
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
+        walletBalanceVStackView.addArrangedSubview(issuesButton)
+        walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
 
         contentView.setCustomSpacing(32, after: navigationContainerView)
         contentView.addArrangedSubview(walletBalanceVStackView)

@@ -4,6 +4,7 @@ protocol WalletMainContainerViewModelFactoryProtocol {
     func buildViewModel(
         selectedChain: ChainModel?,
         selectedMetaAccount: MetaAccountModel,
+        chainsIssues: [ChainIssue],
         locale: Locale
     ) -> WalletMainContainerViewModel
 }
@@ -12,6 +13,7 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
     func buildViewModel(
         selectedChain: ChainModel?,
         selectedMetaAccount: MetaAccountModel,
+        chainsIssues: [ChainIssue],
         locale: Locale
     ) -> WalletMainContainerViewModel {
         let networkName = selectedChain?.name
@@ -30,7 +32,8 @@ final class WalletMainContainerViewModelFactory: WalletMainContainerViewModelFac
         return WalletMainContainerViewModel(
             walletName: selectedMetaAccount.name,
             selectedChainName: networkName,
-            address: address
+            address: address,
+            hasNetworkIssues: chainsIssues.isNotEmpty
         )
     }
 }

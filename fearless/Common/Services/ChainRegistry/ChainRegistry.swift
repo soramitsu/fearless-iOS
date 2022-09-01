@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
@@ -30,6 +31,7 @@ final class ChainRegistry {
     private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
+    private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
 
@@ -46,6 +48,7 @@ final class ChainRegistry {
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
+        networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
         eventCenter: EventCenterProtocol
     ) {
@@ -57,6 +60,7 @@ final class ChainRegistry {
         self.commonTypesSyncService = commonTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
+        self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
 
@@ -239,24 +243,42 @@ extension ChainRegistry: ChainRegistryProtocol {
 }
 
 extension ChainRegistry: ConnectionPoolDelegate {
-    func connectionNeedsReconnect(url: URL) {
+    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
         let failedChain = chains.first { chain in
             chain.nodes.first { node in
                 node.url == url
             } != nil
         }
 
-        guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+        guard let failedChain = failedChain else { return }
+        let reconnectedEvent = ChainReconnectingEvent(chain: failedChain, state: state)
+        eventCenter.notify(with: reconnectedEvent)
+
+        switch state {
+        case let .connecting(attempt):
+            if attempt > 1 {
+                // temporary disable autobalance , maybe this causing crashes
+                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+            }
+        case .connected:
+            break
+        default:
+            break
+        }
+    }
+
+    private func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
+        guard chain.selectedNode == nil else {
             return
         }
 
-        let node = failedChain.selectedNode ?? failedChain.nodes.first(where: { $0.url != url })
+        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != previusUrl })
 
         if let newUrl = node?.url {
-            if let connection = getConnection(for: failedChain.chainId) {
+            if let connection = getConnection(for: chain.chainId) {
                 connection.reconnect(url: newUrl)
 
-                let event = ChainsUpdatedEvent(updatedChains: [failedChain])
+                let event = ChainsUpdatedEvent(updatedChains: [chain])
                 eventCenter.notify(with: event)
             }
         }

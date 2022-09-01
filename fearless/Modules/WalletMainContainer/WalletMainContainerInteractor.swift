@@ -11,6 +11,7 @@ final class WalletMainContainerInteractor {
     private var selectedMetaAccount: MetaAccountModel
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
+    private let chainsIssuesCenter: ChainsIssuesCenter
 
     // MARK: - Constructor
 
@@ -19,20 +20,24 @@ final class WalletMainContainerInteractor {
         chainRepository: AnyDataProviderRepository<ChainModel>,
         selectedMetaAccount: MetaAccountModel,
         operationQueue: OperationQueue,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        chainsIssuesCenter: ChainsIssuesCenter
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.chainRepository = chainRepository
         self.accountRepository = accountRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
+        self.chainsIssuesCenter = chainsIssuesCenter
     }
 
     // MARK: - Private methods
 
     private func fetchSelectedChainName() {
         guard let chainId = selectedMetaAccount.chainIdForFilter else {
-            output?.didReceiveSelectedChain(nil)
+            DispatchQueue.main.async {
+                self.output?.didReceiveSelectedChain(nil)
+            }
             return
         }
 
@@ -106,6 +111,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
     func setup(with output: WalletMainContainerInteractorOutput) {
         self.output = output
         eventCenter.add(observer: self, dispatchIn: .main)
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
     }
 }
@@ -116,5 +122,15 @@ extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processWalletNameChanged(event: WalletNameChanged) {
         selectedMetaAccount = event.wallet
         output?.didReceiveAccount(selectedMetaAccount)
+    }
+}
+
+// MARK: - ChainsIssuesCenterListener
+
+extension WalletMainContainerInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
+        DispatchQueue.main.async {
+            self.output?.didReceiveChainsIssues(chainsIssues: issues)
+        }
     }
 }

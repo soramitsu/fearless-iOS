@@ -3,6 +3,10 @@ import Kingfisher
 import simd
 import SoraUI
 
+protocol ChainAccountBalanceTableCellDelegate: AnyObject {
+    func issueButtonTapped(with indexPath: IndexPath?)
+}
+
 final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     enum LayoutConstants {
         static let cellHeight: CGFloat = 80
@@ -12,7 +16,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         static let priceRowSize = CGSize(width: 50.0, height: 6.0)
         static let balanceRowSize = CGSize(width: 80.0, height: 12.0)
         static let balancePriceRowSize = CGSize(width: 56.0, height: 6.0)
+        static let issueButtonSize = CGSize(width: 44, height: 44)
     }
+
+    weak var issueDelegate: ChainAccountBalanceTableCellDelegate?
 
     private var backgroundTriangularedView: TriangularedView = {
         let containerView = TriangularedView()
@@ -76,6 +83,20 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
+    let issueButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconWarning(), for: .normal)
+        button.contentVerticalAlignment = .fill
+        button.contentHorizontalAlignment = .fill
+        button.imageEdgeInsets = UIEdgeInsets(
+            top: 13,
+            left: 24,
+            bottom: 13,
+            right: 0
+        )
+        return button
+    }()
+
     // MARK: - Lifecycle
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -127,9 +148,16 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         bindChainIcons(viewModel: viewModel)
+        bindIssues(viewModel.isNetworkIssues)
     }
 
     // MARK: - Private methods
+
+    private func bindIssues(_ isNetworkIssues: Bool) {
+        issueButton.isHidden = !isNetworkIssues
+        balanceView.valueLabel.isHidden = isNetworkIssues
+        priceView.valueLabel.isHidden = isNetworkIssues
+    }
 
     private func bindChainIcons(viewModel: ChainAccountBalanceCellViewModel) {
         var chainIcons: [RemoteImageViewModel?] = []
@@ -159,6 +187,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         )
 
         selectionStyle = .none
+
+        issueButton.addTarget(self, action: #selector(handleIssueTap), for: .touchUpInside)
     }
 
     private func createLeftButtons() -> [SwipeButtonProtocol] {
@@ -240,6 +270,19 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
             make.top.bottom.trailing.equalToSuperview()
             make.width.equalTo(90).priority(.low)
         }
+
+        contentStackView.addSubview(issueButton)
+        issueButton.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.issueButtonSize)
+            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview()
+        }
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleIssueTap() {
+        issueDelegate?.issueButtonTapped(with: indexPath)
     }
 }
 

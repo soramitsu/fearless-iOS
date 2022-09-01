@@ -15,6 +15,7 @@ final class WalletMainContainerPresenter {
     // MARK: - State
 
     private var selectedChain: ChainModel?
+    private var issues: [ChainIssue] = []
 
     // MARK: - Constructors
 
@@ -38,6 +39,7 @@ final class WalletMainContainerPresenter {
         let viewModel = viewModelFactory.buildViewModel(
             selectedChain: selectedChain,
             selectedMetaAccount: selectedMetaAccount,
+            chainsIssues: issues,
             locale: selectedLocale
         )
 
@@ -82,6 +84,14 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
             wallet: selectedMetaAccount
         )
     }
+
+    func didTapIssueButton() {
+        router.showIssueNotification(
+            from: view,
+            issues: issues,
+            wallet: selectedMetaAccount
+        )
+    }
 }
 
 // MARK: - WalletMainContainerInteractorOutput
@@ -103,6 +113,11 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
     func didReceiveAccount(_ account: MetaAccountModel) {
         selectedMetaAccount = account
+        provideViewModel()
+    }
+
+    func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
+        issues = chainsIssues
         provideViewModel()
     }
 }

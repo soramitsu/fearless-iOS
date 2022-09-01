@@ -58,13 +58,16 @@ private extension ChainAssetListViewController {
             }
             cell.bind(to: model)
             cell.delegate = self
+            cell.issueDelegate = self
             return cell
         }
         dataSource?.defaultRowAnimation = .fade
     }
 
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
-        if let section = viewModel?.sections[indexPath.section], let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
+        if
+            let section = viewModel?.sections[indexPath.section],
+            let cellModel = viewModel?.cellsForSections[section]?[indexPath.row] {
             return cellModel
         }
         return nil
@@ -109,5 +112,18 @@ extension ChainAssetListViewController: UITableViewDelegate {
         guard let viewModel = cellViewModel(for: indexPath) else { return }
 
         output.didSelectViewModel(viewModel)
+    }
+}
+
+extension ChainAssetListViewController: ChainAccountBalanceTableCellDelegate {
+    func issueButtonTapped(with indexPath: IndexPath?) {
+        guard
+            let indexPath = indexPath,
+            let viewModel = cellViewModel(for: indexPath)
+        else {
+            return
+        }
+
+        output.didTapOnIssueButton(viewModel: viewModel)
     }
 }

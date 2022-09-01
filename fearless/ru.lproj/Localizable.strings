@@ -760,3 +760,8 @@ and depending on the network state, may not be selected to participate";
 "nft.stub.text" = "NFTs скоро будут здесь";
 "сurrencies.stub.text" = "Токены";
 "nfts.stub" = "NFTs";
+"network.issue.unavailable" = "Сеть недоступна, вы можете подождать или задать вопрос сообществу";
+"network.issue.notofication" = "Уведомления";
+"network.issue.stub" = "Проблемы с сетью";
+"network.issue.network.unavailable" = "Сеть не доступна";
+"network.issue.node.unavailable" = "Нода не доступна";
