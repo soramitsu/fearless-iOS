@@ -2,18 +2,24 @@ import UIKit
 import SoraUI
 
 class DetailsTriangularedView: BackgroundedContentControl {
+    enum LayooutConstants {
+        static let actionButtonSize = CGSize(width: 68, height: 24)
+    }
+
     enum Layout {
         case singleTitle
         case largeIconTitleSubtitle
         case smallIconTitleSubtitle
+        case smallIconTitleButton
     }
 
     var triangularedBackgroundView: TriangularedView? {
         backgroundView as? TriangularedView
     }
 
-    private(set) var titleLabel: UILabel!
+    private(set) var titleLabel: ShimmeredLabel!
     private(set) var subtitleLabel: UILabel?
+    private(set) var actionButton: TriangularedButton?
 
     var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
     var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
@@ -46,6 +52,19 @@ class DetailsTriangularedView: BackgroundedContentControl {
                 if subtitleLabel != nil {
                     subtitleLabel?.removeFromSuperview()
                     subtitleLabel = nil
+                }
+            case .smallIconTitleButton:
+                if subtitleLabel != nil {
+                    subtitleLabel?.removeFromSuperview()
+                    subtitleLabel = nil
+                }
+                if actionButton == nil {
+                    let actionButton = TriangularedButton()
+                    actionButton.applyDefaultStyle()
+                    actionButton.triangularedView?.fillColor = R.color.colorPurple()!
+                    actionButton.imageWithTitleView?.titleFont = .h6Title
+                    contentView?.addSubview(actionButton)
+                    self.actionButton = actionButton
                 }
             }
 
@@ -90,6 +109,42 @@ class DetailsTriangularedView: BackgroundedContentControl {
             layoutSmallIconTitleSubtitle()
         case .singleTitle:
             layoutSingleTitle()
+        case .smallIconTitleButton:
+            layoutSmallIconTitleButton()
+        }
+    }
+
+    private func layoutSmallIconTitleButton() {
+        let titleHeight = bounds.height - 12.0
+
+        let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+
+        if let actionButton = actionButton {
+            actionButton.frame = CGRect(
+                x: bounds.maxX - contentInsets.right - LayooutConstants.actionButtonSize.width,
+                y: bounds.midY - LayooutConstants.actionButtonSize.height / 2,
+                width: LayooutConstants.actionButtonSize.width,
+                height: LayooutConstants.actionButtonSize.height
+            )
+        }
+
+        let trailing = actionButton?.frame.minX ?? bounds.maxX - contentInsets.right
+
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.midY - titleHeight / 2.0,
+            width: trailing - labelX,
+            height: titleHeight
+        )
+
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: bounds.midY - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
         }
     }
 
@@ -158,7 +213,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
     }
 
     private func layoutSingleTitle() {
-        let titleHeight = titleLabel.intrinsicContentSize.height
+        let titleHeight = bounds.height - 16.0
 
         let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
@@ -242,7 +297,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
 
         if titleLabel == nil {
-            titleLabel = UILabel()
+            titleLabel = ShimmeredLabel()
             contentView?.addSubview(titleLabel)
         }
 

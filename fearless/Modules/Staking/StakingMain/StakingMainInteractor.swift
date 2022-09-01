@@ -36,6 +36,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let applicationHandler: ApplicationHandlerProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
+
     let logger: LoggerProtocol?
     var collatorOperationFactory: ParachainCollatorOperationFactory
 

@@ -39,6 +39,12 @@ protocol RelaychainStakingLocalSubscriptionHandler {
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId: ChainModel.Id)
 
     func handleCurrentEra(result: Result<EraIndex?, Error>, chainId: ChainModel.Id)
+
+    func handlePoolMember(
+        result: Result<StakingPoolMember?, Error>,
+        accountId: AccountId,
+        chainId: ChainModel.Id
+    )
 }
 
 extension RelaychainStakingLocalSubscriptionHandler {
@@ -83,4 +89,10 @@ extension RelaychainStakingLocalSubscriptionHandler {
     func handleActiveEra(result _: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {}
 
     func handleCurrentEra(result _: Result<EraIndex?, Error>, chainId _: ChainModel.Id) {}
+
+    func handlePoolMember(
+        result _: Result<StakingPoolMember?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {}
 }

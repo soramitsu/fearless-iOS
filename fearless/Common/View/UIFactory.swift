@@ -32,6 +32,7 @@ struct UIConstants {
     static let amountViewHeight: CGFloat = 72
     static let swipeTableActionButtonWidth: CGFloat = 88
     static let iconSize: CGFloat = 24
+    static let standardButtonSize = CGSize(width: 36, height: 36)
     static let indicatorSize = CGSize(width: 35.0, height: 2.0)
 }
 
@@ -147,7 +148,7 @@ final class UIFactory: UIFactoryProtocol {
         switch layout {
         case .largeIconTitleSubtitle, .singleTitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
-        case .smallIconTitleSubtitle:
+        case .smallIconTitleSubtitle, .smallIconTitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
         }
 

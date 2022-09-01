@@ -18,7 +18,8 @@ final class WalletMainContainerAssembly {
             chainRepository: AnyDataProviderRepository(chainRepository),
             selectedMetaAccount: selectedMetaAccount,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            networkIssuesCenter: NetworkIssuesCenter.shared
         )
 
         let router = WalletMainContainerRouter()

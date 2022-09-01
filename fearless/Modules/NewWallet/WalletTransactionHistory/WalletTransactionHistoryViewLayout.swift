@@ -8,6 +8,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
         static let stripeTopOffset: CGFloat = 2
     }
 
+    let containerView = UIView()
     let backgroundView = TriangularedBlurView()
 
     let stripeIconImageView: UIImageView = {
@@ -66,17 +67,24 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }
 
     func setupLayout() {
-        addSubview(backgroundView)
-        addSubview(headerView)
-        addSubview(contentView)
-        addSubview(tableView)
-        addSubview(stripeIconImageView)
+        addSubview(containerView)
+        containerView.addSubview(backgroundView)
+        containerView.addSubview(headerView)
+        containerView.addSubview(contentView)
+        containerView.addSubview(tableView)
+        containerView.addSubview(stripeIconImageView)
 
         headerView.addSubview(headerStackView)
 
         headerStackView.addArrangedSubview(closeButton)
         headerStackView.addArrangedSubview(titleLabel)
         headerStackView.addArrangedSubview(filterButton)
+
+        containerView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
 
         headerStackView.snp.makeConstraints { make in
             make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)

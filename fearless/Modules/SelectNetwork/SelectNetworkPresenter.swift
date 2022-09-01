@@ -11,9 +11,9 @@ final class SelectNetworkPresenter {
     private let selectedChainId: ChainModel.Id?
     private let viewModelFactory: SelectNetworkViewModelFactoryProtocol
     private let selectedMetaAccount: MetaAccountModel
-
-    private var chainModels: [ChainModel] = []
+    private let includingAllNetworks: Bool
     private var viewModels: [SelectableIconDetailsListViewModel] = []
+    private var networkItems: [SelectNetworkItem] = []
 
     // MARK: - Constructors
 
@@ -21,6 +21,7 @@ final class SelectNetworkPresenter {
         viewModelFactory: SelectNetworkViewModelFactoryProtocol,
         selectedMetaAccount: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
+        includingAllNetworks: Bool,
         interactor: SelectNetworkInteractorInput,
         router: SelectNetworkRouterInput,
         localizationManager: LocalizationManagerProtocol
@@ -28,6 +29,7 @@ final class SelectNetworkPresenter {
         self.viewModelFactory = viewModelFactory
         self.selectedMetaAccount = selectedMetaAccount
         self.selectedChainId = selectedChainId
+        self.includingAllNetworks = includingAllNetworks
         self.interactor = interactor
         self.router = router
         self.localizationManager = localizationManager
@@ -37,7 +39,7 @@ final class SelectNetworkPresenter {
 
     private func provideViewModel() {
         viewModels = viewModelFactory.buildViewModel(
-            chains: chainModels,
+            items: networkItems,
             selectedMetaAccount: selectedMetaAccount,
             selectedChainId: selectedChainId,
             locale: selectedLocale
@@ -63,7 +65,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
             return
         }
 
-        router.complete(on: view, selecting: chainModels[safe: index - 1])
+        router.complete(on: view, selecting: networkItems[index].chain)
     }
 
     func didLoad(view: SelectNetworkViewInput) {
@@ -78,7 +80,12 @@ extension SelectNetworkPresenter: SelectNetworkInteractorOutput {
     func didReceiveChains(result: Result<[ChainModel], Error>) {
         switch result {
         case let .success(chains):
-            chainModels = chains
+            var items: [SelectNetworkItem] = []
+            if includingAllNetworks {
+                items.append(.allNetworks)
+            }
+            chains.forEach { items.append(.chain($0)) }
+            networkItems = items
             provideViewModel()
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
