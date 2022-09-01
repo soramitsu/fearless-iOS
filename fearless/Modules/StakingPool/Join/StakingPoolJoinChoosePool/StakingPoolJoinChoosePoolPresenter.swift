@@ -85,7 +85,10 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolViewOutpu
     }
 
     func didTapOptionsButton() {
-        let sortOptions: [PoolSortOption] = [.totalStake(assetSymbol: chainAsset.asset.symbol.uppercased()), .numberOfMembers]
+        let sortOptions: [PoolSortOption] = [
+            .totalStake(assetSymbol: chainAsset.asset.symbol.uppercased()),
+            .numberOfMembers
+        ]
         let options = filterFactory.createSortings(
             options: sortOptions,
             selectedOption: sort,
@@ -109,7 +112,9 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolInteracto
         view?.didStopLoading()
     }
 
-    func didReceiveError(_: Error) {}
+    func didReceiveError(_ error: Error) {
+        router.present(error: error, from: view, locale: selectedLocale)
+    }
 }
 
 // MARK: - Localizable

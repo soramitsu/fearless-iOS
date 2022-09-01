@@ -27,7 +27,7 @@ protocol StakingPoolJoinChoosePoolInteractorOutput: AnyObject {
     func didReceiveError(_ error: Error)
 }
 
-protocol StakingPoolJoinChoosePoolRouterInput: AnyObject, PushDismissable {
+protocol StakingPoolJoinChoosePoolRouterInput: PushDismissable, ErrorPresentable, AlertPresentable {
     func presentConfirm(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

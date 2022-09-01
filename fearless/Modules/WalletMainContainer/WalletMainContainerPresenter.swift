@@ -69,13 +69,11 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapOnQR() {
-//        router.showScanQr(from: view)
-        ChainRegistryFacade.sharedRegistry.connected()
+        router.showScanQr(from: view)
     }
 
     func didTapSearch() {
-//        router.showSearch(from: view)
-        ChainRegistryFacade.sharedRegistry.connect()
+        router.showSearch(from: view)
     }
 
     func didTapSelectNetwork() {

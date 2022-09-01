@@ -209,11 +209,11 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
     private func createQueryByPrefixOperation(
         for keys: @escaping () throws -> [Data],
-        at _: Data?,
         engine: JSONRPCEngine
     ) -> BaseOperation<[[String]]> {
         OperationCombiningService<[String]>(
-            operationManager: operationManager) {
+            operationManager: operationManager
+        ) {
             let keys = try keys()
 
             let itemsPerPage = 1000
@@ -456,7 +456,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         storagePath: StorageCodingPath,
         at blockHash: Data?
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
-        let queryKeysOperation = createQueryByPrefixOperation(for: keys, at: blockHash, engine: engine)
+        let queryKeysOperation = createQueryByPrefixOperation(for: keys, engine: engine)
 
         let fetchedKeys: () throws -> [Data] = {
             try queryKeysOperation.extractNoCancellableResultData()

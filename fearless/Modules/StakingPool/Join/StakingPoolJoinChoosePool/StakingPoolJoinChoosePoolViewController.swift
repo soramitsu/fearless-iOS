@@ -105,7 +105,9 @@ extension StakingPoolJoinChoosePoolViewController: StakingPoolJoinChoosePoolView
 // MARK: - Localizable
 
 extension StakingPoolJoinChoosePoolViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension StakingPoolJoinChoosePoolViewController: UITableViewDataSource {

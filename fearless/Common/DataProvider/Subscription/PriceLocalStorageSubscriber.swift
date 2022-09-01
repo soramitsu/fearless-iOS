@@ -60,7 +60,7 @@ extension PriceLocalStorageSubscriber {
 
         priceProvider.addObserver(
             self,
-            deliverOn: .global(),
+            deliverOn: .main,
             executing: updateClosure,
             failing: failureClosure,
             options: options

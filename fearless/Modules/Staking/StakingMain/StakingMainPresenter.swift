@@ -112,9 +112,7 @@ final class StakingMainPresenter {
             selectedMetaAccount: selectedMetaAccount
         )
 
-        DispatchQueue.main.async {
-            self.view?.didReceive(viewModel: viewModel)
-        }
+        view?.didReceive(viewModel: viewModel)
     }
 
     func setupValidators(for bondedState: BondedState) {

@@ -366,15 +366,7 @@ extension StakingStateView {
     }
 
     private static func createMultiValueView() -> StakingUnitInfoView {
-        let view = StakingUnitInfoView()
-//        view.valueTop.font = .p0Digits
-//        view.valueTop.textColor = R.color.colorWhite()
-//        view.valueTop.textAlignment = .left
-//        view.valueBottom.font = .p2Paragraph
-//        view.valueBottom.textColor = R.color.colorTransparentText()
-//        view.valueBottom.textAlignment = .left
-//        view.spacing = 4.0
-        return view
+        StakingUnitInfoView()
     }
 
     private static func createStackView() -> UIStackView {
