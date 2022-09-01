@@ -14,7 +14,7 @@ protocol PoolStakingAccountUpdatingServiceProtocol {
 
 final class PoolStakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol {
     private var accountResolver: StakingAccountResolver?
-    private var accountSubscription: PoolStakingAccountSubscription?
+    private var accountSubscription: PoolStakingAccountSubscriptionProtocol?
 
     private let chainRegistry: ChainRegistryProtocol
     private let substrateRepositoryFactory: SubstrateRepositoryFactoryProtocol
@@ -45,22 +45,6 @@ final class PoolStakingAccountUpdatingService: PoolStakingAccountUpdatingService
         chainFormat: ChainFormat,
         stakingType _: StakingType
     ) throws {
-//        let stashItemRepository = substrateRepositoryFactory.createStashItemRepository()
-//
-//        let address = try accountId.toAddress(using: chainFormat)
-//        let stashItemProvider = substrateDataProviderFactory.createStashItemProvider(for: address)
-
-//        accountResolver = StakingAccountResolver(
-//            accountId: accountId,
-//            chainAsset: chainAsset,
-//            chainFormat: chainFormat,
-//            chainRegistry: chainRegistry,
-//            childSubscriptionFactory: childSubscriptionFactory,
-//            operationQueue: operationQueue,
-//            repository: stashItemRepository,
-//            logger: logger
-//        )
-
         accountSubscription = PoolStakingAccountSubscription(
             accountId: accountId,
             chainAsset: chainAsset,
@@ -70,6 +54,7 @@ final class PoolStakingAccountUpdatingService: PoolStakingAccountUpdatingService
             operationQueue: operationQueue,
             logger: logger
         )
+        accountSubscription?.subscribeRemote()
     }
 
     func clearSubscription() {

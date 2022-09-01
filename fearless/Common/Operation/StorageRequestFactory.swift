@@ -220,14 +220,18 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
             let pageCount = (keys.count % itemsPerPage == 0) ?
                 keys.count / itemsPerPage : (keys.count / itemsPerPage + 1)
 
-            let wrappers: [CompoundOperationWrapper<[String]>] = (0 ..< pageCount).map { pageIndex in
+            let wrappers: [CompoundOperationWrapper<[String]>] = try (0 ..< pageCount).map { pageIndex in
                 let pageStart = pageIndex * itemsPerPage
                 let pageEnd = pageStart + itemsPerPage
-                let subkeys = (pageEnd < keys.count) ?
-                    Array(keys[pageStart ..< pageEnd]) :
-                    Array(keys.suffix(from: pageStart))
+                let subkeys = (pageEnd < keys.count)
+                    ? Array(keys[pageStart ..< pageEnd])
+                    : Array(keys.suffix(from: pageStart))
 
-                let request = PagedKeysRequest(key: subkeys.first!.toHex(includePrefix: true))
+                guard let key = subkeys.first?.toHex(includePrefix: true) else {
+                    throw BaseOperationError.unexpectedDependentResult
+                }
+
+                let request = PagedKeysRequest(key: key)
 
                 let queryOperation = JSONRPCOperation<PagedKeysRequest, [String]>(
                     engine: engine,
@@ -238,7 +242,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
                 return CompoundOperationWrapper(targetOperation: queryOperation)
             }
 
-            if !wrappers.isEmpty {
+            if wrappers.isNotEmpty {
                 for index in 1 ..< wrappers.count {
                     wrappers[index].allOperations
                         .forEach { $0.addDependency(wrappers[0].targetOperation) }

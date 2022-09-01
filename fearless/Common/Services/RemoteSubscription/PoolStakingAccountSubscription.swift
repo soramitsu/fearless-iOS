@@ -3,7 +3,11 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
-final class PoolStakingAccountSubscription: WebSocketSubscribing {
+protocol PoolStakingAccountSubscriptionProtocol {
+    func subscribeRemote()
+}
+
+final class PoolStakingAccountSubscription: WebSocketSubscribing, PoolStakingAccountSubscriptionProtocol {
     struct Subscription {
         let handlers: [StorageChildSubscribing]
         let subscriptionId: UInt16
@@ -37,35 +41,13 @@ final class PoolStakingAccountSubscription: WebSocketSubscribing {
         self.childSubscriptionFactory = childSubscriptionFactory
         self.operationQueue = operationQueue
         self.logger = logger
-
-        subscribeRemote(for: accountId)
     }
 
     deinit {
         unsubscribeRemote()
     }
 
-    private func unsubscribeRemote() {
-        mutex.lock()
-
-        if let subscriptionId = subscription?.subscriptionId {
-            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
-        }
-
-        subscription = nil
-
-        mutex.unlock()
-    }
-
-    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
-        var requests: [(StorageCodingPath, Data)] = []
-
-        requests.append((.stakingPoolMembers, accountId))
-
-        return requests
-    }
-
-    private func subscribeRemote(for accountId: AccountId) {
+    func subscribeRemote() {
         mutex.lock()
 
         defer {
@@ -133,6 +115,26 @@ final class PoolStakingAccountSubscription: WebSocketSubscribing {
         } catch {
             logger?.error("Did receive unexpected error \(error)")
         }
+    }
+
+    private func unsubscribeRemote() {
+        mutex.lock()
+
+        if let subscriptionId = subscription?.subscriptionId {
+            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
+        }
+
+        subscription = nil
+
+        mutex.unlock()
+    }
+
+    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
+        var requests: [(StorageCodingPath, Data)] = []
+
+        requests.append((.stakingPoolMembers, accountId))
+
+        return requests
     }
 
     private func subscribeToRemote(
