@@ -13,10 +13,11 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
-        let searchView = SearchPeopleViewFactory.createView(
+        let searchView = ChooseRecipientViewFactory.createView(
             chain: chain,
             asset: asset,
-            selectedMetaAccount: wallet,
+            wallet: wallet,
+            flow: .token,
             transferFinishBlock: transferFinishBlock
         )
 

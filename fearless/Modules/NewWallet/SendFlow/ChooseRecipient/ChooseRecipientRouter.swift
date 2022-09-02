@@ -1,23 +1,20 @@
 final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
-    private let chooseRecipientCompletion: () -> Void
-    
-    func presentSendAmount(
-        from view: ControllerBackedProtocol?,
-        to receiverAddress: String,
-        asset: AssetModel,
-        chain: ChainModel,
-        wallet: MetaAccountModel
-    ) {
-        guard let controller = WalletSendViewFactory.createView(
-            receiverAddress: receiverAddress,
-            asset: asset,
-            chain: chain,
-            wallet: wallet
-        )?.controller else {
-            return
-        }
+    private let flow: SendFlow
+    private let transferFinishBlock: WalletTransferFinishBlock?
 
-        view?.controller.navigationController?.pushViewController(controller, animated: true)
+    init(flow: SendFlow, transferFinishBlock: WalletTransferFinishBlock?) {
+        self.flow = flow
+        self.transferFinishBlock = transferFinishBlock
+    }
+
+    func presentSendAmount(
+        from _: ControllerBackedProtocol?,
+        to _: String,
+        asset _: AssetModel,
+        chain _: ChainModel,
+        wallet _: MetaAccountModel
+    ) {
+        // TODO: Send amount transition
     }
 
     func presentScan(
@@ -39,7 +36,9 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
         view?.controller.present(controller, animated: true, completion: nil)
     }
 
-    func presentHistory(from _: ControllerBackedProtocol?) {}
+    func presentHistory(from _: ControllerBackedProtocol?) {
+        // TODO: Contact list transition
+    }
 
     func close(_ view: ControllerBackedProtocol?) {
         view?.controller.dismiss(animated: true)

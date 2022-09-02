@@ -5,10 +5,12 @@ import FearlessUtils
 final class SearchTriangularedView: UIView {
     enum LayoutConstants {
         static let iconSize: CGFloat = 32
-        static let viewHeight: CGFloat = 52
+        static let viewHeight: CGFloat = 64
+        static let verticalOffset: CGFloat = 12
+        static let buttonSize: CGFloat = 16
     }
 
-    let backgroundView: TriangularedView = {
+    private let backgroundView: TriangularedView = {
         let view = TriangularedView()
         view.fillColor = .clear
         view.highlightedFillColor = .clear
@@ -18,54 +20,44 @@ final class SearchTriangularedView: UIView {
         return view
     }()
 
-    let addressImage: PolkadotIconView = {
+    private let addressImage: PolkadotIconView = {
         let view = PolkadotIconView()
         view.isHidden = true
         return view
     }()
 
-    let placeholderImage: UIImageView = {
+    private let placeholderImage: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.addressPlaceholder()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 
-    let cleanButton: UIButton = {
+    private let cleanButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconClose(), for: .normal)
+        button.setImage(R.image.deleteGrey()?.withRenderingMode(.alwaysTemplate), for: .normal)
+        button.tintColor = .white
         button.isHidden = true
         button.addTarget(self, action: #selector(cleanTextField), for: .touchUpInside)
         return button
     }()
 
-    let animatedInputField: AnimatedTextField = {
-        let field = AnimatedTextField()
-        field.placeholderFont = .p1Paragraph
-        field.placeholderColor = R.color.colorGray()!
-        field.textColor = R.color.colorWhite()!
-        field.textFont = .p1Paragraph
-        field.cursorColor = R.color.colorWhite()!
-        return field
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h5Title
+        label.textColor = .white
+        return label
     }()
 
-    var text: String? {
-        get {
-            animatedInputField.text
-        }
-        set {
-            animatedInputField.text = newValue
-        }
-    }
-
-    var title: String? {
-        get {
-            animatedInputField.title
-        }
-        set {
-            animatedInputField.title = newValue
-        }
-    }
+    let textField: UITextField = {
+        let view = UITextField()
+        view.tintColor = R.color.colorPinkPlaceholder()
+//        view.placeholder.color = R.color.colorAlmostWhite()
+        view.font = .p1Paragraph
+        view.textColor = .white
+        view.returnKeyType = .done
+        return view
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -76,6 +68,29 @@ final class SearchTriangularedView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func updateState(for text: String, icon: DrawableIcon?) {
+        if textField.text != text {
+            textField.text = text
+        }
+        text.isEmpty ? applyDisabledState() : applyEnabledState()
+        if let icon = icon {
+            addressImage.bind(icon: icon)
+            addressImage.isHidden = false
+            placeholderImage.isHidden = true
+        } else {
+            addressImage.isHidden = true
+            placeholderImage.isHidden = false
+        }
+    }
+
+    private func applyEnabledState() {
+        cleanButton.isHidden = false
+    }
+
+    private func applyDisabledState() {
+        cleanButton.isHidden = true
     }
 
     private func setupLayout() {
@@ -100,19 +115,27 @@ final class SearchTriangularedView: UIView {
         cleanButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
-            make.size.equalTo(LayoutConstants.iconSize)
+            make.size.equalTo(LayoutConstants.buttonSize)
         }
 
-        addSubview(animatedInputField)
-        animatedInputField.snp.makeConstraints { make in
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(addressImage.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.equalTo(cleanButton.snp.leading).inset(UIConstants.defaultOffset)
-            make.top.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
+            make.trailing.equalTo(cleanButton.snp.leading).offset(-UIConstants.defaultOffset)
+            make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)
+        }
+
+        addSubview(textField)
+        textField.snp.makeConstraints { make in
+            make.leading.trailing.equalTo(titleLabel)
+            make.top.greaterThanOrEqualTo(titleLabel.snp.bottom).offset(UIConstants.minimalOffset)
+            make.bottom.equalToSuperview().inset(LayoutConstants.verticalOffset)
         }
     }
 
     @objc
     private func cleanTextField() {
-        animatedInputField.text = ""
+        textField.text = ""
+        updateState(for: "", icon: nil)
     }
 }

@@ -804,5 +804,8 @@ and depending on the network state, may not be selected to participate";
 "network.issue.stub" = "Проблемы с сетью";
 "network.issue.network.unavailable" = "Сеть не доступна";
 "network.issue.node.unavailable" = "Нода не доступна";
+"search.view.title" = "Получатель";
 "search.textfield.placeholder" = "Публичный адрес";
 "choose.recipient.title" = "Выберите получателя";
+"choose.recipient.next.button.title" = "Ввести сумму";
+"common.paste" = "Вставить";

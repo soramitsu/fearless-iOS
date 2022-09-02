@@ -1564,6 +1564,7 @@
 		C6264C3A279AC7DC00FCA0DB /* WalletDetailsViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C39279AC7DC00FCA0DB /* WalletDetailsViewFactory.swift */; };
 		C6264C3C279B008600FCA0DB /* WalletDetailsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C3B279B008600FCA0DB /* WalletDetailsWireframe.swift */; };
 		C6264C3E279E9D5000FCA0DB /* WalletTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6264C3D279E9D5000FCA0DB /* WalletTableViewCell.swift */; };
+		C6267B7728BDE335001E31BF /* ChooseRecipientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */; };
 		C6267B8D28BDF6A5001E31BF /* ChainAssetListAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8128BDF6A5001E31BF /* ChainAssetListAssembly.swift */; };
 		C6267B8E28BDF6A5001E31BF /* ChainAssetListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8328BDF6A5001E31BF /* ChainAssetListViewModelFactory.swift */; };
 		C6267B8F28BDF6A5001E31BF /* ChainAssetListViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8428BDF6A5001E31BF /* ChainAssetListViewModel.swift */; };
@@ -1574,17 +1575,16 @@
 		C6267B9428BDF6A5001E31BF /* ChainAssetListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8928BDF6A5001E31BF /* ChainAssetListViewController.swift */; };
 		C6267B9528BDF6A5001E31BF /* ChainAssetListPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8A28BDF6A5001E31BF /* ChainAssetListPresenter.swift */; };
 		C6267B9628BDF6A5001E31BF /* ChainAssetListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B8C28BDF6A5001E31BF /* ChainAssetListInteractor.swift */; };
-		C6267B7728BDE335001E31BF /* ChooseRecipientProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */; };
 		C6267B9928BDFDE0001E31BF /* ChooseRecipientViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B9828BDFDE0001E31BF /* ChooseRecipientViewModel.swift */; };
-		C6267B9B28BE09EE001E31BF /* ChooseRecipientCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B9A28BE09EE001E31BF /* ChooseRecipientCellViewModel.swift */; };
-		C6267B9D28BE24FA001E31BF /* ChooseRecipientWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B9C28BE24FA001E31BF /* ChooseRecipientWireframe.swift */; };
+		C6267B9D28BE24FA001E31BF /* ChooseRecipientRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B9C28BE24FA001E31BF /* ChooseRecipientRouter.swift */; };
 		C6267B9F28BE2636001E31BF /* ChooseRecipientPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267B9E28BE2636001E31BF /* ChooseRecipientPresenter.swift */; };
 		C6267BA128BE26C3001E31BF /* ChooseRecipientViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA028BE26C3001E31BF /* ChooseRecipientViewModelFactory.swift */; };
 		C6267BA328BE36F4001E31BF /* ChooseRecipientInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA228BE36F4001E31BF /* ChooseRecipientInteractor.swift */; };
 		C6267BA528BE3B6B001E31BF /* ChooseRecipientViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA428BE3B6B001E31BF /* ChooseRecipientViewController.swift */; };
 		C6267BA728BE3BC4001E31BF /* ChooseRecipientViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA628BE3BC4001E31BF /* ChooseRecipientViewLayout.swift */; };
 		C6267BA928BE4163001E31BF /* ChooseRecipientViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */; };
-		C6267BAC28BEB277001E31BF /* InputTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* InputTriangularedView.swift */; };
+		C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */; };
+		C6267BB028C1D3C5001E31BF /* SendFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAF28C1D3C5001E31BF /* SendFlow.swift */; };
 		C6398F36287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */; };
 		C6398F38287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F37287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift */; };
 		C63C82FD2769ECCC002EA6A8 /* ChainAssetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */; };
@@ -3913,6 +3913,7 @@
 		C6264C39279AC7DC00FCA0DB /* WalletDetailsViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsViewFactory.swift; sourceTree = "<group>"; };
 		C6264C3B279B008600FCA0DB /* WalletDetailsWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletDetailsWireframe.swift; sourceTree = "<group>"; };
 		C6264C3D279E9D5000FCA0DB /* WalletTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTableViewCell.swift; sourceTree = "<group>"; };
+		C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientProtocols.swift; sourceTree = "<group>"; };
 		C6267B8128BDF6A5001E31BF /* ChainAssetListAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListAssembly.swift; sourceTree = "<group>"; };
 		C6267B8328BDF6A5001E31BF /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C6267B8428BDF6A5001E31BF /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
@@ -3923,17 +3924,16 @@
 		C6267B8928BDF6A5001E31BF /* ChainAssetListViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewController.swift; sourceTree = "<group>"; };
 		C6267B8A28BDF6A5001E31BF /* ChainAssetListPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListPresenter.swift; sourceTree = "<group>"; };
 		C6267B8C28BDF6A5001E31BF /* ChainAssetListInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAssetListInteractor.swift; sourceTree = "<group>"; };
-		C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientProtocols.swift; sourceTree = "<group>"; };
 		C6267B9828BDFDE0001E31BF /* ChooseRecipientViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewModel.swift; sourceTree = "<group>"; };
-		C6267B9A28BE09EE001E31BF /* ChooseRecipientCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientCellViewModel.swift; sourceTree = "<group>"; };
-		C6267B9C28BE24FA001E31BF /* ChooseRecipientWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientWireframe.swift; sourceTree = "<group>"; };
+		C6267B9C28BE24FA001E31BF /* ChooseRecipientRouter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientRouter.swift; sourceTree = "<group>"; };
 		C6267B9E28BE2636001E31BF /* ChooseRecipientPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientPresenter.swift; sourceTree = "<group>"; };
 		C6267BA028BE26C3001E31BF /* ChooseRecipientViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewModelFactory.swift; sourceTree = "<group>"; };
 		C6267BA228BE36F4001E31BF /* ChooseRecipientInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientInteractor.swift; sourceTree = "<group>"; };
 		C6267BA428BE3B6B001E31BF /* ChooseRecipientViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewController.swift; sourceTree = "<group>"; };
 		C6267BA628BE3BC4001E31BF /* ChooseRecipientViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewLayout.swift; sourceTree = "<group>"; };
 		C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewFactory.swift; sourceTree = "<group>"; };
-		C6267BAB28BEB277001E31BF /* InputTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputTriangularedView.swift; sourceTree = "<group>"; };
+		C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTriangularedView.swift; sourceTree = "<group>"; };
+		C6267BAF28C1D3C5001E31BF /* SendFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFlow.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
 		C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7627,7 +7627,7 @@
 				84C6800C24D6ECC200006BF5 /* ActionView */,
 				842D1E7724D063E500C30A7A /* TriangularedView */,
 				8467FD4024ED3C72005D486C /* AlignableContentControl.swift */,
-				C6267BAB28BEB277001E31BF /* InputTriangularedView.swift */,
+				C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */,
 				843910DA253F90C400E3C217 /* FearlessWindow.swift */,
 				8460E11C2542011200826F55 /* DetailsTriangularedView.swift */,
 				8460E11E25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift */,
@@ -9662,6 +9662,47 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		C6267B7228BDDE5E001E31BF /* SendFlow */ = {
+			isa = PBXGroup;
+			children = (
+				C6267B7328BDDE67001E31BF /* ChooseRecipient */,
+				C6267B7428BDDE70001E31BF /* SendAmount */,
+				C6267B7528BDDE86001E31BF /* SendConfirmation */,
+			);
+			path = SendFlow;
+			sourceTree = "<group>";
+		};
+		C6267B7328BDDE67001E31BF /* ChooseRecipient */ = {
+			isa = PBXGroup;
+			children = (
+				C6267BAA28BEB1D3001E31BF /* View */,
+				C6267B9728BDFDCD001E31BF /* ViewModel */,
+				C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */,
+				C6267B9C28BE24FA001E31BF /* ChooseRecipientRouter.swift */,
+				C6267B9E28BE2636001E31BF /* ChooseRecipientPresenter.swift */,
+				C6267BA228BE36F4001E31BF /* ChooseRecipientInteractor.swift */,
+				C6267BA428BE3B6B001E31BF /* ChooseRecipientViewController.swift */,
+				C6267BA628BE3BC4001E31BF /* ChooseRecipientViewLayout.swift */,
+				C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */,
+				C6267BAF28C1D3C5001E31BF /* SendFlow.swift */,
+			);
+			path = ChooseRecipient;
+			sourceTree = "<group>";
+		};
+		C6267B7428BDDE70001E31BF /* SendAmount */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SendAmount;
+			sourceTree = "<group>";
+		};
+		C6267B7528BDDE86001E31BF /* SendConfirmation */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = SendConfirmation;
+			sourceTree = "<group>";
+		};
 		C6267B8028BDF6A5001E31BF /* ChainAssetList */ = {
 			isa = PBXGroup;
 			children = (
@@ -9688,62 +9729,21 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
-		C6267B7228BDDE5E001E31BF /* SendFlow */ = {
-			isa = PBXGroup;
-			children = (
-				C6267B7328BDDE67001E31BF /* ChooseRecipient */,
-				C6267B7428BDDE70001E31BF /* SendAmount */,
-				C6267B7528BDDE86001E31BF /* SendConfirmation */,
-			);
-			path = SendFlow;
-			sourceTree = "<group>";
-		};
-		C6267B7328BDDE67001E31BF /* ChooseRecipient */ = {
-			isa = PBXGroup;
-			children = (
-				C6267BAA28BEB1D3001E31BF /* View */,
-				C6267B9728BDFDCD001E31BF /* ViewModel */,
-				C6267B7628BDE335001E31BF /* ChooseRecipientProtocols.swift */,
-				C6267B9C28BE24FA001E31BF /* ChooseRecipientWireframe.swift */,
-				C6267B9E28BE2636001E31BF /* ChooseRecipientPresenter.swift */,
-				C6267BA228BE36F4001E31BF /* ChooseRecipientInteractor.swift */,
-				C6267BA428BE3B6B001E31BF /* ChooseRecipientViewController.swift */,
-				C6267BA628BE3BC4001E31BF /* ChooseRecipientViewLayout.swift */,
-				C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */,
-			);
-			path = ChooseRecipient;
-			sourceTree = "<group>";
-		};
-		C6267B7428BDDE70001E31BF /* SendAmount */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SendAmount;
-			sourceTree = "<group>";
-		};
-		C6267B7528BDDE86001E31BF /* SendConfirmation */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SendConfirmation;
-			sourceTree = "<group>";
-		};
-		C6267B9728BDFDCD001E31BF /* ViewModel */ = {
-			isa = PBXGroup;
-			children = (
-				C6267B9828BDFDE0001E31BF /* ChooseRecipientViewModel.swift */,
-				C6267B9A28BE09EE001E31BF /* ChooseRecipientCellViewModel.swift */,
-				C6267BA028BE26C3001E31BF /* ChooseRecipientViewModelFactory.swift */,
-			);
-			path = ViewModel;
-			sourceTree = "<group>";
-		};
 		C6267B8B28BDF6A5001E31BF /* Views */ = {
 			isa = PBXGroup;
 			children = (
 				FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */,
 			);
 			path = Views;
+			sourceTree = "<group>";
+		};
+		C6267B9728BDFDCD001E31BF /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C6267B9828BDFDE0001E31BF /* ChooseRecipientViewModel.swift */,
+				C6267BA028BE26C3001E31BF /* ChooseRecipientViewModelFactory.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		C6267BAA28BEB1D3001E31BF /* View */ = {
@@ -13173,7 +13173,7 @@
 				FA5989532812658F008BD8A2 /* StakingOperationFactory.swift in Sources */,
 				84BB3CF3267D24B000676FFE /* UIStackView+Manage.swift in Sources */,
 				8419C39626EA8F7300A3179C /* PriceData.swift in Sources */,
-				C6267B9D28BE24FA001E31BF /* ChooseRecipientWireframe.swift in Sources */,
+				C6267B9D28BE24FA001E31BF /* ChooseRecipientRouter.swift in Sources */,
 				FA2E9BB727A13E890023FAD2 /* FiltersViewState.swift in Sources */,
 				FA4B92B52844D0E60003BCEF /* SelectCurrencyPresenter.swift in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
@@ -13263,7 +13263,7 @@
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
-				C6267BAC28BEB277001E31BF /* InputTriangularedView.swift in Sources */,
+				C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */,
 				FA2E9BBD27A293DA0023FAD2 /* FilterSet.swift in Sources */,
 				849ECD3926DF792800F542A3 /* SkeletonRow+View.swift in Sources */,
 				AE1000F426679946004753B7 /* InitiatedBondingRecommendationWireframe.swift in Sources */,
@@ -13451,7 +13451,6 @@
 				AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
-				C6267B9B28BE09EE001E31BF /* ChooseRecipientCellViewModel.swift in Sources */,
 				8472974D260A9CDF009B86D0 /* SelectValidatorsConfirmationModel.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
 				C67E781B27B3AD510053346B /* CheckPincodeViewLayout.swift in Sources */,
@@ -13989,6 +13988,7 @@
 				6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */,
 				8466BB42263F501000E065A8 /* StakingUnbondConfirmViewModel.swift in Sources */,
 				FA93A2DF28323CE60021330F /* CustomValidatorListRelaychainViewModelFactory.swift in Sources */,
+				C6267BB028C1D3C5001E31BF /* SendFlow.swift in Sources */,
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
 				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
 				C6992F0D2807E796003BC769 /* ReplaceChainOption.swift in Sources */,

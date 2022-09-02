@@ -3,36 +3,33 @@ import SoraFoundation
 
 final class ChooseRecipientPresenter {
     weak var view: ChooseRecipientViewProtocol?
-    let wireframe: ChooseRecipientWireframeProtocol
+    let router: ChooseRecipientRouterProtocol
     let interactor: ChooseRecipientInteractorInputProtocol
     let viewModelFactory: ChooseRecipientViewModelFactoryProtocol
     let asset: AssetModel
     let chain: ChainModel
-    let selectedAccount: MetaAccountModel
+    let wallet: MetaAccountModel
     let qrParser: QRParser
-    let transferFinishBlock: WalletTransferFinishBlock?
 
     private var searchResult: Result<[SearchData]?, Error>?
 
     init(
         interactor: ChooseRecipientInteractorInputProtocol,
-        wireframe: ChooseRecipientWireframeProtocol,
+        router: ChooseRecipientRouterProtocol,
         viewModelFactory: ChooseRecipientViewModelFactoryProtocol,
         asset: AssetModel,
         chain: ChainModel,
-        selectedAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
-        qrParser: QRParser,
-        transferFinishBlock: WalletTransferFinishBlock?
+        qrParser: QRParser
     ) {
         self.interactor = interactor
-        self.wireframe = wireframe
+        self.router = router
         self.viewModelFactory = viewModelFactory
         self.asset = asset
         self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.wallet = wallet
         self.qrParser = qrParser
-        self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
 }
@@ -51,56 +48,65 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
     }
 
     func didTapBackButton() {
-        wireframe.close(view)
+        router.close(view)
     }
 
     func didTapScanButton() {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return
-        }
-        wireframe.presentScan(
+        router.presentScan(
             from: view,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedMetaAccount,
+            selectedAccount: wallet,
             moduleOutput: self
         )
     }
 
     func didTapHistoryButton() {
-        wireframe.presentHistory(from: view)
+        router.presentHistory(from: view)
+    }
+
+    func didTapNextButton(with address: String) {
+        router.presentSendAmount(
+            from: view,
+            to: address,
+            asset: asset,
+            chain: chain,
+            wallet: wallet
+        )
     }
 
     func searchTextDidChanged(_ text: String) {
         interactor.performSearch(query: text)
+        let viewModel = viewModelFactory.buildChooseRecipientViewModel(
+            address: text,
+            isValid: interactor.validate(address: text)
+        )
+        view?.didReceive(viewModel: viewModel)
     }
 
     func setup() {
         view?.didReceive(locale: selectedLocale)
     }
 
-    func didSelectViewModel(viewModel: SearchPeopleTableCellViewModel) {
-        wireframe.presentSendAmount(
-            from: view,
-            to: viewModel.address,
-            asset: asset,
-            chain: chain,
-            wallet: selectedAccount,
-            transferFinishBlock: transferFinishBlock
+    func didSelectViewModel(cellViewModel: SearchPeopleTableCellViewModel) {
+        let viewModel = viewModelFactory.buildChooseRecipientViewModel(
+            address: cellViewModel.address,
+            isValid: true
         )
+        view?.didReceive(viewModel: viewModel)
     }
 }
 
 extension ChooseRecipientPresenter: ChooseRecipientInteractorOutputProtocol {
     func didReceive(searchResult: Result<[SearchData]?, Error>) {
-        var viewModel: ChooseRecipientViewModel
+        var viewModel: ChooseRecipientTableViewModel
         switch searchResult {
         case let .success(searchData):
-            viewModel = viewModelFactory.buildChooseRecipientViewModel(results: searchData ?? [])
+            viewModel = viewModelFactory.buildChooseRecipientTableViewModel(results: searchData ?? [])
         default:
-            viewModel = viewModelFactory.buildChooseRecipientViewModel(results: [])
+            viewModel = viewModelFactory.buildChooseRecipientTableViewModel(results: [])
         }
-        view?.didReceive(viewModel: viewModel)
+        view?.didReceive(tableViewModel: viewModel)
     }
 }
 
@@ -115,13 +121,12 @@ extension ChooseRecipientPresenter: WalletScanQRModuleOutput {
             return
         }
 
-        wireframe.presentSendAmount(
+        router.presentSendAmount(
             from: view,
             to: address,
             asset: asset,
             chain: chain,
-            wallet: selectedAccount,
-            transferFinishBlock: transferFinishBlock
+            wallet: wallet
         )
     }
 

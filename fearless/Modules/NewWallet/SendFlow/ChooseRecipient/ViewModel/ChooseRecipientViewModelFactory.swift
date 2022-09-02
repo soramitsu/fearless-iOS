@@ -2,7 +2,8 @@ import CommonWallet
 import FearlessUtils
 
 protocol ChooseRecipientViewModelFactoryProtocol {
-    func buildChooseRecipientViewModel(results: [SearchData]) -> ChooseRecipientViewModel
+    func buildChooseRecipientViewModel(address: String, isValid: Bool) -> ChooseRecipientViewModel
+    func buildChooseRecipientTableViewModel(results: [SearchData]) -> ChooseRecipientTableViewModel
 }
 
 final class ChooseRecipientViewModelFactory: ChooseRecipientViewModelFactoryProtocol {
@@ -12,10 +13,18 @@ final class ChooseRecipientViewModelFactory: ChooseRecipientViewModelFactoryProt
         self.iconGenerator = iconGenerator
     }
 
-    func buildChooseRecipientViewModel(results: [SearchData]) -> ChooseRecipientViewModel {
+    func buildChooseRecipientViewModel(address: String, isValid: Bool) -> ChooseRecipientViewModel {
+        ChooseRecipientViewModel(
+            address: address,
+            icon: try? iconGenerator.generateFromAddress(address),
+            isValid: isValid
+        )
+    }
+
+    func buildChooseRecipientTableViewModel(results: [SearchData]) -> ChooseRecipientTableViewModel {
         let cellModels = results.compactMap { buildSearchPeopleCellViewModel(searchData: $0) }
 
-        return ChooseRecipientViewModel(results: cellModels)
+        return ChooseRecipientTableViewModel(results: cellModels)
     }
 
     func buildSearchPeopleCellViewModel(searchData: SearchData) -> SearchPeopleTableCellViewModel {

@@ -6,7 +6,8 @@ struct ChooseRecipientViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
+        flow: SendFlow,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> ChooseRecipientViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
@@ -31,23 +32,22 @@ struct ChooseRecipientViewFactory {
         let interactor = ChooseRecipientInteractor(
             chain: chain,
             asset: asset,
-            selectedMetaAccount: selectedMetaAccount,
+            wallet: wallet,
             searchService: searchService
         )
-        let wireframe = ChooseRecipientWireframe()
+        let router = ChooseRecipientRouter(flow: flow, transferFinishBlock: transferFinishBlock)
 
         let viewModelFactory = ChooseRecipientViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
         let presenter = ChooseRecipientPresenter(
             interactor: interactor,
-            wireframe: wireframe,
+            router: router,
             viewModelFactory: viewModelFactory,
             asset: asset,
             chain: chain,
-            selectedAccount: selectedMetaAccount,
+            wallet: wallet,
             localizationManager: LocalizationManager.shared,
-            qrParser: SubstrateQRParser(),
-            transferFinishBlock: transferFinishBlock
+            qrParser: SubstrateQRParser()
         )
 
         let view = ChooseRecipientViewController(presenter: presenter)

@@ -5,26 +5,26 @@ final class ChooseRecipientInteractor {
 
     private let chain: ChainModel
     private let asset: AssetModel
-    private let selectedMetaAccount: MetaAccountModel
+    private let wallet: MetaAccountModel
     private let searchService: SearchServiceProtocol
 
     init(
         chain: ChainModel,
         asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         searchService: SearchServiceProtocol
     ) {
         self.chain = chain
         self.asset = asset
         self.searchService = searchService
-        self.selectedMetaAccount = selectedMetaAccount
+        self.wallet = wallet
     }
 }
 
 extension ChooseRecipientInteractor: ChooseRecipientInteractorInputProtocol {
     func performSearch(query: String) {
         let peerId = try? AddressFactory.accountId(from: query, chain: chain)
-        let currentAccountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId
+        let currentAccountId = wallet.fetch(for: chain.accountRequest())?.accountId
 
         if let peerId = peerId, let currentAccountId = currentAccountId {
             if currentAccountId != peerId {
@@ -48,5 +48,12 @@ extension ChooseRecipientInteractor: ChooseRecipientInteractorInputProtocol {
         ) { [weak self] result in
             self?.presenter?.didReceive(searchResult: result)
         }
+    }
+
+    func validate(address: String) -> Bool {
+        guard (try? AddressFactory.accountId(from: address, chain: chain)) != nil else {
+            return false
+        }
+        return true
     }
 }
