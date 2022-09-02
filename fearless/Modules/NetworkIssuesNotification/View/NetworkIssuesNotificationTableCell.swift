@@ -121,6 +121,8 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         actionButton.triangularedView?.fillColor = R.color.colorOrange()!
         actionButton.triangularedView?.highlightedFillColor = R.color.colorAccent()!
 
+        actionButton.invalidateIntrinsicContentSize()
+
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
     }
 
@@ -161,7 +163,7 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         }
 
         actionButton.snp.makeConstraints { make in
-            make.size.equalTo(Constants.actionButtonSize)
+            make.size.greaterThanOrEqualTo(Constants.actionButtonSize)
         }
         warningButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.warningsButtonSize)

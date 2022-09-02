@@ -8,7 +8,7 @@ final class WalletMainContainerInteractor {
 
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainRepository: AnyDataProviderRepository<ChainModel>
-    private var selectedMetaAccount: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
@@ -18,12 +18,12 @@ final class WalletMainContainerInteractor {
     init(
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainRepository: AnyDataProviderRepository<ChainModel>,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter
     ) {
-        self.selectedMetaAccount = selectedMetaAccount
+        self.wallet = wallet
         self.chainRepository = chainRepository
         self.accountRepository = accountRepository
         self.operationQueue = operationQueue
@@ -34,7 +34,7 @@ final class WalletMainContainerInteractor {
     // MARK: - Private methods
 
     private func fetchSelectedChainName() {
-        guard let chainId = selectedMetaAccount.chainIdForFilter else {
+        guard let chainId = wallet.chainIdForFilter else {
             DispatchQueue.main.async {
                 self.output?.didReceiveSelectedChain(nil)
             }
@@ -80,7 +80,7 @@ final class WalletMainContainerInteractor {
             SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
                 switch result {
                 case let .success(account):
-                    self?.selectedMetaAccount = account
+                    self?.wallet = account
                     self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
                     self?.fetchSelectedChainName()
                 case .failure:
@@ -99,8 +99,8 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
     func saveChainIdForFilter(_ chainId: ChainModel.Id?) {
         var updatedAccount: MetaAccountModel?
 
-        if chainId != selectedMetaAccount.chainIdForFilter {
-            updatedAccount = selectedMetaAccount.replacingChainIdForFilter(chainId)
+        if chainId != wallet.chainIdForFilter {
+            updatedAccount = wallet.replacingChainIdForFilter(chainId)
         }
 
         if let updatedAccount = updatedAccount {
@@ -120,8 +120,15 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
 extension WalletMainContainerInteractor: EventVisitorProtocol {
     func processWalletNameChanged(event: WalletNameChanged) {
-        selectedMetaAccount = event.wallet
-        output?.didReceiveAccount(selectedMetaAccount)
+        if wallet.identifier == event.wallet.identifier {
+            wallet = event.wallet
+            output?.didReceiveAccount(wallet)
+        }
+    }
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
+        output?.didReceiveAccount(event.account)
     }
 }
 

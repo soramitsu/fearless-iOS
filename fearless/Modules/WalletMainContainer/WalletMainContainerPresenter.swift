@@ -9,7 +9,7 @@ final class WalletMainContainerPresenter {
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
 
-    private var selectedMetaAccount: MetaAccountModel
+    private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
 
     // MARK: - State
@@ -20,13 +20,13 @@ final class WalletMainContainerPresenter {
     // MARK: - Constructors
 
     init(
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
-        self.selectedMetaAccount = selectedMetaAccount
+        self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
@@ -38,7 +38,7 @@ final class WalletMainContainerPresenter {
     private func provideViewModel() {
         let viewModel = viewModelFactory.buildViewModel(
             selectedChain: selectedChain,
-            selectedMetaAccount: selectedMetaAccount,
+            selectedMetaAccount: wallet,
             chainsIssues: issues,
             locale: selectedLocale
         )
@@ -71,7 +71,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     func didTapSelectNetwork() {
         router.showSelectNetwork(
             from: view,
-            wallet: selectedMetaAccount,
+            wallet: wallet,
             selectedChainId: selectedChain?.chainId,
             chainModels: nil,
             delegate: self
@@ -81,7 +81,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     func didTapOnBalance() {
         router.showSelectCurrency(
             from: view,
-            wallet: selectedMetaAccount
+            wallet: wallet
         )
     }
 
@@ -89,7 +89,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
         router.showIssueNotification(
             from: view,
             issues: issues,
-            wallet: selectedMetaAccount
+            wallet: wallet
         )
     }
 }
@@ -112,7 +112,7 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
     }
 
     func didReceiveAccount(_ account: MetaAccountModel) {
-        selectedMetaAccount = account
+        wallet = account
         provideViewModel()
     }
 
@@ -158,14 +158,14 @@ extension WalletMainContainerPresenter: ChainAssetListModuleOutput {
             router.showSendFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: selectedMetaAccount,
+                selectedMetaAccount: wallet,
                 transferFinishBlock: nil
             )
         case .receive:
             router.showReceiveFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: selectedMetaAccount
+                selectedMetaAccount: wallet
             )
         case .teleport:
             break

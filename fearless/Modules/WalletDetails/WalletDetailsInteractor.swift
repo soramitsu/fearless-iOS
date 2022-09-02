@@ -76,30 +76,18 @@ extension WalletDetailsInteractor: WalletDetailsInteractorInputProtocol {
     }
 
     func update(walletName: String) {
-        let updateOperation = ClosureOperation<MetaAccountModel> { [self] in
-            self.flow.wallet.replacingName(walletName)
+        let updatedWallet = flow.wallet.replacingName(walletName)
+        let saveOperation = repository.saveOperation {
+            [updatedWallet]
+        } _: {
+            []
         }
-        let saveOperation: ClosureOperation<MetaAccountModel> = ClosureOperation {
-            let accountItem = try updateOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            return accountItem
-        }
-        saveOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                switch saveOperation.result {
-                case let .success(wallet):
-                    self?.eventCenter.notify(with: WalletNameChanged(wallet: wallet))
-                case let .failure(error):
-                    self?.presenter.didReceive(error: error)
 
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter.didReceive(error: error)
-                }
-            }
+        saveOperation.completionBlock = { [eventCenter] in
+            eventCenter.notify(with: WalletNameChanged(wallet: updatedWallet))
         }
-        saveOperation.addDependency(updateOperation)
-        operationManager.enqueue(operations: [updateOperation, saveOperation], in: .transient)
+
+        operationManager.enqueue(operations: [saveOperation], in: .transient)
     }
 
     func getAvailableExportOptions(for chainAccount: ChainAccountInfo) {

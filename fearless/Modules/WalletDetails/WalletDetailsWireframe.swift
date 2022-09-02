@@ -30,7 +30,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             return
         }
 
-        view?.controller.navigationController?.present(actionsView, animated: true)
+        view?.controller.present(actionsView, animated: true)
     }
 
     func showExport(
@@ -85,11 +85,13 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             return
         }
 
-        view?.controller.navigationController?.present(actionsView, animated: true)
+        view?.controller.present(actionsView, animated: true)
     }
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
+            flow: .chain(model: uniqueChainModel)
+        )?.controller else {
             return
         }
 
@@ -97,7 +99,9 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     }
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            .chain(model: uniqueChainModel)
+        )?.controller else {
             return
         }
 
@@ -128,7 +132,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return AlertPresentableAction(title: title) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
