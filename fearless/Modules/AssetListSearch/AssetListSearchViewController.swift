@@ -8,12 +8,16 @@ final class AssetListSearchViewController: UIViewController, ViewHolder {
 
     private let output: AssetListSearchViewOutput
 
+    private let assetListViewController: UIViewController
+
     // MARK: - Constructor
 
     init(
+        assetListViewController: UIViewController,
         output: AssetListSearchViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.assetListViewController = assetListViewController
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -33,9 +37,40 @@ final class AssetListSearchViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        setup()
     }
 
     // MARK: - Private methods
+
+    private func setup() {
+        setupEmbededAssetList()
+
+        rootView.cancelButton.addTarget(self, action: #selector(handleCancel), for: .touchUpInside)
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.output.searchTextDidChange(text)
+        }
+    }
+
+    private func setupEmbededAssetList() {
+        addChild(assetListViewController)
+
+        guard let view = assetListViewController.view else {
+            return
+        }
+
+        rootView.assetListViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        controller.didMove(toParent: self)
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleCancel() {
+        output.didTapOnCalcel()
+    }
 }
 
 // MARK: - AssetListSearchViewInput

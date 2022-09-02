@@ -16,7 +16,6 @@ final class ChainAssetListPresenter {
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
-    private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
@@ -36,14 +35,12 @@ final class ChainAssetListPresenter {
     // MARK: - Constructors
 
     init(
-        moduleOutput: ChainAssetListModuleOutput?,
         interactor: ChainAssetListInteractorInput,
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
-        self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -117,7 +114,25 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
-        moduleOutput?.didTapAction(actionType: actionType, viewModel: viewModel)
+        switch actionType {
+        case .send:
+            router.showSendFlow(
+                from: view,
+                chainAsset: viewModel.chainAsset,
+                selectedMetaAccount: wallet,
+                transferFinishBlock: nil
+            )
+        case .receive:
+            router.showReceiveFlow(
+                from: view,
+                chainAsset: viewModel.chainAsset,
+                selectedMetaAccount: wallet
+            )
+        case .teleport:
+            break
+        case .hide:
+            interactor.hideChainAsset(viewModel.chainAsset)
+        }
     }
 
     func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
@@ -141,6 +156,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
+    func updateViewModel() {
+        provideViewModel()
+    }
+
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
     }
@@ -149,6 +168,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         switch result {
         case let .success(chainAssets):
             self.chainAssets = chainAssets
+            if chainAssets.isEmpty {
+                accountInfosFetched = true
+            }
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -212,7 +234,12 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        pricesFetched = false
+        pricesFetched = filters.contains(where: { filter in
+            if case ChainAssetsFetching.Filter.search = filter {
+                return true
+            }
+            return false
+        })
         accountInfosFetched = false
         accountInfos = [:]
 

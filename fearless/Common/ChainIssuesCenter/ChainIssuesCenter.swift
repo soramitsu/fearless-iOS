@@ -21,7 +21,7 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     private var issuesListeners: [WeakWrapper] = []
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
     private let eventCenter: EventCenter
-    private let missingAccountHelper: MissingAccountsHelperProtocol
+    private let missingAccountHelper: MissingAccountFetcherProtocol
 
     private var wallet: MetaAccountModel
     private var networkIssuesChains: [ChainModel] = []
@@ -31,7 +31,7 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
         wallet: MetaAccountModel,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
         eventCenter: EventCenter,
-        missingAccountHelper: MissingAccountsHelperProtocol
+        missingAccountHelper: MissingAccountFetcherProtocol
     ) {
         self.wallet = wallet
         self.networkIssuesCenter = networkIssuesCenter

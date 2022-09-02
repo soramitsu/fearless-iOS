@@ -11,12 +11,14 @@ final class ChainAssetListInteractor {
     private let assetRepository: AnyDataProviderRepository<AssetModel>
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private var chainAssets: [ChainAsset]?
-    private var filters: [ChainAssetsFetching.Filter] = []
-    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let eventCenter: EventCenter
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
     private var wallet: MetaAccountModel
+    private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+
+    private var chainAssets: [ChainAsset]?
+    private var filters: [ChainAssetsFetching.Filter] = []
+    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -33,7 +35,8 @@ final class ChainAssetListInteractor {
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        networkIssuesCenter: NetworkIssuesCenterProtocol
+        networkIssuesCenter: NetworkIssuesCenterProtocol,
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
@@ -43,6 +46,30 @@ final class ChainAssetListInteractor {
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.networkIssuesCenter = networkIssuesCenter
+        self.accountRepository = accountRepository
+    }
+
+    // MARK: - Private methods
+
+    private func save(_ updatedAccount: MetaAccountModel) {
+        let saveOperation = accountRepository.saveOperation {
+            [updatedAccount]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            SelectedWalletSettings.shared.performSave(value: updatedAccount) { result in
+                switch result {
+                case let .success(account):
+                    self?.eventCenter.notify(with: MetaAccountModelChangedEvent(account: account))
+                case .failure:
+                    break
+                }
+            }
+        }
+
+        operationQueue.addOperation(saveOperation)
     }
 }
 
@@ -72,13 +99,26 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
             switch result {
             case let .success(chainAssets):
+                self?.chainAssets = chainAssets
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
+                if chainAssets.isEmpty {
+                    self?.output?.updateViewModel()
+                }
                 self?.subscribeToAccountInfo(for: chainAssets)
                 self?.subscribeToPrice(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
             }
         }
+    }
+
+    func hideChainAsset(_ chainAsset: ChainAsset) {
+        let id = chainAsset.uniqueKey(accountId: wallet.substrateAccountId)
+        var disabledAssets = wallet.assetIdsDisabled ?? []
+        disabledAssets.append(id)
+
+        let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
+        save(updatedWallet)
     }
 }
 
@@ -140,9 +180,15 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
 extension ChainAssetListInteractor: EventVisitorProtocol {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
         output?.didReceiveWallet(wallet: event.account)
+
         if wallet.selectedCurrency != event.account.selectedCurrency {
             pricesProvider?.refresh()
         }
+
+        if wallet.assetIdsDisabled != event.account.assetIdsDisabled {
+            output?.updateViewModel()
+        }
+
         wallet = event.account
     }
 }

@@ -4,7 +4,7 @@ import SoraFoundation
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
-    weak var assetListModuleInput: ChainAssetListModuleInput?
+    private weak var assetListModuleInput: ChainAssetListModuleInput?
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
@@ -20,12 +20,14 @@ final class WalletMainContainerPresenter {
     // MARK: - Constructors
 
     init(
+        assetListModuleInput: ChainAssetListModuleInput?,
         selectedMetaAccount: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.assetListModuleInput = assetListModuleInput
         self.selectedMetaAccount = selectedMetaAccount
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -65,7 +67,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSearch() {
-        router.showSearch(from: view)
+        router.showSearch(from: view, wallet: selectedMetaAccount)
     }
 
     func didTapSelectNetwork() {
@@ -148,29 +150,5 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
-    }
-}
-
-extension WalletMainContainerPresenter: ChainAssetListModuleOutput {
-    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
-        switch actionType {
-        case .send:
-            router.showSendFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: selectedMetaAccount,
-                transferFinishBlock: nil
-            )
-        case .receive:
-            router.showReceiveFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: selectedMetaAccount
-            )
-        case .teleport:
-            break
-        case .hide:
-            break
-        }
     }
 }

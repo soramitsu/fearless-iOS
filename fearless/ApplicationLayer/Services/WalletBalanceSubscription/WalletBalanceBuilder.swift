@@ -122,11 +122,7 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var disabledChainAssets: [ChainAsset] = []
 
         chainAssets.forEach { chainAsset in
-            let accountRequest = chainAsset.chain.accountRequest()
-            guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
-                return
-            }
-            let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+            let chainAssetKey = chainAsset.uniqueKey(accountId: metaAccount.substrateAccountId)
 
             if let chainIdForFilter = metaAccount.chainIdForFilter {
                 if chainAsset.chain.chainId == chainIdForFilter {
@@ -138,11 +134,11 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             }
 
             if
-                let assetIdsEnabled = metaAccount.assetIdsEnabled,
-                assetIdsEnabled.contains(chainAssetKey) {
-                enabledChainAssets.append(chainAsset)
-            } else {
+                let assetIdsDisabled = metaAccount.assetIdsDisabled,
+                assetIdsDisabled.contains(chainAssetKey) {
                 disabledChainAssets.append(chainAsset)
+            } else {
+                enabledChainAssets.append(chainAsset)
             }
         }
 
