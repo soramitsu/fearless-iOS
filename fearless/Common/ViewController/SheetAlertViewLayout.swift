@@ -27,7 +27,7 @@ final class SheetAlertViewLayout: UIView {
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = R.image.iconWarning()
+        imageView.image = R.image.iconWarningBig()
         return imageView
     }()
 
