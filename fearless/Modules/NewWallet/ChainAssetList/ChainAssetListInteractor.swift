@@ -12,7 +12,7 @@ final class ChainAssetListInteractor {
     private let operationQueue: OperationQueue
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let eventCenter: EventCenter
-    private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
@@ -35,7 +35,7 @@ final class ChainAssetListInteractor {
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        networkIssuesCenter: NetworkIssuesCenterProtocol,
+        chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.wallet = wallet
@@ -45,7 +45,7 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.networkIssuesCenter = networkIssuesCenter
+        self.chainsIssuesCenter = chainsIssuesCenter
         self.accountRepository = accountRepository
     }
 
@@ -80,7 +80,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
-        networkIssuesCenter.addIssuesListener(self, getExisting: true)
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateChainAssets(
@@ -193,8 +193,8 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 }
 
-extension ChainAssetListInteractor: NetworkIssuesCenterListener {
-    func handleChainsWithIssues(_ chains: [ChainModel]) {
-        output?.didReceiveChainsWithNetworkIssues(chains)
+extension ChainAssetListInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
+        output?.didReceiveChainsWithIssues(issues)
     }
 }

@@ -30,7 +30,7 @@ final class NetworkIssuesNotificationViewLayout: UIView {
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = R.image.iconWarning()
+        imageView.image = R.image.iconWarningBig()
         return imageView
     }()
 
@@ -40,8 +40,8 @@ final class NetworkIssuesNotificationViewLayout: UIView {
         return label
     }()
 
-    let tableView: SelfSizingTableView = {
-        let tableView = SelfSizingTableView()
+    let tableView: UITableView = {
+        let tableView = UITableView()
         tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         tableView.contentInset = UIEdgeInsets(

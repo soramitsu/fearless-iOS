@@ -17,6 +17,7 @@ final class ProfileInteractor {
     private let operationQueue: OperationQueue
     private let selectedMetaAccount: MetaAccountModel
 
+    private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
     }()
@@ -45,16 +46,7 @@ final class ProfileInteractor {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            // TODO: Apply total account value logic instead
-            let genericAddress = try wallet.substrateAccountId.toAddress(
-                using: ChainFormat.substrate(42)
-            )
-
-            let userSettings = UserSettings(
-                userName: wallet.name,
-                details: ""
-            )
-
+            self.wallet = wallet
             presenter?.didReceive(wallet: wallet)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
@@ -78,6 +70,9 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
+        guard self.wallet?.identifier == wallet.identifier else {
+            return
+        }
         selectedWalletSettings.save(value: wallet)
         DispatchQueue.main.async { [weak self] in
             self?.presenter?.didReceive(wallet: wallet)

@@ -3,7 +3,7 @@ import SoraFoundation
 import RobinHood
 
 final class WalletMainContainerAssembly {
-    static func configureModule(selectedMetaAccount: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+    static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
@@ -19,7 +19,7 @@ final class WalletMainContainerAssembly {
         )
 
         let chainsIssuesCenter = ChainsIssuesCenter(
-            wallet: selectedMetaAccount,
+            wallet: wallet,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
             missingAccountHelper: missingAccountHelper
@@ -28,7 +28,7 @@ final class WalletMainContainerAssembly {
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainRepository: AnyDataProviderRepository(chainRepository),
-            selectedMetaAccount: selectedMetaAccount,
+            wallet: wallet,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter
@@ -37,9 +37,9 @@ final class WalletMainContainerAssembly {
         let router = WalletMainContainerRouter()
 
         guard
-            let balanceInfoModule = Self.configureBalanceInfoModule(metaAccount: selectedMetaAccount),
+            let balanceInfoModule = Self.configureBalanceInfoModule(wallet: wallet),
             let assetListModule = Self.configureAssetListModule(
-                metaAccount: selectedMetaAccount
+                metaAccount: wallet
             ),
             let nftModule = Self.configureNftModule()
         else {
@@ -48,7 +48,7 @@ final class WalletMainContainerAssembly {
 
         let presenter = WalletMainContainerPresenter(
             assetListModuleInput: assetListModule.input,
-            selectedMetaAccount: selectedMetaAccount,
+            wallet: wallet,
             viewModelFactory: WalletMainContainerViewModelFactory(),
             interactor: interactor,
             router: router,
@@ -66,9 +66,9 @@ final class WalletMainContainerAssembly {
     }
 
     private static func configureBalanceInfoModule(
-        metaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(metaAccount: metaAccount))
+        BalanceInfoAssembly.configureModule(with: .wallet(metaAccount: wallet))
     }
 
     private static func configureAssetListModule(

@@ -75,6 +75,8 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 
         fetchWallets()
         fetchBalances()
+
+        eventCenter.add(observer: self, dispatchIn: .main)
     }
 
     func fetchWalletsFromRepo() {
@@ -87,5 +89,13 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
 extension WalletsManagmentInteractor: WalletBalanceSubscriptionHandler {
     func handle(result: WalletBalancesResult) {
         output?.didReceiveWalletBalances(result)
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension WalletsManagmentInteractor: EventVisitorProtocol {
+    func processWalletNameChanged(event _: WalletNameChanged) {
+        fetchWallets()
     }
 }

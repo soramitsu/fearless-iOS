@@ -24,7 +24,8 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithIssues: [ChainModel] = []
+    private var chainsWithNetworkIssues: [ChainModel.Id] = []
+    private var chainsWithMissingAccounts: [ChainModel.Id] = []
     private var accountInfosFetched = false
     private var pricesFetched = false
 
@@ -54,7 +55,8 @@ final class ChainAssetListPresenter {
         guard
             let chainAssets = chainAssets,
             accountInfosFetched,
-            pricesFetched
+            pricesFetched,
+            chainAssets.count == (accountInfos.keys.count + chainsWithMissingAccounts.count)
         else {
             return
         }
@@ -77,7 +79,7 @@ final class ChainAssetListPresenter {
                     self.accountInfos
                 },
                 prices: self.prices,
-                chainsWithIssues: self.chainsWithIssues.map { $0.chainId }
+                chainsWithIssues: self.chainsWithNetworkIssues
             )
 
             DispatchQueue.main.async {
@@ -189,9 +191,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
 
-                guard chainAssets?.count == accountInfos.keys.count else {
-                    return
-                }
                 accountInfosFetched = true
                 provideViewModel()
             }
@@ -217,8 +216,15 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel]) {
-        chainsWithIssues = chains
+    func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
+        issues.forEach { chainIssue in
+            switch chainIssue {
+            case let .network(chains):
+                chainsWithNetworkIssues = chains.map { $0.chainId }
+            case let .missingAccount(chains):
+                chainsWithMissingAccounts = chains.map { $0.chainId }
+            }
+        }
         provideViewModel()
     }
 }
