@@ -128,8 +128,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createWalletController() -> UIViewController? {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
-              let viewController = WalletMainContainerAssembly.configureModule(selectedMetaAccount: selectedMetaAccount)?.view.controller
+        guard let wallet = SelectedWalletSettings.shared.value,
+              let viewController = WalletMainContainerAssembly.configureModule(wallet: wallet)?.view.controller
         else {
             return nil
         }
