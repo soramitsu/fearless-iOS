@@ -20,13 +20,14 @@ final class WalletMainContainerPresenter {
     // MARK: - Constructors
 
     init(
-        assetListModuleInput _: ChainAssetListModuleInput?,
+        assetListModuleInput: ChainAssetListModuleInput?,
         wallet: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.assetListModuleInput = assetListModuleInput
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
