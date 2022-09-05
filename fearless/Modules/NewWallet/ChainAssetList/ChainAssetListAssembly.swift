@@ -46,6 +46,18 @@ final class ChainAssetListAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
 
+        let missingAccountHelper = MissingAccountsHelper(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let chainsIssuesCenter = ChainsIssuesCenter(
+            wallet: wallet,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
+            eventCenter: EventCenter.shared,
+            missingAccountHelper: missingAccountHelper
+        )
+
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
             chainAssetFetching: chainAssetFetching,
@@ -54,7 +66,7 @@ final class ChainAssetListAssembly {
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            networkIssuesCenter: NetworkIssuesCenter.shared
+            chainsIssuesCenter: chainsIssuesCenter
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

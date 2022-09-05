@@ -24,7 +24,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceivePricesData(result: Result<[PriceData], Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
-    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel])
+    func didReceiveChainsWithIssues(_ issues: [ChainIssue])
 }
 
 protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable, SheetAlertPresentable {

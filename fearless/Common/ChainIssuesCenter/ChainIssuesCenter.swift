@@ -65,10 +65,15 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     // MARK: - Private methods
 
     private func fetchIssues() -> [ChainIssue] {
-        [
-            .network(chains: networkIssuesChains),
-            .missingAccount(chains: missingAccountsChains)
-        ]
+        var issues: [ChainIssue] = []
+        if networkIssuesChains.isNotEmpty {
+            issues.append(.network(chains: networkIssuesChains))
+        }
+
+        if missingAccountsChains.isNotEmpty {
+            issues.append(.missingAccount(chains: missingAccountsChains))
+        }
+        return issues
     }
 
     private func notify() {

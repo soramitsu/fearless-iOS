@@ -272,7 +272,7 @@ private extension ChainAssetListViewModelFactory {
         currency: Currency,
         selectedMetaAccount: MetaAccountModel
     ) -> String? {
-        let totalFiatBalance = chainAssets.compactMap { chainAsset -> Decimal in
+        let totalFiatBalance = chainAssets.compactMap { chainAsset -> Decimal? in
             if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
                 return getFiatBalance(
@@ -282,8 +282,10 @@ private extension ChainAssetListViewModelFactory {
                 )
             }
 
-            return Decimal.zero
+            return nil
         }.reduce(0, +)
+
+        guard totalFiatBalance != .zero else { return nil }
 
         let balanceTokenFormatterValue = tokenFormatter(for: currency, locale: locale)
         return balanceTokenFormatterValue.stringFromDecimal(totalFiatBalance)

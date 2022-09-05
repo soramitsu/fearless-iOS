@@ -15,7 +15,7 @@ final class ChainAssetListInteractor {
     private var filters: [ChainAssetsFetching.Filter] = []
     private var sorts: [ChainAssetsFetching.SortDescriptor] = []
     private let eventCenter: EventCenter
-    private let networkIssuesCenter: NetworkIssuesCenterProtocol
+    private let chainsIssuesCenter: ChainsIssuesCenter
     private var wallet: MetaAccountModel
 
     private lazy var accountInfosDeliveryQueue = {
@@ -33,7 +33,7 @@ final class ChainAssetListInteractor {
         assetRepository: AnyDataProviderRepository<AssetModel>,
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
-        networkIssuesCenter: NetworkIssuesCenterProtocol
+        chainsIssuesCenter: ChainsIssuesCenter
     ) {
         self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
@@ -42,7 +42,7 @@ final class ChainAssetListInteractor {
         self.assetRepository = assetRepository
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
-        self.networkIssuesCenter = networkIssuesCenter
+        self.chainsIssuesCenter = chainsIssuesCenter
     }
 }
 
@@ -53,7 +53,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         self.output = output
 
         eventCenter.add(observer: self, dispatchIn: .main)
-        networkIssuesCenter.addIssuesListener(self, getExisting: true)
+        chainsIssuesCenter.addIssuesListener(self, getExisting: true)
     }
 
     func updateChainAssets(
@@ -147,8 +147,8 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 }
 
-extension ChainAssetListInteractor: NetworkIssuesCenterListener {
-    func handleChainsWithIssues(_ chains: [ChainModel]) {
-        output?.didReceiveChainsWithNetworkIssues(chains)
+extension ChainAssetListInteractor: ChainsIssuesCenterListener {
+    func handleChainsIssues(_ issues: [ChainIssue]) {
+        output?.didReceiveChainsWithIssues(issues)
     }
 }

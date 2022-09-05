@@ -104,6 +104,7 @@ extension AccountFetching {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
+    @discardableResult
     func fetchChainAccountFor(
         meta: MetaAccountModel,
         chain: ChainModel,
