@@ -36,6 +36,11 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Private methods
+
+    @objc
+    private func didTapInfoButton() {
+        output.didTapInfoButton()
+    }
 }
 
 // MARK: - BalanceInfoViewInput
@@ -43,6 +48,10 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
 extension BalanceInfoViewController: BalanceInfoViewInput {
     func didReceiveViewModel(_ viewModel: BalanceInfoViewModel) {
         rootView.bind(viewModel: viewModel)
+        if viewModel.infoButtonEnabled {
+            rootView.infoButton.isHidden = false
+            rootView.infoButton.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
+        }
     }
 }
 

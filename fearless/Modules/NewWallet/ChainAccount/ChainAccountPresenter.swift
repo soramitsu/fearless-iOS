@@ -194,7 +194,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didUpdate(chainAsset: ChainAsset) {
         provideViewModel()
         balanceInfoModule.replace(infoType: .chainAsset(
-            metaAccount: wallet,
+            wallet: wallet,
             chainAsset: chainAsset
         ))
     }

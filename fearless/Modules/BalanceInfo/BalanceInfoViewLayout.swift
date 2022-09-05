@@ -7,10 +7,22 @@ final class BalanceInfoViewLayout: UIView {
         return label
     }()
 
+    private let balanceContainerView: UIView = {
+        let view = UIView()
+        return view
+    }()
+
     private let balanceLabel: UILabel = {
         let label = UILabel()
         label.font = .h1Title
         return label
+    }()
+
+    let infoButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconInfoGrayFilled(), for: .normal)
+        button.isHidden = true
+        return button
     }()
 
     override init(frame: CGRect) {
@@ -29,6 +41,17 @@ final class BalanceInfoViewLayout: UIView {
     }
 
     private func setupLayout() {
+        balanceContainerView.addSubview(balanceLabel)
+        balanceContainerView.addSubview(infoButton)
+        balanceLabel.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview()
+        }
+        infoButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.leading.equalTo(balanceLabel.snp.trailing).offset(UIConstants.minimalOffset)
+            make.centerY.equalTo(balanceLabel)
+        }
+
         let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
         vStackView.alignment = .center
         addSubview(vStackView)
@@ -37,6 +60,6 @@ final class BalanceInfoViewLayout: UIView {
         }
 
         vStackView.addArrangedSubview(priceLabel)
-        vStackView.addArrangedSubview(balanceLabel)
+        vStackView.addArrangedSubview(balanceContainerView)
     }
 }

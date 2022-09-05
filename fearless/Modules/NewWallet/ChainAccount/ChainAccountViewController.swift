@@ -68,6 +68,8 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.walletBalanceViewContainer.addSubview(view)
         view.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.height.equalToSuperview()
+            make.width.equalToSuperview()
         }
 
         controller.didMove(toParent: self)

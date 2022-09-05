@@ -70,7 +70,7 @@ final class WalletMainContainerAssembly {
     private static func configureBalanceInfoModule(
         metaAccount: MetaAccountModel
     ) -> BalanceInfoModuleCreationResult? {
-        BalanceInfoAssembly.configureModule(with: .wallet(metaAccount: metaAccount))
+        BalanceInfoAssembly.configureModule(with: .wallet(wallet: metaAccount))
     }
 
     private static func configureAssetListModule(

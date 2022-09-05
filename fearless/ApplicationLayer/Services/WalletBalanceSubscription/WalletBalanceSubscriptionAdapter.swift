@@ -247,11 +247,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         _ chainAssets: [ChainAsset]
     ) {
         wallets.forEach { wallet in
+            if let existingAdapter = accountInfosAdapters[wallet.identifier] {
+                existingAdapter.subscribe(chainsAssets: chainAssets, handler: self)
+                return
+            }
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             )
-
             accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
         }
@@ -306,9 +309,6 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
         case let .success(accountInfo):
 
             accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-            guard chainAssets.count == accountInfos.keys.count else {
-                return
-            }
             buildBalance()
         case let .failure(error):
             logger.error("""

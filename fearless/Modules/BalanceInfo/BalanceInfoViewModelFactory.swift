@@ -26,13 +26,22 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         switch type {
         case let .wallet(metaAccount):
             guard let info = balances[metaAccount.metaId] else {
-                return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
+                return zeroBalanceViewModel(
+                    currencySymbol: metaAccount.selectedCurrency.symbol,
+                    infoButtonEnabled: false
+                )
             }
-            balanceInfoViewModel = buildWalletBalance(with: info, locale: locale)
+            balanceInfoViewModel = buildWalletBalance(
+                with: info,
+                locale: locale
+            )
 
         case let .chainAsset(metaAccount, chainAsset):
             guard let info = balances[metaAccount.metaId] else {
-                return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
+                return zeroBalanceViewModel(
+                    currencySymbol: metaAccount.selectedCurrency.symbol,
+                    infoButtonEnabled: false
+                )
             }
             balanceInfoViewModel = buildChainAssetBalance(
                 with: info,
@@ -64,7 +73,8 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
 
         return BalanceInfoViewModel(
             dayChangeAttributedString: dayChangeAttributedString,
-            balanceString: totalBalance
+            balanceString: totalBalance,
+            infoButtonEnabled: false
         )
     }
 
@@ -76,7 +86,10 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
     ) -> BalanceInfoViewModel {
         let accountRequest = chainAsset.chain.accountRequest()
         guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
-            return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
+            return zeroBalanceViewModel(
+                currencySymbol: metaAccount.selectedCurrency.symbol,
+                infoButtonEnabled: false
+            )
         }
 
         let dayChangeAttributedString = getDayChangeAttributedString(
@@ -98,19 +111,27 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             ),
             let balanceString = assetFormatter.stringFromDecimal(balance)
         else {
-            return zeroBalanceViewModel(currencySymbol: metaAccount.selectedCurrency.symbol)
+            return zeroBalanceViewModel(
+                currencySymbol: metaAccount.selectedCurrency.symbol,
+                infoButtonEnabled: true
+            )
         }
 
         return BalanceInfoViewModel(
             dayChangeAttributedString: dayChangeAttributedString,
-            balanceString: balanceString
+            balanceString: balanceString,
+            infoButtonEnabled: true
         )
     }
 
-    private func zeroBalanceViewModel(currencySymbol: String) -> BalanceInfoViewModel {
+    private func zeroBalanceViewModel(
+        currencySymbol: String,
+        infoButtonEnabled: Bool
+    ) -> BalanceInfoViewModel {
         BalanceInfoViewModel(
             dayChangeAttributedString: nil,
-            balanceString: currencySymbol + "0"
+            balanceString: currencySymbol + "0",
+            infoButtonEnabled: infoButtonEnabled
         )
     }
 
