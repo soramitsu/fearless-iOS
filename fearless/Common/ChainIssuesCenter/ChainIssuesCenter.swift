@@ -21,7 +21,7 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
     private var issuesListeners: [WeakWrapper] = []
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
     private let eventCenter: EventCenter
-    private let missingAccountHelper: MissingAccountFetcherProtocol
+    private let missingAccountFetcher: MissingAccountFetcherProtocol
 
     private var wallet: MetaAccountModel
     private var networkIssuesChains: [ChainModel] = []
@@ -36,12 +36,12 @@ final class ChainsIssuesCenter: ChainsIssuesCenterProtocol {
         self.wallet = wallet
         self.networkIssuesCenter = networkIssuesCenter
         self.eventCenter = eventCenter
-        self.missingAccountHelper = missingAccountHelper
+        missingAccountFetcher = missingAccountHelper
 
         self.networkIssuesCenter.addIssuesListener(self, getExisting: true)
         self.eventCenter.add(observer: self, dispatchIn: nil)
 
-        self.missingAccountHelper.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
+        missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
             self?.missingAccountsChains = missingAccounts
             self?.notify()
         }
@@ -97,7 +97,7 @@ extension ChainsIssuesCenter: EventVisitorProtocol {
         }
         self.wallet = wallet
 
-        missingAccountHelper.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
+        missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
             self?.missingAccountsChains = missingAccounts
             self?.notify()
         }

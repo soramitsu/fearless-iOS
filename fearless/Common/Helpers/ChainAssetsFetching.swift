@@ -126,8 +126,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter { $0.asset.name == name }
         case let .search(name):
             return chainAssets.filter {
-                $0.asset.name.contains(name.uppercased())
-                    || $0.chain.name.contains(name.uppercased())
+                $0.asset.name.lowercased().contains(name.lowercased())
+                    || $0.chain.name.lowercased().contains(name.lowercased())
             }
         }
     }

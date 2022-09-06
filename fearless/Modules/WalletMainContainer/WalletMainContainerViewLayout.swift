@@ -133,6 +133,13 @@ final class WalletMainContainerViewLayout: UIView {
         issuesButton.isHidden = !viewModel.hasNetworkIssues
     }
 
+    func addBalance(_ view: UIView) {
+        walletBalanceViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+    }
+
     // MARK: - Private methods
 
     private func applyLocalization() {

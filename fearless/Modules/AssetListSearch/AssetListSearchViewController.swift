@@ -58,11 +58,7 @@ final class AssetListSearchViewController: UIViewController, ViewHolder {
             return
         }
 
-        rootView.assetListViewContainer.addSubview(view)
-        view.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-
+        rootView.addAssetList(view)
         controller.didMove(toParent: self)
     }
 

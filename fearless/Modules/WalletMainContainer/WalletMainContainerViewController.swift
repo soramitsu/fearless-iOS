@@ -58,11 +58,8 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
         guard let view = balanceInfoViewController.view else {
             return
         }
-        rootView.walletBalanceViewContainer.addSubview(view)
-        view.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
 
+        rootView.addBalance(view)
         controller.didMove(toParent: self)
     }
 

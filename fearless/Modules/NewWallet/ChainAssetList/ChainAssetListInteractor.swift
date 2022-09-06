@@ -103,6 +103,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                 self?.output?.didReceiveChainAssets(result: .success(chainAssets))
                 if chainAssets.isEmpty {
                     self?.output?.updateViewModel()
+                    return
                 }
                 self?.subscribeToAccountInfo(for: chainAssets)
                 self?.subscribeToPrice(for: chainAssets)

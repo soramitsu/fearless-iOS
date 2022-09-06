@@ -122,7 +122,11 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
         var disabledChainAssets: [ChainAsset] = []
 
         chainAssets.forEach { chainAsset in
-            let chainAssetKey = chainAsset.uniqueKey(accountId: metaAccount.substrateAccountId)
+            let accountRequest = chainAsset.chain.accountRequest()
+            guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
+                return
+            }
+            let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
             if let chainIdForFilter = metaAccount.chainIdForFilter {
                 if chainAsset.chain.chainId == chainIdForFilter {

@@ -43,6 +43,13 @@ final class AssetListSearchViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func addAssetList(_ view: UIView) {
+        assetListViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
+
     private func setupLayout() {
         backgroundColor = R.color.colorBlack()
 
@@ -67,8 +74,7 @@ final class AssetListSearchViewLayout: UIView {
         addSubview(assetListViewContainer)
         assetListViewContainer.snp.makeConstraints { make in
             make.top.equalTo(hStackView.snp.bottom).offset(UIConstants.verticalInset)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 
