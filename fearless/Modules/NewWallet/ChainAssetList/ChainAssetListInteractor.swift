@@ -114,9 +114,14 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
     }
 
     func hideChainAsset(_ chainAsset: ChainAsset) {
-        let id = chainAsset.uniqueKey(accountId: wallet.substrateAccountId)
+        let accountRequest = chainAsset.chain.accountRequest()
+        guard let accountId = wallet.fetch(for: accountRequest)?.accountId else {
+            return
+        }
+        let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+        
         var disabledAssets = wallet.assetIdsDisabled ?? []
-        disabledAssets.append(id)
+        disabledAssets.append(chainAssetKey)
 
         let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
         save(updatedWallet)
