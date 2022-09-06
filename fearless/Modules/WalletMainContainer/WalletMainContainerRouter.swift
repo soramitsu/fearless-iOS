@@ -2,46 +2,6 @@ import Foundation
 import UIKit
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
-    func showSendFlow(
-        from view: WalletMainContainerViewInput?,
-        chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
-    ) {
-        let searchView = SearchPeopleViewFactory.createView(
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedMetaAccount: selectedMetaAccount,
-            transferFinishBlock: transferFinishBlock
-        )
-
-        guard let controller = searchView?.controller else {
-            return
-        }
-
-        let navigationController = UINavigationController(rootViewController: controller)
-        view?.controller.present(navigationController, animated: true)
-    }
-
-    func showReceiveFlow(
-        from view: WalletMainContainerViewInput?,
-        chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel
-    ) {
-        let receiveView = ReceiveAssetViewFactory.createView(
-            account: selectedMetaAccount,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset
-        )
-
-        guard let controller = receiveView?.controller else {
-            return
-        }
-
-        let navigationController = UINavigationController(rootViewController: controller)
-        view?.controller.present(navigationController, animated: true)
-    }
-
     func showCreateNewWallet(from view: WalletMainContainerViewInput?) {
         guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding() else {
             return
@@ -85,15 +45,17 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
 
     func showScanQr(from _: WalletMainContainerViewInput?) {}
 
-    func showSearch(from view: WalletMainContainerViewInput?) {
-        guard let module = AssetListSearchAssembly.configureModule() else {
+    func showSearch(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel) {
+        guard let module = AssetListSearchAssembly.configureModule(wallet: wallet) else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(
-            module.view.controller,
-            animated: true
+        let navigationController = FearlessNavigationController(
+            rootViewController: module.view.controller
         )
+        navigationController.modalPresentationStyle = .fullScreen
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     func showSelectNetwork(

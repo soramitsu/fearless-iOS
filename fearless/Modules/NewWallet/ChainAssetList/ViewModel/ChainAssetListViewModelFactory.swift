@@ -68,14 +68,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         var activeSectionCellModels: [ChainAccountBalanceCellViewModel] = []
         var hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = []
 
-        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled {
-            let cellModelsDivide = chainAssetCellModels.divide(predicate: { [assetIdsEnabled] cellModel in
-                assetIdsEnabled.contains { assetId in
+        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled {
+            let cellModelsDivide = chainAssetCellModels.divide(predicate: { [assetIdsDisabled] cellModel in
+                assetIdsDisabled.contains { assetId in
                     assetId == cellModel.chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
                 }
             })
-            activeSectionCellModels = cellModelsDivide.slice
-            hiddenSectionCellModels = cellModelsDivide.remainder
+            hiddenSectionCellModels = cellModelsDivide.slice
+            activeSectionCellModels = cellModelsDivide.remainder
         } else {
             activeSectionCellModels = chainAssetCellModels
         }

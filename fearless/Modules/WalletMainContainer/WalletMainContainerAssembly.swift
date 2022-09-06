@@ -13,7 +13,7 @@ final class WalletMainContainerAssembly {
             sortDescriptors: []
         )
 
-        let missingAccountHelper = MissingAccountsHelper(
+        let missingAccountHelper = MissingAccountFetcher(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
@@ -36,26 +36,24 @@ final class WalletMainContainerAssembly {
 
         let router = WalletMainContainerRouter()
 
-        let presenter = WalletMainContainerPresenter(
-            wallet: wallet,
-            viewModelFactory: WalletMainContainerViewModelFactory(),
-            interactor: interactor,
-            router: router,
-            localizationManager: localizationManager
-        )
-
         guard
             let balanceInfoModule = Self.configureBalanceInfoModule(wallet: wallet),
             let assetListModule = Self.configureAssetListModule(
-                wallet: wallet,
-                delegate: presenter
+                metaAccount: wallet
             ),
             let nftModule = Self.configureNftModule()
         else {
             return nil
         }
 
-        presenter.assetListModuleInput = assetListModule.input
+        let presenter = WalletMainContainerPresenter(
+            assetListModuleInput: assetListModule.input,
+            wallet: wallet,
+            viewModelFactory: WalletMainContainerViewModelFactory(),
+            interactor: interactor,
+            router: router,
+            localizationManager: localizationManager
+        )
 
         let view = WalletMainContainerViewController(
             balanceInfoViewController: balanceInfoModule.view.controller,
@@ -74,10 +72,9 @@ final class WalletMainContainerAssembly {
     }
 
     private static func configureAssetListModule(
-        wallet: MetaAccountModel,
-        delegate: ChainAssetListModuleOutput?
+        metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(wallet: wallet, delegate: delegate)
+        ChainAssetListAssembly.configureModule(wallet: metaAccount)
     }
 
     private static func configureNftModule() -> MainNftContainerModuleCreationResult? {

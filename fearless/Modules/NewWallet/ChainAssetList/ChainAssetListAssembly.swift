@@ -3,10 +3,7 @@ import SoraFoundation
 import RobinHood
 
 final class ChainAssetListAssembly {
-    static func configureModule(
-        wallet: MetaAccountModel,
-        delegate: ChainAssetListModuleOutput?
-    ) -> ChainAssetListModuleCreationResult? {
+    static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -18,6 +15,9 @@ final class ChainAssetListAssembly {
         )
 
         let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
 
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
@@ -46,7 +46,7 @@ final class ChainAssetListAssembly {
             mapper: AnyCoreDataMapper(AssetModelMapper())
         )
 
-        let missingAccountHelper = MissingAccountsHelper(
+        let missingAccountHelper = MissingAccountFetcher(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
@@ -66,7 +66,8 @@ final class ChainAssetListAssembly {
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter
+            chainsIssuesCenter: chainsIssuesCenter,
+            accountRepository: AnyDataProviderRepository(accountRepository)
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
@@ -74,7 +75,6 @@ final class ChainAssetListAssembly {
         )
 
         let presenter = ChainAssetListPresenter(
-            moduleOutput: delegate,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager,
