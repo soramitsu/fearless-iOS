@@ -4,7 +4,7 @@ import SoraFoundation
 final class WalletMainContainerPresenter {
     // MARK: Private properties
 
-    weak var assetListModuleInput: ChainAssetListModuleInput?
+    private weak var assetListModuleInput: ChainAssetListModuleInput?
     private weak var view: WalletMainContainerViewInput?
     private let router: WalletMainContainerRouterInput
     private let interactor: WalletMainContainerInteractorInput
@@ -20,12 +20,14 @@ final class WalletMainContainerPresenter {
     // MARK: - Constructors
 
     init(
+        assetListModuleInput: ChainAssetListModuleInput?,
         wallet: MetaAccountModel,
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.assetListModuleInput = assetListModuleInput
         self.wallet = wallet
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
@@ -65,7 +67,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapSearch() {
-        router.showSearch(from: view)
+        router.showSearch(from: view, wallet: wallet)
     }
 
     func didTapSelectNetwork() {
@@ -148,29 +150,5 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
-    }
-}
-
-extension WalletMainContainerPresenter: ChainAssetListModuleOutput {
-    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
-        switch actionType {
-        case .send:
-            router.showSendFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: wallet,
-                transferFinishBlock: nil
-            )
-        case .receive:
-            router.showReceiveFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: wallet
-            )
-        case .teleport:
-            break
-        case .hide:
-            break
-        }
     }
 }

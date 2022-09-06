@@ -4,6 +4,7 @@ import SoraUI
 
 class SearchTextField: BackgroundedContentControl {
     private enum Constants {
+        static let delay: CGFloat = 0.5
         static let textFieldInsets: CGFloat = 13
         static let searchTextFieldHeight: CGFloat = 36
     }
@@ -14,8 +15,8 @@ class SearchTextField: BackgroundedContentControl {
         return textField
     }()
 
-    var triangularedView: TriangularedBlurView? {
-        backgroundView as? TriangularedBlurView
+    var triangularedView: TriangularedView? {
+        backgroundView as? TriangularedView
     }
 
     var onTextDidChanged: ((String?) -> Void)?
@@ -25,10 +26,10 @@ class SearchTextField: BackgroundedContentControl {
     override init(frame: CGRect) {
         super.init(frame: frame)
         createUI()
-        setClearRightButton()
         setSearchLeftButton()
-        textField.addTarget(self, action: #selector(textFieldDidChange(_:)), for: UIControl.Event.editingChanged)
+        textField.addTarget(self, action: #selector(handleThorttle), for: UIControl.Event.editingChanged)
         textField.delegate = self
+        textField.clearButtonMode = .whileEditing
     }
 
     @available(*, unavailable)
@@ -47,18 +48,9 @@ class SearchTextField: BackgroundedContentControl {
         textField.leftViewMode = .always
     }
 
-    private func setClearRightButton() {
-        let clearButton = UIButton()
-        clearButton.setImage(R.image.deleteGrey(), for: .normal)
-        clearButton.addTarget(self, action: #selector(handleDeleteButton), for: .touchUpInside)
-
-        textField.rightView = clearButton
-        textField.rightViewMode = .never
-    }
-
     private func createUI() {
         if backgroundView == nil {
-            backgroundView = TriangularedBlurView()
+            backgroundView = TriangularedView()
             backgroundView?.isUserInteractionEnabled = false
         }
 
@@ -72,23 +64,20 @@ class SearchTextField: BackgroundedContentControl {
 
     // MARK: - Actions
 
+    @objc private func handleThorttle() {
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(textFieldDidChange),
+            object: nil
+        )
+        perform(#selector(textFieldDidChange), with: nil, afterDelay: Constants.delay)
+    }
+
     @objc private func handleIconSearchButton() {
         textField.becomeFirstResponder()
     }
 
-    @objc private func handleDeleteButton() {
-        textField.text = ""
-        sendActions(for: .editingChanged)
-        textField.becomeFirstResponder()
-    }
-
-    @objc func textFieldDidChange(_ textField: UITextField) {
-        if let text = textField.text, !text.isEmpty {
-            textField.rightViewMode = .always
-        } else {
-            textField.rightViewMode = .never
-        }
-
+    @objc func textFieldDidChange() {
         onTextDidChanged?(textField.text)
     }
 }

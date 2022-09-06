@@ -17,6 +17,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     )
+    func hideChainAsset(_ chainAsset: ChainAsset)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
@@ -25,12 +26,24 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
+    func updateViewModel()
 }
 
 protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable, SheetAlertPresentable {
     func showChainAccount(
-        from view: ChainAssetListViewInput?,
+        from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
+    )
+    func showSendFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel,
+        transferFinishBlock: WalletTransferFinishBlock?
+    )
+    func showReceiveFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        selectedMetaAccount: MetaAccountModel
     )
 }
 
@@ -41,6 +54,4 @@ protocol ChainAssetListModuleInput: AnyObject {
     )
 }
 
-protocol ChainAssetListModuleOutput: AnyObject {
-    func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel)
-}
+protocol ChainAssetListModuleOutput: AnyObject {}

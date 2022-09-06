@@ -35,7 +35,7 @@ protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
         moduleOutput: WalletsManagmentModuleOutput?
     )
     func showScanQr(from view: WalletMainContainerViewInput?)
-    func showSearch(from view: WalletMainContainerViewInput?)
+    func showSearch(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel)
     func showSelectNetwork(
         from view: WalletMainContainerViewInput?,
         wallet: MetaAccountModel,
@@ -45,17 +45,6 @@ protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
     )
     func showCreateNewWallet(from view: WalletMainContainerViewInput?)
     func showImportWallet(from view: WalletMainContainerViewInput?)
-    func showSendFlow(
-        from view: WalletMainContainerViewInput?,
-        chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
-    )
-    func showReceiveFlow(
-        from view: WalletMainContainerViewInput?,
-        chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel
-    )
     func showSelectCurrency(
         from view: WalletMainContainerViewInput?,
         wallet: MetaAccountModel
