@@ -16,7 +16,7 @@ final class NetworkIssuesNotificationAssembly {
             sortDescriptors: []
         )
 
-        let missingAccountHelper = MissingAccountsHelper(
+        let missingAccountHelper = MissingAccountFetcher(
             chainRepository: AnyDataProviderRepository(chainRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )

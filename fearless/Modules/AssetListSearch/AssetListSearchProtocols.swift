@@ -1,9 +1,11 @@
 typealias AssetListSearchModuleCreationResult = (view: AssetListSearchViewInput, input: AssetListSearchModuleInput)
 
-protocol AssetListSearchViewInput: ControllerBackedProtocol {}
+protocol AssetListSearchViewInput: ControllerBackedProtocol, HiddableBarWhenPushed {}
 
 protocol AssetListSearchViewOutput: AnyObject {
     func didLoad(view: AssetListSearchViewInput)
+    func didTapOnCalcel()
+    func searchTextDidChange(_ text: String?)
 }
 
 protocol AssetListSearchInteractorInput: AnyObject {
@@ -12,7 +14,7 @@ protocol AssetListSearchInteractorInput: AnyObject {
 
 protocol AssetListSearchInteractorOutput: AnyObject {}
 
-protocol AssetListSearchRouterInput: AnyObject {}
+protocol AssetListSearchRouterInput: PresentDismissable {}
 
 protocol AssetListSearchModuleInput: AnyObject {}
 
