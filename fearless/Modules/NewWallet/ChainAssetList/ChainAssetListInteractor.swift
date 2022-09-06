@@ -85,6 +85,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 private extension ChainAssetListInteractor {
     func subscribeToPrice(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId)
+        guard pricesIds.isNotEmpty else {
+            output?.didReceivePricesData(result: .success([]))
+            return
+        }
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 

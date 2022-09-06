@@ -54,7 +54,8 @@ final class ChainModelMapper {
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
-            chain: parentChain
+            chain: parentChain,
+            isUtility: entity.isUtility
         )
     }
 
@@ -97,6 +98,8 @@ final class ChainModelMapper {
             assetEntity.purchaseProviders = purchaseProviders
             assetEntity.staking = asset.staking?.rawValue
             assetEntity.type = asset.type.rawValue
+            assetEntity.isUtility = asset.isUtility
+
             updateEntityAsset(
                 for: assetEntity,
                 from: asset,
