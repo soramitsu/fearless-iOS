@@ -1,5 +1,7 @@
 extension Array {
-    func divide(predicate: (Self.Iterator.Element) -> Bool) -> (slice: [Self.Iterator.Element], remainder: [Self.Iterator.Element]) {
+    func divide(
+        predicate: (Self.Iterator.Element) -> Bool
+    ) -> (slice: [Self.Iterator.Element], remainder: [Self.Iterator.Element]) {
         var slice: [Self.Iterator.Element] = []
         var remainder: [Self.Iterator.Element] = []
         forEach {

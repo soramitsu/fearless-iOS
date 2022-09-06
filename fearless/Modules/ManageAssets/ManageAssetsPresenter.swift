@@ -108,7 +108,7 @@ extension ManageAssetsPresenter: ManageAssetsInteractorOutputProtocol {
     }
 
     func didReceiveAccount(_ account: MetaAccountModel) {
-        assetIdsEnabled = account.assetIdsEnabled
+        assetIdsEnabled = account.assetIdsDisabled
         sortedKeys = account.assetKeysOrder
         filterOptions = account.assetFilterOptions
         chainIdForFilter = account.chainIdForFilter

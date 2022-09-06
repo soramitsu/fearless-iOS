@@ -1,11 +1,11 @@
 import Foundation
 import RobinHood
 
-protocol MissingAccountsHelperProtocol {
+protocol MissingAccountFetcherProtocol {
     func fetchMissingAccounts(for wallet: MetaAccountModel, complection: @escaping ([ChainModel]) -> Void)
 }
 
-final class MissingAccountsHelper: MissingAccountsHelperProtocol {
+final class MissingAccountFetcher: MissingAccountFetcherProtocol {
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let operationQueue: OperationQueue
 

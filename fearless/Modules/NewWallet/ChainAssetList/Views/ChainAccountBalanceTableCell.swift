@@ -194,8 +194,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     private func createLeftButtons() -> [SwipeButtonProtocol] {
         [
             SwipeCellButton.createSendButton(),
-            SwipeCellButton.createReceiveButton(),
-            SwipeCellButton.createTeleportButton()
+            SwipeCellButton.createReceiveButton()
         ]
     }
 
