@@ -58,10 +58,6 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(model):
-            if let accountViewModel = model.accountViewModel {
-                rootView.bind(accountViewModel: accountViewModel)
-            }
-
             rootView.bind(feeViewModel: model.feeViewModel)
             rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
 

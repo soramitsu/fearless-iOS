@@ -119,7 +119,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             return
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
-        
+
         var disabledAssets = wallet.assetIdsDisabled ?? []
         disabledAssets.append(chainAssetKey)
 

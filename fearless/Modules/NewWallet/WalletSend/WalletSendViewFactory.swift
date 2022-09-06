@@ -16,7 +16,6 @@ struct WalletSendViewFactory {
         }
 
         let wireframe = WalletSendWireframe()
-        let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
@@ -28,7 +27,6 @@ struct WalletSendViewFactory {
         let presenter = WalletSendPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            accountViewModelFactory: accountViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             localizationManager: LocalizationManager.shared,

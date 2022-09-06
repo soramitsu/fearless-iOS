@@ -1,11 +1,15 @@
 import UIKit
 
 final class WalletSendViewLayout: UIView {
+    enum LayoutConstants {
+        static let verticalOffset: CGFloat = 25
+    }
+
     let navigationBar = BaseNavigationBar()
 
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h3Title
+        label.font = .h4Title
         label.textColor = .white
         return label
     }()
@@ -17,10 +21,9 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let addressView = UIFactory.default.createAccountView(for: .options, filled: false)
     let amountView = UIFactory.default.createAmountInputView(filled: false)
-    let tipView = UIFactory.default.createNetworkFeeView()
     let feeView = UIFactory.default.createNetworkFeeView()
+    let tipView = UIFactory.default.createNetworkFeeView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -49,72 +52,6 @@ final class WalletSendViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setupLayout() {
-        addSubview(navigationBar)
-        addSubview(contentView)
-
-        navigationBar.setCenterViews([navigationTitleLabel])
-
-        navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
-        }
-
-        contentView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(navigationBar.snp.bottom)
-        }
-
-        contentView.stackView.addArrangedSubview(addressView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: addressView)
-        contentView.stackView.addArrangedSubview(amountView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
-        contentView.stackView.addArrangedSubview(tipView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: tipView)
-        contentView.stackView.addArrangedSubview(feeView)
-
-        let viewOffset = -2.0 * UIConstants.horizontalInset
-
-        addressView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.triangularedViewHeight)
-        }
-
-        amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
-        }
-
-        feeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        tipView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        addSubview(actionButton) {
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            $0.height.equalTo(UIConstants.actionHeight)
-        }
-
-        contentView.scrollBottomOffset = 2 * UIConstants.horizontalInset + UIConstants.actionHeight
-    }
-
-    func bind(accountViewModel: AccountViewModel) {
-        let icon = accountViewModel.icon?.imageWithFillColor(
-            R.color.colorWhite()!,
-            size: UIConstants.smallAddressIconSize,
-            contentScale: UIScreen.main.scale
-        )
-
-        addressView.title = accountViewModel.title
-        addressView.iconImage = icon ?? R.image.iconBirdGreen()
-        addressView.subtitle = accountViewModel.name
-    }
-
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
         assetViewModel.iconViewModel?.cancel(on: amountView.iconView)
         amountView.iconView.image = nil
@@ -136,17 +73,58 @@ final class WalletSendViewLayout: UIView {
         assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
     }
 
-    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
-        tipView.bind(viewModel: tipViewModel)
-        tipView.isHidden = !isRequired
-    }
-
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
     }
 
-    private func applyLocalization() {
-        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
+    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
+        tipView.bind(viewModel: tipViewModel)
+        tipView.isHidden = !isRequired
+    }
+}
+
+private extension WalletSendViewLayout {
+    func setupLayout() {
+        addSubview(navigationBar)
+        addSubview(contentView)
+
+        navigationBar.setCenterViews([navigationTitleLabel])
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+        }
+
+        let viewOffset = -2.0 * UIConstants.horizontalInset
+        contentView.stackView.addArrangedSubview(amountView)
+        amountView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.amountViewHeight)
+        }
+
+        addSubview(actionButton) {
+            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            $0.height.equalTo(UIConstants.actionHeight)
+        }
+
+        addSubview(feeView) { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.cellHeight)
+            make.bottom.equalTo(actionButton.snp.top).offset(LayoutConstants.verticalOffset)
+        }
+
+        addSubview(tipView) { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.cellHeight)
+            make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
+        }
+    }
+
+    func applyLocalization() {
         feeView.locale = locale
 
         amountView.title = R.string.localizable
@@ -154,5 +132,7 @@ final class WalletSendViewLayout: UIView {
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
+
+        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
     }
 }
