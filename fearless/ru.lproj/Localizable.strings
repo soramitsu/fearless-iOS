@@ -281,6 +281,7 @@
 "wallet.filters.header" = "Показывать";
 "transfer.title" = "Перевод";
 "common.available.format" = "Доступно: %@";
+"common.balance.format" = "Баланс: %@";
 "staking.rewards.learn.more" = "Подробнее о вознаграждениях";
 "common.error.no.data.retrieved" = "Данные не получены.";
 "staking.reward.payouts.empty.rewards" = "Прекрасно! Все вознаграждения выплачены.";

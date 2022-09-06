@@ -9727,7 +9727,6 @@
 			isa = PBXGroup;
 			children = (
 				C6267B7328BDDE67001E31BF /* ChooseRecipient */,
-				C6267B7428BDDE70001E31BF /* SendAmount */,
 				C6267B7528BDDE86001E31BF /* SendConfirmation */,
 			);
 			path = SendFlow;
@@ -9748,13 +9747,6 @@
 				C6267BAF28C1D3C5001E31BF /* SendFlow.swift */,
 			);
 			path = ChooseRecipient;
-			sourceTree = "<group>";
-		};
-		C6267B7428BDDE70001E31BF /* SendAmount */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = SendAmount;
 			sourceTree = "<group>";
 		};
 		C6267B7528BDDE86001E31BF /* SendConfirmation */ = {

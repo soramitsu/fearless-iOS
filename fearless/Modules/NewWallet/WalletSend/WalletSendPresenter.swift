@@ -143,11 +143,6 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
 
         provideViewModel()
 
-        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.name,
-            preferredLanguages: selectedLocale.rLanguages
-        ))
-
         if !chain.isTipRequired {
             // To not distract users with two different fees one by one, let's wait for tip, and then refresh fee
             refreshFee()

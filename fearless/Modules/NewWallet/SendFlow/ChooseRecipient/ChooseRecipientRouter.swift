@@ -8,13 +8,22 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
     }
 
     func presentSendAmount(
-        from _: ControllerBackedProtocol?,
-        to _: String,
-        asset _: AssetModel,
-        chain _: ChainModel,
-        wallet _: MetaAccountModel
+        from view: ControllerBackedProtocol?,
+        to receiverAddress: String,
+        asset: AssetModel,
+        chain: ChainModel,
+        wallet: MetaAccountModel
     ) {
-        // TODO: Send amount transition
+        guard let controller = WalletSendViewFactory.createView(
+            receiverAddress: receiverAddress,
+            asset: asset,
+            chain: chain,
+            wallet: wallet,
+            transferFinishBlock: transferFinishBlock
+        )?.controller else {
+            return
+        }
+        view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
     func presentScan(

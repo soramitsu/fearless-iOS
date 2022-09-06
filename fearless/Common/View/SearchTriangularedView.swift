@@ -51,8 +51,7 @@ final class SearchTriangularedView: UIView {
 
     let textField: UITextField = {
         let view = UITextField()
-        view.tintColor = R.color.colorPinkPlaceholder()
-//        view.placeholder.color = R.color.colorAlmostWhite()
+        view.tintColor = R.color.colorPinkTint()
         view.font = .p1Paragraph
         view.textColor = .white
         view.returnKeyType = .done
@@ -70,11 +69,12 @@ final class SearchTriangularedView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func updateState(for text: String, icon: DrawableIcon?) {
-        if textField.text != text {
-            textField.text = text
+    func updateState(icon: DrawableIcon?) {
+        if let text = textField.text, !text.isEmpty {
+            applyEnabledState()
+        } else {
+            applyDisabledState()
         }
-        text.isEmpty ? applyDisabledState() : applyEnabledState()
         if let icon = icon {
             addressImage.bind(icon: icon)
             addressImage.isHidden = false
@@ -136,6 +136,6 @@ final class SearchTriangularedView: UIView {
     @objc
     private func cleanTextField() {
         textField.text = ""
-        updateState(for: "", icon: nil)
+        updateState(icon: nil)
     }
 }

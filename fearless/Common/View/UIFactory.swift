@@ -294,28 +294,28 @@ final class UIFactory: UIFactoryProtocol {
         let amountInputView = AmountInputView()
 
         if !filled {
-            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite()!
-            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite()!
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorPinkTint() ?? UIColor.systemPink
+            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorPinkTint() ?? UIColor.systemPink
             amountInputView.triangularedBackgroundView?.strokeWidth = 1.0
-            amountInputView.triangularedBackgroundView?.fillColor = .clear
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = .clear
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack() ?? UIColor.black
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack() ?? UIColor.black
         } else {
             amountInputView.triangularedBackgroundView?.strokeWidth = 0.0
-            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorDarkGray() ?? UIColor.gray
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray() ?? UIColor.gray
         }
 
-        amountInputView.titleLabel.textColor = R.color.colorLightGray()
-        amountInputView.titleLabel.font = .p2Paragraph
-        amountInputView.priceLabel.textColor = R.color.colorLightGray()
-        amountInputView.priceLabel.font = .p2Paragraph
+        amountInputView.titleLabel.textColor = R.color.colorWhite()
+        amountInputView.titleLabel.font = .h5Title
+        amountInputView.priceLabel.textColor = R.color.colorGray()
+        amountInputView.priceLabel.font = .p1Paragraph
         amountInputView.symbolLabel.textColor = R.color.colorWhite()
-        amountInputView.symbolLabel.font = .h4Title
-        amountInputView.balanceLabel.textColor = R.color.colorLightGray()
-        amountInputView.balanceLabel.font = .p2Paragraph
-        amountInputView.textField.font = .h4Title
+        amountInputView.symbolLabel.font = .h3Title
+        amountInputView.balanceLabel.textColor = R.color.colorGray()
+        amountInputView.balanceLabel.font = .p1Paragraph
+        amountInputView.textField.font = .h2Title
         amountInputView.textField.textColor = R.color.colorWhite()
-        amountInputView.textField.tintColor = R.color.colorWhite()
+        amountInputView.textField.tintColor = R.color.colorPinkTint()
         amountInputView.verticalSpacing = 2.0
         amountInputView.iconRadius = 12.0
         amountInputView.contentInsets = UIEdgeInsets(
@@ -329,7 +329,7 @@ final class UIFactory: UIFactoryProtocol {
             string: "0",
             attributes: [
                 .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
-                .font: UIFont.h4Title
+                .font: UIFont.h2Title
             ]
         )
 
@@ -460,6 +460,10 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createNetworkFeeView() -> NetworkFeeView {
+        NetworkFeeView()
+    }
+
+    func createNetworkFeeBottomView() -> NetworkFeeView {
         NetworkFeeView()
     }
 

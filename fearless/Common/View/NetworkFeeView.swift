@@ -4,15 +4,15 @@ import SoraUI
 final class NetworkFeeView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = R.color.colorLightGray()
-        label.font = UIFont.p1Paragraph
+        label.textColor = R.color.colorGray()
+        label.font = UIFont.p2Paragraph
         return label
     }()
 
     let tokenLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
-        label.font = UIFont.p1Paragraph
+        label.font = UIFont.p2Paragraph
         return label
     }()
 
@@ -21,7 +21,7 @@ final class NetworkFeeView: UIView {
         view.backgroundColor = .clear
         view.borderType = .bottom
         view.strokeWidth = 1.0
-        view.strokeColor = R.color.colorDarkGray()!
+        view.strokeColor = R.color.colorGray()!
         return view
     }()
 
@@ -94,13 +94,13 @@ final class NetworkFeeView: UIView {
         addSubview(fiatLabel)
         fiatLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
-            make.top.equalTo(self.snp.centerY)
+            make.bottom.equalTo(self.snp.centerY)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 
         tokenLabel.snp.remakeConstraints { make in
             make.trailing.equalToSuperview()
-            make.bottom.equalTo(self.snp.centerY)
+            make.top.equalTo(self.snp.centerY)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 

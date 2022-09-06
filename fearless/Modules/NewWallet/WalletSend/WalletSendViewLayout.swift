@@ -5,7 +5,11 @@ final class WalletSendViewLayout: UIView {
         static let verticalOffset: CGFloat = 25
     }
 
-    let navigationBar = BaseNavigationBar()
+    let navigationBar: BaseNavigationBar = {
+        let view = BaseNavigationBar()
+        view.backgroundColor = R.color.colorBlack19()
+        return view
+    }()
 
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
@@ -21,9 +25,19 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let amountView = UIFactory.default.createAmountInputView(filled: false)
-    let feeView = UIFactory.default.createNetworkFeeView()
-    let tipView = UIFactory.default.createNetworkFeeView()
+    let amountView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+
+    let feeView: NetworkFeeView = {
+        let view = UIFactory.default.createNetworkFeeView()
+        view.borderView.isHidden = true
+        return view
+    }()
+
+    let tipView: NetworkFeeView = {
+        let view = UIFactory.default.createNetworkFeeView()
+        view.borderView.isHidden = true
+        return view
+    }()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -42,7 +56,7 @@ final class WalletSendViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
 
         setupLayout()
     }
@@ -59,7 +73,7 @@ final class WalletSendViewLayout: UIView {
         amountView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.commonAvailableFormat(
+            amountView.balanceText = R.string.localizable.commonBalanceFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )
@@ -105,20 +119,20 @@ private extension WalletSendViewLayout {
             make.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        addSubview(actionButton) {
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            $0.height.equalTo(UIConstants.actionHeight)
+        addSubview(actionButton) { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.actionBottomInset)
+            make.height.equalTo(UIConstants.actionHeight)
         }
 
         addSubview(feeView) { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
-            make.bottom.equalTo(actionButton.snp.top).offset(LayoutConstants.verticalOffset)
+            make.bottom.equalTo(actionButton.snp.top).offset(-LayoutConstants.verticalOffset)
         }
 
         addSubview(tipView) { make in
-            make.width.equalTo(self).offset(viewOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
             make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
         }
@@ -134,5 +148,8 @@ private extension WalletSendViewLayout {
             .commonContinue(preferredLanguages: locale.rLanguages)
 
         tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
+
+        navigationTitleLabel.text = R.string.localizable
+            .chooseRecipientNextButtonTitle(preferredLanguages: locale.rLanguages)
     }
 }

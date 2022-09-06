@@ -29,7 +29,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setupKeyboardHandler()
-        rootView.searchView.textField.becomeFirstResponder()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -145,6 +144,7 @@ extension ChooseRecipientViewController: UITableViewDelegate, UITableViewDataSou
             return
         }
         presenter.didSelectViewModel(cellViewModel: viewModel.results[indexPath.row])
+        rootView.searchView.textField.text = viewModel.results[indexPath.row].address
     }
 }
 

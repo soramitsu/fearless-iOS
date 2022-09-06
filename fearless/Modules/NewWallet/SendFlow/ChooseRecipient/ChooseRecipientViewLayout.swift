@@ -10,6 +10,7 @@ final class ChooseRecipientViewLayout: UIView {
 
     let navigationBar: BaseNavigationBar = {
         let view = BaseNavigationBar()
+        view.backgroundColor = R.color.colorBlack19()
         view.backButton.setImage(R.image.iconBack(), for: .normal)
         return view
     }()
@@ -65,7 +66,7 @@ final class ChooseRecipientViewLayout: UIView {
 
     let tableView: UITableView = {
         let view = UITableView()
-        view.backgroundColor = .black
+        view.backgroundColor = R.color.colorBlack19()
         return view
     }()
 
@@ -82,7 +83,7 @@ final class ChooseRecipientViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .black
+        backgroundColor = R.color.colorBlack19()
 
         setupLayout()
     }
@@ -168,6 +169,6 @@ final class ChooseRecipientViewLayout: UIView {
 
     func bind(viewModel: ChooseRecipientViewModel) {
         nextButton.set(enabled: viewModel.isValid)
-        searchView.updateState(for: viewModel.address, icon: viewModel.icon)
+        searchView.updateState(icon: viewModel.icon)
     }
 }
