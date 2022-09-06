@@ -463,10 +463,6 @@ final class UIFactory: UIFactoryProtocol {
         NetworkFeeView()
     }
 
-    func createNetworkFeeBottomView() -> NetworkFeeView {
-        NetworkFeeView()
-    }
-
     func createNetworkFeeFooterView() -> NetworkFeeFooterView {
         NetworkFeeFooterView()
     }
