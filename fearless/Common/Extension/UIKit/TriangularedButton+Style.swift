@@ -21,6 +21,20 @@ extension TriangularedButton {
         changesContentOpacityWhenHighlighted = true
     }
 
+    func applyStackButtonStyle() {
+        triangularedView?.shadowOpacity = 0
+        triangularedView?.fillColor = R.color.colorSemiBlack()!
+        triangularedView?.highlightedFillColor = R.color.colorSemiBlack()!
+        triangularedView?.strokeColor = R.color.colorDarkGray()!
+        triangularedView?.highlightedStrokeColor = R.color.colorDarkGray()!
+        triangularedView?.strokeWidth = 2
+
+        imageWithTitleView?.titleColor = R.color.colorWhite()!
+        imageWithTitleView?.titleFont = .capsTitle
+
+        changesContentOpacityWhenHighlighted = true
+    }
+
     func applyEnabledStyle() {
         triangularedView?.shadowOpacity = 0
         triangularedView?.fillColor = R.color.colorAccent()!
