@@ -143,8 +143,8 @@ extension ChooseRecipientViewController: UITableViewDelegate, UITableViewDataSou
         guard let viewModel = tableViewModel else {
             return
         }
-        presenter.didSelectViewModel(cellViewModel: viewModel.results[indexPath.row])
         rootView.searchView.textField.text = viewModel.results[indexPath.row].address
+        presenter.didSelectViewModel(cellViewModel: viewModel.results[indexPath.row])
     }
 }
 
