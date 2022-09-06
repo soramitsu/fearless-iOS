@@ -2,10 +2,10 @@ import Foundation
 import RobinHood
 
 protocol ScamServiceOperationFactoryProtocol {
-    func verifyOperation(for address: String) -> BaseOperation<ScamInfo?>
+    func fetchScamInfoOperation(for address: String) -> BaseOperation<ScamInfo?>
 }
 
-final class ScamService: ScamServiceOperationFactoryProtocol {
+final class ScamServiceOperationFactory: ScamServiceOperationFactoryProtocol {
     // MARK: - Private properties
 
     private let repository: AnyDataProviderRepository<ScamInfo>
@@ -18,7 +18,7 @@ final class ScamService: ScamServiceOperationFactoryProtocol {
 
     // MARK: Public methods
 
-    func verifyOperation(for address: String) -> BaseOperation<ScamInfo?> {
+    func fetchScamInfoOperation(for address: String) -> BaseOperation<ScamInfo?> {
         repository.fetchOperation(by: address, options: RepositoryFetchOptions())
     }
 }

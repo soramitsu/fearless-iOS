@@ -11,7 +11,7 @@ enum ChainSyncServiceError: Error {
 }
 
 final class ChainSyncService {
-    static let fetchLocalData = true
+    static let fetchLocalData = false
 
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
@@ -114,7 +114,11 @@ final class ChainSyncService {
 
             switch result {
             case let .success((remoteChains, assetsList, localChains)):
-                self?.syncChanges(remoteChains: remoteChains, assetsList: assetsList, localChains: localChains)
+                self?.syncChanges(
+                    remoteChains: remoteChains,
+                    assetsList: assetsList,
+                    localChains: localChains
+                )
             case let .failure(error):
                 self?.complete(result: .failure(error))
             }

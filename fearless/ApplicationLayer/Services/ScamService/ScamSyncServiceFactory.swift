@@ -16,7 +16,7 @@ final class ScamSyncServiceFactory {
             )
 
         let service = ScamSyncService(
-            scamUrl: ApplicationConfig.shared.scamUrl,
+            scamListCsvURL: ApplicationConfig.shared.scamUrl,
             repository: AnyDataProviderRepository(repository),
             dataFetchFactory: DataOperationFactory(),
             retryStrategy: ExponentialReconnection(),

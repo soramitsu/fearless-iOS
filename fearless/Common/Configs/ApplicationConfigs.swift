@@ -34,7 +34,7 @@ protocol ApplicationConfigProtocol {
     var assetListURL: URL? { get }
     var commonTypesURL: URL? { get }
     var appVersionURL: URL? { get }
-    var scamUrl: URL? { get }
+    var scamListCsvURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -195,7 +195,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://wiki.polkadot.network/docs/learn-nomination-pools")
     }
 
-    var scamUrl: URL? {
+    var scamListCsvURL: URL? {
         GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "FLW-2096-Scam-detection-system")
     }
 }

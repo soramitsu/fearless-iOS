@@ -46,7 +46,7 @@
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
 		07B018CF28C70F3100E05510 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07B018C728C70F3100E05510 /* UserDataModel.xcdatamodeld */; };
 		07B018D128C7135400E05510 /* ScamInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D028C7135400E05510 /* ScamInfo.swift */; };
-		07B018D328C714B300E05510 /* ScamService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamService.swift */; };
+		07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */; };
 		07B6BC7A28B78E8000621864 /* SheetAlertPresentableStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7928B78E8000621864 /* SheetAlertPresentableStyle.swift */; };
 		07B6BC7C28B875D800621864 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7B28B875D800621864 /* UIControl.swift */; };
 		07B6BC7F28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */; };
@@ -2400,7 +2400,7 @@
 		07B018CD28C70F3100E05510 /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		07B018CE28C70F3100E05510 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
-		07B018D228C714B300E05510 /* ScamService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamService.swift; sourceTree = "<group>"; };
+		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
 		07B6BC7928B78E8000621864 /* SheetAlertPresentableStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAlertPresentableStyle.swift; sourceTree = "<group>"; };
 		07B6BC7B28B875D800621864 /* UIControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
@@ -4868,7 +4868,7 @@
 			children = (
 				0713097C28C63893002B17D0 /* ScamSyncService.swift */,
 				0713097E28C6F60D002B17D0 /* ScamSyncServiceFactory.swift */,
-				07B018D228C714B300E05510 /* ScamService.swift */,
+				07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */,
 			);
 			path = ScamService;
 			sourceTree = "<group>";
@@ -13835,7 +13835,7 @@
 				FA37AE2F2859BED8001DCA96 /* StakingUnbondSetupParachainStrategy.swift in Sources */,
 				84DED3F726662CF200A153BB /* TitleValueSelectionControl.swift in Sources */,
 				84BEF601258938C1002A22E2 /* WalletActionsViewModel.swift in Sources */,
-				07B018D328C714B300E05510 /* ScamService.swift in Sources */,
+				07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */,
 				07E346D4288E616E00A8FAEC /* WalletBalanceBuilder.swift in Sources */,
 				84F30EA125FD3EE700039D09 /* ChildSubscriptionFactory.swift in Sources */,
 				8401AEC12642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift in Sources */,

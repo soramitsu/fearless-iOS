@@ -14,7 +14,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
 
     // MARK: - Private properties
 
-    private let scamUrl: URL?
+    private let scamListCsvURL: URL?
     private let repository: AnyDataProviderRepository<ScamInfo>
     private let dataFetchFactory: DataOperationFactoryProtocol
     private let retryStrategy: ReconnectionStrategyProtocol
@@ -28,13 +28,13 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     // MARK: - Constructor
 
     init(
-        scamUrl: URL?,
+        scamListCsvURL: URL?,
         repository: AnyDataProviderRepository<ScamInfo>,
         dataFetchFactory: DataOperationFactoryProtocol,
         retryStrategy: ReconnectionStrategyProtocol,
         operationQueue: OperationQueue
     ) {
-        self.scamUrl = scamUrl
+        self.scamListCsvURL = scamListCsvURL
         self.repository = repository
         self.dataFetchFactory = dataFetchFactory
         self.retryStrategy = retryStrategy
@@ -44,7 +44,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
     // MARK: - Public methods
 
     func syncUp() {
-        guard let scamUrl = scamUrl else {
+        guard let scamUrl = scamListCsvURL else {
             return
         }
 
