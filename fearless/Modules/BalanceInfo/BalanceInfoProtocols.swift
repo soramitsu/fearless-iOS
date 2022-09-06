@@ -13,7 +13,7 @@ protocol BalanceInfoViewOutput: AnyObject {
 
 protocol BalanceInfoInteractorInput: AnyObject {
     func setup(with output: BalanceInfoInteractorOutput, for type: BalanceInfoType)
-    func getBalanceInfo(for type: BalanceInfoType)
+    func fetchBalanceInfo(for type: BalanceInfoType)
 }
 
 protocol BalanceInfoInteractorOutput: AnyObject {

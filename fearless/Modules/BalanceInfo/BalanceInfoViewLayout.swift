@@ -36,6 +36,7 @@ final class BalanceInfoViewLayout: UIView {
     }
 
     func bind(viewModel: BalanceInfoViewModel) {
+        infoButton.isHidden = !viewModel.infoButtonEnabled
         priceLabel.attributedText = viewModel.dayChangeAttributedString
         balanceLabel.text = viewModel.balanceString
     }

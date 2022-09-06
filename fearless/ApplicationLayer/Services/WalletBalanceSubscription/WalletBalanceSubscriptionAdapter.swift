@@ -101,6 +101,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -111,6 +112,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -123,6 +125,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -130,6 +133,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     // MARK: - Private methods
+
+    private func reset() {
+        accountInfos = [:]
+        metaAccounts.forEach { wallet in
+            accountInfosAdapters[wallet.identifier]?.reset()
+        }
+        accountInfosAdapters = [:]
+    }
 
     private func buildBalance() {
         let walletBalances = walletBalanceBuilder.buildBalance(
@@ -247,10 +258,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         _ chainAssets: [ChainAsset]
     ) {
         wallets.forEach { wallet in
-            if let existingAdapter = accountInfosAdapters[wallet.identifier] {
-                existingAdapter.subscribe(chainsAssets: chainAssets, handler: self)
-                return
-            }
             let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
@@ -309,6 +316,9 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
         case let .success(accountInfo):
 
             accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            guard chainAssets.count == accountInfos.keys.count else {
+                return
+            }
             buildBalance()
         case let .failure(error):
             logger.error("""

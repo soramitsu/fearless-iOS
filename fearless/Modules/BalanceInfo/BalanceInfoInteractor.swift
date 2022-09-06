@@ -31,10 +31,10 @@ extension BalanceInfoInteractor: BalanceInfoInteractorInput {
         for type: BalanceInfoType
     ) {
         self.output = output
-        getBalanceInfo(for: type)
+        fetchBalanceInfo(for: type)
     }
 
-    func getBalanceInfo(for type: BalanceInfoType) {
+    func fetchBalanceInfo(for type: BalanceInfoType) {
         fetchBalance(for: type)
         if case let .chainAsset(wallet, chainAsset) = type {
             guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
@@ -89,7 +89,7 @@ private extension BalanceInfoInteractor {
     ) {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let balanceLocksOperation = createBalanceLocksFetchOperation(
-                accountId,
+                for: accountId,
                 runtimeService: runtimeService,
                 connection: connection
             )
@@ -111,7 +111,7 @@ private extension BalanceInfoInteractor {
     }
 
     func createBalanceLocksFetchOperation(
-        _ accountId: AccountId,
+        for accountId: AccountId,
         runtimeService: RuntimeCodingServiceProtocol,
         connection: JSONRPCEngine
     ) -> CompoundOperationWrapper<BalanceLocks?> {

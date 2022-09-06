@@ -5,6 +5,7 @@ protocol BalanceInfoViewModelFactoryProtocol {
     func buildBalanceInfo(
         with type: BalanceInfoType,
         balances: WalletBalanceInfos,
+        infoButtonEnabled: Bool,
         locale: Locale
     ) -> BalanceInfoViewModel
 }
@@ -19,6 +20,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
     func buildBalanceInfo(
         with type: BalanceInfoType,
         balances: WalletBalanceInfos,
+        infoButtonEnabled: Bool,
         locale: Locale
     ) -> BalanceInfoViewModel {
         var balanceInfoViewModel: BalanceInfoViewModel
@@ -47,6 +49,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
                 with: info,
                 metaAccount: metaAccount,
                 chainAsset: chainAsset,
+                infoButtonEnabled: infoButtonEnabled,
                 locale: locale
             )
         }
@@ -82,6 +85,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         with balanceInfo: WalletBalanceInfo,
         metaAccount: MetaAccountModel,
         chainAsset: ChainAsset,
+        infoButtonEnabled: Bool,
         locale: Locale
     ) -> BalanceInfoViewModel {
         let accountRequest = chainAsset.chain.accountRequest()
@@ -113,14 +117,14 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         else {
             return zeroBalanceViewModel(
                 currencySymbol: metaAccount.selectedCurrency.symbol,
-                infoButtonEnabled: true
+                infoButtonEnabled: infoButtonEnabled
             )
         }
 
         return BalanceInfoViewModel(
             dayChangeAttributedString: dayChangeAttributedString,
             balanceString: balanceString,
-            infoButtonEnabled: true
+            infoButtonEnabled: infoButtonEnabled
         )
     }
 

@@ -33,6 +33,7 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        rootView.infoButton.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
     }
 
     // MARK: - Private methods
@@ -48,10 +49,6 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
 extension BalanceInfoViewController: BalanceInfoViewInput {
     func didReceiveViewModel(_ viewModel: BalanceInfoViewModel) {
         rootView.bind(viewModel: viewModel)
-        if viewModel.infoButtonEnabled {
-            rootView.infoButton.isHidden = false
-            rootView.infoButton.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
-        }
     }
 }
 

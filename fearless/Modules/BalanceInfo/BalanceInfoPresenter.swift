@@ -41,25 +41,17 @@ final class BalanceInfoPresenter {
         let viewModel = balanceInfoViewModelFactoryProtocol.buildBalanceInfo(
             with: balanceInfoType,
             balances: balances,
+            infoButtonEnabled: createBalanceContext() != nil,
             locale: selectedLocale
         )
 
         view?.didReceiveViewModel(viewModel)
     }
-}
 
-// MARK: - BalanceInfoViewOutput
-
-extension BalanceInfoPresenter: BalanceInfoViewOutput {
-    func didLoad(view: BalanceInfoViewInput) {
-        self.view = view
-        interactor.setup(with: self, for: balanceInfoType)
-    }
-
-    func didTapInfoButton() {
+    private func createBalanceContext() -> BalanceContext? {
         guard case let .chainAsset(wallet, chainAsset) = balanceInfoType,
               let balance = balances[wallet.metaId] else {
-            return
+            return nil
         }
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
            let accountInfo = balance.accountInfos[chainAsset.uniqueKey(accountId: accountId)],
@@ -76,7 +68,7 @@ extension BalanceInfoPresenter: BalanceInfoViewOutput {
             if let data = priceData, let decimalPrice = Decimal(string: data.price) {
                 price = decimalPrice
             }
-            let balanceContext = BalanceContext(
+            return BalanceContext(
                 free: free,
                 reserved: reserved,
                 miscFrozen: miscFrozen,
@@ -86,6 +78,25 @@ extension BalanceInfoPresenter: BalanceInfoViewOutput {
                 minimalBalance: decimalMinBalance,
                 balanceLocks: locks
             )
+        }
+        return nil
+    }
+}
+
+// MARK: - BalanceInfoViewOutput
+
+extension BalanceInfoPresenter: BalanceInfoViewOutput {
+    func didLoad(view: BalanceInfoViewInput) {
+        self.view = view
+        interactor.setup(with: self, for: balanceInfoType)
+    }
+
+    func didTapInfoButton() {
+        guard case let .chainAsset(wallet, chainAsset) = balanceInfoType,
+              let balance = balances[wallet.metaId] else {
+            return
+        }
+        if let balanceContext = createBalanceContext() {
             router.presentLockedInfo(
                 from: view,
                 balanceContext: balanceContext,
@@ -137,6 +148,6 @@ extension BalanceInfoPresenter: Localizable {
 extension BalanceInfoPresenter: BalanceInfoModuleInput {
     func replace(infoType: BalanceInfoType) {
         balanceInfoType = infoType
-        interactor.getBalanceInfo(for: infoType)
+        interactor.fetchBalanceInfo(for: infoType)
     }
 }
