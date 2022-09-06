@@ -47,6 +47,7 @@
     </entity>
     <entity name="CDChainAsset" representedClassName="CDChainAsset" syncable="YES" codeGenerationType="class">
         <attribute name="assetId" attributeType="String"/>
+        <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" customClassName="[String]"/>
         <attribute name="staking" optional="YES" attributeType="String"/>
         <attribute name="type" optional="YES" attributeType="String"/>
@@ -88,6 +89,12 @@
         <attribute name="txVersion" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
+    <entity name="CDScamInfo" representedClassName="CDScamInfo" syncable="YES" codeGenerationType="class">
+        <attribute name="address" optional="YES" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
+        <attribute name="subtype" optional="YES" attributeType="String"/>
+        <attribute name="type" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="CDSingleValue" representedClassName="CDSingleValue" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" attributeType="String"/>
         <attribute name="payload" attributeType="Binary"/>
@@ -112,7 +119,7 @@
     <elements>
         <element name="CDAsset" positionX="-36" positionY="90" width="128" height="209"/>
         <element name="CDChain" positionX="-45" positionY="81" width="128" height="389"/>
-        <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="119"/>
+        <element name="CDChainAsset" positionX="-36" positionY="153" width="128" height="14"/>
         <element name="CDChainNode" positionX="-27" positionY="99" width="128" height="104"/>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
@@ -121,5 +128,6 @@
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
+        <element name="CDScamInfo" positionX="-36" positionY="153" width="128" height="89"/>
     </elements>
 </model>

@@ -11,6 +11,10 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
         chain.assets.first(where: { $0.assetId == asset.id })?.type ?? .normal
     }
 
+    var isUtility: Bool {
+        chain.assets.first(where: { $0.assetId == asset.id })?.isUtility ?? false
+    }
+
     var identifier: String {
         chain.identifier + asset.identifier
     }
