@@ -795,6 +795,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.staking.title" = "Pool staking";
 "common.watch" = "Watch";
 "pool.staking.start.confirm.amount.title" = "Joining to pool\n%@";
+"send.confirm.amount.title" = "Sending\n%@";
 "hidden.assets" = "Hidden assets";
 "nft.stub.title" = "Sumimasen!";
 "nft.stub.text" = "NFTs are going to be here soon";
@@ -821,3 +822,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "members.common" = "Members";
 "staking.pool.info.title" = "Pool Info";
 "roles.common" = "Roles";
+"common.preview" = "Preview";

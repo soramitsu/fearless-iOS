@@ -61,7 +61,7 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideViewModel() {
-        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+        let parameters = WalletSendConfirmViewModelFactoryParameters(
             amount: amount,
             senderAccountViewModel: provideSenderAccountViewModel(),
             receiverAccountViewModel: provideReceiverAccountViewModel(),
@@ -69,7 +69,11 @@ final class WalletSendConfirmPresenter {
             tipRequired: chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
+            wallet: selectedAccount,
             locale: selectedLocale
+        )
+        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+            parameters: parameters
         )
 
         DispatchQueue.main.async {
@@ -140,11 +144,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
         interactor.setup()
 
         provideViewModel()
-
-        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.id,
-            preferredLanguages: selectedLocale.rLanguages
-        ))
 
         refreshFee()
     }

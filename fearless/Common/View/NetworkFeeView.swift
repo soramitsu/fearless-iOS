@@ -4,7 +4,7 @@ import SoraUI
 final class NetworkFeeView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.textColor = R.color.colorGray()
+        label.textColor = R.color.colorStrokeGray()
         label.font = UIFont.p2Paragraph
         return label
     }()
@@ -21,7 +21,7 @@ final class NetworkFeeView: UIView {
         view.backgroundColor = .clear
         view.borderType = .bottom
         view.strokeWidth = 1.0
-        view.strokeColor = R.color.colorGray()!
+        view.strokeColor = R.color.colorStrokeGray()!
         return view
     }()
 
@@ -88,7 +88,7 @@ final class NetworkFeeView: UIView {
         }
 
         let fiatLabel = UILabel()
-        fiatLabel.textColor = R.color.colorGray()
+        fiatLabel.textColor = R.color.colorStrokeGray()
         fiatLabel.font = .p2Paragraph
 
         addSubview(fiatLabel)
