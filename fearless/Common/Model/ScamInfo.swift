@@ -8,7 +8,7 @@ struct ScamInfo: Identifiable, Codable, Equatable {
 
     let name: String
     let address: String
-    let type: String
+    let type: ScamType
     let subtype: String
 
     enum CodingKeys: String, CodingKey {
@@ -16,5 +16,13 @@ struct ScamInfo: Identifiable, Codable, Equatable {
         case address
         case type
         case subtype
+    }
+
+    enum ScamType: String, Codable {
+        case unknown
+        case scam
+        case donation
+        case exchange
+        case sanctions
     }
 }
