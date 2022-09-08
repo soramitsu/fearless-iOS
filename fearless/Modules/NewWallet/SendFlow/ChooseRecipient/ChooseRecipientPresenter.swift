@@ -1,15 +1,15 @@
 import CommonWallet
 import SoraFoundation
+import Foundation
 
 final class ChooseRecipientPresenter {
     weak var view: ChooseRecipientViewProtocol?
-    let router: ChooseRecipientRouterProtocol
-    let interactor: ChooseRecipientInteractorInputProtocol
-    let viewModelFactory: ChooseRecipientViewModelFactoryProtocol
-    let asset: AssetModel
-    let chain: ChainModel
-    let wallet: MetaAccountModel
-    let qrParser: QRParser
+    private let router: ChooseRecipientRouterProtocol
+    private let interactor: ChooseRecipientInteractorInputProtocol
+    private let viewModelFactory: ChooseRecipientViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let qrParser: QRParser
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -17,8 +17,7 @@ final class ChooseRecipientPresenter {
         interactor: ChooseRecipientInteractorInputProtocol,
         router: ChooseRecipientRouterProtocol,
         viewModelFactory: ChooseRecipientViewModelFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         qrParser: QRParser
@@ -26,8 +25,7 @@ final class ChooseRecipientPresenter {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.wallet = wallet
         self.qrParser = qrParser
         self.localizationManager = localizationManager
@@ -54,9 +52,8 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
     func didTapScanButton() {
         router.presentScan(
             from: view,
-            chain: chain,
-            asset: asset,
-            selectedAccount: wallet,
+            chainAsset: chainAsset,
+            wallet: wallet,
             moduleOutput: self
         )
     }
@@ -69,8 +66,7 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
         router.presentSendAmount(
             from: view,
             to: address,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             wallet: wallet
         )
     }
@@ -86,6 +82,7 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
 
     func setup() {
         view?.didReceive(locale: selectedLocale)
+        interactor.setup(with: self)
     }
 
     func didSelectViewModel(cellViewModel: SearchPeopleTableCellViewModel) {
@@ -99,22 +96,16 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
 
 extension ChooseRecipientPresenter: ChooseRecipientInteractorOutputProtocol {
     func didReceive(searchResult: Result<[SearchData]?, Error>) {
-        var viewModel: ChooseRecipientTableViewModel
-        switch searchResult {
-        case let .success(searchData):
-            viewModel = viewModelFactory.buildChooseRecipientTableViewModel(results: searchData ?? [])
-        default:
-            viewModel = viewModelFactory.buildChooseRecipientTableViewModel(results: [])
-        }
+        let viewModel = viewModelFactory.buildChooseRecipientTableViewModel(searchResult: searchResult)
         view?.didReceive(tableViewModel: viewModel)
     }
 }
 
 extension ChooseRecipientPresenter: WalletScanQRModuleOutput {
     func didFinishWith(payload: TransferPayload) {
-        let chainFormat: ChainFormat = chain.isEthereumBased
+        let chainFormat: ChainFormat = chainAsset.chain.isEthereumBased
             ? .ethereum
-            : .substrate(chain.addressPrefix)
+            : .substrate(chainAsset.chain.addressPrefix)
 
         guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
               let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
@@ -124,8 +115,7 @@ extension ChooseRecipientPresenter: WalletScanQRModuleOutput {
         router.presentSendAmount(
             from: view,
             to: address,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             wallet: wallet
         )
     }

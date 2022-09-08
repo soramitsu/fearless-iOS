@@ -96,8 +96,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapSendButton() {
         wireframe.presentSendFlow(
             from: view,
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
+            chainAsset: chainAsset,
             wallet: wallet,
             transferFinishBlock: nil
         )
@@ -194,7 +193,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     func didUpdate(chainAsset: ChainAsset) {
         provideViewModel()
         balanceInfoModule.replace(infoType: .chainAsset(
-            metaAccount: wallet,
+            wallet: wallet,
             chainAsset: chainAsset
         ))
     }

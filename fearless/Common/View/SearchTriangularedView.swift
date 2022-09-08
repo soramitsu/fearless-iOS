@@ -38,7 +38,7 @@ final class SearchTriangularedView: UIView {
         button.setImage(R.image.deleteGrey()?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = .white
         button.isHidden = true
-        button.addTarget(self, action: #selector(cleanTextField), for: .touchUpInside)
+        button.addTarget(self, action: #selector(clean), for: .touchUpInside)
         return button
     }()
 
@@ -70,10 +70,10 @@ final class SearchTriangularedView: UIView {
     }
 
     func updateState(icon: DrawableIcon?) {
-        if let text = textField.text, !text.isEmpty {
-            applyEnabledState()
+        if let text = textField.text, text.isNotEmpty {
+            cleanButton.isHidden = false
         } else {
-            applyDisabledState()
+            cleanButton.isHidden = true
         }
         if let icon = icon {
             addressImage.bind(icon: icon)
@@ -83,14 +83,6 @@ final class SearchTriangularedView: UIView {
             addressImage.isHidden = true
             placeholderImage.isHidden = false
         }
-    }
-
-    private func applyEnabledState() {
-        cleanButton.isHidden = false
-    }
-
-    private func applyDisabledState() {
-        cleanButton.isHidden = true
     }
 
     private func setupLayout() {
@@ -134,8 +126,8 @@ final class SearchTriangularedView: UIView {
     }
 
     @objc
-    private func cleanTextField() {
-        textField.text = ""
+    private func clean() {
+        textField.text = nil
         updateState(icon: nil)
     }
 }

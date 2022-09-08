@@ -10,14 +10,12 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
     func presentSendAmount(
         from view: ControllerBackedProtocol?,
         to receiverAddress: String,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
         guard let controller = WalletSendViewFactory.createView(
             receiverAddress: receiverAddress,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             wallet: wallet,
             transferFinishBlock: transferFinishBlock
         )?.controller else {
@@ -28,15 +26,13 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
 
     func presentScan(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         moduleOutput: WalletScanQRModuleOutput?
     ) {
         guard let controller = WalletScanQRViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             moduleOutput: moduleOutput
         )?.controller else {
             return

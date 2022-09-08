@@ -3,7 +3,7 @@ import FearlessUtils
 
 protocol ChooseRecipientViewModelFactoryProtocol {
     func buildChooseRecipientViewModel(address: String, isValid: Bool) -> ChooseRecipientViewModel
-    func buildChooseRecipientTableViewModel(results: [SearchData]) -> ChooseRecipientTableViewModel
+    func buildChooseRecipientTableViewModel(searchResult: Result<[SearchData]?, Error>) -> ChooseRecipientTableViewModel
 }
 
 final class ChooseRecipientViewModelFactory: ChooseRecipientViewModelFactoryProtocol {
@@ -21,9 +21,13 @@ final class ChooseRecipientViewModelFactory: ChooseRecipientViewModelFactoryProt
         )
     }
 
-    func buildChooseRecipientTableViewModel(results: [SearchData]) -> ChooseRecipientTableViewModel {
-        let cellModels = results.compactMap { buildSearchPeopleCellViewModel(searchData: $0) }
-
+    func buildChooseRecipientTableViewModel(
+        searchResult: Result<[SearchData]?, Error>
+    ) -> ChooseRecipientTableViewModel {
+        var cellModels: [SearchPeopleTableCellViewModel] = []
+        if case let .success(results) = searchResult {
+            cellModels = results?.compactMap { buildSearchPeopleCellViewModel(searchData: $0) } ?? []
+        }
         return ChooseRecipientTableViewModel(results: cellModels)
     }
 

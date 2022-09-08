@@ -8,9 +8,8 @@ final class SearchPeoplePresenter {
     let wireframe: SearchPeopleWireframeProtocol
     let interactor: SearchPeopleInteractorInputProtocol
     let viewModelFactory: SearchPeopleViewModelFactoryProtocol
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
     let qrParser: QRParser
     let transferFinishBlock: WalletTransferFinishBlock?
 
@@ -20,9 +19,8 @@ final class SearchPeoplePresenter {
         interactor: SearchPeopleInteractorInputProtocol,
         wireframe: SearchPeopleWireframeProtocol,
         viewModelFactory: SearchPeopleViewModelFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         qrParser: QRParser,
         transferFinishBlock: WalletTransferFinishBlock?
@@ -30,9 +28,8 @@ final class SearchPeoplePresenter {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.qrParser = qrParser
         self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
@@ -67,9 +64,8 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
         }
         wireframe.presentScan(
             from: view,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             moduleOutput: self
         )
     }
@@ -80,7 +76,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
 
     func setup() {
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.name,
+            chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
         ))
         view?.didReceive(locale: selectedLocale)
@@ -90,9 +86,8 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
         wireframe.presentSend(
             from: view,
             to: viewModel.address,
-            asset: asset,
-            chain: chain,
-            wallet: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             transferFinishBlock: transferFinishBlock
         )
     }
@@ -113,9 +108,9 @@ extension SearchPeoplePresenter: Localizable {
 
 extension SearchPeoplePresenter: WalletScanQRModuleOutput {
     func didFinishWith(payload: TransferPayload) {
-        let chainFormat: ChainFormat = chain.isEthereumBased
+        let chainFormat: ChainFormat = chainAsset.chain.isEthereumBased
             ? .ethereum
-            : .substrate(chain.addressPrefix)
+            : .substrate(chainAsset.chain.addressPrefix)
 
         guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
               let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
@@ -125,9 +120,8 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
         wireframe.presentSend(
             from: view,
             to: address,
-            asset: asset,
-            chain: chain,
-            wallet: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             transferFinishBlock: transferFinishBlock
         )
     }

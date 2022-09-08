@@ -93,7 +93,7 @@ enum ChainAccountViewFactory {
         chainAsset: ChainAsset
     ) -> BalanceInfoModuleCreationResult? {
         BalanceInfoAssembly.configureModule(with: .chainAsset(
-            metaAccount: wallet,
+            wallet: wallet,
             chainAsset: chainAsset
         ))
     }

@@ -4,8 +4,7 @@ import SoraFoundation
 
 struct ChooseRecipientViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         flow: SendFlow,
         transferFinishBlock: WalletTransferFinishBlock?
@@ -30,8 +29,7 @@ struct ChooseRecipientViewFactory {
         )
 
         let interactor = ChooseRecipientInteractor(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             wallet: wallet,
             searchService: searchService
         )
@@ -43,8 +41,7 @@ struct ChooseRecipientViewFactory {
             interactor: interactor,
             router: router,
             viewModelFactory: viewModelFactory,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             wallet: wallet,
             localizationManager: LocalizationManager.shared,
             qrParser: SubstrateQRParser()
@@ -53,7 +50,6 @@ struct ChooseRecipientViewFactory {
         let view = ChooseRecipientViewController(presenter: presenter)
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return view
     }

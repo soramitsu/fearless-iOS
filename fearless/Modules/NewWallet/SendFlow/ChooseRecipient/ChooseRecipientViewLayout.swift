@@ -6,6 +6,7 @@ final class ChooseRecipientViewLayout: UIView {
         static let stackActionHeight: CGFloat = 32
         static let stackViewSpacing: CGFloat = 12
         static let bottomContainerHeight: CGFloat = 120
+        static let searchViewHeight: CGFloat = 64
     }
 
     let navigationBar: BaseNavigationBar = {
@@ -105,7 +106,7 @@ final class ChooseRecipientViewLayout: UIView {
         searchView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(64)
+            make.height.equalTo(LayoutConstants.searchViewHeight)
         }
 
         addSubview(tableView)
@@ -140,7 +141,7 @@ final class ChooseRecipientViewLayout: UIView {
         }
     }
 
-    func applyLocalization() {
+    private func applyLocalization() {
         searchView.textField.placeholder = R.string.localizable.searchTextfieldPlaceholder(
             preferredLanguages: locale.rLanguages
         )
