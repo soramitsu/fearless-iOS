@@ -19,6 +19,7 @@ protocol ChooseRecipientPresenterProtocol: AnyObject {
 }
 
 protocol ChooseRecipientInteractorInputProtocol: AnyObject {
+    func setup(with output: ChooseRecipientInteractorOutputProtocol)
     func performSearch(query: String)
     func validate(address: String) -> Bool
 }
@@ -32,16 +33,14 @@ protocol ChooseRecipientRouterProtocol: AnyObject {
     func presentSendAmount(
         from view: ControllerBackedProtocol?,
         to address: String,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
 
     func presentScan(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         moduleOutput: WalletScanQRModuleOutput?
     )
 

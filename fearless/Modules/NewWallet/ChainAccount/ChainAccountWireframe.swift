@@ -8,14 +8,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         let searchView = ChooseRecipientViewFactory.createView(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             wallet: wallet,
             flow: .token,
             transferFinishBlock: transferFinishBlock

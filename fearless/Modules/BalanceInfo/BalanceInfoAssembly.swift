@@ -3,8 +3,8 @@ import SoraFoundation
 import RobinHood
 
 enum BalanceInfoType {
-    case wallet(metaAccount: MetaAccountModel)
-    case chainAsset(metaAccount: MetaAccountModel, chainAsset: ChainAsset)
+    case wallet(wallet: MetaAccountModel)
+    case chainAsset(wallet: MetaAccountModel, chainAsset: ChainAsset)
 }
 
 enum BalanceInfoAssembly {

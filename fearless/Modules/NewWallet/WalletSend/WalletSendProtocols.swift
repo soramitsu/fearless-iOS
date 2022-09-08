@@ -34,8 +34,7 @@ protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseEr
     func close(view: ControllerBackedProtocol?)
     func presentConfirm(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,

@@ -6,28 +6,25 @@ import IrohaCrypto
 final class SearchPeopleInteractor {
     weak var presenter: SearchPeopleInteractorOutputProtocol?
 
-    private let chain: ChainModel
-    private let asset: AssetModel
-    private let selectedMetaAccount: MetaAccountModel
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private let searchService: SearchServiceProtocol
 
     init(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         searchService: SearchServiceProtocol
     ) {
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.searchService = searchService
-        self.selectedMetaAccount = selectedMetaAccount
+        self.wallet = wallet
     }
 }
 
 extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
     func performSearch(query: String) {
-        let peerId = try? AddressFactory.accountId(from: query, chain: chain)
-        let currentAccountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId
+        let peerId = try? AddressFactory.accountId(from: query, chain: chainAsset.chain)
+        let currentAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
         if let peerId = peerId, let currentAccountId = currentAccountId {
             if currentAccountId != peerId {
@@ -44,7 +41,7 @@ extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
 
         searchService.searchPeople(
             query: query,
-            chain: chain,
+            chain: chainAsset.chain,
             filterResults: { searchData in
                 searchData.accountId != currentAccountId?.toHex()
             }

@@ -7,7 +7,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
     let presenter: ChooseRecipientPresenterProtocol
 
     private var tableViewModel: ChooseRecipientTableViewModel?
-    private var locale = Locale.current
     private var isFirstLayoutCompleted: Bool = false
 
     private lazy var searchActivityIndicatory: UIActivityIndicatorView = .init(style: .white)
@@ -55,9 +54,7 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
         rootView.searchView.textField.delegate = self
 
         rootView.tableView.registerClassForCell(SearchPeopleTableCell.self)
-
         rootView.tableView.tableFooterView = UIView()
-
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
@@ -104,7 +101,6 @@ extension ChooseRecipientViewController: ChooseRecipientViewProtocol {
     }
 
     func didReceive(locale: Locale) {
-        self.locale = locale
         rootView.locale = locale
     }
 
@@ -114,25 +110,13 @@ extension ChooseRecipientViewController: ChooseRecipientViewProtocol {
 }
 
 extension ChooseRecipientViewController: UITableViewDelegate, UITableViewDataSource {
-    func numberOfSections(in _: UITableView) -> Int {
-        guard let viewModel = tableViewModel, !viewModel.results.isEmpty else {
-            return 0
-        }
-        return 1
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        guard let viewModel = tableViewModel, !viewModel.results.isEmpty else {
-            return 0
-        }
-        return viewModel.results.count
+        tableViewModel?.results.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let viewModel = tableViewModel else {
-            return UITableViewCell()
-        }
-        guard let cell = tableView.dequeueReusableCellWithType(SearchPeopleTableCell.self) else {
+        guard let viewModel = tableViewModel,
+              let cell = tableView.dequeueReusableCellWithType(SearchPeopleTableCell.self) else {
             return UITableViewCell()
         }
         cell.bind(to: viewModel.results[indexPath.row])

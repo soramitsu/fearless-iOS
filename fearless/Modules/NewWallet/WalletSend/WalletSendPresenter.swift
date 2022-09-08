@@ -10,8 +10,7 @@ final class WalletSendPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: BaseDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
-    let asset: AssetModel
-    let chain: ChainModel
+    let chainAsset: ChainAsset
     let receiverAddress: String
     let transferFinishBlock: WalletTransferFinishBlock?
 
@@ -36,9 +35,8 @@ final class WalletSendPresenter {
         dataValidatingFactory: BaseDataValidatingFactoryProtocol,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
-        chain: ChainModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
@@ -46,9 +44,8 @@ final class WalletSendPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.receiverAddress = receiverAddress
-        self.chain = chain
         self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
@@ -56,7 +53,7 @@ final class WalletSendPresenter {
     private func provideViewModel() {
         let viewModel = WalletSendViewModel(
             assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chain.isTipRequired,
+            tipRequired: chainAsset.chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             amountInputViewModel: provideInputViewModel()
@@ -115,7 +112,7 @@ final class WalletSendPresenter {
 
         let viewModel = WalletSendViewModel(
             assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chain.isTipRequired,
+            tipRequired: chainAsset.chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             amountInputViewModel: inputViewModel
@@ -126,13 +123,15 @@ final class WalletSendPresenter {
 
     private func refreshFee() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
-        guard let amount = inputAmount.toSubstrateAmount(precision: Int16(asset.precision)) else {
+        guard let amount = inputAmount.toSubstrateAmount(
+            precision: Int16(chainAsset.asset.precision)
+        ) else {
             return
         }
 
         view?.didStartFeeCalculation()
 
-        let tip = self.tip?.toSubstrateAmount(precision: Int16(asset.precision))
+        let tip = self.tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         interactor.estimateFee(for: amount, tip: tip)
     }
 }
@@ -143,7 +142,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
 
         provideViewModel()
 
-        if !chain.isTipRequired {
+        if !chainAsset.chain.isTipRequired {
             // To not distract users with two different fees one by one, let's wait for tip, and then refresh fee
             refreshFee()
         }
@@ -170,9 +169,9 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
 
     func didTapContinueButton() {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(asset.precision))
+        let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0)
+            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -191,19 +190,18 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale,
-                chainAsset: ChainAsset(chain: chain, asset: asset)
+                chainAsset: chainAsset
             )
 
         ]).runValidation { [weak self] in
-            guard let self = self, let amount = sendAmountDecimal else { return }
-            self.wireframe.presentConfirm(
-                from: self.view,
-                chain: self.chain,
-                asset: self.asset,
-                receiverAddress: self.receiverAddress,
+            guard let strongSelf = self, let amount = sendAmountDecimal else { return }
+            strongSelf.wireframe.presentConfirm(
+                from: strongSelf.view,
+                chainAsset: strongSelf.chainAsset,
+                receiverAddress: strongSelf.receiverAddress,
                 amount: amount,
-                tip: self.tip,
-                transferFinishBlock: self.transferFinishBlock
+                tip: strongSelf.tip,
+                transferFinishBlock: strongSelf.transferFinishBlock
             )
         }
     }
@@ -216,7 +214,7 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
             totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
+                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(chainAsset.asset.precision))
             } ?? 0.0
 
             provideViewModel()
@@ -263,7 +261,7 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision))
+                Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision))
             } ?? nil
 
             provideViewModel()
@@ -277,7 +275,7 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
         view?.didStopTipCalculation()
         switch result {
         case let .success(tip):
-            self.tip = Decimal.fromSubstrateAmount(tip, precision: Int16(asset.precision))
+            self.tip = Decimal.fromSubstrateAmount(tip, precision: Int16(chainAsset.asset.precision))
 
             provideViewModel()
             provideInputViewModelIfRate()

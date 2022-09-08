@@ -6,17 +6,19 @@ import SoraKeystore
 struct WalletSendViewFactory {
     static func createView(
         receiverAddress: String,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, receiverAddress: receiverAddress) else {
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            receiverAddress: receiverAddress
+        ) else {
             return nil
         }
 
         let wireframe = WalletSendWireframe()
-        let assetInfo = asset.displayInfo(with: chain.icon)
+        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: wallet
@@ -31,9 +33,8 @@ struct WalletSendViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared,
-            asset: asset,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress,
-            chain: chain,
             transferFinishBlock: transferFinishBlock
         )
 
@@ -50,31 +51,32 @@ struct WalletSendViewFactory {
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String
     ) -> WalletSendInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-
         let operationManager = OperationManagerFacade.sharedManager
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(
+                for: chainAsset.chain.chainId
+            ) else {
             return nil
         }
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(
+            for: chainAsset.chain.accountRequest()
+        ) else {
             return nil
         }
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
