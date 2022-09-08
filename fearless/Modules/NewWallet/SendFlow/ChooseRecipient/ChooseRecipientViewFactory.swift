@@ -1,15 +1,14 @@
-import Foundation
-import CommonWallet
 import RobinHood
 import FearlessUtils
 import SoraFoundation
 
-struct SearchPeopleViewFactory {
+struct ChooseRecipientViewFactory {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        flow: SendFlow,
         transferFinishBlock: WalletTransferFinishBlock?
-    ) -> SearchPeopleViewProtocol? {
+    ) -> ChooseRecipientViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
             UserDataStorageFacade.shared
                 .createRepository(
@@ -29,30 +28,28 @@ struct SearchPeopleViewFactory {
             accountsRepository: AnyDataProviderRepository(accountStorage)
         )
 
-        let interactor = SearchPeopleInteractor(
+        let interactor = ChooseRecipientInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
             searchService: searchService
         )
-        let wireframe = SearchPeopleWireframe()
+        let router = ChooseRecipientRouter(flow: flow, transferFinishBlock: transferFinishBlock)
 
-        let viewModelFactory = SearchPeopleViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let viewModelFactory = ChooseRecipientViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
-        let presenter = SearchPeoplePresenter(
+        let presenter = ChooseRecipientPresenter(
             interactor: interactor,
-            wireframe: wireframe,
+            router: router,
             viewModelFactory: viewModelFactory,
             chainAsset: chainAsset,
             wallet: wallet,
             localizationManager: LocalizationManager.shared,
-            qrParser: SubstrateQRParser(),
-            transferFinishBlock: transferFinishBlock
+            qrParser: SubstrateQRParser()
         )
 
-        let view = SearchPeopleViewController(presenter: presenter)
+        let view = ChooseRecipientViewController(presenter: presenter)
 
         presenter.view = view
-        interactor.presenter = presenter
 
         return view
     }

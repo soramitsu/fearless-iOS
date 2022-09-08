@@ -12,11 +12,10 @@ final class WalletSendConfirmPresenter {
     let accountViewModelFactory: AccountViewModelFactoryProtocol
     let dataValidatingFactory: BaseDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let receiverAddress: String
     let amount: Decimal
     let selectedAccount: MetaAccountModel
-    let chain: ChainModel
     let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     let transferFinishBlock: WalletTransferFinishBlock?
     private var totalBalanceValue: BigUInt?
@@ -36,9 +35,8 @@ final class WalletSendConfirmPresenter {
         dataValidatingFactory: BaseDataValidatingFactoryProtocol,
         walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol,
         logger: LoggerProtocol?,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
-        chain: ChainModel,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
@@ -51,25 +49,28 @@ final class WalletSendConfirmPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.walletSendConfirmViewModelFactory = walletSendConfirmViewModelFactory
         self.logger = logger
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.receiverAddress = receiverAddress
         self.amount = amount
         self.tip = tip
         self.selectedAccount = selectedAccount
-        self.chain = chain
         self.transferFinishBlock = transferFinishBlock
     }
 
     private func provideViewModel() {
-        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+        let parameters = WalletSendConfirmViewModelFactoryParameters(
             amount: amount,
             senderAccountViewModel: provideSenderAccountViewModel(),
             receiverAccountViewModel: provideReceiverAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chain.isTipRequired,
+            tipRequired: chainAsset.chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
+            wallet: selectedAccount,
             locale: selectedLocale
+        )
+        let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
+            parameters: parameters
         )
 
         DispatchQueue.main.async {
@@ -89,8 +90,8 @@ final class WalletSendConfirmPresenter {
     }
 
     private func provideSenderAccountViewModel() -> AccountViewModel? {
-        guard let accountId = selectedAccount.fetch(for: chain.accountRequest())?.accountId,
-              let senderAddress = try? AddressFactory.address(for: accountId, chain: chain)
+        guard let accountId = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+              let senderAddress = try? AddressFactory.address(for: accountId, chain: chainAsset.chain)
         else {
             return nil
         }
@@ -126,11 +127,11 @@ final class WalletSendConfirmPresenter {
     }
 
     private func refreshFee() {
-        guard let amount = amount.toSubstrateAmount(precision: Int16(asset.precision)) else {
+        guard let amount = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
             return
         }
 
-        let tip = self.tip?.toSubstrateAmount(precision: Int16(asset.precision))
+        let tip = self.tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         interactor.estimateFee(for: amount, tip: tip)
     }
 }
@@ -141,11 +142,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
 
         provideViewModel()
 
-        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.id,
-            preferredLanguages: selectedLocale.rLanguages
-        ))
-
         refreshFee()
     }
 
@@ -154,9 +150,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     }
 
     func didTapConfirmButton() {
-        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0
+        let sendAmountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0
         let spendingValue = sendAmountValue +
-            (fee?.toSubstrateAmount(precision: Int16(asset.precision)) ?? 0)
+            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -175,18 +171,20 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale,
-                chainAsset: ChainAsset(chain: chain, asset: asset)
+                chainAsset: chainAsset
             )
 
         ]).runValidation { [weak self] in
-            guard let self = self else { return }
-            let tip = self.tip?.toSubstrateAmount(precision: Int16(self.asset.precision))
+            guard let strongSelf = self else { return }
+            let tip = strongSelf.tip?.toSubstrateAmount(
+                precision: Int16(strongSelf.chainAsset.asset.precision)
+            )
 
-            self.view?.didStartLoading()
-            self.interactor.submitExtrinsic(
+            strongSelf.view?.didStartLoading()
+            strongSelf.interactor.submitExtrinsic(
                 for: sendAmountValue,
                 tip: tip,
-                receiverAddress: self.receiverAddress
+                receiverAddress: strongSelf.receiverAddress
             )
         }
     }
@@ -221,7 +219,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
+                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(chainAsset.asset.precision))
             } ?? 0.0
 
             provideViewModel()
@@ -267,7 +265,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(dispatchInfo):
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision))
+                Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision))
             } ?? nil
 
             provideViewModel()

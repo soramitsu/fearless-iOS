@@ -3,7 +3,6 @@ import BigInt
 
 protocol WalletSendViewProtocol: ControllerBackedProtocol {
     func didReceive(state: WalletSendViewState)
-    func didReceive(title: String)
     func didStartFeeCalculation()
     func didStopFeeCalculation()
     func didStopTipCalculation()
@@ -35,8 +34,7 @@ protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseEr
     func close(view: ControllerBackedProtocol?)
     func presentConfirm(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,

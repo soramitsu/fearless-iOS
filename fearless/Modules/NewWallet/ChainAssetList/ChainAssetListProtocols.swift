@@ -37,13 +37,13 @@ protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningP
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
     func showReceiveFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     )
 }
 

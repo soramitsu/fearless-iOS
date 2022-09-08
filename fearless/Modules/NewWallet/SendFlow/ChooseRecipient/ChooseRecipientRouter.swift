@@ -1,12 +1,17 @@
-import Foundation
+final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
+    private let flow: SendFlow
+    private let transferFinishBlock: WalletTransferFinishBlock?
 
-final class SearchPeopleWireframe: SearchPeopleWireframeProtocol {
-    func presentSend(
+    init(flow: SendFlow, transferFinishBlock: WalletTransferFinishBlock?) {
+        self.flow = flow
+        self.transferFinishBlock = transferFinishBlock
+    }
+
+    func presentSendAmount(
         from view: ControllerBackedProtocol?,
         to receiverAddress: String,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     ) {
         guard let controller = WalletSendViewFactory.createView(
             receiverAddress: receiverAddress,
@@ -16,7 +21,6 @@ final class SearchPeopleWireframe: SearchPeopleWireframeProtocol {
         )?.controller else {
             return
         }
-
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
@@ -35,6 +39,10 @@ final class SearchPeopleWireframe: SearchPeopleWireframeProtocol {
         }
 
         view?.controller.present(controller, animated: true, completion: nil)
+    }
+
+    func presentHistory(from _: ControllerBackedProtocol?) {
+        // TODO: Contact list transition
     }
 
     func close(_ view: ControllerBackedProtocol?) {

@@ -285,6 +285,7 @@ Derivation path: %@";
 "wallet.filters.header" = "Show";
 "transfer.title" = "Transfer";
 "common.available.format" = "Available: %@";
+"common.balance.format" = "Balance: %@";
 "staking.rewards.learn.more" = "Learn more about rewards";
 "common.error.no.data.retrieved" = "No data retrieved.";
 "staking.reward.payouts.empty.rewards" = "Perfect! All rewards are paid.";
@@ -794,6 +795,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.staking.title" = "Pool staking";
 "common.watch" = "Watch";
 "pool.staking.start.confirm.amount.title" = "Joining to pool\n%@";
+"send.confirm.amount.title" = "Sending\n%@";
 "hidden.assets" = "Hidden assets";
 "nft.stub.title" = "Sumimasen!";
 "nft.stub.text" = "NFTs are going to be here soon";
@@ -807,6 +809,11 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issue.stub" = "Network Issues";
 "network.issue.network.unavailable" = "Network is unavailable";
 "network.issue.node.unavailable" = "Node is unavailable";
+"search.view.title" = "Send to";
+"search.textfield.placeholder" = "Public address";
+"choose.recipient.title" = "Choose recipient";
+"choose.recipient.next.button.title" = "Enter amount";
+"common.paste" = "Paste";
 "pool.common" = "pool";
 "staking.pool.sort.pool.members" = "Number of members";
 "pool.staking.main.min.join.title" = "Min. to join a pool";
@@ -815,3 +822,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "members.common" = "Members";
 "staking.pool.info.title" = "Pool Info";
 "roles.common" = "Roles";
+"common.preview" = "Preview";

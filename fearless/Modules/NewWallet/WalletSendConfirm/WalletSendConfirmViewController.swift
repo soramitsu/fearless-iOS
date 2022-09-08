@@ -30,12 +30,6 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
         presenter.setup()
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
-
-        rootView.tipAndFeeView.actionButton.addTarget(
-            self,
-            action: #selector(continueButtonClicked),
-            for: .touchUpInside
-        )
     }
 
     private func setupLocalization() {
@@ -49,22 +43,7 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(model):
-            if let senderAccountViewModel = model.senderAccountViewModel {
-                rootView.bind(senderAccountViewModel: senderAccountViewModel)
-            }
-
-            if let receiverAccountViewModel = model.receiverAccountViewModel {
-                rootView.bind(receiverAccountViewModel: receiverAccountViewModel)
-            }
-
-            if let assetBalanceViewModel = model.assetBalanceViewModel {
-                rootView.bind(assetViewModel: assetBalanceViewModel)
-            }
-
-            rootView.bind(feeViewModel: model.feeViewModel)
-            rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
-
-            rootView.amountView.fieldText = model.amountString
+            rootView.bind(confirmViewModel: model)
         }
     }
 
@@ -80,10 +59,6 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
 extension WalletSendConfirmViewController: WalletSendConfirmViewProtocol {
     func didReceive(state: WalletSendConfirmViewState) {
         applyState(state)
-    }
-
-    func didReceive(title: String) {
-        rootView.navigationTitleLabel.text = title
     }
 }
 
