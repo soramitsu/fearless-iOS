@@ -8,7 +8,6 @@ final class WalletSendPresenter {
     let wireframe: WalletSendWireframeProtocol
     let interactor: WalletSendInteractorInputProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let accountViewModelFactory: AccountViewModelFactoryProtocol
     let dataValidatingFactory: BaseDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
     let asset: AssetModel
@@ -33,7 +32,6 @@ final class WalletSendPresenter {
     init(
         interactor: WalletSendInteractorInputProtocol,
         wireframe: WalletSendWireframeProtocol,
-        accountViewModelFactory: AccountViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: BaseDataValidatingFactoryProtocol,
         localizationManager: LocalizationManagerProtocol,
@@ -45,7 +43,6 @@ final class WalletSendPresenter {
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.accountViewModelFactory = accountViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
@@ -58,7 +55,6 @@ final class WalletSendPresenter {
 
     private func provideViewModel() {
         let viewModel = WalletSendViewModel(
-            accountViewModel: provideAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
             tipRequired: chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
@@ -69,17 +65,6 @@ final class WalletSendPresenter {
         DispatchQueue.main.async {
             self.view?.didReceive(state: .loaded(viewModel))
         }
-    }
-
-    private func provideAccountViewModel() -> AccountViewModel? {
-        let title = R.string.localizable
-            .walletSendReceiverTitle(preferredLanguages: selectedLocale.rLanguages)
-
-        return accountViewModelFactory.buildViewModel(
-            title: title,
-            address: receiverAddress,
-            locale: selectedLocale
-        )
     }
 
     private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
@@ -129,7 +114,6 @@ final class WalletSendPresenter {
         amountViewModel = inputViewModel
 
         let viewModel = WalletSendViewModel(
-            accountViewModel: provideAccountViewModel(),
             assetBalanceViewModel: provideAssetVewModel(),
             tipRequired: chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
@@ -158,11 +142,6 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         interactor.setup()
 
         provideViewModel()
-
-        view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.name,
-            preferredLanguages: selectedLocale.rLanguages
-        ))
 
         if !chain.isTipRequired {
             // To not distract users with two different fees one by one, let's wait for tip, and then refresh fee

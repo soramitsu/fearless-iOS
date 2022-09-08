@@ -3,7 +3,6 @@ import BigInt
 
 protocol WalletSendViewProtocol: ControllerBackedProtocol {
     func didReceive(state: WalletSendViewState)
-    func didReceive(title: String)
     func didStartFeeCalculation()
     func didStopFeeCalculation()
     func didStopTipCalculation()
