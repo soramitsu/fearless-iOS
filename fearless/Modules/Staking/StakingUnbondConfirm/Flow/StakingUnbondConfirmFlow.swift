@@ -10,6 +10,7 @@ enum StakingUnbondConfirmFlow {
         revoke: Bool,
         bondingDuration: UInt32?
     )
+    case pool(amount: Decimal)
 }
 
 protocol StakingUnbondConfirmModelStateListener: AnyObject {

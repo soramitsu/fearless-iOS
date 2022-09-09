@@ -205,5 +205,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingMainViewProtocol?
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol?
+}
+
+protocol StakingMainModuleOutput: AnyObject {
+    func didSwitchStakingType(_ type: AssetSelectionStakingType)
 }

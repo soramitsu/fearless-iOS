@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingBondMoreConfirmationVC: UIViewController, ViewHolder, ImportantViewProtocol {
+final class StakingBondMoreConfirmationVC: UIViewController, ViewHolder, ImportantViewProtocol, HiddableBarWhenPushed {
     typealias RootViewType = StakingBMConfirmationViewLayout
 
     let presenter: StakingBondMoreConfirmationPresenterProtocol
@@ -44,8 +44,6 @@ final class StakingBondMoreConfirmationVC: UIViewController, ViewHolder, Importa
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
-
         rootView.locale = selectedLocale
 
         applyAssetViewModel()
@@ -59,10 +57,9 @@ final class StakingBondMoreConfirmationVC: UIViewController, ViewHolder, Importa
             action: #selector(actionConfirm),
             for: .touchUpInside
         )
-
-        rootView.accountView.addTarget(
+        rootView.navigationBar.backButton.addTarget(
             self,
-            action: #selector(actionSelectAccount),
+            action: #selector(backButtonClicked),
             for: .touchUpInside
         )
     }
@@ -94,6 +91,10 @@ final class StakingBondMoreConfirmationVC: UIViewController, ViewHolder, Importa
 
     @objc private func actionSelectAccount() {
         presenter.selectAccount()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 }
 

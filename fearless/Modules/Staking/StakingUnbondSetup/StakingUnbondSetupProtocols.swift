@@ -20,6 +20,7 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
     func updateAmount(_ newValue: Decimal)
     func proceed()
     func close()
+    func didTapBackButton()
 }
 
 protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
@@ -32,7 +33,7 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
-    StakingErrorPresentable {
+    StakingErrorPresentable, AnyDismissable {
     func close(view: StakingUnbondSetupViewProtocol?)
     func proceed(
         view: StakingUnbondSetupViewProtocol?,

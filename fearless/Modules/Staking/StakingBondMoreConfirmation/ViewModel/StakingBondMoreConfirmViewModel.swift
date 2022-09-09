@@ -6,7 +6,7 @@ struct StakingBondMoreConfirmViewModel {
     let senderAddress: AccountAddress
     let senderIcon: DrawableIcon?
     let senderName: String?
-    let amount: LocalizableResource<String>
+    let amount: LocalizableResource<StakeAmountViewModel>?
     let collatorName: String?
     let collatorIcon: DrawableIcon?
 }

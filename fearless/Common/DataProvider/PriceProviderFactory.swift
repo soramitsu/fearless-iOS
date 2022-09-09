@@ -62,7 +62,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
 
         let source = CoingeckoPricesSource(pricesIds: pricesIds)
 
-        let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
+        let trigger: DataProviderEventTrigger = [.onNone]
         let provider = SingleValueProvider(
             targetIdentifier: identifier,
             source: AnySingleValueProviderSource(source),

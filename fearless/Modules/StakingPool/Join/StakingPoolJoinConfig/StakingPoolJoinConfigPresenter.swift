@@ -35,7 +35,8 @@ final class StakingPoolJoinConfigPresenter {
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         logger: LoggerProtocol?,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        amount: Decimal?
     ) {
         self.interactor = interactor
         self.router = router
@@ -45,6 +46,11 @@ final class StakingPoolJoinConfigPresenter {
         self.chainAsset = chainAsset
         self.logger = logger
         self.dataValidatingFactory = dataValidatingFactory
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
+
         self.localizationManager = localizationManager
     }
 
@@ -74,6 +80,16 @@ final class StakingPoolJoinConfigPresenter {
         ).value(for: selectedLocale)
 
         view?.didReceiveAssetBalanceViewModel(assetBalanceViewModel)
+    }
+
+    private func provideFeeViewModel() {
+        guard let fee = fee else {
+            view?.didReceiveFeeViewModel(nil)
+            return
+        }
+
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        view?.didReceiveFeeViewModel(feeViewModel.value(for: selectedLocale))
     }
 
     private func provideInputViewModel() {
@@ -154,6 +170,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
 
             provideAssetVewModel()
             provideInputViewModel()
+            provideFeeViewModel()
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceivePriceData.error: \(error)")
         }
@@ -187,6 +204,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
             }
 
             provideAssetVewModel()
+            provideFeeViewModel()
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceiveFee.error: \(error)")
         }
@@ -207,7 +225,9 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
 // MARK: - Localizable
 
 extension StakingPoolJoinConfigPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        provideFeeViewModel()
+    }
 }
 
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigModuleInput {}

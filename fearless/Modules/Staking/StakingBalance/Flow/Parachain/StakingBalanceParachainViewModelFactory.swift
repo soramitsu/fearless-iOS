@@ -158,7 +158,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         )
         return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
-                .walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages),
+                .stakingHistoryTitle(preferredLanguages: locale.rLanguages),
             emptyListDescription: R.string.localizable
                 .stakingUnbondingEmptyList_v190(preferredLanguages: locale.rLanguages),
             unbondings: viewModels
@@ -171,23 +171,27 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
-        guard let round = viewModelState.round?.current else {
+        guard let round = viewModelState.round,
+              let requests = viewModelState.requests,
+              let subqueryData = viewModelState.subqueryData else {
             return []
         }
 
-        return viewModelState.history?.compactMap { request in
+        let actualViewModels: [UnbondingItemViewModel] = requests.compactMap { request in
             var amount = BigUInt.zero
             var title: String = ""
             if case let .decrease(decreaseAmount) = request.action {
                 amount = decreaseAmount
-                title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
+                title = R.string.localizable.stakingUnbond_v190(
+                    preferredLanguages: locale.rLanguages
+                )
             }
-
             if case let .revoke(revokeAmount) = request.action {
                 amount = revokeAmount
-                title = R.string.localizable.parachainStakingRevoke(preferredLanguages: locale.rLanguages)
+                title = R.string.localizable.parachainStakingRevoke(
+                    preferredLanguages: locale.rLanguages
+                )
             }
-
             let unbondingAmountDecimal = Decimal
                 .fromSubstrateAmount(
                     amount,
@@ -195,19 +199,49 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
                 ) ?? .zero
             let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
             let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-            let timeLeft = timeLeftAttributedString(
-                unbondingEra: UInt32(request.whenExecutable),
-                currentEra: round,
-                locale: locale
+            let timeLeft = timeLeftInterval(
+                unbondingRoundIndex: UInt32(request.whenExecutable),
+                currentRound: round,
+                currentBlock: viewModelState.currentBlock
             )
 
             return UnbondingItemViewModel(
                 addressOrName: title,
-                daysLeftText: timeLeft,
+                daysLeftText: NSAttributedString(),
                 tokenAmountText: tokenAmount,
-                usdAmountText: usdAmount
+                usdAmountText: usdAmount,
+                timeInterval: timeLeft,
+                locale: locale
             )
-        } ?? []
+        }
+
+        let historyViewModels: [UnbondingItemViewModel] = subqueryData.compactMap { unstake in
+            let title: String = unstake.type.title(locale: locale) ?? ""
+
+            let unbondingAmountDecimal = Decimal
+                .fromSubstrateAmount(
+                    unstake.amount,
+                    precision: precision
+                ) ?? .zero
+            let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+            let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
+            let timeLeft = unstake.blockNumber > viewModelState.currentBlock ?? 0 ? timeLeftInterval(
+                unbondingRoundIndex: UInt32(unstake.blockNumber),
+                currentRound: round,
+                currentBlock: viewModelState.currentBlock
+            ) : 0
+
+            return UnbondingItemViewModel(
+                addressOrName: title,
+                daysLeftText: NSAttributedString(),
+                tokenAmountText: tokenAmount,
+                usdAmountText: usdAmount,
+                timeInterval: timeLeft,
+                locale: locale
+            )
+        }
+
+        return actualViewModels + historyViewModels
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
@@ -224,33 +258,26 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
         return price
     }
 
-    private func timeLeftAttributedString(
-        unbondingEra: EraIndex?,
-        currentEra: EraIndex,
-        locale: Locale
-    ) -> NSAttributedString {
-        guard let unbondingEra = unbondingEra else {
-            return NSAttributedString(string: "")
+    private func timeLeftInterval(
+        unbondingRoundIndex: UInt32?,
+        currentRound: ParachainStakingRoundInfo,
+        currentBlock: UInt32?
+    ) -> TimeInterval? {
+        guard let unbondingRoundIndex = unbondingRoundIndex, let currentBlock = currentBlock else {
+            return nil
         }
 
-        let difference = UInt32(abs(Int32(unbondingEra) - Int32(currentEra)))
-        let eraCompletionTime = TimeInterval(difference) / TimeInterval(chainAsset.chain.erasPerDay) * 86400.0
-        let daysLeft = eraCompletionTime.daysFromSeconds
+        guard unbondingRoundIndex > currentRound.current else {
+            return 0
+        }
 
-        let timeLeftText: String = {
-            if daysLeft == 0 {
-                return (try? timeFormatter.string(from: eraCompletionTime)) ?? ""
-            } else {
-                return R.string.localizable
-                    .commonDaysLeftFormat(format: daysLeft, preferredLanguages: locale.rLanguages)
-            }
-        }()
+        let difference = UInt32(abs(Int32(unbondingRoundIndex) - Int32(currentRound.current)))
+        let roundDurationInSeconds: TimeInterval = 24.0 / Double(chainAsset.chain.erasPerDay) * 3600.0
+        let blockDurationInSeconds: TimeInterval = roundDurationInSeconds / Double(currentRound.length)
+        let currentRoundTimeLife: TimeInterval = Double((currentRound.first + currentRound.length) - currentBlock) * blockDurationInSeconds
+        let eraCompletionTime = TimeInterval(difference - 1) / TimeInterval(chainAsset.chain.erasPerDay) * 86400.0 + currentRoundTimeLife
 
-        let attrubutedString = NSAttributedString(
-            string: timeLeftText,
-            attributes: [.foregroundColor: R.color.colorLightGray()!]
-        )
-        return attrubutedString
+        return TimeInterval(eraCompletionTime)
     }
 
     private func calculateDecreaseAmount(

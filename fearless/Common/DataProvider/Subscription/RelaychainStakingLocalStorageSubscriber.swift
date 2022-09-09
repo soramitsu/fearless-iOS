@@ -38,6 +38,11 @@ protocol RelaychainStakingLocalStorageSubscriber where Self: AnyObject {
     func subscribeStashItemProvider(
         for address: AccountAddress
     ) -> StreamableProvider<StashItem>?
+
+    func subscribeToPoolMembers(
+        for accountId: AccountId,
+        chainAsset: ChainAsset
+    ) -> AnyDataProvider<DecodedPoolMember>?
 }
 
 extension RelaychainStakingLocalStorageSubscriber {
@@ -493,6 +498,51 @@ extension RelaychainStakingLocalStorageSubscriber {
         )
 
         return provider
+    }
+
+    func subscribeToPoolMembers(
+        for accountId: AccountId,
+        chainAsset: ChainAsset
+    ) -> AnyDataProvider<DecodedPoolMember>? {
+        guard let poolMembersProvider = try? stakingLocalSubscriptionFactory.getPoolMembersProvider(
+            for: chainAsset,
+            accountId: accountId
+        ) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPoolMember>]) in
+            let poolMember = changes.reduceToLastChange()
+            self?.stakingLocalSubscriptionHandler.handlePoolMember(
+                result: .success(poolMember?.item),
+                accountId: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.stakingLocalSubscriptionHandler.handlePoolMember(
+                result: .failure(error),
+                accountId: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        poolMembersProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return poolMembersProvider
     }
 }
 

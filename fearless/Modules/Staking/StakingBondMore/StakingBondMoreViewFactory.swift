@@ -182,6 +182,32 @@ struct StakingBondMoreViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
+        case .pool:
+            let viewModelState = StakingBondMorePoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingBondMorePoolStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                output: viewModelState,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager
+            )
+            let viewModelFactory = StakingBondMorePoolViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
+
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

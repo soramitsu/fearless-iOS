@@ -51,8 +51,10 @@ final class FWBarChartView: BarChartView {
         xAxis.labelPosition = .bottom
         xAxis.valueFormatter = xAxisEmptyFormatter
 
+        extraTopOffset = 4
+
         leftAxis.spaceTop = 0
-        leftAxis.yOffset = 4
+        leftAxis.yOffset = 0
         leftAxis.forceLabelsEnabled = true
         leftAxis.drawGridLinesEnabled = false
         leftAxis.drawAxisLineEnabled = false
@@ -103,8 +105,12 @@ final class FWBarChartView: BarChartView {
         let yPosition = CGFloat(1.0 - percent) * chartHeightWihoutXLegend
         let avgLabelSize = averageAmountLabel.intrinsicContentSize
         let avgLabelHeight = avgLabelSize.height
+        var avgLabelYPosition: CGFloat = yPosition - avgLabelHeight / 2
+        if percent < 0.1 || percent > 0.9 {
+            avgLabelYPosition = yPosition - avgLabelHeight
+        }
         averageAmountLabel.frame = CGRect(
-            origin: CGPoint(x: 0, y: yPosition - avgLabelHeight / 2),
+            origin: CGPoint(x: 0, y: avgLabelYPosition),
             size: CGSize(width: avgLabelSize.width, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false

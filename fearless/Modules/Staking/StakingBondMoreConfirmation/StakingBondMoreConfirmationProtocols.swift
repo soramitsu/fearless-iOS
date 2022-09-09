@@ -12,6 +12,7 @@ protocol StakingBondMoreConfirmationPresenterProtocol: AnyObject {
     func setup()
     func confirm()
     func selectAccount()
+    func didTapBackButton()
 }
 
 protocol StakingBondMoreConfirmationInteractorInputProtocol: AnyObject {
@@ -27,6 +28,10 @@ protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {
 
 protocol StakingBondMoreConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable,
-    AddressOptionsPresentable {
+    AddressOptionsPresentable, AnyDismissable {
     func complete(from view: StakingBondMoreConfirmationViewProtocol?)
+}
+
+protocol StakingBondMoreConfirmationViewLayoutProtocol {
+    var locale: Locale { get set }
 }

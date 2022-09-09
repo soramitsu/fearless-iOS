@@ -4,6 +4,7 @@ import SoraFoundation
 enum StakingBondMoreFlow {
     case relaychain
     case parachain(candidate: ParachainStakingCandidateInfo)
+    case pool
 }
 
 protocol StakingBondMoreModelStateListener: AnyObject {

@@ -1,6 +1,10 @@
 import UIKit
 
 final class StakingPoolJoinChoosePoolViewLayout: UIView {
+    private enum LayoutConstants {
+        static let optionsButtonSize = CGSize(width: 32.0, height: 32.0)
+    }
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -31,6 +35,14 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         return bar
     }()
 
+    let optionsButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconHorMore(), for: .normal)
+        button.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        button.layer.cornerRadius = button.frame.size.height / 2
+        return button
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -53,12 +65,20 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         super.layoutSubviews()
 
         navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        optionsButton.layer.cornerRadius = optionsButton.frame.size.height / 2
     }
 
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(tableView)
         addSubview(continueButton)
+
+        navigationBar.setRightViews([optionsButton])
+
+        optionsButton.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.optionsButtonSize)
+            make.trailing.equalToSuperview().offset(UIConstants.defaultOffset)
+        }
 
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()

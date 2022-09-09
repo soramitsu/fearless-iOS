@@ -62,6 +62,8 @@ final class WalletOptionViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // MARK: - Private methods
+
     private func applyLocale() {
         titleLabel.text = R.string.localizable.walletOptionsTitle(preferredLanguages: locale.rLanguages)
 

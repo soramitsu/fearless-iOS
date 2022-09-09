@@ -62,6 +62,12 @@ final class StakingPoolJoinChoosePoolViewController: UIViewController, ViewHolde
             action: #selector(continueButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.optionsButton.addTarget(
+            self,
+            action: #selector(optionsButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     @objc private func backButtonClicked() {
@@ -70,6 +76,10 @@ final class StakingPoolJoinChoosePoolViewController: UIViewController, ViewHolde
 
     @objc private func continueButtonClicked() {
         output.didTapContinueButton()
+    }
+
+    @objc private func optionsButtonClicked() {
+        output.didTapOptionsButton()
     }
 }
 
@@ -81,6 +91,12 @@ extension StakingPoolJoinChoosePoolViewController: StakingPoolJoinChoosePoolView
     }
 
     func didReceive(cellViewModels: [StakingPoolListTableCellModel]) {
+        if cellViewModels.first(where: { $0.isSelected == true }) != nil {
+            rootView.continueButton.applyEnabledStyle()
+        } else {
+            rootView.continueButton.applyDisabledStyle()
+        }
+
         viewModels = cellViewModels
         rootView.tableView.reloadData()
     }

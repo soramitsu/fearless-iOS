@@ -47,6 +47,8 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
             return
         }
 
+        usernameSetup.controller.hidesBottomBarWhenPushed = true
+
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(usernameSetup.controller, animated: true)
         }
@@ -58,6 +60,8 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         else {
             return
         }
+
+        restorationController.hidesBottomBarWhenPushed = true
 
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(restorationController, animated: true)
@@ -107,6 +111,35 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
                 delegate: delegate
             )
         else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showSelectCurrency(
+        from view: WalletMainContainerViewInput?,
+        wallet: MetaAccountModel
+    ) {
+        guard let module = SelectCurrencyAssembly.configureModule(
+            with: wallet,
+            isModal: true
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.present(module.view.controller, animated: true)
+    }
+
+    func showIssueNotification(
+        from view: WalletMainContainerViewInput?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
+    ) {
+        guard let module = NetworkIssuesNotificationAssembly.configureModule(
+            wallet: wallet,
+            issues: issues
+        ) else {
             return
         }
 

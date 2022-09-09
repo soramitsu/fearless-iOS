@@ -6,13 +6,13 @@ protocol ParachainStakingLocalSubscriptionFactoryProtocol {
         -> AnyDataProvider<DecodedParachainStakingCandidate>
 
     func getDelegatorState(
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) throws
         -> AnyDataProvider<DecodedParachainDelegatorState>
 
     func getDelegationScheduledRequests(
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) throws
         -> AnyDataProvider<DecodedParachainScheduledRequests>
@@ -20,19 +20,18 @@ protocol ParachainStakingLocalSubscriptionFactoryProtocol {
 
 final class ParachainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory, ParachainStakingLocalSubscriptionFactoryProtocol {
     func getDelegationScheduledRequests(
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         accountId: AccountId
     ) throws -> AnyDataProvider<DecodedParachainScheduledRequests> {
         let codingPath = StorageCodingPath.delegationScheduledRequests
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            encodableElement: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )
@@ -50,17 +49,19 @@ final class ParachainStakingLocalSubscriptionFactory: SubstrateLocalSubscription
         )
     }
 
-    func getDelegatorState(chainId: ChainModel.Id, accountId: AccountId) throws -> AnyDataProvider<DecodedParachainDelegatorState> {
+    func getDelegatorState(
+        chainAsset: ChainAsset,
+        accountId: AccountId
+    ) throws -> AnyDataProvider<DecodedParachainDelegatorState> {
         let codingPath = StorageCodingPath.delegatorState
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            encodableElement: accountId,
-            chainId: chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
         return try getDataProvider(
             for: localKey,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             storageCodingPath: codingPath,
             shouldUseFallback: false
         )

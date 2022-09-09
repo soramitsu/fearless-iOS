@@ -35,7 +35,7 @@ class BaseTopBar: UIView {
         }
 
         rightStackView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
             make.leading.greaterThanOrEqualTo(centerStackView.snp.trailing).offset(UIConstants.defaultOffset)

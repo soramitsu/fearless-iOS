@@ -32,15 +32,52 @@ final class WalletOptionViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupActions()
         output.didLoad(view: self)
     }
 
     // MARK: - Private methods
+
+    private func setupActions() {
+        rootView.walletDetailsButton.addTarget(
+            self,
+            action: #selector(handleWalletDetailsDidTap),
+            for: .touchUpInside
+        )
+        rootView.exportWalletButton.addTarget(
+            self,
+            action: #selector(handleWalletExportDidTap),
+            for: .touchUpInside
+        )
+        rootView.deleteWalletButton.addTarget(
+            self,
+            action: #selector(handleDeleteWalletDidTap),
+            for: .touchUpInside
+        )
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleWalletDetailsDidTap() {
+        output.walletDetailsDidTap()
+    }
+
+    @objc private func handleWalletExportDidTap() {
+        output.exportWalletDidTap()
+    }
+
+    @objc private func handleDeleteWalletDidTap() {
+        output.deleteWalletDidTap()
+    }
 }
 
 // MARK: - WalletOptionViewInput
 
-extension WalletOptionViewController: WalletOptionViewInput {}
+extension WalletOptionViewController: WalletOptionViewInput {
+    func setDeleteButtonIsVisible(_ isVisible: Bool) {
+        rootView.deleteWalletButton.isHidden = !isVisible
+    }
+}
 
 // MARK: - Localizable
 

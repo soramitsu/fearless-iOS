@@ -1,20 +1,17 @@
 import UIKit
 
-protocol WalletMainContainerViewDelegate: AnyObject {
-    func switchWalletDidTap()
-    func scanQRDidTap()
-    func searchDidTap()
-    func selectNetworkDidTap()
-    func didSelect(_ segmentIndex: Int)
-}
-
 final class WalletMainContainerViewLayout: UIView {
     private enum Constants {
         static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
+        static let issuesButtonSize = CGSize(width: 130, height: 24)
     }
 
-    weak var delegate: WalletMainContainerViewDelegate?
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
 
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -33,7 +30,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     private let navigationContainerView = UIView()
 
-    private let switchWalletButton: UIButton = {
+    let switchWalletButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconFearlessRounded(), for: .normal)
         return button
@@ -45,13 +42,13 @@ final class WalletMainContainerViewLayout: UIView {
         return label
     }()
 
-    private let selectNetworkButton: SelectedNetworkButton = {
+    let selectNetworkButton: SelectedNetworkButton = {
         let button = SelectedNetworkButton()
         button.titleLabel?.font = .p1Paragraph
         return button
     }()
 
-    private let scanQRButton: UIButton = {
+    let scanQRButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = R.color.colorWhite8()
         button.setImage(R.image.iconScanQr(), for: .normal)
@@ -60,7 +57,7 @@ final class WalletMainContainerViewLayout: UIView {
         return button
     }()
 
-    private let searchButton: UIButton = {
+    let searchButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = R.color.colorWhite8()
         button.setImage(R.image.iconSearchWhite(), for: .normal)
@@ -76,19 +73,26 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel: CopyableLabelView = {
-        let label = CopyableLabelView()
-        return label
+    private let addressCopyableLabel = CopyableLabelView()
+
+    // MARK: - Ussues button
+
+    let issuesButton: UIButton = {
+        let button = UIButton()
+        button.semanticContentAttribute = .forceRightToLeft
+        button.setImage(R.image.iconWarning(), for: .normal)
+        button.setTitle("Network Issues", for: .normal)
+        button.titleLabel?.font = .h6Title
+        button.layer.masksToBounds = true
+        button.backgroundColor = R.color.colorWhite8()
+        button.layer.cornerRadius = Constants.issuesButtonSize.height / 2
+        button.setTextAndImage(spacing: 5)
+        return button
     }()
 
     // MARK: - FWSegmentedControl
 
-    private let segmentedControl: FWSegmentedControl = {
-        let segment = FWSegmentedControl()
-        let items = ["Currencies", "NFTs"]
-        segment.setSegmentItems(items)
-        return segment
-    }()
+    let segmentedControl = FWSegmentedControl()
 
     // MARK: - UIPageViewController
 
@@ -106,9 +110,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        setup()
         setupLayout()
-        setupActions()
     }
 
     @available(*, unavailable)
@@ -127,37 +129,18 @@ final class WalletMainContainerViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
+
+        issuesButton.isHidden = !viewModel.hasNetworkIssues
     }
 
-    // MARK: - Private setup methods
+    // MARK: - Private methods
 
-    private func setup() {
-        segmentedControl.delegate = self
-    }
-
-    private func setupActions() {
-        switchWalletButton.addTarget(self, action: #selector(handleSwitchWalletTap), for: .touchUpInside)
-        scanQRButton.addTarget(self, action: #selector(handleScanQRTap), for: .touchUpInside)
-        searchButton.addTarget(self, action: #selector(handleSearchTap), for: .touchUpInside)
-        selectNetworkButton.addTarget(self, action: #selector(handleSelectNetworkTap), for: .touchUpInside)
-    }
-
-    // MARK: - Actions
-
-    @objc private func handleSwitchWalletTap() {
-        delegate?.switchWalletDidTap()
-    }
-
-    @objc private func handleScanQRTap() {
-        delegate?.scanQRDidTap()
-    }
-
-    @objc private func handleSearchTap() {
-        delegate?.searchDidTap()
-    }
-
-    @objc private func handleSelectNetworkTap() {
-        delegate?.selectNetworkDidTap()
+    private func applyLocalization() {
+        let localizedItems = [
+            R.string.localizable.сurrenciesStubText(preferredLanguages: locale.rLanguages),
+            R.string.localizable.nftsStub(preferredLanguages: locale.rLanguages)
+        ]
+        segmentedControl.setSegmentItems(localizedItems)
     }
 
     // MARK: - Private layout methods
@@ -233,6 +216,10 @@ final class WalletMainContainerViewLayout: UIView {
             make.height.equalTo(24)
         }
 
+        issuesButton.snp.makeConstraints { make in
+            make.size.equalTo(Constants.issuesButtonSize)
+        }
+
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.height.equalTo(58)
         }
@@ -240,13 +227,11 @@ final class WalletMainContainerViewLayout: UIView {
         walletBalanceVStackView.distribution = .fill
         walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
         walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
+        walletBalanceVStackView.addArrangedSubview(issuesButton)
+        walletBalanceVStackView.setCustomSpacing(4, after: addressCopyableLabel)
 
         contentView.setCustomSpacing(32, after: navigationContainerView)
         contentView.addArrangedSubview(walletBalanceVStackView)
-
-        walletBalanceVStackView.snp.makeConstraints { make in
-            make.height.greaterThanOrEqualTo(80)
-        }
     }
 
     private func setupSegmentedLayout() {
@@ -272,11 +257,5 @@ final class WalletMainContainerViewLayout: UIView {
         pageViewController.view.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-    }
-}
-
-extension WalletMainContainerViewLayout: FWSegmentedControlDelegate {
-    func didSelect(_ segmentIndex: Int) {
-        delegate?.didSelect(segmentIndex)
     }
 }

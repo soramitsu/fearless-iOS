@@ -147,42 +147,90 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
 struct SubqueryDelegatorHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let nodes: [SubqueryDelegatorHistoryElement]
+
+        init(json: [String: Any]) throws {
+            guard let nodesArray = json["nodes"] as? [[String: Any]] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+            }
+
+            let nodes = try nodesArray.compactMap { nodeJson in
+                try SubqueryDelegatorHistoryElement(json: nodeJson)
+            }
+
+            self.nodes = nodes
+        }
     }
 
     let delegators: HistoryElements
+
+    init(json: [String: Any]) throws {
+        guard let delegatorsDict = json["delegators"] as? [String: Any] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        delegators = try SubqueryDelegatorHistoryData.HistoryElements(json: delegatorsDict)
+    }
 }
 
 struct SubqueryDelegatorHistoryElement: Decodable {
-    let id: String
+    let id: String?
     let delegatorHistoryElements: SubqueryDelegatorHistoryNodes
+
+    init(json: [String: Any]) throws {
+        id = json["id"] as? String
+
+        guard let elementsDict = json["delegatorHistoryElements"] as? [String: Any] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        delegatorHistoryElements = try SubqueryDelegatorHistoryNodes(json: elementsDict)
+    }
 }
 
 struct SubqueryDelegatorHistoryNodes: Decodable {
     let nodes: [SubqueryDelegatorHistoryItem]
+
+    init(json: [String: Any]) throws {
+        guard let nodesArray = json["nodes"] as? [[String: Any]] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        let nodes = try nodesArray.compactMap { nodeJson in
+            try SubqueryDelegatorHistoryItem(json: nodeJson)
+        }
+
+        self.nodes = nodes
+    }
 }
 
 struct SubqueryDelegatorHistoryItem: Decodable {
-    enum CodingKeys: String, CodingKey {
-        case id
-        case amount
-        case type
-        case timestamp
-    }
-
     let id: String
-    @StringCodable var amount: BigUInt
-    let type: Int
+    let type: SubqueryDelegationAction
     let timestamp: String
+    let blockNumber: Int
+    let amount: BigUInt
 
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
+    init(json: [String: Any]) throws {
+        if let amount = json["amount"] as? UInt64 {
+            self.amount = BigUInt(integerLiteral: amount)
+        } else if let amount = json["amount"] as? Decimal {
+            let amountString = amount.toString(locale: nil, digits: 0)
+            self.amount = BigUInt(stringLiteral: amountString ?? "0")
+        } else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
 
-        id = try container.decode(String.self, forKey: .id)
-        type = try container.decode(Int.self, forKey: .type)
-        timestamp = try container.decode(String.self, forKey: .timestamp)
+        guard let id = json["id"] as? String,
+              let type = json["type"] as? Int,
+              let timestamp = json["timestamp"] as? String,
+              let blockNumber = json["blockNumber"] as? Int
+        else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
 
-        let amountValue = try? container.decode(Decimal.self, forKey: .amount)
-        let amountString = amountValue?.toString(locale: nil, digits: 0)
-        amount = BigUInt(stringLiteral: amountString ?? "0")
+        self.id = id
+        self.type = SubqueryDelegationAction(rawValue: type) ?? .unknown
+        self.timestamp = timestamp
+        self.blockNumber = blockNumber
     }
 }

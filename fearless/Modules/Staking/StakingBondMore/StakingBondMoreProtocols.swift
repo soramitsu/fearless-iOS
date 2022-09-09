@@ -16,6 +16,7 @@ protocol StakingBondMorePresenterProtocol: AnyObject {
     func handleContinueAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
+    func didTapBackButton()
 }
 
 protocol StakingBondMoreInteractorInputProtocol: AnyObject {
@@ -27,13 +28,11 @@ protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable, AnyDismissable {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
         flow: StakingBondMoreConfirmationFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
-
-    func close(view: ControllerBackedProtocol?)
 }

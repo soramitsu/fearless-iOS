@@ -97,7 +97,8 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         with wallet: MetaAccountModel
     ) {
         guard let controller = SelectCurrencyAssembly.configureModule(
-            with: wallet
+            with: wallet,
+            isModal: false
         )?.view.controller else { return }
         controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(controller, animated: true)

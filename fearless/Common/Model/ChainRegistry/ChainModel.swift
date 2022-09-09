@@ -213,6 +213,7 @@ enum ChainOptions: String, Codable {
     case crowdloans
     case orml
     case tipRequired
+    case poolStaking
 
     case unsupported
 
@@ -229,14 +230,14 @@ enum ChainOptions: String, Codable {
 
 extension ChainModel {
     func polkascanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://polkascan.io/\(name)/account/\(address)")
+        URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
     }
 
     func subscanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://\(name).subscan.io/account/\(address)")
+        URL(string: "https://\(name.lowercased()).subscan.io/account/\(address)")
     }
 
     func subscanExtrinsicUrl(_ extrinsicHash: String) -> URL? {
-        URL(string: "https://\(name).subscan.io/extrinsic/\(extrinsicHash)")
+        URL(string: "https://\(name.lowercased()).subscan.io/extrinsic/\(extrinsicHash)")
     }
 }

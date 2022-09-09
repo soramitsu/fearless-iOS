@@ -29,6 +29,7 @@ protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresenta
     func presentJoinFlow(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        amount: Decimal?,
         from view: ControllerBackedProtocol?
     )
 }

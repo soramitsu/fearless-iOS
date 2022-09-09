@@ -80,7 +80,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupTableView()
         setupActionButton()
         setupLocalization()
-        presenter?.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -100,6 +99,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
         }
+
+        presenter?.setup()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -159,7 +160,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNetworkInfoView() {
-        guard let networkInfoView = R.nib.networkInfoView(owner: self) else { return }
+        let networkInfoView = NetworkInfoView()
+        networkInfoView.descriptionLabel.isHidden = true
 
         self.networkInfoView = networkInfoView
 
@@ -276,6 +278,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
+        actionButton.isHidden = false
         if let rewardView = stateView as? RewardEstimationView {
             return rewardView
         }
@@ -475,6 +478,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard viewIfLoaded != nil else {
             return
         }
+        actionButton.isHidden = true
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {

@@ -12,7 +12,11 @@ class StakingPoolListTableCell: UITableViewCell {
         static let selectionImageViewSize = CGSize(width: 20, height: 20)
     }
 
-    let selectionIconImageView = UIImageView()
+    let selectionIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.contentMode = .scaleToFill
+        return imageView
+    }()
 
     let poolNameLabel: UILabel = {
         let label = UILabel()
@@ -24,20 +28,20 @@ class StakingPoolListTableCell: UITableViewCell {
     let membersCountLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 
     let stakedAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 
     let infoButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(R.image.iconInfo(), for: .normal)
+        button.setImage(R.image.iconInfoGrayFilled(), for: .normal)
         return button
     }()
 

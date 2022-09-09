@@ -44,11 +44,12 @@ extension StakingPoolJoinConfirmViewModelFactory: StakingPoolJoinConfirmViewMode
         )
 
         let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
+        let poolName: String = pool.name.isEmpty ? pool.id : pool.name
         return StakingPoolJoinConfirmViewModel(
             amountAttributedString: stakedAmountAttributedString,
             accountNameString: wallet.name,
             accountAddressString: address,
-            selectedPoolName: pool.name
+            selectedPoolName: poolName
         )
     }
 }

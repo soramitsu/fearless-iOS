@@ -20,6 +20,7 @@ final class StakingMainPresenter {
 
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
+    private weak var moduleOutput: StakingMainModuleOutput?
 
     var chainAsset: ChainAsset? {
         stateMachine.viewState { (state: BaseStakingState) in state.commonData.chainAsset }
@@ -43,6 +44,8 @@ final class StakingMainPresenter {
     private var controllerAccount: ChainAccountResponse?
     private var nomination: Nomination?
 
+    private var setupDone: Bool = false
+
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
@@ -50,7 +53,8 @@ final class StakingMainPresenter {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?,
         selectedMetaAccount: MetaAccountModel,
-        eventCenter: EventCenter
+        eventCenter: EventCenter,
+        moduleOutput: StakingMainModuleOutput?
     ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
@@ -66,6 +70,7 @@ final class StakingMainPresenter {
 
         stateMachine.delegate = self
         self.eventCenter.add(observer: self, dispatchIn: .main)
+        self.moduleOutput = moduleOutput
     }
 
     private func provideStakingInfo() {
@@ -164,11 +169,17 @@ final class StakingMainPresenter {
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
+        if setupDone {
+            return
+        }
+
         provideState()
         provideMainViewModel()
         provideStakingInfo()
 
         interactor.setup()
+
+        setupDone = true
     }
 
     func performAssetSelection() {
@@ -643,7 +654,18 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceieve(subqueryRewards: Result<[SubqueryRewardItemData]?, Error>, period: AnalyticsPeriod) {
         switch subqueryRewards {
         case let .success(rewards):
-            stateMachine.state.process(subqueryRewards: (rewards, period))
+            guard let chainAsset = chainAsset else {
+                return
+            }
+
+            // TODO: Remove once subquery will be fixed
+            let filteredRewards = rewards?.filter { item in
+                Decimal.fromSubstrateAmount(
+                    item.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0 < 1
+            }
+            stateMachine.state.process(subqueryRewards: (filteredRewards, period))
         case let .failure(error):
             handle(error: error)
         }
@@ -829,8 +851,23 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
 }
 
 extension StakingMainPresenter: AssetSelectionDelegate {
-    func assetSelection(view _: ChainSelectionViewProtocol, didCompleteWith chainAsset: ChainAsset) {
+    func assetSelection(
+        view _: ChainSelectionViewProtocol,
+        didCompleteWith chainAsset: ChainAsset,
+        context: Any?
+    ) {
+        guard let type = context as? AssetSelectionStakingType, let chainAsset = type.chainAsset else {
+            return
+        }
+
         interactor.save(chainAsset: chainAsset)
+
+        switch type {
+        case .normal:
+            break
+        case .pool:
+            moduleOutput?.didSwitchStakingType(type)
+        }
     }
 }
 

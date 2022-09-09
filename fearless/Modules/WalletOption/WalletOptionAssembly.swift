@@ -1,15 +1,31 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import RobinHood
 
 final class WalletOptionAssembly {
-    static func configureModule(with wallet: ManagedMetaAccountModel) -> WalletOptionModuleCreationResult? {
+    static func configureModule(
+        with wallet: ManagedMetaAccountModel,
+        delegate: WalletOptionModuleOutput?
+    ) -> WalletOptionModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = WalletOptionInteractor(wallet: wallet)
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let managedMetaAccountRepository = accountRepositoryFactory.createManagedMetaAccountRepository(
+            for: nil,
+            sortDescriptors: []
+        )
+
+        let interactor = WalletOptionInteractor(
+            wallet: wallet,
+            metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            moduleOutput: delegate
+        )
         let router = WalletOptionRouter()
 
         let presenter = WalletOptionPresenter(
+            wallet: wallet,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager

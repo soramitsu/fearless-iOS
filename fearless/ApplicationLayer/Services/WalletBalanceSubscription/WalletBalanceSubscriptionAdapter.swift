@@ -55,7 +55,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
 
     // MARK: - Private properties
 
-    private let lock = NSLock()
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private lazy var walletBalanceBuilder = {
         WalletBalanceBuilder()
@@ -281,7 +280,7 @@ extension WalletBalanceSubscriptionAdapter: EventVisitorProtocol {
         if let index = metaAccounts.firstIndex(where: { $0.metaId == event.account.metaId }) {
             metaAccounts[index] = event.account
         }
-        buildBalance()
+        pricesProvider?.refresh()
     }
 
     func processChainsUpdated(event: ChainsUpdatedEvent) {
@@ -305,8 +304,10 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            lock.with {
-                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+
+            accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
+            guard chainAssets.count == accountInfos.keys.count else {
+                return
             }
             buildBalance()
         case let .failure(error):

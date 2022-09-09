@@ -1,6 +1,6 @@
 import Foundation
 
-protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, PresentDismissable {
+protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyDismissable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentMissingController(

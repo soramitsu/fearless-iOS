@@ -4,6 +4,7 @@ import SoraFoundation
 enum StakingUnbondSetupFlow {
     case relaychain
     case parachain(candidate: ParachainStakingCandidateInfo, delegation: ParachainStakingDelegation)
+    case pool
 }
 
 protocol StakingUnbondSetupModelStateListener: AnyObject {

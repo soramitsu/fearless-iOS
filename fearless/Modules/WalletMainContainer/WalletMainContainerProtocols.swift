@@ -13,6 +13,8 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapOnQR()
     func didTapSearch()
     func didTapSelectNetwork()
+    func didTapOnBalance()
+    func didTapIssueButton()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
@@ -24,6 +26,8 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveAccount(_ account: MetaAccountModel)
     func didReceiveSelectedChain(_ chain: ChainModel?)
     func didReceiveError(_ error: Error)
+    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel])
+    func didReceiceMissingAccounts(missingAccounts: [ChainModel])
 }
 
 protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
@@ -48,11 +52,19 @@ protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
         selectedMetaAccount: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
-
     func showReceiveFlow(
         from view: WalletMainContainerViewInput?,
         chainAsset: ChainAsset,
         selectedMetaAccount: MetaAccountModel
+    )
+    func showSelectCurrency(
+        from view: WalletMainContainerViewInput?,
+        wallet: MetaAccountModel
+    )
+    func showIssueNotification(
+        from view: WalletMainContainerViewInput?,
+        issues: [ChainIssue],
+        wallet: MetaAccountModel
     )
 }
 

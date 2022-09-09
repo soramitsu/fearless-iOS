@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 
-final class StakingBondMoreViewController: UIViewController, ViewHolder {
+final class StakingBondMoreViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingBondMoreViewLayout
 
     let presenter: StakingBondMorePresenterProtocol
@@ -40,6 +40,12 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         setupActionButton()
         applyLocalization()
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func setupAmountInputView() {
@@ -61,6 +67,10 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     @objc
     private func handleActionButton() {
         presenter.handleContinueAction()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 
     private func updateActionButton() {
@@ -156,8 +166,6 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable
-                .stakingBondMore_v190(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
     }

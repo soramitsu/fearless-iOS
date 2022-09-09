@@ -193,6 +193,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)
 
             let strategy = SelectValidatorsStartParachainStrategy(
+                wallet: wallet,
+                chainAsset: chainAsset,
                 operationFactory: operationFactory,
                 operationManager: operationManager,
                 runtimeService: runtimeService,

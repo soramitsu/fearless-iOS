@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 extension TimeInterval {
     static let secondsInHour: TimeInterval = 3600
@@ -16,5 +17,15 @@ extension TimeInterval {
         }
 
         return R.string.localizable.commonHoursFormat(format: hoursFromSeconds, preferredLanguages: locale.rLanguages)
+    }
+
+    func localizedReadableValue() -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            if daysFromSeconds > 0 {
+                return R.string.localizable.commonDaysFormat(format: daysFromSeconds, preferredLanguages: locale.rLanguages)
+            }
+
+            return R.string.localizable.commonHoursFormat(format: hoursFromSeconds, preferredLanguages: locale.rLanguages)
+        }
     }
 }

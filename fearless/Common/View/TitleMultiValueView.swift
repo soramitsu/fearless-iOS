@@ -13,6 +13,7 @@ class TitleMultiValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
+        label.textAlignment = .right
         return label
     }()
 
@@ -20,6 +21,7 @@ class TitleMultiValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorGray()
         label.font = .p2Paragraph
+        label.textAlignment = .right
         return label
     }()
 
@@ -31,6 +33,20 @@ class TitleMultiValueView: UIView {
         view.strokeColor = R.color.colorDarkGray()!
         return view
     }()
+
+    var equalsLabelsWidth: Bool = false {
+        didSet {
+            if equalsLabelsWidth {
+                valueTop.snp.makeConstraints { make in
+                    make.width.equalTo(titleLabel.snp.width)
+                }
+
+                valueBottom.snp.makeConstraints { make in
+                    make.width.equalTo(titleLabel.snp.width)
+                }
+            }
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)

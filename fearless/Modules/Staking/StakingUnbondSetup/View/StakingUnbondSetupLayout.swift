@@ -6,6 +6,15 @@ final class StakingUnbondSetupLayout: UIView {
         static let hintsSpacing: CGFloat = 9
     }
 
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.set(.push)
+        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
@@ -16,10 +25,9 @@ final class StakingUnbondSetupLayout: UIView {
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
     let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: true)
 
-    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
-
+    let networkFeeFooterView: CleanNetworkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {
@@ -33,7 +41,7 @@ final class StakingUnbondSetupLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = R.color.colorBlack19()!
 
         setupLayout()
         applyLocalization()
@@ -84,22 +92,23 @@ final class StakingUnbondSetupLayout: UIView {
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+    }
+
     private func setupLayout() {
+        addSubview(navigationBar)
         addSubview(contentView)
+
         contentView.stackView.addArrangedSubview(collatorView)
-        contentView.stackView.addArrangedSubview(accountView)
 
         collatorView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
-
-        accountView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
 
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
@@ -115,8 +124,13 @@ final class StakingUnbondSetupLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
             make.bottom.equalTo(networkFeeFooterView.snp.top).inset(UIConstants.bigOffset)
         }
 

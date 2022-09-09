@@ -11,9 +11,11 @@ final class StakingPoolJoinChoosePoolPresenter {
     private let inputAmount: Decimal
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
+    private let filterFactory: TitleSwitchTableViewCellModelFactoryProtocol
 
     private var selectedPoolId: String?
     private var pools: [StakingPool]?
+    private var sort: PoolSortOption = .numberOfMembers
 
     // MARK: - Constructors
 
@@ -24,7 +26,8 @@ final class StakingPoolJoinChoosePoolPresenter {
         viewModelFactory: StakingPoolJoinChoosePoolViewModelFactoryProtocol,
         inputAmount: Decimal,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        filterFactory: TitleSwitchTableViewCellModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
@@ -32,6 +35,7 @@ final class StakingPoolJoinChoosePoolPresenter {
         self.inputAmount = inputAmount
         self.chainAsset = chainAsset
         self.wallet = wallet
+        self.filterFactory = filterFactory
         self.localizationManager = localizationManager
     }
 
@@ -42,7 +46,8 @@ final class StakingPoolJoinChoosePoolPresenter {
             pools: pools,
             locale: selectedLocale,
             cellsDelegate: self,
-            selectedPoolId: selectedPoolId
+            selectedPoolId: selectedPoolId,
+            sort: sort
         )
 
         view?.didReceive(cellViewModels: cellViewModels)
@@ -78,6 +83,20 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolViewOutpu
             selectedPool: pool
         )
     }
+
+    func didTapOptionsButton() {
+        let sortOptions: [PoolSortOption] = [.totalStake(assetSymbol: chainAsset.asset.symbol.uppercased()), .numberOfMembers]
+        let options = filterFactory.createSortings(
+            options: sortOptions,
+            selectedOption: sort,
+            locale: selectedLocale
+        )
+
+        router.presentOptions(options: options, callback: { [weak self] selectedIndex in
+            self?.sort = sortOptions[selectedIndex]
+            self?.provideViewModel()
+        }, from: view)
+    }
 }
 
 // MARK: - StakingPoolJoinChoosePoolInteractorOutput
@@ -109,5 +128,16 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolListTableCellModelDeleg
         provideViewModel()
     }
 
-    func showPoolInfo(poolId _: String) {}
+    func showPoolInfo(poolId: String) {
+        guard let pool = pools?.first(where: { $0.id == poolId }) else {
+            return
+        }
+
+        router.presentPoolInfo(
+            stakingPool: pool,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
+    }
 }

@@ -36,8 +36,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let applicationHandler: ApplicationHandlerProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
+
     let logger: LoggerProtocol?
-    let collatorOperationFactory: ParachainCollatorOperationFactory
+    var collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
@@ -59,6 +60,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
     var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var collatorIds: [AccountId]?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -149,6 +151,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             subqueryOperationFactory: subqueryOperationFactory
         )
 
+        self.collatorOperationFactory = collatorOperationFactory
+
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
                 for: chainAsset.chain
@@ -235,6 +239,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         fetchConstant(
             for: .maxNominatorRewardedPerValidator,
             runtimeCodingService: runtimeService,
@@ -351,37 +359,10 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
 //    Parachain
 
-    func handleDelegatorState(delegatorState: ParachainStakingDelegatorState?, chainAsset: ChainAsset) {
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return
-        }
-
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: operationManager
-        )
-
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
-
-        let subqueryOperationFactory = SubqueryRewardOperationFactory(
-            url: chainAsset.chain.externalApi?.staking?.url
-        )
-
-        let collatorOperationFactory = ParachainCollatorOperationFactory(
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: subqueryOperationFactory
-        )
-
+    func handleDelegatorState(
+        delegatorState: ParachainStakingDelegatorState?,
+        chainAsset _: ChainAsset
+    ) {
         if let state = delegatorState {
             fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
 
@@ -394,6 +375,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 DispatchQueue.main.async {
                     do {
                         let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+
+                        self?.collatorIds = collators.map(\.owner)
+
                         let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
                             guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
                                 return nil

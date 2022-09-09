@@ -41,7 +41,7 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
-        rootView.continueButton.addTarget(
+        rootView.feeView.actionButton.addTarget(
             self,
             action: #selector(continueButtonClicked),
             for: .touchUpInside
@@ -51,6 +51,8 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
         setupBalanceAccessoryView()
 
         rootView.amountView.textField.delegate = self
+
+        applyLocalization()
     }
 
     // MARK: - Private methods
@@ -91,6 +93,10 @@ extension StakingPoolJoinConfigViewController: StakingPoolJoinConfigViewInput {
 
     func didReceive(locale: Locale) {
         rootView.locale = locale
+    }
+
+    func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {
+        rootView.feeView.bindBalance(viewModel: feeViewModel)
     }
 }
 

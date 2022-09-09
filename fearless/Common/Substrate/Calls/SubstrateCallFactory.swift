@@ -106,6 +106,10 @@ protocol SubstrateCallFactoryProtocol {
         poolId: UInt32,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall>
+
+    func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall>
+
+    func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -392,6 +396,29 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
         return RuntimeCall(
             callCodingPath: .setPoolMetadata,
+            args: args
+        )
+    }
+
+    func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall> {
+        let args = PoolBondMoreCall(
+            extra: .freeBalance(amount: amount)
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolBondMore,
+            args: args
+        )
+    }
+
+    func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall> {
+        let args = PoolUnbondCall(
+            memberAccount: accountId,
+            unbondingPoints: amount
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolUnbond,
             args: args
         )
     }
