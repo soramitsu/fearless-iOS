@@ -10,6 +10,7 @@ struct WalletSendConfirmViewModelFactoryParameters {
     let feeViewModel: BalanceViewModelProtocol?
     let wallet: MetaAccountModel
     let locale: Locale
+    let scamInfo: ScamInfo?
 }
 
 protocol WalletSendConfirmViewModelFactoryProtocol {
@@ -39,7 +40,7 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
         let amountAttributedString = NSMutableAttributedString(string: amountString)
         amountAttributedString.addAttribute(
             NSAttributedString.Key.foregroundColor,
-            value: R.color.colorWhite(),
+            value: R.color.colorWhite()!.cgColor,
             range: (amountString as NSString).range(of: inputAmount)
         )
         return WalletSendConfirmViewModel(
@@ -52,7 +53,8 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             feePriceString: parameters.feeViewModel?.price ?? "",
             tipRequired: parameters.tipRequired,
             tipAmountString: parameters.tipViewModel?.amount ?? "",
-            tipPriceString: parameters.tipViewModel?.price ?? ""
+            tipPriceString: parameters.tipViewModel?.price ?? "",
+            showWarning: parameters.scamInfo != nil
         )
     }
 }

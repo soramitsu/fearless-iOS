@@ -10,6 +10,7 @@ protocol WalletSendConfirmPresenterProtocol: AnyObject {
     func setup()
     func didTapConfirmButton()
     func didTapBackButton()
+    func didTapScamWarningButton()
 }
 
 protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
@@ -28,7 +29,7 @@ protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
     func didTransfer(result: Result<String, Error>)
 }
 
-protocol WalletSendConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting {
+protocol WalletSendConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting, SheetAlertPresentable {
     func close(view: ControllerBackedProtocol?)
     func finish(view: ControllerBackedProtocol?)
     func complete(

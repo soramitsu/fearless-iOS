@@ -13,6 +13,7 @@ final class WalletSendPresenter {
     let chainAsset: ChainAsset
     let receiverAddress: String
     let transferFinishBlock: WalletTransferFinishBlock?
+    private let scamInfo: ScamInfo?
 
     private weak var moduleOutput: WalletSendModuleOutput?
 
@@ -37,6 +38,7 @@ final class WalletSendPresenter {
         logger: LoggerProtocol? = nil,
         chainAsset: ChainAsset,
         receiverAddress: String,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
@@ -46,6 +48,7 @@ final class WalletSendPresenter {
         self.logger = logger
         self.chainAsset = chainAsset
         self.receiverAddress = receiverAddress
+        self.scamInfo = scamInfo
         self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
@@ -56,7 +59,8 @@ final class WalletSendPresenter {
             tipRequired: chainAsset.chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
-            amountInputViewModel: provideInputViewModel()
+            amountInputViewModel: provideInputViewModel(),
+            scamInfo: scamInfo
         )
 
         DispatchQueue.main.async {
@@ -115,7 +119,8 @@ final class WalletSendPresenter {
             tipRequired: chainAsset.chain.isTipRequired,
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
-            amountInputViewModel: inputViewModel
+            amountInputViewModel: inputViewModel,
+            scamInfo: scamInfo
         )
 
         view?.didReceive(state: .loaded(viewModel))
@@ -201,6 +206,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
                 receiverAddress: strongSelf.receiverAddress,
                 amount: amount,
                 tip: strongSelf.tip,
+                scamInfo: strongSelf.scamInfo,
                 transferFinishBlock: strongSelf.transferFinishBlock
             )
         }

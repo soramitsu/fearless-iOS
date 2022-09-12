@@ -2,14 +2,28 @@ import Foundation
 import UIKit
 import SoraUI
 
-final class ScamWarningExpandableView: TriangularedView {
+final class ScamWarningExpandableView: UIView {
     private enum Constants {
         static let warningIconSize = CGSize(width: 20, height: 18)
         static let expandableIconSize = CGSize(width: 12, height: 6)
-        static let defaultViewHeight: CGFloat = 110.0
+        static let expandViewHeight: CGFloat = 68.0
     }
 
     // MARK: - Private properties
+
+    private let backgroundView: TriangularedView = {
+        let view = TriangularedView()
+        view.isUserInteractionEnabled = true
+
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+
+        view.strokeColor = R.color.colorOrange()!
+        view.highlightedStrokeColor = R.color.colorRed()!
+        view.strokeWidth = 1.0
+
+        return view
+    }()
 
     private let warningImageView: UIImageView = {
         let imageView = UIImageView()
@@ -32,6 +46,7 @@ final class ScamWarningExpandableView: TriangularedView {
     private let descriptionLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
+        label.numberOfLines = 0
         return label
     }()
 
@@ -56,15 +71,19 @@ final class ScamWarningExpandableView: TriangularedView {
         return label
     }()
 
-    private var isOpen = false
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
 
     // MARK: - Constructor
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        setupView()
+        configure()
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -74,58 +93,60 @@ final class ScamWarningExpandableView: TriangularedView {
 
     // MARK: - Public methods
 
-    func bind(scamInfo: ScamInfo) {
+    func bind(scamInfo: ScamInfo, assetName: String) {
         nameLabel.text = scamInfo.name
         reasonLabel.text = scamInfo.type.rawValue.capitalized
         additionalLabel.text = scamInfo.subtype
 
-        switch scamInfo.type {
-        case .unknown:
-            break
-        case .scam:
-            set(highlighted: true, animated: true)
-            warningImageView.tintColor = R.color.colorRed()
-            titleLabel.textColor = R.color.colorRed()
-        case .donation, .exchange, .sanctions:
-            set(highlighted: false, animated: true)
-            warningImageView.tintColor = R.color.colorOrange()
-            titleLabel.textColor = R.color.colorOrange()
-        }
-    }
-
-    func expand() {
-        let offset = isOpen ? -85 : 85
-        expandableCloudView.snp.updateConstraints { make in
-            make.top.equalTo(mainCloudView.snp.bottom).offset(offset)
-        }
+        applyStyle(for: scamInfo.type, assetName: assetName)
     }
 
     // MARK: - Private methods
 
-    private func setupView() {
-        clipsToBounds = true
-        shadowOpacity = 0
+    private func applyStyle(for type: ScamInfo.ScamType, assetName: String) {
+        highlighted(type)
 
-        fillColor = R.color.colorSemiBlack()!
-        highlightedFillColor = R.color.colorSemiBlack()!
-
-        strokeColor = R.color.colorOrange()!
-        highlightedStrokeColor = R.color.colorRed()!
+        descriptionLabel.text = type.description(for: locale, assetName: assetName)
     }
 
+    private func highlighted(_ type: ScamInfo.ScamType) {
+        backgroundView.set(highlighted: type.isScam, animated: false)
+
+        let tintColor = type.isScam ? R.color.colorRed()! : R.color.colorOrange()!
+        warningImageView.tintColor = tintColor
+        titleLabel.tintColor = tintColor
+    }
+
+    private func configure() {
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
+        addGestureRecognizer(tapGesture)
+    }
+
+    private func applyLocalization() {
+        titleLabel.text = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
+    }
+
+    // swiftlint:disable function_body_length
     private func setupLayout() {
+        addSubview(backgroundView)
+        backgroundView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
         mainCloudView.backgroundColor = R.color.colorSemiBlack()!
 
-        addSubview(mainCloudView)
+        backgroundView.addSubview(mainCloudView)
         mainCloudView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.verticalInset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        let vStackView = UIFactory.default.createVerticalStackView(spacing: 14)
-        mainCloudView.addSubview(vStackView)
-        vStackView.snp.makeConstraints { make in
+        let hStackView = UIFactory.default.createHorizontalStackView(spacing: 14)
+        hStackView.distribution = .fillProportionally
+        hStackView.alignment = .center
+        mainCloudView.addSubview(hStackView)
+        hStackView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview()
         }
 
         warningImageView.snp.makeConstraints { make in
@@ -136,50 +157,75 @@ final class ScamWarningExpandableView: TriangularedView {
             make.size.equalTo(Constants.expandableIconSize)
         }
 
-        vStackView.addArrangedSubview(warningImageView)
-        vStackView.addArrangedSubview(titleLabel)
-        vStackView.addArrangedSubview(indicator)
+        hStackView.addArrangedSubview(warningImageView)
+        hStackView.addArrangedSubview(titleLabel)
+        hStackView.addArrangedSubview(indicator)
 
         mainCloudView.addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
-            make.top.equalTo(vStackView.snp.bottom).offset(UIConstants.verticalInset)
+            make.top.equalTo(hStackView.snp.bottom).offset(UIConstants.verticalInset)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().inset(UIConstants.verticalInset)
+        }
+
+        backgroundView.insertSubview(expandableCloudView, belowSubview: mainCloudView)
+        expandableCloudView.snp.makeConstraints { make in
+            make.top.equalTo(mainCloudView.snp.bottom).offset(-Constants.expandViewHeight)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().offset(-UIConstants.verticalInset)
+        }
+
+        let expandableStack = UIFactory.default.createVerticalStackView(spacing: 8)
+        expandableCloudView.addSubview(expandableStack)
+        expandableStack.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalToSuperview()
         }
 
-        insertSubview(expandableCloudView, aboveSubview: mainCloudView)
-        expandableCloudView.snp.makeConstraints { make in
-            make.top.equalTo(mainCloudView.snp.bottom).offset(-85)
-            make.leading.trailing.bottom.equalToSuperview()
-        }
-
-        let expandableStack = UIFactory.default.createHorizontalStackView(spacing: 8)
-
-        let nameLabelStub = createLabel(with: "Name:")
+        let nameLabelStub = createLabel(with: R.string.localizable.scamNameStub(preferredLanguages: locale.rLanguages))
         let nameView = createVStackViewFor(firstLabel: nameLabelStub, secondLabel: nameLabel)
         expandableStack.addArrangedSubview(nameView)
 
-        let reasonLabelStub = createLabel(with: "Reason:")
+        let reasonLabelStub = createLabel(with: R.string.localizable.scamReasonStub(
+            preferredLanguages: locale.rLanguages)
+        )
         let reasonView = createVStackViewFor(firstLabel: reasonLabelStub, secondLabel: reasonLabel)
         expandableStack.addArrangedSubview(reasonView)
 
-        let additionalLabelStub = createLabel(with: "Additional::")
+        let additionalLabelStub = createLabel(with: R.string.localizable.scamAdditionalStub(
+            preferredLanguages: locale.rLanguages)
+        )
         let additionalView = createVStackViewFor(firstLabel: additionalLabelStub, secondLabel: additionalLabel)
         expandableStack.addArrangedSubview(additionalView)
     }
 
     private func createVStackViewFor(firstLabel: UILabel, secondLabel: UILabel) -> UIView {
-        let vStack = UIFactory.default.createVerticalStackView(spacing: 4)
-        vStack.addArrangedSubview(firstLabel)
-        vStack.addArrangedSubview(secondLabel)
-        return vStack
+        let hStack = UIFactory.default.createHorizontalStackView(spacing: 4)
+        hStack.alignment = .leading
+        hStack.addArrangedSubview(firstLabel)
+        hStack.addArrangedSubview(secondLabel)
+        return hStack
     }
 
     private func createLabel(with text: String) -> UILabel {
         let label = UILabel()
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         label.text = text
         label.font = .h6Title
         label.textColor = R.color.colorGray()!
         return label
+    }
+
+    // MARK: - Actions
+
+    @objc private func handleTapGesture() {
+        let isOpen = indicator.isActivated
+        let offset = isOpen ? -Constants.expandViewHeight : 0
+        expandableCloudView.snp.updateConstraints { make in
+            make.top.equalTo(mainCloudView.snp.bottom).offset(offset)
+        }
+
+        _ = isOpen ? indicator.deactivate() : indicator.activate()
     }
 }

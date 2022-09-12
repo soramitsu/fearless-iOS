@@ -5,13 +5,14 @@ import IrohaCrypto
 
 final class SearchPeoplePresenter {
     weak var view: SearchPeopleViewProtocol?
-    let wireframe: SearchPeopleWireframeProtocol
-    let interactor: SearchPeopleInteractorInputProtocol
-    let viewModelFactory: SearchPeopleViewModelFactoryProtocol
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let qrParser: QRParser
-    let transferFinishBlock: WalletTransferFinishBlock?
+    private let wireframe: SearchPeopleWireframeProtocol
+    private let interactor: SearchPeopleInteractorInputProtocol
+    private let viewModelFactory: SearchPeopleViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let qrParser: QRParser
+    private let transferFinishBlock: WalletTransferFinishBlock?
+    private let scamInfo: ScamInfo?
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -23,6 +24,7 @@ final class SearchPeoplePresenter {
         wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         qrParser: QRParser,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
@@ -31,6 +33,7 @@ final class SearchPeoplePresenter {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.qrParser = qrParser
+        self.scamInfo = scamInfo
         self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
@@ -59,9 +62,6 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
     }
 
     func didTapScanButton() {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return
-        }
         wireframe.presentScan(
             from: view,
             chainAsset: chainAsset,
@@ -88,6 +88,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
             to: viewModel.address,
             chainAsset: chainAsset,
             wallet: wallet,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
     }
@@ -122,6 +123,7 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
             to: address,
             chainAsset: chainAsset,
             wallet: wallet,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
     }

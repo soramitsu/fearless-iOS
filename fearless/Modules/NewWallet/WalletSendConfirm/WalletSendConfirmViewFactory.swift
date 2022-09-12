@@ -10,6 +10,7 @@ struct WalletSendConfirmViewFactory {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
@@ -49,6 +50,7 @@ struct WalletSendConfirmViewFactory {
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
 

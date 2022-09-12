@@ -74,6 +74,7 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(model):
+            rootView.bind(scamInfo: model.scamInfo)
             rootView.bind(feeViewModel: model.feeViewModel)
             rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
 

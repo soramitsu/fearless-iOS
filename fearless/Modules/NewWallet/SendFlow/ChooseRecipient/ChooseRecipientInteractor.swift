@@ -6,15 +6,42 @@ final class ChooseRecipientInteractor {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let searchService: SearchServiceProtocol
+    private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
+    private let operationQueue: OperationQueue
 
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        searchService: SearchServiceProtocol
+        searchService: SearchServiceProtocol,
+        scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
+        operationQueue: OperationQueue
     ) {
         self.chainAsset = chainAsset
         self.searchService = searchService
         self.wallet = wallet
+        self.scamServiceOperationFactory = scamServiceOperationFactory
+        self.operationQueue = operationQueue
+    }
+
+    private func fetchScamInfo(for address: String) {
+        let allOperation = scamServiceOperationFactory.fetchScamInfoOperation(for: address)
+
+        allOperation.completionBlock = { [weak self] in
+            guard let result = allOperation.result else {
+                return
+            }
+
+            switch result {
+            case let .success(scamInfo):
+                DispatchQueue.main.async {
+                    self?.output?.didReceive(scamInfo: scamInfo)
+                }
+            case .failure:
+                break
+            }
+        }
+
+        operationQueue.addOperation(allOperation)
     }
 }
 
@@ -35,9 +62,13 @@ extension ChooseRecipientInteractor: ChooseRecipientInteractorInputProtocol {
                     lastName: ""
                 )
 
+                fetchScamInfo(for: query)
+
                 output?.didReceive(searchResult: .success([searchData]))
                 return
             }
+        } else {
+            output?.didReceive(scamInfo: nil)
         }
 
         searchService.searchPeople(

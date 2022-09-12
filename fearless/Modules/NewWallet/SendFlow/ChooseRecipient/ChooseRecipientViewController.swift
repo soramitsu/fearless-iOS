@@ -74,7 +74,7 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
     }
 
     @objc private func pasteButtonClicked() {
-        rootView.searchView.textField.text = UIPasteboard.general.string
+        presenter.didTapPasteButton()
     }
 
     @objc private func historyButtonClicked() {
@@ -90,6 +90,10 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
 }
 
 extension ChooseRecipientViewController: ChooseRecipientViewProtocol {
+    func didReceive(scamInfo: ScamInfo?, assetName: String) {
+        rootView.bind(scamInfo: scamInfo, assetName: assetName)
+    }
+
     func didReceive(viewModel: ChooseRecipientViewModel) {
         rootView.bind(viewModel: viewModel)
     }

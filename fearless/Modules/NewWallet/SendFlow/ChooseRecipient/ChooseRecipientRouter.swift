@@ -11,12 +11,14 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
         from view: ControllerBackedProtocol?,
         to receiverAddress: String,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        scamInfo: ScamInfo?
     ) {
         guard let controller = WalletSendViewFactory.createView(
             receiverAddress: receiverAddress,
             chainAsset: chainAsset,
             wallet: wallet,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )?.controller else {
             return

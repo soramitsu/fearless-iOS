@@ -5,6 +5,7 @@ protocol ChooseRecipientViewProtocol: ControllerBackedProtocol {
     func didReceive(viewModel: ChooseRecipientViewModel)
     func didReceive(locale: Locale)
     func didReceive(address: String)
+    func didReceive(scamInfo: ScamInfo?, assetName: String)
 }
 
 protocol ChooseRecipientPresenterProtocol: AnyObject {
@@ -26,6 +27,7 @@ protocol ChooseRecipientInteractorInputProtocol: AnyObject {
 
 protocol ChooseRecipientInteractorOutputProtocol: AnyObject {
     func didReceive(searchResult: Result<[SearchData]?, Error>)
+    func didReceive(scamInfo: ScamInfo?)
 }
 
 protocol ChooseRecipientRouterProtocol: AnyObject {
@@ -34,7 +36,8 @@ protocol ChooseRecipientRouterProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         to address: String,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        scamInfo: ScamInfo?
     )
 
     func presentScan(

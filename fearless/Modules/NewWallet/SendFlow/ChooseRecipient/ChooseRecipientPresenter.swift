@@ -11,6 +11,8 @@ final class ChooseRecipientPresenter {
     private let wallet: MetaAccountModel
     private let qrParser: QRParser
 
+    private var scamInfo: ScamInfo?
+
     private var searchResult: Result<[SearchData]?, Error>?
 
     init(
@@ -42,6 +44,12 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
     func didTapPasteButton() {
         if let address = UIPasteboard.general.string {
             view?.didReceive(address: address)
+            interactor.performSearch(query: address)
+            let viewModel = viewModelFactory.buildChooseRecipientViewModel(
+                address: address,
+                isValid: interactor.validate(address: address)
+            )
+            view?.didReceive(viewModel: viewModel)
         }
     }
 
@@ -67,7 +75,8 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
             from: view,
             to: address,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            scamInfo: scamInfo
         )
     }
 
@@ -95,6 +104,11 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
 }
 
 extension ChooseRecipientPresenter: ChooseRecipientInteractorOutputProtocol {
+    func didReceive(scamInfo: ScamInfo?) {
+        view?.didReceive(scamInfo: scamInfo, assetName: chainAsset.asset.name)
+        self.scamInfo = scamInfo
+    }
+
     func didReceive(searchResult: Result<[SearchData]?, Error>) {
         let viewModel = viewModelFactory.buildChooseRecipientTableViewModel(searchResult: searchResult)
         view?.didReceive(tableViewModel: viewModel)
@@ -116,7 +130,8 @@ extension ChooseRecipientPresenter: WalletScanQRModuleOutput {
             from: view,
             to: address,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            scamInfo: scamInfo
         )
     }
 

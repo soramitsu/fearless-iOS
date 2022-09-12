@@ -28,10 +28,27 @@ struct ChooseRecipientViewFactory {
             accountsRepository: AnyDataProviderRepository(accountStorage)
         )
 
+        let repositoryFacade = SubstrateDataStorageFacade.shared
+        let mapper: CodableCoreDataMapper<ScamInfo, CDScamInfo> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDScamInfo.address))
+
+        let repository: CoreDataRepository<ScamInfo, CDScamInfo> =
+            repositoryFacade.createRepository(
+                filter: nil,
+                sortDescriptors: [],
+                mapper: AnyCoreDataMapper(mapper)
+            )
+
+        let scamServiceOperationFactory = ScamServiceOperationFactory(
+            repository: AnyDataProviderRepository(repository)
+        )
+
         let interactor = ChooseRecipientInteractor(
             chainAsset: chainAsset,
             wallet: wallet,
-            searchService: searchService
+            searchService: searchService,
+            scamServiceOperationFactory: scamServiceOperationFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let router = ChooseRecipientRouter(flow: flow, transferFinishBlock: transferFinishBlock)
 
