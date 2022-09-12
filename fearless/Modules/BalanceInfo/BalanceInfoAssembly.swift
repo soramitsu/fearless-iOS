@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import FearlessUtils
 
 enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)
@@ -12,6 +13,9 @@ enum BalanceInfoAssembly {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -33,8 +37,15 @@ enum BalanceInfoAssembly {
             logger: logger
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
         let interactor = BalanceInfoInteractor(
-            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
+            operationManager: operationManager,
+            storageRequestFactory: storageRequestFactory
         )
 
         let router = BalanceInfoRouter()
@@ -49,6 +60,7 @@ enum BalanceInfoAssembly {
             balanceInfoViewModelFactoryProtocol: balanceInfoViewModelFactory,
             interactor: interactor,
             router: router,
+            logger: logger,
             localizationManager: localizationManager
         )
 

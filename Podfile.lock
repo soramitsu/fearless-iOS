@@ -124,9 +124,9 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.8.2):
-    - Sourcery/CLI-Only (= 1.8.2)
-  - Sourcery/CLI-Only (1.8.2)
+  - Sourcery (1.7.0):
+    - Sourcery/CLI-Only (= 1.7.0)
+  - Sourcery/CLI-Only (1.7.0)
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
@@ -235,7 +235,7 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: ad4aba88367fbaf0c1ae6ec4ba3282db1b571624
+  Sourcery: 60248db99c17da7147b83acb9aca4266657c1f2e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
