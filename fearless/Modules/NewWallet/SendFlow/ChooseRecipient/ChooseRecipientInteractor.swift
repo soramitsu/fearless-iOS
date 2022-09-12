@@ -1,10 +1,7 @@
-import UIKit
 import CommonWallet
-import RobinHood
-import IrohaCrypto
 
-final class SearchPeopleInteractor {
-    weak var presenter: SearchPeopleInteractorOutputProtocol?
+final class ChooseRecipientInteractor {
+    weak var output: ChooseRecipientInteractorOutputProtocol?
 
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
@@ -21,7 +18,11 @@ final class SearchPeopleInteractor {
     }
 }
 
-extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
+extension ChooseRecipientInteractor: ChooseRecipientInteractorInputProtocol {
+    func setup(with output: ChooseRecipientInteractorOutputProtocol) {
+        self.output = output
+    }
+
     func performSearch(query: String) {
         let peerId = try? AddressFactory.accountId(from: query, chain: chainAsset.chain)
         let currentAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
@@ -34,7 +35,7 @@ extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
                     lastName: ""
                 )
 
-                presenter?.didReceive(searchResult: .success([searchData]))
+                output?.didReceive(searchResult: .success([searchData]))
                 return
             }
         }
@@ -46,7 +47,11 @@ extension SearchPeopleInteractor: SearchPeopleInteractorInputProtocol {
                 searchData.accountId != currentAccountId?.toHex()
             }
         ) { [weak self] result in
-            self?.presenter?.didReceive(searchResult: result)
+            self?.output?.didReceive(searchResult: result)
         }
+    }
+
+    func validate(address: String) -> Bool {
+        ((try? AddressFactory.accountId(from: address, chain: chainAsset.chain)) != nil)
     }
 }

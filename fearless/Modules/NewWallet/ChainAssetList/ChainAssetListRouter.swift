@@ -20,13 +20,12 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         let searchView = SearchPeopleViewFactory.createView(
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             transferFinishBlock: transferFinishBlock
         )
 
@@ -41,10 +40,10 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showReceiveFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     ) {
         let receiveView = ReceiveAssetViewFactory.createView(
-            account: selectedMetaAccount,
+            account: wallet,
             chain: chainAsset.chain,
             asset: chainAsset.asset
         )

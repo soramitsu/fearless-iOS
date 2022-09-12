@@ -8,6 +8,7 @@ final class WalletSendViewController: UIViewController, ViewHolder {
     let presenter: WalletSendPresenterProtocol
 
     private var state: WalletSendViewState = .loading
+    private var isFirstLayoutCompleted: Bool = false
 
     init(presenter: WalletSendPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
@@ -35,6 +36,21 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardHandler()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+        isFirstLayoutCompleted = true
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
     private func setupLocalization() {
         rootView.locale = selectedLocale
     }
@@ -58,10 +74,6 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(model):
-            if let accountViewModel = model.accountViewModel {
-                rootView.bind(accountViewModel: accountViewModel)
-            }
-
             rootView.bind(feeViewModel: model.feeViewModel)
             rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
 
@@ -95,10 +107,6 @@ final class WalletSendViewController: UIViewController, ViewHolder {
 }
 
 extension WalletSendViewController: WalletSendViewProtocol {
-    func didReceive(title: String) {
-        rootView.navigationTitleLabel.text = title
-    }
-
     func didReceive(state: WalletSendViewState) {
         applyState(state)
     }
@@ -160,4 +168,16 @@ extension WalletSendViewController: AmountInputViewModelObserver {
 
 extension WalletSendViewController: Localizable {
     func applyLocalization() {}
+}
+
+extension WalletSendViewController: KeyboardViewAdoptable {
+    var target: UIView? { rootView.actionButton }
+
+    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
+    }
+
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

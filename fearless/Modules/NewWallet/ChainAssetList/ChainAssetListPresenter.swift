@@ -121,14 +121,14 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             router.showSendFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: wallet,
+                wallet: wallet,
                 transferFinishBlock: nil
             )
         case .receive:
             router.showReceiveFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,
-                selectedMetaAccount: wallet
+                wallet: wallet
             )
         case .teleport:
             break

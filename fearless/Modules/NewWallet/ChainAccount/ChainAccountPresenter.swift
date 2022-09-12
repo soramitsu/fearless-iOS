@@ -96,8 +96,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapSendButton() {
         wireframe.presentSendFlow(
             from: view,
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
+            chainAsset: chainAsset,
             wallet: wallet,
             transferFinishBlock: nil
         )
