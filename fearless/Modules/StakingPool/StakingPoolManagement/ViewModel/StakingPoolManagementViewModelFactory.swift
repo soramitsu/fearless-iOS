@@ -12,6 +12,8 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
     ) -> LocalizableResource<String>?
 
     func buildViewModel(stakeInfo: StakingPoolMember?, era: EraIndex?) -> StakingPoolManagementViewModel
+
+    func buildOptionsPickerViewModels(locale: Locale) -> [IconWithTitleViewModel]
 }
 
 final class StakingPoolManagementViewModelFactory {
@@ -67,5 +69,12 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
             stakeMoreButtonEnabled: stakeInfo?.points != BigUInt.zero,
             unstakeButtonEnabled: unstakeButtonEnabled
         )
+    }
+
+    func buildOptionsPickerViewModels(locale: Locale) -> [IconWithTitleViewModel] {
+        let validatorsOptionViewModel = IconWithTitleViewModel(icon: nil, title: R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages))
+        let poolInfoOptionViewModel = IconWithTitleViewModel(icon: nil, title: R.string.localizable.poolCommon(preferredLanguages: locale.rLanguages))
+
+        return [validatorsOptionViewModel, poolInfoOptionViewModel]
     }
 }

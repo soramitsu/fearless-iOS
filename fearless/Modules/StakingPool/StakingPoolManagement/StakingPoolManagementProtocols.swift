@@ -19,6 +19,7 @@ protocol StakingPoolManagementViewOutput: AnyObject {
     func didTapCloseButton()
     func didTapStakeMoreButton()
     func didTapUnstakeButton()
+    func didTapOptionsButton()
 }
 
 protocol StakingPoolManagementInteractorInput: AnyObject {
@@ -33,7 +34,7 @@ protocol StakingPoolManagementInteractorOutput: AnyObject {
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
     func didReceive(eraStakersInfoError: Error)
-    func didReceive(poolName: String?)
+    func didReceive(stakingPool: StakingPool?)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceive(error: Error)
     func didReceive(stakingDuration: StakingDuration)
@@ -51,6 +52,19 @@ protocol StakingPoolManagementRouterInput: AnyObject, PresentDismissable {
         flow: StakingUnbondSetupFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
+
+    func presentPoolInfo(
+        stakingPool: StakingPool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
+
+    func presentOptions(
+        viewModels: [TitleWithSubtitleViewModel],
+        callback: ModalPickerSelectionCallback?,
         from view: ControllerBackedProtocol?
     )
 }

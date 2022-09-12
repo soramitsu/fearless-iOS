@@ -51,6 +51,12 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
             action: #selector(unstakeButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.optionsButton.addTarget(
+            self,
+            action: #selector(optionsButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private methods
@@ -65,6 +71,10 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
 
     @objc private func unstakeButtonClicked() {
         output.didTapUnstakeButton()
+    }
+
+    @objc private func optionsButtonClicked() {
+        output.didTapOptionsButton()
     }
 }
 

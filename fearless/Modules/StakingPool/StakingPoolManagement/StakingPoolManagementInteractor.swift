@@ -99,13 +99,13 @@ final class StakingPoolManagementInteractor {
     }
 
     private func fetchPoolInfo(poolId: String) {
-        let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchPoolMetadataOperation(poolId: poolId)
+        let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchBondedPoolOperation(poolId: poolId)
         fetchPoolInfoOperation.targetOperation.completionBlock = { [weak self] in
             do {
-                let poolName = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
+                let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
 
                 DispatchQueue.main.async {
-                    self?.output?.didReceive(poolName: poolName)
+                    self?.output?.didReceive(stakingPool: stakingPool)
                 }
             } catch {}
         }

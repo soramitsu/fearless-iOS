@@ -15,3 +15,5 @@ struct IconWithTitleViewModel {
         self.title = title
     }
 }
+
+extension IconWithTitleViewModel: Equatable {}

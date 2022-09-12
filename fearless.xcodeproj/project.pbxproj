@@ -5275,6 +5275,7 @@
 		29CF42B8232873ADFF0DDDF5 /* StakingPoolManagement */ = {
 			isa = PBXGroup;
 			children = (
+				FA8ACBA628CF135000F34FE3 /* Model */,
 				FAED9A9428C9C2410073B110 /* ViewModel */,
 				7F5E3AC2D1F5FD2D245B6D15 /* StakingPoolManagementProtocols.swift */,
 				58CF636572446B3E2500B165 /* StakingPoolManagementRouter.swift */,
@@ -11416,6 +11417,13 @@
 				D65265074DB88789E1E41C37 /* WalletScanQR */,
 			);
 			path = NewWallet;
+			sourceTree = "<group>";
+		};
+		FA8ACBA628CF135000F34FE3 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		FA90865627915CE000F785A7 /* ViewModel */ = {

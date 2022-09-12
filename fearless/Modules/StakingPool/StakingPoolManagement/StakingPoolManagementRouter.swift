@@ -34,4 +34,29 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
 
         view?.controller.navigationController?.pushViewController(unbondView.controller, animated: true)
     }
+
+    func presentPoolInfo(
+        stakingPool: StakingPool,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = StakingPoolInfoAssembly.configureModule(
+            stakingPool: stakingPool,
+            chainAsset: chainAsset,
+            wallet: wallet
+        ) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func presentOptions(viewModels: [TitleWithSubtitleViewModel], callback: ModalPickerSelectionCallback?, from view: ControllerBackedProtocol?) {
+        guard let picker = ModalPickerFactory.createPicker(viewModels: viewModels, callback: callback) else {
+            return
+        }
+
+        view?.controller.present(picker, animated: true)
+    }
 }

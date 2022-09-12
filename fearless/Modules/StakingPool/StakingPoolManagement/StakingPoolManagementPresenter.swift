@@ -18,6 +18,7 @@ final class StakingPoolManagementPresenter {
     private var priceData: PriceData?
     private var eraStakersInfo: EraStakersInfo?
     private var stakingDuration: StakingDuration?
+    private var stakingPool: StakingPool?
 
     // MARK: - Constructors
 
@@ -113,6 +114,19 @@ final class StakingPoolManagementPresenter {
 
         view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
     }
+
+    private func presentStakingPoolInfo() {
+        guard let stakingPool = stakingPool else {
+            return
+        }
+
+        router.presentPoolInfo(
+            stakingPool: stakingPool,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
+    }
 }
 
 // MARK: - StakingPoolManagementViewOutput
@@ -143,6 +157,25 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             wallet: wallet,
             from: view
         )
+    }
+
+    func didTapOptionsButton() {
+        let validatorsOptionViewModel = TitleWithSubtitleViewModel(
+            title: R.string.localizable.stakingValidatorNominators(preferredLanguages: selectedLocale.rLanguages)
+        )
+        let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
+            title: R.string.localizable.poolCommon(preferredLanguages: selectedLocale.rLanguages).capitalized
+        )
+
+        let viewModels = [validatorsOptionViewModel, poolInfoOptionViewModel]
+
+        router.presentOptions(viewModels: viewModels, callback: { [weak self] selectedOption in
+            if selectedOption == viewModels.index(of: validatorsOptionViewModel) {}
+
+            if selectedOption == viewModels.index(of: poolInfoOptionViewModel) {
+                self?.presentStakingPoolInfo()
+            }
+        }, from: view)
     }
 }
 
@@ -196,8 +229,9 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
 
     func didReceive(eraStakersInfoError _: Error) {}
 
-    func didReceive(poolName: String?) {
-        view?.didReceive(poolName: poolName)
+    func didReceive(stakingPool: StakingPool?) {
+        self.stakingPool = stakingPool
+        view?.didReceive(poolName: stakingPool?.name)
     }
 
     func didReceive(error _: Error) {
