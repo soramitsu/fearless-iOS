@@ -111,7 +111,7 @@ final class NewAmountInputView: UIView {
         priceLabel.text = viewModel.price
 
         if let balance = viewModel.balance {
-            balanceLabel.text = R.string.localizable.commonAvailableFormat(
+            balanceLabel.text = R.string.localizable.commonBalanceFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )

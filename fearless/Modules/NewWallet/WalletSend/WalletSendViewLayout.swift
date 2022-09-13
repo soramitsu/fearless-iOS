@@ -125,7 +125,7 @@ private extension WalletSendViewLayout {
         amountView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
+            .commonPreview(preferredLanguages: locale.rLanguages)
 
         tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
 
