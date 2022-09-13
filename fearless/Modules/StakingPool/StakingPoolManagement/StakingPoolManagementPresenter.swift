@@ -177,6 +177,17 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             }
         }, from: view)
     }
+
+    func didTapRedeemButton() {
+        router.presentRedeemFlow(
+            flow: .pool,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
+    }
+
+    func didTapClaimButton() {}
 }
 
 // MARK: - StakingPoolManagementInteractorOutput

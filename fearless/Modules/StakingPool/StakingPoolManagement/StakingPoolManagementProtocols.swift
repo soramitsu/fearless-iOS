@@ -20,6 +20,8 @@ protocol StakingPoolManagementViewOutput: AnyObject {
     func didTapStakeMoreButton()
     func didTapUnstakeButton()
     func didTapOptionsButton()
+    func didTapRedeemButton()
+    func didTapClaimButton()
 }
 
 protocol StakingPoolManagementInteractorInput: AnyObject {
@@ -65,6 +67,13 @@ protocol StakingPoolManagementRouterInput: AnyObject, PresentDismissable {
     func presentOptions(
         viewModels: [TitleWithSubtitleViewModel],
         callback: ModalPickerSelectionCallback?,
+        from view: ControllerBackedProtocol?
+    )
+
+    func presentRedeemFlow(
+        flow: StakingRedeemConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
 }

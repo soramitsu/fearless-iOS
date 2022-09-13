@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import BigInt
 
-enum StakingRedeemFlow {
+enum StakingRedeemConfirmationFlow {
     case relaychain
     case parachain(
         collator: ParachainStakingCandidateInfo,
@@ -12,7 +12,7 @@ enum StakingRedeemFlow {
     case pool
 }
 
-protocol StakingRedeemModelStateListener: AnyObject {
+protocol StakingRedeemConfirmationModelStateListener: AnyObject {
     func didReceiveError(error: Error)
     func didSubmitRedeeming(result: Result<String, Error>)
     func provideFeeViewModel()
@@ -21,37 +21,37 @@ protocol StakingRedeemModelStateListener: AnyObject {
     func refreshFeeIfNeeded()
 }
 
-protocol StakingRedeemViewModelState {
-    var stateListener: StakingRedeemModelStateListener? { get set }
+protocol StakingRedeemConfirmationViewModelState {
+    var stateListener: StakingRedeemConfirmationModelStateListener? { get set }
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var reuseIdentifier: String? { get }
     var fee: Decimal? { get }
     var address: String? { get }
 
-    func setStateListener(_ stateListener: StakingRedeemModelStateListener?)
+    func setStateListener(_ stateListener: StakingRedeemConfirmationModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]
 }
 
-struct StakingRedeemDependencyContainer {
-    let viewModelState: StakingRedeemViewModelState
-    let strategy: StakingRedeemStrategy
-    let viewModelFactory: StakingRedeemViewModelFactoryProtocol
+struct StakingRedeemConfirmationDependencyContainer {
+    let viewModelState: StakingRedeemConfirmationViewModelState
+    let strategy: StakingRedeemConfirmationStrategy
+    let viewModelFactory: StakingRedeemConfirmationViewModelFactoryProtocol
 }
 
-protocol StakingRedeemViewModelFactoryProtocol {
+protocol StakingRedeemConfirmationViewModelFactoryProtocol {
     func buildViewModel(
-        viewModelState: StakingRedeemViewModelState
-    ) -> StakingRedeemViewModel?
+        viewModelState: StakingRedeemConfirmationViewModelState
+    ) -> StakingRedeemConfirmationViewModel?
 
     func buildAssetViewModel(
-        viewModelState: StakingRedeemViewModelState,
+        viewModelState: StakingRedeemConfirmationViewModelState,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol>?
 
     func buildHints() -> LocalizableResource<[TitleIconViewModel]>
 }
 
-protocol StakingRedeemStrategy {
+protocol StakingRedeemConfirmationStrategy {
     func setup()
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
     func submit(builderClosure: ExtrinsicBuilderClosure?)

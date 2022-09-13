@@ -179,7 +179,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     )
 
     func showAnalytics(

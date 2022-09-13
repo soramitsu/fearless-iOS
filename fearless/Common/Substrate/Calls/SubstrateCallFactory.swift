@@ -110,6 +110,8 @@ protocol SubstrateCallFactoryProtocol {
     func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall>
 
     func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall>
+
+    func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -419,6 +421,18 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
         return RuntimeCall(
             callCodingPath: .poolUnbond,
+            args: args
+        )
+    }
+
+    func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall> {
+        let args = PoolWithdrawUnbondedCall(
+            memberAccount: accountId,
+            numSlashingSpans: numSlashingSpans
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolWithdrawUnbonded,
             args: args
         )
     }

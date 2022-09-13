@@ -41,4 +41,8 @@ extension CallCodingPath {
     static var poolUnbond: CallCodingPath {
         CallCodingPath(moduleName: "NominationPools", callName: "unbond")
     }
+
+    static var poolWithdrawUnbonded: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "withdraw_unbonded")
+    }
 }

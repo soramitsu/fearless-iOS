@@ -58,11 +58,11 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
         return unstakePeriod.localizedReadableValue()
     }
 
-    func buildViewModel(stakeInfo: StakingPoolMember?, era: EraIndex?) -> StakingPoolManagementViewModel {
+    func buildViewModel(stakeInfo: StakingPoolMember?, era _: EraIndex?) -> StakingPoolManagementViewModel {
         var unstakeButtonEnabled = false
 
-        if let era = era, let stakeInfo = stakeInfo {
-            unstakeButtonEnabled = stakeInfo.unbonding(inEra: era) != BigUInt.zero
+        if let stakeInfo = stakeInfo {
+            unstakeButtonEnabled = stakeInfo.points != BigUInt.zero
         }
 
         return StakingPoolManagementViewModel(

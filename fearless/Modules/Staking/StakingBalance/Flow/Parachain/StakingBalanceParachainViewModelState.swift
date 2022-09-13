@@ -33,7 +33,7 @@ final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState 
         return .parachain(candidate: collator, delegation: delegation)
     }
 
-    var revokeFlow: StakingRedeemFlow? {
+    var revokeFlow: StakingRedeemConfirmationFlow? {
         guard let delegation = delegation,
               let readyForRevoke = calculateRevokeAmount() else {
             return nil

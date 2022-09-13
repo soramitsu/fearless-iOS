@@ -57,6 +57,18 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
             action: #selector(optionsButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.redeemView.actionButton?.addTarget(
+            self,
+            action: #selector(redeemButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.claimView.actionButton?.addTarget(
+            self,
+            action: #selector(claimButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private methods
@@ -75,6 +87,14 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
 
     @objc private func optionsButtonClicked() {
         output.didTapOptionsButton()
+    }
+
+    @objc private func claimButtonClicked() {
+        output.didTapClaimButton()
+    }
+
+    @objc private func redeemButtonClicked() {
+        output.didTapRedeemButton()
     }
 }
 
