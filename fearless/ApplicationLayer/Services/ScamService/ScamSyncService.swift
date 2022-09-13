@@ -172,7 +172,7 @@ final class ScamSyncService: ScamSyncServiceProtocol {
             let scamInfo = ScamInfo(
                 name: name,
                 address: address,
-                type: ScamInfo.ScamType(rawValue: type.lowercased()) ?? .unknown,
+                type: ScamInfo.ScamType(from: type) ?? .unknown,
                 subtype: subtype
             )
 

@@ -104,12 +104,12 @@ final class ScamWarningExpandableView: UIView {
     // MARK: - Private methods
 
     private func applyStyle(for type: ScamInfo.ScamType, assetName: String) {
-        highlighted(type)
+        applyHighlight(type)
 
         descriptionLabel.text = type.description(for: locale, assetName: assetName)
     }
 
-    private func highlighted(_ type: ScamInfo.ScamType) {
+    private func applyHighlight(_ type: ScamInfo.ScamType) {
         backgroundView.set(highlighted: type.isScam, animated: false)
 
         let tintColor = type.isScam ? R.color.colorRed()! : R.color.colorOrange()!

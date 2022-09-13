@@ -25,6 +25,10 @@ struct ScamInfo: Identifiable, Codable, Equatable {
         case exchange
         case sanctions
 
+        init?(from string: String) {
+            self.init(rawValue: string.lowercased())
+        }
+
         var isScam: Bool {
             switch self {
             case .scam:
@@ -34,10 +38,10 @@ struct ScamInfo: Identifiable, Codable, Equatable {
             }
         }
 
-        func description(for locale: Locale, assetName: String) -> String {
+        func description(for locale: Locale, assetName: String) -> String? {
             switch self {
             case .unknown:
-                return ""
+                return nil
             case .scam:
                 return R.string.localizable
                     .scamDescriptionScamStub(assetName, preferredLanguages: locale.rLanguages)

@@ -79,7 +79,6 @@ final class ChooseRecipientViewLayout: UIView {
         didSet {
             if locale != oldValue {
                 applyLocalization()
-                scamWarningView.locale = locale
             }
         }
     }
@@ -130,8 +129,6 @@ final class ChooseRecipientViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        scamWarningView.isUserInteractionEnabled = true
-        scamWarningView.isHidden = true
         contentVStackView.addArrangedSubview(scamWarningView)
         contentVStackView.addArrangedSubview(tableView)
 
@@ -162,6 +159,8 @@ final class ChooseRecipientViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        scamWarningView.locale = locale
+
         searchView.textField.placeholder = R.string.localizable.searchTextfieldPlaceholder(
             preferredLanguages: locale.rLanguages
         )
