@@ -9,10 +9,7 @@ final class StakingRebondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView = NewAmountInputView()
 
     let networkFeeView = NetworkFeeView()
 
@@ -45,8 +42,7 @@ final class StakingRebondSetupLayout: UIView {
     private func applyLocalization() {
         networkFeeView.locale = locale
 
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)

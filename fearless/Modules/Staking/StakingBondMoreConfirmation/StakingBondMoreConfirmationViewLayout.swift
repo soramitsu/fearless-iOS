@@ -21,8 +21,8 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: NewAmountInputView = {
+        let view = NewAmountInputView()
         view.isUserInteractionEnabled = false
         return view
     }()

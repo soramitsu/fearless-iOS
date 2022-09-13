@@ -43,7 +43,6 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func setupAmountInputView() {
-        rootView.amountInputView.textField.keyboardType = .decimalPad
         rootView.amountInputView.textField.delegate = self
 
         let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
@@ -70,15 +69,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func applyAsset() {
         if let viewModel = assetViewModel?.value(for: selectedLocale) {
-            rootView.amountInputView.balanceText = R.string.localizable
-                .commonAvailableFormat(
-                    viewModel.balance ?? "",
-                    preferredLanguages: selectedLocale.rLanguages
-                )
-            rootView.amountInputView.priceText = viewModel.price
-            rootView.amountInputView.symbol = viewModel.symbol
-
-            viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountInputView.iconView, animated: true)
+            rootView.amountInputView.bind(viewModel: viewModel)
         }
     }
 

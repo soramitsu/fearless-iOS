@@ -10,8 +10,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountInputView: NewAmountInputView = {
+        let view = NewAmountInputView()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -49,26 +49,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
-        amountInputView.iconView.image = nil
-
-        self.assetViewModel = assetViewModel
-
-        amountInputView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountInputView.balanceText = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountInputView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountInputView.symbol = symbol
+        amountInputView.bind(viewModel: assetViewModel)
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
@@ -113,13 +94,11 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
         networkFeeFooterView.locale = locale
+        amountInputView.locale = locale
 
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages
         )
-
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         estimatedRewardView?.titleLabel.text = R.string.localizable.crowdloanReward(
             preferredLanguages: locale.rLanguages

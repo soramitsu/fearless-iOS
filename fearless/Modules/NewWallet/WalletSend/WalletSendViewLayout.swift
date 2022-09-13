@@ -122,6 +122,7 @@ private extension WalletSendViewLayout {
 
     func applyLocalization() {
         feeView.locale = locale
+        amountView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)

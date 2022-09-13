@@ -12,8 +12,8 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: NewAmountInputView = {
+        let view = NewAmountInputView()
         view.isUserInteractionEnabled = false
         return view
     }()

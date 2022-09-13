@@ -15,7 +15,7 @@ final class NewAmountInputView: UIView {
 
         view.strokeColor = R.color.colorWhite8()!
         view.highlightedStrokeColor = R.color.colorWhite8()!
-        view.strokeWidth = 1.0
+        view.strokeWidth = 0.5
         view.layer.shadowOpacity = 0
 
         return view
@@ -120,7 +120,7 @@ final class NewAmountInputView: UIView {
         }
 
         let symbol = viewModel.symbol.uppercased()
-        symbolLabel.text = symbol
+        symbolLabel.text = symbol.uppercased()
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
     }

@@ -23,8 +23,8 @@ final class StakingUnbondConfirmLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: NewAmountInputView = {
+        let view = NewAmountInputView()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -98,19 +98,7 @@ final class StakingUnbondConfirmLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = assetViewModel.symbol.uppercased()
+        amountView.bind(viewModel: assetViewModel)
 
         setNeedsLayout()
     }
@@ -146,8 +134,7 @@ final class StakingUnbondConfirmLayout: UIView {
 
         collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
         networkFeeFooterView.locale = locale
 
