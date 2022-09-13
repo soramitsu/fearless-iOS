@@ -37,13 +37,13 @@ final class NodeSelectionViewLayout: UIView {
 
     let switchView: UISwitch = {
         let switchView = UISwitch()
-        switchView.onTintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 
     let addNodeButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

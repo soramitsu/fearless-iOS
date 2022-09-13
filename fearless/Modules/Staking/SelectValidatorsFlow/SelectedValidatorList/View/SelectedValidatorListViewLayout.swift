@@ -12,7 +12,7 @@ final class SelectedValidatorListViewLayout: UIView {
 
     let proceedButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

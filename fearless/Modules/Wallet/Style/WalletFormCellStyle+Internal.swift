@@ -14,7 +14,7 @@ extension WalletFormCellStyle {
 
         let link = WalletLinkStyle(
             normal: R.color.colorWhite()!,
-            highlighted: R.color.colorAccent()!
+            highlighted: R.color.colorPink()!
         )
 
         return WalletFormCellStyle(

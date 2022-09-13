@@ -220,7 +220,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
         let view = TitleValueView()
         view.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
-        view.valueLabel.textColor = R.color.colorAccent()
+        view.valueLabel.textColor = R.color.colorPink()
 
         contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
         view.snp.makeConstraints { make in

@@ -32,7 +32,7 @@ final class AssetSelectionTableViewCell: UITableViewCell {
     let stakingTypeLabel: InsettedLabel = {
         let label = InsettedLabel(insets: UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4))
         label.font = .capsTitle
-        label.backgroundColor = R.color.colorWhiteTransparent()!
+        label.backgroundColor = R.color.colorWhite16()!
         label.layer.cornerRadius = 3
         label.layer.masksToBounds = true
         return label

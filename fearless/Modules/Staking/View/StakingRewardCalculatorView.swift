@@ -43,7 +43,7 @@ class StakingRewardCalculatorView: UIView {
     private var monthlyFiatAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = R.color.colorWhiteTransparent()
+        label.textColor = R.color.colorWhite16()
         return label
     }()
 
@@ -64,7 +64,7 @@ class StakingRewardCalculatorView: UIView {
     private var yearlyFiatAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = R.color.colorWhiteTransparent()
+        label.textColor = R.color.colorWhite16()
         return label
     }()
 

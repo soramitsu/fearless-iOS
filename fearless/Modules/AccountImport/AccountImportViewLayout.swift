@@ -171,7 +171,7 @@ final class AccountImportViewLayout: UIView {
 
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

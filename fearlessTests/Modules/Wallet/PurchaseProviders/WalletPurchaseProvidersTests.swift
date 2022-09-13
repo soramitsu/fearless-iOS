@@ -56,7 +56,7 @@
 //        let apiKey = "pk_test_DMRuyL6Nf1qc9OzjPBmCFBeCGkFwiZs0"
 //        let secretKey = "1"
 //        let redirectUrl = config.purchaseRedirect
-//        let colorCode = R.color.colorAccent()!.hexRGB
+//        let colorCode = R.color.colorPink()!.hexRGB
 //
 //        // swiftlint:disable next long_string
 //        let query = "apiKey=\(apiKey)&currencyCode=DOT&walletAddress=\(address)&showWalletAddressForm=true&colorCode=\(colorCode)&redirectURL=\(redirectUrl)"
@@ -67,7 +67,7 @@
 //        let secretKeyData = Data(secretKey.utf8)
 //
 //        let provider = MoonpayProviderFactory().createProvider(with: secretKeyData, apiKey: apiKey)
-//            .with(colorCode: R.color.colorAccent()!.hexRGB)
+//            .with(colorCode: R.color.colorPink()!.hexRGB)
 //            .with(callbackUrl: config.purchaseRedirect)
 //
 //        // when

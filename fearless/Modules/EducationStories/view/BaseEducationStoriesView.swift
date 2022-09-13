@@ -36,7 +36,7 @@ final class BaseEducationStoriesView: UIView {
 
     private lazy var bottomCloseButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.isHidden = true
         button.imageWithTitleView?.title = R.string.localizable
             .storiesBottomCloseButton(preferredLanguages: locale?.rLanguages)

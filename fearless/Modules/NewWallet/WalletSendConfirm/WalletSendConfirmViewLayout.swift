@@ -103,7 +103,7 @@ final class WalletSendConfirmViewLayout: UIView {
 
     let confirmButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

@@ -29,7 +29,7 @@ final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
+        selectedBackgroundView.backgroundColor = R.color.colorPink()!.withAlphaComponent(0.3)
         self.selectedBackgroundView = selectedBackgroundView
         backgroundColor = .clear
 

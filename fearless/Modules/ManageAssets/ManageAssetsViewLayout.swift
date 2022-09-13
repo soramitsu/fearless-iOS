@@ -36,7 +36,7 @@ final class ManageAssetsViewLayout: UIView {
 
     let applyButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

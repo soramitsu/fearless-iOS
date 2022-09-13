@@ -89,7 +89,7 @@ final class WalletTransactionHistoryViewController: UIViewController, ViewHolder
 
     private func setupLocalization() {
         let languages = selectedLocale.rLanguages
-        rootView.titleLabel.text = R.string.localizable.walletHistoryTitle_v190(preferredLanguages: languages)
+        rootView.titleLabel.text = R.string.localizable.transactionListHeader(preferredLanguages: languages)
     }
 
     private func updateLoadingAndEmptyState(animated: Bool) {
@@ -620,7 +620,7 @@ extension WalletTransactionHistoryViewController: Localizable {
                 setupNavigationItemTitle(navigationItem)
             }
 
-            rootView.titleLabel.text = R.string.localizable.walletHistoryTitle_v190(preferredLanguages: selectedLocale.rLanguages)
+            rootView.titleLabel.text = R.string.localizable.transactionListHeader(preferredLanguages: selectedLocale.rLanguages)
 
             view.setNeedsLayout()
         }

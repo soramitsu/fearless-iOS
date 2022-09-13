@@ -52,7 +52,7 @@ final class ContactsConfigurator {
             nameIcon: iconStyle,
             accessoryIcon: R.image.iconSmallArrow(),
             lineBreakMode: .byTruncatingMiddle,
-            selectionColor: R.color.colorAccent()!.withAlphaComponent(0.3)
+            selectionColor: R.color.colorPink()!.withAlphaComponent(0.3)
         )
     }()
 

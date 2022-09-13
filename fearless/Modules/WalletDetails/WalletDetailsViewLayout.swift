@@ -42,7 +42,7 @@ final class WalletDetailsViewLayout: UIView {
 
     let exportButton: TriangularedButton = {
         let button = UIFactory.default.createMainActionButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.isHidden = true
         return button
     }()

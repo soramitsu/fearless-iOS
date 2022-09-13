@@ -71,7 +71,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
                 }
                 if actionButton == nil {
                     let actionButton = TriangularedButton()
-                    actionButton.applyDefaultStyle()
+                    actionButton.applyEnabledStyle()
                     actionButton.triangularedView?.fillColor = R.color.colorPurple()!
                     actionButton.imageWithTitleView?.titleFont = .h6Title
                     contentView?.addSubview(actionButton)

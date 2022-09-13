@@ -24,7 +24,7 @@ final class TitleSwitchTableViewCell: UITableViewCell, ModalPickerCellProtocol {
 
     private let switchView: UISwitch = {
         let switchView = UISwitch()
-        switchView.onTintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 

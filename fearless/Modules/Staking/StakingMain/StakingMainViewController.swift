@@ -42,7 +42,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var analyticsView = RewardAnalyticsWidgetView()
     private lazy var actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

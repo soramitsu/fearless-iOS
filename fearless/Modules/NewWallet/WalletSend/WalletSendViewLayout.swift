@@ -25,7 +25,7 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let amountView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountView = NewAmountInputView()
 
     let feeView: NetworkFeeView = {
         let view = UIFactory.default.createNetworkFeeView()
@@ -41,7 +41,7 @@ final class WalletSendViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -67,24 +67,7 @@ final class WalletSendViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        assetViewModel.iconViewModel?.cancel(on: amountView.iconView)
-        amountView.iconView.image = nil
-
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.commonBalanceFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountView.symbol = symbol
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
+        amountView.bind(viewModel: assetViewModel)
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
@@ -116,7 +99,6 @@ private extension WalletSendViewLayout {
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
         addSubview(actionButton) { make in
@@ -140,9 +122,6 @@ private extension WalletSendViewLayout {
 
     func applyLocalization() {
         feeView.locale = locale
-
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)

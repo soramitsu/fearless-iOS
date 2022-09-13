@@ -57,7 +57,7 @@ final class CustomValidatorListViewLayout: UIView {
 
     let proceedButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.contentOpacityWhenDisabled = 1.0
         return button
     }()

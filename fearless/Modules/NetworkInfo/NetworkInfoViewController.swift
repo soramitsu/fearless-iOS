@@ -85,7 +85,7 @@ final class NetworkInfoViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(button)
 
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
 
         button.imageWithTitleView?.title = R.string.localizable
             .commonUpdate(preferredLanguages: localizationManager?.selectedLocale.rLanguages)

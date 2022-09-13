@@ -72,7 +72,7 @@ final class UsernameSetupViewLayout: UIView {
 
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

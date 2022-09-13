@@ -27,7 +27,7 @@ final class AnalyticsValidatorsCell: UITableViewCell {
 
     let progressView: RoundedView = {
         let view = RoundedView()
-        view.fillColor = R.color.colorAccent()!
+        view.fillColor = R.color.colorPink()!
         return view
     }()
 

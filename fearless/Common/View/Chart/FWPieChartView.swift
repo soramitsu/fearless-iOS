@@ -48,7 +48,7 @@ extension FWPieChartView: FWPieChartViewProtocol {
         set.drawValuesEnabled = false
         set.sliceSpace = 4
 
-        set.colors = segmentValues.map { _ in R.color.colorAccent()! }
+        set.colors = segmentValues.map { _ in R.color.colorPink()! }
 
         let data = PieChartData(dataSet: set)
         if let inactiveSegmentValue = inactiveSegmentValue {

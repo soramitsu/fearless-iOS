@@ -24,7 +24,7 @@ final class AddCustomNodeViewLayout: UIView {
         backgroundColor = .black
         setupLayout()
 
-        addNodeButton.applyDefaultStyle()
+        addNodeButton.applyEnabledStyle()
 
         applyLocalization()
     }

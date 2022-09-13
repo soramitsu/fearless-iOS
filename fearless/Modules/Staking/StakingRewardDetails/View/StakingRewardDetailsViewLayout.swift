@@ -12,7 +12,7 @@ final class StakingRewardDetailsViewLayout: UIView {
 
     let payoutButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

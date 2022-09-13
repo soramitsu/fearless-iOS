@@ -128,7 +128,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         case .commited:
             transactionAmountLabel.textColor = viewModel.incoming ? R.color.colorGreen() : R.color.colorWhite()
         case .pending, .rejected:
-            transactionAmountLabel.textColor = R.color.colorWhiteTransparent()
+            transactionAmountLabel.textColor = R.color.colorWhite16()
         }
     }
 }

@@ -52,7 +52,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
 
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
