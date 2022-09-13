@@ -83,7 +83,7 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func update(chain: ChainModel) {
-        if let newChainAsset = availableChainAssets.first(where: { $0.chain == chain }) {
+        if let newChainAsset = availableChainAssets.first(where: { $0.chain.chainId == chain.chainId }) {
             chainAsset = newChainAsset
             presenter?.didUpdate(chainAsset: chainAsset)
         } else {

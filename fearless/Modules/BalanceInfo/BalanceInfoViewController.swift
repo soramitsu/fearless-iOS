@@ -33,9 +33,15 @@ final class BalanceInfoViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        rootView.infoButton.addTarget(self, action: #selector(didTapInfoButton), for: .touchUpInside)
     }
 
     // MARK: - Private methods
+
+    @objc
+    private func didTapInfoButton() {
+        output.didTapInfoButton()
+    }
 }
 
 // MARK: - BalanceInfoViewInput

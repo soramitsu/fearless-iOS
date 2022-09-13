@@ -101,6 +101,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -111,6 +112,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -123,6 +125,7 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
         deliverOn queue: DispatchQueue?,
         handler: WalletBalanceSubscriptionHandler
     ) {
+        reset()
         deliverQueue = queue
         delegate = handler
 
@@ -130,6 +133,14 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
     }
 
     // MARK: - Private methods
+
+    private func reset() {
+        accountInfos = [:]
+        metaAccounts.forEach { wallet in
+            accountInfosAdapters[wallet.identifier]?.reset()
+        }
+        accountInfosAdapters = [:]
+    }
 
     private func buildBalance() {
         let walletBalances = walletBalanceBuilder.buildBalance(
@@ -251,7 +262,6 @@ final class WalletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterPr
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: wallet
             )
-
             accountInfosAdapters[wallet.identifier] = accountInfoSubscriptionAdapter
             accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainAssets, handler: self)
         }

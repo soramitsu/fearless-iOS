@@ -1600,6 +1600,7 @@
 		C6267BA928BE4163001E31BF /* ChooseRecipientViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */; };
 		C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */; };
 		C6267BB028C1D3C5001E31BF /* SendFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAF28C1D3C5001E31BF /* SendFlow.swift */; };
+		C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */; };
 		C6398F36287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */; };
 		C6398F38287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F37287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift */; };
 		C63C82FD2769ECCC002EA6A8 /* ChainAssetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */; };
@@ -3973,6 +3974,7 @@
 		C6267BA828BE4163001E31BF /* ChooseRecipientViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChooseRecipientViewFactory.swift; sourceTree = "<group>"; };
 		C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTriangularedView.swift; sourceTree = "<group>"; };
 		C6267BAF28C1D3C5001E31BF /* SendFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFlow.swift; sourceTree = "<group>"; };
+		C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceInfoDependencyContainer.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
 		C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -4925,6 +4927,7 @@
 				07DE95B228A1119400E9C2CB /* BalanceInfoViewController.swift */,
 				07DE95B328A1119400E9C2CB /* BalanceInfoViewModel.swift */,
 				07DE95B428A1119400E9C2CB /* BalanceInfoViewLayout.swift */,
+				C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */,
 			);
 			path = BalanceInfo;
 			sourceTree = "<group>";
@@ -13740,6 +13743,7 @@
 				6C56AB4AE63AB2DC73DE98E0 /* AccountImportInteractor.swift in Sources */,
 				F4EAC7972642E0D800FBDDC3 /* ControllerAccountViewModelFactory.swift in Sources */,
 				FA2FC81A28B3807D00CC0A42 /* StakingPoolStartProtocols.swift in Sources */,
+				C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */,
 				84F51072263BFBF5005D15AE /* SingleValueSubscriptionHandler.swift in Sources */,
 				C603E81128583C2A00007B72 /* StakingMainRelaychainStrategy.swift in Sources */,
 				849842F426592408006BBB9F /* ActiveCrowdloanTableViewCell.swift in Sources */,
