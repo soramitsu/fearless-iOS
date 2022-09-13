@@ -6,7 +6,7 @@ final class NewAmountInputView: UIView {
         static let offset: CGFloat = 12
     }
 
-    private(set) var triangularedBackgroundView: TriangularedView = {
+    private let triangularedBackgroundView: TriangularedView = {
         let view = TriangularedView()
         view.isUserInteractionEnabled = true
 
@@ -23,7 +23,7 @@ final class NewAmountInputView: UIView {
 
     private(set) var iconView = UIImageView()
 
-    private(set) var titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
         label.textColor = R.color.colorStrokeGray()
@@ -31,7 +31,7 @@ final class NewAmountInputView: UIView {
         return label
     }()
 
-    private(set) var priceLabel: UILabel = {
+    private let priceLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorStrokeGray()
@@ -39,7 +39,7 @@ final class NewAmountInputView: UIView {
         return label
     }()
 
-    private(set) var balanceLabel: UILabel = {
+    private let balanceLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorStrokeGray()
@@ -47,7 +47,7 @@ final class NewAmountInputView: UIView {
         return label
     }()
 
-    private(set) var symbolLabel: UILabel = {
+    private let symbolLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
         label.textColor = UIColor.white
@@ -189,28 +189,6 @@ final class NewAmountInputView: UIView {
 }
 
 extension NewAmountInputView {
-    var fillColor: UIColor {
-        get {
-            triangularedBackgroundView.fillColor
-        }
-
-        set {
-            triangularedBackgroundView.fillColor = newValue
-            triangularedBackgroundView.highlightedFillColor = newValue
-        }
-    }
-
-    var strokeColor: UIColor {
-        get {
-            triangularedBackgroundView.strokeColor
-        }
-
-        set {
-            triangularedBackgroundView.strokeColor = newValue
-            triangularedBackgroundView.highlightedStrokeColor = newValue
-        }
-    }
-
     var title: String? {
         get {
             titleLabel.text
@@ -218,49 +196,6 @@ extension NewAmountInputView {
 
         set {
             titleLabel.text = newValue
-            setNeedsLayout()
-        }
-    }
-
-    var titleColor: UIColor? {
-        get {
-            titleLabel.textColor
-        }
-
-        set {
-            titleLabel.textColor = newValue
-        }
-    }
-
-    private var _titleFontName: String? {
-        get {
-            titleLabel.font.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                titleLabel.font = nil
-                return
-            }
-
-            let pointSize = titleLabel.font.pointSize
-
-            titleLabel.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    private var _titleFontSize: CGFloat {
-        get {
-            titleLabel.font.pointSize
-        }
-
-        set(newValue) {
-            let fontName = titleLabel.font.fontName
-
-            titleLabel.font = UIFont(name: fontName, size: newValue)
-
             setNeedsLayout()
         }
     }
@@ -276,49 +211,6 @@ extension NewAmountInputView {
         }
     }
 
-    private var _priceFontName: String? {
-        get {
-            priceLabel.font.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                priceLabel.font = nil
-                return
-            }
-
-            let pointSize = priceLabel.font.pointSize
-
-            priceLabel.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    private var _priceFontSize: CGFloat {
-        get {
-            priceLabel.font.pointSize
-        }
-
-        set(newValue) {
-            let fontName = priceLabel.font.fontName
-
-            priceLabel.font = UIFont(name: fontName, size: newValue)
-
-            setNeedsLayout()
-        }
-    }
-
-    var priceColor: UIColor? {
-        get {
-            priceLabel.textColor
-        }
-
-        set {
-            priceLabel.textColor = newValue
-        }
-    }
-
     var balanceText: String? {
         get {
             balanceLabel.text
@@ -327,49 +219,6 @@ extension NewAmountInputView {
         set {
             balanceLabel.text = newValue
             setNeedsLayout()
-        }
-    }
-
-    private var _balanceFontName: String? {
-        get {
-            balanceLabel.font.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                balanceLabel.font = nil
-                return
-            }
-
-            let pointSize = balanceLabel.font.pointSize
-
-            balanceLabel.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    private var _balanceFontSize: CGFloat {
-        get {
-            balanceLabel.font.pointSize
-        }
-
-        set(newValue) {
-            let fontName = balanceLabel.font.fontName
-
-            balanceLabel.font = UIFont(name: fontName, size: newValue)
-
-            setNeedsLayout()
-        }
-    }
-
-    var balanceColor: UIColor? {
-        get {
-            balanceLabel.textColor
-        }
-
-        set {
-            balanceLabel.textColor = newValue
         }
     }
 
@@ -384,49 +233,6 @@ extension NewAmountInputView {
         }
     }
 
-    private var _symbolFontName: String? {
-        get {
-            symbolLabel.font.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                symbolLabel.font = nil
-                return
-            }
-
-            let pointSize = symbolLabel.font.pointSize
-
-            symbolLabel.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    private var _symbolFontSize: CGFloat {
-        get {
-            symbolLabel.font.pointSize
-        }
-
-        set(newValue) {
-            let fontName = symbolLabel.font.fontName
-
-            symbolLabel.font = UIFont(name: fontName, size: newValue)
-
-            setNeedsLayout()
-        }
-    }
-
-    var symbolColor: UIColor? {
-        get {
-            symbolLabel.textColor
-        }
-
-        set {
-            symbolLabel.textColor = newValue
-        }
-    }
-
     var fieldText: String? {
         get {
             textField.text
@@ -435,80 +241,6 @@ extension NewAmountInputView {
         set {
             textField.text = newValue
             setNeedsLayout()
-        }
-    }
-
-    private var _filedFontName: String? {
-        get {
-            textField.font?.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                textField.font = nil
-                return
-            }
-
-            let pointSize = textField.font?.pointSize ?? UIFont.labelFontSize
-
-            textField.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    private var _fieldFontSize: CGFloat {
-        get {
-            textField.font?.pointSize ?? 0.0
-        }
-
-        set(newValue) {
-            let fontName = textField.font?.fontName ??
-                UIFont.systemFont(ofSize: UIFont.labelFontSize).fontName
-
-            textField.font = UIFont(name: fontName, size: newValue)
-
-            setNeedsLayout()
-        }
-    }
-
-    var fieldColor: UIColor? {
-        get {
-            textField.textColor
-        }
-
-        set {
-            textField.textColor = newValue
-        }
-    }
-
-    var assetIcon: UIImage? {
-        get {
-            iconView.image
-        }
-
-        set {
-            iconView.image = newValue
-        }
-    }
-
-    var borderWidth: CGFloat {
-        get {
-            triangularedBackgroundView.strokeWidth
-        }
-
-        set {
-            triangularedBackgroundView.strokeWidth = newValue
-        }
-    }
-
-    private var _inputIndicatorColor: UIColor {
-        get {
-            textField.tintColor
-        }
-
-        set {
-            textField.tintColor = newValue
         }
     }
 }

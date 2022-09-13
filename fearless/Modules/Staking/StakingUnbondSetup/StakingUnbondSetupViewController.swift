@@ -92,20 +92,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
             return
         }
 
-        let amountView = rootView.amountInputView
-        amountView.priceText = viewModel.price
-
-        if let balance = viewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
-                balance,
-                preferredLanguages: selectedLocale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        viewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = viewModel.symbol.uppercased()
+        rootView.amountInputView.bind(viewModel: viewModel)
     }
 
     private func applyFeeViewModel() {
