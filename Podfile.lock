@@ -148,7 +148,7 @@ DEPENDENCIES:
   - Kingfisher
   - R.swift
   - ReachabilitySwift
-  - RobinHood (from `https://github.com/soramitsu/robinhood-ios.git`, tag `2.6.2`)
+  - RobinHood
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -176,6 +176,7 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
+    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -194,9 +195,6 @@ EXTERNAL SOURCES:
   FearlessUtils:
     :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  RobinHood:
-    :git: https://github.com/soramitsu/robinhood-ios.git
-    :tag: 2.6.2
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/soramitsu/fearless-starscream.git
@@ -205,9 +203,6 @@ CHECKOUT OPTIONS:
   FearlessUtils:
     :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  RobinHood:
-    :git: https://github.com/soramitsu/robinhood-ios.git
-    :tag: 2.6.2
   Starscream:
     :commit: 1700d88ce40b958af828fb6a76fa55673e0ea2ec
     :git: https://github.com/soramitsu/fearless-starscream.git
@@ -244,6 +239,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 07340ed7437a9598c75da1183fcf9165fffd93be
+PODFILE CHECKSUM: 7c56670195b1816c819c1e781b10f4f68689e990
 
 COCOAPODS: 1.11.3

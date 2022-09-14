@@ -6,18 +6,20 @@ import SwiftUI
 
 final class WalletSendConfirmPresenter {
     weak var view: WalletSendConfirmViewProtocol?
-    let wireframe: WalletSendConfirmWireframeProtocol
-    let interactor: WalletSendConfirmInteractorInputProtocol
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let accountViewModelFactory: AccountViewModelFactoryProtocol
-    let dataValidatingFactory: BaseDataValidatingFactoryProtocol
-    let logger: LoggerProtocol?
-    let chainAsset: ChainAsset
-    let receiverAddress: String
-    let amount: Decimal
-    let selectedAccount: MetaAccountModel
-    let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
-    let transferFinishBlock: WalletTransferFinishBlock?
+    private let wireframe: WalletSendConfirmWireframeProtocol
+    private let interactor: WalletSendConfirmInteractorInputProtocol
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let accountViewModelFactory: AccountViewModelFactoryProtocol
+    private let dataValidatingFactory: BaseDataValidatingFactoryProtocol
+    private let logger: LoggerProtocol?
+    private let chainAsset: ChainAsset
+    private let receiverAddress: String
+    private let amount: Decimal
+    private let selectedAccount: MetaAccountModel
+    private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
+    private let scamInfo: ScamInfo?
+    private let transferFinishBlock: WalletTransferFinishBlock?
+
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var priceData: PriceData?
@@ -40,6 +42,7 @@ final class WalletSendConfirmPresenter {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
@@ -54,6 +57,7 @@ final class WalletSendConfirmPresenter {
         self.amount = amount
         self.tip = tip
         self.selectedAccount = selectedAccount
+        self.scamInfo = scamInfo
         self.transferFinishBlock = transferFinishBlock
     }
 
@@ -67,7 +71,8 @@ final class WalletSendConfirmPresenter {
             tipViewModel: provideTipViewModel(),
             feeViewModel: provideFeeViewModel(),
             wallet: selectedAccount,
-            locale: selectedLocale
+            locale: selectedLocale,
+            scamInfo: scamInfo
         )
         let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
             parameters: parameters
@@ -137,6 +142,31 @@ final class WalletSendConfirmPresenter {
 }
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
+    func didTapScamWarningButton() {
+        let closeAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            style: UIFactory.default.createMainActionButton(),
+            handler: nil
+        )
+        let title = R.string.localizable.scamWarningAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        let subtitle = R.string.localizable.scamWarningAlertSubtitle(
+            chainAsset.asset.name,
+            preferredLanguages: selectedLocale.rLanguages
+        )
+
+        let sheetViewModel = SheetAlertPresentableViewModel(
+            title: title,
+            titleStyle: .defaultTitle,
+            subtitle: subtitle,
+            subtitleStyle: .defaultSubtitle,
+            actions: [closeAction]
+        )
+        wireframe.present(
+            viewModel: sheetViewModel,
+            from: view
+        )
+    }
+
     func setup() {
         interactor.setup()
 

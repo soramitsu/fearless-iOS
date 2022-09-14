@@ -9,7 +9,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :tag => '2.6.2'
+  pod 'RobinHood'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -34,7 +34,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore'
     pod 'IrohaCrypto'
-    pod 'RobinHood', :git => 'https://github.com/soramitsu/robinhood-ios.git', :tag => '2.6.2'
+    pod 'RobinHood'
     pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'

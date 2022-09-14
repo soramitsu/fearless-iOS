@@ -46,7 +46,13 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let utilityChainAssets = chainAssets.filter { $0.isUtility == true }
+        var utilityChainAssets = chainAssets
+        switch displayType {
+        case .chain:
+            break
+        case .assetChains:
+            utilityChainAssets = chainAssets.filter { $0.isUtility == true }
+        }
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id

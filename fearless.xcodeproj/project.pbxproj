@@ -47,6 +47,7 @@
 		07B018CF28C70F3100E05510 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07B018C728C70F3100E05510 /* UserDataModel.xcdatamodeld */; };
 		07B018D128C7135400E05510 /* ScamInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D028C7135400E05510 /* ScamInfo.swift */; };
 		07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */; };
+		07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */; };
 		07B6BC7A28B78E8000621864 /* SheetAlertPresentableStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7928B78E8000621864 /* SheetAlertPresentableStyle.swift */; };
 		07B6BC7C28B875D800621864 /* UIControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7B28B875D800621864 /* UIControl.swift */; };
 		07B6BC7F28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */; };
@@ -2413,6 +2414,7 @@
 		07B018CE28C70F3100E05510 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
 		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
+		07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamWarningExpandableView.swift; sourceTree = "<group>"; };
 		07B6BC7928B78E8000621864 /* SheetAlertPresentableStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAlertPresentableStyle.swift; sourceTree = "<group>"; };
 		07B6BC7B28B875D800621864 /* UIControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIControl.swift; sourceTree = "<group>"; };
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7729,6 +7731,7 @@
 				FAAF61732877DBC50094B4BC /* EthereumIcon.swift */,
 				FA4C3D112886794D00176398 /* SelfSizingTableView.swift */,
 				070B2C60289CFE0000F78F82 /* SelectedNetworkButton.swift */,
+				07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -13930,6 +13933,7 @@
 				84E1CD0C260DCD23001E81B5 /* SwitchAccount+AccountConfirmWireframe.swift in Sources */,
 				AE6F7FDF2685E812002BBC3E /* ValidatorListFilterPresenter.swift in Sources */,
 				8430AAF626023087005B1066 /* NominatorState.swift in Sources */,
+				07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */,
 				C044E792971B542B79B9A88F /* NetworkInfoPresenter.swift in Sources */,
 				0D6C27413F73190438306EC1 /* NetworkInfoInteractor.swift in Sources */,
 				07DFA468289B8D8E0035A8AB /* EducationStoriesRouter.swift in Sources */,

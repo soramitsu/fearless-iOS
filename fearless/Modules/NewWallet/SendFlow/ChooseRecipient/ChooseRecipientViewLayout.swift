@@ -61,6 +61,8 @@ final class ChooseRecipientViewLayout: UIView {
         return button
     }()
 
+    let scamWarningView = ScamWarningExpandableView()
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = R.color.colorBlack19()
@@ -90,6 +92,16 @@ final class ChooseRecipientViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(scamInfo: ScamInfo?, assetName: String) {
+        guard let scamInfo = scamInfo else {
+            scamWarningView.isHidden = true
+            return
+        }
+        scamWarningView.isHidden = false
+
+        scamWarningView.bind(scamInfo: scamInfo, assetName: assetName)
+    }
+
     private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.snp.makeConstraints { make in
@@ -106,11 +118,17 @@ final class ChooseRecipientViewLayout: UIView {
             make.height.equalTo(LayoutConstants.searchViewHeight)
         }
 
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
-            make.top.equalTo(searchView.snp.bottom)
-            make.leading.trailing.bottom.equalToSuperview()
+        let contentVStackView = UIFactory.default.createVerticalStackView()
+
+        addSubview(contentVStackView)
+        contentVStackView.snp.makeConstraints { make in
+            make.top.equalTo(searchView.snp.bottom).offset(UIConstants.verticalInset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
+
+        scamWarningView.isHidden = true
+        contentVStackView.addArrangedSubview(scamWarningView)
+        contentVStackView.addArrangedSubview(tableView)
 
         addSubview(bottomContainer)
         bottomContainer.snp.makeConstraints { make in
@@ -139,6 +157,8 @@ final class ChooseRecipientViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        scamWarningView.locale = locale
+
         searchView.textField.attributedPlaceholder = NSAttributedString(
             string: R.string.localizable.searchTextfieldPlaceholder(
                 preferredLanguages: locale.rLanguages

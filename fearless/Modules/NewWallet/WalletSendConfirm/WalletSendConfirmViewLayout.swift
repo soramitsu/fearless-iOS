@@ -68,6 +68,13 @@ final class WalletSendConfirmViewLayout: UIView {
         return view
     }()
 
+    let receiverStack = UIFactory.default.createHorizontalStackView(spacing: 5)
+    let receiverWarningButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconWarning(), for: .normal)
+        return button
+    }()
+
     let amountView: TitleMultiValueView = {
         let view = TitleMultiValueView()
         view.titleLabel.font = .h5Title
@@ -143,6 +150,7 @@ final class WalletSendConfirmViewLayout: UIView {
         tipView.valueTop.text = confirmViewModel.tipAmountString
         tipView.valueBottom.text = confirmViewModel.tipPriceString
         tipView.isHidden = !confirmViewModel.tipRequired
+        receiverWarningButton.isHidden = !confirmViewModel.showWarning
     }
 
     private func configure() {
@@ -197,9 +205,12 @@ final class WalletSendConfirmViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountLabel)
         contentView.stackView.addArrangedSubview(infoBackground)
 
+        receiverStack.addArrangedSubview(receiverView)
+        receiverStack.addArrangedSubview(receiverWarningButton)
+
         infoBackground.addSubview(infoViewsStackView)
         infoViewsStackView.addArrangedSubview(senderView)
-        infoViewsStackView.addArrangedSubview(receiverView)
+        infoViewsStackView.addArrangedSubview(receiverStack)
         infoViewsStackView.addArrangedSubview(amountView)
         infoViewsStackView.addArrangedSubview(feeView)
         infoViewsStackView.addArrangedSubview(tipView)
@@ -238,7 +249,6 @@ final class WalletSendConfirmViewLayout: UIView {
         }
 
         receiverView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
 

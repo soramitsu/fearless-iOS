@@ -8,6 +8,7 @@ struct WalletSendViewFactory {
         receiverAddress: String,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendViewProtocol? {
         guard let interactor = createInteractor(
@@ -35,6 +36,7 @@ struct WalletSendViewFactory {
             logger: Logger.shared,
             chainAsset: chainAsset,
             receiverAddress: receiverAddress,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
 

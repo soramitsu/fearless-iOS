@@ -823,4 +823,13 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "staking.pool.info.title" = "Pool Info";
 "roles.common" = "Roles";
 "common.preview" = "Preview";
+"scam.name.stub" = "Name:";
+"scam.reason.stub" = "Reason:";
+"scam.additional.stub" = "Additional:";
+"scam.description.scam.stub" = "This address has been flagged due to evidence of a scam. We strongly recommend that you don't send %@ to this account.";
+"scam.description.donation.stub" = "This address has been suspicious. We strongly recommend that you don't send %@ to this account.";
+"scam.description.exchange.stub" = "This address is marked as an exchange be careful the deposit and withdrawal addresses may different.";
+"scam.description.sanctions.stub" = "This address has been flagged due to entity related to a country under sanctions. We strongly recommend that you don't send %@ to this account.";
+"scam.warning.alert.title" = "This address has been flagged due to evidence of a scam.";
+"scam.warning.alert.subtitle" = "We strongly recommend that you don't send %@ to this account.";
 "transaction.list.header" = "All transaction";

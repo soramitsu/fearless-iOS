@@ -3,6 +3,7 @@ import RobinHood
 
 protocol ScamServiceOperationFactoryProtocol {
     func fetchScamInfoOperation(for address: String) -> BaseOperation<ScamInfo?>
+    func fetchAllOperations() -> BaseOperation<[ScamInfo]>
 }
 
 final class ScamServiceOperationFactory: ScamServiceOperationFactoryProtocol {
@@ -20,5 +21,9 @@ final class ScamServiceOperationFactory: ScamServiceOperationFactoryProtocol {
 
     func fetchScamInfoOperation(for address: String) -> BaseOperation<ScamInfo?> {
         repository.fetchOperation(by: address, options: RepositoryFetchOptions())
+    }
+
+    func fetchAllOperations() -> BaseOperation<[ScamInfo]> {
+        repository.fetchAllOperation(with: RepositoryFetchOptions())
     }
 }

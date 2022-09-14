@@ -130,6 +130,7 @@ final class SearchTriangularedView: UIView {
     @objc
     private func clean() {
         textField.text = nil
+        _ = textField.delegate?.textFieldShouldClear?(textField)
         updateState(icon: nil)
     }
 }
