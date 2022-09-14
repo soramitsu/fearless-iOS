@@ -12,6 +12,7 @@ final class WalletSendWireframe: WalletSendWireframeProtocol {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
@@ -19,6 +20,7 @@ final class WalletSendWireframe: WalletSendWireframeProtocol {
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )?.controller else {
             return

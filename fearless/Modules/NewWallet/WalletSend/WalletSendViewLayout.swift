@@ -26,6 +26,7 @@ final class WalletSendViewLayout: UIView {
     }()
 
     let amountView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let scamWarningView = ScamWarningExpandableView()
 
     let feeView: NetworkFeeView = {
         let view = UIFactory.default.createNetworkFeeView()
@@ -95,6 +96,16 @@ final class WalletSendViewLayout: UIView {
         tipView.bind(viewModel: tipViewModel)
         tipView.isHidden = !isRequired
     }
+
+    func bind(scamInfo: ScamInfo?) {
+        guard let scamInfo = scamInfo else {
+            scamWarningView.isHidden = true
+            return
+        }
+        scamWarningView.isHidden = false
+
+        scamWarningView.bind(scamInfo: scamInfo, assetName: amountView.symbol ?? "")
+    }
 }
 
 private extension WalletSendViewLayout {
@@ -117,6 +128,12 @@ private extension WalletSendViewLayout {
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewHeight)
+        }
+
+        contentView.stackView.setCustomSpacing(UIConstants.verticalInset, after: amountView)
+        contentView.stackView.addArrangedSubview(scamWarningView)
+        scamWarningView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
         }
 
         addSubview(actionButton) { make in

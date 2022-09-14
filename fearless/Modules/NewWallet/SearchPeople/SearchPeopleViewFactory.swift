@@ -8,6 +8,7 @@ struct SearchPeopleViewFactory {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> SearchPeopleViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
@@ -46,6 +47,7 @@ struct SearchPeopleViewFactory {
             wallet: wallet,
             localizationManager: LocalizationManager.shared,
             qrParser: SubstrateQRParser(),
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
 
