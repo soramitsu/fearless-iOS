@@ -47,14 +47,6 @@ final class WalletSendInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
-        fetchConstant(
-            for: .babeBlockTime,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BlockTime, Error>) in
-            self?.presenter?.didReceiveBlockDuration(result: result)
-        }
-
         existentialDepositService.fetchExistentialDeposit(
             chainAsset: chainAsset
         ) { [weak self] result in
