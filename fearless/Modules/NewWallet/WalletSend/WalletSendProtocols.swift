@@ -1,8 +1,12 @@
 import Foundation
 import BigInt
+import CommonWallet
 
 protocol WalletSendViewProtocol: ControllerBackedProtocol {
-    func didReceive(state: WalletSendViewState)
+    func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
+    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?)
+    func didReceive(feeViewModel: BalanceViewModelProtocol?)
+    func didReceive(tipViewModel: TipViewModel?)
     func didStartFeeCalculation()
     func didStopFeeCalculation()
     func didStopTipCalculation()

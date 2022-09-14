@@ -91,9 +91,10 @@ final class WalletSendViewLayout: UIView {
         feeView.bind(viewModel: feeViewModel)
     }
 
-    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
-        tipView.bind(viewModel: tipViewModel)
-        tipView.isHidden = !isRequired
+    func bind(tipViewModel: TipViewModel?) {
+        tipView.bind(viewModel: tipViewModel?.viewModel)
+        tipViewModel?.tipRequired == true ?
+            (tipView.isHidden = false) : (tipView.isHidden = true)
     }
 }
 
