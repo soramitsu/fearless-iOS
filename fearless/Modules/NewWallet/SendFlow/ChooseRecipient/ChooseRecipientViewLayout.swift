@@ -129,6 +129,7 @@ final class ChooseRecipientViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
+        scamWarningView.isHidden = true
         contentVStackView.addArrangedSubview(scamWarningView)
         contentVStackView.addArrangedSubview(tableView)
 
