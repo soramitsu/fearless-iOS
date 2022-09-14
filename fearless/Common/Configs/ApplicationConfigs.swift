@@ -196,7 +196,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "FLW-2096-Scam-detection-system")
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
     }
 }
 

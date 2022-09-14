@@ -3,7 +3,7 @@ import UIKit
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showCreateNewWallet(from view: WalletMainContainerViewInput?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding() else {
+        guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
             return
         }
 
@@ -16,7 +16,7 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
 
     func showImportWallet(from view: WalletMainContainerViewInput?) {
         guard let restorationController = AccountImportViewFactory
-            .createViewForOnboarding()?.controller
+            .createViewForAdding()?.controller
         else {
             return
         }

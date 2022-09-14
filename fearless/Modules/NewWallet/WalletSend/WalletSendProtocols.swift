@@ -42,6 +42,7 @@ protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseEr
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 }

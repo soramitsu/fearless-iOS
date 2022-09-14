@@ -23,13 +23,14 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
-        let searchView = SearchPeopleViewFactory.createView(
+        let chooseRecipient = ChooseRecipientViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
+            flow: .token,
             transferFinishBlock: transferFinishBlock
         )
 
-        guard let controller = searchView?.controller else {
+        guard let controller = chooseRecipient?.controller else {
             return
         }
 
