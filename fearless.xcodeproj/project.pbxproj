@@ -2275,6 +2275,10 @@
 		FAA086D4284759D000CC2F33 /* ParachainStakingCollatorSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D3284759D000CC2F33 /* ParachainStakingCollatorSnapshot.swift */; };
 		FAA086D628475AF300CC2F33 /* ParachainStakingDelegatorState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */; };
 		FAA086D82848AB8600CC2F33 /* YourRewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */; };
+		FAA0CA2028D092E1009EFCEF /* StakingPayoutConfirmationFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0CA1F28D092E1009EFCEF /* StakingPayoutConfirmationFlow.swift */; };
+		FAA0CA2228D094A4009EFCEF /* StakingPayoutConfirmationrelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0CA2128D094A4009EFCEF /* StakingPayoutConfirmationrelaychainStrategy.swift */; };
+		FAA0CA2428D094BD009EFCEF /* StakingPayoutConfirmationRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0CA2328D094BD009EFCEF /* StakingPayoutConfirmationRelaychainViewModelState.swift */; };
+		FAA0CA2628D094D4009EFCEF /* StakingPayoutConfirmationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0CA2528D094D4009EFCEF /* StakingPayoutConfirmationViewModelFactory.swift */; };
 		FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAB998C27A7C79D00CD1A3B /* QRParser.swift */; };
 		FAABC46E2845BADA002CF40E /* CustomValidatorParachainListFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */; };
 		FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */; };
@@ -4692,6 +4696,10 @@
 		FAA086D3284759D000CC2F33 /* ParachainStakingCollatorSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingCollatorSnapshot.swift; sourceTree = "<group>"; };
 		FAA086D528475AF300CC2F33 /* ParachainStakingDelegatorState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingDelegatorState.swift; sourceTree = "<group>"; };
 		FAA086D72848AB8600CC2F33 /* YourRewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourRewardDestinationViewModel.swift; sourceTree = "<group>"; };
+		FAA0CA1F28D092E1009EFCEF /* StakingPayoutConfirmationFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationFlow.swift; sourceTree = "<group>"; };
+		FAA0CA2128D094A4009EFCEF /* StakingPayoutConfirmationrelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationrelaychainStrategy.swift; sourceTree = "<group>"; };
+		FAA0CA2328D094BD009EFCEF /* StakingPayoutConfirmationRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationRelaychainViewModelState.swift; sourceTree = "<group>"; };
+		FAA0CA2528D094D4009EFCEF /* StakingPayoutConfirmationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewModelFactory.swift; sourceTree = "<group>"; };
 		FAAB998C27A7C79D00CD1A3B /* QRParser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRParser.swift; sourceTree = "<group>"; };
 		FAABC46D2845BADA002CF40E /* CustomValidatorParachainListFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListFilter.swift; sourceTree = "<group>"; };
 		FAABC46F2845BAEE002CF40E /* CustomValidatorParachainListComposer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomValidatorParachainListComposer.swift; sourceTree = "<group>"; };
@@ -9798,6 +9806,7 @@
 		C9F3889FC7620D7F436E38ED /* StakingPayoutConfirmation */ = {
 			isa = PBXGroup;
 			children = (
+				FAA0CA1C28D0929F009EFCEF /* Floww */,
 				AEBE1739262F3E4E00DF257C /* ViewModel */,
 				52F8D055D0481469073AA859 /* StakingPayoutConfirmationProtocols.swift */,
 				E5ACCFD31E14AF4D30955288 /* StakingPayoutConfirmationWireframe.swift */,
@@ -11713,6 +11722,33 @@
 			path = Parachain;
 			sourceTree = "<group>";
 		};
+		FAA0CA1C28D0929F009EFCEF /* Floww */ = {
+			isa = PBXGroup;
+			children = (
+				FAA0CA1E28D092C6009EFCEF /* Pool */,
+				FAA0CA1D28D092BE009EFCEF /* Relaychain */,
+				FAA0CA1F28D092E1009EFCEF /* StakingPayoutConfirmationFlow.swift */,
+			);
+			path = Floww;
+			sourceTree = "<group>";
+		};
+		FAA0CA1D28D092BE009EFCEF /* Relaychain */ = {
+			isa = PBXGroup;
+			children = (
+				FAA0CA2128D094A4009EFCEF /* StakingPayoutConfirmationrelaychainStrategy.swift */,
+				FAA0CA2328D094BD009EFCEF /* StakingPayoutConfirmationRelaychainViewModelState.swift */,
+				FAA0CA2528D094D4009EFCEF /* StakingPayoutConfirmationViewModelFactory.swift */,
+			);
+			path = Relaychain;
+			sourceTree = "<group>";
+		};
+		FAA0CA1E28D092C6009EFCEF /* Pool */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pool;
+			sourceTree = "<group>";
+		};
 		FAAB998A27A7C76100CD1A3B /* CoreComponents */ = {
 			isa = PBXGroup;
 			children = (
@@ -13043,6 +13079,7 @@
 				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				F4A6C9E4265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift in Sources */,
 				8419377F25441D5E00CFA50C /* ReceiveHeaderView.swift in Sources */,
+				FAA0CA2628D094D4009EFCEF /* StakingPayoutConfirmationViewModelFactory.swift in Sources */,
 				84452F5825D5C30600F47EC5 /* FilesRepository.swift in Sources */,
 				F4871DF326D63E8700D27F23 /* AnalyticsRewardDetailsViewModelFactory.swift in Sources */,
 				84873B0426029B75000A83EE /* StakingEstimationViewModel.swift in Sources */,
@@ -13194,6 +13231,7 @@
 				84DB9E902640A48E00F23DD3 /* StakingRedeemViewModel.swift in Sources */,
 				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,
 				AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */,
+				FAA0CA2028D092E1009EFCEF /* StakingPayoutConfirmationFlow.swift in Sources */,
 				FA17B4B127E856B7006E0735 /* UnsupportedChainAlertConfig.swift in Sources */,
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
@@ -13447,6 +13485,7 @@
 				F418E877264D0F4100699085 /* NetworkConnectionsMigrator.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
 				843910B4253EE52100E3C217 /* WalletBalanceChanged.swift in Sources */,
+				FAA0CA2228D094A4009EFCEF /* StakingPayoutConfirmationrelaychainStrategy.swift in Sources */,
 				84CEAAF526D7ADF20021B881 /* KeystoreMigrator.swift in Sources */,
 				FA93A2FD2834AF930021330F /* ValidatorInfoParachainViewModelFactory.swift in Sources */,
 				84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */,
@@ -13921,6 +13960,7 @@
 				FAE9EBA7288ABBFC009390B6 /* AnalyticsRewardsRelaychainViewModelState.swift in Sources */,
 				07F2B76328ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift in Sources */,
 				CE478485DE721EBA1845B6FD /* NetworkManagementInteractor.swift in Sources */,
+				FAA0CA2428D094BD009EFCEF /* StakingPayoutConfirmationRelaychainViewModelState.swift in Sources */,
 				FA38C9C12761E68B005C5577 /* AccountViewModel.swift in Sources */,
 				8436E94426C853E4003D4EA7 /* RuntimeSnapshotOperationFactory.swift in Sources */,
 				F40966C726B297D6008CD244 /* AnalyticsRewardsViewFactory.swift in Sources */,

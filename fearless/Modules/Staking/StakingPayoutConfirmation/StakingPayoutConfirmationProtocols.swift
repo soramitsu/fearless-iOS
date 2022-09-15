@@ -13,22 +13,12 @@ protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
 
 protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func setup()
-    func submitPayout()
-    func estimateFee()
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
+    func submitPayout(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
-    func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)
-
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)
-
-    func didReceiveFee(result: Result<Decimal, Error>)
-
-    func didStartPayout()
-    func didCompletePayout(txHashes: [String])
-    func didFailPayout(error: Error)
 }
 
 protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,
@@ -40,9 +30,9 @@ protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,
 
 protocol StakingPayoutConfirmationViewFactoryProtocol: AnyObject {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        payouts: [PayoutInfo]
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        payouts: [PayoutInfo],
+        flow: StakingPayoutConfirmationFlow
     ) -> StakingPayoutConfirmationViewProtocol?
 }
