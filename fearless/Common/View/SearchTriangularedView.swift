@@ -55,6 +55,15 @@ final class SearchTriangularedView: UIView {
         view.font = .p1Paragraph
         view.textColor = .white
         view.returnKeyType = .done
+
+        if let oldStyle = view.defaultTextAttributes[
+            .paragraphStyle,
+            default: NSParagraphStyle()
+        ] as? NSParagraphStyle,
+            let style: NSMutableParagraphStyle = oldStyle.mutableCopy() as? NSParagraphStyle as? NSMutableParagraphStyle {
+            style.lineBreakMode = .byTruncatingMiddle
+            view.defaultTextAttributes[.paragraphStyle] = style
+        }
         return view
     }()
 

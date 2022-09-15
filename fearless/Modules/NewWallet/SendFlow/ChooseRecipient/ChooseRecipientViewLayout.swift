@@ -126,7 +126,7 @@ final class ChooseRecipientViewLayout: UIView {
         addSubview(contentVStackView)
         contentVStackView.snp.makeConstraints { make in
             make.top.equalTo(searchView.snp.bottom).offset(UIConstants.verticalInset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
         scamWarningView.isHidden = true
