@@ -23,8 +23,8 @@ final class StakingUnbondConfirmLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountView: NewAmountInputView = {
-        let view = NewAmountInputView()
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -85,7 +85,7 @@ final class StakingUnbondConfirmLayout: UIView {
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         apply(hints: confirmationViewModel.hints.value(for: locale))
 

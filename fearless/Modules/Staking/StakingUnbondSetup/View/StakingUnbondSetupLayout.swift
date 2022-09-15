@@ -16,7 +16,7 @@ final class StakingUnbondSetupLayout: UIView {
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
     let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountInputView = NewAmountInputView()
+    let amountInputView = AmountInputViewV2()
 
     let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 

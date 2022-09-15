@@ -177,7 +177,7 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
         amountInputViewModel = viewModel.value(for: selectedLocale)
         amountInputViewModel?.observable.add(observer: self)
 
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
     }
@@ -219,7 +219,7 @@ extension StakingUnbondSetupViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingUnbondSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

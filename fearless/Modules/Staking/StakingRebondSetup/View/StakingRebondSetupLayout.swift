@@ -9,7 +9,7 @@ final class StakingRebondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView = NewAmountInputView()
+    let amountInputView = AmountInputViewV2()
 
     let networkFeeView = NetworkFeeView()
 

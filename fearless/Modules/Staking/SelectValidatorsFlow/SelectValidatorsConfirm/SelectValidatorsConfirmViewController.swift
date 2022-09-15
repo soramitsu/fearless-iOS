@@ -109,7 +109,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             return
         }
 
-        rootView.amountView.fieldText = viewModel.amount
+        rootView.amountView.inputFieldText = viewModel.amount
 
         rootView.mainAccountView.iconImage = R.image.iconFearlessRounded()
 

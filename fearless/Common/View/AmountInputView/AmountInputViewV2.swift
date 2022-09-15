@@ -1,6 +1,6 @@
 import UIKit
 
-final class NewAmountInputView: UIView {
+final class AmountInputViewV2: UIView {
     enum LayoutConstants {
         static let iconSize: CGFloat = 32
         static let offset: CGFloat = 12
@@ -188,7 +188,7 @@ final class NewAmountInputView: UIView {
     }
 }
 
-extension NewAmountInputView {
+extension AmountInputViewV2 {
     var title: String? {
         get {
             titleLabel.text
@@ -233,7 +233,7 @@ extension NewAmountInputView {
         }
     }
 
-    var fieldText: String? {
+    var inputFieldText: String? {
         get {
             textField.text
         }

@@ -25,7 +25,7 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let amountView = NewAmountInputView()
+    let amountView = AmountInputViewV2()
     let scamWarningView = ScamWarningExpandableView()
 
     let feeView: NetworkFeeView = {

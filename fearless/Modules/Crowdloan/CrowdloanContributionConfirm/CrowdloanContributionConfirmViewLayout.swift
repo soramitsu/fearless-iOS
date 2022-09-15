@@ -10,8 +10,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountInputView: NewAmountInputView = {
-        let view = NewAmountInputView()
+    let amountInputView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -84,7 +84,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         accountView.iconImage = icon
         accountView.subtitle = confirmationViewModel.senderName
 
-        amountInputView.fieldText = confirmationViewModel.inputAmount
+        amountInputView.inputFieldText = confirmationViewModel.inputAmount
 
         leasingPeriodView.valueTop.text = confirmationViewModel.leasingPeriod
         leasingPeriodView.valueBottom.text = confirmationViewModel.leasingCompletionDate

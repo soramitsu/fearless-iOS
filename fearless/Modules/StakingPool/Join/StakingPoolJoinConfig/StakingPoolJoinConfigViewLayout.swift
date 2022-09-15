@@ -33,7 +33,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         return view
     }()
 
-    let amountView = NewAmountInputView()
+    let amountView = AmountInputViewV2()
 
     let feeView: NetworkFeeFooterView = {
         let view = UIFactory.default.createNetworkFeeFooterView()

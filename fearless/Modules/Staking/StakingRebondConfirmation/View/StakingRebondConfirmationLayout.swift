@@ -13,8 +13,8 @@ final class StakingRebondConfirmationLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountView: NewAmountInputView = {
-        let view = NewAmountInputView()
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -60,7 +60,7 @@ final class StakingRebondConfirmationLayout: UIView {
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         setNeedsLayout()
     }

@@ -21,8 +21,8 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
-    let amountView: NewAmountInputView = {
-        let view = NewAmountInputView()
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -89,7 +89,7 @@ final class StakingBMConfirmationViewLayout: UIView {
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         setNeedsLayout()
     }

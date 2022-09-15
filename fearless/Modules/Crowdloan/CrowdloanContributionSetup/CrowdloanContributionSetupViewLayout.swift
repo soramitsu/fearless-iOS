@@ -15,7 +15,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         return label
     }()
 
-    let amountInputView = NewAmountInputView()
+    let amountInputView = AmountInputViewV2()
 
     let hintView = UIFactory.default.createHintView()
 

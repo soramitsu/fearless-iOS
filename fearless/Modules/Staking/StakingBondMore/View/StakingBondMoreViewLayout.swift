@@ -25,7 +25,7 @@ final class StakingBondMoreViewLayout: UIView {
         return view
     }()
 
-    let amountInputView = NewAmountInputView()
+    let amountInputView = AmountInputViewV2()
 
     let hintView: IconDetailsView = {
         let view = IconDetailsView()

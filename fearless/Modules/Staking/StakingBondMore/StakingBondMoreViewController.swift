@@ -109,7 +109,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 
         amountInputViewModel = concreteViewModel
 
-        rootView.amountInputView.fieldText = concreteViewModel.displayAmount
+        rootView.amountInputView.inputFieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
 
         updateActionButton()
@@ -168,7 +168,7 @@ extension StakingBondMoreViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingBondMoreViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

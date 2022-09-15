@@ -10,7 +10,7 @@ protocol RewardCalculatorViewDelegate: AnyObject {
 
 class StakingRewardCalculatorView: UIView {
     private var backgroundView = TriangularedBlurView()
-    private var amountInputView = NewAmountInputView()
+    private var amountInputView = AmountInputViewV2()
     private var monthlyStackView = UIFactory.default.createVerticalStackView()
     private var yearlyStackView = UIFactory.default.createVerticalStackView()
     private var infoButton: UIButton = {
@@ -227,7 +227,7 @@ class StakingRewardCalculatorView: UIView {
 
         inputViewModel = newInputViewModel
 
-        amountInputView.fieldText = newInputViewModel.displayAmount
+        amountInputView.inputFieldText = newInputViewModel.displayAmount
         newInputViewModel.observable.add(observer: self)
     }
 
@@ -387,7 +387,7 @@ extension StakingRewardCalculatorView: AmountInputViewModelObserver {
             return
         }
 
-        amountInputView.fieldText = inputViewModel.displayAmount
+        amountInputView.inputFieldText = inputViewModel.displayAmount
 
         let amount = inputViewModel.decimalAmount
 

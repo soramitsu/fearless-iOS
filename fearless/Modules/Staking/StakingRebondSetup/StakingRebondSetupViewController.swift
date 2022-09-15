@@ -153,7 +153,7 @@ extension StakingRebondSetupViewController: StakingRebondSetupViewProtocol {
         amountInputViewModel = viewModel.value(for: selectedLocale)
         amountInputViewModel?.observable.add(observer: self)
 
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
     }
@@ -173,7 +173,7 @@ extension StakingRebondSetupViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingRebondSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 
