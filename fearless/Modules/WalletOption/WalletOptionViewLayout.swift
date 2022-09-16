@@ -34,7 +34,7 @@ final class WalletOptionViewLayout: UIView {
         button.triangularedView?.fillColor = R.color.colorBlack1()!
         button.triangularedView?.shadowOpacity = 0
         button.imageWithTitleView?.titleFont = .h4Title
-        button.imageWithTitleView?.titleColor = R.color.colorAccent()!
+        button.imageWithTitleView?.titleColor = R.color.colorPink()!
         return button
     }()
 

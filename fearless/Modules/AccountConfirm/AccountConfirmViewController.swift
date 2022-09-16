@@ -108,7 +108,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         button.translatesAutoresizingMaskIntoConstraints = false
         button.roundedBackgroundView?.shadowOpacity = 0.0
         button.contentInsets = Constants.itemContentInsets
-        button.roundedBackgroundView?.fillColor = R.color.colorAccent()!
+        button.roundedBackgroundView?.fillColor = R.color.colorPink()!
         button.roundedBackgroundView?.highlightedFillColor = R.color.colorHighlightedAccent()!
         button.roundedBackgroundView?.cornerRadius = Constants.cornerRadius
         button.imageWithTitleView?.titleColor = R.color.colorWhite()!
@@ -362,7 +362,7 @@ extension AccountConfirmViewController {
             positions[button] = originalPositions[button]
 
             let animationBlock = {
-                button.roundedBackgroundView?.fillColor = R.color.colorAccent()!
+                button.roundedBackgroundView?.fillColor = R.color.colorPink()!
                 button.roundedBackgroundView?.highlightedFillColor = R.color.colorHighlightedAccent()!
                 button.changesContentOpacityWhenHighlighted = false
 
