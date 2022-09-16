@@ -95,6 +95,6 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
     override func showContributionLabel() {
         super.showContributionLabel()
 
-        contributionLabel?.textColor = R.color.colorAccent()
+        contributionLabel?.textColor = R.color.colorPink()
     }
 }

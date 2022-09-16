@@ -35,7 +35,7 @@ final class AccountCreateViewLayout: UIView {
 
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

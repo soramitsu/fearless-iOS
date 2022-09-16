@@ -92,20 +92,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
             return
         }
 
-        let amountView = rootView.amountInputView
-        amountView.priceText = viewModel.price
-
-        if let balance = viewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
-                balance,
-                preferredLanguages: selectedLocale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        viewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = viewModel.symbol.uppercased()
+        rootView.amountInputView.bind(viewModel: viewModel)
     }
 
     private func applyFeeViewModel() {
@@ -190,7 +177,7 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
         amountInputViewModel = viewModel.value(for: selectedLocale)
         amountInputViewModel?.observable.add(observer: self)
 
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
     }
@@ -232,7 +219,7 @@ extension StakingUnbondSetupViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingUnbondSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

@@ -85,7 +85,7 @@ final class WalletSendViewController: UIViewController, ViewHolder {
             if let amountViewModel = model.amountInputViewModel {
                 amountViewModel.observable.remove(observer: self)
                 amountViewModel.observable.add(observer: self)
-                rootView.amountView.fieldText = amountViewModel.displayAmount
+                rootView.amountView.inputFieldText = amountViewModel.displayAmount
             }
         }
     }
@@ -160,7 +160,7 @@ extension WalletSendViewController: AmountInputViewModelObserver {
             return
         }
 
-        rootView.amountView.fieldText = viewModel.amountInputViewModel?.displayAmount
+        rootView.amountView.inputFieldText = viewModel.amountInputViewModel?.displayAmount
 
         let amount = viewModel.amountInputViewModel?.decimalAmount ?? 0.0
         presenter.updateAmount(amount)

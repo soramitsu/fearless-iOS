@@ -16,7 +16,7 @@ final class StakingUnbondSetupLayout: UIView {
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
     let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountInputView = AmountInputViewV2()
 
     let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
@@ -80,8 +80,7 @@ final class StakingUnbondSetupLayout: UIView {
     private func applyLocalization() {
         networkFeeFooterView.locale = locale
 
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
     }
 
     private func setupLayout() {
