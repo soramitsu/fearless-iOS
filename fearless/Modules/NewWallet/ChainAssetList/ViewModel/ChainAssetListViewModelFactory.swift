@@ -54,7 +54,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             utilityChainAssets = chainAssets.filter { $0.isUtility == true }
         }
 
-        let uniqChainAssets = filterUnique(chainAssets: utilityChainAssets)
+        let uniqChainAssets = filteredUnique(chainAssets: utilityChainAssets)
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = uniqChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
@@ -349,7 +349,7 @@ private extension ChainAssetListViewModelFactory {
         return priceWithChangeAttributed
     }
 
-    func filterUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
+    func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
         let result = assetNamesSet.compactMap { name in
             chainAssets.first { chainAsset in
