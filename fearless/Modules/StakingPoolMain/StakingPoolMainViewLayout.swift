@@ -61,7 +61,7 @@ final class StakingPoolMainViewLayout: UIView {
 
     let startStakingButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

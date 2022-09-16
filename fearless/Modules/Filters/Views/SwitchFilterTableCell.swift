@@ -16,7 +16,7 @@ class SwitchFilterTableCell: UITableViewCell {
 
     let filterValueSwitch: UISwitch = {
         let switchControl = UISwitch()
-        switchControl.onTintColor = R.color.colorAccent()
+        switchControl.onTintColor = R.color.colorPink()
         return switchControl
     }()
 

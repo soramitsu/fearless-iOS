@@ -100,13 +100,13 @@ final class StakingPoolStartViewLayout: UIView {
 
     let joinButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
     let createButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.triangularedView?.fillColor = R.color.colorBlack1()!
         button.triangularedView?.highlightedFillColor = R.color.colorBlack1()!
         return button
