@@ -1,4 +1,4 @@
 struct TipViewModel {
-    let viewModel: BalanceViewModelProtocol?
+    let balanceViewModel: BalanceViewModelProtocol?
     let tipRequired: Bool
 }

@@ -68,7 +68,7 @@ final class WalletSendPresenter {
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
             .value(for: selectedLocale)
         let tipViewModel = TipViewModel(
-            viewModel: viewModel,
+            balanceViewModel: viewModel,
             tipRequired: chainAsset.chain.isTipRequired
         )
         view?.didReceive(tipViewModel: tipViewModel)
