@@ -25,10 +25,7 @@ final class StakingBondMoreViewLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView = AmountInputViewV2()
 
     let hintView: IconDetailsView = {
         let view = IconDetailsView()
@@ -71,8 +68,7 @@ final class StakingBondMoreViewLayout: UIView {
 
     private func applyLocalization() {
         networkFeeFooterView.locale = locale
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
         hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
             preferredLanguages: locale.rLanguages
         )

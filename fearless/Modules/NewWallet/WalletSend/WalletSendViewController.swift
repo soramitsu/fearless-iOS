@@ -71,6 +71,29 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 
+    private func applyState(_ state: WalletSendViewState) {
+        self.state = state
+
+        switch state {
+        case .loading:
+            break
+        case let .loaded(model):
+            rootView.bind(scamInfo: model.scamInfo)
+            rootView.bind(feeViewModel: model.feeViewModel)
+            rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
+
+            if let assetViewModel = model.assetBalanceViewModel {
+                rootView.bind(assetViewModel: assetViewModel)
+            }
+
+            if let amountViewModel = model.amountInputViewModel {
+                amountViewModel.observable.remove(observer: self)
+                amountViewModel.observable.add(observer: self)
+                rootView.amountView.inputFieldText = amountViewModel.displayAmount
+            }
+        }
+    }
+
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
         rootView.actionButton.set(enabled: isEnabled)

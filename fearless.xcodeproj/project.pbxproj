@@ -1601,6 +1601,7 @@
 		C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */; };
 		C6267BB028C1D3C5001E31BF /* SendFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAF28C1D3C5001E31BF /* SendFlow.swift */; };
 		C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */; };
+		C6267BBA28D0A18D001E31BF /* AmountInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */; };
 		C6267BBC28D19CEA001E31BF /* TipViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BBB28D19CEA001E31BF /* TipViewModel.swift */; };
 		C6398F36287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */; };
 		C6398F38287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F37287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift */; };
@@ -3974,6 +3975,7 @@
 		C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchTriangularedView.swift; sourceTree = "<group>"; };
 		C6267BAF28C1D3C5001E31BF /* SendFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SendFlow.swift; sourceTree = "<group>"; };
 		C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceInfoDependencyContainer.swift; sourceTree = "<group>"; };
+		C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputViewV2.swift; sourceTree = "<group>"; };
 		C6267BBB28D19CEA001E31BF /* TipViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipViewModel.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
@@ -5815,6 +5817,7 @@
 				840DCBF025DFEE4800D45C6A /* AmountInputView.swift */,
 				840DCBF525E0059D00D45C6A /* AmountInputView+Inspectable.swift */,
 				8401620A25E144D50087A5F3 /* AmountInputAccessoryView.swift */,
+				C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */,
 			);
 			path = AmountInputView;
 			sourceTree = "<group>";
@@ -12714,6 +12717,7 @@
 				FA2FC7FE28B3807C00CC0A42 /* StakingPoolJoinChoosePoolRouter.swift in Sources */,
 				FA389B362840CBD700FF16E9 /* ValidatorSearchParachainViewModelState.swift in Sources */,
 				FAF5E9DC27E46DAA005A3448 /* RootViewController.swift in Sources */,
+				C6267BBA28D0A18D001E31BF /* AmountInputViewV2.swift in Sources */,
 				848FFE9025E6CF4300652AA5 /* StorageKeyEncodingOperation.swift in Sources */,
 				075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */,
 				C6267B9428BDF6A5001E31BF /* ChainAssetListViewController.swift in Sources */,

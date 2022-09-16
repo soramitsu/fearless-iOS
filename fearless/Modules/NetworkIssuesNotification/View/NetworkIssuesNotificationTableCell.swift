@@ -97,8 +97,8 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
         warningButton.isHidden = true
 
         actionButton.imageWithTitleView?.title = title
-        actionButton.triangularedView?.fillColor = R.color.colorAccent()!
-        actionButton.triangularedView?.highlightedFillColor = R.color.colorAccent()!
+        actionButton.triangularedView?.fillColor = R.color.colorPink()!
+        actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
 
         actionButton.addTarget(self, action: #selector(handleActionTap), for: .touchUpInside)
     }
@@ -119,7 +119,7 @@ final class NetworkIssuesNotificationTableCell: UITableViewCell {
 
         actionButton.imageWithTitleView?.title = title
         actionButton.triangularedView?.fillColor = R.color.colorOrange()!
-        actionButton.triangularedView?.highlightedFillColor = R.color.colorAccent()!
+        actionButton.triangularedView?.highlightedFillColor = R.color.colorPink()!
 
         actionButton.invalidateIntrinsicContentSize()
 

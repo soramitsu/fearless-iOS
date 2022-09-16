@@ -13,8 +13,8 @@ final class StakingRebondConfirmationLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -60,7 +60,7 @@ final class StakingRebondConfirmationLayout: UIView {
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         setNeedsLayout()
     }
@@ -71,19 +71,7 @@ final class StakingRebondConfirmationLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingUnbondingFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = assetViewModel.symbol.uppercased()
+        amountView.bind(viewModel: assetViewModel)
 
         setNeedsLayout()
     }
@@ -91,8 +79,7 @@ final class StakingRebondConfirmationLayout: UIView {
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
         networkFeeFooterView.locale = locale
 

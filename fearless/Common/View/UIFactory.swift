@@ -114,7 +114,7 @@ final class UIFactory: UIFactoryProtocol {
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }
 
@@ -294,15 +294,16 @@ final class UIFactory: UIFactoryProtocol {
         let amountInputView = AmountInputView()
 
         if !filled {
-            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorPinkTint() ?? UIColor.systemPink
-            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorPinkTint() ?? UIColor.systemPink
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorPink()!
+            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorPink()!
             amountInputView.triangularedBackgroundView?.strokeWidth = 1.0
-            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack() ?? UIColor.black
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack() ?? UIColor.black
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         } else {
             amountInputView.triangularedBackgroundView?.strokeWidth = 0.0
-            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorDarkGray() ?? UIColor.gray
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray() ?? UIColor.gray
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
         }
 
         amountInputView.titleLabel.textColor = R.color.colorWhite()
@@ -315,7 +316,7 @@ final class UIFactory: UIFactoryProtocol {
         amountInputView.balanceLabel.font = .p1Paragraph
         amountInputView.textField.font = .h2Title
         amountInputView.textField.textColor = R.color.colorWhite()
-        amountInputView.textField.tintColor = R.color.colorPinkTint()
+        amountInputView.textField.tintColor = R.color.colorPink()
         amountInputView.verticalSpacing = 2.0
         amountInputView.iconRadius = 12.0
         amountInputView.contentInsets = UIEdgeInsets(
@@ -501,7 +502,7 @@ final class UIFactory: UIFactoryProtocol {
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
-        view.highlightedStrokeColor = R.color.colorAccent()!
+        view.highlightedStrokeColor = R.color.colorPink()!
         view.titleColor = R.color.colorWhite()!
         view.amountTitleColor = R.color.colorWhite()!
         view.priceColor = R.color.colorLightGray()!
@@ -545,7 +546,7 @@ final class UIFactory: UIFactoryProtocol {
 
     func createWalletReferralBonusButton() -> GradientButton {
         let button = GradientButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.applyDisabledStyle()
         button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
 

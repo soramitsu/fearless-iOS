@@ -12,17 +12,19 @@ final class SearchTriangularedView: UIView {
 
     private let backgroundView: TriangularedView = {
         let view = TriangularedView()
-        view.fillColor = .clear
-        view.highlightedFillColor = .clear
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
         view.strokeColor = R.color.colorDarkGray()!
         view.highlightedStrokeColor = R.color.colorDarkGray()!
         view.strokeWidth = 1.0
+        view.shadowOpacity = 0
         return view
     }()
 
     private let addressImage: PolkadotIconView = {
         let view = PolkadotIconView()
         view.isHidden = true
+        view.backgroundColor = .clear
         return view
     }()
 
@@ -51,10 +53,19 @@ final class SearchTriangularedView: UIView {
 
     let textField: UITextField = {
         let view = UITextField()
-        view.tintColor = R.color.colorPinkTint()
+        view.tintColor = R.color.colorPink()
         view.font = .p1Paragraph
         view.textColor = .white
         view.returnKeyType = .done
+
+        if let oldStyle = view.defaultTextAttributes[
+            .paragraphStyle,
+            default: NSParagraphStyle()
+        ] as? NSParagraphStyle,
+            let style: NSMutableParagraphStyle = oldStyle.mutableCopy() as? NSParagraphStyle as? NSMutableParagraphStyle {
+            style.lineBreakMode = .byTruncatingMiddle
+            view.defaultTextAttributes[.paragraphStyle] = style
+        }
         return view
     }()
 

@@ -7,14 +7,10 @@ final class ChooseRecipientViewLayout: UIView {
         static let stackViewSpacing: CGFloat = 12
         static let bottomContainerHeight: CGFloat = 120
         static let searchViewHeight: CGFloat = 64
+        static let optionsImageSize: CGFloat = 16
     }
 
-    let navigationBar: BaseNavigationBar = {
-        let view = BaseNavigationBar()
-        view.backgroundColor = R.color.colorBlack19()
-        view.backButton.setImage(R.image.iconBack(), for: .normal)
-        return view
-    }()
+    let navigationBar = BaseNavigationBar()
 
     private let navigationTitleLabel: UILabel = {
         let label = UILabel()
@@ -116,8 +112,9 @@ final class ChooseRecipientViewLayout: UIView {
 
         addSubview(searchView)
         searchView.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.defaultOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(LayoutConstants.searchViewHeight)
         }
 
@@ -126,7 +123,7 @@ final class ChooseRecipientViewLayout: UIView {
         addSubview(contentVStackView)
         contentVStackView.snp.makeConstraints { make in
             make.top.equalTo(searchView.snp.bottom).offset(UIConstants.verticalInset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
         scamWarningView.isHidden = true
@@ -162,9 +159,13 @@ final class ChooseRecipientViewLayout: UIView {
     private func applyLocalization() {
         scamWarningView.locale = locale
 
-        searchView.textField.placeholder = R.string.localizable.searchTextfieldPlaceholder(
-            preferredLanguages: locale.rLanguages
+        searchView.textField.attributedPlaceholder = NSAttributedString(
+            string: R.string.localizable.searchTextfieldPlaceholder(
+                preferredLanguages: locale.rLanguages
+            ),
+            attributes: [.foregroundColor: R.color.colorAlmostWhite()!]
         )
+
         searchView.titleLabel.text = R.string.localizable.searchViewTitle(
             preferredLanguages: locale.rLanguages
         )

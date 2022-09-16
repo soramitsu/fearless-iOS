@@ -109,7 +109,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             return
         }
 
-        rootView.amountView.fieldText = viewModel.amount
+        rootView.amountView.inputFieldText = viewModel.amount
 
         rootView.mainAccountView.iconImage = R.image.iconFearlessRounded()
 
@@ -179,15 +179,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             return
         }
 
-        rootView.amountView.balanceText = R.string.localizable
-            .commonAvailableFormat(
-                viewModel.balance ?? "",
-                preferredLanguages: locale.rLanguages
-            )
-        rootView.amountView.priceText = viewModel.price
-
-        viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountView.iconView, animated: true)
-        rootView.amountView.symbol = viewModel.symbol
+        rootView.amountView.bind(viewModel: viewModel)
     }
 
     private func applyFeeViewModel() {
