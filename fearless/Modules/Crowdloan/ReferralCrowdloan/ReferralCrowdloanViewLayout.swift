@@ -32,7 +32,7 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     let applyAppBonusButton: GradientButton = {
         let button = GradientButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.gradientBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
         button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
         return button
@@ -42,7 +42,7 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     let termsSwitchView: UISwitch = {
         let switchView = UISwitch()
-        switchView.onTintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 
@@ -58,7 +58,7 @@ final class ReferralCrowdloanViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

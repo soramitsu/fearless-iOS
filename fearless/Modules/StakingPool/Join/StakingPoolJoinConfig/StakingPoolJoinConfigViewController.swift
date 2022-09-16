@@ -84,7 +84,7 @@ extension StakingPoolJoinConfigViewController: StakingPoolJoinConfigViewInput {
     }
 
     func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
-        rootView.amountView.fieldText = amountInputViewModel.displayAmount
+        rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)
 
@@ -122,7 +122,7 @@ extension StakingPoolJoinConfigViewController: AmountInputAccessoryViewDelegate 
 
 extension StakingPoolJoinConfigViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
 
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
         output.updateAmount(amount)

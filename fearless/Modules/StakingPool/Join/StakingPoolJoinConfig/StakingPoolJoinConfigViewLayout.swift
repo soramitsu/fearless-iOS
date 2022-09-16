@@ -33,15 +33,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         return view
     }()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory.default.createAmountInputView(filled: true)
-        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.strokeWidth = 0.5
-        return view
-    }()
+    let amountView = AmountInputViewV2()
 
     let feeView: NetworkFeeFooterView = {
         let view = UIFactory.default.createNetworkFeeFooterView()
@@ -52,7 +44,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
 
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -91,24 +83,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        assetViewModel.iconViewModel?.cancel(on: amountView.iconView)
-        amountView.iconView.image = nil
-
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountView.symbol = symbol
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
+        amountView.bind(viewModel: assetViewModel)
     }
 
     private func applyLocalization() {
@@ -118,12 +93,11 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.poolStakingJoinTitle(
             preferredLanguages: locale.rLanguages
         ))
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
         feeView.actionButton.imageWithTitleView?.title = R.string.localizable.poolStakingJoinButtonTitle(
             preferredLanguages: locale.rLanguages
         )
         feeView.locale = locale
+        amountView.locale = locale
     }
 
     private func setupLayout() {

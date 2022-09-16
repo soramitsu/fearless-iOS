@@ -810,7 +810,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issue.network.unavailable" = "Network is unavailable";
 "network.issue.node.unavailable" = "Node is unavailable";
 "search.view.title" = "Send to";
-"search.textfield.placeholder" = "Public address";
+"search.textfield.placeholder" = " Public address";
 "choose.recipient.title" = "Choose recipient";
 "choose.recipient.next.button.title" = "Enter amount";
 "common.paste" = "Paste";
@@ -832,3 +832,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "scam.description.sanctions.stub" = "This address has been flagged due to entity related to a country under sanctions. We strongly recommend that you don't send %@ to this account.";
 "scam.warning.alert.title" = "This address has been flagged due to evidence of a scam.";
 "scam.warning.alert.subtitle" = "We strongly recommend that you don't send %@ to this account.";
+"transaction.list.header" = "All transaction";

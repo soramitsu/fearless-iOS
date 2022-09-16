@@ -34,7 +34,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
 
     let switcher: UISwitch = {
         let switcher = UISwitch()
-        switcher.onTintColor = R.color.colorAccent()
+        switcher.onTintColor = R.color.colorPink()
         return switcher
     }()
 
@@ -55,7 +55,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
     private var addMissingAccountButton: UIButton = {
         let button = UIButton()
         button.titleLabel?.font = .p1Paragraph
-        button.setTitleColor(R.color.colorAccent(), for: .normal)
+        button.setTitleColor(R.color.colorPink(), for: .normal)
         return button
     }()
 
