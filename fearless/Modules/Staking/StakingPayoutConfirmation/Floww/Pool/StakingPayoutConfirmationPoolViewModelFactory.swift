@@ -2,10 +2,11 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 
-final class StakingPayoutConfirmationRelaychainViewModelFactory {
+final class StakingPayoutConfirmationPoolViewModelFactory {
     private let chainAsset: ChainAsset
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private var iconGenerator: IconGenerating
+    private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         chainAsset: ChainAsset,
@@ -110,36 +111,60 @@ final class StakingPayoutConfirmationRelaychainViewModelFactory {
             return createRewardDestinationAccountRow(with: account)
         }
     }
+
+    func createStakedAmountViewModel(
+        _ amount: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
+            let stakedString = R.string.localizable.poolStakingClaimAmountTitle(
+                amountString,
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorWhite(),
+                range: (stakedString as NSString).range(of: amountString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
+    }
 }
 
-extension StakingPayoutConfirmationRelaychainViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol {
+extension StakingPayoutConfirmationPoolViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol {
     func createPayoutConfirmViewModel(
-        viewModelState: StakingPayoutConfirmationViewModelState,
-        priceData: PriceData?
+        viewModelState _: StakingPayoutConfirmationViewModelState,
+        priceData _: PriceData?
     ) -> [LocalizableResource<PayoutConfirmViewModel>] {
-        guard let relaychainViewModelState = viewModelState as? StakingPayoutConfirmationRelaychainViewModelState else {
-            return []
-        }
-
-        var viewModel: [LocalizableResource<PayoutConfirmViewModel>] = []
-
-        if let account = relaychainViewModelState.account {
-            viewModel.append(createAccountRow(with: account))
-        }
-
-        if let rewardDestination = relaychainViewModelState.rewardDestination {
-            viewModel.append(createRewardDestinationRow(with: rewardDestination))
-        }
-
-        viewModel.append(createRewardAmountRow(with: relaychainViewModelState.rewardAmount, priceData: priceData))
-
-        return viewModel
+        []
     }
 
     func createSinglePayoutConfirmationViewModel(
-        viewModelState _: StakingPayoutConfirmationViewModelState,
+        viewModelState: StakingPayoutConfirmationViewModelState,
         priceData _: PriceData?
     ) -> StakingPayoutConfirmationViewModel? {
-        nil
+        guard let viewModelState = viewModelState as? StakingPayoutConfirmationPoolViewModelState else {
+            return nil
+        }
+
+        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+
+        let amount = LocalizableResource { locale in
+            formatter.value(for: locale).stringFromDecimal(viewModelState.rewardAmount) ?? ""
+        }
+
+        return StakingPayoutConfirmationViewModel(
+            senderAddress: viewModelState.account?.toAddress() ?? "",
+            senderIcon: nil,
+            senderName: viewModelState.account?.name,
+            amount: createStakedAmountViewModel(viewModelState.rewardAmount),
+            amountString: amount
+        )
     }
 }

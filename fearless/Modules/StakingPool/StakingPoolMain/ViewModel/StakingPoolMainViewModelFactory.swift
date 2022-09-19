@@ -23,7 +23,11 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         stakeInfo: StakingPoolMember,
         priceData: PriceData?,
         chainAsset: ChainAsset,
-        era: EraIndex?
+        era: EraIndex?,
+        poolRewards: StakingPoolRewards,
+        poolInfo: StakingPool,
+        accountInfo: AccountInfo,
+        existentialDeposit: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
@@ -263,7 +267,11 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         stakeInfo: StakingPoolMember,
         priceData: PriceData?,
         chainAsset: ChainAsset,
-        era: EraIndex?
+        era: EraIndex?,
+        poolRewards: StakingPoolRewards,
+        poolInfo: StakingPool,
+        accountInfo: AccountInfo,
+        existentialDeposit: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
 
@@ -271,14 +279,58 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
             status = .active(era: era)
         }
 
-        let totalStakeAmount = Decimal.fromSubstrateAmount(stakeInfo.points, precision: Int16(chainAsset.asset.precision)) ?? 0.0
-        let totalRewardAmount = Decimal.fromSubstrateAmount(stakeInfo.lastRecordedRewardCounter, precision: Int16(chainAsset.asset.precision)) ?? 0.0
+        let precision = Int16(chainAsset.asset.precision)
+        let totalStakeAmount = Decimal.fromSubstrateAmount(
+            stakeInfo.points,
+            precision: precision
+        ) ?? 0.0
 
+        let poolStakeAmount = Decimal.fromSubstrateAmount(
+            poolInfo.info.points,
+            precision: precision
+        ) ?? 0.0
+
+        let lastRecordedTotalPayouts = Decimal.fromSubstrateAmount(
+            poolRewards.lastRecordedTotalPayouts,
+            precision: precision
+        ) ?? 0.0
+
+        let totalRewardsClaimed = Decimal.fromSubstrateAmount(
+            poolRewards.totalRewardsClaimed,
+            precision: precision
+        ) ?? 0.0
+
+        let lastRecordedRewardCounter = Decimal.fromSubstrateAmount(
+            poolRewards.lastRecordedRewardCounter,
+            precision: precision
+        ) ?? 0.0
+
+        let ownLastRecordedRewardCounter = Decimal.fromSubstrateAmount(
+            stakeInfo.lastRecordedRewardCounter,
+            precision: precision
+        ) ?? 0.0
+
+        let existentialDepositDecimal = Decimal.fromSubstrateAmount(
+            existentialDeposit,
+            precision: precision
+        ) ?? 0.0
+
+        let balanceDecimal = Decimal.fromSubstrateAmount(
+            accountInfo.data.free,
+            precision: precision
+        ) ?? 0.0 - existentialDepositDecimal
+
+        let payoutSinceLastRecord = balanceDecimal + totalRewardsClaimed - lastRecordedTotalPayouts
+        let rewardCounterBase: Decimal = 10
+        let currentRewardCounter = payoutSinceLastRecord * rewardCounterBase / poolStakeAmount + lastRecordedRewardCounter
+
+        let pendingReward = (currentRewardCounter - ownLastRecordedRewardCounter) * totalStakeAmount / rewardCounterBase
+//        let pendingReward = ownLastRecordedRewardCounter != 0 ? 0 : (totalStakeAmount / poolStakeAmount) * (lastRecordedTotalPayouts - totalRewardsClaimed)
         var redeemableViewModel: StakingUnitInfoViewModel?
         var unstakingViewModel: StakingUnitInfoViewModel?
 
         guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
-              let totalReward = balanceViewModelFactory?.balanceFromPrice(totalRewardAmount, priceData: priceData)
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)
         else {
             return nil
         }
@@ -289,8 +341,14 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                    stakeInfo.redeemable(inEra: era),
                    precision: Int16(chainAsset.asset.precision)
                ),
-               let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(redeemableAmount, priceData: priceData) {
-                redeemableViewModel = StakingUnitInfoViewModel(value: redeemable.value(for: locale).amount, subtitle: redeemable.value(for: locale).price)
+               let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(
+                   redeemableAmount,
+                   priceData: priceData
+               ) {
+                redeemableViewModel = StakingUnitInfoViewModel(
+                    value: redeemable.value(for: locale).amount,
+                    subtitle: redeemable.value(for: locale).price
+                )
             }
 
             if let era = era,
@@ -299,7 +357,10 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                    precision: Int16(chainAsset.asset.precision)
                ),
                let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData) {
-                unstakingViewModel = StakingUnitInfoViewModel(value: unstaking.value(for: locale).amount, subtitle: unstaking.value(for: locale).price)
+                unstakingViewModel = StakingUnitInfoViewModel(
+                    value: unstaking.value(for: locale).amount,
+                    subtitle: unstaking.value(for: locale).price
+                )
             }
 
             return NominationViewModel(

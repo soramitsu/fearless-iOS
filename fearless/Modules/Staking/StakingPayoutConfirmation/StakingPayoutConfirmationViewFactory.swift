@@ -8,7 +8,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        payouts: [PayoutInfo],
         flow: StakingPayoutConfirmationFlow
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
@@ -28,7 +27,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             flow: flow,
             chainAsset: chainAsset,
             wallet: wallet,
-            payouts: payouts,
             dataValidatingFactory: dataValidationFactory
         ) else {
             return nil
@@ -81,11 +79,11 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         )
     }
 
+    // swiftlint: disable function_body_length
     private static func createDependencyContainer(
         flow: StakingPayoutConfirmationFlow,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        payouts: [PayoutInfo],
         dataValidatingFactory: StakingDataValidatingFactory
     ) -> StakingPayoutConfirmationDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
@@ -155,8 +153,10 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             selectedMetaAccount: wallet
         )
 
+        let feeProxy = ExtrinsicFeeProxy()
+
         switch flow {
-        case .relaychain:
+        case let .relaychain(payouts):
             let viewModelState = StakingPayoutConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
@@ -192,7 +192,39 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 viewModelFactory: viewModelFactory
             )
         case .pool:
-            return nil
+            let viewModelState = StakingPayoutConfirmationPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                logger: logger,
+                dataValidatingFactory: dataValidatingFactory
+            )
+
+            let viewModelFactory = StakingPayoutConfirmationPoolViewModelFactory(
+                chainAsset: chainAsset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+
+            let strategy = StakingPayoutConfirmationPoolStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                extrinsicService: extrinsicService,
+                extrinsicOperationFactory: extrinsicOperationFactory,
+                runtimeService: runtimeService,
+                signer: signingWrapper,
+                operationManager: operationManager,
+                logger: logger,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                output: viewModelState,
+                feeProxy: feeProxy
+            )
+
+            return StakingPayoutConfirmationDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

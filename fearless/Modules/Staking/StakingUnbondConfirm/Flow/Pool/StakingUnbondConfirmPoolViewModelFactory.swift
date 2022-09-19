@@ -18,8 +18,17 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
 
     private func createHints(from _: Bool)
         -> LocalizableResource<[TitleIconViewModel]> {
-        LocalizableResource { _ in
-            []
+        LocalizableResource { locale in
+            var items = [TitleIconViewModel]()
+
+            items.append(
+                TitleIconViewModel(
+                    title: R.string.localizable.stakingHintNoRewards(preferredLanguages: locale.rLanguages),
+                    icon: R.image.iconNoReward()
+                )
+            )
+
+            return items
         }
     }
 

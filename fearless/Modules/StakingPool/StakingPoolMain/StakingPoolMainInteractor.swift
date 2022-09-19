@@ -3,7 +3,7 @@ import FearlessUtils
 import RobinHood
 import SoraKeystore
 
-final class StakingPoolMainInteractor {
+final class StakingPoolMainInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolMainInteractorOutput?
@@ -25,6 +25,7 @@ final class StakingPoolMainInteractor {
     private let eventCenter: EventCenterProtocol
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -47,7 +48,8 @@ final class StakingPoolMainInteractor {
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         eventCenter: EventCenterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
+        stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -67,6 +69,7 @@ final class StakingPoolMainInteractor {
         self.eventCenter = eventCenter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.runtimeService = runtimeService
     }
 
     private func updateDependencies() {
@@ -182,12 +185,17 @@ final class StakingPoolMainInteractor {
             return
         }
 
+        let call = SubstrateCallFactory().fetchPendingPoolRewards(accountId: accountId)
+        let closure: ExtrinsicBuilderClosure = { builder in
+            try builder.adding(call: call)
+        }
+
         let stakeInfoOperation = stakingPoolOperationFactory.fetchStakingPoolMembers(accountId: accountId)
 
         stakeInfoOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let stakeInfo = try? stakeInfoOperation.targetOperation.extractNoCancellableResultData()
+                    let stakeInfo = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(stakeInfo: stakeInfo)
                 } catch {
                     self?.output?.didReceive(stakeInfoError: error)
@@ -196,6 +204,38 @@ final class StakingPoolMainInteractor {
         }
 
         operationManager.enqueue(operations: stakeInfoOperation.allOperations, in: .transient)
+    }
+
+    private func fetchPoolRewards(poolId: String) {
+        let stakeInfoOperation = stakingPoolOperationFactory.fetchPoolRewardsOperation(poolId: poolId)
+
+        stakeInfoOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let poolRewards = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(poolRewards: poolRewards)
+                } catch {
+                    self?.output?.didReceive(poolRewardsError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: stakeInfoOperation.allOperations, in: .transient)
+    }
+
+    private func fetchPoolInfo(poolId: String) {
+        let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchBondedPoolOperation(poolId: poolId)
+        fetchPoolInfoOperation.targetOperation.completionBlock = { [weak self] in
+            do {
+                let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
+
+                DispatchQueue.main.async {
+                    self?.output?.didReceive(stakingPool: stakingPool)
+                }
+            } catch {}
+        }
+
+        operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
     }
 
     func provideEraStakersInfo() {
@@ -338,7 +378,12 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
-            try? stakingAccountUpdatingService.setupSubscription(for: accountId, chainAsset: chainAsset, chainFormat: chainAsset.chain.chainFormat, stakingType: .relayChain)
+            try? stakingAccountUpdatingService.setupSubscription(
+                for: accountId,
+                chainAsset: chainAsset,
+                chainFormat: chainAsset.chain.chainFormat,
+                stakingType: .relayChain
+            )
         }
 
         output?.didReceive(chainAsset: chainAsset)
@@ -367,6 +412,10 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
     func saveNetworkInfoViewExpansion(isExpanded: Bool) {
         commonSettings.stakingNetworkExpansion = isExpanded
     }
+
+    func fetchPoolBalance(poolAccountId: AccountId) {
+        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: poolAccountId, handler: self)
+    }
 }
 
 extension StakingPoolMainInteractor: AnyProviderAutoCleaning {}
@@ -377,8 +426,17 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
         accountId: AccountId,
         chainAsset: ChainAsset
     ) {
-        guard self.chainAsset.chainAssetId == chainAsset.chainAssetId,
-              wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
+        guard self.chainAsset.chainAssetId == chainAsset.chainAssetId else {
+            return
+        }
+
+        guard wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
+            switch result {
+            case let .success(accountInfo):
+                output?.didReceive(poolAccountInfo: accountInfo)
+            case let .failure(error):
+                output?.didReceive(balanceError: error)
+            }
             return
         }
 
@@ -414,17 +472,28 @@ extension StakingPoolMainInteractor: EventVisitorProtocol {
 }
 
 extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
-    func handlePoolMember(result: Result<StakingPoolMember?, Error>, accountId: AccountId, chainId: ChainModel.Id) {
+    func handlePoolMember(
+        result: Result<StakingPoolMember?, Error>,
+        accountId: AccountId,
+        chainId: ChainModel.Id
+    ) {
         guard chainAsset.chain.chainId == chainId,
               wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
             return
         }
 
-        DispatchQueue.main.async { [weak self] in
-            switch result {
-            case let .success(poolMember):
+        switch result {
+        case let .success(poolMember):
+            if let poolId = poolMember?.poolId.value {
+                fetchPoolInfo(poolId: poolId.description)
+                fetchPoolRewards(poolId: poolId.description)
+            }
+
+            DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceive(stakeInfo: poolMember)
-            case let .failure(error):
+            }
+        case let .failure(error):
+            DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceive(stakeInfoError: error)
             }
         }

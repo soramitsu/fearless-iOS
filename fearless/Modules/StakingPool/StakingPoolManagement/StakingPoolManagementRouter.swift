@@ -59,4 +59,16 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
 
         view?.controller.present(picker, animated: true)
     }
+
+    func presentClaim(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = StakingPayoutConfirmationViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: .pool) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(module.controller, animated: true)
+    }
 }

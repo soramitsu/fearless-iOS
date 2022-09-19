@@ -11,8 +11,7 @@ final class StakingRewardDetailsWireframe: StakingRewardDetailsWireframeProtocol
         guard let confirmationView = StakingPayoutConfirmationViewFactory.createView(
             chainAsset: ChainAsset(chain: chain, asset: asset),
             wallet: selectedAccount,
-            payouts: [payoutInfo],
-            flow: .relaychain
+            flow: .relaychain(payouts: [payoutInfo])
         ) else { return }
 
         view?.controller

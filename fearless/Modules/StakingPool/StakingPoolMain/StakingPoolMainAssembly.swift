@@ -30,7 +30,8 @@ final class StakingPoolMainAssembly {
 
         guard
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
         else {
             return nil
         }
@@ -145,7 +146,8 @@ final class StakingPoolMainAssembly {
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             eventCenter: EventCenter.shared,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            stakingAccountUpdatingService: stakingAccountUpdatingService
+            stakingAccountUpdatingService: stakingAccountUpdatingService,
+            runtimeService: runtimeService
         )
 
         let router = StakingPoolMainRouter()
@@ -164,7 +166,8 @@ final class StakingPoolMainAssembly {
             moduleOutput: moduleOutput,
             viewModelFactory: viewModelFactory,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            logger: logger
         )
 
         let view = StakingPoolMainViewController(

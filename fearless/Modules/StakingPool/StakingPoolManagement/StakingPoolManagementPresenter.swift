@@ -104,15 +104,11 @@ final class StakingPoolManagementPresenter {
     }
 
     private func provideClaimableViewModel() {
-        guard let era = eraStakersInfo?.activeEra,
-              let claimable = stakeInfo?.redeemable(inEra: era),
-              let claimableDecimal = Decimal.fromSubstrateAmount(claimable, precision: Int16(chainAsset.asset.precision)), claimableDecimal > 0 else {
-            return
+        if let claimable = stakeInfo?.lastRecordedRewardCounter {
+            let viewModel = balanceViewModelFactory.balanceFromPrice(0, priceData: priceData)
+
+            view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
         }
-
-        let viewModel = balanceViewModelFactory.balanceFromPrice(claimableDecimal, priceData: priceData)
-
-        view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
     }
 
     private func presentStakingPoolInfo() {
@@ -177,6 +173,12 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             }
         }, from: view)
     }
+
+    func didTapClaimButton() {
+        router.presentClaim(chainAsset: chainAsset, wallet: wallet, from: view)
+    }
+
+    func didTapRedeemButton() {}
 }
 
 // MARK: - StakingPoolManagementInteractorOutput
@@ -242,6 +244,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         self.stakingDuration = stakingDuration
         provideRedeemDelayViewModel()
     }
+
+    func didReceive(poolRewards _: StakingPoolRewards?) {}
+
+    func didReceive(poolRewardsError _: Error) {}
 }
 
 // MARK: - Localizable

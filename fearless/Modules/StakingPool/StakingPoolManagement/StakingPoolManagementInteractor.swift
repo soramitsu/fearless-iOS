@@ -129,6 +129,23 @@ final class StakingPoolManagementInteractor {
 
         operationManager.enqueue(operations: durationOperation.allOperations, in: .transient)
     }
+
+    private func fetchPoolRewards(poolId: String) {
+        let stakeInfoOperation = stakingPoolOperationFactory.fetchPoolRewardsOperation(poolId: poolId)
+
+        stakeInfoOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let poolRewards = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(poolRewards: poolRewards)
+                } catch {
+                    self?.output?.didReceive(poolRewardsError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: stakeInfoOperation.allOperations, in: .transient)
+    }
 }
 
 // MARK: - StakingPoolManagementInteractorInput
@@ -174,11 +191,16 @@ extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLoc
 }
 
 extension StakingPoolManagementInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
-    func handlePoolMember(result: Result<StakingPoolMember?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handlePoolMember(
+        result: Result<StakingPoolMember?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
         switch result {
         case let .success(poolMember):
             if let poolId = poolMember?.poolId.value {
                 fetchPoolInfo(poolId: poolId.description)
+                fetchPoolRewards(poolId: poolId.description)
             }
 
             DispatchQueue.main.async { [weak self] in

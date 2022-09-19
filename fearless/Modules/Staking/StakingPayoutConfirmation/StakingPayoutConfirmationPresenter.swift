@@ -50,6 +50,8 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 
         provideFee()
         interactor.setup()
+
+        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
     }
 
     func proceed() {
@@ -75,6 +77,10 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
                 locale: locale
             )
         }
+    }
+
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
     }
 }
 
@@ -113,6 +119,21 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
         wireframe.complete(from: view)
     }
 
+    func didCompletePayout(result: SubmitExtrinsicResult) {
+        switch result {
+        case let .success(txHash):
+            logger?.info("Did send payouts \(txHash)")
+
+            view?.didStopLoading()
+
+            wireframe.complete(from: view)
+        case let .failure(error):
+            view?.didStopLoading()
+
+            handle(error: error)
+        }
+    }
+
     func didFailPayout(error: Error) {
         view?.didStopLoading()
 
@@ -135,5 +156,12 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
         )
 
         view?.didRecieve(viewModel: viewModel)
+
+        let singleViewModel = payoutConfirmViewModelFactory.createSinglePayoutConfirmationViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        )
+
+        view?.didReceive(singleViewModel: singleViewModel)
     }
 }

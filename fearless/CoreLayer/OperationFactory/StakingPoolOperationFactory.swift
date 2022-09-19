@@ -14,6 +14,7 @@ protocol StakingPoolOperationFactoryProtocol {
     func fetchCounterForBondedPools() -> CompoundOperationWrapper<UInt32?>
     func fetchMaxPoolMembersPerPool() -> CompoundOperationWrapper<UInt32?>
     func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?>
+    func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?>
 }
 
 final class StakingPoolOperationFactory {
@@ -211,6 +212,23 @@ final class StakingPoolOperationFactory {
         minJoinBondWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
         return minJoinBondWrapper
+    }
+
+    private func createStakingPoolRewardsOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        paramsClosure: @escaping () throws -> [String]
+    ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> {
+        let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: paramsClosure,
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .stakingPoolRewards
+            )
+
+        poolMetadataWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return poolMetadataWrapper
     }
 }
 
@@ -419,6 +437,23 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         mapOperation.addDependency(maxPoolMembersPerPoolOperation.targetOperation)
 
         let dependencies = [runtimeOperation] + maxPoolMembersPerPoolOperation.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let stakingPoolMembersOperation = createStakingPoolRewardsOperation(dependingOn: runtimeOperation) {
+            [poolId]
+        }
+
+        let mapOperation = ClosureOperation<StakingPoolRewards?> {
+            try stakingPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        mapOperation.addDependency(stakingPoolMembersOperation.targetOperation)
+
+        let dependencies = [runtimeOperation] + stakingPoolMembersOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

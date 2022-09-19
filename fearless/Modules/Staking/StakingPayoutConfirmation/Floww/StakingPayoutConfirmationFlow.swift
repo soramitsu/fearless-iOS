@@ -4,7 +4,7 @@ import SoraFoundation
 typealias Batch = [PayoutInfo]
 
 enum StakingPayoutConfirmationFlow {
-    case relaychain
+    case relaychain(payouts: [PayoutInfo])
     case pool
 }
 
@@ -16,6 +16,7 @@ protocol StakingPayoutConfirmationModelStateListener: AnyObject {
 
     func didStartPayout()
     func didCompletePayout(txHashes: [String])
+    func didCompletePayout(result: SubmitExtrinsicResult)
     func didFailPayout(error: Error)
 }
 
@@ -39,6 +40,11 @@ protocol StakingPayoutConfirmationViewModelFactoryProtocol {
         viewModelState: StakingPayoutConfirmationViewModelState,
         priceData: PriceData?
     ) -> [LocalizableResource<PayoutConfirmViewModel>]
+
+    func createSinglePayoutConfirmationViewModel(
+        viewModelState: StakingPayoutConfirmationViewModelState,
+        priceData: PriceData?
+    ) -> StakingPayoutConfirmationViewModel?
 }
 
 protocol StakingPayoutConfirmationStrategy {
