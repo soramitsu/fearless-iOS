@@ -2085,6 +2085,7 @@
 		FA99C934283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */; };
 		FA99C936283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */; };
 		FA99C938283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */; };
+		FAA0130C28D9A85D000A5230 /* StorageKeyExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130B28D9A85D000A5230 /* StorageKeyExtractor.swift */; };
 		FAA086CE28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */; };
 		FAA086D028470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */; };
 		FAA086D228470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */; };
@@ -4285,6 +4286,7 @@
 		FA99C933283B76CE007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelFactory.swift; sourceTree = "<group>"; };
 		FA99C935283B76E3007B1F83 /* SelectValidatorsConfirmRelaychainExistingViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingViewModelState.swift; sourceTree = "<group>"; };
 		FA99C937283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmRelaychainExistingStrategy.swift; sourceTree = "<group>"; };
+		FAA0130B28D9A85D000A5230 /* StorageKeyExtractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeyExtractor.swift; sourceTree = "<group>"; };
 		FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainStrategy.swift; sourceTree = "<group>"; };
 		FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -10145,6 +10147,7 @@
 				078E34C028058B9D00DF187A /* DocumentType.swift */,
 				FAF5E9CF27E46D6A005A3448 /* AppConfigs */,
 				FA38C9A32760700B005C5577 /* Services */,
+				FAA0130B28D9A85D000A5230 /* StorageKeyExtractor.swift */,
 			);
 			path = ApplicationLayer;
 			sourceTree = "<group>";
@@ -12001,6 +12004,7 @@
 				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
 				8494D85E25246E9A00614D8F /* WalletTokenViewModel.swift in Sources */,
+				FAA0130C28D9A85D000A5230 /* StorageKeyExtractor.swift in Sources */,
 				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
 				8472C5B4265CF9C500E2481B /* StakingRewardDestConfirmPresenter.swift in Sources */,
 				2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */,
