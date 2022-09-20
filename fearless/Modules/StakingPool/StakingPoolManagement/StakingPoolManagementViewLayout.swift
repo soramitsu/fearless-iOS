@@ -165,6 +165,7 @@ final class StakingPoolManagementViewLayout: UIView {
         super.layoutSubviews()
 
         optionsButton.layer.cornerRadius = optionsButton.frame.size.height / 2
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
     }
 
     private func setupLayout() {

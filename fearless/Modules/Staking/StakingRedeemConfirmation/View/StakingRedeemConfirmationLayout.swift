@@ -117,6 +117,12 @@ final class StakingRedeemConfirmationLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+    }
+
     func bind(confirmationViewModel: StakingRedeemConfirmationViewModel) {
         if let senderName = confirmationViewModel.senderName {
             accountView.valueTop.lineBreakMode = .byTruncatingTail

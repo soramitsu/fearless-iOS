@@ -598,7 +598,7 @@ This is the hash of your transaction:";
 "wallet.transaction.detail.copy.id" = "Copy ID";
 "wallet.transaction.history.filter.title" = "Show";
 "view.in" = "View in %s";
-"wallet.transaction.history.unsupported.message" = "Transaction history for this network is not supported yet";
+"wallet.transaction.history.unsupported.message" = "Transaction history for this network \nis not supported yet";
 "wallet.transaction.history.empty.message" = "Transaction history will appear here";
 "account.option" = "Account option";
 "switch.node.autoselect.title" = "Auto select nodes";
