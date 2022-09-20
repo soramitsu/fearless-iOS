@@ -2294,6 +2294,7 @@
 		FAA0130628D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA012F428D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelFactory.swift */; };
 		FAA0130728D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA012F528D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift */; };
 		FAA0130828D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA012F628D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift */; };
+		FAA0130A28D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130928D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift */; };
 		FAA086CE28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */; };
 		FAA086D028470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */; };
 		FAA086D228470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */; };
@@ -4742,6 +4743,7 @@
 		FAA012F428D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRedeemConfirmationPoolViewModelFactory.swift; sourceTree = "<group>"; };
 		FAA012F528D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StakingRedeemConfirmation]PoolStrategy.swift"; sourceTree = "<group>"; };
 		FAA012F628D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRedeemConfirmationPoolViewModelState.swift; sourceTree = "<group>"; };
+		FAA0130928D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainStrategy.swift; sourceTree = "<group>"; };
 		FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -12005,6 +12007,7 @@
 			children = (
 				FAD646C9284DFE4D007CCB92 /* StakingBondMoreRelaychainStrategy.swift */,
 				FAD646CB284DFE5A007CCB92 /* StakingBondMoreRelaychainViewModelState.swift */,
+				FAA0130928D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift */,
 			);
 			path = Relaychain;
 			sourceTree = "<group>";
@@ -14687,6 +14690,7 @@
 				3E053332BA9D170FB1569ABB /* WalletTransactionDetailsProtocols.swift in Sources */,
 				002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */,
 				05A6BB4F8F0912404A4D8413 /* WalletTransactionDetailsPresenter.swift in Sources */,
+				FAA0130A28D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift in Sources */,
 				FA99425B28053C8800D771E5 /* SelectExportAccountViewController.swift in Sources */,
 				69DE177B9D1745FEE848E870 /* WalletTransactionDetailsInteractor.swift in Sources */,
 				44B20C179522F7E38DAA2441 /* WalletTransactionDetailsViewController.swift in Sources */,

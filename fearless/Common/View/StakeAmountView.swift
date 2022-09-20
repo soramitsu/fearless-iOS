@@ -61,6 +61,6 @@ class StakeAmountView: UIView {
 
     func bind(viewModel: StakeAmountViewModel) {
         amountLabel.attributedText = viewModel.amountTitle
-        viewModel.iconViewModel?.loadBalanceListIcon(on: iconImageView, animated: true)
+        viewModel.iconViewModel?.loadAmountInputIcon(on: iconImageView, animated: true)
     }
 }

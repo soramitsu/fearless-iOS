@@ -52,10 +52,9 @@ final class StakingUnbondSetupLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol) {
-        let balanceViewModel: BalanceViewModelProtocol = feeViewModel.balanceViewModel.value(for: locale)
-        networkFeeFooterView.actionTitle = feeViewModel.actionTitle
-        networkFeeFooterView.bindBalance(viewModel: balanceViewModel)
+    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol?) {
+        networkFeeFooterView.actionTitle = feeViewModel?.actionTitle
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel?.balanceViewModel.value(for: locale))
         setNeedsLayout()
     }
 

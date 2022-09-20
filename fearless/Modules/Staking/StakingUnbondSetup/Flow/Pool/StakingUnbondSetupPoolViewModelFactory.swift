@@ -13,19 +13,12 @@ final class StakingUnbondSetupPoolViewModelFactory: StakingUnbondSetupViewModelF
             return nil
         }
 
-        let daysCount = viewModelState.bondingDuration.map { UInt32($0) / viewModelState.chainAsset.chain.erasPerDay }
         let viewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
-            guard let daysCount = daysCount else {
-                return TitleWithSubtitleViewModel(title: "")
-            }
-
             let title = R.string.localizable.stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
-            let subtitle = R.string.localizable.commonDaysFormat(
-                format: Int(daysCount),
-                preferredLanguages: locale.rLanguages
-            )
+            let subtitle = viewModelState.stakingDuration?.unlocking.readableValue(locale: locale) ?? ""
             return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
         }
+
         return viewModel
     }
 

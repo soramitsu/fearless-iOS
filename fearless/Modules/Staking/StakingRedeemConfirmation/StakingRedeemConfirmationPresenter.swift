@@ -69,6 +69,10 @@ extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationPresenter
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
         wireframe.presentAccountOptions(from: view, address: address, chain: chainAsset.chain, locale: locale)
     }
+
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
 }
 
 extension StakingRedeemConfirmationPresenter: StakingRedeemConfirmationInteractorOutputProtocol {

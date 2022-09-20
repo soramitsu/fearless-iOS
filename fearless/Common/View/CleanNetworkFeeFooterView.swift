@@ -86,10 +86,10 @@ final class CleanNetworkFeeFooterView: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
-        tipView.isHidden = true // by default, because this view is being used among other screens but send confirmatio
         tipView.borderType = .none
         contentStackView.addArrangedSubview(tipView)
         contentStackView.addArrangedSubview(actionButton)
+        tipView.isHidden = true // by default, because this view is being used among other screens but send confirmatio
 
         actionButton.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.actionHeight)

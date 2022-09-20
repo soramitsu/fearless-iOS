@@ -13,6 +13,7 @@ protocol StakingRedeemConfirmationPresenterProtocol: AnyObject {
     func setup()
     func confirm()
     func selectAccount()
+    func didTapBackButton()
 }
 
 protocol StakingRedeemConfirmationInteractorInputProtocol: AnyObject {
@@ -26,7 +27,7 @@ protocol StakingRedeemConfirmationInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingRedeemConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,
-    StakingErrorPresentable, AddressOptionsPresentable {
+    StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
     func complete(from view: StakingRedeemConfirmationViewProtocol?)
 }
 

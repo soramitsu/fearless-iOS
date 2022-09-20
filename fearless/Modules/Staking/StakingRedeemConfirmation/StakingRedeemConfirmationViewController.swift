@@ -58,6 +58,12 @@ final class StakingRedeemConfirmationViewController: UIViewController, ViewHolde
             action: #selector(actionConfirm),
             for: .touchUpInside
         )
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func applyAssetViewModel() {
@@ -94,6 +100,10 @@ final class StakingRedeemConfirmationViewController: UIViewController, ViewHolde
 
     @objc private func actionSelectAccount() {
         presenter.selectAccount()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 }
 

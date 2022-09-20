@@ -417,7 +417,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall> {
         let args = PoolUnbondCall(
-            memberAccount: accountId,
+            memberAccount: .accoundId(accountId),
             unbondingPoints: amount
         )
 
@@ -429,7 +429,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall> {
         let args = PoolWithdrawUnbondedCall(
-            memberAccount: accountId,
+            memberAccount: .accoundId(accountId),
             numSlashingSpans: numSlashingSpans
         )
 

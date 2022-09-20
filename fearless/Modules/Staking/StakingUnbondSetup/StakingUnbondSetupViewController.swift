@@ -103,9 +103,8 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder, Hidd
     }
 
     private func applyFeeViewModel() {
-        if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.bind(feeViewModel: fee)
-        }
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 
     private func applyBondingDuration() {

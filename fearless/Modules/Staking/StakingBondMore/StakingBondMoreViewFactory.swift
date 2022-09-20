@@ -148,10 +148,13 @@ struct StakingBondMoreViewFactory {
                 runtimeService: runtimeService,
                 operationManager: operationManager
             )
+            let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
-                viewModelFactory: nil
+                viewModelFactory: viewModelFactory
             )
         case let .parachain(candidate):
             let viewModelState = StakingBondMoreParachainViewModelState(

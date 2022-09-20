@@ -3,6 +3,6 @@ import BigInt
 import FearlessUtils
 
 struct PoolWithdrawUnbondedCall: Codable {
-    let memberAccount: AccountId
+    let memberAccount: MultiAddress
     @StringCodable var numSlashingSpans: UInt32
 }

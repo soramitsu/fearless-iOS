@@ -130,6 +130,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             operationManager: operationManager
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+        let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
         switch flow {
         case .relaychain:
@@ -232,7 +233,9 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 chainAsset: chainAsset,
                 output: viewModelState,
                 extrinsicService: extrinsicService,
-                stakingPoolOperationFactory: stakingPoolOperationFactory
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                stakingDurationOperationFactory: stakingDurationOperationFactory,
+                runtimeService: runtimeService
             )
 
             return StakingUnbondSetupDependencyContainer(

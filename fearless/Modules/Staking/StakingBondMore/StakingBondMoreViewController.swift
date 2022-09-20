@@ -93,9 +93,8 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder, Hiddabl
     }
 
     private func applyFee() {
-        if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.bind(feeViewModel: fee)
-        }
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 }
 

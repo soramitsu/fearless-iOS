@@ -28,6 +28,15 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
                 )
             )
 
+            items.append(
+                TitleIconViewModel(
+                    title: R.string.localizable.stakingHintRedeem(
+                        preferredLanguages: locale.rLanguages
+                    ),
+                    icon: R.image.iconRedeem()
+                )
+            )
+
             return items
         }
     }

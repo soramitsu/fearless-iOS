@@ -3,6 +3,6 @@ import BigInt
 import FearlessUtils
 
 struct PoolUnbondCall: Codable {
-    let memberAccount: AccountId
+    let memberAccount: MultiAddress
     @StringCodable var unbondingPoints: BigUInt
 }

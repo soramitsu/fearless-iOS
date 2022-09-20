@@ -9,6 +9,7 @@ protocol StakingUnbondSetupPoolStrategyOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(stakeInfo: StakingPoolMember?)
     func didReceive(error: Error)
+    func didReceive(stakingDuration: StakingDuration)
 }
 
 final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetching {
@@ -21,6 +22,8 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private weak var output: StakingUnbondSetupPoolStrategyOutput?
     private lazy var callFactory = SubstrateCallFactory()
+    private let stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
@@ -31,7 +34,9 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         chainAsset: ChainAsset,
         output: StakingUnbondSetupPoolStrategyOutput?,
         extrinsicService: ExtrinsicServiceProtocol?,
-        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
+        stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -42,11 +47,30 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         self.output = output
         self.extrinsicService = extrinsicService
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
+        self.stakingDurationOperationFactory = stakingDurationOperationFactory
+        self.runtimeService = runtimeService
     }
 
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
+
+    private func fetchStakingDuration() {
+        let durationOperation = stakingDurationOperationFactory.createDurationOperation(from: runtimeService)
+
+        durationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let stakingDuration = try durationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(stakingDuration: stakingDuration)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: durationOperation.allOperations, in: .transient)
+    }
 }
 
 extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
@@ -82,6 +106,8 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
         }
 
         feeProxy.delegate = self
+
+        fetchStakingDuration()
     }
 
     func estimateFee() {
@@ -98,6 +124,8 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
             try builder.adding(call: unbondCall)
         }
+
+        feeProxy.delegate = self
     }
 }
 

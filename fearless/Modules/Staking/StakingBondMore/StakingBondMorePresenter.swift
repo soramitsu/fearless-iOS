@@ -62,6 +62,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 
         provideAmountInputViewModel()
         provideHintsViewModel()
+        provideFee()
 
         interactor.setup()
 

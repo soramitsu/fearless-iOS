@@ -8,7 +8,7 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var inputAmount: Decimal?
-    private(set) var bondingDuration: UInt32?
+    private(set) var stakingDuration: StakingDuration?
     private(set) var minimalBalance: Decimal?
     private(set) var fee: Decimal?
     private let dataValidatingFactory: StakingDataValidatingFactory
@@ -141,5 +141,10 @@ extension StakingUnbondSetupPoolViewModelState: StakingUnbondSetupPoolStrategyOu
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
+    }
+
+    func didReceive(stakingDuration: StakingDuration) {
+        self.stakingDuration = stakingDuration
+        stateListener?.provideBondingDuration()
     }
 }
