@@ -1,8 +1,13 @@
 import Foundation
 import BigInt
+import CommonWallet
 
 protocol WalletSendViewProtocol: ControllerBackedProtocol {
-    func didReceive(state: WalletSendViewState)
+    func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
+    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?)
+    func didReceive(feeViewModel: BalanceViewModelProtocol?)
+    func didReceive(tipViewModel: TipViewModel?)
+    func didReceive(scamInfo: ScamInfo?)
     func didStartFeeCalculation()
     func didStopFeeCalculation()
     func didStopTipCalculation()
@@ -23,7 +28,6 @@ protocol WalletSendInteractorInputProtocol: AnyObject {
 
 protocol WalletSendInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveBlockDuration(result: Result<BlockTime, Error>)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
