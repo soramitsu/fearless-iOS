@@ -30,7 +30,7 @@ struct RuntimeDispatchInfo: Codable {
 
         if let weight = weight {
             self.weight = weight
-        } else if weight == nil, let blockWeight = feeBlockWeight?.refTime {
+        } else if let blockWeight = feeBlockWeight?.refTime {
             self.weight = blockWeight
         } else {
             throw DecodingError.dataCorruptedError(
