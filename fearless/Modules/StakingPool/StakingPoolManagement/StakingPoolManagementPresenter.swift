@@ -65,6 +65,7 @@ final class StakingPoolManagementPresenter {
                   stakeInfo.unbonding(inEra: era),
                   precision: Int16(chainAsset.asset.precision)
               ) else {
+            view?.didReceive(unstakingViewModel: nil)
             return
         }
 

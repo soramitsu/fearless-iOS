@@ -142,8 +142,7 @@ final class StakingRedeemConfirmationLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.valueTop.text = feeViewModel?.amount
-        feeView.valueBottom.text = feeViewModel?.price
+        feeView.bind(viewModel: feeViewModel)
         setNeedsLayout()
     }
 

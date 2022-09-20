@@ -284,17 +284,15 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(poolName: String?) {
-        poolInfoView.valueLabel.text = poolName
+        poolInfoView.bind(viewModel: poolName)
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol?) {
-        balanceView.valueTop.text = balanceViewModel?.amount
-        balanceView.valueBottom.text = balanceViewModel?.price
+        balanceView.bind(viewModel: balanceViewModel)
     }
 
     func bind(unstakeBalanceViewModel: BalanceViewModelProtocol?) {
-        unstakingView.valueTop.text = unstakeBalanceViewModel?.amount
-        unstakingView.valueBottom.text = unstakeBalanceViewModel?.price
+        unstakingView.bind(viewModel: unstakeBalanceViewModel)
     }
 
     func bind(stakedAmountString: NSAttributedString) {
@@ -302,7 +300,7 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(redeemDelayViewModel: LocalizableResource<String>?) {
-        reedeemDelayView.valueLabel.text = redeemDelayViewModel?.value(for: locale)
+        reedeemDelayView.bind(viewModel: redeemDelayViewModel?.value(for: locale))
     }
 
     func bind(claimableViewModel: BalanceViewModelProtocol?) {

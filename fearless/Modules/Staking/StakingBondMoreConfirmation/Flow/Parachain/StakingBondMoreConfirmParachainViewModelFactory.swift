@@ -6,21 +6,26 @@ import FearlessUtils
 final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     private let chainAsset: ChainAsset
     private let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         chainAsset: ChainAsset,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     func createViewModel(
         account: MetaAccountModel,
         amount: Decimal,
-        state: StakingBondMoreConfirmationViewModelState
+        state: StakingBondMoreConfirmationViewModelState,
+        locale: Locale,
+        priceData: PriceData?
     ) throws -> StakingBondMoreConfirmViewModel? {
         guard let state = state as? StakingBondMoreConfirmationParachainViewModelState else {
             return nil
@@ -31,19 +36,20 @@ final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConf
         let senderIcon = try? iconGenerator.generateFromAddress(address)
         let collatorIcon = try? iconGenerator.generateFromAddress(state.candidate.address)
 
-        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
-
-        let amountString = LocalizableResource { locale in
-            formatter.value(for: locale).stringFromDecimal(amount) ?? ""
-        }
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
+        let amountViewModel = TitleMultiValueViewModel(
+            title: balanceViewModel.value(for: locale).amount,
+            subtitle: balanceViewModel.value(for: locale).price
+        )
+        let collatorViewModel = TitleMultiValueViewModel(title: state.candidate.identity?.name, subtitle: nil)
 
         return StakingBondMoreConfirmViewModel(
-            senderAddress: address,
+            accountViewModel: accountViewModel,
+            amountViewModel: amountViewModel,
+            collatorViewModel: collatorViewModel,
             senderIcon: senderIcon,
-            senderName: account.name,
             amount: createStakedAmountViewModel(amount),
-            amountString: amountString,
-            collatorName: state.candidate.identity?.name,
             collatorIcon: collatorIcon
         )
     }

@@ -6,43 +6,47 @@ import FearlessUtils
 final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     private let chainAsset: ChainAsset
     private let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         chainAsset: ChainAsset,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     func createViewModel(
         account: MetaAccountModel,
         amount: Decimal,
-        state: StakingBondMoreConfirmationViewModelState
+        state: StakingBondMoreConfirmationViewModelState,
+        locale: Locale,
+        priceData: PriceData?
     ) -> StakingBondMoreConfirmViewModel? {
         guard let state = state as? StakingBondMoreConfirmationPoolViewModelState else {
             return nil
         }
 
         let address = account.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
-
         let senderIcon = try? iconGenerator.generateFromAddress(address)
 
-        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
-
-        let amountString = LocalizableResource { locale in
-            formatter.value(for: locale).stringFromDecimal(amount) ?? ""
-        }
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
+        let amountViewModel = TitleMultiValueViewModel(
+            title: balanceViewModel.value(for: locale).amount,
+            subtitle: balanceViewModel.value(for: locale).price
+        )
 
         return StakingBondMoreConfirmViewModel(
-            senderAddress: address,
+            accountViewModel: accountViewModel,
+            amountViewModel: amountViewModel,
+            collatorViewModel: nil,
             senderIcon: senderIcon,
-            senderName: account.name,
             amount: createStakedAmountViewModel(amount),
-            amountString: amountString,
-            collatorName: nil,
             collatorIcon: nil
         )
     }

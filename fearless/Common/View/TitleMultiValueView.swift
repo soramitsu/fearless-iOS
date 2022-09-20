@@ -34,6 +34,13 @@ class TitleMultiValueView: UIView {
         return view
     }()
 
+    let activityIndicator: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.hidesWhenStopped = true
+        view.style = .white
+        return view
+    }()
+
     var equalsLabelsWidth: Bool = false {
         didSet {
             if equalsLabelsWidth {
@@ -57,6 +64,28 @@ class TitleMultiValueView: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func bind(viewModel: TitleMultiValueViewModel?) {
+        if viewModel != nil {
+            activityIndicator.stopAnimating()
+        } else {
+            activityIndicator.startAnimating()
+        }
+
+        valueTop.text = viewModel?.title
+        valueBottom.text = viewModel?.subtitle
+    }
+
+    func bind(viewModel: BalanceViewModelProtocol?) {
+        if viewModel != nil {
+            activityIndicator.stopAnimating()
+        } else {
+            activityIndicator.startAnimating()
+        }
+
+        valueTop.text = viewModel?.amount
+        valueBottom.text = viewModel?.price
     }
 
     func setupLayout() {
@@ -83,6 +112,12 @@ class TitleMultiValueView: UIView {
             make.trailing.equalToSuperview()
             make.top.equalTo(self.snp.centerY)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+        }
+
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(valueTop.snp.trailing)
         }
     }
 }

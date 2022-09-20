@@ -70,17 +70,20 @@ struct StakingBondMoreConfirmViewFactory {
         case .relaychain:
             confirmationViewModelFactory = StakingBondMoreConfirmRelaychainViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
             )
         case .parachain:
             confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
             )
         case .pool:
             confirmationViewModelFactory = StakingBondMoreConfirmPoolViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
             )
         }
 

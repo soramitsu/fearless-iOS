@@ -64,6 +64,8 @@ final class StakingBMConfirmationViewLayout: UIView {
         view.valueBottom.textColor = R.color.colorStrokeGray()
         view.borderView.isHidden = true
         view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
         return view
     }()
 
@@ -125,33 +127,21 @@ final class StakingBMConfirmationViewLayout: UIView {
     }
 
     func bind(confirmationViewModel: StakingBondMoreConfirmViewModel) {
-        if let senderName = confirmationViewModel.senderName {
-            accountView.valueTop.lineBreakMode = .byTruncatingTail
-            accountView.valueTop.text = senderName
-        }
+        accountView.bind(viewModel: confirmationViewModel.accountViewModel)
+        collatorView.bind(viewModel: confirmationViewModel.collatorViewModel)
+        amountView.bind(viewModel: confirmationViewModel.amountViewModel)
 
-        accountView.valueBottom.lineBreakMode = .byTruncatingMiddle
-        accountView.valueBottom.text = confirmationViewModel.senderAddress
-
-        if let collatorName = confirmationViewModel.collatorName {
-            collatorView.valueTop.text = collatorName
-            collatorView.isHidden = false
-        } else {
-            collatorView.isHidden = true
-        }
+        collatorView.isHidden = confirmationViewModel.collatorViewModel == nil
 
         if let stakeViewModel = confirmationViewModel.amount?.value(for: locale) {
             stakeAmountView.bind(viewModel: stakeViewModel)
         }
 
-        amountView.valueTop.text = confirmationViewModel.amountString.value(for: locale)
-
         setNeedsLayout()
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.valueTop.text = feeViewModel?.amount
-        feeView.valueBottom.text = feeViewModel?.price
+        feeView.bind(viewModel: feeViewModel)
 
         setNeedsLayout()
     }

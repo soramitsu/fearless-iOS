@@ -12,7 +12,9 @@ protocol StakingBondMoreConfirmViewModelFactoryProtocol {
     func createViewModel(
         account: MetaAccountModel,
         amount: Decimal,
-        state: StakingBondMoreConfirmationViewModelState
+        state: StakingBondMoreConfirmationViewModelState,
+        locale: Locale,
+        priceData: PriceData?
     ) throws -> StakingBondMoreConfirmViewModel?
 }
 

@@ -2295,6 +2295,7 @@
 		FAA0130728D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA012F528D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift */; };
 		FAA0130828D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA012F628D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift */; };
 		FAA0130A28D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130928D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift */; };
+		FAA0130E28D9B8DA000A5230 /* TitleMultiValueViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA0130D28D9B8DA000A5230 /* TitleMultiValueViewModel.swift */; };
 		FAA086CE28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */; };
 		FAA086D028470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */; };
 		FAA086D228470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */; };
@@ -4744,6 +4745,7 @@
 		FAA012F528D8DF18000A5230 /* StakingRedeemConfirmation]PoolStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "StakingRedeemConfirmation]PoolStrategy.swift"; sourceTree = "<group>"; };
 		FAA012F628D8DF18000A5230 /* StakingRedeemConfirmationPoolViewModelState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRedeemConfirmationPoolViewModelState.swift; sourceTree = "<group>"; };
 		FAA0130928D99E9B000A5230 /* StakingBondMoreRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FAA0130D28D9B8DA000A5230 /* TitleMultiValueViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleMultiValueViewModel.swift; sourceTree = "<group>"; };
 		FAA086CD28470B2100CC2F33 /* SelectValidatorsConfirmParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainStrategy.swift; sourceTree = "<group>"; };
 		FAA086CF28470B3200CC2F33 /* SelectValidatorsConfirmParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAA086D128470B3700CC2F33 /* SelectValidatorsConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -8005,6 +8007,7 @@
 				FA38C9C02761E68B005C5577 /* AccountViewModel.swift */,
 				FA86443F276843E100956D8E /* ViewModelObserver.swift */,
 				FAB7940A28C21452002EA1F4 /* StakeAmountViewModel.swift */,
+				FAA0130D28D9B8DA000A5230 /* TitleMultiValueViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -13896,6 +13899,7 @@
 				FA936BE62872E3300059B97A /* ExistentialDepositCurrencyId.swift in Sources */,
 				8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
+				FAA0130E28D9B8DA000A5230 /* TitleMultiValueViewModel.swift in Sources */,
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
 				AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */,
 				F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */,

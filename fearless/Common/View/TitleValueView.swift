@@ -26,6 +26,13 @@ final class TitleValueView: UIView {
         return view
     }()
 
+    let activityIndicator: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.hidesWhenStopped = true
+        view.style = .white
+        return view
+    }()
+
     var equalsLabelsWidth: Bool = false {
         didSet {
             if equalsLabelsWidth {
@@ -46,6 +53,16 @@ final class TitleValueView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(viewModel: String?) {
+        if viewModel != nil {
+            activityIndicator.stopAnimating()
+        } else {
+            activityIndicator.startAnimating()
+        }
+
+        valueLabel.text = viewModel
+    }
+
     private func setupLayout() {
         addSubview(borderView)
         borderView.snp.makeConstraints { make in
@@ -61,6 +78,12 @@ final class TitleValueView: UIView {
         valueLabel.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+        }
+
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(valueLabel.snp.trailing)
         }
     }
 }

@@ -132,11 +132,15 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
     }
 
     func provideConfirmationViewModel() {
+        let locale = view?.selectedLocale ?? Locale.current
+
         do {
             guard let viewModel = try confirmViewModelFactory.createViewModel(
                 account: wallet,
                 amount: viewModelState.amount,
-                state: viewModelState
+                state: viewModelState,
+                locale: locale,
+                priceData: priceData
             ) else {
                 return
             }
