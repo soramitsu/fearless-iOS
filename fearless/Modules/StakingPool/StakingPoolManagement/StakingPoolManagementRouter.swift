@@ -71,4 +71,19 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
 
         view?.controller.navigationController?.pushViewController(module.controller, animated: true)
     }
+
+    func presentRedeemFlow(
+        flow: StakingRedeemConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let redeemModule = StakingRedeemConfirmationViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow, redeemCompletion: {
+            view?.controller.navigationController?.popViewController(animated: true)
+        }) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(redeemModule.controller, animated: true)
+    }
 }

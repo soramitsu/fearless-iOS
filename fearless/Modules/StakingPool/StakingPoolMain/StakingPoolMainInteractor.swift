@@ -185,11 +185,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        let call = SubstrateCallFactory().fetchPendingPoolRewards(accountId: accountId)
-        let closure: ExtrinsicBuilderClosure = { builder in
-            try builder.adding(call: call)
-        }
-
         let stakeInfoOperation = stakingPoolOperationFactory.fetchStakingPoolMembers(accountId: accountId)
 
         stakeInfoOperation.targetOperation.completionBlock = { [weak self] in

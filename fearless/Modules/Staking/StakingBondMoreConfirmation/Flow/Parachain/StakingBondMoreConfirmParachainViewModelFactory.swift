@@ -31,11 +31,18 @@ final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConf
         let senderIcon = try? iconGenerator.generateFromAddress(address)
         let collatorIcon = try? iconGenerator.generateFromAddress(state.candidate.address)
 
+        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+
+        let amountString = LocalizableResource { locale in
+            formatter.value(for: locale).stringFromDecimal(amount) ?? ""
+        }
+
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,
             senderIcon: senderIcon,
             senderName: account.name,
             amount: createStakedAmountViewModel(amount),
+            amountString: amountString,
             collatorName: state.candidate.identity?.name,
             collatorIcon: collatorIcon
         )

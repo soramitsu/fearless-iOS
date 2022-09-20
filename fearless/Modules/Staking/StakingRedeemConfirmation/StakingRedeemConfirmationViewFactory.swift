@@ -4,14 +4,14 @@ import SoraKeystore
 import RobinHood
 import FearlessUtils
 
-final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
+final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewFactoryProtocol {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow,
+        flow: StakingRedeemConfirmationFlow,
         redeemCompletion: (() -> Void)?
-    ) -> StakingRedeemViewProtocol? {
-        let wireframe = StakingRedeemWireframe(redeemCompletion: redeemCompletion)
+    ) -> StakingRedeemConfirmationViewProtocol? {
+        let wireframe = StakingRedeemConfirmationWireframe(redeemCompletion: redeemCompletion)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
@@ -37,7 +37,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             container: container
         )
 
-        let view = StakingRedeemViewController(
+        let view = StakingRedeemConfirmationViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
@@ -51,19 +51,19 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
     private static func createPresenter(
         chainAsset: ChainAsset,
-        interactor: StakingRedeemInteractorInputProtocol,
-        wireframe: StakingRedeemWireframeProtocol,
+        interactor: StakingRedeemConfirmationInteractorInputProtocol,
+        wireframe: StakingRedeemConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
-        container: StakingRedeemDependencyContainer
-    ) -> StakingRedeemPresenter {
+        container: StakingRedeemConfirmationDependencyContainer
+    ) -> StakingRedeemConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
             selectedMetaAccount: wallet
         )
 
-        return StakingRedeemPresenter(
+        return StakingRedeemConfirmationPresenter(
             interactor: interactor,
             wireframe: wireframe,
             confirmViewModelFactory: container.viewModelFactory,
@@ -78,13 +78,13 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     private static func createInteractor(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        container: StakingRedeemDependencyContainer
-    ) -> StakingRedeemInteractor? {
+        container: StakingRedeemConfirmationDependencyContainer
+    ) -> StakingRedeemConfirmationInteractor? {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
 
-        return StakingRedeemInteractor(
+        return StakingRedeemConfirmationInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
             wallet: wallet,
@@ -96,9 +96,9 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow,
+        flow: StakingRedeemConfirmationFlow,
         dataValidatingFactory: StakingDataValidatingFactory
-    ) -> StakingRedeemDependencyContainer? {
+    ) -> StakingRedeemConfirmationDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
@@ -170,12 +170,12 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         switch flow {
         case .relaychain:
-            let viewModelState = StakingRedeemRelaychainViewModelState(
+            let viewModelState = StakingRedeemConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory
             )
-            let strategy = StakingRedeemRelaychainStrategy(
+            let strategy = StakingRedeemConfirmationRelaychainStrategy(
                 output: viewModelState,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -190,19 +190,19 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 keystore: Keychain(),
                 accountRepository: AnyDataProviderRepository(accountRepository)
             )
-            let viewModelFactory = StakingRedeemRelaychainViewModelFactory(
+            let viewModelFactory = StakingRedeemConfirmationRelaychainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 
-            return StakingRedeemDependencyContainer(
+            return StakingRedeemConfirmationDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(collator, delegation, readyForRevoke):
-            let viewModelState = StakingRedeemParachainViewModelState(
+            let viewModelState = StakingRedeemConfirmationParachainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
@@ -211,7 +211,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 readyForRevoke: readyForRevoke
             )
 
-            let strategy = StakingRedeemParachainStrategy(
+            let strategy = StakingRedeemConfirmationParachainStrategy(
                 output: viewModelState,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 chainAsset: chainAsset,
@@ -226,29 +226,29 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 eventCenter: EventCenter.shared
             )
 
-            let viewModelFactory = StakingRedeemParachainViewModelFactory(
+            let viewModelFactory = StakingRedeemConfirmationParachainViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 
-            return StakingRedeemDependencyContainer(
+            return StakingRedeemConfirmationDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
         case .pool:
-            let viewModelState = StakingRedeemPoolViewModelState(
+            let viewModelState = StakingRedeemConfirmationPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory
             )
-            let viewModelFactory = StakingRedeemPoolViewModelFactory(
+            let viewModelFactory = StakingRedeemConfirmationPoolViewModelFactory(
                 asset: chainAsset.asset,
                 balanceViewModelFactory: balanceViewModelFactory,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
-            let strategy = StakingRedeemPoolStrategy(
+            let strategy = StakingRedeemConfirmationPoolStrategy(
                 output: viewModelState,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 chainAsset: chainAsset,
@@ -264,7 +264,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 slashesOperationFactory: slashesOperationFactory,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
             )
-            return StakingRedeemDependencyContainer(
+            return StakingRedeemConfirmationDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
                 viewModelFactory: viewModelFactory

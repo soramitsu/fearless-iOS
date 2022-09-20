@@ -30,11 +30,18 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
 
         let senderIcon = try? iconGenerator.generateFromAddress(address)
 
+        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+
+        let amountString = LocalizableResource { locale in
+            formatter.value(for: locale).stringFromDecimal(amount) ?? ""
+        }
+
         return StakingBondMoreConfirmViewModel(
             senderAddress: address,
             senderIcon: senderIcon,
             senderName: account.name,
             amount: createStakedAmountViewModel(amount),
+            amountString: amountString,
             collatorName: nil,
             collatorIcon: nil
         )

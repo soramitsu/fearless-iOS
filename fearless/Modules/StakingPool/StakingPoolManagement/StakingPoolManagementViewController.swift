@@ -58,6 +58,12 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
             for: .touchUpInside
         )
 
+        rootView.redeemView.actionButton?.addTarget(
+            self,
+            action: #selector(redeemButtonClicked),
+            for: .touchUpInside
+        )
+
         rootView.claimView.actionButton?.addTarget(
             self,
             action: #selector(claimButtonClicked),

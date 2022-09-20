@@ -42,11 +42,11 @@ extension CallCodingPath {
         CallCodingPath(moduleName: "NominationPools", callName: "unbond")
     }
 
-    static var pendingRewards: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPoolsApi", callName: "pending_rewards")
-    }
-
     static var claimPendingRewards: CallCodingPath {
         CallCodingPath(moduleName: "NominationPools", callName: "claim_payout")
+    }
+
+    static var poolWithdrawUnbonded: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "withdraw_unbonded")
     }
 }

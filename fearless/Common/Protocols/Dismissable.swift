@@ -24,10 +24,10 @@ extension PresentDismissable {
 
 extension AnyDismissable {
     func dismiss(view: ControllerBackedProtocol?) {
-        if view?.controller.isBeingPresented == true {
-            view?.controller.dismiss(animated: true)
-        } else {
+        if view?.controller.navigationController?.visibleViewController != view?.controller.navigationController?.viewControllers.first {
             view?.controller.navigationController?.popViewController(animated: true)
+        } else {
+            view?.controller.dismiss(animated: true)
         }
     }
 }

@@ -77,6 +77,13 @@ protocol StakingPoolManagementRouterInput: AnyObject, PresentDismissable {
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     )
+
+    func presentRedeemFlow(
+        flow: StakingRedeemConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol StakingPoolManagementModuleInput: AnyObject {}

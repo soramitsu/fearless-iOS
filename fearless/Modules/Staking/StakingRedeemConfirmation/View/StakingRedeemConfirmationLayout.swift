@@ -1,6 +1,10 @@
 import UIKit
 
-final class StakingBMConfirmationViewLayout: UIView {
+final class StakingRedeemConfirmationLayout: UIView {
+    enum Constants {
+        static let hintsSpacing: CGFloat = 9
+    }
+
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
@@ -15,18 +19,11 @@ final class StakingBMConfirmationViewLayout: UIView {
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
         view.stackView.spacing = UIConstants.bigOffset
+        view.stackView.alignment = .fill
         return view
     }()
 
     let stakeAmountView = StakeAmountView()
-
-    let hintView: IconDetailsView = {
-        let view = IconDetailsView()
-        view.iconWidth = UIConstants.iconSize
-        view.imageView.contentMode = .top
-        view.imageView.image = R.image.iconGeneralReward()
-        return view
-    }()
 
     let networkFeeFooterView: CleanNetworkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     let infoBackground: TriangularedView = {
@@ -95,6 +92,8 @@ final class StakingBMConfirmationViewLayout: UIView {
 
     let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
 
+    private(set) var hintViews: [UIView] = []
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -113,35 +112,28 @@ final class StakingBMConfirmationViewLayout: UIView {
         applyLocalization()
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
-    }
-
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(confirmationViewModel: StakingBondMoreConfirmViewModel) {
+    func bind(confirmationViewModel: StakingRedeemConfirmationViewModel) {
         if let senderName = confirmationViewModel.senderName {
             accountView.valueTop.lineBreakMode = .byTruncatingTail
             accountView.valueTop.text = senderName
         }
 
-        accountView.valueBottom.lineBreakMode = .byTruncatingMiddle
         accountView.valueBottom.text = confirmationViewModel.senderAddress
 
         if let collatorName = confirmationViewModel.collatorName {
-            collatorView.valueTop.text = collatorName
             collatorView.isHidden = false
+            collatorView.valueTop.text = collatorName
         } else {
             collatorView.isHidden = true
         }
 
-        if let stakeViewModel = confirmationViewModel.amount?.value(for: locale) {
-            stakeAmountView.bind(viewModel: stakeViewModel)
+        if let stakedViewModel = confirmationViewModel.stakeAmountViewModel?.value(for: locale) {
+            stakeAmountView.bind(viewModel: stakedViewModel)
         }
 
         amountView.valueTop.text = confirmationViewModel.amountString.value(for: locale)
@@ -152,49 +144,66 @@ final class StakingBMConfirmationViewLayout: UIView {
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.valueTop.text = feeViewModel?.amount
         feeView.valueBottom.text = feeViewModel?.price
-
         setNeedsLayout()
     }
 
-    func bind(assetViewModel _: AssetBalanceViewModelProtocol) {
-//        amountView.valueTop.text = assetViewModel.balance
-//        amountView.valueBottom.text = assetViewModel.price
-
+    func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        amountView.valueBottom.text = assetViewModel.price
         setNeedsLayout()
+    }
+
+    func bind(hintViewModels: [TitleIconViewModel]) {
+        hintViews.forEach { $0.removeFromSuperview() }
+
+        hintViews = hintViewModels.map { hint in
+            let view = IconDetailsView()
+            view.iconWidth = UIConstants.iconSize
+            view.detailsLabel.text = hint.title
+            view.imageView.image = hint.icon
+            return view
+        }
+
+        for (index, view) in hintViews.enumerated() {
+            if index > 0 {
+                contentView.stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                contentView.stackView.insertArranged(view: view, after: infoBackground)
+            }
+
+            view.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            }
+
+            contentView.stackView.setCustomSpacing(Constants.hintsSpacing, after: view)
+        }
     }
 
     private func applyLocalization() {
         accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
         collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
-        hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
-            preferredLanguages: locale.rLanguages
-        )
-        feeView.titleLabel.text = R.string.localizable.commonNetworkFee(
-            preferredLanguages: locale.rLanguages
-        )
-        amountView.titleLabel.text = R.string.localizable.walletSendAmountTitle(
-            preferredLanguages: locale.rLanguages
-        )
+        amountView.titleLabel.text = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         networkFeeFooterView.locale = locale
 
-        navigationBar.setTitle(R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages))
+        feeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
 
+        navigationBar.setTitle(R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages))
         setNeedsLayout()
     }
 
     private func setupLayout() {
-        addSubview(contentView)
         addSubview(navigationBar)
-
-        navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
-        }
+        addSubview(contentView)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
         }
 
         contentView.stackView.addArrangedSubview(stakeAmountView)
