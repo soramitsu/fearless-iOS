@@ -41,10 +41,32 @@ final class PoolStakingAccountSubscription: WebSocketSubscribing, PoolStakingAcc
         self.childSubscriptionFactory = childSubscriptionFactory
         self.operationQueue = operationQueue
         self.logger = logger
+
+        subscribeRemote()
     }
 
     deinit {
         unsubscribeRemote()
+    }
+
+    private func unsubscribeRemote() {
+        mutex.lock()
+
+        if let subscriptionId = subscription?.subscriptionId {
+            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
+        }
+
+        subscription = nil
+
+        mutex.unlock()
+    }
+
+    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
+        var requests: [(StorageCodingPath, Data)] = []
+
+        requests.append((.stakingPoolMembers, accountId))
+
+        return requests
     }
 
     func subscribeRemote() {
@@ -115,26 +137,6 @@ final class PoolStakingAccountSubscription: WebSocketSubscribing, PoolStakingAcc
         } catch {
             logger?.error("Did receive unexpected error \(error)")
         }
-    }
-
-    private func unsubscribeRemote() {
-        mutex.lock()
-
-        if let subscriptionId = subscription?.subscriptionId {
-            chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscriptionId)
-        }
-
-        subscription = nil
-
-        mutex.unlock()
-    }
-
-    private func createRequest(for accountId: AccountId) throws -> [(StorageCodingPath, Data)] {
-        var requests: [(StorageCodingPath, Data)] = []
-
-        requests.append((.stakingPoolMembers, accountId))
-
-        return requests
     }
 
     private func subscribeToRemote(

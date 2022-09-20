@@ -5,6 +5,15 @@ final class StakingBondMoreViewLayout: UIView {
         static let hintIconWidth: CGFloat = 24.0
     }
 
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.set(.push)
+        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
@@ -36,7 +45,7 @@ final class StakingBondMoreViewLayout: UIView {
         return view
     }()
 
-    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -49,7 +58,7 @@ final class StakingBondMoreViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
         applyLocalization()
         setupLayout()
     }
@@ -59,10 +68,9 @@ final class StakingBondMoreViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol) {
-        let balanceViewModel: BalanceViewModelProtocol = feeViewModel.balanceViewModel.value(for: locale)
-        networkFeeFooterView.actionTitle = feeViewModel.actionTitle
-        networkFeeFooterView.bindBalance(viewModel: balanceViewModel)
+    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol?) {
+        networkFeeFooterView.actionTitle = feeViewModel?.actionTitle
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel?.balanceViewModel.value(for: locale))
         setNeedsLayout()
     }
 
@@ -72,15 +80,28 @@ final class StakingBondMoreViewLayout: UIView {
         hintView.detailsLabel.text = R.string.localizable.stakingHintRewardBondMore(
             preferredLanguages: locale.rLanguages
         )
+        navigationBar.setTitle(R.string.localizable
+            .stakingBondMore_v190(preferredLanguages: locale.rLanguages))
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
     }
 
     private func setupLayout() {
+        addSubview(navigationBar)
         addSubview(contentView)
 
         contentView.stackView.addArrangedSubview(collatorView)
         contentView.stackView.addArrangedSubview(accountView)
         contentView.stackView.addArrangedSubview(amountInputView)
         contentView.stackView.addArrangedSubview(hintView)
+
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
 
         collatorView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
@@ -105,12 +126,13 @@ final class StakingBondMoreViewLayout: UIView {
 
         addSubview(networkFeeFooterView)
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.trailing.top.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(networkFeeFooterView.snp.top).inset(UIConstants.bigOffset)
         }
 

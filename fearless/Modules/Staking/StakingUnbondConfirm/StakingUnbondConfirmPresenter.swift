@@ -37,6 +37,10 @@ final class StakingUnbondConfirmPresenter {
 }
 
 extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
         viewModelState.setStateListener(self)
 

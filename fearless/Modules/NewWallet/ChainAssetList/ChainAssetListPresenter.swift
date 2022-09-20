@@ -16,6 +16,7 @@ final class ChainAssetListPresenter {
     private weak var view: ChainAssetListViewInput?
     private let router: ChainAssetListRouterInput
     private let interactor: ChainAssetListInteractorInput
+    private weak var moduleOutput: ChainAssetListModuleOutput?
 
     private let viewModelFactory: ChainAssetListViewModelFactoryProtocol
     private var wallet: MetaAccountModel
@@ -24,8 +25,7 @@ final class ChainAssetListPresenter {
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
     private var displayType: AssetListDisplayType = .assetChains
-    private var chainsWithNetworkIssues: [ChainModel.Id] = []
-    private var chainsWithMissingAccounts: [ChainModel.Id] = []
+    private var chainsWithIssues: [ChainModel] = []
     private var accountInfosFetched = false
     private var pricesFetched = false
 
@@ -36,12 +36,14 @@ final class ChainAssetListPresenter {
     // MARK: - Constructors
 
     init(
+        moduleOutput: ChainAssetListModuleOutput?,
         interactor: ChainAssetListInteractorInput,
         router: ChainAssetListRouterInput,
         localizationManager: LocalizationManagerProtocol,
         wallet: MetaAccountModel,
         viewModelFactory: ChainAssetListViewModelFactoryProtocol
     ) {
+        self.moduleOutput = moduleOutput
         self.interactor = interactor
         self.router = router
         self.wallet = wallet
@@ -55,8 +57,7 @@ final class ChainAssetListPresenter {
         guard
             let chainAssets = chainAssets,
             accountInfosFetched,
-            pricesFetched,
-            chainAssets.count == (accountInfos.keys.count + chainsWithMissingAccounts.count)
+            pricesFetched
         else {
             return
         }
@@ -79,7 +80,7 @@ final class ChainAssetListPresenter {
                     self.accountInfos
                 },
                 prices: self.prices,
-                chainsWithIssues: self.chainsWithNetworkIssues
+                chainsWithIssues: self.chainsWithIssues.map { $0.chainId }
             )
 
             DispatchQueue.main.async {
@@ -116,25 +117,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapAction(actionType: SwipableCellButtonType, viewModel: ChainAccountBalanceCellViewModel) {
-        switch actionType {
-        case .send:
-            router.showSendFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                wallet: wallet,
-                transferFinishBlock: nil
-            )
-        case .receive:
-            router.showReceiveFlow(
-                from: view,
-                chainAsset: viewModel.chainAsset,
-                wallet: wallet
-            )
-        case .teleport:
-            break
-        case .hide:
-            interactor.hideChainAsset(viewModel.chainAsset)
-        }
+        moduleOutput?.didTapAction(actionType: actionType, viewModel: viewModel)
     }
 
     func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
@@ -158,10 +141,6 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
-    func updateViewModel() {
-        provideViewModel()
-    }
-
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
     }
@@ -170,9 +149,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         switch result {
         case let .success(chainAssets):
             self.chainAssets = chainAssets
-            if chainAssets.isEmpty {
-                accountInfosFetched = true
-            }
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -191,6 +167,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
 
+                guard chainAssets?.count == accountInfos.keys.count else {
+                    return
+                }
                 accountInfosFetched = true
                 provideViewModel()
             }
@@ -207,8 +186,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
             let priceDataUpdated = (pricesData: priceDataResult, updated: true)
             prices = priceDataUpdated
         case let .failure(error):
-            let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
-            prices = priceDataUpdated
             router.present(error: error, from: view, locale: selectedLocale)
         }
 
@@ -216,15 +193,8 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         provideViewModel()
     }
 
-    func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
-        issues.forEach { chainIssue in
-            switch chainIssue {
-            case let .network(chains):
-                chainsWithNetworkIssues = chains.map { $0.chainId }
-            case let .missingAccount(chains):
-                chainsWithMissingAccounts = chains.map { $0.chainId }
-            }
-        }
+    func didReceiveChainsWithNetworkIssues(_ chains: [ChainModel]) {
+        chainsWithIssues = chains
         provideViewModel()
     }
 }
@@ -240,12 +210,7 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        pricesFetched = filters.contains(where: { filter in
-            if case ChainAssetsFetching.Filter.search = filter {
-                return true
-            }
-            return false
-        })
+        pricesFetched = false
         accountInfosFetched = false
         accountInfos = [:]
 

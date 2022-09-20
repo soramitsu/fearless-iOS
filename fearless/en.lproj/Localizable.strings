@@ -833,3 +833,13 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "scam.warning.alert.title" = "This address has been flagged due to evidence of a scam.";
 "scam.warning.alert.subtitle" = "We strongly recommend that you don't send %@ to this account.";
 "transaction.list.header" = "All transaction";
+"staking.pool.stake.info.title" = "Pool Stake Info";
+"pool.staking.stake.more.amount.title" = "Stake more\n%@";
+"pool.staking.unstake.amount.title" = "Unstake\n%@";
+"pool.staking.redeem.amount.title" = "Redeem\n%@";
+"pool.staking.claim.amount.title" = "Claim\n%@";
+"pool.staking.total.stake.amount.title" = "Your total stake:\n%@";
+"pool.staking.redeem.delay.title" = "Time before redeem";
+"pool.staking.management.claim.title" = "Claim reward";
+"pool.staking.management.redeem.title" = "Redeem tokens";
+"options.common" = "Options";

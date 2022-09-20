@@ -1,0 +1,378 @@
+import Foundation
+import SoraFoundation
+import BigInt
+import FearlessUtils
+
+protocol StakingPoolMainViewModelFactoryProtocol {
+    func createEstimationViewModel(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?,
+        amount: Decimal?,
+        priceData: PriceData?,
+        calculatorEngine: RewardCalculatorEngineProtocol?
+    ) -> StakingEstimationViewModel
+
+    func replaceBalanceViewModelFactory(balanceViewModelFactory: BalanceViewModelFactoryProtocol?)
+
+    func buildNetworkInfoViewModels(
+        networkInfo: StakingPoolNetworkInfo,
+        chainAsset: ChainAsset
+    ) -> [LocalizableResource<NetworkInfoContentViewModel>]
+
+    func buildNominatorStateViewModel(
+        stakeInfo: StakingPoolMember,
+        priceData: PriceData?,
+        chainAsset: ChainAsset,
+        era: EraIndex?,
+        poolRewards: StakingPoolRewards,
+        poolInfo: StakingPool,
+        accountInfo: AccountInfo,
+        existentialDeposit: BigUInt
+    ) -> LocalizableResource<NominationViewModelProtocol>?
+}
+
+final class StakingPoolMainViewModelFactory {
+    private var wallet: MetaAccountModel
+    private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
+    var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
+
+    init(
+        wallet: MetaAccountModel
+    ) {
+        self.wallet = wallet
+    }
+
+    private func convertAmount(
+        _ amount: BigUInt?,
+        for chainAsset: ChainAsset,
+        defaultValue: Decimal
+    ) -> Decimal {
+        if let amount = amount {
+            return Decimal.fromSubstrateAmount(
+                amount,
+                precision: chainAsset.assetDisplayInfo.assetPrecision
+            ) ?? defaultValue
+        } else {
+            return defaultValue
+        }
+    }
+
+    private func getRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
+//        if let factory = rewardViewModelFactory {
+//            return factory
+//        }
+
+        let factory = RewardViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
+
+        rewardViewModelFactory = factory
+
+        return factory
+    }
+
+    private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
+        if let factory = balanceViewModelFactory {
+            return factory
+        }
+
+        let factory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.assetDisplayInfo,
+            selectedMetaAccount: wallet
+        )
+
+        balanceViewModelFactory = factory
+
+        return factory
+    }
+
+    private func createPeriodReward(
+        for chainAsset: ChainAsset,
+        amount: Decimal?,
+        priceData: PriceData?,
+        calculatorEngine: RewardCalculatorEngineProtocol?
+    ) -> LocalizableResource<PeriodRewardViewModel>? {
+        guard let calculator = calculatorEngine else {
+            return nil
+        }
+
+        let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
+
+        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month)
+
+        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year)
+
+        let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
+            reward: (amount ?? 0.0) * monthlyReturn,
+            targetReturn: monthlyReturn,
+            priceData: priceData
+        )
+
+        let yearlyViewModel = rewardViewModelFactory.createRewardViewModel(
+            reward: (amount ?? 0.0) * yearlyReturn,
+            targetReturn: yearlyReturn,
+            priceData: priceData
+        )
+
+        return LocalizableResource { locale in
+            PeriodRewardViewModel(
+                monthlyReward: monthlyViewModel.value(for: locale),
+                yearlyReward: yearlyViewModel.value(for: locale)
+            )
+        }
+    }
+}
+
+extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtocol {
+    func replaceBalanceViewModelFactory(balanceViewModelFactory: BalanceViewModelFactoryProtocol?) {
+        self.balanceViewModelFactory = balanceViewModelFactory
+    }
+
+    func createEstimationViewModel(
+        for chainAsset: ChainAsset,
+        accountInfo: AccountInfo?,
+        amount: Decimal?,
+        priceData: PriceData?,
+        calculatorEngine: RewardCalculatorEngineProtocol?
+    )
+        -> StakingEstimationViewModel {
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+
+        let balance = convertAmount(
+            accountInfo?.data.available,
+            for: chainAsset,
+            defaultValue: 0.0
+        )
+
+        let balanceViewModel = balanceViewModelFactory
+            .createAssetBalanceViewModel(
+                amount ?? 0.0,
+                balance: balance,
+                priceData: priceData
+            )
+
+        let reward: LocalizableResource<PeriodRewardViewModel>? = createPeriodReward(
+            for: chainAsset,
+            amount: amount,
+            priceData: priceData,
+            calculatorEngine: calculatorEngine
+        )
+
+        return StakingEstimationViewModel(
+            assetBalance: balanceViewModel,
+            rewardViewModel: reward,
+            assetInfo: chainAsset.assetDisplayInfo,
+            inputLimit: StakingConstants.maxAmount,
+            amount: amount
+        )
+    }
+
+    func buildNetworkInfoViewModels(
+        networkInfo: StakingPoolNetworkInfo,
+        chainAsset: ChainAsset
+    ) -> [LocalizableResource<NetworkInfoContentViewModel>] {
+        var viewModels: [LocalizableResource<NetworkInfoContentViewModel>] = []
+
+        if let minJoinBond = networkInfo.minJoinBond,
+           let minJoinBondDecimal = Decimal.fromSubstrateAmount(
+               minJoinBond,
+               precision: Int16(chainAsset.asset.precision)
+           ) {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                let minJoinBondValueString = self.balanceViewModelFactory?.amountFromValue(minJoinBondDecimal)
+                    .value(for: locale) ?? ""
+
+                return NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMinJoinTitle(preferredLanguages: locale.rLanguages),
+                    value: minJoinBondValueString,
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let minCreateBond = networkInfo.minCreateBond,
+           let minCreateBondDecimal = Decimal.fromSubstrateAmount(
+               minCreateBond,
+               precision: Int16(chainAsset.asset.precision)
+           ) {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                let minCreateBondValueString = self.balanceViewModelFactory?.amountFromValue(minCreateBondDecimal)
+                    .value(for: locale) ?? ""
+
+                return NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMinCreateTitle(preferredLanguages: locale.rLanguages),
+                    value: minCreateBondValueString,
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let existingPoolsCount = networkInfo.existingPoolsCount {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainExistingPoolsTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(existingPoolsCount)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let possiblePoolsCount = networkInfo.possiblePoolsCount {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainPossiblePoolsTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(possiblePoolsCount)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let maxMembersInPool = networkInfo.maxMembersInPool {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMaxMembersInpoolTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(maxMembersInPool)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        if let maxPoolsMembers = networkInfo.maxPoolsMembers {
+            let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
+                NetworkInfoContentViewModel(
+                    title: R.string.localizable.poolStakingMainMaxPoolMembersTitle(preferredLanguages: locale.rLanguages),
+                    value: "\(maxPoolsMembers)",
+                    details: nil
+                )
+            }
+
+            viewModels.append(localizableViewModel)
+        }
+
+        return viewModels
+    }
+
+    func buildNominatorStateViewModel(
+        stakeInfo: StakingPoolMember,
+        priceData: PriceData?,
+        chainAsset: ChainAsset,
+        era: EraIndex?,
+        poolRewards: StakingPoolRewards,
+        poolInfo: StakingPool,
+        accountInfo: AccountInfo,
+        existentialDeposit: BigUInt
+    ) -> LocalizableResource<NominationViewModelProtocol>? {
+        var status: NominationViewStatus = .undefined
+
+        if let era = era {
+            status = .active(era: era)
+        }
+
+        let precision = Int16(chainAsset.asset.precision)
+        let totalStakeAmount = Decimal.fromSubstrateAmount(
+            stakeInfo.points,
+            precision: precision
+        ) ?? 0.0
+
+        let poolStakeAmount = Decimal.fromSubstrateAmount(
+            poolInfo.info.points,
+            precision: precision
+        ) ?? 0.0
+
+        let lastRecordedTotalPayouts = Decimal.fromSubstrateAmount(
+            poolRewards.lastRecordedTotalPayouts,
+            precision: precision
+        ) ?? 0.0
+
+        let totalRewardsClaimed = Decimal.fromSubstrateAmount(
+            poolRewards.totalRewardsClaimed,
+            precision: precision
+        ) ?? 0.0
+
+        let lastRecordedRewardCounter = Decimal.fromSubstrateAmount(
+            poolRewards.lastRecordedRewardCounter,
+            precision: precision
+        ) ?? 0.0
+
+        let ownLastRecordedRewardCounter = Decimal.fromSubstrateAmount(
+            stakeInfo.lastRecordedRewardCounter,
+            precision: precision
+        ) ?? 0.0
+
+        let existentialDepositDecimal = Decimal.fromSubstrateAmount(
+            existentialDeposit,
+            precision: precision
+        ) ?? 0.0
+
+        let balanceDecimal = Decimal.fromSubstrateAmount(
+            accountInfo.data.free,
+            precision: precision
+        ) ?? 0.0 - existentialDepositDecimal
+
+        let payoutSinceLastRecord = balanceDecimal + totalRewardsClaimed - lastRecordedTotalPayouts
+        let rewardCounterBase: Decimal = 10
+        let currentRewardCounter = payoutSinceLastRecord * rewardCounterBase / poolStakeAmount + lastRecordedRewardCounter
+
+        let pendingReward = (currentRewardCounter - ownLastRecordedRewardCounter) * totalStakeAmount / rewardCounterBase
+//        let pendingReward = ownLastRecordedRewardCounter != 0 ? 0 : (totalStakeAmount / poolStakeAmount) * (lastRecordedTotalPayouts - totalRewardsClaimed)
+        var redeemableViewModel: StakingUnitInfoViewModel?
+        var unstakingViewModel: StakingUnitInfoViewModel?
+
+        guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)
+        else {
+            return nil
+        }
+
+        return LocalizableResource { [weak self] locale in
+            if let era = era,
+               let redeemableAmount = Decimal.fromSubstrateAmount(
+                   stakeInfo.redeemable(inEra: era),
+                   precision: Int16(chainAsset.asset.precision)
+               ),
+               let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(
+                   redeemableAmount,
+                   priceData: priceData
+               ) {
+                redeemableViewModel = StakingUnitInfoViewModel(
+                    value: redeemable.value(for: locale).amount,
+                    subtitle: redeemable.value(for: locale).price
+                )
+            }
+
+            if let era = era,
+               let unstakingAmount = Decimal.fromSubstrateAmount(
+                   stakeInfo.unbonding(inEra: era),
+                   precision: Int16(chainAsset.asset.precision)
+               ),
+               let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData) {
+                unstakingViewModel = StakingUnitInfoViewModel(
+                    value: unstaking.value(for: locale).amount,
+                    subtitle: unstaking.value(for: locale).price
+                )
+            }
+
+            return NominationViewModel(
+                totalStakedAmount: totalStake.value(for: locale).amount,
+                totalStakedPrice: totalStake.value(for: locale).price ?? "",
+                totalRewardAmount: totalReward.value(for: locale).amount,
+                totalRewardPrice: totalReward.value(for: locale).price ?? "",
+                status: status,
+                hasPrice: priceData != nil,
+                redeemableViewModel: redeemableViewModel,
+                unstakingViewModel: unstakingViewModel
+            )
+        }
+    }
+}

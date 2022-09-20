@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingPayoutConfirmationViewController: UIViewController, ViewHolder, ImportantViewProtocol {
+final class StakingPayoutConfirmationViewController: UIViewController, ViewHolder, ImportantViewProtocol, HiddableBarWhenPushed {
     typealias RootViewType = StakingPayoutConfirmationViewLayout
 
     let presenter: StakingPayoutConfirmationPresenterProtocol
@@ -32,6 +32,12 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
         rootView.networkFeeFooterView.actionButton
             .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
         applyLocalization()
         setupTable()
         presenter.setup()
@@ -45,6 +51,10 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     @objc
     private func presentPayoutOptionsAction() {}
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
+    }
 
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
@@ -153,11 +163,17 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
         self.feeViewModel = feeViewModel
         let locale = localizationManager?.selectedLocale ?? Locale.current
         setupConfirmViewLocalization(locale)
+
+        rootView.bind(feeViewModel: feeViewModel?.value(for: locale))
     }
 
     func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>]) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+    }
+
+    func didReceive(singleViewModel: StakingPayoutConfirmationViewModel?) {
+        rootView.bind(singleViewModel: singleViewModel)
     }
 }
 

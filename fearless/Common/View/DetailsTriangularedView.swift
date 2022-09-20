@@ -12,6 +12,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case smallIconTitleSubtitle
         case smallIconTitleButton
         case largeIconTitleInfoSubtitle
+        case smallIconTitleSubtitleButton
     }
 
     var triangularedBackgroundView: TriangularedView? {
@@ -24,6 +25,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
     private(set) var additionalInfoView: UIButton?
     var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
     var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
+    var actionColor: UIColor?
 
     private var lazyIconView: UIImageView?
     private var lazyActionView: UIImageView?
@@ -42,6 +44,15 @@ class DetailsTriangularedView: BackgroundedContentControl {
         button.titleLabel?.font = UIFont.capsTitle
         button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
         return button
+    }
+
+    func makeActionButton() -> TriangularedButton {
+        let actionButton = TriangularedButton()
+        actionButton.applyEnabledStyle()
+        actionButton.triangularedView?.fillColor = actionColor ?? R.color.colorPurple()!
+        actionButton.imageWithTitleView?.titleFont = .h6Title
+        actionButton.triangularedView?.sideLength = 4
+        return actionButton
     }
 
     var iconRadius: CGFloat = 16.0 {
@@ -70,12 +81,31 @@ class DetailsTriangularedView: BackgroundedContentControl {
                     subtitleLabel = nil
                 }
                 if actionButton == nil {
-                    let actionButton = TriangularedButton()
-                    actionButton.applyEnabledStyle()
-                    actionButton.triangularedView?.fillColor = R.color.colorPurple()!
-                    actionButton.imageWithTitleView?.titleFont = .h6Title
-                    contentView?.addSubview(actionButton)
+                    let actionButton = makeActionButton()
                     self.actionButton = actionButton
+                    contentView?.addSubview(actionButton)
+                }
+            case .largeIconTitleInfoSubtitle:
+                if subtitleLabel == nil {
+                    let label = UILabel()
+                    subtitleLabel = label
+                    contentView?.addSubview(label)
+                }
+                if additionalInfoView == nil {
+                    let view = makeAdditionalInfoView()
+                    additionalInfoView = view
+                    contentView?.addSubview(view)
+                }
+            case .smallIconTitleSubtitleButton:
+                if subtitleLabel == nil {
+                    let label = UILabel()
+                    subtitleLabel = label
+                    contentView?.addSubview(label)
+                }
+                if actionButton == nil {
+                    let actionButton = makeActionButton()
+                    self.actionButton = actionButton
+                    contentView?.addSubview(actionButton)
                 }
             case .largeIconTitleInfoSubtitle:
                 if subtitleLabel == nil {
@@ -135,6 +165,54 @@ class DetailsTriangularedView: BackgroundedContentControl {
             layoutSmallIconTitleButton()
         case .largeIconTitleInfoSubtitle:
             layoutLargeIconTitleInfoSubtitle()
+        case .smallIconTitleSubtitleButton:
+            layoutSmallIconTitleSubtitleButton()
+        }
+    }
+
+    private func layoutSmallIconTitleSubtitleButton() {
+        guard let subtitleLabel = subtitleLabel else {
+            return
+        }
+
+        let titleHeight = titleLabel.intrinsicContentSize.height
+        let titleWidth = titleLabel.intrinsicContentSize.width
+        let subtitleHeight = subtitleLabel.intrinsicContentSize.height
+        let subtitleWidth = subtitleLabel.intrinsicContentSize.width
+
+        let iconOffset = lazyIconView != nil ? 13 + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+
+        if let actionButton = actionButton {
+            actionButton.frame = CGRect(
+                x: bounds.maxX - contentInsets.right - LayooutConstants.actionButtonSize.width,
+                y: bounds.midY - LayooutConstants.actionButtonSize.height / 2,
+                width: LayooutConstants.actionButtonSize.width,
+                height: LayooutConstants.actionButtonSize.height
+            )
+        }
+
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: UIConstants.defaultOffset,
+            width: titleWidth,
+            height: titleHeight
+        )
+
+        subtitleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.size.height / 2 + 2,
+            width: subtitleWidth,
+            height: subtitleHeight
+        )
+
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: UIConstants.defaultOffset,
+                width: 13,
+                height: 13
+            )
         }
     }
 
@@ -202,6 +280,14 @@ class DetailsTriangularedView: BackgroundedContentControl {
             y: bounds.midY - titleHeight / 2.0,
             width: trailing - labelX,
             height: titleHeight
+        )
+
+        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
+        subtitleLabel?.frame = CGRect(
+            x: labelX,
+            y: titleLabel.frame.maxY + 2,
+            width: trailing - labelX,
+            height: subtitleHeight
         )
 
         if let iconView = lazyIconView {

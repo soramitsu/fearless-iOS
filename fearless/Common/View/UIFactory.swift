@@ -148,7 +148,7 @@ final class UIFactory: UIFactoryProtocol {
         switch layout {
         case .largeIconTitleSubtitle, .singleTitle, .largeIconTitleInfoSubtitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
-        case .smallIconTitleSubtitle, .smallIconTitleButton:
+        case .smallIconTitleSubtitle, .smallIconTitleButton, .smallIconTitleSubtitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
         }
 
@@ -466,6 +466,10 @@ final class UIFactory: UIFactoryProtocol {
 
     func createNetworkFeeFooterView() -> NetworkFeeFooterView {
         NetworkFeeFooterView()
+    }
+
+    func createCleanNetworkFeeFooterView() -> CleanNetworkFeeFooterView {
+        CleanNetworkFeeFooterView()
     }
 
     func createTitleValueView() -> TitleValueView {

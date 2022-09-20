@@ -228,6 +228,7 @@ class StakingRewardCalculatorView: UIView {
         inputViewModel = newInputViewModel
 
         amountInputView.inputFieldText = newInputViewModel.displayAmount
+
         newInputViewModel.observable.add(observer: self)
     }
 
