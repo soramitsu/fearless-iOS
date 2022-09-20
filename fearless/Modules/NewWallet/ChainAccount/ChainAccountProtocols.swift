@@ -12,23 +12,21 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapReceiveButton()
     func didTapBuyButton()
     func didTapOptionsButton()
-    func didTapInfoButton()
+    func didTapSelectNetwork()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
+    func update(chain: ChainModel)
 
-    var chainAsset: ChainAsset { get set }
+    var chainAsset: ChainAsset { get }
+    var availableChainAssets: [ChainAsset] { get }
 }
 
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
-    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId)
-    func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
     func didReceiveExportOptions(options: [ExportOption])
-    func didReceive(currency: Currency)
+    func didUpdate(chainAsset: ChainAsset)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
@@ -39,9 +37,8 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
 
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 
@@ -49,7 +46,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
         chain: ChainModel,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel
     )
 
     func presentBuyFlow(
@@ -61,13 +58,6 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func presentPurchaseWebView(
         from view: ControllerBackedProtocol?,
         action: PurchaseAction
-    )
-
-    func presentLockedInfo(
-        from view: ControllerBackedProtocol?,
-        balanceContext: BalanceContext,
-        info: AssetBalanceDisplayInfo,
-        currency: Currency
     )
 
     func presentChainActionsFlow(
@@ -99,6 +89,14 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
+
+    func showSelectNetwork(
+        from view: ChainAccountViewProtocol?,
+        wallet: MetaAccountModel,
+        selectedChainId: ChainModel.Id?,
+        chainModels: [ChainModel]?,
+        delegate: SelectNetworkDelegate?
+    )
 }
 
 protocol ChainAccountModuleInput: AnyObject {}

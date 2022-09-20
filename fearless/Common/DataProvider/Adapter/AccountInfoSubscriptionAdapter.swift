@@ -10,10 +10,38 @@ protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
 }
 
 protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
-    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?)
-    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?)
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    )
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    )
 
     func reset()
+}
+
+extension AccountInfoSubscriptionAdapterProtocol {
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue? = .main
+    ) {
+        subscribe(chainAsset: chainAsset, accountId: accountId, handler: handler, deliveryOn: queue)
+    }
+
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue? = .main
+    ) {
+        subscribe(chainsAssets: chainsAssets, handler: handler, deliveryOn: queue)
+    }
 }
 
 final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
@@ -33,6 +61,8 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
     }()
+
+    private var deliveryQueue: DispatchQueue?
 
     // MARK: - Constructor
 
@@ -54,18 +84,29 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         subscriptions.removeAll()
     }
 
-    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    ) {
         reset()
         self.handler = handler
+        deliveryQueue = queue
 
         if let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
             subscriptions.append(subscription)
         }
     }
 
-    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?) {
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    ) {
         reset()
         self.handler = handler
+        deliveryQueue = queue
 
         chainsAssets.forEach { chainAsset in
             if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
@@ -84,10 +125,12 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
         accountId: AccountId,
         chainAsset: ChainAsset
     ) {
-        handler?.handleAccountInfo(
-            result: result,
-            accountId: accountId,
-            chainAsset: chainAsset
-        )
+        deliveryQueue?.async {
+            self.handler?.handleAccountInfo(
+                result: result,
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
+        }
     }
 }

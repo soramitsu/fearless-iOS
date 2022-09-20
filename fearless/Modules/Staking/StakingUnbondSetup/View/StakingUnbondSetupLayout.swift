@@ -2,6 +2,10 @@ import UIKit
 import SnapKit
 
 final class StakingUnbondSetupLayout: UIView {
+    enum Constants {
+        static let hintsSpacing: CGFloat = 9
+    }
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
@@ -12,7 +16,7 @@ final class StakingUnbondSetupLayout: UIView {
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
     let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountInputView = AmountInputViewV2()
 
     let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
@@ -69,15 +73,14 @@ final class StakingUnbondSetupLayout: UIView {
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             }
 
-            contentView.stackView.setCustomSpacing(9, after: view)
+            contentView.stackView.setCustomSpacing(Constants.hintsSpacing, after: view)
         }
     }
 
     private func applyLocalization() {
         networkFeeFooterView.locale = locale
 
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
     }
 
     private func setupLayout() {

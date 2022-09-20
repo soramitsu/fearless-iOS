@@ -1,11 +1,19 @@
 import UIKit
 
 final class WalletSendViewLayout: UIView {
-    let navigationBar = BaseNavigationBar()
+    enum LayoutConstants {
+        static let verticalOffset: CGFloat = 25
+    }
+
+    let navigationBar: BaseNavigationBar = {
+        let view = BaseNavigationBar()
+        view.backgroundColor = R.color.colorBlack19()
+        return view
+    }()
 
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h3Title
+        label.font = .h4Title
         label.textColor = .white
         return label
     }()
@@ -17,14 +25,24 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let addressView = UIFactory.default.createAccountView(for: .options, filled: false)
-    let amountView = UIFactory.default.createAmountInputView(filled: false)
-    let tipView = UIFactory.default.createNetworkFeeView()
-    let feeView = UIFactory.default.createNetworkFeeView()
+    let amountView = AmountInputViewV2()
+    let scamWarningView = ScamWarningExpandableView()
+
+    let feeView: NetworkFeeView = {
+        let view = UIFactory.default.createNetworkFeeView()
+        view.borderView.isHidden = true
+        return view
+    }()
+
+    let tipView: NetworkFeeView = {
+        let view = UIFactory.default.createNetworkFeeView()
+        view.borderView.isHidden = true
+        return view
+    }()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -39,7 +57,7 @@ final class WalletSendViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
 
         setupLayout()
     }
@@ -49,12 +67,36 @@ final class WalletSendViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        amountView.bind(viewModel: assetViewModel)
+    }
+
+    func bind(feeViewModel: BalanceViewModelProtocol?) {
+        feeView.bind(viewModel: feeViewModel)
+    }
+
+    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
+        tipView.bind(viewModel: tipViewModel)
+        tipView.isHidden = !isRequired
+    }
+
+    func bind(scamInfo: ScamInfo?) {
+        guard let scamInfo = scamInfo else {
+            scamWarningView.isHidden = true
+            return
+        }
+        scamWarningView.isHidden = false
+
+        scamWarningView.bind(scamInfo: scamInfo, assetName: amountView.symbol ?? "")
+    }
+}
+
+private extension WalletSendViewLayout {
     func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
 
         navigationBar.setCenterViews([navigationTitleLabel])
-
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
         }
@@ -64,95 +106,47 @@ final class WalletSendViewLayout: UIView {
             make.top.equalTo(navigationBar.snp.bottom)
         }
 
-        contentView.stackView.addArrangedSubview(addressView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: addressView)
-        contentView.stackView.addArrangedSubview(amountView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
-        contentView.stackView.addArrangedSubview(tipView)
-        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: tipView)
-        contentView.stackView.addArrangedSubview(feeView)
-
         let viewOffset = -2.0 * UIConstants.horizontalInset
-
-        addressView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.triangularedViewHeight)
-        }
-
+        contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
         }
 
-        feeView.snp.makeConstraints { make in
+        contentView.stackView.setCustomSpacing(UIConstants.verticalInset, after: amountView)
+        contentView.stackView.addArrangedSubview(scamWarningView)
+        scamWarningView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
+        }
+
+        addSubview(actionButton) { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.actionBottomInset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        addSubview(feeView) { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
+            make.bottom.equalTo(actionButton.snp.top).offset(-LayoutConstants.verticalOffset)
         }
 
-        tipView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
+        addSubview(tipView) { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
+            make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
         }
-
-        addSubview(actionButton) {
-            $0.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            $0.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            $0.height.equalTo(UIConstants.actionHeight)
-        }
-
-        contentView.scrollBottomOffset = 2 * UIConstants.horizontalInset + UIConstants.actionHeight
     }
 
-    func bind(accountViewModel: AccountViewModel) {
-        let icon = accountViewModel.icon?.imageWithFillColor(
-            R.color.colorWhite()!,
-            size: UIConstants.smallAddressIconSize,
-            contentScale: UIScreen.main.scale
-        )
-
-        addressView.title = accountViewModel.title
-        addressView.iconImage = icon ?? R.image.iconBirdGreen()
-        addressView.subtitle = accountViewModel.name
-    }
-
-    func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        assetViewModel.iconViewModel?.cancel(on: amountView.iconView)
-        amountView.iconView.image = nil
-
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountView.symbol = symbol
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-    }
-
-    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
-        tipView.bind(viewModel: tipViewModel)
-        tipView.isHidden = !isRequired
-    }
-
-    func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.bind(viewModel: feeViewModel)
-    }
-
-    private func applyLocalization() {
-        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
+    func applyLocalization() {
         feeView.locale = locale
-
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
+            .commonPreview(preferredLanguages: locale.rLanguages)
+
+        tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
+
+        navigationTitleLabel.text = R.string.localizable
+            .chooseRecipientNextButtonTitle(preferredLanguages: locale.rLanguages)
     }
 }

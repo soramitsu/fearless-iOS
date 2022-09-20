@@ -38,12 +38,7 @@ struct RuntimeMetadataItem: Codable & Equatable {
         version = try container.decode(UInt32.self, forKey: .version)
         txVersion = try container.decode(UInt32.self, forKey: .txVersion)
         metadata = try container.decode(Data.self, forKey: .metadata)
-
-        if let resolverData = try? container.decode(Data.self, forKey: .resolver) {
-            resolver = try? JSONDecoder().decode(Schema.Resolver.self, from: resolverData)
-        } else {
-            resolver = nil
-        }
+        resolver = nil
     }
 
     func encode(to encoder: Encoder) throws {
@@ -53,10 +48,6 @@ struct RuntimeMetadataItem: Codable & Equatable {
         try container.encode(version, forKey: .version)
         try container.encode(txVersion, forKey: .txVersion)
         try container.encode(metadata, forKey: .metadata)
-        if let resolver = resolver {
-            let resolverData = try JSONEncoder().encode(resolver)
-            try container.encode(resolverData, forKey: .resolver)
-        }
     }
 }
 

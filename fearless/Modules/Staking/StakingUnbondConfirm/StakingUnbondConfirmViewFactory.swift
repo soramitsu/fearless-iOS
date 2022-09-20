@@ -118,7 +118,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -127,17 +126,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -146,7 +136,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             mapper: AnyCoreDataMapper(mapper)
         )
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
@@ -219,7 +209,11 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 
-            return StakingUnbondConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return StakingUnbondConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

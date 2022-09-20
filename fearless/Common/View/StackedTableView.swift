@@ -6,7 +6,7 @@ final class StackedTableView: UIView {
 
     private let verticalStackView: UIStackView = {
         let stackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
-        stackView.distribution = .fillEqually
+        stackView.distribution = .fill
         return stackView
     }()
 

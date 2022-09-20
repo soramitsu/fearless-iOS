@@ -52,7 +52,7 @@ final class WarningAlertViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

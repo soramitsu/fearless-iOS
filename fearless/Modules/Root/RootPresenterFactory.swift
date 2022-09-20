@@ -33,6 +33,7 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
 
         let interactor = RootInteractor(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,

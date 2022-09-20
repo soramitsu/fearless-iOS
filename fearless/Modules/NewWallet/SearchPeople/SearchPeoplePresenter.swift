@@ -5,14 +5,14 @@ import IrohaCrypto
 
 final class SearchPeoplePresenter {
     weak var view: SearchPeopleViewProtocol?
-    let wireframe: SearchPeopleWireframeProtocol
-    let interactor: SearchPeopleInteractorInputProtocol
-    let viewModelFactory: SearchPeopleViewModelFactoryProtocol
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
-    let qrParser: QRParser
-    let transferFinishBlock: WalletTransferFinishBlock?
+    private let wireframe: SearchPeopleWireframeProtocol
+    private let interactor: SearchPeopleInteractorInputProtocol
+    private let viewModelFactory: SearchPeopleViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let qrParser: QRParser
+    private let transferFinishBlock: WalletTransferFinishBlock?
+    private let scamInfo: ScamInfo?
 
     private var searchResult: Result<[SearchData]?, Error>?
 
@@ -20,20 +20,20 @@ final class SearchPeoplePresenter {
         interactor: SearchPeopleInteractorInputProtocol,
         wireframe: SearchPeopleWireframeProtocol,
         viewModelFactory: SearchPeopleViewModelFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
         qrParser: QRParser,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.qrParser = qrParser
+        self.scamInfo = scamInfo
         self.transferFinishBlock = transferFinishBlock
         self.localizationManager = localizationManager
     }
@@ -62,14 +62,10 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
     }
 
     func didTapScanButton() {
-        guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
-            return
-        }
         wireframe.presentScan(
             from: view,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             moduleOutput: self
         )
     }
@@ -80,7 +76,7 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
 
     func setup() {
         view?.didReceive(title: R.string.localizable.walletSendNavigationTitle(
-            asset.name,
+            chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
         ))
         view?.didReceive(locale: selectedLocale)
@@ -90,9 +86,9 @@ extension SearchPeoplePresenter: SearchPeoplePresenterProtocol {
         wireframe.presentSend(
             from: view,
             to: viewModel.address,
-            asset: asset,
-            chain: chain,
-            wallet: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
     }
@@ -113,9 +109,9 @@ extension SearchPeoplePresenter: Localizable {
 
 extension SearchPeoplePresenter: WalletScanQRModuleOutput {
     func didFinishWith(payload: TransferPayload) {
-        let chainFormat: ChainFormat = chain.isEthereumBased
+        let chainFormat: ChainFormat = chainAsset.chain.isEthereumBased
             ? .ethereum
-            : .substrate(chain.addressPrefix)
+            : .substrate(chainAsset.chain.addressPrefix)
 
         guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
               let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
@@ -125,9 +121,9 @@ extension SearchPeoplePresenter: WalletScanQRModuleOutput {
         wireframe.presentSend(
             from: view,
             to: address,
-            asset: asset,
-            chain: chain,
-            wallet: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
     }

@@ -213,6 +213,7 @@ enum ChainOptions: String, Codable {
     case crowdloans
     case orml
     case tipRequired
+    case poolStaking
 
     case unsupported
 

@@ -105,7 +105,9 @@ final class ChainSelectionPresenter {
             viewModels.insert(allNetworksViewModel, at: 0)
         }
 
-        view?.didReload()
+        DispatchQueue.main.async {
+            self.view?.didReload()
+        }
     }
 }
 

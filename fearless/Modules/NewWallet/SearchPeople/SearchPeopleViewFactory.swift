@@ -6,9 +6,9 @@ import SoraFoundation
 
 struct SearchPeopleViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedMetaAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> SearchPeopleViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
@@ -31,9 +31,8 @@ struct SearchPeopleViewFactory {
         )
 
         let interactor = SearchPeopleInteractor(
-            chain: chain,
-            asset: asset,
-            selectedMetaAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             searchService: searchService
         )
         let wireframe = SearchPeopleWireframe()
@@ -44,11 +43,11 @@ struct SearchPeopleViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedMetaAccount,
+            chainAsset: chainAsset,
+            wallet: wallet,
             localizationManager: LocalizationManager.shared,
             qrParser: SubstrateQRParser(),
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
 

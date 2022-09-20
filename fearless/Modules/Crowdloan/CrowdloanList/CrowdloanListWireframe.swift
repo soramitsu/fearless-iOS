@@ -33,7 +33,8 @@ final class CrowdloanListWireframe: CrowdloanListWireframeProtocol {
                 selectedMetaAccount: selectedMetaAccount,
                 includeAllNetworksCell: false,
                 showBalances: true,
-                chainModels: nil
+                chainModels: nil,
+                assetSelectionType: .normal
             ) else {
             return
         }

@@ -319,20 +319,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-
         let logger = Logger.shared
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -344,7 +333,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             rewardService: rewardCalculatorService,

@@ -79,20 +79,12 @@ struct ControllerAccountViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let feeProxy = ExtrinsicFeeProxy()
@@ -114,7 +106,7 @@ struct ControllerAccountViewFactory {
 
         return ControllerAccountInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

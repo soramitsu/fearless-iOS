@@ -9,6 +9,7 @@ enum SearchServiceError: Error {
 typealias SearchServiceSearchPeopleResultBlock = (Result<[SearchData]?, Error>) -> Void
 
 protocol SearchServiceProtocol {
+    @discardableResult
     func searchPeople(
         query: String,
         chain: ChainModel,
@@ -34,6 +35,7 @@ final class SearchService: BaseService, SearchServiceProtocol {
         super.init(operationManager: operationManager)
     }
 
+    @discardableResult
     func searchPeople(
         query: String,
         chain: ChainModel,

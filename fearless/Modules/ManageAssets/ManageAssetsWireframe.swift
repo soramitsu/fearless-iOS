@@ -91,7 +91,8 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
                 selectedMetaAccount: selectedMetaAccount,
                 includeAllNetworksCell: true,
                 showBalances: false,
-                chainModels: chainModels
+                chainModels: chainModels,
+                assetSelectionType: .normal
             )?.controller else {
             return
         }

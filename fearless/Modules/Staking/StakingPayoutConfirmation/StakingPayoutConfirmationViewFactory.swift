@@ -107,12 +107,6 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             operationManager: operationManager,
             logger: Logger.shared
         )
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
 
         let keystore = Keychain()
         let signingWrapper = SigningWrapper(
@@ -134,7 +128,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         return StakingPayoutConfirmationInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

@@ -9,6 +9,7 @@ final class AssetSelectionPresenter {
     let assetFilter: AssetSelectionFilter
     let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     let selectedMetaAccount: MetaAccountModel
+    let type: AssetSelectionStakingType
 
     private var assets: [(ChainModel.Id, AssetModel)] = []
     private var chains: [ChainModel.Id: ChainModel] = [:]
@@ -21,7 +22,7 @@ final class AssetSelectionPresenter {
         interactor: ChainSelectionInteractorInputProtocol,
         wireframe: AssetSelectionWireframeProtocol,
         assetFilter: @escaping AssetSelectionFilter,
-        selectedChainAsset: ChainAsset?,
+        type: AssetSelectionStakingType,
         selectedMetaAccount: MetaAccountModel,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         localizationManager: LocalizationManagerProtocol
@@ -29,9 +30,10 @@ final class AssetSelectionPresenter {
         self.interactor = interactor
         self.wireframe = wireframe
         self.assetFilter = assetFilter
-        self.selectedChainAsset = selectedChainAsset
+        selectedChainAsset = type.chainAsset
         self.selectedMetaAccount = selectedMetaAccount
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.type = type
         self.localizationManager = localizationManager
     }
 
@@ -88,7 +90,9 @@ final class AssetSelectionPresenter {
             )
         }
 
-        view?.didReload()
+        DispatchQueue.main.async {
+            self.view?.didReload()
+        }
     }
 }
 
@@ -109,7 +113,7 @@ extension AssetSelectionPresenter: ChainSelectionPresenterProtocol {
             return
         }
 
-        wireframe.complete(on: view, selecting: ChainAsset(chain: chain, asset: asset))
+        wireframe.complete(on: view, selecting: ChainAsset(chain: chain, asset: asset), context: nil)
     }
 
     func setup() {

@@ -627,4 +627,39 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForSortOptions(
+        options: [SortPickerTableViewCellModel],
+        callback: ModalPickerSelectionCallback?
+    ) -> UIViewController? {
+        let viewController: ModalPickerViewController<SortPickerTableViewCell, SortPickerTableViewCellModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonFilterSortHeader(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.showSelection = false
+        viewController.hideWhenDidSelected = true
+        viewController.modalPresentationStyle = .custom
+        viewController.headerBorderType = .none
+        viewController.selectionCallback = callback
+
+        viewController.viewModels = options.map { model in
+            LocalizableResource { _ in
+                model
+            }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(options.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }

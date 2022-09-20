@@ -110,7 +110,10 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
     }
 
     func feeParametersDidChanged(viewModelState: StakingBondMoreViewModelState) {
-        interactor.estimateFee(reuseIdentifier: viewModelState.feeReuseIdentifier, builderClosure: viewModelState.builderClosure)
+        interactor.estimateFee(
+            reuseIdentifier: viewModelState.feeReuseIdentifier,
+            builderClosure: viewModelState.builderClosure
+        )
     }
 
     func provideAmountInputViewModel() {
@@ -121,7 +124,6 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
     func provideFee() {
         if let fee = viewModelState.fee {
             let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
             let viewModel = networkFeeViewModelFactory.createViewModel(
                 from: balanceViewModel
             )
@@ -137,7 +139,9 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
             balance: viewModelState.balance,
             priceData: priceData
         )
-        view?.didReceiveAsset(viewModel: viewModel)
+        DispatchQueue.main.async {
+            self.view?.didReceiveAsset(viewModel: viewModel)
+        }
     }
 
     func didReceiveInsufficientlyFundsError() {

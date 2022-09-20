@@ -56,6 +56,8 @@ final class SelectCurrencyTableCell: UITableViewCell {
     }
 
     private func setupLayout() {
+        backgroundColor = R.color.colorBlack()!
+
         let separator = UIFactory.default.createSeparatorView()
         contentView.addSubview(separator)
         separator.snp.makeConstraints { make in

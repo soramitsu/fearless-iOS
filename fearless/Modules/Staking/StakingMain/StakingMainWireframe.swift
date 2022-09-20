@@ -303,9 +303,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
               let selectionView = AssetSelectionViewFactory.createView(
                   delegate: delegate,
-                  selectedChain: selectedChainAsset,
+                  type: .normal(chainAsset: selectedChainAsset),
                   selectedMetaAccount: selectedMetaAccount,
-                  assetFilter: stakingFilter
+                  assetFilter: stakingFilter,
+                  assetSelectionType: .staking
               ) else {
             return
         }

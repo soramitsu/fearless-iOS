@@ -26,7 +26,7 @@ struct WalletCommonStyleConfigurator {
         )
 
         let buttonStyle = WalletRoundedButtonStyle(
-            background: R.color.colorAccent()!,
+            background: R.color.colorPink()!,
             title: buttonTitle
         )
 

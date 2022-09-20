@@ -27,17 +27,16 @@ protocol SearchPeopleWireframeProtocol: AnyObject {
     func presentSend(
         from view: ControllerBackedProtocol?,
         to address: String,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     )
 
     func presentScan(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         moduleOutput: WalletScanQRModuleOutput?
     )
 }

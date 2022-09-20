@@ -82,21 +82,12 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let keystore = Keychain()
@@ -125,7 +116,7 @@ struct ControllerAccountConfirmationViewFactory {
 
         return ControllerAccountConfirmationInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

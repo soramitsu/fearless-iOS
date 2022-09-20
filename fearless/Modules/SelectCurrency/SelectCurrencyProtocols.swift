@@ -7,6 +7,7 @@ protocol SelectCurrencyViewInput: ControllerBackedProtocol {
 protocol SelectCurrencyViewOutput: AnyObject {
     func didLoad(view: SelectCurrencyViewInput)
     func didSelect(viewModel: SelectCurrencyCellViewModel)
+    func back()
 }
 
 protocol SelectCurrencyInteractorInput: AnyObject {
@@ -21,6 +22,7 @@ protocol SelectCurrencyInteractorOutput: AnyObject {
 
 protocol SelectCurrencyRouterInput: ErrorPresentable, AlertPresentable {
     func proceed(from view: SelectCurrencyViewInput?)
+    func back(from view: SelectCurrencyViewInput?)
 }
 
 protocol SelectCurrencyModuleInput: AnyObject {}

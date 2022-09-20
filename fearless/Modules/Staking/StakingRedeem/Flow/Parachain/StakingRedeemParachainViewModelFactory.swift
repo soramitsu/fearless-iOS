@@ -20,8 +20,8 @@ final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactor
     }
 
     func buildViewModel(viewModelState: StakingRedeemViewModelState) -> StakingRedeemViewModel? {
-        guard let relaychainViewModelState = viewModelState as? StakingRedeemParachainViewModelState,
-              let readyForRevokeDecimal = Decimal.fromSubstrateAmount(relaychainViewModelState.readyForRevoke, precision: Int16(asset.precision)) else {
+        guard let parachainViewModelState = viewModelState as? StakingRedeemParachainViewModelState,
+              let readyForRevokeDecimal = Decimal.fromSubstrateAmount(parachainViewModelState.readyForRevoke, precision: Int16(asset.precision)) else {
             return nil
         }
 
@@ -31,14 +31,21 @@ final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactor
             formatter.value(for: locale).string(from: readyForRevokeDecimal as NSNumber) ?? ""
         }
 
-        let address = relaychainViewModelState.address ?? ""
-        let icon = try? iconGenerator.generateFromAddress(address)
+        let address = parachainViewModelState.address ?? ""
+        let senderIcon = try? iconGenerator.generateFromAddress(address)
+        let title = LocalizableResource { locale in
+            R.string.localizable.stakingRevokeTokens(preferredLanguages: locale.rLanguages)
+        }
+        let collatorIcon = try? iconGenerator.generateFromAddress(parachainViewModelState.collator.address)
 
         return StakingRedeemViewModel(
             senderAddress: address,
-            senderIcon: icon,
-            senderName: relaychainViewModelState.wallet.fetch(for: relaychainViewModelState.chainAsset.chain.accountRequest())?.name,
-            amount: amount
+            senderIcon: senderIcon,
+            senderName: parachainViewModelState.wallet.fetch(for: parachainViewModelState.chainAsset.chain.accountRequest())?.name,
+            amount: amount,
+            title: title,
+            collatorName: parachainViewModelState.collator.identity?.name,
+            collatorIcon: collatorIcon
         )
     }
 
@@ -47,7 +54,10 @@ final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactor
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
         guard let relaychainViewModelState = viewModelState as? StakingRedeemParachainViewModelState,
-              let readyForRevokeDecimal = Decimal.fromSubstrateAmount(relaychainViewModelState.readyForRevoke, precision: Int16(asset.precision)) else {
+              let readyForRevokeDecimal = Decimal.fromSubstrateAmount(
+                  relaychainViewModelState.readyForRevoke,
+                  precision: Int16(asset.precision)
+              ) else {
             return nil
         }
 
@@ -56,5 +66,20 @@ final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactor
             balance: readyForRevokeDecimal,
             priceData: priceData
         )
+    }
+
+    func buildHints() -> LocalizableResource<[TitleIconViewModel]> {
+        LocalizableResource { locale in
+            var items = [TitleIconViewModel]()
+
+            items.append(
+                TitleIconViewModel(
+                    title: R.string.localizable.stakingStakeLessHint(preferredLanguages: locale.rLanguages),
+                    icon: R.image.iconInfoFilled()?.tinted(with: R.color.colorStrokeGray()!)
+                )
+            )
+
+            return items
+        }
     }
 }

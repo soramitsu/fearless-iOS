@@ -214,7 +214,12 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
     }
 
     func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState) {
-        guard let viewModel = viewModelFactory.buildAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData, balance: balance) else {
+        guard
+            let viewModel = viewModelFactory.buildAssetBalanceViewModel(
+                viewModelState: viewModelState,
+                priceData: priceData,
+                balance: balance
+            ) else {
             return
         }
 

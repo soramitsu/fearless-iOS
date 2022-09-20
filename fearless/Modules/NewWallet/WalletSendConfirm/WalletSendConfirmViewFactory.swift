@@ -6,16 +6,15 @@ import SoraKeystore
 
 struct WalletSendConfirmViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress
         ),
             let selectedMetaAccount = SelectedWalletSettings.shared.value else {
@@ -25,7 +24,7 @@ struct WalletSendConfirmViewFactory {
         let wireframe = WalletSendConfirmWireframe()
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
-        let assetInfo = asset.displayInfo(with: chain.icon)
+        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: selectedMetaAccount
@@ -46,12 +45,12 @@ struct WalletSendConfirmViewFactory {
             dataValidatingFactory: dataValidatingFactory,
             walletSendConfirmViewModelFactory: viewModelFactory,
             logger: Logger.shared,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedMetaAccount,
-            chain: chain,
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )
 
@@ -68,8 +67,7 @@ struct WalletSendConfirmViewFactory {
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String
     ) -> WalletSendConfirmInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
@@ -78,21 +76,20 @@ struct WalletSendConfirmViewFactory {
 
         let operationManager = OperationManagerFacade.sharedManager
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -100,19 +97,11 @@ struct WalletSendConfirmViewFactory {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -137,7 +126,7 @@ struct WalletSendConfirmViewFactory {
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

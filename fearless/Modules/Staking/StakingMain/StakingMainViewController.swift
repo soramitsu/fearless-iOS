@@ -42,7 +42,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var analyticsView = RewardAnalyticsWidgetView()
     private lazy var actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -80,7 +80,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupTableView()
         setupActionButton()
         setupLocalization()
-        presenter?.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -100,6 +99,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
         }
+
+        presenter?.setup()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -159,7 +160,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNetworkInfoView() {
-        guard let networkInfoView = R.nib.networkInfoView(owner: self) else { return }
+        let networkInfoView = NetworkInfoView()
+        networkInfoView.descriptionLabel.isHidden = true
 
         self.networkInfoView = networkInfoView
 

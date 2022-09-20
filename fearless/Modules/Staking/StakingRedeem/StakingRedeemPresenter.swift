@@ -43,6 +43,7 @@ extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
         provideConfirmationViewModel()
         provideAssetViewModel()
         provideFeeViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
 
@@ -131,6 +132,11 @@ extension StakingRedeemPresenter: StakingRedeemModelStateListener {
         }
 
         view?.didReceiveConfirmation(viewModel: viewModel)
+    }
+
+    func provideHintsViewModel() {
+        let viewModel = confirmViewModelFactory.buildHints()
+        view?.didReceiveHints(viewModel: viewModel)
     }
 
     func refreshFeeIfNeeded() {

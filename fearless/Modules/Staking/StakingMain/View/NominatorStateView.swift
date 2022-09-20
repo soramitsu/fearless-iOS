@@ -36,6 +36,12 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
             .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
             .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
+        redeemableView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(
+            preferredLanguages: locale.rLanguages
+        )
+        unstakingView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     private func applyViewModel() {
@@ -46,10 +52,16 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         }
 
         titleLabel.text = R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages)
-        stakeAmountView.valueTop.text = viewModel.totalStakedAmount
-        stakeAmountView.valueBottom.text = viewModel.totalStakedPrice
-        rewardAmountView.valueTop.text = viewModel.totalRewardAmount
-        rewardAmountView.valueBottom.text = viewModel.totalRewardPrice
+        stakeAmountView.valueLabel.text = viewModel.totalStakedAmount
+        stakeAmountView.subtitleLabel.text = viewModel.totalStakedPrice
+        rewardAmountView.valueLabel.text = viewModel.totalRewardAmount
+        rewardAmountView.subtitleLabel.text = viewModel.totalRewardPrice
+
+        redeemableView.valueLabel.text = viewModel.redeemableViewModel?.value
+        redeemableView.subtitleLabel.text = viewModel.redeemableViewModel?.subtitle
+
+        unstakingView.valueLabel.text = viewModel.unstakingViewModel?.value
+        unstakingView.subtitleLabel.text = viewModel.unstakingViewModel?.subtitle
 
         if case .undefined = viewModel.status {
             toggleStatus(false)

@@ -92,7 +92,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
@@ -100,13 +99,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let feeProxy = ExtrinsicFeeProxy()
@@ -124,7 +116,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         return StakingRebondSetupInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

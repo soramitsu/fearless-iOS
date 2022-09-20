@@ -6,9 +6,17 @@ final class WalletTransactionHistoryViewLayout: UIView {
         static let buttonSize: CGFloat = 40
         static let stripeSize = CGSize(width: 35, height: 2)
         static let stripeTopOffset: CGFloat = 2
+        static let separatorHeight: CGFloat = 1
     }
 
-    let backgroundView = TriangularedBlurView()
+    let containerView = UIView()
+    let backgroundView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorWhite4()!
+        view.highlightedFillColor = R.color.colorWhite4()!
+        view.shadowOpacity = 0
+        return view
+    }()
 
     let stripeIconImageView: UIImageView = {
         let imageView = UIImageView()
@@ -54,6 +62,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     let panIndicatorView = RoundedView()
 
+    let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.colorWhite8()
+        return view
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -66,21 +80,29 @@ final class WalletTransactionHistoryViewLayout: UIView {
     }
 
     func setupLayout() {
-        addSubview(backgroundView)
-        addSubview(headerView)
-        addSubview(contentView)
-        addSubview(tableView)
-        addSubview(stripeIconImageView)
+        addSubview(containerView)
+        containerView.addSubview(backgroundView)
+        containerView.addSubview(headerView)
+        containerView.addSubview(contentView)
+        containerView.addSubview(tableView)
+        containerView.addSubview(stripeIconImageView)
 
         headerView.addSubview(headerStackView)
+        headerView.addSubview(separatorView)
 
         headerStackView.addArrangedSubview(closeButton)
         headerStackView.addArrangedSubview(titleLabel)
         headerStackView.addArrangedSubview(filterButton)
 
+        containerView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
         headerStackView.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.bottom.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         stripeIconImageView.snp.makeConstraints { make in
@@ -113,6 +135,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
         filterButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.buttonSize)
+        }
+
+        separatorView.snp.makeConstraints { make in
+            make.height.equalTo(Constants.separatorHeight)
+            make.leading.trailing.equalTo(headerStackView)
+            make.bottom.equalToSuperview()
         }
     }
 

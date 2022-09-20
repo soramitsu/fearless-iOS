@@ -57,7 +57,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             ethereumPublicKey: entity.ethereumPublicKey,
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
-            assetIdsEnabled: entity.assetIdsEnabled as? [String],
+            assetIdsDisabled: entity.assetIdsEnabled as? [String],
             assetFilterOptions: assetFilterOptions?.compactMap { FilterOption(rawValue: $0) } ?? [],
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
@@ -79,7 +79,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.substratePublicKey = model.substratePublicKey
         entity.ethereumPublicKey = model.ethereumPublicKey
         entity.ethereumAddress = model.ethereumAddress?.toHex()
-        entity.assetIdsEnabled = model.assetIdsEnabled as? NSArray
+        entity.assetIdsEnabled = model.assetIdsDisabled as? NSArray
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray

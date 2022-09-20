@@ -89,6 +89,23 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CandidateBondMoreCall>
 
     func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
+
+    func joinPool(
+        poolId: String,
+        amount: BigUInt
+    ) -> RuntimeCall<JoinPoolCall>
+
+    func createPool(
+        amount: BigUInt,
+        root: AccountId,
+        nominator: AccountId,
+        stateToggler: AccountId
+    ) -> RuntimeCall<CreatePoolCall>
+
+    func setPoolMetadata(
+        poolId: UInt32,
+        metadata: Data
+    ) -> RuntimeCall<SetMetadataCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -329,6 +346,52 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(
             moduleName: "ParachainStaking",
             callName: "schedule_candidate_bond_less",
+            args: args
+        )
+    }
+
+    func joinPool(
+        poolId: String,
+        amount: BigUInt
+    ) -> RuntimeCall<JoinPoolCall> {
+        let args = JoinPoolCall(amount: amount, poolId: poolId)
+
+        return RuntimeCall(
+            callCodingPath: .nominationPoolJoin,
+            args: args
+        )
+    }
+
+    func createPool(
+        amount: BigUInt,
+        root: AccountId,
+        nominator: AccountId,
+        stateToggler: AccountId
+    ) -> RuntimeCall<CreatePoolCall> {
+        let args = CreatePoolCall(
+            amount: amount,
+            root: root,
+            nominator: nominator,
+            stateToggler: stateToggler
+        )
+
+        return RuntimeCall(
+            callCodingPath: .createNominationPool,
+            args: args
+        )
+    }
+
+    func setPoolMetadata(
+        poolId: UInt32,
+        metadata: Data
+    ) -> RuntimeCall<SetMetadataCall> {
+        let args = SetMetadataCall(
+            poolId: poolId,
+            metadata: metadata
+        )
+
+        return RuntimeCall(
+            callCodingPath: .setPoolMetadata,
             args: args
         )
     }

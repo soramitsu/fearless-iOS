@@ -193,4 +193,40 @@ extension StorageCodingPath {
     static var currentBlock: StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Number")
     }
+
+    static var bondedPools: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "BondedPools")
+    }
+
+    static var stakingPoolMetadata: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "Metadata")
+    }
+
+    static var stakingPoolMinJoinBond: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "MinJoinBond")
+    }
+
+    static var stakingPoolMinCreateBond: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "MinCreateBond")
+    }
+
+    static var stakingPoolMembers: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "PoolMembers")
+    }
+
+    static var stakingPoolMaxPools: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPools")
+    }
+
+    static var stakingPoolMaxPoolMembersPerPool: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPoolMembersPerPool")
+    }
+
+    static var stakingPoolMaxPoolMembers: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPoolMembers")
+    }
+
+    static var stakingPoolCounterForBondedPools: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "CounterForBondedPools")
+    }
 }

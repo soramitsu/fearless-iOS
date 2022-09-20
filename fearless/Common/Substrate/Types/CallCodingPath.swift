@@ -21,4 +21,16 @@ extension CallCodingPath {
     static var addMemo: CallCodingPath {
         CallCodingPath(moduleName: "Crowdloan", callName: "add_memo")
     }
+
+    static var nominationPoolJoin: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "Join")
+    }
+
+    static var createNominationPool: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "Create")
+    }
+
+    static var setPoolMetadata: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "SetMetadata")
+    }
 }

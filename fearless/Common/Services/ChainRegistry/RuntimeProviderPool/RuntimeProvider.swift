@@ -7,6 +7,7 @@ protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     var snapshot: RuntimeSnapshot? { get }
 
     func setup()
+    func setupHot()
     func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
     func fetchCoderFactoryOperation(
@@ -25,15 +26,16 @@ final class RuntimeProvider {
         let queue: DispatchQueue?
     }
 
-    let chainId: ChainModel.Id
+    internal let chainId: ChainModel.Id
     private(set) var typesUsage: ChainModel.TypesUsage
 
-    let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
-    let eventCenter: EventCenterProtocol
-    let operationQueue: OperationQueue
-    let dataHasher: StorageHasher
-    let logger: LoggerProtocol?
-    let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
+    private let snapshotHotOperationFactory: RuntimeHotBootSnapshotFactoryProtocol?
+    private let eventCenter: EventCenterProtocol
+    private let operationQueue: OperationQueue
+    private let dataHasher: StorageHasher
+    private let logger: LoggerProtocol?
+    private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -47,6 +49,7 @@ final class RuntimeProvider {
     init(
         chainModel: ChainModel,
         snapshotOperationFactory: RuntimeSnapshotFactoryProtocol,
+        snapshotHotOperationFactory: RuntimeHotBootSnapshotFactoryProtocol?,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
         dataHasher: StorageHasher = .twox256,
@@ -56,6 +59,7 @@ final class RuntimeProvider {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
         self.snapshotOperationFactory = snapshotOperationFactory
+        self.snapshotHotOperationFactory = snapshotHotOperationFactory
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
         self.dataHasher = dataHasher
@@ -85,6 +89,23 @@ final class RuntimeProvider {
         currentWrapper = wrapper
 
         operationQueue.addOperations(wrapper.allOperations, waitUntilFinished: false)
+    }
+
+    private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
+        let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
+            for: typesUsage,
+            dataHasher: dataHasher
+        )
+
+        wrapper?.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.global(qos: .userInitiated).async {
+                self?.handleCompletion(result: wrapper?.targetOperation.result)
+            }
+        }
+
+        currentWrapper = wrapper
+
+        operationQueue.addOperations(wrapper?.allOperations ?? [], waitUntilFinished: false)
     }
 
     private func handleCompletion(result: Result<RuntimeSnapshot?, Error>?) {
@@ -259,6 +280,20 @@ final class RuntimeProvider {
 }
 
 extension RuntimeProvider: RuntimeProviderProtocol {
+    func setupHot() {
+        mutex.lock()
+
+        defer {
+            mutex.unlock()
+        }
+
+        guard currentWrapper == nil else {
+            return
+        }
+
+        buildHotSnapshot(with: typesUsage, dataHasher: dataHasher)
+    }
+
     var runtimeSnapshot: RuntimeSnapshot? {
         snapshot
     }

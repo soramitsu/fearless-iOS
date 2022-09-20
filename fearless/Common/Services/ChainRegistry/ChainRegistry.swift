@@ -1,34 +1,37 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
-
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
-
     func chainsUnsubscribe(_ target: AnyObject)
-
     func syncUp()
+    func performHotBoot()
+    func performColdBoot()
+    func subscribeToChians()
 }
 
 final class ChainRegistry {
-    let runtimeProviderPool: RuntimeProviderPoolProtocol
-    let connectionPool: ConnectionPoolProtocol
-    let chainSyncService: ChainSyncServiceProtocol
-    let runtimeSyncService: RuntimeSyncServiceProtocol
-    let commonTypesSyncService: CommonTypesSyncServiceProtocol
-    let chainProvider: StreamableProvider<ChainModel>
-    let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
-    let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
-    let logger: LoggerProtocol?
-    let eventCenter: EventCenterProtocol
+    private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
+    private let runtimeProviderPool: RuntimeProviderPoolProtocol
+    private let connectionPool: ConnectionPoolProtocol
+    private let chainSyncService: ChainSyncServiceProtocol
+    private let runtimeSyncService: RuntimeSyncServiceProtocol
+    private let commonTypesSyncService: CommonTypesSyncServiceProtocol
+    private let chainProvider: StreamableProvider<ChainModel>
+    private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
+    private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
+    private let logger: LoggerProtocol?
+    private let eventCenter: EventCenterProtocol
+    private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
 
@@ -37,6 +40,7 @@ final class ChainRegistry {
     private let mutex = NSLock()
 
     init(
+        snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
         runtimeProviderPool: RuntimeProviderPoolProtocol,
         connectionPool: ConnectionPoolProtocol,
         chainSyncService: ChainSyncServiceProtocol,
@@ -44,9 +48,11 @@ final class ChainRegistry {
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
+        networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
         eventCenter: EventCenterProtocol
     ) {
+        self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
         self.connectionPool = connectionPool
         self.chainSyncService = chainSyncService
@@ -54,36 +60,11 @@ final class ChainRegistry {
         self.commonTypesSyncService = commonTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
+        self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
 
         connectionPool.setDelegate(self)
-
-        subscribeToChains()
-    }
-
-    private func subscribeToChains() {
-        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
-            self?.handle(changes: changes)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.logger?.error("Unexpected error chains listener setup: \(error)")
-        }
-
-        let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false,
-            refreshWhenEmpty: false
-        )
-
-        chainProvider.addObserver(
-            self,
-            deliverOn: DispatchQueue.global(qos: .userInitiated),
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -102,7 +83,7 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: newChain)
+                    runtimeProviderPool.setupRuntimeProvider(for: newChain)
 
                     runtimeSyncService.register(chain: newChain, with: connection)
 
@@ -113,7 +94,7 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
                     chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -167,6 +148,40 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return Set(runtimeVersionSubscriptions.keys)
+    }
+
+    func performColdBoot() {
+        subscribeToChians()
+        syncUpServices()
+    }
+
+    func performHotBoot() {
+        guard chains.isEmpty else { return }
+        snapshotHotBootBuilder.startHotBoot()
+    }
+
+    func subscribeToChians() {
+        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
+            self?.handle(changes: changes)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.logger?.error("Unexpected error chains listener setup: \(error)")
+        }
+
+        let options = StreamableProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false,
+            refreshWhenEmpty: false
+        )
+
+        chainProvider.addObserver(
+            self,
+            deliverOn: DispatchQueue.global(qos: .userInitiated),
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
@@ -229,24 +244,42 @@ extension ChainRegistry: ChainRegistryProtocol {
 }
 
 extension ChainRegistry: ConnectionPoolDelegate {
-    func connectionNeedsReconnect(url: URL) {
+    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
         let failedChain = chains.first { chain in
             chain.nodes.first { node in
                 node.url == url
             } != nil
         }
 
-        guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+        guard let failedChain = failedChain else { return }
+        let reconnectedEvent = ChainReconnectingEvent(chain: failedChain, state: state)
+        eventCenter.notify(with: reconnectedEvent)
+
+        switch state {
+        case let .connecting(attempt):
+            if attempt > 1 {
+                // temporary disable autobalance , maybe this causing crashes
+                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+            }
+        case .connected:
+            break
+        default:
+            break
+        }
+    }
+
+    private func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
+        guard chain.selectedNode == nil else {
             return
         }
 
-        let node = failedChain.selectedNode ?? failedChain.nodes.first(where: { $0.url != url })
+        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != previusUrl })
 
         if let newUrl = node?.url {
-            if let connection = getConnection(for: failedChain.chainId) {
+            if let connection = getConnection(for: chain.chainId) {
                 connection.reconnect(url: newUrl)
 
-                let event = ChainsUpdatedEvent(updatedChains: [failedChain])
+                let event = ChainsUpdatedEvent(updatedChains: [chain])
                 eventCenter.notify(with: event)
             }
         }

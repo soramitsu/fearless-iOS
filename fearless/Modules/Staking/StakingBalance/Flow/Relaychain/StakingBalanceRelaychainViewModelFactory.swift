@@ -116,6 +116,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             bondTitle: StakingBalanceAction.bondMore.title(for: locale),
             unbondTitle: StakingBalanceAction.unbond.title(for: locale),
             redeemTitle: StakingBalanceAction.redeem.title(for: locale),
+            redeemIcon: R.image.iconRedeem(),
             redeemActionIsAvailable: redeemableDecimal > 0,
             stakeMoreActionAvailable: true,
             stakeLessActionAvailable: true

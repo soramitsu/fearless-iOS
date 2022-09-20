@@ -46,6 +46,8 @@ protocol StakingRedeemViewModelFactoryProtocol {
         viewModelState: StakingRedeemViewModelState,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol>?
+
+    func buildHints() -> LocalizableResource<[TitleIconViewModel]>
 }
 
 protocol StakingRedeemStrategy {

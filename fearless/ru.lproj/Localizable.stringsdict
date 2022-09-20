@@ -2,6 +2,60 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
   <dict>
+      <key>staking.pool.rewards.delay</key>
+      <dict>
+          <key>NSStringLocalizedFormatKey</key>
+          <string>%#@format@</string>
+          <key>format</key>
+          <dict>
+              <key>NSStringFormatSpecTypeKey</key>
+              <string>NSStringPluralRuleType</string>
+              <key>NSStringFormatValueTypeKey</key>
+              <string>d</string>
+              <key>other</key>
+              <string>спустя %d дней</string>
+              <key>one</key>
+              <string>спустя %d день</string>
+              <key>few</key>
+              <string>спустя %d дня</string>
+          </dict>
+      </dict>
+      <key>staking.pool.unstake.delay</key>
+      <dict>
+          <key>NSStringLocalizedFormatKey</key>
+          <string>%#@format@</string>
+          <key>format</key>
+          <dict>
+              <key>NSStringFormatSpecTypeKey</key>
+              <string>NSStringPluralRuleType</string>
+              <key>NSStringFormatValueTypeKey</key>
+              <string>d</string>
+              <key>other</key>
+              <string>подождать %d дней</string>
+              <key>one</key>
+              <string>подождать %d день</string>
+              <key>few</key>
+              <string>подождать %d дня</string>
+          </dict>
+      </dict>
+      <key>staking.pool.rewards.freq</key>
+      <dict>
+          <key>NSStringLocalizedFormatKey</key>
+          <string>%#@format@</string>
+          <key>format</key>
+          <dict>
+              <key>NSStringFormatSpecTypeKey</key>
+              <string>NSStringPluralRuleType</string>
+              <key>NSStringFormatValueTypeKey</key>
+              <string>d</string>
+              <key>other</key>
+              <string>выплачиваются каждые %d дней</string>
+              <key>one</key>
+              <string>выплачиваются каждый %d день</string>
+              <key>few</key>
+              <string>выплачиваются каждые %d дня</string>
+          </dict>
+      </dict>
     <key>common.days.format</key>
     <dict>
       <key>NSStringLocalizedFormatKey</key>

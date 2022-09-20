@@ -8,19 +8,19 @@ final class WalletSendWireframe: WalletSendWireframeProtocol {
 
     func presentConfirm(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
+        scamInfo: ScamInfo?,
         transferFinishBlock: WalletTransferFinishBlock?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
+            scamInfo: scamInfo,
             transferFinishBlock: transferFinishBlock
         )?.controller else {
             return

@@ -18,7 +18,7 @@ class ChainOptionsView: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorWhiteTransparent()
+        backgroundColor = R.color.colorWhite16()
         layer.cornerRadius = LayoutConstants.corderRadius
         layer.masksToBounds = true
 
