@@ -31,6 +31,7 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.receiverWarningButton.addTarget(self, action: #selector(handleScamWarningTapped), for: .touchUpInside)
+        rootView.confirmButton.addTarget(self, action: #selector(continueButtonClicked), for: .touchUpInside)
     }
 
     private func setupLocalization() {
