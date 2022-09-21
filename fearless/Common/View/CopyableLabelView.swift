@@ -37,7 +37,7 @@ final class CopyableLabelView: UIView {
     }
 
     func bind(title: String) {
-        label.text = title.uppercased()
+        label.text = title
     }
 
     private func gestureConfigure() {

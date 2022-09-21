@@ -1609,6 +1609,7 @@
 		C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */; };
 		C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
+		C65817D128DA70FC00988FC4 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65817D028DA70FC00988FC4 /* QRView.swift */; };
 		C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */; };
 		C65A6594288E5E0500679D65 /* NSLockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6593288E5E0500679D65 /* NSLockExtension.swift */; };
 		C661B3AD27DF0193005F1F7D /* AccountCreateViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */; };
@@ -4046,6 +4047,7 @@
 		C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCellModel.swift; sourceTree = "<group>"; };
 		C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainFlow.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
+		C65817D028DA70FC00988FC4 /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
 		C65A6593288E5E0500679D65 /* NSLockExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLockExtension.swift; sourceTree = "<group>"; };
 		C661B3AC27DF0193005F1F7D /* AccountCreateViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewLayout.swift; sourceTree = "<group>"; };
@@ -9954,6 +9956,14 @@
 			path = Flow;
 			sourceTree = "<group>";
 		};
+		C65817CF28DA70D900988FC4 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C65817D028DA70FC00988FC4 /* QRView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		C661B3AE27DF75C4005F1F7D /* ViewModels */ = {
 			isa = PBXGroup;
 			children = (
@@ -9965,6 +9975,7 @@
 		C6663B1E275F208900D699AF /* ReceiveAsset */ = {
 			isa = PBXGroup;
 			children = (
+				C65817CF28DA70D900988FC4 /* View */,
 				C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */,
 				C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */,
 				C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */,
@@ -13674,6 +13685,7 @@
 				84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */,
 				8430AACC2602249B005B1066 /* InitialStakingState.swift in Sources */,
 				84786DA825F9F58E0089DFF7 /* EraValidatorService+Fetch.swift in Sources */,
+				C65817D128DA70FC00988FC4 /* QRView.swift in Sources */,
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
 				84ACEBFF261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift in Sources */,
 				FA86442527671E0E00956D8E /* WalletTransactionHistoryViewModelFactory.swift in Sources */,

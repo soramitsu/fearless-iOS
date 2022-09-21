@@ -27,39 +27,30 @@ final class ReceiveAssetViewController: UIViewController, ViewHolder {
 
         presenter.setup()
 
-        rootView.navigationBar.backButton.addTarget(
-            self,
-            action: #selector(closeButtonClicked),
-            for: .touchUpInside
-        )
-
         rootView.shareButton.addTarget(
             self,
             action: #selector(shareButtonClicked),
             for: .touchUpInside
         )
 
-        rootView.accountView.addTarget(
+        rootView.copyButton.addTarget(
             self,
-            action: #selector(actionAccountOptions),
+            action: #selector(copyButtonClicked),
             for: .touchUpInside
         )
 
         navigationController?.setNavigationBarHidden(true, animated: false)
     }
 
-    @objc private func closeButtonClicked() {
-        presenter.didTapCloseButton()
-    }
-
     @objc private func shareButtonClicked() {
-        if let image = rootView.imageView.image {
+        if let image = rootView.qrView.qrImageView.image {
             presenter.share(qrImage: image)
         }
     }
 
-    @objc func actionAccountOptions() {
-        presenter.presentAccountOptions()
+    @objc private func copyButtonClicked() {
+        UIPasteboard.general.string = rootView.addressLabel.text
+        presenter.close()
     }
 }
 
@@ -69,7 +60,7 @@ extension ReceiveAssetViewController: ReceiveAssetViewProtocol {
     }
 
     func didReceive(image: UIImage) {
-        rootView.imageView.image = image
+        rootView.qrView.qrImageView.image = image
     }
 
     func didReceive(locale: Locale) {
