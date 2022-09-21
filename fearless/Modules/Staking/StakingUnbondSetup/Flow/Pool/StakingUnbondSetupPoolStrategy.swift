@@ -127,6 +127,24 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
 
         feeProxy.delegate = self
     }
+
+    func estimateFeeOld() {
+        guard let extrinsicService = extrinsicService,
+              let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                  precision: Int16(chainAsset.asset.precision)
+              ),
+              let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return
+        }
+
+        let unbondCall = callFactory.poolUnbondOld(accountId: accountId, amount: amount)
+
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
+            try builder.adding(call: unbondCall)
+        }
+
+        feeProxy.delegate = self
+    }
 }
 
 extension StakingUnbondSetupPoolStrategy: AccountInfoSubscriptionAdapterHandler {
@@ -153,5 +171,12 @@ extension StakingUnbondSetupPoolStrategy: RelaychainStakingLocalStorageSubscribe
 extension StakingUnbondSetupPoolStrategy: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
+
+        switch result {
+        case .success:
+            break
+        case .failure:
+            estimateFeeOld()
+        }
     }
 }

@@ -325,12 +325,11 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         let currentRewardCounter = payoutSinceLastRecord * rewardCounterBase / poolStakeAmount + lastRecordedRewardCounter
 
         let pendingReward = (currentRewardCounter - ownLastRecordedRewardCounter) * totalStakeAmount / rewardCounterBase
-//        let pendingReward = ownLastRecordedRewardCounter != 0 ? 0 : (totalStakeAmount / poolStakeAmount) * (lastRecordedTotalPayouts - totalRewardsClaimed)
         var redeemableViewModel: StakingUnitInfoViewModel?
         var unstakingViewModel: StakingUnitInfoViewModel?
 
         guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
-              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(0, priceData: priceData)
         else {
             return nil
         }

@@ -427,6 +427,18 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         )
     }
 
+    func poolUnbondOld(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCallOld> {
+        let args = PoolUnbondCallOld(
+            memberAccount: accountId,
+            unbondingPoints: amount
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolUnbond,
+            args: args
+        )
+    }
+
     func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall> {
         let args = PoolWithdrawUnbondedCall(
             memberAccount: .accoundId(accountId),

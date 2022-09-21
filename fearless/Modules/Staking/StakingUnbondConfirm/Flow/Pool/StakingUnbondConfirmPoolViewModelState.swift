@@ -8,7 +8,7 @@ final class StakingUnbondConfirmPoolViewModelState: StakingUnbondConfirmViewMode
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactory
     let inputAmount: Decimal
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    let callFactory = SubstrateCallFactory()
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -24,6 +24,21 @@ final class StakingUnbondConfirmPoolViewModelState: StakingUnbondConfirmViewMode
         }
 
         let unbondCall = callFactory.poolUnbond(accountId: accountId, amount: amount)
+
+        return { builder in
+            try builder.adding(call: unbondCall)
+        }
+    }
+
+    var builderClosureOld: ExtrinsicBuilderClosure? {
+        guard
+            let amount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)),
+            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        else {
+            return nil
+        }
+
+        let unbondCall = callFactory.poolUnbondOld(accountId: accountId, amount: amount)
 
         return { builder in
             try builder.adding(call: unbondCall)
@@ -117,6 +132,7 @@ extension StakingUnbondConfirmPoolViewModelState: StakingUnbondConfirmPoolStrate
             stateListener?.provideFeeViewModel()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
+            stateListener?.didReceiveFeeError()
         }
     }
 

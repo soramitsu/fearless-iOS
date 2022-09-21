@@ -152,4 +152,11 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
             reuseIdentifier: viewModelState.reuseIdentifier
         )
     }
+
+    func didReceiveFeeError() {
+        interactor.estimateFee(
+            builderClosure: viewModelState.builderClosureOld,
+            reuseIdentifier: viewModelState.reuseIdentifier
+        )
+    }
 }
