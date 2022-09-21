@@ -87,7 +87,6 @@ final class WalletSendPresenter {
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
         amountViewModel = inputViewModel
-
         view?.didReceive(amountInputViewModel: inputViewModel)
     }
 
@@ -131,6 +130,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         inputResult = .rate(Decimal(Double(percentage)))
 
         refreshFee()
+        provideAssetVewModel()
         provideInputViewModel()
     }
 
@@ -138,7 +138,7 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         inputResult = .absolute(newValue)
 
         refreshFee()
-        provideInputViewModel()
+        provideAssetVewModel()
     }
 
     func didTapBackButton() {
