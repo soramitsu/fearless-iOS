@@ -134,7 +134,7 @@ private extension WalletSendViewLayout {
         addSubview(tipView) { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
-            make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
+            make.bottom.equalTo(feeView.snp.top).offset(-UIConstants.defaultOffset)
         }
     }
 
