@@ -17,6 +17,8 @@ class TitleMultiValueView: UIView {
         return label
     }()
 
+    let valueLabelsStack = UIFactory.default.createVerticalStackView()
+
     let valueBottom: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorGray()
@@ -75,6 +77,9 @@ class TitleMultiValueView: UIView {
 
         valueTop.text = viewModel?.title
         valueBottom.text = viewModel?.subtitle
+
+        valueTop.isHidden = viewModel?.title == nil
+        valueBottom.isHidden = viewModel?.subtitle == nil
     }
 
     func bind(viewModel: BalanceViewModelProtocol?) {
@@ -100,19 +105,14 @@ class TitleMultiValueView: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        addSubview(valueTop)
-        valueTop.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-            make.bottom.equalTo(self.snp.centerY)
+        addSubview(valueLabelsStack)
+        valueLabelsStack.snp.makeConstraints { make in
+            make.trailing.top.bottom.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 
-        addSubview(valueBottom)
-        valueBottom.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-            make.top.equalTo(self.snp.centerY)
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
-        }
+        valueLabelsStack.addArrangedSubview(valueTop)
+        valueLabelsStack.addArrangedSubview(valueBottom)
 
         addSubview(activityIndicator)
         activityIndicator.snp.makeConstraints { make in

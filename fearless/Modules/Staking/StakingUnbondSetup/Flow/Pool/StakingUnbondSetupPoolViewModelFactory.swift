@@ -8,21 +8,14 @@ final class StakingUnbondSetupPoolViewModelFactory: StakingUnbondSetupViewModelF
         self.accountViewModelFactory = accountViewModelFactory
     }
 
-    func buildBondingDurationViewModel(viewModelState: StakingUnbondSetupViewModelState) -> LocalizableResource<TitleWithSubtitleViewModel>? {
-        guard let viewModelState = viewModelState as? StakingUnbondSetupPoolViewModelState else {
-            return nil
-        }
-
-        let viewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
-            let title = R.string.localizable.stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
-            let subtitle = viewModelState.stakingDuration?.unlocking.readableValue(locale: locale) ?? ""
-            return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
-        }
-
-        return viewModel
+    func buildBondingDurationViewModel(viewModelState _: StakingUnbondSetupViewModelState) -> LocalizableResource<TitleWithSubtitleViewModel>? {
+        nil
     }
 
-    func buildCollatorViewModel(viewModelState _: StakingUnbondSetupViewModelState, locale _: Locale) -> AccountViewModel? {
+    func buildCollatorViewModel(
+        viewModelState _: StakingUnbondSetupViewModelState,
+        locale _: Locale
+    ) -> AccountViewModel? {
         nil
     }
 

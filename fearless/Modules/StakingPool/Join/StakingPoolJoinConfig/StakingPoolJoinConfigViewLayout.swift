@@ -131,7 +131,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         }
 
         amountView.snp.makeConstraints { make in
-            make.height.equalTo(LayoutConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }

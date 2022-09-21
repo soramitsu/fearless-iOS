@@ -111,7 +111,7 @@ final class StakingUnbondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)

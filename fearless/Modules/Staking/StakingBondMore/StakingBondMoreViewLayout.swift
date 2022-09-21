@@ -115,7 +115,7 @@ final class StakingBondMoreViewLayout: UIView {
 
         amountInputView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)

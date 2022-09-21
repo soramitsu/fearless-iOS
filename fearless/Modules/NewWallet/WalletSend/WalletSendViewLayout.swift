@@ -110,6 +110,7 @@ private extension WalletSendViewLayout {
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.verticalInset, after: amountView)
