@@ -830,3 +830,5 @@ and depending on the network state, may not be selected to participate";
 "scam.warning.alert.title" = "This address has been flagged due to evidence of a scam.";
 "scam.warning.alert.subtitle" = "We strongly recommend that you don't send %@ to this account.";
 "transaction.list.header" = "Все транзакции";
+"common.copy" = "Скопировать";
+"common.share" = "Поделиться";
