@@ -22,7 +22,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     func buildViewModel(
-        displayType _: AssetListDisplayType,
+        displayType: AssetListDisplayType,
         selectedMetaAccount: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -46,7 +46,15 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = chainAssets.compactMap { chainAsset in
+        var utilityChainAssets = chainAssets
+        switch displayType {
+        case .chain:
+            break
+        case .assetChains:
+            utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
+        }
+
+        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 

@@ -278,7 +278,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
-        actionButton.isHidden = false
+        changeActionButtonVisibility(true)
+
         if let rewardView = stateView as? RewardEstimationView {
             return rewardView
         }
@@ -392,6 +393,20 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         analyticsContainerView.isHidden = viewModel == nil
         analyticsView.bind(viewModel: viewModel)
     }
+
+    private func changeActionButtonVisibility(_ isVisible: Bool) {
+        let insets = scrollView.contentInset
+        let bottomInset: CGFloat = isVisible ? 84 : 0
+
+        scrollView.contentInset = UIEdgeInsets(
+            top: insets.top,
+            left: insets.left,
+            bottom: bottomInset,
+            right: insets.right
+        )
+
+        actionButton.isHidden = !isVisible
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -478,7 +493,8 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard viewIfLoaded != nil else {
             return
         }
-        actionButton.isHidden = true
+
+        changeActionButtonVisibility(false)
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {
