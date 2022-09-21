@@ -1,67 +1,62 @@
 import UIKit
-import SoraUI
 
 final class ReceiveAssetViewLayout: UIView {
-    enum Constants {
-        static let horizontalOffset = 16
-        static let navigationVerticalOffset = 8
-        static let accountToQrLabelSpacing = 41
-        static let qrLabelToImageSpacing = 24
-        static let imageSize = 280
+    private enum LayoutConstants {
+        static let cornerRadius: CGFloat = 20.0
+        static let headerHeight: CGFloat = 56.0
+        static let qrImageSize: CGFloat = 240
+        static let verticalOffset: CGFloat = 12
     }
 
-    let navigationLabel: UILabel = {
+    private let indicator = UIFactory.default.createIndicatorView()
+
+    private let titleLabel: UILabel = {
+        let titleLabel = UILabel()
+        titleLabel.font = .h3Title
+        titleLabel.textAlignment = .left
+        return titleLabel
+    }()
+
+    let qrView = QRView()
+
+    private let walletLabel: UILabel = {
         let label = UILabel()
-        label.font = .h3Title
-        label.textColor = R.color.colorWhite()
+        label.font = .h2Title
         label.textAlignment = .center
         return label
     }()
 
-    let shareButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconShare()?.withRenderingMode(.alwaysTemplate), for: .normal)
-        button.tintColor = R.color.colorWhite()
+    let addressLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p0Paragraph
+        label.textAlignment = .center
+        label.textColor = R.color.colorWhite50()!
+        return label
+    }()
+
+    let copyButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyEnabledStyle()
         return button
     }()
 
-    let accountView: DetailsTriangularedView = {
-        let detailsView = UIFactory().createAccountView(for: .options, filled: false)
-        detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
-        return detailsView
+    let shareButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDisabledStyle()
+        return button
     }()
-
-    let qrLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
-        label.textAlignment = .center
-        return label
-    }()
-
-    let imageView = UIImageView()
 
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
-                applyLocalization()
+                applyLocale()
             }
         }
     }
 
-    lazy var navigationBar: BaseNavigationBar = {
-        let navBar = BaseNavigationBar()
-        navBar.set(.present)
-        return navBar
-    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        backgroundColor = R.color.colorBlack19()
-
         setupLayout()
-        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -70,47 +65,79 @@ final class ReceiveAssetViewLayout: UIView {
     }
 
     func bind(viewModel: ReceiveAssetViewModel) {
-        navigationLabel.text =
+        titleLabel.text =
             R.string.localizable.walletReceiveNavigationTitle(viewModel.asset, preferredLanguages: locale.rLanguages)
-        accountView.titleLabel.text = viewModel.accountName
-        accountView.subtitleLabel?.text = viewModel.address
-        accountView.iconImage = viewModel.accountIcon
+        walletLabel.text = viewModel.accountName
+        addressLabel.text = viewModel.address
     }
 
-    func setupLayout() {
-        addSubview(navigationBar)
-        navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+    private func applyLocale() {
+        copyButton.imageWithTitleView?.title = R.string.localizable.commonCopy(preferredLanguages: locale.rLanguages)
+        shareButton.imageWithTitleView?.title = R.string.localizable.commonShare(preferredLanguages: locale.rLanguages)
+    }
+
+    private func setupLayout() {
+        backgroundColor = R.color.colorAlmostBlack()!
+        layer.cornerRadius = LayoutConstants.cornerRadius
+        clipsToBounds = true
+        walletLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+        addressLabel.setContentHuggingPriority(.defaultHigh, for: .vertical)
+
+        let navView = UIView()
+        addSubview(navView)
+        navView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(LayoutConstants.headerHeight)
         }
 
-        navigationBar.setCenterViews([navigationLabel])
-        navigationBar.setRightViews([shareButton])
-
-        addSubview(accountView)
-        accountView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(Constants.horizontalOffset)
-            make.trailing.equalToSuperview().inset(Constants.horizontalOffset)
-            make.top.equalTo(navigationBar.snp.bottom).offset(Constants.navigationVerticalOffset)
-            make.height.equalTo(UIConstants.cellHeight)
+        navView.addSubview(indicator)
+        indicator.snp.makeConstraints { make in
+            make.size.equalTo(UIConstants.indicatorSize)
+            make.top.equalTo(navView.snp.top)
+            make.centerX.equalTo(navView.snp.centerX)
         }
 
-        addSubview(qrLabel)
-        qrLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().offset(Constants.horizontalOffset)
-            make.top.equalTo(accountView.snp.bottom).offset(Constants.accountToQrLabelSpacing)
+        navView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.centerY.equalToSuperview()
         }
 
-        addSubview(imageView)
-        imageView.snp.makeConstraints { make in
-            make.size.equalTo(280 * designScaleRatio.width)
-            make.top.equalTo(qrLabel.snp.bottom).offset(Constants.qrLabelToImageSpacing)
+        addSubview(qrView)
+        qrView.snp.makeConstraints { make in
+            make.top.equalTo(navView.snp.bottom).offset(UIConstants.hugeOffset)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(LayoutConstants.qrImageSize)
+        }
+
+        addSubview(walletLabel)
+        walletLabel.snp.makeConstraints { make in
+            make.top.equalTo(qrView.snp.bottom).offset(UIConstants.hugeOffset)
             make.centerX.equalToSuperview()
         }
-    }
 
-    func applyLocalization() {
-        qrLabel.text = R.string.localizable.walletReceiveQrDescription(preferredLanguages: locale.rLanguages)
+        addSubview(addressLabel)
+        addressLabel.snp.makeConstraints { make in
+            make.top.equalTo(walletLabel.snp.bottom).offset(UIConstants.hugeOffset)
+            make.centerX.equalToSuperview()
+            make.width.equalTo(LayoutConstants.qrImageSize)
+        }
+
+        addSubview(shareButton)
+        shareButton.snp.makeConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-LayoutConstants.verticalOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        addSubview(copyButton)
+        copyButton.snp.makeConstraints { make in
+            make.bottom.equalTo(shareButton.snp.top).offset(-LayoutConstants.verticalOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+            make.top.equalTo(addressLabel.snp.bottom).offset(UIConstants.bigOffset)
+        }
     }
 }
-
-extension ReceiveAssetViewLayout: AdaptiveDesignable {}

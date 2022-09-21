@@ -843,3 +843,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.staking.management.claim.title" = "Claim reward";
 "pool.staking.management.redeem.title" = "Redeem tokens";
 "options.common" = "Options";
+"common.copy" = "Copy";
+"common.share" = "Share";

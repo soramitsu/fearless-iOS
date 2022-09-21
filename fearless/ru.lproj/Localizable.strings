@@ -840,3 +840,5 @@ and depending on the network state, may not be selected to participate";
 "pool.staking.management.claim.title" = "Claim reward";
 "pool.staking.management.redeem.title" = "Redeem tokens";
 "options.common" = "Options";
+"common.copy" = "Скопировать";
+"common.share" = "Поделиться";
