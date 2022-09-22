@@ -232,8 +232,14 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
             } ?? nil
 
             provideAssetVewModel()
-            provideInputViewModel()
             provideFeeViewModel()
+
+            switch inputResult {
+            case .rate:
+                provideInputViewModel()
+            default:
+                break
+            }
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
