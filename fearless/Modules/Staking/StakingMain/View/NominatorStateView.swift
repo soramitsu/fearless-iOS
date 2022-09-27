@@ -63,6 +63,9 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         unstakingView.valueLabel.text = viewModel.unstakingViewModel?.value
         unstakingView.subtitleLabel.text = viewModel.unstakingViewModel?.subtitle
 
+        redeemableView.isHidden = viewModel.redeemableViewModel == nil
+        unstakingView.isHidden = viewModel.unstakingViewModel == nil
+
         if case .undefined = viewModel.status {
             toggleStatus(false)
         } else {

@@ -163,7 +163,7 @@ final class StakingRedeemLayout: UIView {
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
         stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
 

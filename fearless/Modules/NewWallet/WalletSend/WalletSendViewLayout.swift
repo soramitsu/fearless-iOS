@@ -110,6 +110,7 @@ private extension WalletSendViewLayout {
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.verticalInset, after: amountView)
@@ -133,7 +134,7 @@ private extension WalletSendViewLayout {
         addSubview(tipView) { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
-            make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
+            make.bottom.equalTo(feeView.snp.top).offset(-UIConstants.defaultOffset)
         }
     }
 

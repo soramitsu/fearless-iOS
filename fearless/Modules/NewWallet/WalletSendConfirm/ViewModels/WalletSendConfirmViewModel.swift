@@ -2,6 +2,7 @@ import Foundation
 
 struct WalletSendConfirmViewModel {
     let amountAttributedString: NSAttributedString
+    let amountString: String
     let senderNameString: String
     let senderAddressString: String
     let receiverAddressString: String

@@ -172,6 +172,7 @@ final class AmountInputViewV2: UIView {
         textField.snp.makeConstraints { make in
             make.trailing.equalTo(priceLabel)
             make.top.equalTo(priceLabel.snp.bottom).offset(UIConstants.minimalOffset)
+            make.leading.equalTo(symbolStackView.snp.trailing).offset(UIConstants.bigOffset)
         }
 
         balanceLabel.snp.makeConstraints { make in

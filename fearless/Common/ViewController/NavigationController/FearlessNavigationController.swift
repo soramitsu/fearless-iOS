@@ -49,17 +49,17 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
     func navigationController(
         _: UINavigationController,
         willShow viewController: UIViewController,
-        animated _: Bool
+        animated: Bool
     ) {
-        updateNavigationBarState(in: viewController)
+        updateNavigationBarState(in: viewController, animated: animated)
         setupBackButtonItem(for: viewController)
     }
 
     // MARK: Private
 
-    private func updateNavigationBarState(in viewController: UIViewController) {
+    private func updateNavigationBarState(in viewController: UIViewController, animated _: Bool) {
         let isHidden = viewController as? HiddableBarWhenPushed != nil
-        setNavigationBarHidden(isHidden, animated: true)
+        setNavigationBarHidden(isHidden, animated: false)
 
         if let navigationDependable = viewController as? NavigationDependable {
             navigationDependable.navigationControlling = self

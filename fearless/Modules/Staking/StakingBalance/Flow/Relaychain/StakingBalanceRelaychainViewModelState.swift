@@ -87,7 +87,7 @@ final class StakingBalanceRelaychainViewModelState {
         .relaychain
     }
 
-    var revokeFlow: StakingRedeemFlow? {
+    var revokeFlow: StakingRedeemConfirmationFlow? {
         .relaychain
     }
 

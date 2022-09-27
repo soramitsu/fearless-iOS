@@ -93,6 +93,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.poolStakingJoinTitle(
             preferredLanguages: locale.rLanguages
         ))
+
         feeView.actionButton.imageWithTitleView?.title = R.string.localizable.poolStakingJoinButtonTitle(
             preferredLanguages: locale.rLanguages
         )
@@ -130,7 +131,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
         }
 
         amountView.snp.makeConstraints { make in
-            make.height.equalTo(LayoutConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }

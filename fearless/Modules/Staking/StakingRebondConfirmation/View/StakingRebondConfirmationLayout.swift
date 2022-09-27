@@ -103,7 +103,7 @@ final class StakingRebondConfirmationLayout: UIView {
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         addSubview(networkFeeFooterView)
