@@ -103,11 +103,12 @@ protocol SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<CreatePoolCall>
 
     func setPoolMetadata(
-        poolId: UInt32,
+        poolId: String,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall>
 }
 
+// swiftlint:disable type_body_length file_length
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
 
@@ -382,7 +383,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     }
 
     func setPoolMetadata(
-        poolId: UInt32,
+        poolId: String,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall> {
         let args = SetMetadataCall(

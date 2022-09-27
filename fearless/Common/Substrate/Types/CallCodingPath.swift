@@ -31,6 +31,6 @@ extension CallCodingPath {
     }
 
     static var setPoolMetadata: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "SetMetadata")
+        CallCodingPath(moduleName: "NominationPools", callName: "set_metadata")
     }
 }

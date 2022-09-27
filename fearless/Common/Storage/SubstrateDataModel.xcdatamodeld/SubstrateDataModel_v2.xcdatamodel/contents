@@ -22,7 +22,7 @@
         <attribute name="hasCrowdloans" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="historyApiType" optional="YES" attributeType="String"/>
         <attribute name="historyApiUrl" optional="YES" attributeType="URI"/>
-        <attribute name="icon" attributeType="URI"/>
+        <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="isEthereumBased" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isOrml" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="isTestnet" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -125,9 +125,9 @@
         <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>
         <element name="CDRuntimeMetadataItem" positionX="-45" positionY="81" width="128" height="104"/>
+        <element name="CDScamInfo" positionX="-36" positionY="153" width="128" height="89"/>
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
-        <element name="CDScamInfo" positionX="-36" positionY="153" width="128" height="89"/>
     </elements>
 </model>

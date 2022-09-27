@@ -62,6 +62,7 @@ protocol UIFactoryProtocol {
         spacing: CGFloat
     ) -> UIToolbar
     func createCommonInputView() -> CommonInputView
+    func createCommonInputViewV2() -> CommonInputViewV2
     func createAmountInputView(filled: Bool) -> AmountInputView
     func createAmountAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
@@ -150,6 +151,8 @@ final class UIFactory: UIFactoryProtocol {
             view.iconRadius = UIConstants.triangularedIconLargeRadius
         case .smallIconTitleSubtitle, .smallIconTitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
+        case .withoutIcon:
+            view.iconView.removeFromSuperview()
         }
 
         view.titleLabel.textColor = R.color.colorLightGray()!
@@ -290,6 +293,10 @@ final class UIFactory: UIFactoryProtocol {
         CommonInputView()
     }
 
+    func createCommonInputViewV2() -> CommonInputViewV2 {
+        CommonInputViewV2()
+    }
+
     func createAmountInputView(filled: Bool) -> AmountInputView {
         let amountInputView = AmountInputView()
 
@@ -418,7 +425,7 @@ final class UIFactory: UIFactoryProtocol {
         case .options:
             view.actionImage = R.image.iconMore()
         case .selection:
-            view.actionImage = R.image.iconSmallArrowDown()
+            view.actionImage = R.image.iconExpandable()
         }
 
         view.highlightedFillColor = R.color.colorHighlightedPink()!

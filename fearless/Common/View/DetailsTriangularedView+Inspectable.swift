@@ -278,6 +278,8 @@ extension DetailsTriangularedView {
                 return 3
             case .largeIconTitleInfoSubtitle:
                 return 4
+            case .withoutIcon:
+                return 5
             }
         }
 
@@ -291,6 +293,8 @@ extension DetailsTriangularedView {
                 layout = .smallIconTitleButton
             case 4:
                 layout = .largeIconTitleInfoSubtitle
+            case 5:
+                layout = .withoutIcon
             default:
                 layout = .singleTitle
             }
