@@ -832,3 +832,4 @@ and depending on the network state, may not be selected to participate";
 "transaction.list.header" = "Все транзакции";
 "common.copy" = "Скопировать";
 "common.share" = "Поделиться";
+"receive.note.text" = "Примечание: Это Polkadot&Kusama кошелек. Пожалуйста отправляйте только токены Polkadot&Kusama экосистемы";
