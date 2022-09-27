@@ -38,7 +38,7 @@ final class StakingPoolStartPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let apr = calculator?.calculateAvgReturn(isCompound: true, period: .year)
+        let apr = calculator?.calculateMaxReturn(isCompound: true, period: .year)
 
         let viewModel = viewModelFactory.buildViewModel(
             rewardsDelay: stakingDuration?.era,

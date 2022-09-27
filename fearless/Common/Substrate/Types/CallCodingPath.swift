@@ -31,6 +31,22 @@ extension CallCodingPath {
     }
 
     static var setPoolMetadata: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "SetMetadata")
+        CallCodingPath(moduleName: "NominationPools", callName: "set_metadata")
+    }
+
+    static var poolBondMore: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "bond_extra")
+    }
+
+    static var poolUnbond: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "unbond")
+    }
+
+    static var claimPendingRewards: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "claim_payout")
+    }
+
+    static var poolWithdrawUnbonded: CallCodingPath {
+        CallCodingPath(moduleName: "NominationPools", callName: "withdraw_unbonded")
     }
 }
