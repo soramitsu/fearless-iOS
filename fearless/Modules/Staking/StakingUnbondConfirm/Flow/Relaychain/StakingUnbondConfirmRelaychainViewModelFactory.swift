@@ -53,14 +53,15 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
     }
 
     func buildViewModel(viewModelState: StakingUnbondConfirmViewModelState) -> StakingUnbondConfirmViewModel? {
-        guard let viewModelState = viewModelState as? StakingUnbondConfirmRelaychainViewModelState, let controller = viewModelState.controller else {
+        guard let viewModelState = viewModelState as? StakingUnbondConfirmRelaychainViewModelState,
+              let controller = viewModelState.controller else {
             return nil
         }
 
-        let formatter = formatterFactory.createInputFormatter(for: asset.displayInfo)
+        let formatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
 
         let amount = LocalizableResource { locale in
-            formatter.value(for: locale).string(from: viewModelState.inputAmount as NSNumber) ?? ""
+            formatter.value(for: locale).stringFromDecimal(viewModelState.inputAmount) ?? ""
         }
 
         let address = controller.toAddress() ?? ""
@@ -74,12 +75,37 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
             senderName: controller.name,
             collatorName: nil,
             collatorIcon: nil,
-            amount: amount,
+            stakeAmountViewModel: createStakedAmountViewModel(viewModelState.inputAmount),
+            amountString: amount,
             hints: hints
         )
     }
 
     func buildBondingDurationViewModel(viewModelState _: StakingUnbondConfirmViewModelState) -> LocalizableResource<TitleWithSubtitleViewModel>? {
         nil
+    }
+
+    func createStakedAmountViewModel(
+        _ amount: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+
+        let iconViewModel = asset.displayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
+            let stakedString = R.string.localizable.poolStakingUnstakeAmountTitle(
+                amountString,
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorWhite(),
+                range: (stakedString as NSString).range(of: amountString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }

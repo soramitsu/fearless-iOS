@@ -93,4 +93,8 @@ extension ConstantCodingPath {
     static var candidateBondLessDelay: ConstantCodingPath {
         ConstantCodingPath(moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
     }
+
+    static var nominationPoolsPalletId: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "NominationPools", constantName: "PalletId")
+    }
 }

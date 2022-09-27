@@ -5,13 +5,16 @@ enum StakingBondMoreConfirmationFlowError: Error {}
 enum StakingBondMoreConfirmationFlow {
     case relaychain(amount: Decimal)
     case parachain(amount: Decimal, candidate: ParachainStakingCandidateInfo)
+    case pool(amount: Decimal)
 }
 
 protocol StakingBondMoreConfirmViewModelFactoryProtocol {
     func createViewModel(
         account: MetaAccountModel,
         amount: Decimal,
-        state: StakingBondMoreConfirmationViewModelState
+        state: StakingBondMoreConfirmationViewModelState,
+        locale: Locale,
+        priceData: PriceData?
     ) throws -> StakingBondMoreConfirmViewModel?
 }
 

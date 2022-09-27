@@ -241,9 +241,9 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     ) {
-        guard let redeemView = StakingRedeemViewFactory.createView(
+        guard let redeemView = StakingRedeemConfirmationViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
             flow: flow,

@@ -46,6 +46,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         presenter.view = view
         interactor.presenter = presenter
 
+        dataValidatingFactory.view = view
+
         return view
     }
 
@@ -91,6 +93,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -207,6 +210,38 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 asset: chainAsset.asset,
                 bondingDuration: bondingDuration,
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+
+            return StakingUnbondConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .pool(amount):
+            let viewModelState = StakingUnbondConfirmPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                inputAmount: amount
+            )
+            let viewModelFactory = StakingUnbondConfirmPoolViewModelFactory(
+                asset: chainAsset.asset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingUnbondConfirmPoolStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                keystore: keystore,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                eventCenter: EventCenter.shared,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
             )
 
             return StakingUnbondConfirmDependencyContainer(

@@ -35,6 +35,7 @@ final class NetworkIssuesNotificationAssembly {
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter
         )
+
         let router = NetworkIssuesNotificationRouter()
 
         let presenter = NetworkIssuesNotificationPresenter(

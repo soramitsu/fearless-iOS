@@ -132,7 +132,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         stackView.setCustomSpacing(16.0, after: amountView)

@@ -137,7 +137,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - Charts
+  - Charts (~> 3.6.0)
   - CommonWallet/Core
   - Cuckoo
   - DiffableDataSources
@@ -239,6 +239,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 7c56670195b1816c819c1e781b10f4f68689e990
+PODFILE CHECKSUM: 4ad643deee68f0d024fe794567c379e770d960b4
 
 COCOAPODS: 1.11.3

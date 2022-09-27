@@ -89,6 +89,7 @@ extension StakingPoolJoinChoosePoolPresenter: StakingPoolJoinChoosePoolViewOutpu
             .totalStake(assetSymbol: chainAsset.asset.symbol.uppercased()),
             .numberOfMembers
         ]
+
         let options = filterFactory.createSortings(
             options: sortOptions,
             selectedOption: sort,
