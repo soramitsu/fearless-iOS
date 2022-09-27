@@ -128,7 +128,6 @@ final class ChooseRecipientViewLayout: UIView {
 
         scamWarningView.isHidden = true
         contentVStackView.addArrangedSubview(scamWarningView)
-        contentVStackView.addArrangedSubview(tableView)
 
         addSubview(bottomContainer)
         bottomContainer.snp.makeConstraints { make in

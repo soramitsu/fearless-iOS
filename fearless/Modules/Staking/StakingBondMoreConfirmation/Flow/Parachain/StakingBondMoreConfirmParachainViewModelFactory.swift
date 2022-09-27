@@ -6,29 +6,29 @@ import FearlessUtils
 final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     private let chainAsset: ChainAsset
     private let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     private lazy var formatterFactory = AssetBalanceFormatterFactory()
 
     init(
         chainAsset: ChainAsset,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     func createViewModel(
         account: MetaAccountModel,
         amount: Decimal,
-        state: StakingBondMoreConfirmationViewModelState
+        state: StakingBondMoreConfirmationViewModelState,
+        locale: Locale,
+        priceData: PriceData?
     ) throws -> StakingBondMoreConfirmViewModel? {
         guard let state = state as? StakingBondMoreConfirmationParachainViewModelState else {
             return nil
-        }
-        let formatter = formatterFactory.createInputFormatter(for: chainAsset.assetDisplayInfo)
-
-        let amount = LocalizableResource { locale in
-            formatter.value(for: locale).string(from: amount as NSNumber) ?? ""
         }
 
         let address = account.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
@@ -36,13 +36,45 @@ final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConf
         let senderIcon = try? iconGenerator.generateFromAddress(address)
         let collatorIcon = try? iconGenerator.generateFromAddress(state.candidate.address)
 
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
+        let amountViewModel = TitleMultiValueViewModel(
+            title: balanceViewModel.value(for: locale).amount,
+            subtitle: balanceViewModel.value(for: locale).price
+        )
+        let collatorViewModel = TitleMultiValueViewModel(title: state.candidate.identity?.name, subtitle: nil)
+
         return StakingBondMoreConfirmViewModel(
-            senderAddress: address,
+            accountViewModel: accountViewModel,
+            amountViewModel: amountViewModel,
+            collatorViewModel: collatorViewModel,
             senderIcon: senderIcon,
-            senderName: account.name,
-            amount: amount,
-            collatorName: state.candidate.identity?.name,
+            amount: createStakedAmountViewModel(amount),
             collatorIcon: collatorIcon
         )
+    }
+
+    func createStakedAmountViewModel(
+        _ amount: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
+            let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
+                amountString,
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorWhite(),
+                range: (stakedString as NSString).range(of: amountString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }

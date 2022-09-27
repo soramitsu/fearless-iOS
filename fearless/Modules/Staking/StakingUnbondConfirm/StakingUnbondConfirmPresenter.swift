@@ -37,6 +37,10 @@ final class StakingUnbondConfirmPresenter {
 }
 
 extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
         viewModelState.setStateListener(self)
 
@@ -145,6 +149,13 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
     func refreshFeeIfNeeded() {
         interactor.estimateFee(
             builderClosure: viewModelState.builderClosure,
+            reuseIdentifier: viewModelState.reuseIdentifier
+        )
+    }
+
+    func didReceiveFeeError() {
+        interactor.estimateFee(
+            builderClosure: viewModelState.builderClosureOld,
             reuseIdentifier: viewModelState.reuseIdentifier
         )
     }

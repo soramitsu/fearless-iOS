@@ -7,59 +7,32 @@ final class StakingPayoutConfirmationPresenter {
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
 
-    private var balance: Decimal?
-    private var fee: Decimal?
-    private var rewardAmount: Decimal = 0.0
     private var priceData: PriceData?
-    private var account: ChainAccountResponse?
-    private var rewardDestination: RewardDestination<DisplayAddress>?
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
+    private let payoutConfirmViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
+    private let viewModelState: StakingPayoutConfirmationViewModelState
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
+        payoutConfirmViewModelFactory: StakingPayoutConfirmationViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        logger: LoggerProtocol? = nil
+        chainAsset: ChainAsset,
+        logger: LoggerProtocol? = nil,
+        viewModelState: StakingPayoutConfirmationViewModelState
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.logger = logger
+        self.viewModelState = viewModelState
     }
 
     // MARK: - Private functions
-
-    private func provideFee() {
-        if let fee = fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceive(feeViewModel: viewModel)
-        } else {
-            view?.didReceive(feeViewModel: nil)
-        }
-    }
-
-    private func provideViewModel() {
-        guard let account = self.account else { return }
-
-        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
-            with: account,
-            rewardAmount: rewardAmount,
-            rewardDestination: rewardDestination,
-            priceData: priceData
-        )
-
-        view?.didRecieve(viewModel: viewModel)
-    }
 
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
@@ -73,35 +46,23 @@ final class StakingPayoutConfirmationPresenter {
 
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideFee()
         interactor.setup()
+
+        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
     }
 
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
-                self?.interactor.estimateFee()
-            },
-
-            dataValidatingFactory.rewardIsHigherThanFee(
-                reward: rewardAmount,
-                fee: fee,
-                locale: locale
-            ),
-
-            dataValidatingFactory.canPayFee(
-                balance: balance,
-                fee: fee,
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
+        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
             }
 
-            strongSelf.interactor.submitPayout()
+            strongSelf.interactor.submitPayout(builderClosure: strongSelf.viewModelState.builderClosure)
         }
     }
 
@@ -112,27 +73,20 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             wireframe.presentAccountOptions(
                 from: view,
                 address: viewModel.address,
-                chain: chain,
+                chain: chainAsset.chain,
                 locale: locale
             )
         }
+    }
+
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
     }
 }
 
 // MARK: - StakingPayoutConfirmationInteractorOutputProtocol
 
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
-    func didReceiveFee(result: Result<Decimal, Error>) {
-        switch result {
-        case let .success(fee):
-            self.fee = fee
-            provideFee()
-
-        case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -144,32 +98,11 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
             logger?.error("Price data subscription error: \(error)")
         }
     }
+}
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
-                balance = Decimal.fromSubstrateAmount(
-                    availableValue,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                balance = 0.0
-            }
-
-        case let .failure(error):
-            logger?.error("Account Info subscription error: \(error)")
-        }
-    }
-
-    func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>) {
-        switch result {
-        case let .success(rewardDestination):
-            self.rewardDestination = rewardDestination
-            provideViewModel()
-        case let .failure(error):
-            logger?.error("Did receive reward destination error: \(error)")
-        }
+extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStateListener {
+    func didReceiveError(error: Error) {
+        logger?.error("StakingPayoutConfirmationPresenter:didReceiveError: \(error)")
     }
 
     func didStartPayout() {
@@ -186,16 +119,49 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         wireframe.complete(from: view)
     }
 
+    func didCompletePayout(result: SubmitExtrinsicResult) {
+        switch result {
+        case let .success(txHash):
+            logger?.info("Did send payouts \(txHash)")
+
+            view?.didStopLoading()
+
+            wireframe.complete(from: view)
+        case let .failure(error):
+            view?.didStopLoading()
+
+            handle(error: error)
+        }
+    }
+
     func didFailPayout(error: Error) {
         view?.didStopLoading()
 
         handle(error: error)
     }
 
-    func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal) {
-        self.account = account
-        self.rewardAmount = rewardAmount
+    func provideFee() {
+        if let fee = viewModelState.fee {
+            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceive(feeViewModel: viewModel)
+        } else {
+            view?.didReceive(feeViewModel: nil)
+        }
+    }
 
-        provideViewModel()
+    func provideViewModel() {
+        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        )
+
+        view?.didRecieve(viewModel: viewModel)
+
+        let singleViewModel = payoutConfirmViewModelFactory.createSinglePayoutConfirmationViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        )
+
+        view?.didReceive(singleViewModel: singleViewModel)
     }
 }

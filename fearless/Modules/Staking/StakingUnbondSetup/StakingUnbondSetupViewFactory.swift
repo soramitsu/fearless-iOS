@@ -74,6 +74,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -129,6 +130,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             operationManager: operationManager
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+        let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
         switch flow {
         case .relaychain:
@@ -196,6 +198,46 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 accountViewModelFactory:
                 AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
             )
+            return StakingUnbondSetupDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+
+        case .pool:
+            let viewModelState = StakingUnbondSetupPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingUnbondSetupPoolViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
+            let requestFactory = StorageRequestFactory(
+                remoteFactory: StorageKeyFactory(),
+                operationManager: operationManager
+            )
+
+            let stakingPoolOperationFactory = StakingPoolOperationFactory(
+                chainAsset: chainAsset,
+                storageRequestFactory: requestFactory,
+                runtimeService: runtimeService,
+                engine: connection
+            )
+            let strategy = StakingUnbondSetupPoolStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                output: viewModelState,
+                extrinsicService: extrinsicService,
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                stakingDurationOperationFactory: stakingDurationOperationFactory,
+                runtimeService: runtimeService
+            )
+
             return StakingUnbondSetupDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

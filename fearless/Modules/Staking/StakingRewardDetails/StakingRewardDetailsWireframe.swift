@@ -8,14 +8,11 @@ final class StakingRewardDetailsWireframe: StakingRewardDetailsWireframeProtocol
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        guard
-            let confirmationView = StakingPayoutConfirmationViewFactory.createView(
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount,
-                payouts: [payoutInfo]
-            )
-        else { return }
+        guard let confirmationView = StakingPayoutConfirmationViewFactory.createView(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: selectedAccount,
+            flow: .relaychain(payouts: [payoutInfo])
+        ) else { return }
 
         view?.controller
             .navigationController?
