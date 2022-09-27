@@ -33,6 +33,7 @@ final class ReceiveAssetViewLayout: UIView {
         let label = UILabel()
         label.font = .p0Paragraph
         label.textAlignment = .center
+        label.lineBreakMode = .byTruncatingMiddle
         label.textColor = R.color.colorWhite50()!
         return label
     }()
