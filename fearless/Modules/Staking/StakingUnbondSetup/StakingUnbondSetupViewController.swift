@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 
-final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
+final class StakingUnbondSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingUnbondSetupLayout
 
     let presenter: StakingUnbondSetupPresenterProtocol
@@ -42,12 +42,17 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupNavigationItem()
         setupAmountInputView()
         setupLocalization()
         updateActionButton()
 
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func setupLocalization() {
@@ -76,17 +81,6 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
-    private func setupNavigationItem() {
-        let closeBarItem = UIBarButtonItem(
-            image: R.image.iconClose(),
-            style: .plain,
-            target: self,
-            action: #selector(actionClose)
-        )
-
-        navigationItem.leftBarButtonItem = closeBarItem
-    }
-
     private func applyAssetViewModel() {
         guard let viewModel = assetViewModel?.value(for: selectedLocale) else {
             return
@@ -96,9 +90,8 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     }
 
     private func applyFeeViewModel() {
-        if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.bind(feeViewModel: fee)
-        }
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 
     private func applyBondingDuration() {
@@ -124,6 +117,10 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         rootView.amountInputView.textField.resignFirstResponder()
 
         presenter.proceed()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 
     private func updateActionButton() {
@@ -188,7 +185,7 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
     }
 
     func didReceiveTitle(viewModel: LocalizableResource<String>) {
-        title = viewModel.value(for: selectedLocale)
+        rootView.navigationBar.setTitle(viewModel.value(for: selectedLocale))
     }
 
     func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>) {

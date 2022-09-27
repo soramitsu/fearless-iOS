@@ -9,6 +9,7 @@ enum StakingRedeemFlow {
         delegation: ParachainStakingDelegation,
         readyForRevoke: BigUInt
     )
+    case pool
 }
 
 protocol StakingRedeemModelStateListener: AnyObject {
