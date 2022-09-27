@@ -358,7 +358,7 @@ extension WalletTransactionHistoryViewController: Draggable {
             rootView.closeButton.alpha = CGFloat(1.0 - adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(adjustedProgress)
             rootView.backgroundImageView.alpha = CGFloat(1.0 - adjustedProgress)
-            rootView.update(tableViewOffset: CGFloat(adjustedProgress) * 16.0)
+            rootView.update(tableViewOffset: CGFloat(adjustedProgress) * UIConstants.bigOffset)
 
             if progress > 0.0 {
                 rootView.tableView.isScrollEnabled = false
@@ -371,7 +371,7 @@ extension WalletTransactionHistoryViewController: Draggable {
             rootView.closeButton.alpha = CGFloat(adjustedProgress)
             rootView.panIndicatorView.alpha = CGFloat(1.0 - adjustedProgress)
             rootView.backgroundImageView.alpha = CGFloat(adjustedProgress)
-            rootView.update(tableViewOffset: CGFloat(1.0 - adjustedProgress) * 16.0)
+            rootView.update(tableViewOffset: CGFloat(1.0 - adjustedProgress) * UIConstants.bigOffset)
         }
 
         if forcesLayoutUpdate {

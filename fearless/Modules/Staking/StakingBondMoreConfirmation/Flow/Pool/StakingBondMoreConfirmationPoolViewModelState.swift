@@ -5,8 +5,8 @@ final class StakingBondMoreConfirmationPoolViewModelState: StakingBondMoreConfir
     var stateListener: StakingBondMoreConfirmationModelStateListener?
     var balance: Decimal?
     var fee: Decimal?
-    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let amount: Decimal
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     private var priceData: PriceData?
     private let chainAsset: ChainAsset
     private var wallet: MetaAccountModel

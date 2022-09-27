@@ -27,7 +27,7 @@ final class StakingUnbondSetupLayout: UIView {
 
     let amountInputView = AmountInputViewV2()
 
-    let networkFeeFooterView: CleanNetworkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {

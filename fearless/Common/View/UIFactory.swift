@@ -469,8 +469,13 @@ final class UIFactory: UIFactoryProtocol {
         NetworkFeeFooterView()
     }
 
-    func createCleanNetworkFeeFooterView() -> CleanNetworkFeeFooterView {
-        CleanNetworkFeeFooterView()
+    func createCleanNetworkFeeFooterView() -> NetworkFeeFooterView {
+        let view = NetworkFeeFooterView()
+        view.networkFeeView?.titleLabel.font = .p2Paragraph
+        view.networkFeeView?.titleLabel.textColor = R.color.colorStrokeGray()
+        view.networkFeeView?.borderType = .none
+        view.durationView?.borderView.isHidden = true
+        return view
     }
 
     func createTitleValueView() -> TitleValueView {

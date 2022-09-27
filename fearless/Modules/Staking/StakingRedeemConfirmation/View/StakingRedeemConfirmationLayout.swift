@@ -25,7 +25,7 @@ final class StakingRedeemConfirmationLayout: UIView {
 
     let stakeAmountView = StakeAmountView()
 
-    let networkFeeFooterView: CleanNetworkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     let infoBackground: TriangularedView = {
         let view = TriangularedView()
         view.fillColor = R.color.colorSemiBlack()!

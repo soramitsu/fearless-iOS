@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 final class StakingBondMoreRelaychainViewModelFactory {
-    let accountViewModelFactory: AccountViewModelFactoryProtocol
+    private let accountViewModelFactory: AccountViewModelFactoryProtocol
 
     init(accountViewModelFactory: AccountViewModelFactoryProtocol) {
         self.accountViewModelFactory = accountViewModelFactory

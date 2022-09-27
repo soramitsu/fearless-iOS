@@ -1,10 +1,15 @@
 import UIKit
 
 final class StakingBMConfirmationViewLayout: UIView {
+    enum LayoutConstants {
+        static let topOffset: CGFloat = 24
+        static let strokeWidth: CGFloat = 0.5
+    }
+
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
-        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.backgroundColor = R.color.colorWhite8()
         bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
         bar.backgroundColor = R.color.colorBlack19()
         return bar
@@ -13,7 +18,12 @@ final class StakingBMConfirmationViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(
+            top: LayoutConstants.topOffset,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0
+        )
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
@@ -28,14 +38,14 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
-    let networkFeeFooterView: CleanNetworkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     let infoBackground: TriangularedView = {
         let view = TriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.strokeColor = R.color.colorWhite16()!
         view.highlightedStrokeColor = R.color.colorWhite16()!
-        view.strokeWidth = 0.5
+        view.strokeWidth = LayoutConstants.strokeWidth
         view.shadowOpacity = 0.0
 
         return view

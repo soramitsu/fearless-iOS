@@ -2332,7 +2332,6 @@
 		FAA013A228DA1328000A5230 /* StakeAmountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013A028DA1328000A5230 /* StakeAmountViewModel.swift */; };
 		FAA013A328DA1328000A5230 /* TitleMultiValueViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013A128DA1328000A5230 /* TitleMultiValueViewModel.swift */; };
 		FAA013A728DA133E000A5230 /* ShadowRoundedBackground.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013A428DA133E000A5230 /* ShadowRoundedBackground.swift */; };
-		FAA013A828DA133E000A5230 /* CleanNetworkFeeFooterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013A528DA133E000A5230 /* CleanNetworkFeeFooterView.swift */; };
 		FAA013A928DA133E000A5230 /* StakeAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013A628DA133E000A5230 /* StakeAmountView.swift */; };
 		FAA013AE28DA134B000A5230 /* PoolUnbondCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013AA28DA134A000A5230 /* PoolUnbondCall.swift */; };
 		FAA013AF28DA134B000A5230 /* PendingRewardsCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAA013AB28DA134A000A5230 /* PendingRewardsCall.swift */; };
@@ -4805,7 +4804,6 @@
 		FAA013A028DA1328000A5230 /* StakeAmountViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakeAmountViewModel.swift; sourceTree = "<group>"; };
 		FAA013A128DA1328000A5230 /* TitleMultiValueViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TitleMultiValueViewModel.swift; sourceTree = "<group>"; };
 		FAA013A428DA133E000A5230 /* ShadowRoundedBackground.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowRoundedBackground.swift; sourceTree = "<group>"; };
-		FAA013A528DA133E000A5230 /* CleanNetworkFeeFooterView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CleanNetworkFeeFooterView.swift; sourceTree = "<group>"; };
 		FAA013A628DA133E000A5230 /* StakeAmountView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakeAmountView.swift; sourceTree = "<group>"; };
 		FAA013AA28DA134A000A5230 /* PoolUnbondCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolUnbondCall.swift; sourceTree = "<group>"; };
 		FAA013AB28DA134A000A5230 /* PendingRewardsCall.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PendingRewardsCall.swift; sourceTree = "<group>"; };
@@ -7794,7 +7792,6 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				FAA013A528DA133E000A5230 /* CleanNetworkFeeFooterView.swift */,
 				FAA013A428DA133E000A5230 /* ShadowRoundedBackground.swift */,
 				FAA013A628DA133E000A5230 /* StakeAmountView.swift */,
 				FA2FC84028B3879900CC0A42 /* InsettedLabel.swift */,
@@ -13394,7 +13391,6 @@
 				8460E1162541E03400826F55 /* WalletFormCellStyle+Internal.swift in Sources */,
 				FAA0132E28DA12B6000A5230 /* StakingPoolNetworkInfoViewModel.swift in Sources */,
 				84F4A9A42551A8F3000CF0A3 /* AccountExportPasswordError.swift in Sources */,
-				FAA013A828DA133E000A5230 /* CleanNetworkFeeFooterView.swift in Sources */,
 				84CA68DB26BEA33F003B9453 /* ChainRegistryFactory.swift in Sources */,
 				AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */,
 				8463A72D25E3A8E1003B8160 /* ChainStorageDecodedItem.swift in Sources */,

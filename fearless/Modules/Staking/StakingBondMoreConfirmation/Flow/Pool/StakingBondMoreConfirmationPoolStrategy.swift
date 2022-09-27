@@ -10,7 +10,7 @@ protocol StakingBondMoreConfirmationPoolStrategyOutput: AnyObject {
 }
 
 final class StakingBondMoreConfirmationPoolStrategy {
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private weak var output: StakingBondMoreConfirmationPoolStrategyOutput?
     private let chainAsset: ChainAsset
