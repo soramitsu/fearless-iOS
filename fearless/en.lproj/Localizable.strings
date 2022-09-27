@@ -846,3 +846,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "common.copy" = "Copy";
 "common.share" = "Share";
 "receive.note.text" = "NOTE: This is Polkadot&Kusama wallet. Please only send assets on the Polkadot&Kusama blockchain.";
+"empty.view.title" = "Sumimasen!";
+"empty.view.description" = "No networks or assets were found :(";

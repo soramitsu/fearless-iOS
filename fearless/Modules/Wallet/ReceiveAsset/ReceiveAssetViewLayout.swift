@@ -26,6 +26,7 @@ final class ReceiveAssetViewLayout: UIView {
         let label = UILabel()
         label.font = .h2Title
         label.textAlignment = .center
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
 

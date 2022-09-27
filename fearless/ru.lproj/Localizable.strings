@@ -843,3 +843,5 @@ and depending on the network state, may not be selected to participate";
 "common.copy" = "Скопировать";
 "common.share" = "Поделиться";
 "receive.note.text" = "Примечание: Это Polkadot&Kusama кошелек. Пожалуйста отправляйте только токены Polkadot&Kusama экосистемы";
+"empty.view.title" = "Sumimasen!";
+"empty.view.description" = "Не нашлось сетей или ассетов :(";
