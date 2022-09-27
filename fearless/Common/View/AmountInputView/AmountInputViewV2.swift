@@ -2,7 +2,7 @@ import UIKit
 
 final class AmountInputViewV2: UIView {
     enum LayoutConstants {
-        static let iconSize: CGFloat = 32
+        static let iconSize: CGFloat = 28
         static let offset: CGFloat = 12
     }
 
@@ -171,7 +171,7 @@ final class AmountInputViewV2: UIView {
 
         textField.snp.makeConstraints { make in
             make.trailing.equalTo(priceLabel)
-            make.top.equalTo(priceLabel.snp.bottom).offset(UIConstants.minimalOffset)
+            make.centerY.equalTo(symbolStackView)
             make.leading.equalTo(symbolStackView.snp.trailing).offset(UIConstants.bigOffset)
         }
 
