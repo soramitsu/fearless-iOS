@@ -842,3 +842,5 @@ and depending on the network state, may not be selected to participate";
 "options.common" = "Options";
 "common.copy" = "Скопировать";
 "common.share" = "Поделиться";
+"empty.view.title" = "Sumimasen!";
+"empty.view.description" = "Не нашлось сетей или ассетов :(";

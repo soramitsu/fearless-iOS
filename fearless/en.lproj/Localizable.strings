@@ -845,3 +845,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "options.common" = "Options";
 "common.copy" = "Copy";
 "common.share" = "Share";
+"empty.view.title" = "Sumimasen!";
+"empty.view.description" = "No networks or assets were found :(";
