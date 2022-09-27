@@ -34,6 +34,7 @@ struct UIConstants {
     static let iconSize: CGFloat = 24
     static let standardButtonSize = CGSize(width: 36, height: 36)
     static let indicatorSize = CGSize(width: 35.0, height: 2.0)
+    static let amountViewV2Height: CGFloat = 92
 }
 
 enum AccountViewMode {
@@ -149,7 +150,7 @@ final class UIFactory: UIFactoryProtocol {
         switch layout {
         case .largeIconTitleSubtitle, .singleTitle, .largeIconTitleInfoSubtitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
-        case .smallIconTitleSubtitle, .smallIconTitleButton:
+        case .smallIconTitleSubtitle, .smallIconTitleButton, .smallIconTitleSubtitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
         case .withoutIcon:
             view.iconView.removeFromSuperview()
@@ -473,6 +474,15 @@ final class UIFactory: UIFactoryProtocol {
 
     func createNetworkFeeFooterView() -> NetworkFeeFooterView {
         NetworkFeeFooterView()
+    }
+
+    func createCleanNetworkFeeFooterView() -> NetworkFeeFooterView {
+        let view = NetworkFeeFooterView()
+        view.networkFeeView?.titleLabel.font = .p2Paragraph
+        view.networkFeeView?.titleLabel.textColor = R.color.colorStrokeGray()
+        view.networkFeeView?.borderType = .none
+        view.durationView?.borderView.isHidden = true
+        return view
     }
 
     func createTitleValueView() -> TitleValueView {

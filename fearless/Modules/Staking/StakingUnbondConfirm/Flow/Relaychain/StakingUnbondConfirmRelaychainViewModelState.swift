@@ -34,6 +34,10 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         }
     }
 
+    var builderClosureOld: ExtrinsicBuilderClosure? {
+        nil
+    }
+
     var reuseIdentifier: String? {
         inputAmount.description + shouldResetRewardDestination.description
     }

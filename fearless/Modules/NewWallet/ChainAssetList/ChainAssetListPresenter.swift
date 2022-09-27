@@ -55,8 +55,7 @@ final class ChainAssetListPresenter {
         guard
             let chainAssets = chainAssets,
             accountInfosFetched,
-            pricesFetched,
-            chainAssets.count == (accountInfos.keys.count + chainsWithMissingAccounts.count)
+            pricesFetched
         else {
             return
         }
@@ -170,9 +169,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         switch result {
         case let .success(chainAssets):
             self.chainAssets = chainAssets
-            if chainAssets.isEmpty {
-                accountInfosFetched = true
-            }
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -191,6 +187,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
 
+                guard chainAssets?.count == accountInfos.keys.count else {
+                    return
+                }
                 accountInfosFetched = true
                 provideViewModel()
             }

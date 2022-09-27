@@ -165,7 +165,7 @@ class StakingRewardCalculatorView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
             make.top.equalTo(yearlyStackView.snp.bottom).offset(UIConstants.hugeOffset)
             make.top.equalTo(monthlyStackView.snp.bottom).offset(UIConstants.hugeOffset)
         }
@@ -228,6 +228,7 @@ class StakingRewardCalculatorView: UIView {
         inputViewModel = newInputViewModel
 
         amountInputView.inputFieldText = newInputViewModel.displayAmount
+
         newInputViewModel.observable.add(observer: self)
     }
 

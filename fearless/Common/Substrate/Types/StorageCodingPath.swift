@@ -230,6 +230,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "NominationPools", itemName: "CounterForBondedPools")
     }
 
+    static var stakingPoolRewards: StorageCodingPath {
+        StorageCodingPath(moduleName: "NominationPools", itemName: "RewardPools")
+    }
+
     static var stakingPoolLastPoolId: StorageCodingPath {
         StorageCodingPath(moduleName: "NominationPools", itemName: "LastPoolId")
     }

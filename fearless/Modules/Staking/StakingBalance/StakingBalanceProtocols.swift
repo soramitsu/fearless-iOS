@@ -39,7 +39,7 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     )
 
     func showRebondSetup(

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol {
+final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol, HiddableBarWhenPushed {
     typealias RootViewType = StakingUnbondConfirmLayout
 
     let presenter: StakingUnbondConfirmPresenterProtocol
@@ -61,9 +61,9 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
             for: .touchUpInside
         )
 
-        rootView.accountView.addTarget(
+        rootView.navigationBar.backButton.addTarget(
             self,
-            action: #selector(actionSelectAccount),
+            action: #selector(backButtonClicked),
             for: .touchUpInside
         )
     }
@@ -103,6 +103,10 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
 
     @objc private func actionSelectAccount() {
         presenter.selectAccount()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 }
 

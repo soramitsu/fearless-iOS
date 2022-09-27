@@ -40,6 +40,10 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         }
     }
 
+    var builderClosureOld: ExtrinsicBuilderClosure? {
+        nil
+    }
+
     var reuseIdentifier: String? {
         guard
             let amount = StakingConstants.maxAmount.toSubstrateAmount(

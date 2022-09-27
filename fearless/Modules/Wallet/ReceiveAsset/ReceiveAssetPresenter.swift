@@ -6,7 +6,7 @@ import FearlessUtils
 
 final class ReceiveAssetPresenter {
     enum Constants {
-        static let qrSize = CGSize(width: 280, height: 280)
+        static let qrSize = CGSize(width: 240, height: 240)
     }
 
     weak var view: ReceiveAssetViewProtocol?
@@ -73,7 +73,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         wireframe.share(sources: sources, from: view, with: nil)
     }
 
-    func didTapCloseButton() {
+    func close() {
         if let view = self.view {
             wireframe.close(view)
         }
@@ -155,8 +155,7 @@ private extension ReceiveAssetPresenter {
         view?.didReceive(viewModel: ReceiveAssetViewModel(
             asset: asset.name,
             accountName: account.name,
-            address: address,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            address: address
         ))
     }
 }

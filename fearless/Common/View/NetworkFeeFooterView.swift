@@ -4,8 +4,8 @@ import SoraFoundation
 
 final class NetworkFeeFooterView: UIView {
     private let contentStackView = UIFactory.default.createVerticalStackView(spacing: 8)
+    private let tipView = NetworkFeeView()
 
-    let tipView = NetworkFeeView()
     var networkFeeView: NetworkFeeView?
     var durationView: TitleValueView?
 

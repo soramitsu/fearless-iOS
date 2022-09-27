@@ -21,7 +21,7 @@ protocol StakingBalanceViewModelState {
     var rebondCases: [StakingRebondOption] { get }
     var bondMoreFlow: StakingBondMoreFlow? { get }
     var unbondFlow: StakingUnbondSetupFlow? { get }
-    var revokeFlow: StakingRedeemFlow? { get }
+    var revokeFlow: StakingRedeemConfirmationFlow? { get }
 
     func setStateListener(_ stateListener: StakingBalanceModelStateListener?)
     func stakeMoreValidators(using locale: Locale) -> [DataValidating]

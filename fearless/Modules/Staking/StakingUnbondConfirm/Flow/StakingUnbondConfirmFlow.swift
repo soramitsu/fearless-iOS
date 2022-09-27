@@ -10,6 +10,7 @@ enum StakingUnbondConfirmFlow {
         revoke: Bool,
         bondingDuration: UInt32?
     )
+    case pool(amount: Decimal)
 }
 
 protocol StakingUnbondConfirmModelStateListener: AnyObject {
@@ -21,6 +22,7 @@ protocol StakingUnbondConfirmModelStateListener: AnyObject {
     func provideAssetViewModel()
     func provideConfirmationViewModel()
     func refreshFeeIfNeeded()
+    func didReceiveFeeError()
 }
 
 protocol StakingUnbondConfirmViewModelState {
@@ -30,6 +32,7 @@ protocol StakingUnbondConfirmViewModelState {
     var fee: Decimal? { get }
     var accountAddress: AccountAddress? { get }
     var builderClosure: ExtrinsicBuilderClosure? { get }
+    var builderClosureOld: ExtrinsicBuilderClosure? { get }
     var reuseIdentifier: String? { get }
 
     func validators(using locale: Locale) -> [DataValidating]

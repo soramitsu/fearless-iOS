@@ -190,7 +190,7 @@ final class StakingPoolCreateViewLayout: UIView {
         feeView.actionButton.imageWithTitleView?.title = R.string.localizable.commonCreate(
             preferredLanguages: locale.rLanguages
         )
-        poolIdView.title = R.string.localizable.commonCreate(
+        poolIdView.title = R.string.localizable.stakingPoolCreatePoolId(
             preferredLanguages: locale.rLanguages
         )
         depositorView.title = R.string.localizable.stakingPoolCreateDepositor(

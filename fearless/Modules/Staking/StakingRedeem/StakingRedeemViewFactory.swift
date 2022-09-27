@@ -237,6 +237,38 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
+        case .pool:
+            let viewModelState = StakingRedeemPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingRedeemPoolViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingRedeemPoolStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                eventCenter: EventCenter.shared,
+                slashesOperationFactory: slashesOperationFactory,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            )
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

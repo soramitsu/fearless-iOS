@@ -88,7 +88,7 @@ final class StakingPoolCreateConfirmInteractor {
             guard let metadata = createData.poolName.data(using: .ascii) else {
                 return
             }
-            print(metadata)
+
             let setMetadataCall = callFactory.setPoolMetadata(
                 poolId: "\(createData.poolId)",
                 metadata: metadata

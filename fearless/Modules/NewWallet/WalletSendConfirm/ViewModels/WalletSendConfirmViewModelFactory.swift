@@ -45,6 +45,7 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
         )
         return WalletSendConfirmViewModel(
             amountAttributedString: amountAttributedString,
+            amountString: inputAmount,
             senderNameString: parameters.wallet.name,
             senderAddressString: parameters.senderAccountViewModel?.name ?? "",
             receiverAddressString: parameters.receiverAccountViewModel?.name ?? "",

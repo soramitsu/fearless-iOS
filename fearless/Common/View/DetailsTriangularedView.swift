@@ -2,8 +2,13 @@ import UIKit
 import SoraUI
 
 class DetailsTriangularedView: BackgroundedContentControl {
-    enum LayooutConstants {
+    enum LayoutConstants {
         static let actionButtonSize = CGSize(width: 68, height: 24)
+        static let cornerRadius: CGFloat = 3
+        static let iconRadius: CGFloat = 16
+        static let iconSize: CGFloat = 13
+        static let labelVerticalOffset: CGFloat = 2
+        static let titleVerticalOffset: CGFloat = 6
     }
 
     enum Layout {
@@ -12,6 +17,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case smallIconTitleSubtitle
         case smallIconTitleButton
         case largeIconTitleInfoSubtitle
+        case smallIconTitleSubtitleButton
         case withoutIcon
     }
 
@@ -25,11 +31,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
     private(set) var additionalInfoView: UIButton?
     var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
     var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
+    var actionColor: UIColor?
 
     private var lazyIconView: UIImageView?
     private var lazyActionView: UIImageView?
 
-    var horizontalSpacing: CGFloat = 8.0 {
+    var horizontalSpacing: CGFloat = UIConstants.defaultOffset {
         didSet {
             setNeedsLayout()
         }
@@ -37,15 +44,29 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
     func makeAdditionalInfoView() -> UIButton {
         let button = UIButton()
-        button.backgroundColor = .white.withAlphaComponent(0.16)
+        button.backgroundColor = R.color.colorWhite16()
         button.setTitleColor(R.color.colorTransparentText(), for: .normal)
-        button.layer.cornerRadius = 3
+        button.layer.cornerRadius = LayoutConstants.cornerRadius
         button.titleLabel?.font = UIFont.capsTitle
-        button.titleEdgeInsets = UIEdgeInsets(top: 0, left: 4, bottom: 0, right: 4)
+        button.titleEdgeInsets = UIEdgeInsets(
+            top: 0,
+            left: UIConstants.minimalOffset,
+            bottom: 0,
+            right: UIConstants.minimalOffset
+        )
         return button
     }
 
-    var iconRadius: CGFloat = 16.0 {
+    func makeActionButton() -> TriangularedButton {
+        let actionButton = TriangularedButton()
+        actionButton.applyEnabledStyle()
+        actionButton.triangularedView?.fillColor = actionColor ?? R.color.colorPurple()!
+        actionButton.imageWithTitleView?.titleFont = .h6Title
+        actionButton.triangularedView?.sideLength = 4
+        return actionButton
+    }
+
+    var iconRadius: CGFloat = LayoutConstants.iconRadius {
         didSet {
             setNeedsLayout()
         }
@@ -71,12 +92,31 @@ class DetailsTriangularedView: BackgroundedContentControl {
                     subtitleLabel = nil
                 }
                 if actionButton == nil {
-                    let actionButton = TriangularedButton()
-                    actionButton.applyEnabledStyle()
-                    actionButton.triangularedView?.fillColor = R.color.colorPurple()!
-                    actionButton.imageWithTitleView?.titleFont = .h6Title
-                    contentView?.addSubview(actionButton)
+                    let actionButton = makeActionButton()
                     self.actionButton = actionButton
+                    contentView?.addSubview(actionButton)
+                }
+            case .largeIconTitleInfoSubtitle:
+                if subtitleLabel == nil {
+                    let label = UILabel()
+                    subtitleLabel = label
+                    contentView?.addSubview(label)
+                }
+                if additionalInfoView == nil {
+                    let view = makeAdditionalInfoView()
+                    additionalInfoView = view
+                    contentView?.addSubview(view)
+                }
+            case .smallIconTitleSubtitleButton:
+                if subtitleLabel == nil {
+                    let label = UILabel()
+                    subtitleLabel = label
+                    contentView?.addSubview(label)
+                }
+                if actionButton == nil {
+                    let actionButton = makeActionButton()
+                    self.actionButton = actionButton
+                    contentView?.addSubview(actionButton)
                 }
             case .largeIconTitleInfoSubtitle:
                 if subtitleLabel == nil {
@@ -138,8 +178,56 @@ class DetailsTriangularedView: BackgroundedContentControl {
             layoutSmallIconTitleButton()
         case .largeIconTitleInfoSubtitle:
             layoutLargeIconTitleInfoSubtitle()
+        case .smallIconTitleSubtitleButton:
+            layoutSmallIconTitleSubtitleButton()
         case .withoutIcon:
             layoutWithoutIcon()
+        }
+    }
+
+    private func layoutSmallIconTitleSubtitleButton() {
+        guard let subtitleLabel = subtitleLabel else {
+            return
+        }
+
+        let titleHeight = titleLabel.intrinsicContentSize.height
+        let titleWidth = titleLabel.intrinsicContentSize.width
+        let subtitleHeight = subtitleLabel.intrinsicContentSize.height
+        let subtitleWidth = subtitleLabel.intrinsicContentSize.width
+
+        let iconOffset = lazyIconView != nil ? LayoutConstants.iconSize + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+
+        if let actionButton = actionButton {
+            actionButton.frame = CGRect(
+                x: bounds.maxX - contentInsets.right - LayoutConstants.actionButtonSize.width,
+                y: bounds.midY - LayoutConstants.actionButtonSize.height / 2,
+                width: LayoutConstants.actionButtonSize.width,
+                height: LayoutConstants.actionButtonSize.height
+            )
+        }
+
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: UIConstants.defaultOffset,
+            width: titleWidth,
+            height: titleHeight
+        )
+
+        subtitleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.size.height / 2 + LayoutConstants.labelVerticalOffset,
+            width: subtitleWidth,
+            height: subtitleHeight
+        )
+
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: UIConstants.defaultOffset,
+                width: LayoutConstants.iconSize,
+                height: LayoutConstants.iconSize
+            )
         }
     }
 
@@ -207,17 +295,17 @@ class DetailsTriangularedView: BackgroundedContentControl {
     }
 
     private func layoutSmallIconTitleButton() {
-        let titleHeight = bounds.height - 12.0
+        let titleHeight = bounds.height - LayoutConstants.titleVerticalOffset * 2
 
         let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
         if let actionButton = actionButton {
             actionButton.frame = CGRect(
-                x: bounds.maxX - contentInsets.right - LayooutConstants.actionButtonSize.width,
-                y: bounds.midY - LayooutConstants.actionButtonSize.height / 2,
-                width: LayooutConstants.actionButtonSize.width,
-                height: LayooutConstants.actionButtonSize.height
+                x: bounds.maxX - contentInsets.right - LayoutConstants.actionButtonSize.width,
+                y: bounds.midY - LayoutConstants.actionButtonSize.height / 2,
+                width: LayoutConstants.actionButtonSize.width,
+                height: LayoutConstants.actionButtonSize.height
             )
         }
 
@@ -225,9 +313,17 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
         titleLabel.frame = CGRect(
             x: labelX,
-            y: bounds.midY - titleHeight / 2.0,
+            y: bounds.midY - LayoutConstants.titleVerticalOffset,
             width: trailing - labelX,
             height: titleHeight
+        )
+
+        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
+        subtitleLabel?.frame = CGRect(
+            x: labelX,
+            y: titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset,
+            width: trailing - labelX,
+            height: subtitleHeight
         )
 
         if let iconView = lazyIconView {
@@ -305,7 +401,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
     }
 
     private func layoutSingleTitle() {
-        let titleHeight = bounds.height - 16.0
+        let titleHeight = bounds.height - UIConstants.bigOffset
 
         let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
