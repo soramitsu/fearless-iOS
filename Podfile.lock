@@ -1,4 +1,5 @@
 PODS:
+  - atlantis-proxyman (1.12.0)
   - BigInt (5.2.0)
   - Charts (3.6.0):
     - Charts/Core (= 3.6.0)
@@ -137,6 +138,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
+  - atlantis-proxyman
   - Charts (~> 3.6.0)
   - CommonWallet/Core
   - Cuckoo
@@ -162,6 +164,7 @@ DEPENDENCIES:
 
 SPEC REPOS:
   trunk:
+    - atlantis-proxyman
     - BigInt
     - Charts
     - CocoaLumberjack
@@ -208,6 +211,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 SPEC CHECKSUMS:
+  atlantis-proxyman: 5e0d2214eb04c9646e4426c170248918c76815a9
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
@@ -239,6 +243,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 4ad643deee68f0d024fe794567c379e770d960b4
+PODFILE CHECKSUM: eec4e102b69a14ad84d6f4ebc92e6d9d00350339
 
 COCOAPODS: 1.11.3

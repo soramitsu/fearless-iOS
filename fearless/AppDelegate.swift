@@ -1,4 +1,7 @@
 import UIKit
+#if DEBUG
+    import Atlantis
+#endif
 
 class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
@@ -12,6 +15,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         didFinishLaunchingWithOptions _: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         guard !isUnitTesting else { return true }
+
+        #if DEBUG
+            Atlantis.start()
+        #endif
 
         let rootWindow = FearlessWindow()
         window = rootWindow

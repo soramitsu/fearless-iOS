@@ -23,6 +23,7 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 3.6.0'
   pod 'DiffableDataSources'
+  pod 'atlantis-proxyman'
 
   target 'fearlessTests' do
     inherit! :search_paths
