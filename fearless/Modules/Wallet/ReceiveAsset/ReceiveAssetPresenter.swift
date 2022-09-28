@@ -65,7 +65,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         let sources = sharingFactory.createSources(
             accountAddress: address,
             qrImage: qrImage,
-            assetSymbol: asset.symbol.uppercased(),
+            assetSymbol: asset.name,
             chainName: chain.name,
             locale: selectedLocale
         )
