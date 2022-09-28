@@ -6,6 +6,9 @@ final class ReceiveAssetViewLayout: UIView {
         static let headerHeight: CGFloat = 56.0
         static let qrImageSize: CGFloat = 240
         static let verticalOffset: CGFloat = 12
+        static let infoIconSize: CGFloat = 12
+        static let infoViewsOffset: CGFloat = 10
+        static let noteLabelMaxHeight: CGFloat = 33
     }
 
     private let indicator = UIFactory.default.createIndicatorView()
@@ -31,6 +34,7 @@ final class ReceiveAssetViewLayout: UIView {
         let label = UILabel()
         label.font = .p0Paragraph
         label.textAlignment = .center
+        label.lineBreakMode = .byTruncatingMiddle
         label.textColor = R.color.colorWhite50()!
         return label
     }()
@@ -45,6 +49,21 @@ final class ReceiveAssetViewLayout: UIView {
         let button = TriangularedButton()
         button.applyDisabledStyle()
         return button
+    }()
+
+    let noteLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textAlignment = .left
+        label.textColor = R.color.colorAlmostWhite()!
+        label.numberOfLines = 2
+        return label
+    }()
+
+    let noteImage: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconInfoGrayFilled()
+        return imageView
     }()
 
     var locale = Locale.current {
@@ -75,6 +94,7 @@ final class ReceiveAssetViewLayout: UIView {
     private func applyLocale() {
         copyButton.imageWithTitleView?.title = R.string.localizable.commonCopy(preferredLanguages: locale.rLanguages)
         shareButton.imageWithTitleView?.title = R.string.localizable.commonShare(preferredLanguages: locale.rLanguages)
+        noteLabel.text = R.string.localizable.receiveNoteText(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -124,9 +144,24 @@ final class ReceiveAssetViewLayout: UIView {
             make.width.equalTo(LayoutConstants.qrImageSize)
         }
 
+        addSubview(noteImage)
+        addSubview(noteLabel)
+        noteLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-LayoutConstants.verticalOffset)
+            make.leading.equalTo(noteImage.snp.trailing).offset(LayoutConstants.infoViewsOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.lessThanOrEqualTo(LayoutConstants.noteLabelMaxHeight)
+        }
+
+        noteImage.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.size.equalTo(LayoutConstants.infoIconSize)
+            make.top.equalTo(noteLabel)
+        }
+
         addSubview(shareButton)
         shareButton.snp.makeConstraints { make in
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).offset(-LayoutConstants.verticalOffset)
+            make.bottom.equalTo(noteLabel.snp.top).offset(-LayoutConstants.verticalOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
