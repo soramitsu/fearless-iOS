@@ -848,3 +848,14 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "receive.note.text" = "NOTE: This is Polkadot&Kusama wallet. Please only send assets on the Polkadot&Kusama blockchain.";
 "empty.view.title" = "Sumimasen!";
 "empty.view.description" = "No networks or assets were found :(";
+"staking.pool.create.title" = "Create a pool";
+"staking.pool.create.missing.name.title" = "Cannot create pool";
+"staking.pool.create.missing.name.description" = "Pool name is missing";
+"staking.pool.create.poolId" = "Pool Id";
+"staking.pool.create.depositor" = "Depositor";
+"staking.pool.create.root" = "Root";
+"staking.pool.create.nominator" = "Nominator";
+"staking.pool.create.stateToggler" = "State toggler";
+"common.create" = "Create";
+"staking.pool.create.creating.pool" = "Creating pool\n%@";
+"staking.pool.create.management.account" = "Pool management account";

@@ -44,4 +44,11 @@ protocol WalletsManagmentModuleInput: AnyObject {}
 protocol WalletsManagmentModuleOutput: AnyObject {
     func showAddNewWallet()
     func showImportWallet()
+    func selectedWallet(_ wallet: MetaAccountModel, for contextTag: Int)
+}
+
+extension WalletsManagmentModuleOutput {
+    func showAddNewWallet() {}
+    func showImportWallet() {}
+    func selectedWallet(_: MetaAccountModel, for _: Int) {}
 }

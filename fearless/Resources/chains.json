@@ -1645,6 +1645,12 @@
       "chainId": "577d331ca43646f547cdaa07ad0aa387a383a93416764480665103081f3eaf14",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "name": "Dorafactory Network",
+      "externalApi": {
+        "history": {
+          "type": "subquery",
+          "url": "https://api.subquery.network/sq/soramitsu/Dora-Factory-x-Fearless-Wallet"
+        }
+      },
       "assets": [
           {
               "assetId": "c0d1efac-597d-4c56-b5ad-b683b8214ada",
@@ -1693,6 +1699,12 @@
       "chainId": "84322d9cddbf35088f1e54e9a85c967a41a56a4f43445768125e61af166c7d31",
       "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
       "name": "UNIQUE",
+      "externalApi": {
+        "history": {
+          "type": "subquery",
+          "url": "https://api.subquery.network/sq/soramitsu/Unique-x-Fearless-Wallet"
+        }
+      },
       "assets": [
           {
               "assetId": "57d05537-06a2-453b-ac87-d081aee65ec9",
@@ -1759,6 +1771,12 @@
     "chainId": "2fc8bb6ed7c0051bdcf4866c322ed32b6276572713607e3297ccf411b8f14aa9",
     "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "name": "Litentry",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/Litentry-x-Fearless-Wallet"
+      }
+    },
     "assets": [
       {
         "assetId": "10de552c-20cb-4a86-9bf8-cf5827ca2f71",
@@ -1809,6 +1827,12 @@
     "chainId": "daab8df776eb52ec604a5df5d388bb62a050a0aaec4556a64265b9d42755552d",
     "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
     "name": "Composable Finance",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/Composable-Finance-X-Fearless-Wallet"
+      }
+    },
     "assets": [
       {
         "assetId": "7f429a3f-4666-40a2-a506-58bfe01504c4",
@@ -1882,6 +1906,12 @@
     "chainId": "feb426ca713f0f46c96465b8f039890370cf6bfd687c9076ea2843f58a6ae8a7",
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "Kabocha",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/Kabocha-x-Fearless-Wallet"
+      }
+    },
     "assets": [
       {
         "assetId": "898eb0a1-ede6-437a-97b7-e92407db985f",
@@ -1905,6 +1935,12 @@
     "chainId": "52149c30c1eb11460dce6c08b73df8d53bb93b4a15d0a2e7fd5dafe86a73c0da",
     "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
     "name": "KICO",
+    "externalApi": {
+      "history": {
+        "type": "subquery",
+        "url": "https://api.subquery.network/sq/soramitsu/KICO-x-Fearless-Wallet"
+      }
+    },
     "assets": [
       {
         "assetId": "3a11badb-fe19-4cf4-9651-4b635a49bb7e",
@@ -1948,7 +1984,7 @@
         "name": "Onfinality node"
       }
     ],
-    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/KICO.svg",
+    "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/MagnataX.svg",
     "addressPrefix": 42,
     "types": {
       "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/mangata.json",
@@ -2031,7 +2067,7 @@
         "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/integritee.svg",
         "addressPrefix": 13,
         "types": {
-            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/type_registry/integritee.json",
+            "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/integritee.json",
             "overridesCommon": true
         }
     },
@@ -2095,6 +2131,12 @@
       "chainId": "0e06260459b4f9034aba0a75108c08ed73ea51d2763562749b1d3600986c4ea5",
       "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
       "name": "Pichiu Network",
+      "externalApi": {
+        "history": {
+           "type": "subquery",
+           "url": "https://api.subquery.network/sq/soramitsu/Pichiu-x-Fearless-Wallet"
+       }
+   },
       "assets": [
         {
           "assetId": "5b196f7c-475a-493e-abbf-9f808d6fb863",
@@ -2173,6 +2215,12 @@
         "chainId": "ca93a37c913a25fa8fdb33c7f738afc39379cb71d37874a16d4c091a5aef9f89",
         "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
         "name": "Imbue Kusama",
+        "externalApi": {
+          "history": {
+            "type": "subquery",
+            "url": "https://api.subquery.network/sq/soramitsu/Imbue-x-Fearless-Wallet"
+          }
+        },
         "assets": [
           {
             "assetId": "c01b37ab-eefa-427d-ba50-dd7a1cbe1798",
@@ -2190,6 +2238,49 @@
         "addressPrefix": 42,
         "types": {
           "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/imbue.json",
+          "overridesCommon": true
+        }
+      },
+      {
+        "chainId": "cceae7f3b9947cdb67369c026ef78efa5f34a08fe5808d373c04421ecf4f1aaf",
+        "parentId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+        "name": "Amplitude",
+        "assets": [
+          {
+            "assetId": "b2e6c029-ae73-46f9-9660-51d7034ddc53"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "wss://pencol-kus-01.pendulumchain.tech",
+            "name": "PendulumCaain node"
+          }
+        ],
+        "icon": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/icons/chains/white/Amplitude.svg",
+        "addressPrefix": 57,
+        "types": {
+          "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/amplitude.json",
+          "overridesCommon": true
+        }
+      },
+      {
+        "chainId": "e71578b37a7c799b0ab4ee87ffa6f059a6b98f71f06fb8c84a8d88013a548ad6",
+        "parentId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+        "name": "Darwinia Parachain",
+        "assets": [
+          {
+            "assetId": "b861f610-cf2c-43ad-a660-f6b809a05062"
+          }
+        ],
+        "nodes": [
+          {
+            "url": "wss://parachain-rpc.darwinia.network",
+            "name": "Darwinia network node"
+          }
+        ],
+        "addressPrefix": 18,
+        "types": {
+          "url": "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/type_registry/darwinia.json",
           "overridesCommon": true
         }
       }

@@ -18,6 +18,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case smallIconTitleButton
         case largeIconTitleInfoSubtitle
         case smallIconTitleSubtitleButton
+        case withoutIcon
     }
 
     var triangularedBackgroundView: TriangularedView? {
@@ -128,6 +129,8 @@ class DetailsTriangularedView: BackgroundedContentControl {
                     additionalInfoView = view
                     contentView?.addSubview(view)
                 }
+            case .withoutIcon:
+                iconView.removeFromSuperview()
             }
 
             setNeedsLayout()
@@ -177,6 +180,8 @@ class DetailsTriangularedView: BackgroundedContentControl {
             layoutLargeIconTitleInfoSubtitle()
         case .smallIconTitleSubtitleButton:
             layoutSmallIconTitleSubtitleButton()
+        case .withoutIcon:
+            layoutWithoutIcon()
         }
     }
 
@@ -224,6 +229,27 @@ class DetailsTriangularedView: BackgroundedContentControl {
                 height: LayoutConstants.iconSize
             )
         }
+    }
+
+    private func layoutWithoutIcon() {
+        let titleHeight = titleLabel.intrinsicContentSize.height
+        let labelX = bounds.minX + contentInsets.left
+
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.minY + contentInsets.top,
+            width: trailing - labelX,
+            height: titleHeight
+        )
+
+        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
+        subtitleLabel?.frame = CGRect(
+            x: labelX,
+            y: bounds.maxY - contentInsets.bottom - subtitleHeight,
+            width: trailing - labelX,
+            height: subtitleHeight
+        )
     }
 
     private func layoutLargeIconTitleInfoSubtitle() {

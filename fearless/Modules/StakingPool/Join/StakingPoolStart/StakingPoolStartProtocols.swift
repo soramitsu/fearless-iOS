@@ -32,6 +32,12 @@ protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresenta
         amount: Decimal?,
         from view: ControllerBackedProtocol?
     )
+    func presentCreateFlow(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        amount: Decimal?,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol StakingPoolStartModuleInput: AnyObject {}

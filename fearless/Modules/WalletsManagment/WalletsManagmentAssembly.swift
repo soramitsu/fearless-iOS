@@ -5,6 +5,8 @@ import SoraUI
 
 final class WalletsManagmentAssembly {
     static func configureModule(
+        shouldSaveSelected: Bool,
+        contextTag: Int = 0,
         moduleOutput: WalletsManagmentModuleOutput?
     ) -> WalletsManagmentModuleCreationResult? {
         let sharedDefaultQueue = OperationManagerFacade.sharedDefaultQueue
@@ -37,6 +39,7 @@ final class WalletsManagmentAssembly {
         )
 
         let interactor = WalletsManagmentInteractor(
+            shouldSaveSelected: shouldSaveSelected,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
             metaAccountRepository: AnyDataProviderRepository(managedMetaAccountRepository),
             operationQueue: sharedDefaultQueue,
@@ -51,6 +54,7 @@ final class WalletsManagmentAssembly {
         )
 
         let presenter = WalletsManagmentPresenter(
+            contextTag: contextTag,
             viewModelFactory: viewModelFactory,
             logger: logger,
             interactor: interactor,
