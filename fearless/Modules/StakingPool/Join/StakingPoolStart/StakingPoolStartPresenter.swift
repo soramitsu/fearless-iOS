@@ -63,7 +63,14 @@ extension StakingPoolStartPresenter: StakingPoolStartViewOutput {
         router.presentJoinFlow(chainAsset: chainAsset, wallet: wallet, amount: amount, from: view)
     }
 
-    func didTapCreatePoolButton() {}
+    func didTapCreatePoolButton() {
+        router.presentCreateFlow(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            amount: amount,
+            from: view
+        )
+    }
 
     func didTapWatchAboutButton() {
         guard let url = ApplicationConfig().poolStakingAboutURL, let view = view else {

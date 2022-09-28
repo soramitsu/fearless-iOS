@@ -8,6 +8,7 @@ final class WalletsManagmentPresenter {
     private let router: WalletsManagmentRouterInput
     private let interactor: WalletsManagmentInteractorInput
     private weak var moduleOutput: WalletsManagmentModuleOutput?
+    private let contextTag: Int
 
     private let viewModelFactory: WalletsManagmentViewModelFactoryProtocol
     private let logger: Logger
@@ -18,6 +19,7 @@ final class WalletsManagmentPresenter {
     // MARK: - Constructors
 
     init(
+        contextTag: Int,
         viewModelFactory: WalletsManagmentViewModelFactoryProtocol,
         logger: Logger,
         interactor: WalletsManagmentInteractorInput,
@@ -25,6 +27,7 @@ final class WalletsManagmentPresenter {
         moduleOutput: WalletsManagmentModuleOutput?,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.contextTag = contextTag
         self.viewModelFactory = viewModelFactory
         self.logger = logger
         self.interactor = interactor
@@ -53,6 +56,8 @@ extension WalletsManagmentPresenter: WalletsManagmentViewOutput {
         guard let wallet = wallets[safe: indexPath.row] else {
             return
         }
+
+        moduleOutput?.selectedWallet(wallet.info, for: contextTag)
         interactor.select(wallet: wallet)
     }
 

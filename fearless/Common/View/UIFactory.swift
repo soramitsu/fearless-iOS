@@ -151,6 +151,8 @@ final class UIFactory: UIFactoryProtocol {
             view.iconRadius = UIConstants.triangularedIconLargeRadius
         case .smallIconTitleSubtitle, .smallIconTitleButton, .smallIconTitleSubtitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
+        case .withoutIcon:
+            view.iconView.removeFromSuperview()
         }
 
         view.titleLabel.textColor = R.color.colorLightGray()!
@@ -419,7 +421,7 @@ final class UIFactory: UIFactoryProtocol {
         case .options:
             view.actionImage = R.image.iconMore()
         case .selection:
-            view.actionImage = R.image.iconSmallArrowDown()
+            view.actionImage = R.image.iconExpandable()
         }
 
         view.highlightedFillColor = R.color.colorHighlightedPink()!

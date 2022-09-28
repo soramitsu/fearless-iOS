@@ -15,6 +15,7 @@ protocol StakingPoolOperationFactoryProtocol {
     func fetchMaxPoolMembersPerPool() -> CompoundOperationWrapper<UInt32?>
     func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?>
     func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?>
+    func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?>
 }
 
 final class StakingPoolOperationFactory {
@@ -229,6 +230,22 @@ final class StakingPoolOperationFactory {
         poolMetadataWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
         return poolMetadataWrapper
+    }
+
+    private func createLastPoolIdOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let lastPoolIdWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try StorageKeyFactory().key(from: .stakingPoolLastPoolId)] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .stakingPoolLastPoolId
+            )
+
+        lastPoolIdWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return lastPoolIdWrapper
     }
 }
 
@@ -454,6 +471,21 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         mapOperation.addDependency(stakingPoolMembersOperation.targetOperation)
 
         let dependencies = [runtimeOperation] + stakingPoolMembersOperation.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let lastPoolIdOperation = createLastPoolIdOperation(dependingOn: runtimeOperation)
+
+        let mapOperation = ClosureOperation<UInt32?> {
+            try lastPoolIdOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
+        }
+
+        mapOperation.addDependency(lastPoolIdOperation.targetOperation)
+
+        let dependencies = [runtimeOperation] + lastPoolIdOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

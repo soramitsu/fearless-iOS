@@ -3,6 +3,6 @@ import FearlessUtils
 import BigInt
 
 struct SetMetadataCall: Codable {
-    let poolId: UInt32
+    let poolId: String
     let metadata: Data
 }
