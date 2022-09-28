@@ -2,6 +2,12 @@ import UIKit
 import SoraUI
 
 class CommonInputViewV2: UIView {
+    private enum Constants {
+        static let backgroundViewHeight: CGFloat = 52.0
+        static let minimalOffset: CGFloat = 4.0
+        static let strokeWidth: CGFloat = 0.5
+    }
+
     let backgroundView: TriangularedView = {
         let view = TriangularedView()
         view.isUserInteractionEnabled = true
@@ -11,7 +17,7 @@ class CommonInputViewV2: UIView {
 
         view.strokeColor = R.color.colorWhite8()!
         view.highlightedStrokeColor = R.color.colorWhite8()!
-        view.strokeWidth = 0.5
+        view.strokeWidth = Constants.strokeWidth
         view.layer.shadowOpacity = 0
 
         return view
@@ -60,13 +66,13 @@ class CommonInputViewV2: UIView {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
-            make.height.equalTo(52.0)
+            make.height.equalTo(Constants.backgroundViewHeight)
         }
 
         addSubview(animatedInputField)
         animatedInputField.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(4.0)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.bottom.equalToSuperview().inset(Constants.minimalOffset)
         }
     }
 }

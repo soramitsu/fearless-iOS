@@ -63,7 +63,6 @@ protocol UIFactoryProtocol {
         spacing: CGFloat
     ) -> UIToolbar
     func createCommonInputView() -> CommonInputView
-    func createCommonInputViewV2() -> CommonInputViewV2
     func createAmountInputView(filled: Bool) -> AmountInputView
     func createAmountAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
@@ -292,10 +291,6 @@ final class UIFactory: UIFactoryProtocol {
 
     func createCommonInputView() -> CommonInputView {
         CommonInputView()
-    }
-
-    func createCommonInputViewV2() -> CommonInputViewV2 {
-        CommonInputViewV2()
     }
 
     func createAmountInputView(filled: Bool) -> AmountInputView {

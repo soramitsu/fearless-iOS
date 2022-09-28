@@ -27,7 +27,7 @@ final class StakingPoolCreateViewLayout: UIView {
         return view
     }()
 
-    let poolNameInputView = UIFactory.default.createCommonInputViewV2()
+    let poolNameInputView = CommonInputViewV2()
     let amountView = AmountInputViewV2()
 
     let feeView: NetworkFeeFooterView = {
