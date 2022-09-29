@@ -91,8 +91,7 @@ private extension ChainAssetListViewController {
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
-        viewModel.cellsForSections[viewModel.sections[0]]?.isEmpty == true ?
-            rootView.apply(state: .empty) : rootView.apply(state: .normal)
+        rootView.apply(state: .normal)
         var snapshot = DiffableDataSourceSnapshot<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>()
         snapshot.appendSections(viewModel.sections)
         viewModel.sections.forEach { section in
@@ -101,6 +100,10 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
             }
         }
         dataSource?.apply(snapshot, animatingDifferences: true)
+    }
+
+    func showEmptyState() {
+        rootView.apply(state: .empty)
     }
 }
 

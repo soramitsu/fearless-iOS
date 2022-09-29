@@ -158,6 +158,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func updateViewModel() {
+        guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.showEmptyState()
+            }
+            return
+        }
         provideViewModel()
     }
 
