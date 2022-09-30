@@ -133,6 +133,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             break
         case .hide:
             interactor.hideChainAsset(viewModel.chainAsset)
+        case .show:
+            interactor.showChainAsset(viewModel.chainAsset)
         }
     }
 

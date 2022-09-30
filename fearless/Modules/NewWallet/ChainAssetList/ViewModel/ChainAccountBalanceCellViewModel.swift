@@ -14,6 +14,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
     var isColdBoot: Bool
     var priceDataWasUpdated: Bool
     let isNetworkIssues: Bool
+    let isHidden: Bool
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(chainAsset.chainAssetId)

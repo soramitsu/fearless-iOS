@@ -19,6 +19,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
         sorts: [ChainAssetsFetching.SortDescriptor]
     )
     func hideChainAsset(_ chainAsset: ChainAsset)
+    func showChainAsset(_ chainAsset: ChainAsset)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
