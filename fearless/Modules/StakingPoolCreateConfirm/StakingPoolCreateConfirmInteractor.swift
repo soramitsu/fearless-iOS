@@ -47,9 +47,9 @@ final class StakingPoolCreateConfirmInteractor {
 
         let createPool = callFactory.createPool(
             amount: substrateAmountValue,
-            root: rootAccount,
-            nominator: nominationAccount,
-            stateToggler: stateTogglerAccount
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(nominationAccount),
+            stateToggler: .accoundId(stateTogglerAccount)
         )
 
         return createPool.callName
@@ -72,9 +72,9 @@ final class StakingPoolCreateConfirmInteractor {
 
         let createPool = callFactory.createPool(
             amount: substrateAmountValue,
-            root: rootAccount,
-            nominator: nominationAccount,
-            stateToggler: stateTogglerAccount
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(nominationAccount),
+            stateToggler: .accoundId(stateTogglerAccount)
         )
 
         return { builder in

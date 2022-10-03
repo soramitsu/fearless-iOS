@@ -97,9 +97,9 @@ protocol SubstrateCallFactoryProtocol {
 
     func createPool(
         amount: BigUInt,
-        root: AccountId,
-        nominator: AccountId,
-        stateToggler: AccountId
+        root: MultiAddress,
+        nominator: MultiAddress,
+        stateToggler: MultiAddress
     ) -> RuntimeCall<CreatePoolCall>
 
     func setPoolMetadata(
@@ -373,9 +373,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func createPool(
         amount: BigUInt,
-        root: AccountId,
-        nominator: AccountId,
-        stateToggler: AccountId
+        root: MultiAddress,
+        nominator: MultiAddress,
+        stateToggler: MultiAddress
     ) -> RuntimeCall<CreatePoolCall> {
         let args = CreatePoolCall(
             amount: amount,
