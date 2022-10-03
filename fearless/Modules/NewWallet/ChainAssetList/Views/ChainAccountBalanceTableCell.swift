@@ -153,7 +153,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         bindChainIcons(viewModel: viewModel)
         bindIssues(viewModel.isNetworkIssues)
         rightMenuButtons = viewModel.isHidden ? [showButton] : [hideButton]
-        print("wtf", viewModel.assetName, viewModel.isHidden)
     }
 
     // MARK: - Private methods
