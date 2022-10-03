@@ -6,6 +6,7 @@ protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func chainsSubscribe(
         _ target: AnyObject,
@@ -192,6 +193,14 @@ extension ChainRegistry: ChainRegistryProtocol {
         }
 
         return connectionPool.getConnection(for: chainId)
+    }
+
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
+        if let connection = connectionPool.getConnection(for: chainModel.chainId) {
+            return connection
+        } else {
+            return try? connectionPool.setupConnection(for: chainModel)
+        }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
