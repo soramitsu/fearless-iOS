@@ -6,6 +6,10 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
         case hidden
         case expanded
     }
+    
+    enum Constants {
+        static let sectionHeaderHeight: CGFloat = 80
+    }
 
     typealias RootViewType = ChainAssetListViewLayout
 
@@ -83,9 +87,6 @@ private extension ChainAssetListViewController {
             hiddenSectionState = .expanded
         }
         rootView.tableView.reloadData()
-//        if case .expanded = hiddenSectionState {
-//            rootView.tableView.scrollToLastSection()
-//        }
     }
 }
 
@@ -152,7 +153,7 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 1 {
-            return 80
+            return Constants.sectionHeaderHeight
         }
         return 0
     }
