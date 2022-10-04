@@ -5,8 +5,11 @@ import RobinHood
 protocol RuntimeSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
-        dataHasher: StorageHasher
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?>
+        dataHasher: StorageHasher,
+        commonTypes: Data?,
+        chainTypes: Data,
+        chainMetadata: RuntimeMetadataItem
+    ) -> ClosureOperation<RuntimeSnapshot?>
 }
 
 final class RuntimeSnapshotFactory {
@@ -25,34 +28,16 @@ final class RuntimeSnapshotFactory {
     }
 
     private func createWrapperForCommonAndChainTypes(
-        _ dataHasher: StorageHasher
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
-        let baseTypesFetchOperation = filesOperationFactory.fetchCommonTypesOperation()
-        let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
-
-        let runtimeMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
+        _ dataHasher: StorageHasher,
+        commonTypes: Data?,
+        chainTypes: Data,
+        runtimeMetadataItem: RuntimeMetadataItem
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> {
-            let commonTypes = try baseTypesFetchOperation.targetOperation.extractNoCancellableResultData()
-            let chainTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
-
-            guard let runtimeMetadataItem = try runtimeMetadataOperation
-                .extractNoCancellableResultData() else {
-                return nil
-            }
-
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = runtimeMetadataItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
-            guard let commonTypes = commonTypes, let chainTypes = chainTypes else {
+            guard let commonTypes = commonTypes else {
                 return nil
             }
 
@@ -72,39 +57,17 @@ final class RuntimeSnapshotFactory {
             )
         }
 
-        let dependencies = baseTypesFetchOperation.allOperations + chainTypesFetchOperation.allOperations +
-            [runtimeMetadataOperation]
-
-        dependencies.forEach { snapshotOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: dependencies)
+        return snapshotOperation
     }
 
     private func createWrapperForCommonTypes(
-        _ dataHasher: StorageHasher
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
-        let commonTypesFetchOperation = filesOperationFactory.fetchCommonTypesOperation()
-
-        let runtimeMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
+        _ dataHasher: StorageHasher,
+        commonTypes: Data?,
+        runtimeMetadataItem: RuntimeMetadataItem
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> {
-            let commonTypes = try commonTypesFetchOperation.targetOperation.extractNoCancellableResultData()
-
-            guard let runtimeMetadataItem = try runtimeMetadataOperation
-                .extractNoCancellableResultData() else {
-                return nil
-            }
-
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = runtimeMetadataItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             guard let commonTypes = commonTypes else {
                 return nil
@@ -125,42 +88,17 @@ final class RuntimeSnapshotFactory {
             )
         }
 
-        let dependencies = commonTypesFetchOperation.allOperations + [runtimeMetadataOperation]
-
-        dependencies.forEach { snapshotOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: dependencies)
+        return snapshotOperation
     }
 
     private func createWrapperForChainTypes(
-        _ dataHasher: StorageHasher
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
-        let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
-
-        let runtimeMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
+        _ dataHasher: StorageHasher,
+        ownTypes: Data,
+        runtimeMetadataItem: RuntimeMetadataItem
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> {
-            let ownTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
-
-            guard let runtimeMetadataItem = try runtimeMetadataOperation
-                .extractNoCancellableResultData() else {
-                return nil
-            }
-
             let decoder = try ScaleDecoder(data: runtimeMetadataItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = runtimeMetadataItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
-
-            guard let ownTypes = ownTypes else {
-                return nil
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             // TODO: think about it
             let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
@@ -180,26 +118,38 @@ final class RuntimeSnapshotFactory {
             )
         }
 
-        let dependencies = chainTypesFetchOperation.allOperations + [runtimeMetadataOperation]
-
-        dependencies.forEach { snapshotOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: dependencies)
+        return snapshotOperation
     }
 }
 
 extension RuntimeSnapshotFactory: RuntimeSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
-        dataHasher: StorageHasher
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
+        dataHasher: StorageHasher,
+        commonTypes: Data?,
+        chainTypes: Data,
+        chainMetadata: RuntimeMetadataItem
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         switch typesUsage {
         case .onlyCommon:
-            return createWrapperForCommonTypes(dataHasher)
+            return createWrapperForCommonTypes(
+                dataHasher,
+                commonTypes: commonTypes,
+                runtimeMetadataItem: chainMetadata
+            )
         case .onlyOwn:
-            return createWrapperForChainTypes(dataHasher)
+            return createWrapperForChainTypes(
+                dataHasher,
+                ownTypes: chainTypes,
+                runtimeMetadataItem: chainMetadata
+            )
         case .both:
-            return createWrapperForCommonAndChainTypes(dataHasher)
+            return createWrapperForCommonAndChainTypes(
+                dataHasher,
+                commonTypes: commonTypes,
+                chainTypes: chainTypes,
+                runtimeMetadataItem: chainMetadata
+            )
         }
     }
 }

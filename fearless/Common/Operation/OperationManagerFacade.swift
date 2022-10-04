@@ -7,6 +7,7 @@ final class OperationManagerFacade {
     static let runtimeBuildingQueue: OperationQueue = {
         let operationQueue = OperationQueue()
         operationQueue.qualityOfService = .userInitiated
+        operationQueue.maxConcurrentOperationCount = 50
         return operationQueue
     }()
 
