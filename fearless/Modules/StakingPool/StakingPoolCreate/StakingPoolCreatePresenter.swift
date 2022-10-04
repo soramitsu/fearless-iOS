@@ -26,6 +26,7 @@ final class StakingPoolCreatePresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
 
+    private var totalAmount: BigUInt?
     private var inputResult: AmountInputResult?
     private var priceData: PriceData?
     private var balance: Decimal?
@@ -36,6 +37,7 @@ final class StakingPoolCreatePresenter {
     private var stateTogglerWallet: MetaAccountModel
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
+    private var existentialDeposit: BigUInt?
 
     // MARK: - Constructors
 
@@ -138,9 +140,11 @@ final class StakingPoolCreatePresenter {
 
 // MARK: - StakingPoolCreateViewOutput
 
+// swiftlint:disable function_body_length
 extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
     func createDidTapped() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         DataValidationRunner(validators: [
             dataValidatingFactory.canNominate(
                 amount: inputAmount,
@@ -164,6 +168,13 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
             dataValidatingFactory.createPoolName(
                 complite: poolNameInputViewModel.inputHandler.completed,
                 locale: selectedLocale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: spendingAmount,
+                totalAmount: totalAmount,
+                minimumBalance: existentialDeposit,
+                locale: selectedLocale,
+                chainAsset: chainAsset
             )
         ]).runValidation { [weak self] in
             guard
@@ -228,6 +239,15 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 // MARK: - StakingPoolCreateInteractorOutput
 
 extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
+        switch existentialDepositResult {
+        case let .success(existentialDeposit):
+            self.existentialDeposit = existentialDeposit
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+        }
+    }
+
     func didReceiveLastPoolId(_ lastPoolId: UInt32?) {
         self.lastPoolId = lastPoolId
         provideViewModel()
@@ -266,6 +286,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
+            totalAmount = accountInfo?.data.available
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,

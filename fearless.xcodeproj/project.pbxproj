@@ -59,6 +59,7 @@
 		07B6BC7F28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */; };
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
+		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07DE95B528A1119400E9C2CB /* BalanceInfoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */; };
 		07DE95B628A1119400E9C2CB /* BalanceInfoAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */; };
 		07DE95B728A1119400E9C2CB /* BalanceInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AE28A1119400E9C2CB /* BalanceInfoProtocols.swift */; };
@@ -2509,6 +2510,7 @@
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
+		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoRouter.swift; sourceTree = "<group>"; };
 		07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoAssembly.swift; sourceTree = "<group>"; };
@@ -11083,6 +11085,7 @@
 				A8D1128660EFE277FE867C45 /* StakingPoolCreate */,
 				E51F89535BB0EAB763E5DDCA /* StakingPoolInfo */,
 				FA2FC7CD28B3807C00CC0A42 /* Join */,
+				07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */,
 			);
 			path = StakingPool;
 			sourceTree = "<group>";
@@ -14421,6 +14424,7 @@
 				075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */,
 				6A8A060B9EB9ABAF6EC066FF /* NetworkInfoProtocols.swift in Sources */,
 				FA17B4D627E9CF34006E0735 /* UserInactiveEvent.swift in Sources */,
+				07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */,
 				FAD646C6284DD2E5007CCB92 /* StakingBalanceRelaychainViewModelFactory.swift in Sources */,
 				FA30D4F128BF32F500548C1E /* SortPickerTableViewCellModel.swift in Sources */,
 				843910DE253F912500E3C217 /* ApplicationStatusView.swift in Sources */,

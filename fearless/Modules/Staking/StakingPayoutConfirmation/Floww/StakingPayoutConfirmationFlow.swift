@@ -5,7 +5,7 @@ typealias Batch = [PayoutInfo]
 
 enum StakingPayoutConfirmationFlow {
     case relaychain(payouts: [PayoutInfo])
-    case pool
+    case pool(rewardAmount: Decimal)
 }
 
 protocol StakingPayoutConfirmationModelStateListener: AnyObject {

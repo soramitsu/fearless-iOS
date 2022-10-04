@@ -3,6 +3,7 @@ import SoraFoundation
 import RobinHood
 import FearlessUtils
 
+//swiftlint:disable function_body_length
 final class StakingPoolJoinConfigAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
@@ -58,6 +59,12 @@ final class StakingPoolJoinConfigAssembly {
 
         let localizationManager = LocalizationManager.shared
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let interactor = StakingPoolJoinConfigInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -66,7 +73,8 @@ final class StakingPoolJoinConfigAssembly {
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
         let router = StakingPoolJoinConfigRouter()
 

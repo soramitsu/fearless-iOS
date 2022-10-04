@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
 final class StakingPoolManagementPresenter {
     // MARK: Private properties
@@ -12,6 +13,7 @@ final class StakingPoolManagementPresenter {
     private let viewModelFactory: StakingPoolManagementViewModelFactoryProtocol
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol
+    private var rewardCalculator: StakinkPoolRewardCalculatorProtocol
 
     private var balance: Decimal?
     private var stakeInfo: StakingPoolMember?
@@ -19,6 +21,11 @@ final class StakingPoolManagementPresenter {
     private var eraStakersInfo: EraStakersInfo?
     private var stakingDuration: StakingDuration?
     private var stakingPool: StakingPool?
+    private var palletId: Data?
+    private var poolAccountInfo: AccountInfo?
+    private var poolRewards: StakingPoolRewards?
+    private var existentialDeposit: BigUInt?
+    private var totalRewardsDecimal: Decimal?
 
     // MARK: - Constructors
 
@@ -30,6 +37,7 @@ final class StakingPoolManagementPresenter {
         wallet: MetaAccountModel,
         viewModelFactory: StakingPoolManagementViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        rewardCalculator: StakinkPoolRewardCalculatorProtocol,
         logger: LoggerProtocol
     ) {
         self.interactor = interactor
@@ -39,6 +47,7 @@ final class StakingPoolManagementPresenter {
         self.viewModelFactory = viewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.logger = logger
+        self.rewardCalculator = rewardCalculator
         self.localizationManager = localizationManager
     }
 
@@ -94,7 +103,10 @@ final class StakingPoolManagementPresenter {
     private func provideRedeemableViewModel() {
         guard let era = eraStakersInfo?.activeEra,
               let claimable = stakeInfo?.redeemable(inEra: era),
-              let claimableDecimal = Decimal.fromSubstrateAmount(claimable, precision: Int16(chainAsset.asset.precision)),
+              let claimableDecimal = Decimal.fromSubstrateAmount(
+                  claimable,
+                  precision: Int16(chainAsset.asset.precision)
+              ),
               claimableDecimal > 0 else {
             return
         }
@@ -105,11 +117,31 @@ final class StakingPoolManagementPresenter {
     }
 
     private func provideClaimableViewModel() {
-        if let claimable = stakeInfo?.lastRecordedRewardCounter {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(0, priceData: priceData)
-
-            view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
+        guard
+            let stakeInfo = stakeInfo,
+            let poolRewards = poolRewards,
+            let poolInfo = stakingPool,
+            let poolAccountInfo = poolAccountInfo,
+            let existentialDeposit = existentialDeposit
+        else {
+            view?.didReceive(claimableViewModel: nil)
+            return
         }
+
+        let rewards = rewardCalculator.calculate(
+            wallet: wallet,
+            chainAsset: chainAsset,
+            poolInfo: poolInfo,
+            poolAccountInfo: poolAccountInfo,
+            poolRewards: poolRewards,
+            stakeInfo: stakeInfo,
+            existentialDeposit: existentialDeposit,
+            priceData: priceData,
+            locale: selectedLocale
+        )
+
+        view?.didReceive(claimableViewModel: rewards.totalRewards)
+        totalRewardsDecimal = rewards.totalRewardsDecimal
     }
 
     private func presentStakingPoolInfo() {
@@ -123,6 +155,35 @@ final class StakingPoolManagementPresenter {
             wallet: wallet,
             from: view
         )
+    }
+
+    private func fetchPoolBalance() {
+        guard
+            let modPrefix = "modl".data(using: .utf8),
+            let palletIdData = palletId,
+            let poolId = stakingPool?.id,
+            let poolIdUintValue = UInt(poolId)
+        else {
+            return
+        }
+
+        var index: UInt8 = 1
+        var poolIdValue = poolIdUintValue
+        let indexData = Data(
+            bytes: &index,
+            count: MemoryLayout.size(ofValue: index)
+        )
+
+        let poolIdSize = MemoryLayout.size(ofValue: poolIdValue)
+        let poolIdData = Data(
+            bytes: &poolIdValue,
+            count: poolIdSize
+        )
+
+        let emptyH256 = [UInt8](repeating: 0, count: 32)
+        let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
+
+        interactor.fetchPoolBalance(poolAccountId: poolAccountId[0 ... 31])
     }
 }
 
@@ -167,16 +228,24 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
         let viewModels = [validatorsOptionViewModel, poolInfoOptionViewModel]
 
         router.presentOptions(viewModels: viewModels, callback: { [weak self] selectedOption in
-            if selectedOption == viewModels.index(of: validatorsOptionViewModel) {}
+            if selectedOption == viewModels.firstIndex(of: validatorsOptionViewModel) {}
 
-            if selectedOption == viewModels.index(of: poolInfoOptionViewModel) {
+            if selectedOption == viewModels.firstIndex(of: poolInfoOptionViewModel) {
                 self?.presentStakingPoolInfo()
             }
         }, from: view)
     }
 
     func didTapClaimButton() {
-        router.presentClaim(chainAsset: chainAsset, wallet: wallet, from: view)
+        guard let totalRewardsDecimal = totalRewardsDecimal else {
+            return
+        }
+        router.presentClaim(
+            rewardAmount: totalRewardsDecimal,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
     }
 
     func didTapRedeemButton() {
@@ -192,6 +261,11 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 // MARK: - StakingPoolManagementInteractorOutput
 
 extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput {
+    func didReceive(poolAccountInfo: AccountInfo?) {
+        self.poolAccountInfo = poolAccountInfo
+        provideClaimableViewModel()
+    }
+
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
@@ -241,11 +315,12 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
 
     func didReceive(stakingPool: StakingPool?) {
         self.stakingPool = stakingPool
+        fetchPoolBalance()
         view?.didReceive(poolName: stakingPool?.name)
     }
 
-    func didReceive(error _: Error) {
-        logger.error("StakingPoolManagementPresenter:didReceive:error:")
+    func didReceive(error: Error) {
+        logger.error(error.localizedDescription)
     }
 
     func didReceive(stakingDuration: StakingDuration) {
@@ -253,9 +328,32 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         provideRedeemDelayViewModel()
     }
 
-    func didReceive(poolRewards _: StakingPoolRewards?) {}
+    func didReceive(poolRewards: StakingPoolRewards?) {
+        self.poolRewards = poolRewards
+        provideClaimableViewModel()
+    }
 
     func didReceive(poolRewardsError _: Error) {}
+
+    func didReceive(palletIdResult: Result<Data, Error>) {
+        switch palletIdResult {
+        case let .success(palletId):
+            self.palletId = palletId
+            fetchPoolBalance()
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+        }
+    }
+
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
+        switch existentialDepositResult {
+        case let .success(existentialDeposit):
+            self.existentialDeposit = existentialDeposit
+            provideClaimableViewModel()
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+        }
+    }
 }
 
 // MARK: - Localizable

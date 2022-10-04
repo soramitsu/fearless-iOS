@@ -122,16 +122,15 @@ final class StakingPoolMainPresenter {
     }
 
     private func fetchPoolBalance() {
-        guard let modPrefix = "modl".data(using: .utf8) else {
+        guard
+            let modPrefix = "modl".data(using: .utf8),
+            let palletIdData = palletId,
+            let poolId = poolInfo?.id,
+            let poolIdUintValue = UInt(poolId)
+        else {
             return
         }
 
-        guard let palletIdData = palletId else {
-            return
-        }
-        guard let poolId = poolInfo?.id, let poolIdUintValue = UInt(poolId) else {
-            return
-        }
         var index: UInt8 = 1
         var poolIdValue = poolIdUintValue
         let indexData = Data(
