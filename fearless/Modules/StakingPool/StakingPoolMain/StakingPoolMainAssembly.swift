@@ -128,6 +128,18 @@ final class StakingPoolMainAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let accountOperationFactory = AccountOperationFactory(
+            engine: connection,
+            requestFactory: requestFactory,
+            runtimeService: runtimeService
+        )
+
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let interactor = StakingPoolMainInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             selectedWalletSettings: SelectedWalletSettings.shared,
@@ -147,7 +159,9 @@ final class StakingPoolMainAssembly {
             eventCenter: EventCenter.shared,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             stakingAccountUpdatingService: stakingAccountUpdatingService,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            accountOperationFactory: accountOperationFactory,
+            existentialDepositService: existentialDepositService
         )
 
         let router = StakingPoolMainRouter()

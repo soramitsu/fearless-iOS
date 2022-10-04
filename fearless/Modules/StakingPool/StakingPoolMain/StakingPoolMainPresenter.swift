@@ -30,8 +30,9 @@ final class StakingPoolMainPresenter {
     private var stakeInfo: StakingPoolMember?
     private var poolInfo: StakingPool?
     private var poolRewards: StakingPoolRewards?
-    private var palletId: String?
+    private var palletId: Data?
     private var poolAccountInfo: AccountInfo?
+    private var existentialDeposit: BigUInt?
 
     private var inputResult: AmountInputResult?
 
@@ -99,13 +100,13 @@ final class StakingPoolMainPresenter {
         guard let stakeInfo = stakeInfo,
               let poolRewards = poolRewards,
               let poolInfo = poolInfo,
-              let accountInfo = accountInfo else {
+              let accountInfo = poolAccountInfo,
+              let existentialDeposit = existentialDeposit else {
             view?.didReceiveNominatorStateViewModel(nil)
 
             return
         }
 
-        // TODO: existentialDeposit value
         let viewModel = viewModelFactory.buildNominatorStateViewModel(
             stakeInfo: stakeInfo,
             priceData: priceData,
@@ -114,7 +115,7 @@ final class StakingPoolMainPresenter {
             poolRewards: poolRewards,
             poolInfo: poolInfo,
             accountInfo: accountInfo,
-            existentialDeposit: BigUInt.zero
+            existentialDeposit: existentialDeposit
         )
 
         view?.didReceiveNominatorStateViewModel(viewModel)
@@ -124,30 +125,30 @@ final class StakingPoolMainPresenter {
         guard let modPrefix = "modl".data(using: .utf8) else {
             return
         }
-        guard let palletIdString = palletId else {
+
+        guard let palletIdData = palletId else {
             return
         }
-        guard let palletIdData = try? Data(hexString: palletIdString) else {
+        guard let poolId = poolInfo?.id, let poolIdUintValue = UInt(poolId) else {
             return
         }
-        guard let poolId = poolInfo?.id else {
-            return
-        }
-        var index = 1
-        var poolIdValue = poolId
+        var index: UInt8 = 1
+        var poolIdValue = poolIdUintValue
         let indexData = Data(
             bytes: &index,
             count: MemoryLayout.size(ofValue: index)
         )
+
+        let poolIdSize = MemoryLayout.size(ofValue: poolIdValue)
         let poolIdData = Data(
             bytes: &poolIdValue,
-            count: MemoryLayout.size(ofValue: poolIdValue)
+            count: poolIdSize
         )
 
-        let emptyH256 = Data(capacity: 32)
+        let emptyH256 = [UInt8](repeating: 0, count: 32)
         let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
 
-        interactor.fetchPoolBalance(poolAccountId: poolAccountId)
+        interactor.fetchPoolBalance(poolAccountId: poolAccountId[0 ... 31])
     }
 }
 
@@ -228,7 +229,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideStakeInfoViewModel()
     }
 
-    func didReceive(palletIdResult: Result<String, Error>) {
+    func didReceive(palletIdResult: Result<Data, Error>) {
         switch palletIdResult {
         case let .success(palletId):
             self.palletId = palletId
@@ -336,6 +337,16 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     }
 
     func didReceive(poolRewardsError _: Error) {}
+
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
+        switch existentialDepositResult {
+        case let .success(existentialDeposit):
+            self.existentialDeposit = existentialDeposit
+            provideStakeInfoViewModel()
+        case let .failure(error):
+            break
+        }
+    }
 }
 
 // MARK: - Localizable
