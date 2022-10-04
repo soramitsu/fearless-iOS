@@ -25,7 +25,7 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
         let operationQueue = OperationQueue()
-        operationQueue.qualityOfService = .background
+        operationQueue.qualityOfService = .userInitiated
         let chainAssetFetching = ChainAssetsFetching(
             chainRepository: AnyDataProviderRepository(chainRepository),
             accountInfoFetching: accountInfoFetching,
