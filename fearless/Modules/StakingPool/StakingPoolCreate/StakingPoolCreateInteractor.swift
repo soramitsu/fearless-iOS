@@ -55,9 +55,9 @@ final class StakingPoolCreateInteractor {
 
         let createPool = callFactory.createPool(
             amount: amount,
-            root: rootAccount,
-            nominator: rootAccount,
-            stateToggler: rootAccount
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(rootAccount),
+            stateToggler: .accoundId(rootAccount)
         )
 
         return createPool.callName
@@ -77,9 +77,9 @@ final class StakingPoolCreateInteractor {
 
         let joinPool = callFactory.createPool(
             amount: amount,
-            root: rootAccount,
-            nominator: rootAccount,
-            stateToggler: rootAccount
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(rootAccount),
+            stateToggler: .accoundId(rootAccount)
         )
 
         return { builder in
