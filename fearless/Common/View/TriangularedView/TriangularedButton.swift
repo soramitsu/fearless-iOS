@@ -74,7 +74,7 @@ class TriangularedButton: BackgroundedContentControl {
         isEnabled = enabled
 
         if changeStyle {
-            isEnabled ? applyDefaultStyle() : applyDisabledStyle()
+            isEnabled ? applyEnabledStyle() : applyDisabledStyle()
         }
     }
 

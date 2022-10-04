@@ -1,8 +1,8 @@
 import UIKit
 
 class BaseNavigationBar: BaseTopBar {
-    enum LayoutConstaints {
-        static let backButtonWidth: CGFloat = 40
+    enum LayoutConstants {
+        static let backButtonSize: CGFloat = 32
     }
 
     enum NavigationStyle {
@@ -14,6 +14,8 @@ class BaseNavigationBar: BaseTopBar {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
         button.layer.masksToBounds = true
+        button.backgroundColor = R.color.colorWhite8()
+        button.layer.cornerRadius = LayoutConstants.backButtonSize / 2
         return button
     }()
 
@@ -27,19 +29,7 @@ class BaseNavigationBar: BaseTopBar {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = .black.withAlphaComponent(0.4)
-    }
-
-    override func layoutIfNeeded() {
-        super.layoutIfNeeded()
-
-        backButton.layer.cornerRadius = backButton.frame.size.height / 2
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        backButton.layer.cornerRadius = backButton.frame.size.height / 2
+        backgroundColor = R.color.colorBlack19()
     }
 
     override func setupLayout() {
@@ -48,7 +38,7 @@ class BaseNavigationBar: BaseTopBar {
         setLeftViews([backButton])
 
         backButton.snp.makeConstraints { make in
-            make.size.equalTo(CGSize(width: 32, height: 32))
+            make.size.equalTo(LayoutConstants.backButtonSize)
         }
     }
 

@@ -5,7 +5,7 @@ import BigInt
 
 protocol StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolsOperation() -> CompoundOperationWrapper<[StakingPool]>
-    func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<[String]?>
+    func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<String?>
     func fetchMinJoinBondOperation() -> CompoundOperationWrapper<BigUInt?>
     func fetchMinCreateBondOperation() -> CompoundOperationWrapper<BigUInt?>
     func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<StakingPoolMember?>
@@ -13,6 +13,9 @@ protocol StakingPoolOperationFactoryProtocol {
     func fetchMaxPoolMembers() -> CompoundOperationWrapper<UInt32?>
     func fetchCounterForBondedPools() -> CompoundOperationWrapper<UInt32?>
     func fetchMaxPoolMembersPerPool() -> CompoundOperationWrapper<UInt32?>
+    func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?>
+    func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?>
+    func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?>
 }
 
 final class StakingPoolOperationFactory {
@@ -33,10 +36,27 @@ final class StakingPoolOperationFactory {
         self.engine = engine
     }
 
+    private func createBondedPoolOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        paramsClosure: @escaping () throws -> [String]
+    ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> {
+        let bondedPoolWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: paramsClosure,
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .bondedPools
+            )
+
+        bondedPoolWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return bondedPoolWrapper
+    }
+
     private func createBondedPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> {
-        let topDelegationsWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> =
+        let bondedPoolsWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> =
             storageRequestFactory.queryItemsByPrefix(
                 engine: engine,
                 keys: { [try StorageKeyFactory().key(from: .bondedPools)] },
@@ -44,9 +64,9 @@ final class StakingPoolOperationFactory {
                 storagePath: .bondedPools
             )
 
-        topDelegationsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+        bondedPoolsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
-        return topDelegationsWrapper
+        return bondedPoolsWrapper
     }
 
     private func createMetadataOperation(
@@ -194,6 +214,39 @@ final class StakingPoolOperationFactory {
 
         return minJoinBondWrapper
     }
+
+    private func createStakingPoolRewardsOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        paramsClosure: @escaping () throws -> [String]
+    ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> {
+        let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: paramsClosure,
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .stakingPoolRewards
+            )
+
+        poolMetadataWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return poolMetadataWrapper
+    }
+
+    private func createLastPoolIdOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        let lastPoolIdWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try StorageKeyFactory().key(from: .stakingPoolLastPoolId)] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .stakingPoolLastPoolId
+            )
+
+        lastPoolIdWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return lastPoolIdWrapper
+    }
 }
 
 extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
@@ -246,14 +299,55 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<[String]?> {
+    func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let bondedPoolsOperation = createBondedPoolOperation(dependingOn: runtimeOperation) {
+            [poolId]
+        }
+
+        let mapBondedPoolOperation = ClosureOperation<StakingPool?> {
+            guard let storageResponse = try bondedPoolsOperation.targetOperation.extractNoCancellableResultData().first,
+                  let stakingPoolInfo = storageResponse.value else {
+                return nil
+            }
+
+            let extractor = StorageKeyDataExtractor(storageKey: storageResponse.key)
+            let id = try extractor.extractU32Parameter()
+            return StakingPool(id: "\(id)", info: stakingPoolInfo, name: "")
+        }
+
+        let metadataOperation = createMetadataOperation(dependingOn: runtimeOperation) {
+            let id = try mapBondedPoolOperation.extractNoCancellableResultData()?.id ?? ""
+            return [id]
+        }
+
+        let mapOperation = ClosureOperation<StakingPool?> {
+            let pool = try mapBondedPoolOperation.extractNoCancellableResultData()
+            let storageResponse = try metadataOperation.targetOperation.extractNoCancellableResultData()
+            let name = storageResponse.first?.value?.toUTF8String() ?? ""
+
+            return pool?.byReplacingName(name)
+        }
+
+        mapBondedPoolOperation.addDependency(bondedPoolsOperation.targetOperation)
+        metadataOperation.allOperations.forEach {
+            $0.addDependency(mapBondedPoolOperation)
+        }
+        mapOperation.addDependency(metadataOperation.targetOperation)
+
+        let dependencies = [runtimeOperation] + bondedPoolsOperation.allOperations + metadataOperation.allOperations + [mapBondedPoolOperation]
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<String?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let poolMetadataOperation = createMetadataOperation(dependingOn: runtimeOperation) {
             [poolId]
         }
 
-        let mapOperation = ClosureOperation<[String]?> {
-            try poolMetadataOperation.targetOperation.extractNoCancellableResultData().compactMap { $0.value?.toUTF8String() }
+        let mapOperation = ClosureOperation<String?> {
+            try poolMetadataOperation.targetOperation.extractNoCancellableResultData().compactMap { $0.value?.toUTF8String() }.first
         }
 
         mapOperation.addDependency(poolMetadataOperation.targetOperation)
@@ -360,6 +454,38 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         mapOperation.addDependency(maxPoolMembersPerPoolOperation.targetOperation)
 
         let dependencies = [runtimeOperation] + maxPoolMembersPerPoolOperation.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let stakingPoolMembersOperation = createStakingPoolRewardsOperation(dependingOn: runtimeOperation) {
+            [poolId]
+        }
+
+        let mapOperation = ClosureOperation<StakingPoolRewards?> {
+            try stakingPoolMembersOperation.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        mapOperation.addDependency(stakingPoolMembersOperation.targetOperation)
+
+        let dependencies = [runtimeOperation] + stakingPoolMembersOperation.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+        let lastPoolIdOperation = createLastPoolIdOperation(dependingOn: runtimeOperation)
+
+        let mapOperation = ClosureOperation<UInt32?> {
+            try lastPoolIdOperation.targetOperation.extractNoCancellableResultData().first?.value?.value
+        }
+
+        mapOperation.addDependency(lastPoolIdOperation.targetOperation)
+
+        let dependencies = [runtimeOperation] + lastPoolIdOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

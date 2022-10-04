@@ -11,14 +11,17 @@ final class WalletsManagmentInteractor {
     private let operationQueue: OperationQueue
     private let settings: SelectedWalletSettings
     private let eventCenter: EventCenter
+    private let shouldSaveSelected: Bool
 
     init(
+        shouldSaveSelected: Bool,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         metaAccountRepository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         settings: SelectedWalletSettings,
         eventCenter: EventCenter
     ) {
+        self.shouldSaveSelected = shouldSaveSelected
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.metaAccountRepository = metaAccountRepository
         self.operationQueue = operationQueue
@@ -53,6 +56,10 @@ final class WalletsManagmentInteractor {
 
 extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
     func select(wallet: ManagedMetaAccountModel) {
+        guard shouldSaveSelected else {
+            output?.didCompleteSelection()
+            return
+        }
         let oldMetaAccount = settings.value
 
         guard wallet.info.identifier != oldMetaAccount?.identifier else {

@@ -5,7 +5,7 @@ import CommonWallet
 protocol ReceiveAssetPresenterProtocol: AnyObject {
     func setup()
     func share(qrImage: UIImage)
-    func didTapCloseButton()
+    func close()
     func presentAccountOptions()
 }
 

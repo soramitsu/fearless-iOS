@@ -51,7 +51,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         case .chain:
             break
         case .assetChains:
-            utilityChainAssets = chainAssets.filter { $0.isUtility == true }
+            utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
         }
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
@@ -84,14 +84,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             activeSectionCellModels = cellModelsDivide.remainder
         } else {
             activeSectionCellModels = chainAssetCellModels
-        }
-
-        switch displayType {
-        case .chain:
-            break
-        case .assetChains:
-            activeSectionCellModels = activeSectionCellModels.uniq(predicate: { $0.chainAsset.asset.name })
-            hiddenSectionCellModels = hiddenSectionCellModels.uniq(predicate: { $0.chainAsset.asset.name })
         }
 
         let activeSection = ChainAssetListTableSection(
@@ -153,15 +145,6 @@ private extension ChainAssetListViewModelFactory {
         selectedMetaAccount: MetaAccountModel,
         chainsWithIssues: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
-        var icon = (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) }
-        var title = chainAsset.chain.name
-
-        if chainAsset.chain.parentId == chainAsset.asset.chainId,
-           let chain = chainAssets.first(where: { $0.chain.chainId == chainAsset.asset.chainId })?.chain {
-            title = chain.name
-            icon = chain.icon.map { buildRemoteImageViewModel(url: $0) }
-        }
-
         var accountInfo: AccountInfo?
         if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let key = chainAsset.uniqueKey(accountId: accountId)
@@ -205,9 +188,9 @@ private extension ChainAssetListViewModelFactory {
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: containsChainAssets,
             chainAsset: chainAsset,
-            assetName: title,
+            assetName: chainAsset.chain.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
-            imageViewModel: icon,
+            imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
             balanceString: .init(
                 value: .text(totalAssetBalance),
                 isUpdated: priceDataUpdated
@@ -362,6 +345,16 @@ private extension ChainAssetListViewModelFactory {
         }
 
         return priceWithChangeAttributed
+    }
+
+    func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
+        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        let result = assetNamesSet.compactMap { name in
+            chainAssets.first { chainAsset in
+                chainAsset.asset.name == name && chainAsset.asset.chainId == chainAsset.chain.chainId
+            }
+        }
+        return result
     }
 }
 

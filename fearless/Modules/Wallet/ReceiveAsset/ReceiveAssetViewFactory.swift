@@ -1,5 +1,6 @@
 import CommonWallet
 import SoraFoundation
+import SoraUI
 
 struct ReceiveAssetViewFactory {
     static func createView(
@@ -33,6 +34,12 @@ struct ReceiveAssetViewFactory {
         )
 
         let view = ReceiveAssetViewController(presenter: presenter)
+        view.modalPresentationStyle = .custom
+
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+        )
+        view.modalTransitioningFactory = factory
         presenter.view = view
 
         return view

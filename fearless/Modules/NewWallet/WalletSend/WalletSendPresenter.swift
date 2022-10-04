@@ -22,7 +22,6 @@ final class WalletSendPresenter {
     private var priceData: PriceData?
     private var tip: Decimal?
     private var fee: Decimal?
-    private var blockDuration: BlockTime?
     private var minimumBalance: BigUInt?
     private var inputResult: AmountInputResult?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
@@ -53,77 +52,46 @@ final class WalletSendPresenter {
         self.localizationManager = localizationManager
     }
 
-    private func provideViewModel() {
-        let viewModel = WalletSendViewModel(
-            assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chainAsset.chain.isTipRequired,
-            tipViewModel: provideTipViewModel(),
-            feeViewModel: provideFeeViewModel(),
-            amountInputViewModel: provideInputViewModel(),
-            scamInfo: scamInfo
-        )
-
-        DispatchQueue.main.async {
-            self.view?.didReceive(state: .loaded(viewModel))
-        }
-    }
-
-    private func provideAssetVewModel() -> AssetBalanceViewModelProtocol? {
+    private func provideAssetVewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
 
-        return balanceViewModelFactory.createAssetBalanceViewModel(
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
+        view?.didReceive(assetBalanceViewModel: viewModel)
     }
 
-    private func provideTipViewModel() -> BalanceViewModelProtocol? {
-        tip
+    private func provideTipViewModel() {
+        let viewModel = tip
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
             .value(for: selectedLocale)
+        let tipViewModel = TipViewModel(
+            balanceViewModel: viewModel,
+            tipRequired: chainAsset.chain.isTipRequired
+        )
+        view?.didReceive(tipViewModel: tipViewModel)
     }
 
-    private func provideFeeViewModel() -> BalanceViewModelProtocol? {
-        fee
+    private func provideFeeViewModel() {
+        let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
             .value(for: selectedLocale)
+        view?.didReceive(feeViewModel: viewModel)
     }
 
-    private func provideInputViewModel() -> AmountInputViewModelProtocol? {
-        guard let amountViewModel = amountViewModel else {
-            let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
-
-            let viewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
-                .value(for: selectedLocale)
-            amountViewModel = viewModel
-            return viewModel
-        }
-
-        return amountViewModel
-    }
-
-    private func provideInputViewModelIfRate() {
-        guard case .rate = inputResult else {
-            return
-        }
-
+    private func provideInputViewModel() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
 
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
         amountViewModel = inputViewModel
+        view?.didReceive(amountInputViewModel: inputViewModel)
+    }
 
-        let viewModel = WalletSendViewModel(
-            assetBalanceViewModel: provideAssetVewModel(),
-            tipRequired: chainAsset.chain.isTipRequired,
-            tipViewModel: provideTipViewModel(),
-            feeViewModel: provideFeeViewModel(),
-            amountInputViewModel: inputViewModel,
-            scamInfo: scamInfo
-        )
-
-        view?.didReceive(state: .loaded(viewModel))
+    private func provideScamInfo() {
+        view?.didReceive(scamInfo: scamInfo)
     }
 
     private func refreshFee() {
@@ -145,7 +113,11 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
     func setup() {
         interactor.setup()
 
-        provideViewModel()
+        provideInputViewModel()
+        provideAssetVewModel()
+        provideFeeViewModel()
+        provideTipViewModel()
+        provideScamInfo()
 
         if !chainAsset.chain.isTipRequired {
             // To not distract users with two different fees one by one, let's wait for tip, and then refresh fee
@@ -158,14 +130,15 @@ extension WalletSendPresenter: WalletSendPresenterProtocol {
         inputResult = .rate(Decimal(Double(percentage)))
 
         refreshFee()
-        provideViewModel()
+        provideAssetVewModel()
+        provideInputViewModel()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
 
         refreshFee()
-        provideViewModel()
+        provideAssetVewModel()
     }
 
     func didTapBackButton() {
@@ -223,20 +196,9 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
                 Decimal.fromSubstrateAmount($0.data.available, precision: Int16(chainAsset.asset.precision))
             } ?? 0.0
 
-            provideViewModel()
+            provideAssetVewModel()
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
-        }
-    }
-
-    func didReceiveBlockDuration(result: Result<BlockTime, Error>) {
-        switch result {
-        case let .success(blockDuration):
-            self.blockDuration = blockDuration
-
-            provideViewModel()
-        case let .failure(error):
-            logger?.error("Did receive block duration error: \(error)")
         }
     }
 
@@ -244,8 +206,6 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
-
-            provideViewModel()
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }
@@ -255,8 +215,9 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
         switch result {
         case let .success(priceData):
             self.priceData = priceData
-
-            provideViewModel()
+            provideAssetVewModel()
+            provideFeeViewModel()
+            provideTipViewModel()
         case let .failure(error):
             logger?.error("Did receive price error: \(error)")
         }
@@ -270,8 +231,15 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
                 Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision))
             } ?? nil
 
-            provideViewModel()
-            provideInputViewModelIfRate()
+            provideAssetVewModel()
+            provideFeeViewModel()
+
+            switch inputResult {
+            case .rate:
+                provideInputViewModel()
+            default:
+                break
+            }
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
@@ -283,8 +251,7 @@ extension WalletSendPresenter: WalletSendInteractorOutputProtocol {
         case let .success(tip):
             self.tip = Decimal.fromSubstrateAmount(tip, precision: Int16(chainAsset.asset.precision))
 
-            provideViewModel()
-            provideInputViewModelIfRate()
+            provideTipViewModel()
             refreshFee()
         case let .failure(error):
             logger?.error("Did receive tip error: \(error)")

@@ -7,8 +7,12 @@ final class WalletSendViewController: UIViewController, ViewHolder {
 
     let presenter: WalletSendPresenterProtocol
 
-    private var state: WalletSendViewState = .loading
     private var isFirstLayoutCompleted: Bool = false
+
+    private var assetBalanceViewModel: AssetBalanceViewModelProtocol?
+    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var feeViewModel: BalanceViewModelProtocol?
+    private var tipViewModel: TipViewModel?
 
     init(presenter: WalletSendPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
@@ -67,34 +71,8 @@ final class WalletSendViewController: UIViewController, ViewHolder {
         rootView.amountView.textField.inputAccessoryView = accessoryView
     }
 
-    private func applyState(_ state: WalletSendViewState) {
-        self.state = state
-
-        switch state {
-        case .loading:
-            break
-        case let .loaded(model):
-            rootView.bind(scamInfo: model.scamInfo)
-            rootView.bind(feeViewModel: model.feeViewModel)
-            rootView.bind(tipViewModel: model.tipViewModel, isRequired: model.tipRequired)
-
-            if let assetViewModel = model.assetBalanceViewModel {
-                rootView.bind(assetViewModel: assetViewModel)
-            }
-
-            if let amountViewModel = model.amountInputViewModel {
-                amountViewModel.observable.remove(observer: self)
-                amountViewModel.observable.add(observer: self)
-                rootView.amountView.fieldText = amountViewModel.displayAmount
-            }
-        }
-    }
-
     private func updateActionButton() {
-        guard case let .loaded(viewModel) = state else {
-            return
-        }
-        let isEnabled = (viewModel.amountInputViewModel?.isValid == true)
+        let isEnabled = (amountInputViewModel?.isValid == true)
         rootView.actionButton.set(enabled: isEnabled)
     }
 
@@ -108,8 +86,31 @@ final class WalletSendViewController: UIViewController, ViewHolder {
 }
 
 extension WalletSendViewController: WalletSendViewProtocol {
-    func didReceive(state: WalletSendViewState) {
-        applyState(state)
+    func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?) {
+        if let assetViewModel = assetBalanceViewModel {
+            rootView.bind(assetViewModel: assetViewModel)
+        }
+    }
+
+    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?) {
+        self.amountInputViewModel = amountInputViewModel
+        if let amountViewModel = amountInputViewModel {
+            amountViewModel.observable.remove(observer: self)
+            amountViewModel.observable.add(observer: self)
+            rootView.amountView.inputFieldText = amountViewModel.displayAmount
+        }
+    }
+
+    func didReceive(feeViewModel: BalanceViewModelProtocol?) {
+        rootView.bind(feeViewModel: feeViewModel)
+    }
+
+    func didReceive(tipViewModel: TipViewModel?) {
+        rootView.bind(tipViewModel: tipViewModel)
+    }
+
+    func didReceive(scamInfo: ScamInfo?) {
+        rootView.bind(scamInfo: scamInfo)
     }
 
     func didStartFeeCalculation() {
@@ -134,11 +135,7 @@ extension WalletSendViewController: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        guard case let .loaded(viewModel) = state else {
-            return false
-        }
-
-        return viewModel.amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }
 
@@ -156,13 +153,9 @@ extension WalletSendViewController: AmountInputAccessoryViewDelegate {
 
 extension WalletSendViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        guard case let .loaded(viewModel) = state else {
-            return
-        }
+        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
 
-        rootView.amountView.fieldText = viewModel.amountInputViewModel?.displayAmount
-
-        let amount = viewModel.amountInputViewModel?.decimalAmount ?? 0.0
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
         presenter.updateAmount(amount)
     }
 }

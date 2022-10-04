@@ -25,7 +25,7 @@ final class WalletSendViewLayout: UIView {
         return view
     }()
 
-    let amountView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountView = AmountInputViewV2()
     let scamWarningView = ScamWarningExpandableView()
 
     let feeView: NetworkFeeView = {
@@ -42,7 +42,7 @@ final class WalletSendViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -68,33 +68,16 @@ final class WalletSendViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        assetViewModel.iconViewModel?.cancel(on: amountView.iconView)
-        amountView.iconView.image = nil
-
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.commonBalanceFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountView.symbol = symbol
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
+        amountView.bind(viewModel: assetViewModel)
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
     }
 
-    func bind(tipViewModel: BalanceViewModelProtocol?, isRequired: Bool) {
-        tipView.bind(viewModel: tipViewModel)
-        tipView.isHidden = !isRequired
+    func bind(tipViewModel: TipViewModel?) {
+        tipView.bind(viewModel: tipViewModel?.balanceViewModel)
+        tipView.isHidden = !(tipViewModel?.tipRequired == true)
     }
 
     func bind(scamInfo: ScamInfo?) {
@@ -127,7 +110,7 @@ private extension WalletSendViewLayout {
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.verticalInset, after: amountView)
@@ -151,18 +134,16 @@ private extension WalletSendViewLayout {
         addSubview(tipView) { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.cellHeight)
-            make.bottom.equalTo(feeView.snp.top).offset(LayoutConstants.verticalOffset)
+            make.bottom.equalTo(feeView.snp.top).offset(-UIConstants.defaultOffset)
         }
     }
 
     func applyLocalization() {
         feeView.locale = locale
-
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
+            .commonPreview(preferredLanguages: locale.rLanguages)
 
         tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
 

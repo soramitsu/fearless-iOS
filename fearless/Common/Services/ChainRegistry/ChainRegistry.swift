@@ -6,6 +6,7 @@ protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func chainsSubscribe(
         _ target: AnyObject,
@@ -194,6 +195,14 @@ extension ChainRegistry: ChainRegistryProtocol {
         return connectionPool.getConnection(for: chainId)
     }
 
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
+        if let connection = connectionPool.getConnection(for: chainModel.chainId) {
+            return connection
+        } else {
+            return try? connectionPool.setupConnection(for: chainModel)
+        }
+    }
+
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
         mutex.lock()
 
@@ -259,7 +268,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
-                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+//                connectionNeedsReconnect(for: failedChain, previusUrl: url)
             }
         case .connected:
             break

@@ -97,17 +97,26 @@ protocol SubstrateCallFactoryProtocol {
 
     func createPool(
         amount: BigUInt,
-        root: AccountId,
-        nominator: AccountId,
-        stateToggler: AccountId
+        root: MultiAddress,
+        nominator: MultiAddress,
+        stateToggler: MultiAddress
     ) -> RuntimeCall<CreatePoolCall>
 
     func setPoolMetadata(
-        poolId: UInt32,
+        poolId: String,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall>
+
+    func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall>
+
+    func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall>
+
+    func claimPoolRewards() -> RuntimeCall<NoRuntimeArgs>
+
+    func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall>
 }
 
+// swiftlint:disable type_body_length file_length
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
 
@@ -364,9 +373,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func createPool(
         amount: BigUInt,
-        root: AccountId,
-        nominator: AccountId,
-        stateToggler: AccountId
+        root: MultiAddress,
+        nominator: MultiAddress,
+        stateToggler: MultiAddress
     ) -> RuntimeCall<CreatePoolCall> {
         let args = CreatePoolCall(
             amount: amount,
@@ -382,7 +391,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     }
 
     func setPoolMetadata(
-        poolId: UInt32,
+        poolId: String,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall> {
         let args = SetMetadataCall(
@@ -393,6 +402,60 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(
             callCodingPath: .setPoolMetadata,
             args: args
+        )
+    }
+
+    func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall> {
+        let args = PoolBondMoreCall(
+            extra: .freeBalance(amount: amount)
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolBondMore,
+            args: args
+        )
+    }
+
+    func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall> {
+        let args = PoolUnbondCall(
+            memberAccount: .accoundId(accountId),
+            unbondingPoints: amount
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolUnbond,
+            args: args
+        )
+    }
+
+    func poolUnbondOld(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCallOld> {
+        let args = PoolUnbondCallOld(
+            memberAccount: accountId,
+            unbondingPoints: amount
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolUnbond,
+            args: args
+        )
+    }
+
+    func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall> {
+        let args = PoolWithdrawUnbondedCall(
+            memberAccount: .accoundId(accountId),
+            numSlashingSpans: numSlashingSpans
+        )
+
+        return RuntimeCall(
+            callCodingPath: .poolWithdrawUnbonded,
+            args: args
+        )
+    }
+
+    func claimPoolRewards() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(
+            moduleName: CallCodingPath.claimPendingRewards.moduleName,
+            callName: CallCodingPath.claimPendingRewards.callName
         )
     }
 

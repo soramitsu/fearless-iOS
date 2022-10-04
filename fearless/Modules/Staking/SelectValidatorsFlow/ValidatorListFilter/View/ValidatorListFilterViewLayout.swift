@@ -12,7 +12,7 @@ final class ValidatorListFilterViewLayout: UIView {
 
     let applyButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

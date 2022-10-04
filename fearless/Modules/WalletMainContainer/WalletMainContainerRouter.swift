@@ -34,6 +34,7 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     ) {
         guard
             let module = WalletsManagmentAssembly.configureModule(
+                shouldSaveSelected: true,
                 moduleOutput: moduleOutput
             )
         else {

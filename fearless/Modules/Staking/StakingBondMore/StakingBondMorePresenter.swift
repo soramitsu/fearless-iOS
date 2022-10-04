@@ -53,11 +53,16 @@ final class StakingBondMorePresenter {
 }
 
 extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
         viewModelState.setStateListener(self)
 
         provideAmountInputViewModel()
         provideHintsViewModel()
+        provideFee()
 
         interactor.setup()
 

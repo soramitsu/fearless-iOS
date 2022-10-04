@@ -110,7 +110,7 @@ final class WalletSendConfirmViewLayout: UIView {
 
     let confirmButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -143,7 +143,7 @@ final class WalletSendConfirmViewLayout: UIView {
         senderView.valueTop.text = confirmViewModel.senderNameString
         senderView.valueBottom.text = confirmViewModel.senderAddressString
         receiverView.valueTop.text = confirmViewModel.receiverAddressString
-        amountView.valueTop.text = confirmViewModel.amountAttributedString.string
+        amountView.valueTop.text = confirmViewModel.amountString
         amountView.valueBottom.text = confirmViewModel.priceString
         feeView.valueTop.text = confirmViewModel.feeAmountString
         feeView.valueBottom.text = confirmViewModel.feePriceString
@@ -240,7 +240,7 @@ final class WalletSendConfirmViewLayout: UIView {
         infoViewsStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
             make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
-            make.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
         senderView.snp.makeConstraints { make in

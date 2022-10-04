@@ -25,8 +25,8 @@ final class StakingRedeemLayout: UIView {
         return view
     }()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -86,7 +86,7 @@ final class StakingRedeemLayout: UIView {
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         setNeedsLayout()
     }
@@ -97,19 +97,7 @@ final class StakingRedeemLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingRedeemableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = assetViewModel.symbol.uppercased()
+        amountView.bind(viewModel: assetViewModel)
 
         setNeedsLayout()
     }
@@ -144,8 +132,7 @@ final class StakingRedeemLayout: UIView {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
         collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
         networkFeeFooterView.locale = locale
 
@@ -176,7 +163,7 @@ final class StakingRedeemLayout: UIView {
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
         stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
 

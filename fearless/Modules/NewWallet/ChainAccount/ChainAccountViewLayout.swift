@@ -8,7 +8,6 @@ protocol ChainAccountViewDelegate: AnyObject {
 final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 80
-        static let walletIconSize: CGFloat = 40.0
         static let accessoryButtonSize: CGFloat = 32.0
         static let addressLabelWidth: CGFloat = 135
         static let addressLabelHeight: CGFloat = 24
@@ -40,6 +39,8 @@ final class ChainAccountViewLayout: UIView {
     let backButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconBack(), for: .normal)
+        button.backgroundColor = R.color.colorWhite8()
+        button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
         return button
     }()
 
@@ -93,12 +94,20 @@ final class ChainAccountViewLayout: UIView {
 
     let chainOptionsContentView = UIView()
 
-    let actionsView = TriangularedBlurView()
+    let actionsView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorWhite4()!
+        view.highlightedFillColor = R.color.colorWhite4()!
+        view.shadowOpacity = 0
+        return view
+    }()
 
     let optionsButton: UIButton = {
         let button = UIButton(type: .custom)
-        button.setImage(R.image.iconMore(), for: .normal)
+        button.setImage(R.image.iconHorMore(), for: .normal)
         button.tintColor = .white
+        button.backgroundColor = R.color.colorWhite8()
+        button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
         return button
     }()
 
@@ -195,7 +204,7 @@ private extension ChainAccountViewLayout {
         backButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
             make.leading.equalToSuperview()
-            make.size.equalTo(LayoutConstants.walletIconSize)
+            make.size.equalTo(LayoutConstants.accessoryButtonSize)
         }
 
         let walletInfoVStackView = UIFactory.default.createVerticalStackView(spacing: 6)

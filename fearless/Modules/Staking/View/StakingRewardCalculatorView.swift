@@ -10,7 +10,7 @@ protocol RewardCalculatorViewDelegate: AnyObject {
 
 class StakingRewardCalculatorView: UIView {
     private var backgroundView = TriangularedBlurView()
-    private var amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    private var amountInputView = AmountInputViewV2()
     private var monthlyStackView = UIFactory.default.createVerticalStackView()
     private var yearlyStackView = UIFactory.default.createVerticalStackView()
     private var infoButton: UIButton = {
@@ -43,7 +43,7 @@ class StakingRewardCalculatorView: UIView {
     private var monthlyFiatAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = R.color.colorWhiteTransparent()
+        label.textColor = R.color.colorWhite16()
         return label
     }()
 
@@ -64,7 +64,7 @@ class StakingRewardCalculatorView: UIView {
     private var yearlyFiatAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = R.color.colorWhiteTransparent()
+        label.textColor = R.color.colorWhite16()
         return label
     }()
 
@@ -165,7 +165,7 @@ class StakingRewardCalculatorView: UIView {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.height.equalTo(UIConstants.amountViewV2Height)
             make.top.equalTo(yearlyStackView.snp.bottom).offset(UIConstants.hugeOffset)
             make.top.equalTo(monthlyStackView.snp.bottom).offset(UIConstants.hugeOffset)
         }
@@ -179,18 +179,7 @@ class StakingRewardCalculatorView: UIView {
 
     private func applyWidgetViewModel() {
         if let viewModel = widgetViewModel?.assetBalance.value(for: locale) {
-            amountInputView.balanceText = R.string.localizable
-                .commonAvailableFormat(
-                    viewModel.balance ?? "",
-                    preferredLanguages: locale.rLanguages
-                )
-            amountInputView.priceText = viewModel.price
-
-            amountInputView.assetIcon = nil
-
-            viewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
-
-            amountInputView.symbol = viewModel.symbol
+            amountInputView.bind(viewModel: viewModel)
         }
 
         if let viewModel = widgetViewModel?.rewardViewModel?.value(for: locale) {
@@ -238,19 +227,18 @@ class StakingRewardCalculatorView: UIView {
 
         inputViewModel = newInputViewModel
 
-        amountInputView.fieldText = newInputViewModel.displayAmount
+        amountInputView.inputFieldText = newInputViewModel.displayAmount
+
         newInputViewModel.observable.add(observer: self)
     }
 
     private func applyLocalization() {
         let languages = locale.rLanguages
 
+        amountInputView.locale = locale
         titleLabel.text = R.string.localizable.stakingEstimateEarningTitle_v190(
             preferredLanguages: languages
         )
-
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: languages)
 
         setupInputAccessoryView()
     }
@@ -261,20 +249,6 @@ class StakingRewardCalculatorView: UIView {
         }
 
         amountInputView.textField.inputAccessoryView = accessoryView
-    }
-
-    private func setupAmountField() {
-        let textColor = R.color.colorWhite()!
-        let placeholder = NSAttributedString(
-            string: "0",
-            attributes: [
-                .foregroundColor: textColor.withAlphaComponent(0.5),
-                .font: UIFont.h4Title
-            ]
-        )
-
-        amountInputView.textField.attributedPlaceholder = placeholder
-        amountInputView.textField.keyboardType = .decimalPad
     }
 
     func startLoadingIfNeeded() {
@@ -414,7 +388,7 @@ extension StakingRewardCalculatorView: AmountInputViewModelObserver {
             return
         }
 
-        amountInputView.fieldText = inputViewModel.displayAmount
+        amountInputView.inputFieldText = inputViewModel.displayAmount
 
         let amount = inputViewModel.decimalAmount
 

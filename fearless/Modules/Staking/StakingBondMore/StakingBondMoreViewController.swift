@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 
-final class StakingBondMoreViewController: UIViewController, ViewHolder {
+final class StakingBondMoreViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingBondMoreViewLayout
 
     let presenter: StakingBondMorePresenterProtocol
@@ -40,10 +40,15 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         setupActionButton()
         applyLocalization()
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func setupAmountInputView() {
-        rootView.amountInputView.textField.keyboardType = .decimalPad
         rootView.amountInputView.textField.delegate = self
 
         let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
@@ -63,6 +68,10 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         presenter.handleContinueAction()
     }
 
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
+    }
+
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
         rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
@@ -70,22 +79,13 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func applyAsset() {
         if let viewModel = assetViewModel?.value(for: selectedLocale) {
-            rootView.amountInputView.balanceText = R.string.localizable
-                .commonAvailableFormat(
-                    viewModel.balance ?? "",
-                    preferredLanguages: selectedLocale.rLanguages
-                )
-            rootView.amountInputView.priceText = viewModel.price
-            rootView.amountInputView.symbol = viewModel.symbol
-
-            viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountInputView.iconView, animated: true)
+            rootView.amountInputView.bind(viewModel: viewModel)
         }
     }
 
     private func applyFee() {
-        if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.bind(feeViewModel: fee)
-        }
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 }
 
@@ -118,7 +118,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 
         amountInputViewModel = concreteViewModel
 
-        rootView.amountInputView.fieldText = concreteViewModel.displayAmount
+        rootView.amountInputView.inputFieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
 
         updateActionButton()
@@ -156,8 +156,6 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable
-                .stakingBondMore_v190(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
     }
@@ -177,7 +175,7 @@ extension StakingBondMoreViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingBondMoreViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

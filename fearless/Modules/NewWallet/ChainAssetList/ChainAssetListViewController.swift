@@ -11,6 +11,9 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
 
     private var viewModel: ChainAssetListViewModel?
     private var dataSource: TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>?
+    private lazy var locale: Locale = {
+        localizationManager?.selectedLocale ?? Locale.current
+    }()
 
     // MARK: - Constructor
 
@@ -38,6 +41,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
         configureTableView()
+        configureEmptyView()
     }
 
     // MARK: - Private methods
@@ -64,6 +68,14 @@ private extension ChainAssetListViewController {
         dataSource?.defaultRowAnimation = .fade
     }
 
+    func configureEmptyView() {
+        let viewModel = EmptyViewModel(
+            title: R.string.localizable.emptyViewTitle(preferredLanguages: locale.rLanguages),
+            description: R.string.localizable.emptyViewDescription(preferredLanguages: locale.rLanguages)
+        )
+        rootView.bind(emptyViewModel: viewModel)
+    }
+
     func cellViewModel(for indexPath: IndexPath) -> ChainAccountBalanceCellViewModel? {
         if
             let section = viewModel?.sections[indexPath.section],
@@ -79,6 +91,8 @@ private extension ChainAssetListViewController {
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
+        viewModel.cellsForSections[viewModel.sections[0]]?.isEmpty == true ?
+            rootView.apply(state: .empty) : rootView.apply(state: .normal)
         var snapshot = DiffableDataSourceSnapshot<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>()
         snapshot.appendSections(viewModel.sections)
         viewModel.sections.forEach { section in
@@ -93,7 +107,9 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 // MARK: - Localizable
 
 extension ChainAssetListViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        configureEmptyView()
+    }
 }
 
 extension ChainAssetListViewController: SwipableTableViewCellDelegate {

@@ -89,7 +89,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         amountInputViewModel = viewModel
         amountInputViewModel?.observable.add(observer: self)
 
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
     }
@@ -130,7 +130,7 @@ extension CrowdloanContributionSetupViewController: AmountInputAccessoryViewDele
 
 extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

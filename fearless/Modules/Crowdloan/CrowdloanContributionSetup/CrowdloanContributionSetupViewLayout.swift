@@ -15,7 +15,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         return label
     }()
 
-    let amountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let amountInputView = AmountInputViewV2()
 
     let hintView = UIFactory.default.createHintView()
 
@@ -43,7 +43,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -70,29 +70,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
-        amountInputView.iconView.image = nil
-
-        self.assetViewModel = assetViewModel
-
-        amountInputView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountInputView.balanceText = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountInputView.balanceText = nil
-        }
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountInputView.symbol = symbol
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
+        amountInputView.bind(viewModel: assetViewModel)
 
         hintView.titleLabel.text = R.string.localizable.crowdloanUnlockHint(
-            symbol,
+            assetViewModel.symbol,
             preferredLanguages: locale.rLanguages
         )
     }
@@ -137,6 +118,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     }
 
     private func applyLocalization() {
+        amountInputView.locale = locale
+
         contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
             preferredLanguages: locale.rLanguages
         )
@@ -145,9 +128,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages
         )
-
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         crowdloanInfoTitleLabel.text = R.string.localizable.crowdloanInfo(preferredLanguages: locale.rLanguages)
 
@@ -183,7 +163,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
