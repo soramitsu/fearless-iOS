@@ -140,6 +140,11 @@ final class StakingPoolManagementPresenter {
             locale: selectedLocale
         )
 
+        guard !rewards.totalRewardsDecimal.isZero else {
+            view?.didReceive(claimableViewModel: nil)
+            return
+        }
+
         view?.didReceive(claimableViewModel: rewards.totalRewards)
         totalRewardsDecimal = rewards.totalRewardsDecimal
     }

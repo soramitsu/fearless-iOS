@@ -3,7 +3,7 @@ import SoraFoundation
 import RobinHood
 import FearlessUtils
 
-//swiftlint:disable function_body_length
+// swiftlint:disable function_body_length
 final class StakingPoolJoinConfigAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
