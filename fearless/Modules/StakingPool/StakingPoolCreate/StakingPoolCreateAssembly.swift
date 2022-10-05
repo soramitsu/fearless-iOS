@@ -57,6 +57,12 @@ final class StakingPoolCreateAssembly {
             engine: connection
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let interactor = StakingPoolCreateInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -65,13 +71,11 @@ final class StakingPoolCreateAssembly {
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
 
         let router = StakingPoolCreateRouter()
-
-        let iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
-        let accountViewModelFactory = AccountViewModelFactory(iconGenerator: iconGenerator)
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,

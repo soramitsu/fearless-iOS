@@ -32,6 +32,7 @@ protocol StakingPoolJoinConfigInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveMinBond(_ minJoinBond: BigUInt?)
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>)
 }
 
 protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable, StakingErrorPresentable, AlertPresentable, ErrorPresentable {

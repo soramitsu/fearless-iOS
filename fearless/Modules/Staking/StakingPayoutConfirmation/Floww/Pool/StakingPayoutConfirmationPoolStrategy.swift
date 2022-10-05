@@ -12,6 +12,7 @@ protocol StakingPayoutConfirmationPoolStrategyOutput {
 }
 
 final class StakingPayoutConfirmationPoolStrategy: AccountFetching {
+    private let rewardAmount: Decimal
     private let extrinsicOperationFactory: ExtrinsicOperationFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -30,6 +31,7 @@ final class StakingPayoutConfirmationPoolStrategy: AccountFetching {
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
 
     init(
+        rewardAmount: Decimal,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -43,6 +45,7 @@ final class StakingPayoutConfirmationPoolStrategy: AccountFetching {
         output: StakingPayoutConfirmationPoolStrategyOutput?,
         feeProxy: ExtrinsicFeeProxyProtocol
     ) {
+        self.rewardAmount = rewardAmount
         self.extrinsicOperationFactory = extrinsicOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -81,7 +84,7 @@ extension StakingPayoutConfirmationPoolStrategy: StakingPayoutConfirmationStrate
 
     func setup() {
         if let account = wallet.fetch(for: chainAsset.chain.accountRequest()) {
-            output?.didRecieve(account: account, rewardAmount: 0)
+            output?.didRecieve(account: account, rewardAmount: rewardAmount)
         }
 
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {

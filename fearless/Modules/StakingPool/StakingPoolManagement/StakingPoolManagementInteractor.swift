@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 
-final class StakingPoolManagementInteractor {
+final class StakingPoolManagementInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolManagementInteractorOutput?
@@ -17,6 +17,8 @@ final class StakingPoolManagementInteractor {
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter
     private let stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
+    private let accountOperationFactory: AccountOperationFactoryProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -33,7 +35,9 @@ final class StakingPoolManagementInteractor {
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter,
         stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountOperationFactory: AccountOperationFactoryProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
@@ -47,6 +51,8 @@ final class StakingPoolManagementInteractor {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingDurationOperationFactory = stakingDurationOperationFactory
         self.runtimeService = runtimeService
+        self.accountOperationFactory = accountOperationFactory
+        self.existentialDepositService = existentialDepositService
     }
 
     private func provideEraStakersInfo() {
@@ -170,8 +176,34 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
             )
         }
 
+        fetchCompoundConstant(
+            for: .nominationPoolsPalletId,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<Data, Error>) in
+            self?.output?.didReceive(palletIdResult: result)
+        }
+
+        existentialDepositService.fetchExistentialDeposit(chainAsset: chainAsset) { [weak self] result in
+            self?.output?.didReceive(existentialDepositResult: result)
+        }
+
         provideEraStakersInfo()
         fetchStakingDuration()
+    }
+
+    func fetchPoolBalance(poolAccountId: AccountId) {
+        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolAccountId)
+
+        fetchAccountInfoOperation.targetOperation.completionBlock = { [weak self] in
+            let poolAccountInfo = try? fetchAccountInfoOperation.targetOperation.extractNoCancellableResultData()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceive(poolAccountInfo: poolAccountInfo)
+            }
+        }
+
+        operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
     }
 }
 
@@ -190,7 +222,9 @@ extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLoc
     }
 }
 
-extension StakingPoolManagementInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
+extension StakingPoolManagementInteractor:
+    RelaychainStakingLocalStorageSubscriber,
+    RelaychainStakingLocalSubscriptionHandler {
     func handlePoolMember(
         result: Result<StakingPoolMember?, Error>,
         accountId _: AccountId,

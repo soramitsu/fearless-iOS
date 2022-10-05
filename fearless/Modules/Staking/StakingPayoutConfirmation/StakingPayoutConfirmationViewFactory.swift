@@ -191,7 +191,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case .pool:
+        case let .pool(rewardAmount):
             let viewModelState = StakingPayoutConfirmationPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
@@ -206,6 +206,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             )
 
             let strategy = StakingPayoutConfirmationPoolStrategy(
+                rewardAmount: rewardAmount,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 extrinsicService: extrinsicService,
