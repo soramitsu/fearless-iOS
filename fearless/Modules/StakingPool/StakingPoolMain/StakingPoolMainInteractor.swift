@@ -26,6 +26,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
+    private let accountOperationFactory: AccountOperationFactoryProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -49,7 +51,9 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         eventCenter: EventCenterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountOperationFactory: AccountOperationFactoryProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -70,6 +74,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
         self.runtimeService = runtimeService
+        self.accountOperationFactory = accountOperationFactory
+        self.existentialDepositService = existentialDepositService
     }
 
     private func updateDependencies() {
@@ -363,6 +369,9 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
     func updateWithChainAsset(_ chainAsset: ChainAsset) {
         output?.didReceive(rewardCalculatorEngine: nil)
+        output?.didReceive(stakeInfo: nil)
+        output?.didReceive(stakingPool: nil)
+        output?.didReceive(poolAccountInfo: nil)
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &poolMemberProvider)
         stakingAccountUpdatingService.clearSubscription()
@@ -391,6 +400,18 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         fetchNetworkInfo()
         fetchStakeInfo()
         provideEraStakersInfo()
+
+        fetchCompoundConstant(
+            for: .nominationPoolsPalletId,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<Data, Error>) in
+            self?.output?.didReceive(palletIdResult: result)
+        }
+
+        existentialDepositService.fetchExistentialDeposit(chainAsset: chainAsset) { [weak self] result in
+            self?.output?.didReceive(existentialDepositResult: result)
+        }
     }
 
     func save(chainAsset: ChainAsset) {
@@ -409,7 +430,17 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
     }
 
     func fetchPoolBalance(poolAccountId: AccountId) {
-        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: poolAccountId, handler: self)
+        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolAccountId)
+
+        fetchAccountInfoOperation.targetOperation.completionBlock = { [weak self] in
+            let poolAccountInfo = try? fetchAccountInfoOperation.targetOperation.extractNoCancellableResultData()
+
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceive(poolAccountInfo: poolAccountInfo)
+            }
+        }
+
+        operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
     }
 }
 
@@ -426,12 +457,6 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
         }
 
         guard wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId == accountId else {
-            switch result {
-            case let .success(accountInfo):
-                output?.didReceive(poolAccountInfo: accountInfo)
-            case let .failure(error):
-                output?.didReceive(balanceError: error)
-            }
             return
         }
 
@@ -452,7 +477,6 @@ extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubs
 
         switch result {
         case let .success(priceData):
-            print("did receive price data: ", priceId)
             output?.didReceive(priceData: priceData)
         case let .failure(error):
             output?.didReceive(priceError: error)

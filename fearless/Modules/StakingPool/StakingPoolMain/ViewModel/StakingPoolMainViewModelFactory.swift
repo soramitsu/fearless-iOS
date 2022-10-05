@@ -315,13 +315,13 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
             precision: precision
         ) ?? 0.0
 
-        let balanceDecimal = Decimal.fromSubstrateAmount(
+        let balanceDecimal = (Decimal.fromSubstrateAmount(
             accountInfo.data.free,
             precision: precision
-        ) ?? 0.0 - existentialDepositDecimal
+        ) ?? 0.0) - existentialDepositDecimal
 
         let payoutSinceLastRecord = balanceDecimal + totalRewardsClaimed - lastRecordedTotalPayouts
-        let rewardCounterBase: Decimal = 10
+        let rewardCounterBase: Decimal = pow(10, 18)
         let currentRewardCounter = payoutSinceLastRecord * rewardCounterBase / poolStakeAmount + lastRecordedRewardCounter
 
         let pendingReward = (currentRewardCounter - ownLastRecordedRewardCounter) * totalStakeAmount / rewardCounterBase
@@ -329,7 +329,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         var unstakingViewModel: StakingUnitInfoViewModel?
 
         guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
-              let totalReward = balanceViewModelFactory?.balanceFromPrice(0, priceData: priceData)
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)
         else {
             return nil
         }

@@ -14,6 +14,7 @@ final class StakingPoolJoinConfigInteractor {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -26,7 +27,8 @@ final class StakingPoolJoinConfigInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -36,6 +38,7 @@ final class StakingPoolJoinConfigInteractor {
         self.feeProxy = feeProxy
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.operationManager = operationManager
+        self.existentialDepositService = existentialDepositService
     }
 
     private var feeReuseIdentifier: String? {
@@ -92,6 +95,10 @@ extension StakingPoolJoinConfigInteractor: StakingPoolJoinConfigInteractorInput 
                 accountId: accountId,
                 handler: self
             )
+        }
+
+        existentialDepositService.fetchExistentialDeposit(chainAsset: chainAsset) { [weak self] result in
+            self?.output?.didReceive(existentialDepositResult: result)
         }
 
         fetchRuntimeData()

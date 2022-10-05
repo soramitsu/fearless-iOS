@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
 typealias StakingPoolMainModuleCreationResult = (view: StakingPoolMainViewInput, input: StakingPoolMainModuleInput)
 
@@ -50,8 +51,9 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(poolRewards: StakingPoolRewards?)
     func didReceive(poolRewardsError: Error)
     func didReceive(stakingPool: StakingPool?)
-    func didReceive(palletIdResult: Result<String, Error>)
+    func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(poolAccountInfo: AccountInfo?)
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>)
 }
 
 protocol StakingPoolMainRouterInput: AnyObject {

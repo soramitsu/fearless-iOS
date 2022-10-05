@@ -304,10 +304,9 @@ final class StakingPoolManagementViewLayout: UIView {
         reedeemDelayView.bind(viewModel: redeemDelayViewModel?.value(for: locale))
     }
 
-    func bind(claimableViewModel _: BalanceViewModelProtocol?) {
-//        claimView.isHidden = claimableViewModel == nil
-//        claimView.subtitle = claimableViewModel?.amount
-        claimView.isHidden = true
+    func bind(claimableViewModel: BalanceViewModelProtocol?) {
+        claimView.isHidden = claimableViewModel == nil
+        claimView.subtitle = claimableViewModel?.amount
     }
 
     func bind(redeemableViewModel: BalanceViewModelProtocol?) {

@@ -1,7 +1,12 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
-typealias StakingPoolManagementModuleCreationResult = (view: StakingPoolManagementViewInput, input: StakingPoolManagementModuleInput)
+// swiftlint:disable type_name
+typealias StakingPoolManagementModuleCreationResult = (
+    view: StakingPoolManagementViewInput,
+    input: StakingPoolManagementModuleInput
+)
 
 protocol StakingPoolManagementViewInput: ControllerBackedProtocol {
     func didReceive(poolName: String?)
@@ -26,6 +31,7 @@ protocol StakingPoolManagementViewOutput: AnyObject {
 
 protocol StakingPoolManagementInteractorInput: AnyObject {
     func setup(with output: StakingPoolManagementInteractorOutput)
+    func fetchPoolBalance(poolAccountId: AccountId)
 }
 
 protocol StakingPoolManagementInteractorOutput: AnyObject {
@@ -42,9 +48,12 @@ protocol StakingPoolManagementInteractorOutput: AnyObject {
     func didReceive(stakingDuration: StakingDuration)
     func didReceive(poolRewards: StakingPoolRewards?)
     func didReceive(poolRewardsError: Error)
+    func didReceive(poolAccountInfo: AccountInfo?)
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>)
+    func didReceive(palletIdResult: Result<Data, Error>)
 }
 
-protocol StakingPoolManagementRouterInput: AnyObject, PresentDismissable {
+protocol StakingPoolManagementRouterInput: PresentDismissable {
     func presentStakeMoreFlow(
         flow: StakingBondMoreFlow,
         chainAsset: ChainAsset,
@@ -73,6 +82,7 @@ protocol StakingPoolManagementRouterInput: AnyObject, PresentDismissable {
     )
 
     func presentClaim(
+        rewardAmount: Decimal,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?

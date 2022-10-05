@@ -38,6 +38,7 @@ protocol StakingPoolCreateInteractorOutput: AnyObject {
     func didReceiveMinBond(_ minCreateBond: BigUInt?)
     func didReceivePoolMember(_ poolMember: StakingPoolMember?)
     func didReceiveLastPoolId(_ lastPoolId: UInt32?)
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>)
 }
 
 protocol StakingPoolCreateRouterInput: StakingErrorPresentable, AlertPresentable, ErrorPresentable {

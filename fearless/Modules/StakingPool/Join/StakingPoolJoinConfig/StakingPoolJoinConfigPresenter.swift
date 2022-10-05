@@ -23,6 +23,8 @@ final class StakingPoolJoinConfigPresenter {
     private var fee: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var minJoinBond: Decimal?
+    private var existentialDeposit: BigUInt?
+    private var totalAmount: BigUInt?
 
     // MARK: - Constructors
 
@@ -118,6 +120,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
 
     func didTapContinueButton() {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         DataValidationRunner(validators: [
             dataValidatingFactory.canNominate(
                 amount: inputAmount,
@@ -128,12 +131,18 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.interactor.estimateFee()
             }),
-
             dataValidatingFactory.canPayFeeAndAmount(
                 balance: balance,
                 fee: fee,
                 spendingAmount: inputAmount,
                 locale: selectedLocale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: spendingAmount,
+                totalAmount: totalAmount,
+                minimumBalance: existentialDeposit,
+                locale: selectedLocale,
+                chainAsset: chainAsset
             )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
@@ -163,6 +172,15 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
 // MARK: - StakingPoolJoinConfigInteractorOutput
 
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput {
+    func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
+        switch existentialDepositResult {
+        case let .success(existentialDeposit):
+            self.existentialDeposit = existentialDeposit
+        case let .failure(error):
+            logger?.error(error.localizedDescription)
+        }
+    }
+
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -179,6 +197,8 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
+            totalAmount = accountInfo?.data.available
+
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
