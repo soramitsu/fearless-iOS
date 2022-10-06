@@ -133,6 +133,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             break
         case .hide:
             interactor.hideChainAsset(viewModel.chainAsset)
+        case .show:
+            interactor.showChainAsset(viewModel.chainAsset)
         }
     }
 
@@ -158,6 +160,12 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func updateViewModel() {
+        guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
+            DispatchQueue.main.async { [weak self] in
+                self?.view?.showEmptyState()
+            }
+            return
+        }
         provideViewModel()
     }
 

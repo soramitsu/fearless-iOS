@@ -71,30 +71,9 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        var activeSectionCellModels: [ChainAccountBalanceCellViewModel] = []
-        var hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = []
-
-        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled {
-            let cellModelsDivide = chainAssetCellModels.divide(predicate: { [assetIdsDisabled] cellModel in
-                assetIdsDisabled.contains { assetId in
-                    assetId == cellModel.chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
-                }
-            })
-            hiddenSectionCellModels = cellModelsDivide.slice
-            activeSectionCellModels = cellModelsDivide.remainder
-        } else {
-            activeSectionCellModels = chainAssetCellModels
-        }
-
-        let activeSection = ChainAssetListTableSection(
-            title: nil,
-            expandable: false
-        )
-
-        let hiddenSection = ChainAssetListTableSection(
-            title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
-            expandable: true
-        )
+        let cellModelsDivide = chainAssetCellModels.divide(predicate: { $0.isHidden })
+        let activeSectionCellModels: [ChainAccountBalanceCellViewModel] = cellModelsDivide.remainder
+        let hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = cellModelsDivide.slice
 
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
             chainAssets.contains { chainAsset in
@@ -112,11 +91,11 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
         return ChainAssetListViewModel(
             sections: [
-                activeSection, hiddenSection
+                .active, .hidden
             ],
             cellsForSections: [
-                activeSection: activeSectionCellModels,
-                hiddenSection: hiddenSectionCellModels
+                .active: activeSectionCellModels,
+                .hidden: hiddenSectionCellModels
             ],
             isColdBoot: isColdBoot
         )
@@ -206,7 +185,8 @@ private extension ChainAssetListViewModelFactory {
             options: options,
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated,
-            isNetworkIssues: isNetworkIssues
+            isNetworkIssues: isNetworkIssues,
+            isHidden: checkForHide(chainAsset: chainAsset, selectedMetaAccount: selectedMetaAccount)
         )
 
         if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
@@ -355,6 +335,15 @@ private extension ChainAssetListViewModelFactory {
             }
         }
         return result
+    }
+
+    func checkForHide(chainAsset: ChainAsset, selectedMetaAccount: MetaAccountModel) -> Bool {
+        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled {
+            return assetIdsDisabled.contains { assetId in
+                assetId == chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+            }
+        }
+        return false
     }
 }
 

@@ -1,8 +1,16 @@
 import UIKit
 import SoraFoundation
-import DiffableDataSources
 
 final class ChainAssetListViewController: UIViewController, ViewHolder {
+    enum HiddenSectionState {
+        case hidden
+        case expanded
+    }
+    
+    enum Constants {
+        static let sectionHeaderHeight: CGFloat = 80
+    }
+
     typealias RootViewType = ChainAssetListViewLayout
 
     // MARK: Private properties
@@ -10,7 +18,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
     private let output: ChainAssetListViewOutput
 
     private var viewModel: ChainAssetListViewModel?
-    private var dataSource: TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>?
+    private var hiddenSectionState: HiddenSectionState = .expanded
     private lazy var locale: Locale = {
         localizationManager?.selectedLocale ?? Locale.current
     }()
@@ -51,21 +59,7 @@ private extension ChainAssetListViewController {
     func configureTableView() {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
         rootView.tableView.delegate = self
-        dataSource = TableViewDiffableDataSource<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>(
-            tableView: rootView.tableView
-        ) { tableView, indexPath, model in
-            guard let cell = tableView.dequeueReusableCell(
-                withIdentifier: ChainAccountBalanceTableCell.self.reuseIdentifier,
-                for: indexPath
-            ) as? ChainAccountBalanceTableCell else {
-                return UITableViewCell()
-            }
-            cell.bind(to: model)
-            cell.delegate = self
-            cell.issueDelegate = self
-            return cell
-        }
-        dataSource?.defaultRowAnimation = .fade
+        rootView.tableView.dataSource = self
     }
 
     func configureEmptyView() {
@@ -84,6 +78,16 @@ private extension ChainAssetListViewController {
         }
         return nil
     }
+
+    func expandHiddenSection() {
+        switch hiddenSectionState {
+        case .expanded:
+            hiddenSectionState = .hidden
+        case .hidden:
+            hiddenSectionState = .expanded
+        }
+        rootView.tableView.reloadData()
+    }
 }
 
 // MARK: - ChainAssetListViewInput
@@ -91,16 +95,12 @@ private extension ChainAssetListViewController {
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
-        viewModel.cellsForSections[viewModel.sections[0]]?.isEmpty == true ?
-            rootView.apply(state: .empty) : rootView.apply(state: .normal)
-        var snapshot = DiffableDataSourceSnapshot<ChainAssetListTableSection, ChainAccountBalanceCellViewModel>()
-        snapshot.appendSections(viewModel.sections)
-        viewModel.sections.forEach { section in
-            if let cells = viewModel.cellsForSections[section] {
-                snapshot.appendItems(cells, toSection: section)
-            }
-        }
-        dataSource?.apply(snapshot, animatingDifferences: true)
+        rootView.apply(state: .normal)
+        rootView.tableView.reloadData()
+    }
+
+    func showEmptyState() {
+        rootView.apply(state: .empty)
     }
 }
 
@@ -128,6 +128,68 @@ extension ChainAssetListViewController: UITableViewDelegate {
         guard let viewModel = cellViewModel(for: indexPath) else { return }
 
         output.didSelectViewModel(viewModel)
+    }
+
+    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        if section == 1 {
+            let view = HiddenSectionHeader()
+            switch hiddenSectionState {
+            case .expanded:
+                view.imageView.image = R.image.iconExpandable()
+            case .hidden:
+                view.imageView.image = R.image.iconExpandableInverted()
+            }
+            let sectionViewModel = HiddenSectionViewModel(
+                title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
+                expandTapHandler: { [weak self] in
+                    self?.expandHiddenSection()
+                }
+            )
+            view.bind(viewModel: sectionViewModel)
+            return view
+        }
+        return nil
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if section == 1 {
+            return Constants.sectionHeaderHeight
+        }
+        return 0
+    }
+}
+
+extension ChainAssetListViewController: UITableViewDataSource {
+    func numberOfSections(in _: UITableView) -> Int {
+        viewModel?.sections.count ?? 0
+    }
+
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
+        if let sect = viewModel?.sections[section],
+           let cells = viewModel?.cellsForSections[sect] {
+            if case ChainAssetListTableSection.hidden.rawValue = section, hiddenSectionState == .hidden {
+                return 0
+            }
+            return cells.count
+        }
+        return 0
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if let sect = viewModel?.sections[indexPath.section],
+           let cells = viewModel?.cellsForSections[sect] {
+            guard let cell = tableView.dequeueReusableCell(
+                withIdentifier: ChainAccountBalanceTableCell.reuseIdentifier,
+                for: indexPath
+            ) as? ChainAccountBalanceTableCell else {
+                return UITableViewCell()
+            }
+            cell.bind(to: cells[indexPath.row])
+            cell.delegate = self
+            cell.issueDelegate = self
+            return cell
+        }
+        return UITableViewCell()
     }
 }
 

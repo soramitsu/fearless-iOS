@@ -83,6 +83,9 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
+    private lazy var hideButton = SwipeCellButton.createHideButton()
+    private lazy var showButton = SwipeCellButton.createShowButton()
+
     let issueButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconWarning(), for: .normal)
@@ -149,6 +152,7 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         controlSkeleton(for: viewModel)
         bindChainIcons(viewModel: viewModel)
         bindIssues(viewModel.isNetworkIssues)
+        rightMenuButtons = viewModel.isHidden ? [showButton] : [hideButton]
     }
 
     // MARK: - Private methods
@@ -175,7 +179,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     private func configure() {
         leftMenuButtons = createLeftButtons()
-        rightMenuButtons = createRightButtons()
 
         backgroundColor = .clear
 
@@ -195,12 +198,6 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         [
             SwipeCellButton.createSendButton(),
             SwipeCellButton.createReceiveButton()
-        ]
-    }
-
-    private func createRightButtons() -> [SwipeButtonProtocol] {
-        [
-            SwipeCellButton.createHideButton()
         ]
     }
 
@@ -445,6 +442,14 @@ extension VerticalContentButton {
         button.setImage(R.image.iconSwipeHide(), for: .normal)
         button.titleLabel?.font = .p2Paragraph
         button.setTitle("Hide", for: .normal)
+        return button
+    }
+
+    static func createShowButton() -> SwipeCellButton {
+        let button = SwipeCellButton(type: .show)
+        button.setImage(R.image.iconSwipeHide(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.setTitle("Show", for: .normal)
         return button
     }
 }
