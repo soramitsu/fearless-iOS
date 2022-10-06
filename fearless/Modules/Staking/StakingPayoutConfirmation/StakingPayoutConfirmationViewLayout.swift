@@ -132,7 +132,7 @@ final class StakingPayoutConfirmationViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        navigationBar.backButton.rounded()
     }
 
     func bind(confirmationViewModel: StakingBondMoreConfirmViewModel) {

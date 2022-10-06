@@ -52,7 +52,11 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
         view?.controller.present(module.view.controller, animated: true)
     }
 
-    func presentOptions(viewModels: [TitleWithSubtitleViewModel], callback: ModalPickerSelectionCallback?, from view: ControllerBackedProtocol?) {
+    func presentOptions(
+        viewModels: [TitleWithSubtitleViewModel],
+        callback: ModalPickerSelectionCallback?,
+        from view: ControllerBackedProtocol?
+    ) {
         guard let picker = ModalPickerFactory.createPicker(viewModels: viewModels, callback: callback) else {
             return
         }
@@ -61,11 +65,18 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
     }
 
     func presentClaim(
+        rewardAmount: Decimal,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
-        guard let module = StakingPayoutConfirmationViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: .pool) else {
+        guard
+            let module = StakingPayoutConfirmationViewFactory.createView(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                flow: .pool(rewardAmount: rewardAmount)
+            )
+        else {
             return
         }
 
@@ -78,9 +89,16 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
     ) {
-        guard let redeemModule = StakingRedeemConfirmationViewFactory.createView(chainAsset: chainAsset, wallet: wallet, flow: flow, redeemCompletion: {
-            view?.controller.navigationController?.popViewController(animated: true)
-        }) else {
+        guard
+            let redeemModule = StakingRedeemConfirmationViewFactory.createView(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                flow: flow,
+                redeemCompletion: {
+                    view?.controller.navigationController?.popViewController(animated: true)
+                }
+            )
+        else {
             return
         }
 

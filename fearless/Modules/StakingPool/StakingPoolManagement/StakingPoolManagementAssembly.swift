@@ -81,6 +81,18 @@ final class StakingPoolManagementAssembly {
 
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
+        let accountOperationFactory = AccountOperationFactory(
+            engine: connection,
+            requestFactory: requestFactory,
+            runtimeService: runtimeService
+        )
+
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let interactor = StakingPoolManagementInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
@@ -93,7 +105,9 @@ final class StakingPoolManagementAssembly {
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             stakingDurationOperationFactory: stakingDurationOperationFactory,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            accountOperationFactory: accountOperationFactory,
+            existentialDepositService: existentialDepositService
         )
         let router = StakingPoolManagementRouter()
 
@@ -110,6 +124,7 @@ final class StakingPoolManagementAssembly {
             chainAsset: chainAsset,
             wallet: wallet, viewModelFactory: viewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            rewardCalculator: StakinkPoolRewardCalculator(),
             logger: logger
         )
 

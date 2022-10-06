@@ -15,6 +15,7 @@ final class StakingPoolCreateInteractor {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -27,7 +28,8 @@ final class StakingPoolCreateInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -37,6 +39,7 @@ final class StakingPoolCreateInteractor {
         self.feeProxy = feeProxy
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.operationManager = operationManager
+        self.existentialDepositService = existentialDepositService
     }
 
     // MARK: - Private methods
@@ -145,6 +148,10 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
                 accountId: accountId,
                 handler: self
             )
+        }
+
+        existentialDepositService.fetchExistentialDeposit(chainAsset: chainAsset) { [weak self] result in
+            self?.output?.didReceive(existentialDepositResult: result)
         }
 
         fetchRuntimeData()
