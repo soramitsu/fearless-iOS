@@ -2,6 +2,11 @@ import Foundation
 import SoraFoundation
 import BigInt
 
+enum PoolAccount: UInt8 {
+    case stash = 0
+    case rewards = 1
+}
+
 final class StakingPoolManagementPresenter {
     // MARK: Private properties
 
@@ -26,6 +31,8 @@ final class StakingPoolManagementPresenter {
     private var poolRewards: StakingPoolRewards?
     private var existentialDeposit: BigUInt?
     private var totalRewardsDecimal: Decimal?
+
+    private var electedValidators: [ElectedValidatorInfo]?
 
     // MARK: - Constructors
 
@@ -163,16 +170,39 @@ final class StakingPoolManagementPresenter {
     }
 
     private func fetchPoolBalance() {
+        guard let poolAccountId = fetchPoolAccount(for: .rewards) else {
+            return
+        }
+
+        interactor.fetchPoolBalance(poolAccountId: poolAccountId)
+    }
+
+    private func fetchSelectedValidators() {
+        guard
+            let stashAccount = fetchPoolAccount(for: .stash),
+            let electedValidators = electedValidators
+        else {
+            return
+        }
+
+        let selectedValidators = electedValidators.map { validator in
+            validator.toSelected(for: try? stashAccount.toAddress(using: chainAsset.chain.chainFormat))
+        }.filter { $0.isActive }
+
+        view?.didReceiveSelectValidator(visible: selectedValidators.isEmpty)
+    }
+
+    private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
         guard
             let modPrefix = "modl".data(using: .utf8),
             let palletIdData = palletId,
             let poolId = stakingPool?.id,
             let poolIdUintValue = UInt(poolId)
         else {
-            return
+            return nil
         }
 
-        var index: UInt8 = 1
+        var index: UInt8 = type.rawValue
         var poolIdValue = poolIdUintValue
         let indexData = Data(
             bytes: &index,
@@ -188,13 +218,39 @@ final class StakingPoolManagementPresenter {
         let emptyH256 = [UInt8](repeating: 0, count: 32)
         let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
 
-        interactor.fetchPoolBalance(poolAccountId: poolAccountId[0 ... 31])
+        return poolAccountId[0 ... 31]
     }
 }
 
 // MARK: - StakingPoolManagementViewOutput
 
 extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
+    func didTapSelectValidators() {
+        guard
+            let stakeInfo = stakeInfo,
+            let stakedAmount = Decimal.fromSubstrateAmount(
+                stakeInfo.points,
+                precision: Int16(chainAsset.asset.precision)
+            ),
+            let payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
+        else {
+            return
+        }
+
+        let state = InitiatedBonding(
+            amount: stakedAmount,
+            rewardDestination: .payout(account: payoutAccount)
+        )
+
+        router.proceedToSelectValidatorsStart(
+            from: view,
+            poolId: stakeInfo.poolId.value,
+            state: state,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
     func didLoad(view: StakingPoolManagementViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -282,7 +338,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
                 provideBalanceViewModel()
             }
         case let .failure(error):
-            logger.error("StakingPoolManagementPresenter:didReceiveAccountInfo:error: \(error)")
+            logger.error(error.localizedDescription)
         }
     }
 
@@ -321,6 +377,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
     func didReceive(stakingPool: StakingPool?) {
         self.stakingPool = stakingPool
         fetchPoolBalance()
+        fetchSelectedValidators()
         view?.didReceive(poolName: stakingPool?.name)
     }
 
@@ -355,6 +412,16 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         case let .success(existentialDeposit):
             self.existentialDeposit = existentialDeposit
             provideClaimableViewModel()
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+        }
+    }
+
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>) {
+        switch result {
+        case let .success(electedValidators):
+            self.electedValidators = electedValidators
+            fetchSelectedValidators()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }

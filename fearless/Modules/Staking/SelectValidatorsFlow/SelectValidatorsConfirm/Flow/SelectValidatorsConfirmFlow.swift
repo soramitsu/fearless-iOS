@@ -5,6 +5,8 @@ enum SelectValidatorsConfirmFlow {
     case relaychainInitiated(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
     case relaychainExisting(targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
     case parachain(target: ParachainStakingCandidateInfo, maxTargets: Int, bonding: InitiatedBonding)
+    case poolInitiated(poolId: UInt32, targets: [SelectedValidatorInfo], maxTargets: Int, bonding: InitiatedBonding)
+    case poolExisting(poolId: UInt32, targets: [SelectedValidatorInfo], maxTargets: Int, bonding: ExistingBonding)
 }
 
 protocol SelectValidatorsConfirmModelStateListener: AnyObject {
@@ -39,6 +41,7 @@ extension SelectValidatorsConfirmViewModelState {
     var collatorAddress: String? { nil }
 }
 
+// swiftlint:disable type_name
 struct SelectValidatorsConfirmDependencyContainer {
     let viewModelState: SelectValidatorsConfirmViewModelState
     let strategy: SelectValidatorsConfirmStrategy

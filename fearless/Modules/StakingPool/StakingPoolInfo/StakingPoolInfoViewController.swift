@@ -39,12 +39,20 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder {
             action: #selector(closeButtonClicked),
             for: .touchUpInside
         )
+
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.addTarget(self, action: #selector(validatorsClicked))
+        rootView.validatorsView.addGestureRecognizer(tapGesture)
     }
 
     // MARK: - Private methods
 
     @objc private func closeButtonClicked() {
         output.didTapCloseButton()
+    }
+
+    @objc private func validatorsClicked() {
+        output.didTapValidators()
     }
 }
 

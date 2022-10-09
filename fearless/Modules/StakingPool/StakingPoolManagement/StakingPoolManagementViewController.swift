@@ -34,6 +34,12 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
         super.viewDidLoad()
         output.didLoad(view: self)
 
+        bindActions()
+    }
+
+    // MARK: - Private methods
+
+    private func bindActions() {
         rootView.navigationBar.backButton.addTarget(
             self,
             action: #selector(closeButtonClicked),
@@ -69,9 +75,15 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
             action: #selector(claimButtonClicked),
             for: .touchUpInside
         )
+
+        rootView.selectValidatorsView.actionButton?.addTarget(
+            self,
+            action: #selector(selectValidatorsButtonClicked),
+            for: .touchUpInside
+        )
     }
 
-    // MARK: - Private methods
+    // MARK: - Private actions
 
     @objc private func closeButtonClicked() {
         output.didTapCloseButton()
@@ -95,6 +107,10 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
 
     @objc private func redeemButtonClicked() {
         output.didTapRedeemButton()
+    }
+
+    @objc private func selectValidatorsButtonClicked() {
+        output.didTapSelectValidators()
     }
 }
 
@@ -131,6 +147,10 @@ extension StakingPoolManagementViewController: StakingPoolManagementViewInput {
 
     func didReceive(viewModel: StakingPoolManagementViewModel) {
         rootView.bind(viewModel: viewModel)
+    }
+
+    func didReceiveSelectValidator(visible: Bool) {
+        rootView.setSelectValidatorsAlert(visible: visible)
     }
 }
 

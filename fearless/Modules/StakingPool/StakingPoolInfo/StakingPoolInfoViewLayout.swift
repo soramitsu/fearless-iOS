@@ -105,6 +105,16 @@ final class StakingPoolInfoViewLayout: UIView {
         return view
     }()
 
+    let validatorsView: TitleValueView = {
+        let view = TitleValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h5Title
+        view.valueLabel.textColor = .white
+        view.borderView.isHidden = true
+        return view
+    }()
+
     let roleDepositorView: TitleValueView = {
         let view = TitleValueView()
         view.titleLabel.font = .h5Title
@@ -174,7 +184,7 @@ final class StakingPoolInfoViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        navigationBar.backButton.rounded()
     }
 
     private func setupLayout() {
@@ -191,6 +201,7 @@ final class StakingPoolInfoViewLayout: UIView {
         infoStackView.addArrangedSubview(stateView)
         infoStackView.addArrangedSubview(stakedView)
         infoStackView.addArrangedSubview(membersCountView)
+        infoStackView.addArrangedSubview(validatorsView)
 
         rolesBackground.addSubview(roleStackView)
         roleStackView.addArrangedSubview(roleDepositorView)
@@ -275,6 +286,11 @@ final class StakingPoolInfoViewLayout: UIView {
             make.height.equalTo(UIConstants.cellHeight)
         }
 
+        validatorsView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: infoBackground)
         contentView.stackView.setCustomSpacing(UIConstants.defaultOffset, after: rolesTitleLabel)
     }
@@ -293,6 +309,9 @@ final class StakingPoolInfoViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
         membersCountView.titleLabel.text = R.string.localizable.membersCommon(
+            preferredLanguages: locale.rLanguages
+        )
+        validatorsView.titleLabel.text = R.string.localizable.stakingRewardDetailsValidator(
             preferredLanguages: locale.rLanguages
         )
 
@@ -321,6 +340,7 @@ final class StakingPoolInfoViewLayout: UIView {
         stakedView.valueTop.text = viewModel.stakedAmountViewModel?.amount
         stakedView.valueBottom.text = viewModel.stakedAmountViewModel?.price
         membersCountView.valueLabel.text = viewModel.membersCountTitle
+        validatorsView.valueLabel.attributedText = viewModel.validatorsCount
 
         roleDepositorView.valueLabel.text = viewModel.depositorName
         roleRootView.valueLabel.text = viewModel.rootName

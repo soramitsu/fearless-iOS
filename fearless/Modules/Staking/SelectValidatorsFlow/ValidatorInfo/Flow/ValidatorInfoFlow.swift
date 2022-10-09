@@ -4,6 +4,7 @@ import SoraFoundation
 enum ValidatorInfoFlow {
     case relaychain(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)
     case parachain(candidate: ParachainStakingCandidateInfo)
+    case pool(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)
 }
 
 protocol ValidatorInfoModelStateListener: AnyObject {

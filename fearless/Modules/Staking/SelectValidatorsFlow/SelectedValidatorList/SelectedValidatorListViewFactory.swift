@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 
+// swiftlint:disable function_body_length
 struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtocol {
     private static func createContainer(
         flow: SelectedValidatorListFlow,
@@ -43,7 +44,34 @@ struct SelectedValidatorListViewFactory: SelectedValidatorListViewFactoryProtoco
                 bonding: state
             )
             let viewModelFactory = SelectedValidatorListParachainViewModelFactory(iconGenerator: iconGenerator)
-            return SelectedValidatorListDependencyContainer(viewModelState: viewModelState, viewModelFactory: viewModelFactory)
+            return SelectedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(validatorList, _, maxTargets, _):
+            let viewModelState = SelectedValidatorListRelaychainViewModelState(
+                baseFlow: flow,
+                maxTargets: maxTargets,
+                selectedValidatorList: validatorList,
+                delegate: delegate
+            )
+            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory(iconGenerator: iconGenerator)
+            return SelectedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(validatorList, _, maxTargets, _):
+            let viewModelState = SelectedValidatorListRelaychainViewModelState(
+                baseFlow: flow,
+                maxTargets: maxTargets,
+                selectedValidatorList: validatorList,
+                delegate: delegate
+            )
+            let viewModelFactory = SelectedValidatorListRelaychainViewModelFactory(iconGenerator: iconGenerator)
+            return SelectedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 
