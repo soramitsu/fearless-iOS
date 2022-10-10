@@ -55,12 +55,6 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
 
     func validators(using locale: Locale) -> [DataValidating] {
         [
-            dataValidatingFactory.canNominate(
-                amount: initiatedBonding.amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minNominatorBond,
-                locale: locale
-            ),
             dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,

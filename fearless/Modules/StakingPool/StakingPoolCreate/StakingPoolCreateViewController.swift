@@ -191,6 +191,8 @@ extension StakingPoolCreateViewController: AnimatedTextFieldDelegate {
             textField.text = viewModel.inputHandler.value
         }
 
+        output.nameTextFieldInputValueChanged()
+
         return shouldApply
     }
 }
