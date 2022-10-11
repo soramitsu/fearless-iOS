@@ -108,10 +108,13 @@ final class StakingPoolJoinConfigPresenter {
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
+        provideInputViewModel()
+        interactor.estimateFee()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        interactor.estimateFee()
     }
 
     func didTapBackButton() {
@@ -225,6 +228,14 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
 
             provideAssetVewModel()
             provideFeeViewModel()
+
+            switch inputResult {
+            case .rate:
+                provideInputViewModel()
+            default:
+                break
+            }
+
         case let .failure(error):
             logger?.error("StakingPoolJoinConfigPresenter.didReceiveFee.error: \(error)")
         }
