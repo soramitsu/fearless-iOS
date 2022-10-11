@@ -237,7 +237,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
-        provideInputViewModel()
 
         refreshFee()
     }
@@ -247,6 +246,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
         interactor.setup(with: self)
         refreshFee()
         provideViewModel()
+        provideInputViewModel()
 
         view.didReceive(nameViewModel: poolNameInputViewModel)
     }
