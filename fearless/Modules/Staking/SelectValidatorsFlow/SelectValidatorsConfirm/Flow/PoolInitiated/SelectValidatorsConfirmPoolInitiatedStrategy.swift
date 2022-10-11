@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 
-protocol SelectValidatorsConfirmPoolInitiatedStrategyOutput: AnyObject {
+protocol SelectValidatorsConfirmPoolInitiatedStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didReceiveMinBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
@@ -17,6 +17,7 @@ protocol SelectValidatorsConfirmPoolInitiatedStrategyOutput: AnyObject {
 
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetching {
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let balanceAccountId: AccountId
     private let runtimeService: RuntimeCodingServiceProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
@@ -34,6 +35,7 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
     init(
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         balanceAccountId: AccountId,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -45,6 +47,7 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
         chainAsset: ChainAsset,
         output: SelectValidatorsConfirmPoolInitiatedStrategyOutput?
     ) {
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.balanceAccountId = balanceAccountId
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -59,6 +62,14 @@ final class SelectValidatorsConfirmPoolInitiatedStrategy: StakingDurationFetchin
 }
 
 extension SelectValidatorsConfirmPoolInitiatedStrategy: SelectValidatorsConfirmStrategy {
+    func subscribeToBalance() {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainAsset: chainAsset,
+            accountId: balanceAccountId,
+            handler: self
+        )
+    }
+
     func estimateFee(closure: ExtrinsicBuilderClosure?) {
         guard let closure = closure else {
             return
@@ -127,5 +138,15 @@ extension SelectValidatorsConfirmPoolInitiatedStrategy:
 
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chainId _: ChainModel.Id) {
         output?.didReceiveMaxNominatorsCount(result: result)
+    }
+}
+
+extension SelectValidatorsConfirmPoolInitiatedStrategy: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainAsset _: ChainAsset
+    ) {
+        output?.didReceiveAccountInfo(result: result)
     }
 }

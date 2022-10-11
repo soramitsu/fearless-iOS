@@ -24,6 +24,7 @@ protocol SelectValidatorsConfirmModelStateListener: AnyObject {
 
 protocol SelectValidatorsConfirmViewModelState {
     var stateListener: SelectValidatorsConfirmModelStateListener? { get set }
+    var balance: Decimal? { get }
     var amount: Decimal? { get }
     var fee: Decimal? { get }
     var payoutAccountAddress: String? { get }
@@ -71,4 +72,9 @@ protocol SelectValidatorsConfirmStrategy {
     func setup()
     func estimateFee(closure: ExtrinsicBuilderClosure?)
     func submitNomination(closure: ExtrinsicBuilderClosure?)
+    func subscribeToBalance()
+}
+
+protocol SelectValidatorsConfirmStrategyOutput: AnyObject {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }

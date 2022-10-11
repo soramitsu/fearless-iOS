@@ -72,6 +72,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let iconGenerator = UniversalIconGenerator(chain: chain)
 
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
+        )
+
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmRelaychainInitiatedViewModelState(
@@ -82,6 +87,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmRelaychainInitiatedStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
@@ -122,7 +128,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 operationManager: OperationManagerFacade.sharedManager,
                 signer: signer,
                 chainAsset: chainAsset,
-                output: viewModelState
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
@@ -157,6 +164,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 collatorAccountId: target.owner,
                 balanceAccountId: accountResponse.accountId,
                 runtimeService: runtimeService,
@@ -185,9 +193,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 maxTargets: maxTargets,
                 initiatedBonding: bonding,
                 chainAsset: chainAsset,
-                wallet: wallet, dataValidatingFactory: dataValidatingFactory
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmPoolInitiatedStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
@@ -220,6 +230,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 operationManager: OperationManagerFacade.sharedManager, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmPoolExistingStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
