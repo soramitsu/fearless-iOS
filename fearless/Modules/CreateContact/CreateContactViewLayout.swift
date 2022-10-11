@@ -3,6 +3,7 @@ import UIKit
 final class CreateContactViewLayout: UIView {
     enum LayoutConstants {
         static let stackViewSpacing: CGFloat = 12
+        static let stackSubviewHeight: CGFloat = 64
     }
 
     let navigationBar: BaseNavigationBar = {
@@ -101,19 +102,19 @@ final class CreateContactViewLayout: UIView {
         }
 
         selectNetworkView.snp.makeConstraints { make in
-            make.height.equalTo(64)
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         contactNameField.snp.makeConstraints { make in
-            make.height.equalTo(64)
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         contactAddressField.snp.makeConstraints { make in
-            make.height.equalTo(64)
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
