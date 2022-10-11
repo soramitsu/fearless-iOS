@@ -4,7 +4,7 @@ import CommonWallet
 
 final class ContactsInteractor {
     enum Constants {
-        static let recentTransfersCount: Int = 100
+        static let recentTransfersCount: Int = 50
     }
 
     // MARK: - Private properties

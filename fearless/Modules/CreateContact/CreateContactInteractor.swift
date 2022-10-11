@@ -9,8 +9,8 @@ final class CreateContactInteractor {
 // MARK: - CreateContactInteractorInput
 
 extension CreateContactInteractor: CreateContactInteractorInput {
-    func validate(address _: String) -> Bool {
-        true
+    func validate(address: String, for chain: ChainModel) -> Bool {
+        ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
     }
 
     func setup(with output: CreateContactInteractorOutput) {

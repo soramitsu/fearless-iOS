@@ -11,6 +11,7 @@ final class ContactsPresenter {
     private let viewModelFactory: AddressBookViewModelFactoryProtocol
     private let moduleOutput: ContactsModuleOutput
     private let chain: ChainModel
+    private let wallet: MetaAccountModel
 
     // MARK: - Constructors
 
@@ -20,13 +21,15 @@ final class ContactsPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: AddressBookViewModelFactoryProtocol,
         moduleOutput: ContactsModuleOutput,
-        chain: ChainModel
+        chain: ChainModel,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.moduleOutput = moduleOutput
         self.chain = chain
+        self.wallet = wallet
 
         self.localizationManager = localizationManager
     }
@@ -42,7 +45,7 @@ extension ContactsPresenter: ContactsViewOutput {
     }
 
     func didTapCreateButton() {
-        router.createContact(address: nil, chain: chain, output: self, view: view)
+        router.createContact(address: nil, chain: chain, wallet: wallet, output: self, view: view)
     }
 
     func didLoad(view: ContactsViewInput) {
@@ -90,7 +93,13 @@ extension ContactsPresenter: ContactsModuleInput {}
 
 extension ContactsPresenter: ContactTableCellModelDelegate {
     func addContact(address: String) {
-        router.createContact(address: address, chain: chain, output: self, view: view)
+        router.createContact(
+            address: address,
+            chain: chain,
+            wallet: wallet,
+            output: self,
+            view: view
+        )
     }
 }
 

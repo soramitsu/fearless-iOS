@@ -4,11 +4,13 @@ final class ContactsRouter: ContactsRouterInput {
     func createContact(
         address: String?,
         chain: ChainModel,
+        wallet: MetaAccountModel,
         output: CreateContactModuleOutput,
         view: ControllerBackedProtocol?
     ) {
         let module = CreateContactAssembly.configureModule(
             moduleOutput: output,
+            wallet: wallet,
             chain: chain,
             address: address
         )

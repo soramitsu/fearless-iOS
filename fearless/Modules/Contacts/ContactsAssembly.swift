@@ -41,7 +41,8 @@ final class ContactsAssembly {
             localizationManager: localizationManager,
             viewModelFactory: AddressBookViewModelFactory(),
             moduleOutput: moduleOutput,
-            chain: chainAsset.chain
+            chain: chainAsset.chain,
+            wallet: wallet
         )
 
         let view = ContactsViewController(
