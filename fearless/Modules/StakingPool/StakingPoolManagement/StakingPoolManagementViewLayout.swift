@@ -283,10 +283,14 @@ final class StakingPoolManagementViewLayout: UIView {
             unstakingView,
             poolInfoView,
             reedeemDelayView,
-            selectValidatorsView,
             claimView,
             redeemView
         ].forEach { makeDefaultConstraints(for: $0) }
+
+        selectValidatorsView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.amountViewHeight)
+        }
     }
 
     private func applyLocalization() {
