@@ -67,7 +67,7 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
     }
 
     func didTapHistoryButton() {
-        router.presentHistory(from: view)
+        router.presentHistory(from: view, wallet: wallet, chainAsset: chainAsset, moduleOutput: self)
     }
 
     func didTapNextButton(with address: String) {
@@ -140,6 +140,13 @@ extension ChooseRecipientPresenter: WalletScanQRModuleOutput {
             return
         }
 
+        view?.didReceive(address: address)
+        searchTextDidChanged(address)
+    }
+}
+
+extension ChooseRecipientPresenter: ContactsModuleOutput {
+    func didSelect(address: String) {
         view?.didReceive(address: address)
         searchTextDidChanged(address)
     }

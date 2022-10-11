@@ -859,3 +859,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "common.create" = "Create";
 "staking.pool.create.creating.pool" = "Creating pool\n%@";
 "staking.pool.create.management.account" = "Pool management account";
+"contacts.recent" = "Recent";
+"contacts.create.contact" = "Create contact";
+"contacts.contact.name" = "Contact name";
+"contacts.contact.address" = "Contact address";
