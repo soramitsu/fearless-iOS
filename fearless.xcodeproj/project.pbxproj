@@ -1632,6 +1632,8 @@
 		C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */; };
 		C6267BBA28D0A18D001E31BF /* AmountInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */; };
 		C6267BBC28D19CEA001E31BF /* TipViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BBB28D19CEA001E31BF /* TipViewModel.swift */; };
+		C63468D828E5BD9B005CB1F1 /* HiddenSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */; };
+		C63468DA28E5E3A3005CB1F1 /* TableView+Scrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */; };
 		C63468DD28EEF58A005CB1F1 /* ContactsTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */; };
 		C63468DF28F2C178005CB1F1 /* Contact.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468DE28F2C178005CB1F1 /* Contact.swift */; };
 		C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468E128F2C964005CB1F1 /* ContactTableCell.swift */; };
@@ -4119,6 +4121,8 @@
 		C6267BBB28D19CEA001E31BF /* TipViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TipViewModel.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
+		C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenSectionHeader.swift; sourceTree = "<group>"; };
+		C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableView+Scrolling.swift"; sourceTree = "<group>"; };
 		C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsTableCellModel.swift; sourceTree = "<group>"; };
 		C63468DE28F2C178005CB1F1 /* Contact.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Contact.swift; sourceTree = "<group>"; };
 		C63468E128F2C964005CB1F1 /* ContactTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTableCell.swift; sourceTree = "<group>"; };
@@ -7601,6 +7605,7 @@
 				849013DA24A927E2008F705E /* SettingsExtension.swift */,
 				84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */,
 				84F6B64F2619E1ED0038F10D /* Int+Operations.swift */,
+				C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */,
 			);
 			path = Extension;
 			sourceTree = "<group>";
@@ -10130,6 +10135,7 @@
 			isa = PBXGroup;
 			children = (
 				FA1A023B274F51A900DA07CB /* ChainAccountBalanceTableCell.swift */,
+				C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -13753,6 +13759,7 @@
 				FA4B929F2844D0C80003BCEF /* SnapKit.swift in Sources */,
 				AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */,
 				07089AFE28B7841A001566CA /* SheetAlertViewLayout.swift in Sources */,
+				C63468DA28E5E3A3005CB1F1 /* TableView+Scrolling.swift in Sources */,
 				AEA0C8BA268113F900F9666F /* YourValidatorList+RecommendedList.swift in Sources */,
 				84F5106D263BF9A4005D15AE /* SingleValueProviderSubscriber.swift in Sources */,
 				84D33996262250B800130A89 /* String+Substrate.swift in Sources */,
@@ -13922,6 +13929,7 @@
 				842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */,
 				AE2C84E925EF98D500986716 /* ValidatorInfoViewFactory.swift in Sources */,
 				FA256A29274CE7D600875A53 /* MoonbeamVerifyRemarkInfo.swift in Sources */,
+				C63468D828E5BD9B005CB1F1 /* HiddenSectionHeader.swift in Sources */,
 				FA17B4B727E8695A006E0735 /* WarningPresentable.swift in Sources */,
 				844CB57026F9CB3300396E13 /* CrowdloanLocalSubscriptionHandler.swift in Sources */,
 				843910B9253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift in Sources */,

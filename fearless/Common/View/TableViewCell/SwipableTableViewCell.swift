@@ -11,6 +11,7 @@ enum SwipableCellButtonType: Int, CaseIterable {
     case receive
     case teleport
     case hide
+    case show
 }
 
 protocol SwipableTableViewCellDelegate: AnyObject {
@@ -130,6 +131,8 @@ class SwipableTableViewCell: UITableViewCell {
         cloudView.gestureRecognizers?.forEach { gesture in
             gesture.reset()
         }
+
+        rightMenuBackgroundView.subviews.forEach { $0.removeFromSuperview() }
     }
 
     override func layoutSubviews() {
