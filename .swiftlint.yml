@@ -4,3 +4,4 @@ excluded:
   - R.generated.swift
   - fearlessTests
   - fearlessIntegrationTests
+  - Charts-master

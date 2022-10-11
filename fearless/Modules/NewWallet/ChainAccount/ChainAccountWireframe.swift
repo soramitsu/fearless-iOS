@@ -23,7 +23,9 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             return
         }
 
-        view?.controller.present(controller, animated: true)
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     func presentReceiveFlow(

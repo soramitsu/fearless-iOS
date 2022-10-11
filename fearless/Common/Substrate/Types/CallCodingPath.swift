@@ -27,7 +27,7 @@ extension CallCodingPath {
     }
 
     static var createNominationPool: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "Create")
+        CallCodingPath(moduleName: "NominationPools", callName: "create")
     }
 
     static var setPoolMetadata: CallCodingPath {

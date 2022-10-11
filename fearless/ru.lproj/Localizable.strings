@@ -857,5 +857,5 @@ and depending on the network state, may not be selected to participate";
 "staking.pool.create.creating.pool" = "Creating pool\n%@";
 "staking.pool.create.management.account" = "Pool management account";
 "staking.pool.management.select.validators.title" = "Select pool validators";
-"staking.pool.management.select.validators.subtitle" = "To continue you should select validators";
+"staking.pool.management.select.validators.subtitle" = "To continue you should\nselect validators";
 "common.select" = "Select";
