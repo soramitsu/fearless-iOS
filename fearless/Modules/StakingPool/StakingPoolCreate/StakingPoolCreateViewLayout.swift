@@ -70,18 +70,21 @@ final class StakingPoolCreateViewLayout: UIView {
 
     let poolIdView: CommonInputViewV2 = {
         let view = CommonInputViewV2()
+        view.animatedInputField.titleFont = .h5Title
         view.disable()
         return view
     }()
 
     let depositorView: CommonInputViewV2 = {
         let view = CommonInputViewV2()
+        view.animatedInputField.titleFont = .h5Title
         view.disable()
         return view
     }()
 
     let rootAccountView: CommonInputViewV2 = {
         let view = CommonInputViewV2()
+        view.animatedInputField.titleFont = .h5Title
         view.disable()
         return view
     }()
@@ -94,6 +97,7 @@ final class StakingPoolCreateViewLayout: UIView {
         view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
         view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
         view.triangularedBackgroundView?.strokeWidth = 0.5
+        view.titleLabel.font = .h5Title
         return view
     }()
 
@@ -105,6 +109,7 @@ final class StakingPoolCreateViewLayout: UIView {
         view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
         view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
         view.triangularedBackgroundView?.strokeWidth = 0.5
+        view.titleLabel.font = .h5Title
         return view
     }()
 
