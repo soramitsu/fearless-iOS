@@ -1,4 +1,4 @@
-platform :ios, '12.0'
+platform :ios, '11.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -21,7 +21,7 @@ abstract_target 'fearlessAll' do
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit'
   pod 'keccak.c'
-  pod 'Charts', '~> 3.6.0'
+  pod 'Charts'
   pod 'DiffableDataSources'
 
   target 'fearlessTests' do
