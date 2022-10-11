@@ -9,7 +9,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood'
+  pod 'RobinHood', '~> 2.6.2'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -21,7 +21,7 @@ abstract_target 'fearlessAll' do
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit'
   pod 'keccak.c'
-  pod 'Charts', '~> 3.6.0'
+  pod 'Charts', '~> 4.1.0'
   pod 'DiffableDataSources'
 
   target 'fearlessTests' do

@@ -79,7 +79,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         )
     }
 
-    // swiftlint: disable function_body_length
+    // swiftlint:disable function_body_length
     private static func createDependencyContainer(
         flow: StakingPayoutConfirmationFlow,
         chainAsset: ChainAsset,
