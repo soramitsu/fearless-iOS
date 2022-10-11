@@ -34,6 +34,7 @@ protocol StakingPoolManagementViewOutput: AnyObject {
 protocol StakingPoolManagementInteractorInput: AnyObject {
     func setup(with output: StakingPoolManagementInteractorOutput)
     func fetchPoolBalance(poolAccountId: AccountId)
+    func fetchActiveValidators(for stashAddress: AccountAddress)
 }
 
 protocol StakingPoolManagementInteractorOutput: AnyObject {

@@ -226,6 +226,23 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
     }
+
+    func fetchActiveValidators(for stashAddress: AccountAddress) {
+        let wrapper = validatorOperationFactory.activeValidatorsOperation(for: stashAddress)
+
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let validators = try wrapper.targetOperation.extractNoCancellableResultData()
+                    print(validators)
+                } catch {
+                    self?.output?.didReceiveValidators(result: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
 }
 
 extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {

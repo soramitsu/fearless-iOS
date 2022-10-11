@@ -82,12 +82,7 @@ class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
         )
     }
 
-    func confirm(
-        from view: ControllerBackedProtocol?,
-        flow: SelectValidatorsConfirmFlow,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel
-    ) {
+    func confirm(from view: ControllerBackedProtocol?, flow: SelectValidatorsConfirmFlow, chainAsset: ChainAsset, wallet: MetaAccountModel) {
         guard let confirmView = SelectValidatorsConfirmViewFactory
             .createView(
                 chainAsset: chainAsset,

@@ -1,9 +1,8 @@
 PODS:
   - BigInt (5.2.0)
-  - Charts (4.1.0):
-    - Charts/Core (= 4.1.0)
-  - Charts/Core (4.1.0):
-    - SwiftAlgorithms (~> 1.0)
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -14,9 +13,9 @@ PODS:
     - SoraFoundation/NotificationHandlers (~> 1.0.0)
     - SoraFoundation/NumberProcessing (~> 1.0.0)
     - SoraUI (~> 1.10.0)
-  - Cuckoo (1.6.0):
-    - Cuckoo/Swift (= 1.6.0)
-  - Cuckoo/Swift (1.6.0)
+  - Cuckoo (1.9.1):
+    - Cuckoo/Swift (= 1.9.1)
+  - Cuckoo/Swift (1.9.1)
   - DiffableDataSources (0.5.0):
     - DifferenceKit/AppKitExtension (~> 1.1)
     - DifferenceKit/UIKitExtension (~> 1.1)
@@ -125,21 +124,20 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.7.0):
-    - Sourcery/CLI-Only (= 1.7.0)
-  - Sourcery/CLI-Only (1.7.0)
+  - Sourcery (1.9.0):
+    - Sourcery/CLI-Only (= 1.9.0)
+  - Sourcery/CLI-Only (1.9.0)
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
-  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.46.5)
+  - SwiftLint (0.49.1)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - Charts (~> 4.1.0)
+  - Charts
   - CommonWallet/Core
   - Cuckoo
   - DiffableDataSources
@@ -151,7 +149,6 @@ DEPENDENCIES:
   - R.swift
   - ReachabilitySwift
   - RobinHood
-  - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -188,7 +185,6 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SVGKit
-    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
@@ -208,15 +204,15 @@ CHECKOUT OPTIONS:
     :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
-    :commit: d8b6c8aea8f417342931cf9414f09aa063d5f760
+    :commit: 1700d88ce40b958af828fb6a76fa55673e0ea2ec
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
-  Cuckoo: 4da01933dfcc88b23a3bb3ac95314d35c93e7c3d
+  Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
   DiffableDataSources: 1ddde2de1978cc02619b2c3bfafab20e68b57279
   DifferenceKit: ab185c4d7f9cef8af3fcf593e5b387fb81e999ca
   FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
@@ -234,16 +230,15 @@ SPEC CHECKSUMS:
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: 60248db99c17da7147b83acb9aca4266657c1f2e
+  Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
-  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 2c16e8fa99dac2e440dc0c70ea74d2532048f6cf
+  SwiftLint: 32ee33ded0636d0905ef6911b2b67bbaeeedafa5
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 9b4299584aff930927b976dfb20c4fea280e29bb
+PODFILE CHECKSUM: 7c56670195b1816c819c1e781b10f4f68689e990
 
 COCOAPODS: 1.11.3

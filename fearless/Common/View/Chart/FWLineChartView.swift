@@ -13,7 +13,7 @@ final class FWLineChartView: LineChartView {
 
         delegate = self
         backgroundColor = .clear
-        chartDescription.enabled = false
+        chartDescription?.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
@@ -97,7 +97,7 @@ extension FWLineChartView: FWChartViewProtocol {
         }
     }
 
-    func createDataSet(dataEntries: [ChartDataEntry]) -> ChartDataSet {
+    func createDataSet(dataEntries: [ChartDataEntry]) -> IChartDataSet {
         let dataSet = LineChartDataSet(entries: dataEntries)
         dataSet.mode = .horizontalBezier
         dataSet.drawIconsEnabled = false
@@ -114,7 +114,7 @@ extension FWLineChartView: FWChartViewProtocol {
             colors: gradientColors,
             locations: colorLocations
         )!
-        dataSet.fill = LinearGradientFill(gradient: linearGradient, angle: 90)
+        dataSet.fill = Fill(linearGradient: linearGradient, angle: 90)
         dataSet.fillAlpha = 1.0
         dataSet.drawFilledEnabled = true
         dataSet.highlightColor = R.color.colorGreen()!
