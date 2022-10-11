@@ -1,9 +1,8 @@
 PODS:
   - BigInt (5.2.0)
-  - Charts (4.0.3):
-    - Charts/Core (= 4.0.3)
-  - Charts/Core (4.0.3):
-    - SwiftAlgorithms (~> 1.0)
+  - Charts (3.6.0):
+    - Charts/Core (= 3.6.0)
+  - Charts/Core (3.6.0)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -131,7 +130,6 @@ PODS:
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
-  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.49.1)
   - SwiftyBeaver (1.9.5)
@@ -139,7 +137,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - Charts (from `Charts-master`)
+  - Charts (~> 3.6.0)
   - CommonWallet/Core
   - Cuckoo
   - DiffableDataSources
@@ -165,6 +163,7 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BigInt
+    - Charts
     - CocoaLumberjack
     - CommonWallet
     - Cuckoo
@@ -186,7 +185,6 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SVGKit
-    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
@@ -194,8 +192,6 @@ SPEC REPOS:
     - xxHash-Swift
 
 EXTERNAL SOURCES:
-  Charts:
-    :path: Charts-master
   FearlessUtils:
     :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
@@ -213,7 +209,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: d959d6723c8eedfdd0735dfc28cb0a71762ac4d9
+  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
@@ -237,13 +233,12 @@ SPEC CHECKSUMS:
   Sourcery: 60248db99c17da7147b83acb9aca4266657c1f2e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
-  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 32ee33ded0636d0905ef6911b2b67bbaeeedafa5
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6c2a496cbc923eeb33bd859ce95f73e9b1cd43d4
+PODFILE CHECKSUM: 4ad643deee68f0d024fe794567c379e770d960b4
 
 COCOAPODS: 1.11.3

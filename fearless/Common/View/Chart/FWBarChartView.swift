@@ -35,7 +35,7 @@ final class FWBarChartView: BarChartView {
 
         delegate = self
         backgroundColor = .clear
-        chartDescription.enabled = false
+        chartDescription?.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false

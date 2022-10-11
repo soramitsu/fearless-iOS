@@ -21,7 +21,7 @@ abstract_target 'fearlessAll' do
   pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit'
   pod 'keccak.c'
-  pod 'Charts', :path => 'Charts-master'
+  pod 'Charts', '~> 3.6.0'
   pod 'DiffableDataSources'
 
   target 'fearlessTests' do

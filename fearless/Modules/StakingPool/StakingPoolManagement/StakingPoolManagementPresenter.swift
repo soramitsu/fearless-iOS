@@ -192,6 +192,17 @@ final class StakingPoolManagementPresenter {
         view?.didReceiveSelectValidator(visible: selectedValidators.isEmpty)
     }
 
+    private func fetchActiveValidators() {
+        guard
+            let stash = fetchPoolAccount(for: .stash),
+            let stashAddress = try? stash.toAddress(using: chainAsset.chain.chainFormat)
+        else {
+            return
+        }
+
+        interactor.fetchActiveValidators(for: stashAddress)
+    }
+
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
         guard
             let modPrefix = "modl".data(using: .utf8),
@@ -378,6 +389,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         self.stakingPool = stakingPool
         fetchPoolBalance()
         fetchSelectedValidators()
+        fetchActiveValidators()
         view?.didReceive(poolName: stakingPool?.name)
     }
 
@@ -402,6 +414,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         case let .success(palletId):
             self.palletId = palletId
             fetchPoolBalance()
+            fetchActiveValidators()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }
