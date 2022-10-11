@@ -1,6 +1,5 @@
 import UIKit
 import RobinHood
-import BigInt
 
 final class StakingPoolCreateInteractor {
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
@@ -158,32 +157,13 @@ extension StakingPoolCreateInteractor: StakingPoolCreateInteractorInput {
         fetchRuntimeData()
     }
 
-    func estimateFee(amount: BigUInt?, poolName: String, poolId: UInt32?) {
-        guard let amount = amount,
-              let rootAccount = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-              let metadata = poolName.data(using: .ascii),
-              let poolId = poolId
+    func estimateFee() {
+        guard
+            let reuseIdentifier = feeReuseIdentifier,
+            let builderClosure = builderClosure
         else {
             return
         }
-
-        let joinPool = callFactory.createPool(
-            amount: amount,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(rootAccount),
-            stateToggler: .accoundId(rootAccount)
-        )
-
-        let setMetadataCall = callFactory.setPoolMetadata(
-            poolId: "\(poolId)",
-            metadata: metadata
-        )
-
-        let builderClosure: ExtrinsicBuilderClosure = { builder in
-            try builder.adding(call: joinPool).adding(call: setMetadataCall)
-        }
-
-        let reuseIdentifier = poolName + String(amount)
 
         feeProxy.estimateFee(
             using: extrinsicService,

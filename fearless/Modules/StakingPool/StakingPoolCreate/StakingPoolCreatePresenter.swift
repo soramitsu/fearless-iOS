@@ -31,13 +31,13 @@ final class StakingPoolCreatePresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) - (existentialDeposit ?? 0) }
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var minCreateBond: Decimal?
     private var nominatorWallet: MetaAccountModel
     private var stateTogglerWallet: MetaAccountModel
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
-    private var existentialDeposit: Decimal?
+    private var existentialDeposit: BigUInt?
 
     // MARK: - Constructors
 
@@ -134,17 +134,7 @@ final class StakingPoolCreatePresenter {
             closeAction: nil
         )
 
-        DispatchQueue.main.async { [weak self] in
-            self?.router.present(viewModel: viewModel, style: .alert, from: self?.view)
-        }
-    }
-
-    private func refreshFee() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
-        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
-        let poolName = poolNameInputViewModel.inputHandler.value
-
-        interactor.estimateFee(amount: spendingAmount, poolName: poolName, poolId: lastPoolId)
+        router.present(viewModel: viewModel, style: .alert, from: view)
     }
 }
 
@@ -153,12 +143,8 @@ final class StakingPoolCreatePresenter {
 // swiftlint:disable function_body_length
 extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
     func createDidTapped() {
-        let precision = Int16(chainAsset.asset.precision)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
-        let spendingAmount = inputAmount.toSubstrateAmount(precision: precision)
-        let poolName = poolNameInputViewModel.inputHandler.value
-        let existentialDepositAmount = existentialDeposit?.toSubstrateAmount(precision: precision)
-
+        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         DataValidationRunner(validators: [
             dataValidatingFactory.canNominate(
                 amount: inputAmount,
@@ -170,7 +156,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
                 fee: fee,
                 locale: selectedLocale,
                 onError: { [weak self] in
-                    self?.refreshFee()
+                    self?.interactor.estimateFee()
                 }
             ),
             dataValidatingFactory.canPayFeeAndAmount(
@@ -186,7 +172,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
             dataValidatingFactory.exsitentialDepositIsNotViolated(
                 spendingAmount: spendingAmount,
                 totalAmount: totalAmount,
-                minimumBalance: existentialDepositAmount,
+                minimumBalance: existentialDeposit,
                 locale: selectedLocale,
                 chainAsset: chainAsset
             )
@@ -230,22 +216,16 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
-        provideInputViewModel()
-
-        refreshFee()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
-        provideInputViewModel()
-
-        refreshFee()
     }
 
     func didLoad(view: StakingPoolCreateViewInput) {
         self.view = view
         interactor.setup(with: self)
-        refreshFee()
+        interactor.estimateFee()
         provideViewModel()
 
         view.didReceive(nameViewModel: poolNameInputViewModel)
@@ -253,10 +233,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func backDidTapped() {
         router.dismiss(view: view)
-    }
-
-    func nameTextFieldInputValueChanged() {
-        refreshFee()
     }
 }
 
@@ -266,12 +242,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
         switch existentialDepositResult {
         case let .success(existentialDeposit):
-            self.existentialDeposit = Decimal.fromSubstrateAmount(
-                existentialDeposit,
-                precision: Int16(chainAsset.asset.precision)
-            )
-
-            refreshFee()
+            self.existentialDeposit = existentialDeposit
         case let .failure(error):
             logger.error(error.localizedDescription)
         }
@@ -280,8 +251,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceiveLastPoolId(_ lastPoolId: UInt32?) {
         self.lastPoolId = lastPoolId
         provideViewModel()
-
-        refreshFee()
     }
 
     func didReceivePoolMember(_ poolMember: StakingPoolMember?) {
@@ -344,14 +313,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
 
             provideAssetVewModel()
             provideFeeViewModel()
-
-            switch inputResult {
-            case .rate:
-                provideInputViewModel()
-            default:
-                break
-            }
-
         case let .failure(error):
             logger.error("error: \(error)")
         }
