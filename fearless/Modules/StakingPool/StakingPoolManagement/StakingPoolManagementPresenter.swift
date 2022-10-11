@@ -189,7 +189,12 @@ final class StakingPoolManagementPresenter {
             validator.toSelected(for: try? stashAccount.toAddress(using: chainAsset.chain.chainFormat))
         }.filter { $0.isActive }
 
-        view?.didReceiveSelectValidator(visible: selectedValidators.isEmpty)
+        let userRoleCanSelectValidators =
+            stakingPool?.info.roles.nominator == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+
+        let shouldSelectValidators = selectedValidators.isEmpty && userRoleCanSelectValidators
+
+        view?.didReceiveSelectValidator(visible: shouldSelectValidators)
     }
 
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
