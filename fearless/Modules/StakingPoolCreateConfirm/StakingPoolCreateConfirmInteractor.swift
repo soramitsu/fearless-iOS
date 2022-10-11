@@ -55,6 +55,39 @@ final class StakingPoolCreateConfirmInteractor {
         return createPool.callName
     }
 
+    private var feeBuilderClosure: ExtrinsicBuilderClosure? {
+        let rootRequest = chainAsset.chain.accountRequest()
+        let nominatorRequest = chainAsset.chain.accountRequest()
+        let stateTogglerRequest = chainAsset.chain.accountRequest()
+        let precision = Int16(chainAsset.asset.precision)
+
+        guard
+            let substrateAmountValue = createData.amount.toSubstrateAmount(precision: precision),
+            let rootAccount = createData.root.fetch(for: rootRequest)?.accountId,
+            let nominationAccount = createData.nominator.fetch(for: nominatorRequest)?.accountId,
+            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId,
+            let metadata = createData.poolName.data(using: .ascii)
+        else {
+            return nil
+        }
+
+        let setMetadataCall = callFactory.setPoolMetadata(
+            poolId: "\(createData.poolId)",
+            metadata: metadata
+        )
+
+        let createPool = callFactory.createPool(
+            amount: substrateAmountValue,
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(nominationAccount),
+            stateToggler: .accoundId(stateTogglerAccount)
+        )
+
+        return { builder in
+            try builder.adding(call: createPool).adding(call: setMetadataCall)
+        }
+    }
+
     private var creatPoolBuilderClosure: ExtrinsicBuilderClosure? {
         let rootRequest = chainAsset.chain.accountRequest()
         let nominatorRequest = chainAsset.chain.accountRequest()
@@ -125,7 +158,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
     func estimateFee() {
         guard
             let reuseIdentifier = feeReuseIdentifier,
-            let builderClosure = creatPoolBuilderClosure
+            let builderClosure = feeBuilderClosure
         else {
             return
         }
@@ -138,7 +171,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
     }
 
     func submit() {
-        guard let builderClosure = creatPoolBuilderClosure else {
+        guard let builderClosure = feeBuilderClosure else {
             return
         }
 
@@ -148,7 +181,13 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
             runningIn: .main
         ) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.setMetadata(result: result)
+            strongSelf.output?.didReceive(extrinsicResult: result)
+//            switch result {
+//            case .success:
+//                strongSelf.setMetadata(result: result)
+//            case let .failure(error):
+//                strongSelf.output?.didReceive(extrinsicResult: result)
+//            }
         }
     }
 }

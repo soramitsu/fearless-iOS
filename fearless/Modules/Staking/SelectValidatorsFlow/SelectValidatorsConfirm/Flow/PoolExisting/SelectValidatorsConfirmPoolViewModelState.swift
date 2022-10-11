@@ -4,7 +4,6 @@ import BigInt
 
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsConfirmViewModelState {
-    var balance: Decimal?
     var amount: Decimal? { 0.0 }
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let poolId: UInt32
@@ -65,21 +64,10 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
 
     func validators(using locale: Locale) -> [DataValidating] {
         [
-            dataValidatingFactory.canNominate(
-                amount: existingBonding.amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minNominatorBond,
-                locale: locale
-            ),
             dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
                 hasExistingNomination: false,
-                locale: locale
-            ),
-            dataValidatingFactory.canPayFee(
-                balance: balance,
-                fee: fee,
                 locale: locale
             )
         ]
@@ -251,21 +239,5 @@ extension SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsCon
 
     func didReceive(feeError: Error) {
         stateListener?.didReceiveError(error: feeError)
-    }
-
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
-                balance = Decimal.fromSubstrateAmount(
-                    availableValue,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } else {
-                balance = 0.0
-            }
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
     }
 }
