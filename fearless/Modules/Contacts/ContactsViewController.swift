@@ -94,7 +94,7 @@ extension ContactsViewController: Localizable {
 
 extension ContactsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        sections[section].cells.count
+        sections[section].cellViewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
@@ -122,7 +122,7 @@ extension ContactsViewController: UITableViewDelegate {
             return
         }
 
-        cell.bind(to: sections[indexPath.section].cells[indexPath.row])
+        cell.bind(to: sections[indexPath.section].cellViewModels[indexPath.row])
     }
 
     func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
@@ -130,6 +130,8 @@ extension ContactsViewController: UITableViewDelegate {
     }
 
     func tableView(_: UITableView, didSelectRowAt indexPath: IndexPath) {
-        output.didSelect(address: sections[indexPath.section].cells[indexPath.row].contactType.address)
+        output.didSelect(
+            address: sections[indexPath.section].cellViewModels[indexPath.row].contactType.address
+        )
     }
 }

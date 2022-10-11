@@ -18,9 +18,14 @@ enum ContactType {
     }
 }
 
-struct ContactTableCellModel {
+class ContactTableCellModel {
     let contactType: ContactType
     weak var delegate: ContactTableCellModelDelegate?
+
+    init(contactType: ContactType, delegate: ContactTableCellModelDelegate?) {
+        self.contactType = contactType
+        self.delegate = delegate
+    }
 }
 
 extension ContactTableCellModel: ContactTableCellDelegate {

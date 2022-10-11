@@ -1,6 +1,6 @@
 import UIKit
 
-protocol ContactTableCellDelegate {
+protocol ContactTableCellDelegate: AnyObject {
     func didTapAddButton()
 }
 
@@ -10,7 +10,7 @@ class ContactTableCell: UITableViewCell {
         static let addContactButtonSize = CGSize(width: 73, height: 32)
     }
 
-    private var delegate: ContactTableCellDelegate?
+    private weak var delegate: ContactTableCellDelegate?
 
     private let contactImageView: UIImageView = {
         let imageView = UIImageView()

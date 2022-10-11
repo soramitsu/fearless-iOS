@@ -11,7 +11,7 @@ protocol AddressBookViewModelFactoryProtocol {
 
 struct ContactsTableSectionModel {
     let name: String
-    let cells: [ContactTableCellModel]
+    let cellViewModels: [ContactTableCellModel]
 }
 
 final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
@@ -29,7 +29,7 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
         }
         let recentContactsSection = ContactsTableSectionModel(
             name: R.string.localizable.contactsRecent(preferredLanguages: locale.rLanguages),
-            cells: recentContactsViewModels
+            cellViewModels: recentContactsViewModels
         )
 
         let contactsFirstLetters: [Character] = Array(Set(savedContacts
@@ -40,12 +40,12 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
         ))
         let savedContactsSections: [ContactsTableSectionModel] = contactsFirstLetters.map { firstLetter in
             let contacts = savedContacts.filter { contact in
-                contact.name.first == firstLetter
+                contact.name.first?.lowercased() == firstLetter.lowercased()
             }
             let cellModels = contacts.map { contact in
                 ContactTableCellModel(contactType: .saved(contact), delegate: cellsDelegate)
             }
-            return ContactsTableSectionModel(name: String(firstLetter), cells: cellModels)
+            return ContactsTableSectionModel(name: String(firstLetter), cellViewModels: cellModels)
         }
         return [recentContactsSection] + savedContactsSections
     }
