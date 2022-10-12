@@ -22,7 +22,7 @@ protocol ScanQRViewOutput: AnyObject {
 protocol ScanQRInteractorInput: AnyObject {
     func setup(with output: ScanQRInteractorOutput)
     func extractQr(from image: UIImage)
-    func startScanning()
+    func startScanning(delegate: QRCaptureServiceDelegate)
     func stopScanning()
 }
 

@@ -127,7 +127,6 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
             let title = R.string.localizable
                 .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
             router.complete(on: view, title: title)
-            view?.didStartLoading()
         case let .failure(error):
             guard let view = view else {
                 return

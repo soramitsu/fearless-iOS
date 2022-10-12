@@ -14,6 +14,8 @@ final class StakingPoolCreateConfirmRouter: StakingPoolCreateConfirmRouterInput 
     ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
+        view?.controller.navigationController?.dismiss(animated: true, completion: nil)
+
         if let presenter = presenter as? ControllerBackedProtocol {
             presentSuccessNotification(title, from: presenter)
         }

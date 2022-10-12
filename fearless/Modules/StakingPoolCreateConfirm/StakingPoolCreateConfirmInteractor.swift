@@ -118,7 +118,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        subscribeToPoolMembers()
+//        subscribeToPoolMembers()
     }
 
     func estimateFee() {

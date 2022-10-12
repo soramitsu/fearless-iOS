@@ -46,7 +46,8 @@ extension ScanQRInteractor: ScanQRInteractorInput {
         }
     }
 
-    func startScanning() {
+    func startScanning(delegate: QRCaptureServiceDelegate) {
+        qrScanService.delegate = delegate
         qrScanService.start()
     }
 

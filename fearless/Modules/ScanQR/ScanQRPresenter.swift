@@ -120,7 +120,7 @@ extension ScanQRPresenter: ScanQRViewOutput {
     }
 
     func prepareAppearance() {
-        interactor.startScanning()
+        interactor.startScanning(delegate: self)
     }
 
     func handleAppearance() {
@@ -180,6 +180,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     }
 
     func handleMatched(addressInfo: AddressQRInfo) {
+        router.dismiss(view: view)
         moduleOutput.didFinishWith(addressInfo: addressInfo)
     }
 }

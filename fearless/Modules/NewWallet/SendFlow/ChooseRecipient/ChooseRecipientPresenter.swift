@@ -10,6 +10,7 @@ final class ChooseRecipientPresenter {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let qrParser: QRParser
+    private var address: String?
 
     private var scamInfo: ScamInfo?
 
@@ -32,10 +33,7 @@ final class ChooseRecipientPresenter {
         self.wallet = wallet
         self.qrParser = qrParser
         self.localizationManager = localizationManager
-
-        if let address = address {
-            view?.didReceive(address: address)
-        }
+        self.address = address
     }
 }
 
@@ -97,6 +95,11 @@ extension ChooseRecipientPresenter: ChooseRecipientPresenterProtocol {
     func setup() {
         view?.didReceive(locale: selectedLocale)
         interactor.setup(with: self)
+
+        if let address = address {
+            view?.didReceive(address: address)
+            searchTextDidChanged(address)
+        }
     }
 
     func didSelectViewModel(cellViewModel: SearchPeopleTableCellViewModel) {

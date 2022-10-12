@@ -173,7 +173,7 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
 
 extension WalletMainContainerPresenter: SendPrepareUseCaseDelegate {
     func didReceive(possibleChains: [ChainModel]) {
-        if possibleChains.count == 0 {
+        if possibleChains.isEmpty {
             return
         } else if possibleChains.count == 1 {
             let chainAsset = sendPrepareUseCase.createChainAsset(for: possibleChains.first)
