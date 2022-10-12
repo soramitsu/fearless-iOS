@@ -867,3 +867,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "contacts.contact.name" = "Contact name";
 "contacts.contact.address" = "Contact address";
 "contacts.undefined" = "Undefined";
+"contacts.scan" = "Scan QR code";

@@ -22,7 +22,8 @@ final class ChooseRecipientPresenter {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
-        qrParser: QRParser
+        qrParser: QRParser,
+        address: String?
     ) {
         self.interactor = interactor
         self.router = router
@@ -31,6 +32,10 @@ final class ChooseRecipientPresenter {
         self.wallet = wallet
         self.qrParser = qrParser
         self.localizationManager = localizationManager
+
+        if let address = address {
+            view?.didReceive(address: address)
+        }
     }
 }
 

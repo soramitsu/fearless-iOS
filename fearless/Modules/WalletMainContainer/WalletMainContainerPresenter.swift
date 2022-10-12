@@ -1,7 +1,8 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
-final class WalletMainContainerPresenter {
+final class WalletMainContainerPresenter: NSObject {
     // MARK: Private properties
 
     private weak var assetListModuleInput: ChainAssetListModuleInput?
@@ -11,6 +12,7 @@ final class WalletMainContainerPresenter {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
+    private let sendPrepareUseCase: SendPrepareUseCase
 
     // MARK: - State
 
@@ -25,6 +27,7 @@ final class WalletMainContainerPresenter {
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
+        sendPrepareUseCase: SendPrepareUseCase,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.assetListModuleInput = assetListModuleInput
@@ -32,6 +35,10 @@ final class WalletMainContainerPresenter {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+        self.sendPrepareUseCase = sendPrepareUseCase
+
+        super.init()
+
         self.localizationManager = localizationManager
     }
 
@@ -63,7 +70,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapOnQR() {
-        router.showScanQr(from: view)
+        router.showScanQr(from: view, moduleOutput: self)
     }
 
     func didTapSearch() {
@@ -150,5 +157,38 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
+    }
+}
+
+extension WalletMainContainerPresenter: ScanQRModuleOutput {
+    func didFinishWith(addressInfo: AddressQRInfo) {
+        sendPrepareUseCase.getPossibleChains(
+            for: addressInfo.address,
+            delegate: self
+        )
+    }
+
+    func didFinishWith(address _: String) {}
+}
+
+extension WalletMainContainerPresenter: SendPrepareUseCaseDelegate {
+    func didReceive(possibleChains: [ChainModel]) {
+        router.showSelectNetwork(
+            from: view,
+            wallet: wallet,
+            selectedChainId: nil,
+            chainModels: possibleChains,
+            delegate: sendPrepareUseCase
+        )
+    }
+
+    func didReceive(chainAsset: ChainAsset, address: String) {
+        router.showSendFlow(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            transferFinishBlock: nil,
+            address: address
+        )
     }
 }
