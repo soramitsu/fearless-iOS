@@ -12,6 +12,7 @@ final class CreateContactRouter: CreateContactRouterInput {
                 wallet: wallet,
                 selectedChainId: selectedChainId,
                 chainModels: nil,
+                includingAllNetworks: false,
                 delegate: delegate
             )
         else {
