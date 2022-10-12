@@ -7,7 +7,8 @@ struct ChooseRecipientViewFactory {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         flow: SendFlow,
-        transferFinishBlock: WalletTransferFinishBlock?
+        transferFinishBlock: WalletTransferFinishBlock?,
+        address: String? = nil
     ) -> ChooseRecipientViewProtocol? {
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
             UserDataStorageFacade.shared
@@ -61,7 +62,8 @@ struct ChooseRecipientViewFactory {
             chainAsset: chainAsset,
             wallet: wallet,
             localizationManager: LocalizationManager.shared,
-            qrParser: SubstrateQRParser()
+            qrParser: SubstrateQRParser(),
+            address: address
         )
 
         let view = ChooseRecipientViewController(presenter: presenter)
