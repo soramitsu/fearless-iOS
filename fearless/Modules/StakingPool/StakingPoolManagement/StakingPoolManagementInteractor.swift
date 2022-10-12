@@ -229,24 +229,17 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
     }
 
     func fetchPoolNomination(poolStashAccountId: AccountId) {
-        nominationProvider = subscribeNomination(for: poolStashAccountId, chainAsset: chainAsset)
-    }
-
-    func fetchActiveValidators(for stashAddress: AccountAddress) {
-        let wrapper = validatorOperationFactory.activeValidatorsOperation(for: stashAddress)
-
-        wrapper.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let validators = try wrapper.targetOperation.extractNoCancellableResultData()
-                    print(validators)
-                } catch {
-                    self?.output?.didReceiveValidators(result: .failure(error))
-                }
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            do {
+                let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                self?.output?.didReceive(nomination: nomination)
+            } catch {
+                self?.output?.didReceive(error: error)
             }
         }
 
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 
@@ -268,10 +261,6 @@ extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLoc
 extension StakingPoolManagementInteractor:
     RelaychainStakingLocalStorageSubscriber,
     RelaychainStakingLocalSubscriptionHandler {
-    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
-        output?.didReceiveNomination(result: result)
-    }
-
     func handlePoolMember(
         result: Result<StakingPoolMember?, Error>,
         accountId _: AccountId,

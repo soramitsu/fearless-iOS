@@ -76,73 +76,20 @@ final class StakingPoolCreateConfirmInteractor {
             return nil
         }
 
+        let createPool = callFactory.createPool(
+            amount: substrateAmountValue,
+            root: .accoundId(rootAccount),
+            nominator: .accoundId(nominationAccount),
+            stateToggler: .accoundId(stateTogglerAccount)
+        )
+
         let setMetadataCall = callFactory.setPoolMetadata(
             poolId: "\(createData.poolId)",
             metadata: metadata
         )
 
-        let createPool = callFactory.createPool(
-            amount: substrateAmountValue,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(nominationAccount),
-            stateToggler: .accoundId(stateTogglerAccount)
-        )
-
         return { builder in
             try builder.adding(call: createPool).adding(call: setMetadataCall)
-        }
-    }
-
-    private var creatPoolBuilderClosure: ExtrinsicBuilderClosure? {
-        let rootRequest = chainAsset.chain.accountRequest()
-        let nominatorRequest = chainAsset.chain.accountRequest()
-        let stateTogglerRequest = chainAsset.chain.accountRequest()
-        let precision = Int16(chainAsset.asset.precision)
-
-        guard
-            let substrateAmountValue = createData.amount.toSubstrateAmount(precision: precision),
-            let rootAccount = createData.root.fetch(for: rootRequest)?.accountId,
-            let nominationAccount = createData.nominator.fetch(for: nominatorRequest)?.accountId,
-            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId
-        else {
-            return nil
-        }
-
-        let createPool = callFactory.createPool(
-            amount: substrateAmountValue,
-            root: .accoundId(rootAccount),
-            nominator: .accoundId(nominationAccount),
-            stateToggler: .accoundId(stateTogglerAccount)
-        )
-
-        return { builder in
-            try builder.adding(call: createPool)
-        }
-    }
-
-    private func setMetadata(result: SubmitExtrinsicResult) {
-        switch result {
-        case .success:
-            guard let metadata = createData.poolName.data(using: .ascii) else {
-                return
-            }
-
-            let setMetadataCall = callFactory.setPoolMetadata(
-                poolId: "\(createData.poolId)",
-                metadata: metadata
-            )
-
-            extrinsicService.submit(
-                { builder in
-                    try builder.adding(call: setMetadataCall)
-                },
-                signer: signingWrapper,
-                runningIn: .main
-            ) { [weak self] _ in
-                self?.subscribeToPoolMembers()
-            }
-        case let .failure(error):
-            output?.didReceive(extrinsicResult: .failure(error))
         }
     }
 
@@ -170,6 +117,8 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
+
+        subscribeToPoolMembers()
     }
 
     func estimateFee() {
@@ -199,12 +148,6 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         ) { [weak self] result in
             guard let strongSelf = self else { return }
             strongSelf.output?.didReceive(extrinsicResult: result)
-//            switch result {
-//            case .success:
-//                strongSelf.setMetadata(result: result)
-//            case let .failure(error):
-//                strongSelf.output?.didReceive(extrinsicResult: result)
-//            }
         }
     }
 }

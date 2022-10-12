@@ -182,6 +182,8 @@ final class StakingPoolManagementPresenter {
         guard
             let nomination = nomination
         else {
+            view?.didReceiveSelectValidator(visible: true)
+
             return
         }
 
@@ -333,14 +335,9 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 // MARK: - StakingPoolManagementInteractorOutput
 
 extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput {
-    func didReceiveNomination(result: Result<Nomination?, Error>) {
-        switch result {
-        case let .success(nomination):
-            self.nomination = nomination
-            fetchSelectedValidators()
-        case let .failure(error):
-            logger.error(error.localizedDescription)
-        }
+    func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
+        fetchSelectedValidators()
     }
 
     func didReceive(poolAccountInfo: AccountInfo?) {
@@ -443,7 +440,6 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         switch result {
         case let .success(electedValidators):
             self.electedValidators = electedValidators
-            fetchSelectedValidators()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }

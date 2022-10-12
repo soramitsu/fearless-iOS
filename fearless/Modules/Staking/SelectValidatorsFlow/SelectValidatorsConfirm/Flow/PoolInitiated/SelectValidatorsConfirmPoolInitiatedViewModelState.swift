@@ -61,6 +61,11 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
                 maxNominatorsCount: maxNominatorsCount,
                 hasExistingNomination: false,
                 locale: locale
+            ),
+            dataValidatingFactory.canPayFee(
+                balance: balance,
+                fee: fee,
+                locale: locale
             )
         ]
     }
