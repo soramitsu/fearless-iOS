@@ -292,7 +292,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             title: R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.poolCommon(preferredLanguages: selectedLocale.rLanguages).capitalized
+            title: R.string.localizable.stakingPoolInfoTitle(preferredLanguages: selectedLocale.rLanguages).capitalized
         )
 
         let viewModels = [validatorsOptionViewModel, poolInfoOptionViewModel]
