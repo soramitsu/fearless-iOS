@@ -180,13 +180,19 @@ extension WalletMainContainerPresenter: ScanQRModuleOutput {
 
 extension WalletMainContainerPresenter: SendPrepareUseCaseDelegate {
     func didReceive(possibleChains: [ChainModel]) {
-        router.showSelectNetwork(
-            from: view,
-            wallet: wallet,
-            selectedChainId: nil,
-            chainModels: possibleChains,
-            delegate: sendPrepareUseCase
-        )
+        if possibleChains.count == 0 {
+            return
+        } else if possibleChains.count == 1 {
+            let chainAsset = sendPrepareUseCase.createChainAsset(for: possibleChains.first)
+        } else {
+            router.showSelectNetwork(
+                from: view,
+                wallet: wallet,
+                selectedChainId: nil,
+                chainModels: possibleChains,
+                delegate: sendPrepareUseCase
+            )
+        }
     }
 
     func didReceive(chainAsset: ChainAsset, address: String) {
