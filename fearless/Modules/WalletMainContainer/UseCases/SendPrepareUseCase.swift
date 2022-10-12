@@ -38,14 +38,18 @@ final class SendPrepareUseCase {
     private func validate(address: String, for chain: ChainModel) -> Bool {
         ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
     }
-}
-
-extension SendPrepareUseCase: SelectNetworkDelegate {
-    func chainSelection(view _: SelectNetworkViewInput, didCompleteWith chain: ChainModel?) {
+    
+    func createChainAsset(for chain: ChainModel?) {
         if let chain = chain,
            let chainAsset = chain.utilityChainAssets().first,
            let address = address {
             delegate?.didReceive(chainAsset: chainAsset, address: address)
         }
+    }
+}
+
+extension SendPrepareUseCase: SelectNetworkDelegate {
+    func chainSelection(view _: SelectNetworkViewInput, didCompleteWith chain: ChainModel?) {
+        createChainAsset(for: chain)
     }
 }
