@@ -35,16 +35,16 @@ final class SendPrepareUseCase {
         operationQueue.addOperation(fetchOperation)
     }
 
-    private func validate(address: String, for chain: ChainModel) -> Bool {
-        ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
-    }
-    
     func createChainAsset(for chain: ChainModel?) {
         if let chain = chain,
            let chainAsset = chain.utilityChainAssets().first,
            let address = address {
             delegate?.didReceive(chainAsset: chainAsset, address: address)
         }
+    }
+
+    private func validate(address: String, for chain: ChainModel) -> Bool {
+        ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
     }
 }
 
