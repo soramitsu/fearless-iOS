@@ -24,6 +24,7 @@ protocol StakingPoolCreateConfirmInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(extrinsicResult: SubmitExtrinsicResult)
+    func didReceive(stakingPoolMembers: Result<StakingPoolMember?, Error>)
 }
 
 protocol StakingPoolCreateConfirmRouterDeps:
@@ -38,6 +39,13 @@ protocol StakingPoolCreateConfirmRouterInput: StakingPoolCreateConfirmRouterDeps
     func complete(
         on view: ControllerBackedProtocol?,
         title: String
+    )
+    func proceedToSelectValidatorsStart(
+        from view: ControllerBackedProtocol?,
+        poolId: UInt32,
+        state: InitiatedBonding,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 
