@@ -4,6 +4,7 @@ import BigInt
 
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidatorsConfirmViewModelState {
+    var balance: Decimal?
     var amount: Decimal? { initiatedBonding.amount }
     let poolId: UInt32
     var stateListener: SelectValidatorsConfirmModelStateListener?
@@ -114,6 +115,22 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
 }
 
 extension SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidatorsConfirmPoolInitiatedStrategyOutput {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                balance = 0.0
+            }
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
     func didSetup() {
         provideInitiatedBondingConfirmationModel()
     }

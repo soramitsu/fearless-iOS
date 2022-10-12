@@ -23,6 +23,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -227,6 +228,10 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
     }
 
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        nominationProvider = subscribeNomination(for: poolStashAccountId, chainAsset: chainAsset)
+    }
+
     func fetchActiveValidators(for stashAddress: AccountAddress) {
         let wrapper = validatorOperationFactory.activeValidatorsOperation(for: stashAddress)
 
@@ -263,6 +268,10 @@ extension StakingPoolManagementInteractor: PriceLocalStorageSubscriber, PriceLoc
 extension StakingPoolManagementInteractor:
     RelaychainStakingLocalStorageSubscriber,
     RelaychainStakingLocalSubscriptionHandler {
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        output?.didReceiveNomination(result: result)
+    }
+
     func handlePoolMember(
         result: Result<StakingPoolMember?, Error>,
         accountId _: AccountId,

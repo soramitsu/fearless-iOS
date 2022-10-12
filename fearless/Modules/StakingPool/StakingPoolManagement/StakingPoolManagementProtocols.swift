@@ -35,6 +35,7 @@ protocol StakingPoolManagementInteractorInput: AnyObject {
     func setup(with output: StakingPoolManagementInteractorOutput)
     func fetchPoolBalance(poolAccountId: AccountId)
     func fetchActiveValidators(for stashAddress: AccountAddress)
+    func fetchPoolNomination(poolStashAccountId: AccountId)
 }
 
 protocol StakingPoolManagementInteractorOutput: AnyObject {
@@ -55,6 +56,7 @@ protocol StakingPoolManagementInteractorOutput: AnyObject {
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
+    func didReceiveNomination(result: Result<Nomination?, Error>)
 }
 
 protocol StakingPoolManagementRouterInput: PresentDismissable {
