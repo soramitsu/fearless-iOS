@@ -2,7 +2,10 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
     private let flow: SendFlow
     private let transferFinishBlock: WalletTransferFinishBlock?
 
-    init(flow: SendFlow, transferFinishBlock: WalletTransferFinishBlock?) {
+    init(
+        flow: SendFlow,
+        transferFinishBlock: WalletTransferFinishBlock?
+    ) {
         self.flow = flow
         self.transferFinishBlock = transferFinishBlock
     }
@@ -43,8 +46,21 @@ final class ChooseRecipientRouter: ChooseRecipientRouterProtocol {
         view?.controller.present(controller, animated: true, completion: nil)
     }
 
-    func presentHistory(from _: ControllerBackedProtocol?) {
-        // TODO: Contact list transition
+    func presentHistory(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        moduleOutput: ContactsModuleOutput
+    ) {
+        guard let module = ContactsAssembly.configureModule(
+            wallet: wallet,
+            chainAsset: chainAsset,
+            moduleOutput: moduleOutput
+        ) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+        view?.controller.present(navigationController, animated: true)
     }
 
     func close(_ view: ControllerBackedProtocol?) {

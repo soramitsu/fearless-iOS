@@ -48,6 +48,9 @@ protocol ChooseRecipientRouterProtocol: AnyObject {
     )
 
     func presentHistory(
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        moduleOutput: ContactsModuleOutput
     )
 }
