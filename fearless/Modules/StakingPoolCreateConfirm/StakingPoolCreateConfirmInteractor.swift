@@ -1,4 +1,5 @@
 import UIKit
+import RobinHood
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {
@@ -6,6 +7,7 @@ final class StakingPoolCreateConfirmInteractor {
 
     // MARK: - Private properties
 
+    private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private weak var output: StakingPoolCreateConfirmInteractorOutput?
     private let chainAsset: ChainAsset
     private let callFactory = SubstrateCallFactory()
@@ -14,8 +16,10 @@ final class StakingPoolCreateConfirmInteractor {
     private let createData: StakingPoolCreateData
     private let signingWrapper: SigningWrapperProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     init(
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -23,6 +27,7 @@ final class StakingPoolCreateConfirmInteractor {
         signingWrapper: SigningWrapperProtocol
     ) {
         chainAsset = createData.chainAsset
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -100,12 +105,24 @@ final class StakingPoolCreateConfirmInteractor {
                 },
                 signer: signingWrapper,
                 runningIn: .main
-            ) { [weak self] result in
-                self?.output?.didReceive(extrinsicResult: result)
+            ) { [weak self] _ in
+                self?.subscribeToPoolMembers()
             }
         case let .failure(error):
             output?.didReceive(extrinsicResult: .failure(error))
         }
+    }
+
+    private func subscribeToPoolMembers() {
+        let accountRequest = createData.chainAsset.chain.accountRequest()
+        guard let accountId = createData.root.fetch(for: accountRequest)?.accountId else {
+            return
+        }
+
+        poolMemberProvider = subscribeToPoolMembers(
+            for: accountId,
+            chainAsset: createData.chainAsset
+        )
     }
 }
 
@@ -162,5 +179,19 @@ extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler, Pri
 extension StakingPoolCreateConfirmInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
+    }
+}
+
+extension StakingPoolCreateConfirmInteractor:
+    RelaychainStakingLocalStorageSubscriber,
+    RelaychainStakingLocalSubscriptionHandler {
+    func handlePoolMember(
+        result: Result<StakingPoolMember?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        DispatchQueue.main.async { [weak self] in
+            self?.output?.didReceive(stakingPoolMembers: result)
+        }
     }
 }
