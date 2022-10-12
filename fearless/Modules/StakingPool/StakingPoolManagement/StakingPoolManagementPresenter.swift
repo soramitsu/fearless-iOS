@@ -289,7 +289,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 
     func didTapOptionsButton() {
         let validatorsOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.stakingValidatorNominators(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
             title: R.string.localizable.poolCommon(preferredLanguages: selectedLocale.rLanguages).capitalized
@@ -298,7 +298,9 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
         let viewModels = [validatorsOptionViewModel, poolInfoOptionViewModel]
 
         router.presentOptions(viewModels: viewModels, callback: { [weak self] selectedOption in
-            if selectedOption == viewModels.firstIndex(of: validatorsOptionViewModel) {}
+            if selectedOption == viewModels.firstIndex(of: validatorsOptionViewModel) {
+                self?.didTapSelectValidators()
+            }
 
             if selectedOption == viewModels.firstIndex(of: poolInfoOptionViewModel) {
                 self?.presentStakingPoolInfo()
