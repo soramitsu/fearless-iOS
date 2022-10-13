@@ -126,6 +126,20 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
         save(updatedWallet)
     }
+
+    func showChainAsset(_ chainAsset: ChainAsset) {
+        let accountRequest = chainAsset.chain.accountRequest()
+        guard let accountId = wallet.fetch(for: accountRequest)?.accountId else {
+            return
+        }
+        let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
+
+        if var disabledAssets = wallet.assetIdsDisabled {
+            disabledAssets = disabledAssets.filter { $0 != chainAssetKey }
+            let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
+            save(updatedWallet)
+        }
+    }
 }
 
 private extension ChainAssetListInteractor {

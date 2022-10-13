@@ -1,6 +1,6 @@
-struct ChainAssetListTableSection: Hashable {
-    let title: String?
-    let expandable: Bool
+enum ChainAssetListTableSection: Int {
+    case active
+    case hidden
 }
 
 struct ChainAssetListViewModel {
