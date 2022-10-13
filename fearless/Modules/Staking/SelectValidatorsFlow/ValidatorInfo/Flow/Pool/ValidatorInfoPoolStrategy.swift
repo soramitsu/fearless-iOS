@@ -51,20 +51,20 @@ final class ValidatorInfoPoolStrategy {
             let operation = validatorOperationFactory.wannabeValidatorsOperation(for: [accountId])
 
             operation.targetOperation.completionBlock = { [weak self] in
-                guard let self = self else {
+                guard let strongSelf = self else {
                     return
                 }
                 DispatchQueue.main.async {
                     do {
                         if let validatorInfo =
                             try operation.targetOperation.extractNoCancellableResultData().first {
-                            self.output?.didReceiveValidatorInfo(validatorInfo)
+                            strongSelf.output?.didReceiveValidatorInfo(validatorInfo)
                         } else {
                             let validatorInfo = SelectedValidatorInfo(address: accountAddress)
-                            self.output?.didReceiveValidatorInfo(validatorInfo)
+                            strongSelf.output?.didReceiveValidatorInfo(validatorInfo)
                         }
                     } catch {
-                        self.output?.didReceiveError(error)
+                        strongSelf.output?.didReceiveError(error)
                     }
                 }
             }

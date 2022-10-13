@@ -143,7 +143,7 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
         switch stakingPoolMembers {
         case .success:
             view?.didStopLoading()
-            
+
             let accountRequest = createData.chainAsset.chain.accountRequest()
             guard let payoutAccount = createData.root.fetch(for: accountRequest) else {
                 return

@@ -42,7 +42,6 @@ final class SelectValidatorsViewLayout: UIView {
 
     let recommendedValidatorsButton: TriangularedButton = {
         let view = UIFactory.default.createMainActionButton()
-        view.imageWithTitleView?.title = "Select suggested"
         return view
     }()
 
@@ -70,7 +69,6 @@ final class SelectValidatorsViewLayout: UIView {
 
     let customValidatorsCell: TriangularedButton = {
         let view = UIFactory.default.createMainActionButton()
-        view.imageWithTitleView?.title = "Select manual"
         return view
     }()
 
@@ -89,6 +87,12 @@ final class SelectValidatorsViewLayout: UIView {
         label.numberOfLines = 0
         return label
     }()
+
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -181,5 +185,16 @@ final class SelectValidatorsViewLayout: UIView {
         view.color = R.color.colorWhite()
         view.style = .white
         return view
+    }
+
+    private func applyLocalization() {
+        customValidatorsCell.imageWithTitleView?.title = R.string.localizable
+            .stakingPoolSelectValidatorsManual(
+                preferredLanguages: locale.rLanguages
+            )
+        recommendedValidatorsButton.imageWithTitleView?.title = R.string.localizable
+            .stakingPoolSelectValidatorsSuggested(
+                preferredLanguages: locale.rLanguages
+            )
     }
 }
