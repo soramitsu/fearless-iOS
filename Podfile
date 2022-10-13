@@ -18,7 +18,7 @@ abstract_target 'fearlessAll' do
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
-  pod 'Kingfisher',"6.3.1", :inhibit_warnings => true
+  pod 'Kingfisher', :inhibit_warnings => true
   pod 'SVGKit'
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
@@ -50,7 +50,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     target.build_configurations.each do |config|
       config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
     end
   end
 end

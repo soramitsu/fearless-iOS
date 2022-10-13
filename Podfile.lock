@@ -59,7 +59,7 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (6.3.1)
+  - Kingfisher (7.4.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -140,7 +140,7 @@ DEPENDENCIES:
   - FireMock
   - IrohaCrypto
   - keccak.c
-  - Kingfisher (= 6.3.1)
+  - Kingfisher
   - R.swift
   - ReachabilitySwift
   - RobinHood (~> 2.6.2)
@@ -211,7 +211,7 @@ SPEC CHECKSUMS:
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: 016c8b653a35add51dd34a3aba36b580041acc74
+  Kingfisher: 596b207973051aae5e4c54a1c1cb39837ea10d36
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -232,6 +232,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6ca6551614a993148ebb2364bf9d4772956f71c5
+PODFILE CHECKSUM: 1a5c5773ee12078b84a1b193bf12479f59cccb04
 
 COCOAPODS: 1.11.3
