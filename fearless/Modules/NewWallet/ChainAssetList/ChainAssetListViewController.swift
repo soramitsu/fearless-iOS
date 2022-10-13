@@ -6,7 +6,7 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
         case hidden
         case expanded
     }
-    
+
     enum Constants {
         static let sectionHeaderHeight: CGFloat = 80
     }
