@@ -1,4 +1,4 @@
-platform :ios, '11.0'
+platform :ios, '12.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -9,7 +9,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood'
+  pod 'RobinHood', '~> 2.6.2'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -18,11 +18,10 @@ abstract_target 'fearlessAll' do
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
-  pod 'Kingfisher', :inhibit_warnings => true
+  pod 'Kingfisher',"6.3.1", :inhibit_warnings => true
   pod 'SVGKit'
   pod 'keccak.c'
-  pod 'Charts'
-  pod 'DiffableDataSources'
+  pod 'Charts', '~> 4.1.0'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -34,7 +33,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore'
     pod 'IrohaCrypto'
-    pod 'RobinHood'
+    pod 'RobinHood', '~> 2.6.2'
     pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'

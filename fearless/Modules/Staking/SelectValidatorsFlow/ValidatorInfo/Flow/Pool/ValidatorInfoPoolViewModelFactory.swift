@@ -204,7 +204,7 @@ extension ValidatorInfoPoolViewModelFactory: ValidatorInfoViewModelFactoryProtoc
     func buildStakingAmountViewModels(viewModelState: ValidatorInfoViewModelState, priceData: PriceData?) -> [LocalizableResource<StakingAmountViewModel>]? {
         guard
             let relaychainViewModelState = viewModelState as? ValidatorInfoPoolViewModelState,
-                let validatorInfo = relaychainViewModelState.validatorInfo
+            let validatorInfo = relaychainViewModelState.validatorInfo
         else {
             return nil
         }
