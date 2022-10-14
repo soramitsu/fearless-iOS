@@ -32,7 +32,14 @@ extension String {
                 )
             }
         }
-
-        return false
+        guard componentIndex < comparableComponentsCount,
+              let currentComponent = Int(currentVersionComponents[componentIndex]),
+              let minimalComponent = Int(minimalVersionComponents[componentIndex]) else {
+            return false
+        }
+        return validateComponent(
+            currentVersion: currentComponent,
+            minimalVersion: minimalComponent
+        )
     }
 }
