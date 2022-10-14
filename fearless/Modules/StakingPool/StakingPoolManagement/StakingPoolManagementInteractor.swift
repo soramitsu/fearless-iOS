@@ -23,6 +23,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -227,21 +228,18 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
     }
 
-    func fetchActiveValidators(for stashAddress: AccountAddress) {
-        let wrapper = validatorOperationFactory.activeValidatorsOperation(for: stashAddress)
-
-        wrapper.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let validators = try wrapper.targetOperation.extractNoCancellableResultData()
-                    print(validators)
-                } catch {
-                    self?.output?.didReceiveValidators(result: .failure(error))
-                }
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            do {
+                let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                self?.output?.didReceive(nomination: nomination)
+            } catch {
+                self?.output?.didReceive(error: error)
             }
         }
 
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 

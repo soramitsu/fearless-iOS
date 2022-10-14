@@ -31,6 +31,7 @@ final class StakingPoolManagementPresenter {
     private var poolRewards: StakingPoolRewards?
     private var existentialDeposit: BigUInt?
     private var totalRewardsDecimal: Decimal?
+    private var nomination: Nomination?
 
     private var electedValidators: [ElectedValidatorInfo]?
 
@@ -179,33 +180,27 @@ final class StakingPoolManagementPresenter {
 
     private func fetchSelectedValidators() {
         guard
-            let stashAccount = fetchPoolAccount(for: .stash),
-            let electedValidators = electedValidators
+            let nomination = nomination
         else {
+            view?.didReceiveSelectValidator(visible: true)
+
             return
         }
-
-        let selectedValidators = electedValidators.map { validator in
-            validator.toSelected(for: try? stashAccount.toAddress(using: chainAsset.chain.chainFormat))
-        }.filter { $0.isActive }
 
         let userRoleCanSelectValidators =
             stakingPool?.info.roles.nominator == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
-        let shouldSelectValidators = selectedValidators.isEmpty && userRoleCanSelectValidators
+        let shouldSelectValidators = nomination.targets.isEmpty && userRoleCanSelectValidators
 
         view?.didReceiveSelectValidator(visible: shouldSelectValidators)
     }
 
-    private func fetchActiveValidators() {
-        guard
-            let stash = fetchPoolAccount(for: .stash),
-            let stashAddress = try? stash.toAddress(using: chainAsset.chain.chainFormat)
-        else {
+    private func providePoolNomination() {
+        guard let stashAccountId = fetchPoolAccount(for: .stash) else {
             return
         }
 
-        interactor.fetchActiveValidators(for: stashAddress)
+        interactor.fetchPoolNomination(poolStashAccountId: stashAccountId)
     }
 
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
@@ -296,16 +291,18 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 
     func didTapOptionsButton() {
         let validatorsOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.stakingValidatorNominators(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.poolCommon(preferredLanguages: selectedLocale.rLanguages).capitalized
+            title: R.string.localizable.stakingPoolInfoTitle(preferredLanguages: selectedLocale.rLanguages).capitalized
         )
 
         let viewModels = [validatorsOptionViewModel, poolInfoOptionViewModel]
 
         router.presentOptions(viewModels: viewModels, callback: { [weak self] selectedOption in
-            if selectedOption == viewModels.firstIndex(of: validatorsOptionViewModel) {}
+            if selectedOption == viewModels.firstIndex(of: validatorsOptionViewModel) {
+                self?.didTapSelectValidators()
+            }
 
             if selectedOption == viewModels.firstIndex(of: poolInfoOptionViewModel) {
                 self?.presentStakingPoolInfo()
@@ -338,6 +335,11 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 // MARK: - StakingPoolManagementInteractorOutput
 
 extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput {
+    func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
+        fetchSelectedValidators()
+    }
+
     func didReceive(poolAccountInfo: AccountInfo?) {
         self.poolAccountInfo = poolAccountInfo
         provideClaimableViewModel()
@@ -393,8 +395,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
     func didReceive(stakingPool: StakingPool?) {
         self.stakingPool = stakingPool
         fetchPoolBalance()
-        fetchSelectedValidators()
-        fetchActiveValidators()
+        providePoolNomination()
         view?.didReceive(poolName: stakingPool?.name)
     }
 
@@ -419,7 +420,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         case let .success(palletId):
             self.palletId = palletId
             fetchPoolBalance()
-            fetchActiveValidators()
+            providePoolNomination()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }
@@ -439,7 +440,6 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         switch result {
         case let .success(electedValidators):
             self.electedValidators = electedValidators
-            fetchSelectedValidators()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }

@@ -5,6 +5,7 @@ import BigInt
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsConfirmViewModelState {
     var balance: Decimal?
+
     var amount: Decimal? { 0.0 }
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let poolId: UInt32
@@ -65,12 +66,6 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
 
     func validators(using locale: Locale) -> [DataValidating] {
         [
-            dataValidatingFactory.canNominate(
-                amount: existingBonding.amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minNominatorBond,
-                locale: locale
-            ),
             dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,

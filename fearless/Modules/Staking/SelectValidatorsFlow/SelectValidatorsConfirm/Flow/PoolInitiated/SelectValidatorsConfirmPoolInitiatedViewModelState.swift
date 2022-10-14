@@ -56,12 +56,6 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
 
     func validators(using locale: Locale) -> [DataValidating] {
         [
-            dataValidatingFactory.canNominate(
-                amount: initiatedBonding.amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minNominatorBond,
-                locale: locale
-            ),
             dataValidatingFactory.maxNominatorsCountNotApplied(
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
@@ -126,6 +120,22 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
 }
 
 extension SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidatorsConfirmPoolInitiatedStrategyOutput {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                balance = 0.0
+            }
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
     func didSetup() {
         provideInitiatedBondingConfirmationModel()
     }
@@ -194,21 +204,5 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidatorsCo
 
     func didReceive(feeError: Error) {
         stateListener?.didReceiveError(error: feeError)
-    }
-
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
-                balance = Decimal.fromSubstrateAmount(
-                    availableValue,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } else {
-                balance = 0.0
-            }
-        case let .failure(error):
-            stateListener?.didReceiveError(error: error)
-        }
     }
 }
