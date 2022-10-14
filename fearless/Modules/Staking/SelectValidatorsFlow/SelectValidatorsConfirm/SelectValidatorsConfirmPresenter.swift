@@ -127,13 +127,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
         let commonValidators: [DataValidating] = [
             dataValidatingFactory.has(fee: viewModelState.fee, locale: locale) { [weak self] in
                 self?.feeParametersUpdated()
-            },
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: viewModelState.fee,
-                spendingAmount: viewModelState.amount,
-                locale: locale
-            )
+            }
         ]
 
         DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in

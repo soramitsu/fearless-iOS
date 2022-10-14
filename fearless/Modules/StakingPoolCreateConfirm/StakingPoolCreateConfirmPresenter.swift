@@ -126,8 +126,8 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
         case .success:
             let title = R.string.localizable
                 .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
-
             router.complete(on: view, title: title)
+            view?.didStartLoading()
         case let .failure(error):
             guard let view = view else {
                 return
@@ -136,6 +136,33 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
             if !router.present(error: error, from: view, locale: selectedLocale) {
                 router.presentExtrinsicFailed(from: view, locale: selectedLocale)
             }
+        }
+    }
+
+    func didReceive(stakingPoolMembers: Result<StakingPoolMember?, Error>) {
+        switch stakingPoolMembers {
+        case .success:
+            view?.didStopLoading()
+
+            let accountRequest = createData.chainAsset.chain.accountRequest()
+            guard let payoutAccount = createData.root.fetch(for: accountRequest) else {
+                return
+            }
+
+            let state = InitiatedBonding(
+                amount: createData.amount,
+                rewardDestination: .payout(account: payoutAccount)
+            )
+
+            router.proceedToSelectValidatorsStart(
+                from: view,
+                poolId: createData.poolId,
+                state: state,
+                chainAsset: createData.chainAsset,
+                wallet: createData.root
+            )
+        case let .failure(error):
+            router.present(error: error, from: view, locale: selectedLocale)
         }
     }
 }

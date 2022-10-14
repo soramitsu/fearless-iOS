@@ -90,7 +90,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -147,7 +149,11 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             )
 
             let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
-            return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         case let .relaychainInitiated(bonding):
             let operationFactory = RelaychainValidatorOperationFactory(
                 asset: chainAsset.asset,
@@ -174,7 +180,43 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             )
 
             let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
-            return SelectValidatorsStartDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(poolId, bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartPoolInitiatedViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                initialTargets: nil,
+                existingStashAddress: nil
+            )
+
+            let strategy = SelectValidatorsStartPoolStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartPoolViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         case let .parachain(bonding):
             let subqueryOperationFactory = SubqueryRewardOperationFactory(
                 url: chainAsset.chain.externalApi?.staking?.url
@@ -202,6 +244,38 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             )
 
             let viewModelFactory = SelectValidatorsStartParachainViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(poolId, bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartPoolExistingViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                initialTargets: bonding.selectedTargets,
+                existingStashAddress: bonding.stashAddress
+            )
+
+            let strategy = SelectValidatorsStartPoolStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartPoolViewModelFactory()
             return SelectValidatorsStartDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

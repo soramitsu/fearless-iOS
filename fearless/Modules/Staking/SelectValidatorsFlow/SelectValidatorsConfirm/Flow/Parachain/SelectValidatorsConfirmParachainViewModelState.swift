@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 
 final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConfirmViewModelState {
+    var balance: Decimal?
     let target: ParachainStakingCandidateInfo
     let maxTargets: Int
     let initiatedBonding: InitiatedBonding
@@ -47,20 +48,31 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
     }
 
     func validators(using locale: Locale) -> [DataValidating] {
-        let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
+        let minimumStake = Decimal.fromSubstrateAmount(
+            networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? 0
 
-        return [dataValidatingFactory.canNominate(
-            amount: initiatedBonding.amount,
-            minimalBalance: minimalBalance,
-            minNominatorBond: minimumStake,
-            locale: locale
-        ),
-        dataValidatingFactory.bondAtLeastMinStaking(
-            asset: chainAsset.asset,
-            amount: initiatedBonding.amount,
-            minNominatorBond: minimumStake,
-            locale: locale
-        )]
+        return [
+            dataValidatingFactory.canNominate(
+                amount: initiatedBonding.amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minimumStake,
+                locale: locale
+            ),
+            dataValidatingFactory.bondAtLeastMinStaking(
+                asset: chainAsset.asset,
+                amount: initiatedBonding.amount,
+                minNominatorBond: minimumStake,
+                locale: locale
+            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            )
+        ]
     }
 
     func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
@@ -168,5 +180,21 @@ extension SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConfir
         networkStakingInfo = info
 
         stateListener?.provideHints(viewModelState: self)
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                balance = 0.0
+            }
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
     }
 }

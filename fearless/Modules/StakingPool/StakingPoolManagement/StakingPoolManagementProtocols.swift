@@ -17,6 +17,7 @@ protocol StakingPoolManagementViewInput: ControllerBackedProtocol {
     func didReceive(claimableViewModel: BalanceViewModelProtocol?)
     func didReceive(redeemableViewModel: BalanceViewModelProtocol?)
     func didReceive(viewModel: StakingPoolManagementViewModel)
+    func didReceiveSelectValidator(visible: Bool)
 }
 
 protocol StakingPoolManagementViewOutput: AnyObject {
@@ -27,11 +28,13 @@ protocol StakingPoolManagementViewOutput: AnyObject {
     func didTapOptionsButton()
     func didTapClaimButton()
     func didTapRedeemButton()
+    func didTapSelectValidators()
 }
 
 protocol StakingPoolManagementInteractorInput: AnyObject {
     func setup(with output: StakingPoolManagementInteractorOutput)
     func fetchPoolBalance(poolAccountId: AccountId)
+    func fetchActiveValidators(for stashAddress: AccountAddress)
 }
 
 protocol StakingPoolManagementInteractorOutput: AnyObject {
@@ -51,6 +54,7 @@ protocol StakingPoolManagementInteractorOutput: AnyObject {
     func didReceive(poolAccountInfo: AccountInfo?)
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
     func didReceive(palletIdResult: Result<Data, Error>)
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
 }
 
 protocol StakingPoolManagementRouterInput: PresentDismissable {
@@ -93,6 +97,14 @@ protocol StakingPoolManagementRouterInput: PresentDismissable {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         from view: ControllerBackedProtocol?
+    )
+
+    func proceedToSelectValidatorsStart(
+        from view: ControllerBackedProtocol?,
+        poolId: UInt32,
+        state: InitiatedBonding,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

@@ -41,7 +41,15 @@ final class StakingPoolCreateConfirmAssembly {
             accountResponse: accountResponse
         )
 
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager,
+            logger: logger
+        )
+
         let interactor = StakingPoolCreateConfirmInteractor(
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,

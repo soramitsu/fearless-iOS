@@ -29,6 +29,11 @@ protocol SubstrateCallFactoryProtocol {
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 
+    func poolNominate(
+        poolId: UInt32,
+        targets: [SelectedValidatorInfo]
+    ) throws -> RuntimeCall<PoolNominateCall>
+
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
 
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall>
@@ -172,6 +177,19 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let args = NominateCall(targets: addresses)
 
         return RuntimeCall(moduleName: "Staking", callName: "nominate", args: args)
+    }
+
+    func poolNominate(
+        poolId: UInt32,
+        targets: [SelectedValidatorInfo]
+    ) throws -> RuntimeCall<PoolNominateCall> {
+        let addresses: [AccountId] = try targets.map { info in
+            try info.address.toAccountId()
+        }
+
+        let args = PoolNominateCall(pool_id: "\(poolId)", validators: addresses)
+
+        return RuntimeCall(moduleName: "NominationPools", callName: "nominate", args: args)
     }
 
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall> {

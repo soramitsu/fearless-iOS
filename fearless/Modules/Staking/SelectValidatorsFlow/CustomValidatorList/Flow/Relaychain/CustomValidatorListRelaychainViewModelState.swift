@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable: type_name
 final class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelState {
     var stateListener: CustomValidatorListModelStateListener?
 
@@ -43,7 +44,11 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
-        .relaychain(validatorList: fullValidatorList, selectedValidatorList: selectedValidatorList.items, delegate: self)
+        .relaychain(
+            validatorList: fullValidatorList,
+            selectedValidatorList: selectedValidatorList.items,
+            delegate: self
+        )
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
@@ -67,6 +72,20 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
         case let .relaychainExisting(_, _, _, maxTargets, bonding):
             return .relaychainExisting(
                 validatorList: selectedValidatorList.items,
+                maxTargets: maxTargets,
+                state: bonding
+            )
+        case let .poolExisting(_, _, _, poolId, maxTargets, bonding):
+            return .poolExisting(
+                validatorList: selectedValidatorList.items,
+                poolId: poolId,
+                maxTargets: maxTargets,
+                state: bonding
+            )
+        case let .poolInitiated(_, _, _, poolId, maxTargets, bonding):
+            return .poolInitiated(
+                validatorList: selectedValidatorList.items,
+                poolId: poolId,
                 maxTargets: maxTargets,
                 state: bonding
             )
