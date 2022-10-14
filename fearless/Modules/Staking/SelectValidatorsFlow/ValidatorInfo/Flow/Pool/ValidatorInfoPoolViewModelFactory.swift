@@ -94,7 +94,7 @@ final class ValidatorInfoPoolViewModelFactory {
             myNomination: myNomination,
             totalStake: totalStake,
             estimatedReward: estimatedReward,
-            oversubscribed: validatorInfo.stakeInfo?.oversubscribed ?? false
+            oversubscribed: validatorInfo.stakeInfo?.oversubscribed == true
         )
     }
 
@@ -166,7 +166,10 @@ final class ValidatorInfoPoolViewModelFactory {
 
 extension ValidatorInfoPoolViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
     func buildViewModel(viewModelState: ValidatorInfoViewModelState, priceData: PriceData?, locale: Locale) -> ValidatorInfoViewModel? {
-        guard let relaychainViewModelState = viewModelState as? ValidatorInfoRelaychainViewModelState, let validatorInfo = relaychainViewModelState.validatorInfo else {
+        guard
+            let relaychainViewModelState = viewModelState as? ValidatorInfoPoolViewModelState,
+            let validatorInfo = relaychainViewModelState.validatorInfo
+        else {
             return nil
         }
 
@@ -199,7 +202,10 @@ extension ValidatorInfoPoolViewModelFactory: ValidatorInfoViewModelFactoryProtoc
     }
 
     func buildStakingAmountViewModels(viewModelState: ValidatorInfoViewModelState, priceData: PriceData?) -> [LocalizableResource<StakingAmountViewModel>]? {
-        guard let relaychainViewModelState = viewModelState as? ValidatorInfoRelaychainViewModelState, let validatorInfo = relaychainViewModelState.validatorInfo else {
+        guard
+            let relaychainViewModelState = viewModelState as? ValidatorInfoPoolViewModelState,
+            let validatorInfo = relaychainViewModelState.validatorInfo
+        else {
             return nil
         }
 

@@ -123,5 +123,7 @@ extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol
 }
 
 extension SelectValidatorsStartViewController {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

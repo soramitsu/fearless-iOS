@@ -271,7 +271,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         case .poolInitiated:
             wireframe = SelectValidatorsConfirmWireframe()
         case .poolExisting:
-            wireframe = SelectValidatorsConfirmWireframe()
+            wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
         }
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(

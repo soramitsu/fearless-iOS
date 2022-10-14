@@ -340,7 +340,7 @@ final class StakingPoolInfoViewLayout: UIView {
         stakedView.valueTop.text = viewModel.stakedAmountViewModel?.amount
         stakedView.valueBottom.text = viewModel.stakedAmountViewModel?.price
         membersCountView.valueLabel.text = viewModel.membersCountTitle
-        validatorsView.valueLabel.attributedText = viewModel.validatorsCount
+        validatorsView.valueLabel.attributedText = viewModel.validatorsCountAttributedString
 
         roleDepositorView.valueLabel.text = viewModel.depositorName
         roleRootView.valueLabel.text = viewModel.rootName

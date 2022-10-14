@@ -39,7 +39,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             validator.toSelected(for: try? stashAccount.toAddress(using: chainAsset.chain.chainFormat))
         }.filter { $0.isActive }
 
-        let fullString = NSMutableAttributedString(string: "\(selectedValidators.count)" + "  ")
+        let validatorsCountAttributedString = NSMutableAttributedString(string: "\(selectedValidators.count)" + "  ")
 
         let imageAttachment = NSTextAttachment()
         imageAttachment.image = R.image.dropTriangle()
@@ -51,7 +51,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
         )
 
         let imageString = NSAttributedString(attachment: imageAttachment)
-        fullString.append(imageString)
+        validatorsCountAttributedString.append(imageString)
 
         return StakingPoolInfoViewModel(
             indexTitle: stakingPool.id,
@@ -59,7 +59,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             state: stakingPool.info.state.rawValue,
             stakedAmountViewModel: stakedAmountViewModel.value(for: locale),
             membersCountTitle: "\(stakingPool.info.memberCounter)",
-            validatorsCount: fullString,
+            validatorsCountAttributedString: validatorsCountAttributedString,
             depositorName: try? stakingPool.info.roles.depositor.toAddress(using: chainAsset.chain.chainFormat),
             rootName: try? stakingPool.info.roles.root?.toAddress(using: chainAsset.chain.chainFormat),
             nominatorName: try? stakingPool.info.roles.nominator?.toAddress(using: chainAsset.chain.chainFormat),
