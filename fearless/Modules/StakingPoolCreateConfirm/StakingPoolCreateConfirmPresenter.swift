@@ -141,7 +141,11 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
 
     func didReceive(stakingPoolMembers: Result<StakingPoolMember?, Error>) {
         switch stakingPoolMembers {
-        case .success:
+        case let .success(poolMember):
+            guard poolMember != nil else {
+                return
+            }
+
             view?.didStopLoading()
 
             let accountRequest = createData.chainAsset.chain.accountRequest()

@@ -24,11 +24,12 @@ protocol StakingPoolCreateViewOutput: AnyObject {
     func stateTogglerDidTapped()
     func createDidTapped()
     func backDidTapped()
+    func nameTextFieldInputValueChanged()
 }
 
 protocol StakingPoolCreateInteractorInput: AnyObject {
     func setup(with output: StakingPoolCreateInteractorOutput)
-    func estimateFee()
+    func estimateFee(amount: BigUInt?, poolName: String, poolId: UInt32?)
 }
 
 protocol StakingPoolCreateInteractorOutput: AnyObject {
