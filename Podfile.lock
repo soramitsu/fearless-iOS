@@ -150,7 +150,6 @@ DEPENDENCIES:
   - Kingfisher
   - R.swift
   - ReachabilitySwift
-  - RobinHood
   - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
@@ -244,6 +243,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 9b4299584aff930927b976dfb20c4fea280e29bb
+PODFILE CHECKSUM: 3034bcf3a5ae41135254a547bf2fdbb90577e1e4
 
 COCOAPODS: 1.11.3

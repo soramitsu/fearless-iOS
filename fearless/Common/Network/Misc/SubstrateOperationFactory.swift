@@ -18,7 +18,7 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
             url: url,
             reachabilityManager: nil,
             reconnectionStrategy: nil,
-            logger: logger
+            logger: nil
         )
 
         return JSONRPCListOperation(engine: engine, method: RPCMethod.chain)

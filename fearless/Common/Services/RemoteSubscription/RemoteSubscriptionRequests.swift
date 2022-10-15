@@ -40,7 +40,10 @@ struct MapSubscriptionRequest<T: Encodable>: SubscriptionRequestProtocol {
         using storageKeyFactory: StorageKeyFactoryProtocol,
         codingFactoryClosure: @escaping () throws -> RuntimeCoderFactoryProtocol
     ) -> CompoundOperationWrapper<Data> {
-        let encodingOperation = MapKeyEncodingOperation<T>(path: storagePath, storageKeyFactory: storageKeyFactory)
+        let encodingOperation = MapKeyEncodingOperation<T>(
+            path: storagePath,
+            storageKeyFactory: storageKeyFactory
+        )
         encodingOperation.configurationBlock = {
             do {
                 let keyParam = try keyParamClosure()
