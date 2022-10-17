@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class ChooseRecipientViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChooseRecipientViewLayout
@@ -7,7 +8,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
     let presenter: ChooseRecipientPresenterProtocol
 
     private var tableViewModel: ChooseRecipientTableViewModel?
-    private var isFirstLayoutCompleted: Bool = false
 
     private lazy var searchActivityIndicatory: UIActivityIndicatorView = .init(style: .white)
 
@@ -25,21 +25,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
         view = ChooseRecipientViewLayout()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setupKeyboardHandler()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        clearKeyboardHandler()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        isFirstLayoutCompleted = true
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -48,6 +33,9 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
         configure()
 
         navigationController?.setNavigationBarHidden(true, animated: false)
+
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
 
     func configure() {
@@ -86,6 +74,16 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
             return
         }
         presenter.didTapNextButton(with: address)
+    }
+
+    @objc private func keyboardWillShow(notification: NSNotification) {
+        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
+            rootView.keyboardAdoptableConstraint?.update(inset: keyboardSize.height + 16)
+        }
+    }
+
+    @objc private func keyboardWillHide(notification _: NSNotification) {
+        rootView.keyboardAdoptableConstraint?.update(inset: 16)
     }
 }
 
@@ -171,14 +169,14 @@ extension ChooseRecipientViewController: UITextFieldDelegate {
 
 extension ChooseRecipientViewController: HiddableBarWhenPushed {}
 
-extension ChooseRecipientViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.bottomContainer }
-
-    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
-
-    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
-        UIConstants.bigOffset
-    }
-
-    func updateWhileKeyboardFrameChanging(_: CGRect) {}
-}
+// extension ChooseRecipientViewController: KeyboardViewAdoptable {
+//    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+//
+//    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
+//
+//    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+//        UIConstants.bigOffset
+//    }
+//
+//    func updateWhileKeyboardFrameChanging(_: CGRect) {}
+// }

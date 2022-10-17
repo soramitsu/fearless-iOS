@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 final class CreateContactViewController: UIViewController, ViewHolder {
     typealias RootViewType = CreateContactViewLayout
@@ -160,7 +161,7 @@ extension CreateContactViewController: UITextFieldDelegate {
 extension CreateContactViewController: HiddableBarWhenPushed {}
 
 extension CreateContactViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.createButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

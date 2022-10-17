@@ -132,7 +132,7 @@ extension AddCustomNodeViewController: AnimatedTextFieldDelegate {
 }
 
 extension AddCustomNodeViewController: KeyboardViewAdoptable {
-    var target: UIView? { nil }
+    var target: Constraint? { nil }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

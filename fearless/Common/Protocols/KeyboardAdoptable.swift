@@ -26,7 +26,7 @@ extension KeyboardAdoptable {
 }
 
 protocol KeyboardViewAdoptable: KeyboardAdoptable {
-    var target: UIView? { get }
+    var target: Constraint? { get }
     var currentKeyboardFrame: CGRect? { get set }
     var shouldApplyKeyboardFrame: Bool { get }
 
@@ -107,12 +107,10 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         updateWhileKeyboardFrameChanging(keyboardFrame)
     }
 
-    private func apply(keyboardFrame: CGRect, to target: UIView) {
+    private func apply(keyboardFrame: CGRect, to target: Constraint) {
         let localKeyboardFrame = view.convert(keyboardFrame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
 
-        target.snp.updateConstraints { make in
-            make.bottom.equalToSuperview().inset(bottomInset + offsetFromKeyboardWithInset(bottomInset))
-        }
+        target.update(inset: bottomInset + offsetFromKeyboardWithInset(bottomInset))
     }
 }
