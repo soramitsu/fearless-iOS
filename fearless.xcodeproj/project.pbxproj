@@ -62,6 +62,20 @@
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
+		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
+		07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */; };
+		07D05E4B28EEFF3100B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4828EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift */; };
+		07D05E5028EF045300B66C70 /* RecommendedValidatorListPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4F28EF044E00B66C70 /* RecommendedValidatorListPoolViewModelState.swift */; };
+		07D05E5728EF083500B66C70 /* ValidatorInfoPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5528EF081700B66C70 /* ValidatorInfoPoolViewModelFactory.swift */; };
+		07D05E5828EF083500B66C70 /* ValidatorInfoPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5628EF081700B66C70 /* ValidatorInfoPoolViewModelState.swift */; };
+		07D05E5928EF083500B66C70 /* ValidatorInfoPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5428EF081600B66C70 /* ValidatorInfoPoolStrategy.swift */; };
+		07D05E5E28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5B28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift */; };
+		07D05E5F28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5C28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift */; };
+		07D05E6028EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E5D28EF09CA00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift */; };
+		07D05E6528EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E6328EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelState.swift */; };
+		07D05E6628EF0BE500B66C70 /* SelectValidatorsConfirmPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E6428EF0BCC00B66C70 /* SelectValidatorsConfirmPoolStrategy.swift */; };
+		07D05E6728EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E6228EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift */; };
+		07D05E6928EF0F2700B66C70 /* PoolNominateCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E6828EF0F2700B66C70 /* PoolNominateCall.swift */; };
 		07DE95B528A1119400E9C2CB /* BalanceInfoRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */; };
 		07DE95B628A1119400E9C2CB /* BalanceInfoAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */; };
 		07DE95B728A1119400E9C2CB /* BalanceInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07DE95AE28A1119400E9C2CB /* BalanceInfoProtocols.swift */; };
@@ -2541,6 +2555,20 @@
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
+		07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolStrategy.swift; sourceTree = "<group>"; };
+		07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelState.swift; sourceTree = "<group>"; };
+		07D05E4828EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		07D05E4F28EF044E00B66C70 /* RecommendedValidatorListPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelState.swift; sourceTree = "<group>"; };
+		07D05E5428EF081600B66C70 /* ValidatorInfoPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoPoolStrategy.swift; sourceTree = "<group>"; };
+		07D05E5528EF081700B66C70 /* ValidatorInfoPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		07D05E5628EF081700B66C70 /* ValidatorInfoPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoPoolViewModelState.swift; sourceTree = "<group>"; };
+		07D05E5B28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolInitiatedViewModelState.swift; sourceTree = "<group>"; };
+		07D05E5C28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolInitiatedStrategy.swift; sourceTree = "<group>"; };
+		07D05E5D28EF09CA00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift; sourceTree = "<group>"; };
+		07D05E6228EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		07D05E6328EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolViewModelState.swift; sourceTree = "<group>"; };
+		07D05E6428EF0BCC00B66C70 /* SelectValidatorsConfirmPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmPoolStrategy.swift; sourceTree = "<group>"; };
+		07D05E6828EF0F2700B66C70 /* PoolNominateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PoolNominateCall.swift; sourceTree = "<group>"; };
 		07DB9C087A812B3606897A78 /* NetworkInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoPresenter.swift; sourceTree = "<group>"; };
 		07DE95AC28A1119400E9C2CB /* BalanceInfoRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoRouter.swift; sourceTree = "<group>"; };
 		07DE95AD28A1119400E9C2CB /* BalanceInfoAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BalanceInfoAssembly.swift; sourceTree = "<group>"; };
@@ -5185,6 +5213,54 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		07D05E4228EEFBFE00B66C70 /* Pool */ = {
+			isa = PBXGroup;
+			children = (
+				07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */,
+				07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */,
+				07D05E4828EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift */,
+			);
+			path = Pool;
+			sourceTree = "<group>";
+		};
+		07D05E4C28EF043E00B66C70 /* Pool */ = {
+			isa = PBXGroup;
+			children = (
+				07D05E4F28EF044E00B66C70 /* RecommendedValidatorListPoolViewModelState.swift */,
+			);
+			path = Pool;
+			sourceTree = "<group>";
+		};
+		07D05E5328EF080C00B66C70 /* Pool */ = {
+			isa = PBXGroup;
+			children = (
+				07D05E5528EF081700B66C70 /* ValidatorInfoPoolViewModelFactory.swift */,
+				07D05E5628EF081700B66C70 /* ValidatorInfoPoolViewModelState.swift */,
+				07D05E5428EF081600B66C70 /* ValidatorInfoPoolStrategy.swift */,
+			);
+			path = Pool;
+			sourceTree = "<group>";
+		};
+		07D05E5A28EF09B600B66C70 /* PoolInitiated */ = {
+			isa = PBXGroup;
+			children = (
+				07D05E5D28EF09CA00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift */,
+				07D05E5B28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift */,
+				07D05E5C28EF09C900B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift */,
+			);
+			path = PoolInitiated;
+			sourceTree = "<group>";
+		};
+		07D05E6128EF0BB900B66C70 /* PoolExisting */ = {
+			isa = PBXGroup;
+			children = (
+				07D05E6228EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift */,
+				07D05E6328EF0BCC00B66C70 /* SelectValidatorsConfirmPoolViewModelState.swift */,
+				07D05E6428EF0BCC00B66C70 /* SelectValidatorsConfirmPoolStrategy.swift */,
+			);
+			path = PoolExisting;
+			sourceTree = "<group>";
+		};
 		07DE95AB28A1119400E9C2CB /* BalanceInfo */ = {
 			isa = PBXGroup;
 			children = (
@@ -6931,6 +7007,7 @@
 				FA2569B1274CE71700875A53 /* RemarkCall.swift */,
 				845BB8C825E45D1500E5FCDC /* BondCall.swift */,
 				845BB8D025E45F1300E5FCDC /* NominateCall.swift */,
+				07D05E6828EF0F2700B66C70 /* PoolNominateCall.swift */,
 				848C3D0826248A3B005481C3 /* TransferCall.swift */,
 				AE6DE7312627EA930018D5B5 /* PayoutCall.swift */,
 				F441BE0D263984DD0096B67B /* BondExtraCall.swift */,
@@ -10331,6 +10408,8 @@
 		D4AAF747CE541141CE470974 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
+				07D05E6128EF0BB900B66C70 /* PoolExisting */,
+				07D05E5A28EF09B600B66C70 /* PoolInitiated */,
 				FAA086CC28470B0D00CC2F33 /* Parachain */,
 				FA99C932283B76BB007B1F83 /* RelaychainExisting */,
 				FA99C92B283B4A9F007B1F83 /* RelaychainInitiated */,
@@ -10988,6 +11067,7 @@
 			isa = PBXGroup;
 			children = (
 				FA00488E282CC7710032FF49 /* SelectValidatorsStartFlow.swift */,
+				07D05E4228EEFBFE00B66C70 /* Pool */,
 				FA00488D282CC7170032FF49 /* Parachain */,
 				FA00488C282CC7120032FF49 /* Relaychain */,
 			);
@@ -11890,6 +11970,7 @@
 		FA93A2E22833AEFB0021330F /* Flow */ = {
 			isa = PBXGroup;
 			children = (
+				07D05E4C28EF043E00B66C70 /* Pool */,
 				FA93A2E62833B0D80021330F /* Relaychain */,
 				FA93A2E52833B0D40021330F /* Parachain */,
 				FA93A2E32833B0520021330F /* RecommendedValidatorListFlow.swift */,
@@ -11920,6 +12001,7 @@
 		FA93A2F32834AB690021330F /* Flow */ = {
 			isa = PBXGroup;
 			children = (
+				07D05E5328EF080C00B66C70 /* Pool */,
 				FA93A2F72834ABC40021330F /* Parachain */,
 				FA93A2F62834ABBE0021330F /* Relaychain */,
 				FA93A2F42834AB750021330F /* ValidatorInfoFlow.swift */,
@@ -13114,6 +13196,7 @@
 				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8493D0E126FF4F5000A28008 /* ScaleCoder+Extension.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
+				07D05E5728EF083500B66C70 /* ValidatorInfoPoolViewModelFactory.swift in Sources */,
 				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				84AA004526C6A04A00BCB4DC /* CommonTypesSyncService.swift in Sources */,
@@ -13184,6 +13267,7 @@
 				FA4B92AD2844D0E60003BCEF /* SelectCurrencyViewModelFactory.swift in Sources */,
 				FA86442327671C8C00956D8E /* WalletTransactionHistorySection.swift in Sources */,
 				FAA0133228DA12B6000A5230 /* StakingPoolMainRouter.swift in Sources */,
+				07D05E5F28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedStrategy.swift in Sources */,
 				F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */,
 				0716C84F28880304004C8CB1 /* UITableViewCell.swift in Sources */,
 				F4F2297C260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift in Sources */,
@@ -13199,6 +13283,7 @@
 				846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */,
 				842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */,
 				F4FDA0F826A57626003D753B /* EraCountdownOperationFactory.swift in Sources */,
+				07D05E6028EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelFactory.swift in Sources */,
 				845CB6EF26276104005F798B /* SubscanQueryService.swift in Sources */,
 				849ABE5126276C3400011A2A /* SubscanQueryParams.swift in Sources */,
 				C6267B7728BDE335001E31BF /* ChooseRecipientProtocols.swift in Sources */,
@@ -13493,6 +13578,7 @@
 				84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
+				07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */,
 				842348E92614F6EA002127AF /* SkeletonLoadable.swift in Sources */,
 				C6267B9128BDF6A5001E31BF /* ChainAssetListViewLayout.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
@@ -13511,6 +13597,7 @@
 				FA99425828053C8800D771E5 /* SelectExportAccountAssembly.swift in Sources */,
 				AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */,
 				07DFA4462897EE370035A8AB /* WalletsManagmentViewModelFactory.swift in Sources */,
+				07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */,
 				FAA0137E28DA12F0000A5230 /* StakingRedeemPoolViewModelFactory.swift in Sources */,
 				84CA68D926BE9E7F003B9453 /* SpecVersionSubscription.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
@@ -13761,6 +13848,7 @@
 				84038FEC26FFBA4D00C73F3F /* PriceLocalStorageSubscriber.swift in Sources */,
 				8473D4082657E9AD00B394B2 /* CrowdloanLastContribution.swift in Sources */,
 				FA15BC0D2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift in Sources */,
+				07D05E6528EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelState.swift in Sources */,
 				84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */,
 				845FC93426B09EDB0021EC48 /* RoundedButton+Style.swift in Sources */,
 				FA4B929F2844D0C80003BCEF /* SnapKit.swift in Sources */,
@@ -13984,6 +14072,7 @@
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
+				07D05E6628EF0BE500B66C70 /* SelectValidatorsConfirmPoolStrategy.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				FA169FA728B7A37400E8D2DC /* SubqueryRewardOperationFactory.swift in Sources */,
@@ -14593,6 +14682,7 @@
 				07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */,
 				C044E792971B542B79B9A88F /* NetworkInfoPresenter.swift in Sources */,
 				0D6C27413F73190438306EC1 /* NetworkInfoInteractor.swift in Sources */,
+				07D05E5828EF083500B66C70 /* ValidatorInfoPoolViewModelState.swift in Sources */,
 				07DFA468289B8D8E0035A8AB /* EducationStoriesRouter.swift in Sources */,
 				FA4B92972844D0100003BCEF /* UIImageView+Shimmered.swift in Sources */,
 				8448221C26B1850D007F4492 /* TitleIconViewModel.swift in Sources */,
@@ -14751,6 +14841,7 @@
 				843F657A265854A700829C14 /* CrowdloanDisplayInfo.swift in Sources */,
 				FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */,
 				FA2FC7CA28B3805400CC0A42 /* SetMetadataCall.swift in Sources */,
+				07D05E5928EF083500B66C70 /* ValidatorInfoPoolStrategy.swift in Sources */,
 				FA30D4F628BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift in Sources */,
 				6BAF97802DB9C640515F47C7 /* StakingMainInteractor.swift in Sources */,
 				8466BB42263F501000E065A8 /* StakingUnbondConfirmViewModel.swift in Sources */,
@@ -14890,6 +14981,7 @@
 				E7CAD629FF0D4E97594F7A05 /* YourValidatorListInteractor.swift in Sources */,
 				A32E1373E3671D518FFC3BC2 /* YourValidatorListViewController.swift in Sources */,
 				FAABC4772845DECC002CF40E /* ValidatorListFilterRelaychainViewModels.swift in Sources */,
+				07D05E5028EF045300B66C70 /* RecommendedValidatorListPoolViewModelState.swift in Sources */,
 				FA936BE42872E3250059B97A /* Collection.swift in Sources */,
 				37E1E9782B9752BC50AF2476 /* YourValidatorListViewFactory.swift in Sources */,
 				070B2C5E289CE49700F78F82 /* SelectableListViewLayout.swift in Sources */,
@@ -14924,6 +15016,7 @@
 				07DE95C828A169A600E9C2CB /* AssetListSearchPresenter.swift in Sources */,
 				FAA0136C28DA12E3000A5230 /* StakingRedeemConfirmationInteractor.swift in Sources */,
 				8401AEC52642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift in Sources */,
+				07D05E4B28EEFF3100B66C70 /* SelectValidatorsStartPoolViewModelFactory.swift in Sources */,
 				27FA1D57A06AA3A030D226B6 /* StakingUnbondConfirmWireframe.swift in Sources */,
 				843A2C7326A8641400266F53 /* MultiValueView.swift in Sources */,
 				3FF8EE1158A273D0D50BC7A6 /* StakingUnbondConfirmPresenter.swift in Sources */,
@@ -14998,6 +15091,7 @@
 				7401E7CAEEE6890BE74ACCE1 /* CustomValidatorListViewLayout.swift in Sources */,
 				FA402F3A27CCD1DB008CF986 /* SubstrateStorageMigrator.swift in Sources */,
 				D83B47B07C0D40A327AC44F7 /* CustomValidatorListViewFactory.swift in Sources */,
+				07D05E5E28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift in Sources */,
 				FA2569C0274CE74100875A53 /* EtheriumAddressForRewardView.swift in Sources */,
 				FA4B92AF2844D0E60003BCEF /* SelectCurrencyInteractor.swift in Sources */,
 				0E6C2939AFB3D125C760D5A0 /* CrowdloanContributionSetupProtocols.swift in Sources */,
@@ -15123,6 +15217,7 @@
 				D23DD717E3EA941FA78B59C9 /* WalletChainAccountDashboardViewFactory.swift in Sources */,
 				FAA0136A28DA12E3000A5230 /* StakingRedeemConfirmationWireframe.swift in Sources */,
 				FA2FC7FC28B3807C00CC0A42 /* StakingPoolJoinChoosePoolPresenter.swift in Sources */,
+				07D05E6928EF0F2700B66C70 /* PoolNominateCall.swift in Sources */,
 				3B1D59D21B409CADFCEF5EEA /* WalletScanQRProtocols.swift in Sources */,
 				22B4A2BC93406867653AB93C /* WalletScanQRWireframe.swift in Sources */,
 				E7D7BBACA85195FCF8D19A35 /* WalletScanQRPresenter.swift in Sources */,
@@ -15163,6 +15258,7 @@
 				9C8AAE31F22421A975A17DF4 /* AddCustomNodeWireframe.swift in Sources */,
 				FA169FA628B7A37400E8D2DC /* SubqueryDelegationAction.swift in Sources */,
 				07DFA456289B78E20035A8AB /* CopyableLabelView.swift in Sources */,
+				07D05E6728EF0BE500B66C70 /* SelectValidatorsConfirmPoolViewModelFactory.swift in Sources */,
 				AE552BD2B83A94626F109CA9 /* AddCustomNodePresenter.swift in Sources */,
 				4F12420C17B321F52D694E92 /* AddCustomNodeInteractor.swift in Sources */,
 				C3C7D60B36C778DA0A307BCC /* AddCustomNodeViewController.swift in Sources */,
@@ -15704,7 +15800,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.10;
+				MARKETING_VERSION = 2.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -15730,7 +15826,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.10;
+				MARKETING_VERSION = 2.1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -15866,7 +15962,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				MARKETING_VERSION = 2.0.10;
+				MARKETING_VERSION = 2.1.0;
 				OTHER_SWIFT_FLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";

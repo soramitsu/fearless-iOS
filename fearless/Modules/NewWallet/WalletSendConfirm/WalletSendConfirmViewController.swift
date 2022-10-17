@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class WalletSendConfirmViewController: UIViewController, ViewHolder {
+final class WalletSendConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = WalletSendConfirmViewLayout
 
     let presenter: WalletSendConfirmPresenterProtocol

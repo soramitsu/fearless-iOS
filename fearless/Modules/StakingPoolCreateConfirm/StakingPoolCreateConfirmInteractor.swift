@@ -1,4 +1,5 @@
 import UIKit
+import RobinHood
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {
@@ -6,6 +7,7 @@ final class StakingPoolCreateConfirmInteractor {
 
     // MARK: - Private properties
 
+    private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private weak var output: StakingPoolCreateConfirmInteractorOutput?
     private let chainAsset: ChainAsset
     private let callFactory = SubstrateCallFactory()
@@ -14,8 +16,10 @@ final class StakingPoolCreateConfirmInteractor {
     private let createData: StakingPoolCreateData
     private let signingWrapper: SigningWrapperProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
 
     init(
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
@@ -23,6 +27,7 @@ final class StakingPoolCreateConfirmInteractor {
         signingWrapper: SigningWrapperProtocol
     ) {
         chainAsset = createData.chainAsset
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -55,7 +60,7 @@ final class StakingPoolCreateConfirmInteractor {
         return createPool.callName
     }
 
-    private var creatPoolBuilderClosure: ExtrinsicBuilderClosure? {
+    private var feeBuilderClosure: ExtrinsicBuilderClosure? {
         let rootRequest = chainAsset.chain.accountRequest()
         let nominatorRequest = chainAsset.chain.accountRequest()
         let stateTogglerRequest = chainAsset.chain.accountRequest()
@@ -65,7 +70,8 @@ final class StakingPoolCreateConfirmInteractor {
             let substrateAmountValue = createData.amount.toSubstrateAmount(precision: precision),
             let rootAccount = createData.root.fetch(for: rootRequest)?.accountId,
             let nominationAccount = createData.nominator.fetch(for: nominatorRequest)?.accountId,
-            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId
+            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId,
+            let metadata = createData.poolName.data(using: .ascii)
         else {
             return nil
         }
@@ -77,35 +83,26 @@ final class StakingPoolCreateConfirmInteractor {
             stateToggler: .accoundId(stateTogglerAccount)
         )
 
+        let setMetadataCall = callFactory.setPoolMetadata(
+            poolId: "\(createData.poolId)",
+            metadata: metadata
+        )
+
         return { builder in
-            try builder.adding(call: createPool)
+            try builder.adding(call: createPool).adding(call: setMetadataCall)
         }
     }
 
-    private func setMetadata(result: SubmitExtrinsicResult) {
-        switch result {
-        case .success:
-            guard let metadata = createData.poolName.data(using: .ascii) else {
-                return
-            }
-
-            let setMetadataCall = callFactory.setPoolMetadata(
-                poolId: "\(createData.poolId)",
-                metadata: metadata
-            )
-
-            extrinsicService.submit(
-                { builder in
-                    try builder.adding(call: setMetadataCall)
-                },
-                signer: signingWrapper,
-                runningIn: .main
-            ) { [weak self] result in
-                self?.output?.didReceive(extrinsicResult: result)
-            }
-        case let .failure(error):
-            output?.didReceive(extrinsicResult: .failure(error))
+    private func subscribeToPoolMembers() {
+        let accountRequest = createData.chainAsset.chain.accountRequest()
+        guard let accountId = createData.root.fetch(for: accountRequest)?.accountId else {
+            return
         }
+
+        poolMemberProvider = subscribeToPoolMembers(
+            for: accountId,
+            chainAsset: createData.chainAsset
+        )
     }
 }
 
@@ -120,12 +117,14 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
+
+        subscribeToPoolMembers()
     }
 
     func estimateFee() {
         guard
             let reuseIdentifier = feeReuseIdentifier,
-            let builderClosure = creatPoolBuilderClosure
+            let builderClosure = feeBuilderClosure
         else {
             return
         }
@@ -138,7 +137,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
     }
 
     func submit() {
-        guard let builderClosure = creatPoolBuilderClosure else {
+        guard let builderClosure = feeBuilderClosure else {
             return
         }
 
@@ -148,7 +147,7 @@ extension StakingPoolCreateConfirmInteractor: StakingPoolCreateConfirmInteractor
             runningIn: .main
         ) { [weak self] result in
             guard let strongSelf = self else { return }
-            strongSelf.setMetadata(result: result)
+            strongSelf.output?.didReceive(extrinsicResult: result)
         }
     }
 }
@@ -162,5 +161,19 @@ extension StakingPoolCreateConfirmInteractor: PriceLocalSubscriptionHandler, Pri
 extension StakingPoolCreateConfirmInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
+    }
+}
+
+extension StakingPoolCreateConfirmInteractor:
+    RelaychainStakingLocalStorageSubscriber,
+    RelaychainStakingLocalSubscriptionHandler {
+    func handlePoolMember(
+        result: Result<StakingPoolMember?, Error>,
+        accountId _: AccountId,
+        chainId _: ChainModel.Id
+    ) {
+        DispatchQueue.main.async { [weak self] in
+            self?.output?.didReceive(stakingPoolMembers: result)
+        }
     }
 }

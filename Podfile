@@ -22,7 +22,6 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
-  pod 'DiffableDataSources'
 
   target 'fearlessTests' do
     inherit! :search_paths

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-protocol SelectValidatorsConfirmParachainStrategyOutput: AnyObject {
+protocol SelectValidatorsConfirmParachainStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didReceiveAtStake(snapshot: ParachainStakingCollatorSnapshot?)
     func didReceiveDelegatorState(state: ParachainStakingDelegatorState?)
     func didReceiveNetworkStakingInfo(info: NetworkStakingInfo)
@@ -15,6 +15,7 @@ protocol SelectValidatorsConfirmParachainStrategyOutput: AnyObject {
 }
 
 final class SelectValidatorsConfirmParachainStrategy {
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let collatorAccountId: AccountId
     private let balanceAccountId: AccountId
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -28,6 +29,7 @@ final class SelectValidatorsConfirmParachainStrategy {
     private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
+        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         collatorAccountId: AccountId,
         balanceAccountId: AccountId,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -40,6 +42,7 @@ final class SelectValidatorsConfirmParachainStrategy {
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol
     ) {
+        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.collatorAccountId = collatorAccountId
         self.balanceAccountId = balanceAccountId
         self.runtimeService = runtimeService
@@ -55,6 +58,14 @@ final class SelectValidatorsConfirmParachainStrategy {
 }
 
 extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrategy {
+    func subscribeToBalance() {
+        accountInfoSubscriptionAdapter.subscribe(
+            chainAsset: chainAsset,
+            accountId: balanceAccountId,
+            handler: self
+        )
+    }
+
     func setup() {
         fetchDelegatorState()
         provideNetworkStakingInfo()
@@ -176,5 +187,15 @@ extension SelectValidatorsConfirmParachainStrategy: SelectValidatorsConfirmStrat
                 self?.output?.didFailNomination(error: error)
             }
         }
+    }
+}
+
+extension SelectValidatorsConfirmParachainStrategy: AccountInfoSubscriptionAdapterHandler {
+    func handleAccountInfo(
+        result: Result<AccountInfo?, Error>,
+        accountId _: AccountId,
+        chainAsset _: ChainAsset
+    ) {
+        output?.didReceiveAccountInfo(result: result)
     }
 }

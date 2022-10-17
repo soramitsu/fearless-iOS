@@ -25,6 +25,22 @@ enum CustomValidatorListFlow {
         maxTargets: Int,
         bonding: ExistingBonding
     )
+    case poolExisting(
+        validatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
+        poolId: UInt32,
+        maxTargets: Int,
+        bonding: ExistingBonding
+    )
+    case poolInitiated(
+        validatorList: [SelectedValidatorInfo],
+        recommendedValidatorList: [SelectedValidatorInfo],
+        selectedValidatorList: SharedList<SelectedValidatorInfo>,
+        poolId: UInt32,
+        maxTargets: Int,
+        bonding: InitiatedBonding
+    )
 }
 
 protocol CustomValidatorListModelStateListener: AnyObject {

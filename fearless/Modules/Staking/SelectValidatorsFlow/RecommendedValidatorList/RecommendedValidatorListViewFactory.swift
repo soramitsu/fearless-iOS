@@ -32,6 +32,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
         return view
     }
 
+    // swiftlint:disable function_body_length
     static func createContainer(
         flow: RecommendedValidatorListFlow,
         chainAsset: ChainAsset
@@ -75,6 +76,38 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
             )
             let strategy = RecommendedValidatorListParachainStrategy()
             let viewModelFactory = RecommendedValidatorListParachainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            return RecommendedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(poolId, validators, maxTargets, bonding):
+            let viewModelState = RecommendedValidatorListPoolInitiatedViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                validators: validators,
+                maxTargets: maxTargets
+            )
+            let strategy = RecommendedValidatorListRelaychainStrategy()
+            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            return RecommendedValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(poolId, validators, maxTargets, bonding):
+            let viewModelState = RecommendedValidatorListPoolExistingViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                validators: validators,
+                maxTargets: maxTargets
+            )
+            let strategy = RecommendedValidatorListRelaychainStrategy()
+            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
             return RecommendedValidatorListDependencyContainer(

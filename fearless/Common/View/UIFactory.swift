@@ -115,6 +115,9 @@ final class UIFactory: UIFactoryProtocol {
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
         button.applyEnabledStyle()
         return button
     }

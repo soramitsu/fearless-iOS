@@ -33,6 +33,8 @@ enum SelectValidatorsStartFlow {
     case relaychainInitiated(state: InitiatedBonding)
     case relaychainExisting(state: ExistingBonding)
     case parachain(state: InitiatedBonding)
+    case poolInitiated(poolId: UInt32, state: InitiatedBonding)
+    case poolExisting(poolId: UInt32, state: ExistingBonding)
 
     var phase: SelectValidatorsStartViewController.Phase {
         switch self {
@@ -42,6 +44,10 @@ enum SelectValidatorsStartFlow {
             return state.selectedTargets == nil ? .setup : .update
         case .parachain:
             return .setup
+        case .poolInitiated:
+            return .setup
+        case let .poolExisting(_, state):
+            return state.selectedTargets == nil ? .setup : .update
         }
     }
 }

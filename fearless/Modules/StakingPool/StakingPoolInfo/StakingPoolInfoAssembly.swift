@@ -1,5 +1,7 @@
 import UIKit
 import SoraFoundation
+import FearlessUtils
+import SoraKeystore
 
 final class StakingPoolInfoAssembly {
     static func configureModule(
@@ -10,12 +12,98 @@ final class StakingPoolInfoAssembly {
         let localizationManager = LocalizationManager.shared
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let operationManager = OperationManagerFacade.sharedManager
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: wallet
+        )
+        stakingSettings.setup()
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let settings = stakingSettings.value
+        else {
+            return nil
+        }
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chainAsset.chain
+        ) else {
+            return nil
+        }
+        eraValidatorService.setup()
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        rewardService.setup()
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chainAsset.chain
+        ) else {
+            return nil
+        }
+        eraValidatorService.setup()
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
 
         let interactor = StakingPoolInfoInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            operationManager: operationManager,
+            runtimeService: runtimeService,
+            validatorOperationFactory: validatorOperationFactory
         )
         let router = StakingPoolInfoRouter()
 
@@ -35,6 +123,7 @@ final class StakingPoolInfoAssembly {
             stakingPool: stakingPool,
             chainAsset: chainAsset,
             logger: logger,
+            wallet: wallet,
             localizationManager: localizationManager
         )
 

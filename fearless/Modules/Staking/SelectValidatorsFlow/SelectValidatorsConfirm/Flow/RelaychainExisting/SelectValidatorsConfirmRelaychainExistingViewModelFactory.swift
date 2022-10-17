@@ -18,7 +18,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelFactory {
 
 extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
     func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState else {
             return nil
         }
 
