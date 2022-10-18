@@ -1,3 +1,5 @@
+import Foundation
+
 typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, input: ChainAssetListModuleInput)
 
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
@@ -20,6 +22,7 @@ protocol ChainAssetListInteractorInput: AnyObject {
     )
     func hideChainAsset(_ chainAsset: ChainAsset)
     func showChainAsset(_ chainAsset: ChainAsset)
+    func markUnused(chain: ChainModel)
 }
 
 protocol ChainAssetListInteractorOutput: AnyObject {
@@ -31,7 +34,13 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel()
 }
 
-protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable, SheetAlertPresentable {
+protocol ChainAssetListRouterInput:
+    AlertPresentable,
+    ErrorPresentable,
+    WarningPresentable,
+    AppUpdatePresentable,
+    SheetAlertPresentable,
+    PresentDismissable {
     func showChainAccount(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset
@@ -46,6 +55,13 @@ protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningP
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
+    )
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        options: [MissingAccountOption],
+        uniqueChainModel: UniqueChainModel,
+        skipBlock: @escaping (ChainModel) -> Void
     )
 }
 

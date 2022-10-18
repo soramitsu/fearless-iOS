@@ -78,7 +78,8 @@ final class ChainAssetListPresenter {
                     self.accountInfos
                 },
                 prices: self.prices,
-                chainsWithIssues: self.chainsWithNetworkIssues
+                chainsWithIssues: self.chainsWithNetworkIssues,
+                chainsWithMissingAccounts: self.chainsWithMissingAccounts
             )
 
             DispatchQueue.main.async {
@@ -87,6 +88,23 @@ final class ChainAssetListPresenter {
         }
 
         factoryOperationQueue.addOperation(operationBlock)
+    }
+
+    private func showMissingAccountOptions(chain: ChainModel) {
+        let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
+        let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+
+        router.presentAccountOptions(
+            from: view,
+            locale: selectedLocale,
+            options: options.compactMap { $0 },
+            uniqueChainModel: UniqueChainModel(
+                meta: wallet,
+                chain: chain
+            )
+        ) { [weak self] chain in
+            self?.interactor.markUnused(chain: chain)
+        }
     }
 }
 
@@ -139,18 +157,35 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
     }
 
     func didTapOnIssueButton(viewModel: ChainAccountBalanceCellViewModel) {
+        let title = viewModel.chainAsset.chain.name + " "
+            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+
+        var subtitle: String = ""
+        var closeActionTitle: String = ""
+        if viewModel.isNetworkIssues {
+            subtitle = R.string.localizable
+                .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
+            closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        } else if viewModel.isMissingAccount {
+            subtitle = R.string.localizable
+                .manageAssetsAccountMissingText(preferredLanguages: selectedLocale.rLanguages)
+            closeActionTitle = R.string.localizable
+                .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
+        }
+
         let closeAction = SheetAlertPresentableAction(
-            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            title: closeActionTitle,
             style: UIFactory.default.createMainActionButton(),
             handler: nil
         )
-        let title = viewModel.chainAsset.chain.name + " "
-            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
-        let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
+
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
             subtitle: subtitle,
-            actions: [closeAction]
+            actions: [closeAction],
+            dismissCompletion: { [weak self] in
+                self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+            }
         )
         router.present(viewModel: sheetViewModel, from: view)
     }
@@ -195,8 +230,13 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
 
-                guard chainAssets?.count == accountInfos.keys.count else {
-                    return
+                switch displayType {
+                case .chain:
+                    break
+                case .assetChains:
+                    guard chainAssets?.count == (accountInfos.keys.count + chainsWithMissingAccounts.count) else {
+                        return
+                    }
                 }
                 accountInfosFetched = true
                 provideViewModel()
@@ -239,7 +279,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 // MARK: - Localizable
 
 extension ChainAssetListPresenter: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        provideViewModel()
+    }
 }
 
 extension ChainAssetListPresenter: ChainAssetListModuleInput {

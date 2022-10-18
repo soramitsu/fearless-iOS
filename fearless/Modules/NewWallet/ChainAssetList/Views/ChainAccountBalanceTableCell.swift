@@ -83,8 +83,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     private var chainIconsView = ChainCollectionView()
     private var skeletonView: SkrullableView?
 
-    private lazy var hideButton = SwipeCellButton.createHideButton()
-    private lazy var showButton = SwipeCellButton.createShowButton()
+    private lazy var hideButton = SwipeCellButton.createHideButton(locale: locale)
+    private lazy var showButton = SwipeCellButton.createShowButton(locale: locale)
 
     let issueButton: UIButton = {
         let button = UIButton()
@@ -99,6 +99,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         )
         return button
     }()
+
+    private var locale: Locale?
 
     // MARK: - Lifecycle
 
@@ -151,8 +153,10 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
         setDeactivated(!viewModel.chainAsset.chain.isSupported)
         controlSkeleton(for: viewModel)
         bindChainIcons(viewModel: viewModel)
-        bindIssues(viewModel.isNetworkIssues)
+        bindIssues(viewModel.isNetworkIssues || viewModel.isMissingAccount)
         rightMenuButtons = viewModel.isHidden ? [showButton] : [hideButton]
+
+        locale = viewModel.locale
     }
 
     // MARK: - Private methods
@@ -196,8 +200,8 @@ final class ChainAccountBalanceTableCell: SwipableTableViewCell {
 
     private func createLeftButtons() -> [SwipeButtonProtocol] {
         [
-            SwipeCellButton.createSendButton(),
-            SwipeCellButton.createReceiveButton()
+            SwipeCellButton.createSendButton(locale: locale),
+            SwipeCellButton.createReceiveButton(locale: locale)
         ]
     }
 
@@ -394,62 +398,5 @@ extension ChainAccountBalanceTableCell {
                 size: LayoutConstants.balancePriceRowSize
             )
         ]
-    }
-}
-
-class SwipeCellButton: VerticalContentButton, SwipeButtonProtocol {
-    init(type: SwipableCellButtonType) {
-        self.type = type
-        super.init(frame: .zero)
-        tag = type.rawValue
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    var type: SwipableCellButtonType
-}
-
-extension VerticalContentButton {
-    static func createSendButton() -> SwipeCellButton {
-        let button = SwipeCellButton(type: .send)
-        button.setImage(R.image.iconSwipeSend(), for: .normal)
-        button.titleLabel?.font = .p2Paragraph
-        button.setTitle("Send", for: .normal)
-        return button
-    }
-
-    static func createReceiveButton() -> SwipeCellButton {
-        let button = SwipeCellButton(type: .receive)
-        button.setImage(R.image.iconSwipeReceive(), for: .normal)
-        button.titleLabel?.font = .p2Paragraph
-        button.setTitle("Receive", for: .normal)
-        return button
-    }
-
-    static func createTeleportButton() -> SwipeCellButton {
-        let button = SwipeCellButton(type: .teleport)
-        button.setImage(R.image.iconSwipeTeleport(), for: .normal)
-        button.titleLabel?.font = .p2Paragraph
-        button.setTitle("Teleport", for: .normal)
-        return button
-    }
-
-    static func createHideButton() -> SwipeCellButton {
-        let button = SwipeCellButton(type: .hide)
-        button.setImage(R.image.iconSwipeHide(), for: .normal)
-        button.titleLabel?.font = .p2Paragraph
-        button.setTitle("Hide", for: .normal)
-        return button
-    }
-
-    static func createShowButton() -> SwipeCellButton {
-        let button = SwipeCellButton(type: .show)
-        button.setImage(R.image.iconSwipeHide(), for: .normal)
-        button.titleLabel?.font = .p2Paragraph
-        button.setTitle("Show", for: .normal)
-        return button
     }
 }

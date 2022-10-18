@@ -42,6 +42,7 @@
 		0716C85028880304004C8CB1 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84E28880304004C8CB1 /* UIResponder.swift */; };
 		072EB84828E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */; };
 		072EB84A28E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */; };
+		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
 		0761DEB228E1F54D00B90D2C /* StakingPoolCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */; };
@@ -2527,6 +2528,7 @@
 		0716C84E28880304004C8CB1 /* UIResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
 		072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModel.swift; sourceTree = "<group>"; };
+		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
 		0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModel.swift; sourceTree = "<group>"; };
@@ -5174,6 +5176,15 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		07349F3028FE5ED400A802B9 /* Swipable */ = {
+			isa = PBXGroup;
+			children = (
+				0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */,
+				07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */,
+			);
+			path = Swipable;
+			sourceTree = "<group>";
+		};
 		0761DEB028E1F53800B90D2C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -6246,7 +6257,7 @@
 		84100F3426A602A700A5054E /* TableViewCell */ = {
 			isa = PBXGroup;
 			children = (
-				0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */,
+				07349F3028FE5ED400A802B9 /* Swipable */,
 				849842E526587573006BBB9F /* MultilineTableViewCell.swift */,
 				F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */,
 				84C91FA9261E724F002796B9 /* SwitchTableViewCell.swift */,
@@ -13486,6 +13497,7 @@
 				AEA0C8A6267B6B2600F9666F /* SelectedValidatorListWireframe.swift in Sources */,
 				84963D7026F92F18003FE8E4 /* WalletRemoteSubscriptionService.swift in Sources */,
 				8468B87624F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift in Sources */,
+				07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */,
 				84F6B6482619A87C0038F10D /* ExtrinsicIndexWrapper.swift in Sources */,
 				FA90865827915D2500F785A7 /* WalletTransactionDetailsViewModel.swift in Sources */,
 				AEA0C8C8268131DD00F9666F /* ChangeTargetsSelectedValidatorsListWireframe.swift in Sources */,
