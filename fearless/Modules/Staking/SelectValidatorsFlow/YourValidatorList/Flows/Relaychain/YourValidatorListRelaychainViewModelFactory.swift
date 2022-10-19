@@ -1,0 +1,120 @@
+import Foundation
+import FearlessUtils
+
+final class YourValidatorListRelaychainViewModelFactory {
+    let balanceViewModeFactory: BalanceViewModelFactoryProtocol
+    private var iconGenerator: IconGenerating
+
+    init(
+        balanceViewModeFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
+    ) {
+        self.balanceViewModeFactory = balanceViewModeFactory
+        self.iconGenerator = iconGenerator
+    }
+
+    private func createValidatorViewModel(
+        for model: SelectedValidatorInfo,
+        apyFormatter: NumberFormatter,
+        locale: Locale
+    ) throws -> YourValidatorViewModel {
+        let icon = try iconGenerator.generateFromAddress(model.address)
+
+        let amountTitle: String? = {
+            guard case let .active(allocation) = model.myNomination else {
+                return nil
+            }
+
+            return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
+        }()
+
+        let apy: String? = model.stakeInfo.map { info in
+            apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+        }
+
+        return YourValidatorViewModel(
+            address: model.address,
+            icon: icon,
+            name: model.identity?.displayName,
+            amount: amountTitle,
+            apy: apy,
+            shouldHaveWarning: model.oversubscribed,
+            shouldHaveError: model.hasSlashes
+        )
+    }
+
+    private func createSectionsFromOrder(
+        _ order: [YourValidatorListSectionStatus],
+        mapping: [YourValidatorListSectionStatus: [YourValidatorViewModel]]
+    ) -> [YourValidatorListSection] {
+        order.compactMap { status in
+            if let validators = mapping[status], !validators.isEmpty {
+                return YourValidatorListSection(status: status, validators: validators)
+            } else {
+                return nil
+            }
+        }
+    }
+}
+
+extension YourValidatorListRelaychainViewModelFactory: YourValidatorListViewModelFactoryProtocol {
+    func buildViewModel(viewModelState: YourValidatorListViewModelState, locale: Locale) -> YourValidatorListViewModel? {
+        guard let relaychainViewModelState = viewModelState as? YourValidatorListRelaychainViewModelState,
+              let model = relaychainViewModelState.validatorsModel else {
+            return nil
+        }
+
+        let apyFormatter = NumberFormatter.percent
+
+        let validatorsMapping = model.allValidators
+            .sorted(by: { $0.stakeReturn > $1.stakeReturn })
+            .reduce(
+                into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
+                let sectionStatus: YourValidatorListSectionStatus = {
+                    guard let modelStatus = item.myNomination else {
+                        return .pending
+                    }
+
+                    switch modelStatus {
+                    case .active:
+                        return .stakeAllocated
+                    case .elected:
+                        return .stakeNotAllocated
+                    case .unelected:
+                        return .unelected
+                    }
+                }()
+
+                guard let viewModel = try? createValidatorViewModel(
+                    for: item,
+                    apyFormatter: apyFormatter,
+                    locale: locale
+                ) else {
+                    return
+                }
+
+                result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
+            }
+
+        let sectionsOrder: [YourValidatorListSectionStatus] = [
+            .stakeAllocated, .pending, .stakeNotAllocated, .unelected
+        ]
+
+        let sections = createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
+        let activeAllocations: [ValidatorTokenAllocation] = model.allValidators.compactMap { validator in
+            if case let .active(allocation) = validator.myNomination {
+                return allocation
+            } else {
+                return nil
+            }
+        }
+
+        let allValidatorsWithoutReward = !activeAllocations.isEmpty &&
+            activeAllocations.allSatisfy { !$0.isRewarded }
+
+        return YourValidatorListViewModel(
+            allValidatorWithoutRewards: allValidatorsWithoutReward,
+            sections: sections
+        )
+    }
+}

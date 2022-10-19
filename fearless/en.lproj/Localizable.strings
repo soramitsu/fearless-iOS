@@ -869,3 +869,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "common.select" = "Select";
 "staking.pool.select.validators.manual" = "Select manual";
 "staking.pool.select.validators.suggested" = "Select suggested";
+"pool.staking.management.option.nominees" = "Nominees";

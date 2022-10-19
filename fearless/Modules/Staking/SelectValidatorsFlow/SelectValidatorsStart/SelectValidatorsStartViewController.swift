@@ -44,16 +44,18 @@ final class SelectValidatorsStartViewController: UIViewController, ViewHolder, I
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        presenter.setup()
+
         configure()
         updateLoadingState()
-
-        presenter.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
 
         presenter.updateOnAppearance()
+
+        applyLocalization()
     }
 
     private func configure() {
@@ -124,6 +126,8 @@ extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol
 
 extension SelectValidatorsStartViewController {
     func applyLocalization() {
-        rootView.locale = selectedLocale
+        if isViewLoaded {
+            rootView.locale = selectedLocale
+        }
     }
 }

@@ -74,6 +74,8 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         if let textsViewModel = viewModelFactory.buildTextsViewModel(locale: locale) {
             view?.didReceive(textsViewModel: textsViewModel)
         }
+
+        view?.didStartLoading()
     }
 
     func updateOnAppearance() {
@@ -120,6 +122,10 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartModelStateListene
     func modelStateDidChanged(viewModelState: SelectValidatorsStartViewModelState) {
         let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState)
         view?.didReceive(viewModel: viewModel)
+
+        if viewModel != nil {
+            view?.didStopLoading()
+        }
     }
 }
 

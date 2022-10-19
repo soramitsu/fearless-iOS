@@ -7,211 +7,124 @@ final class YourValidatorListPresenter {
     let interactor: YourValidatorListInteractorInputProtocol
 
     let viewModelFactory: YourValidatorListViewModelFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
     let logger: LoggerProtocol?
-
-    private var validatorsModel: YourValidatorsModel?
-    private var stashItem: StashItem?
-    private var ledger: StakingLedger?
-    private var controllerAccount: ChainAccountResponse?
-    private var rewardDestinationArg: RewardDestinationArg?
-    private var lastError: Error?
+    let viewModelState: YourValidatorListViewModelState
 
     init(
         interactor: YourValidatorListInteractorInputProtocol,
         wireframe: YourValidatorListWireframeProtocol,
         viewModelFactory: YourValidatorListViewModelFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        viewModelState: YourValidatorListViewModelState
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
+        self.viewModelState = viewModelState
 
         self.localizationManager = localizationManager
     }
 
     private func updateView() {
-//        guard lastError == nil else {
-//            let errorDescription = R.string.localizable
-//                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
-//            view?.reload(state: .error(errorDescription))
-//            return
-//        }
-
-        guard let model = validatorsModel else {
-            view?.reload(state: .loading)
-            return
-        }
-
-        do {
-            let viewModel = try viewModelFactory.createViewModel(for: model, locale: selectedLocale)
-            view?.reload(state: .validatorList(viewModel: viewModel))
-        } catch {
-            logger?.error("Did receive error: \(error)")
-
+        guard let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            locale: selectedLocale
+        ) else {
             let errorDescription = R.string.localizable.commonErrorGeneralTitle(
                 preferredLanguages: selectedLocale.rLanguages
             )
 
             view?.reload(state: .error(errorDescription))
+            return
         }
-    }
 
-    private func handle(error: Error) {
-        lastError = error
-        validatorsModel = nil
-
-        updateView()
-    }
-
-    private func handle(validatorsModel: YourValidatorsModel?) {
-        self.validatorsModel = validatorsModel
-        lastError = nil
-
-        updateView()
+        view?.reload(state: .validatorList(viewModel: viewModel))
     }
 }
 
 extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
     func setup() {
-        updateView()
         interactor.setup()
+
+        viewModelState.setStateListener(self)
     }
 
     func retry() {
-        validatorsModel = nil
-        lastError = nil
+        viewModelState.resetState()
 
         interactor.refresh()
     }
 
     func didSelectValidator(viewModel: YourValidatorViewModel) {
-        if let validatorInfo = validatorsModel?.allValidators
-            .first(where: { $0.address == viewModel.address }) {
-            wireframe.present(
-                flow: .relaychain(validatorInfo: validatorInfo, address: nil),
-                chainAsset: ChainAsset(chain: chain, asset: asset),
-                wallet: selectedAccount,
-                from: view
-            )
+        guard let validatorInfoFlow = viewModelState.validatorInfoFlow(address: viewModel.address) else {
+            return
         }
+
+        wireframe.present(
+            flow: validatorInfoFlow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
+        )
     }
 
     func changeValidators() {
-        guard let view = view else {
+        guard let flow = viewModelState.selectValidatorsStartFlow() else {
             return
         }
 
-        guard
-            let bondedAmount = ledger?.active,
-            let rewardDestination = rewardDestinationArg,
-            let stashItem = stashItem else {
-            return
-        }
-
-        guard let controllerAccount = controllerAccount else {
-            wireframe.presentMissingController(
-                from: view,
-                address: stashItem.controller,
-                locale: selectedLocale
-            )
-            return
-        }
-
-        if
-            let amount = Decimal.fromSubstrateAmount(
-                bondedAmount,
-                precision: Int16(asset.precision)
-            ),
-            let rewardDestination = try? RewardDestination(
-                payee: rewardDestination,
-                stashItem: stashItem,
-                chainFormat: chain.chainFormat
-            ) {
-            let selectedTargets = validatorsModel.map {
-                !$0.pendingValidators.isEmpty ? $0.pendingValidators : $0.currentValidators
-            }
-
-            let existingBonding = ExistingBonding(
-                stashAddress: stashItem.stash,
-                controllerAccount: controllerAccount,
-                amount: amount,
-                rewardDestination: rewardDestination,
-                selectedTargets: selectedTargets
-            )
-
-            wireframe.proceedToSelectValidatorsStart(
-                from: view,
-                asset: asset,
-                chain: chain,
-                selectedAccount: selectedAccount,
-                existingBonding: existingBonding
-            )
-        }
+        wireframe.proceedToSelectValidatorsStart(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet, flow: flow
+        )
     }
 }
 
-extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol {
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(item):
-            controllerAccount = item
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
-        switch result {
-        case let .success(item):
-            handle(validatorsModel: item)
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(item):
-            stashItem = item
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveLedger(result: Result<StakingLedger?, Error>) {
-        switch result {
-        case let .success(item):
-            ledger = item
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>) {
-        switch result {
-        case let .success(item):
-            rewardDestinationArg = item
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-}
+extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol {}
 
 extension YourValidatorListPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             updateView()
         }
+    }
+}
+
+extension YourValidatorListPresenter: YourValidatorListModelStateListener {
+    func didReceiveError(error: Error) {
+        logger?.error(error.localizedDescription)
+    }
+
+    func handleControllerAccountMissing(_ address: String) {
+        guard let view = view else {
+            return
+        }
+
+        wireframe.presentMissingController(
+            from: view,
+            address: address,
+            locale: selectedLocale
+        )
+    }
+
+    func modelStateDidChanged(viewModelState _: YourValidatorListViewModelState) {
+        updateView()
+    }
+
+    func didReceiveError(error: YourValidatorListFlowError) {
+        logger?.error(error.localizedDescription)
+    }
+
+    func didReceiveState(_ state: YourValidatorListViewState) {
+        view?.reload(state: state)
     }
 }
