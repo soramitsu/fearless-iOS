@@ -6,7 +6,7 @@ final class CheckPincodeViewFactory {
         moduleOutput: CheckPincodeModuleOutput
     ) -> PinSetupViewProtocol {
         let interactor = LocalAuthInteractor(
-            secretManager: KeychainManager.shared,
+            secretManager: FWKeychainManager.shared,
             settingsManager: SettingsManager.shared,
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
