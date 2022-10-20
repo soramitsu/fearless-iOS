@@ -39,12 +39,7 @@ final class RuntimeHotBootSnapshotFactory {
             let chainTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             guard let chainTypes = chainTypes else {
                 return nil
@@ -82,12 +77,7 @@ final class RuntimeHotBootSnapshotFactory {
             guard let strongSelf = self else { return nil }
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 strongSelf.commonTypes,
@@ -119,12 +109,7 @@ final class RuntimeHotBootSnapshotFactory {
             let ownTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             guard let ownTypes = ownTypes else {
                 return nil

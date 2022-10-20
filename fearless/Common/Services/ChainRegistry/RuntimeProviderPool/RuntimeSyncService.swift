@@ -304,8 +304,7 @@ final class RuntimeSyncService {
                 chain: chainId,
                 version: runtimeVersion.specVersion,
                 txVersion: runtimeVersion.transactionVersion,
-                metadata: rawMetadata,
-                resolver: nil
+                metadata: rawMetadata
             )
 
             return metadataItem

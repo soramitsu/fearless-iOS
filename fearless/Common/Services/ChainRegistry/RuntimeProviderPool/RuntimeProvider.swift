@@ -135,7 +135,6 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
-                updateMetadata(snapshot)
 
                 logger?.debug("Did complete snapshot for: \(chainId)")
                 logger?.debug("Will notify waiters: \(pendingRequests.count)")
@@ -155,40 +154,6 @@ final class RuntimeProvider {
         case .none:
             break
         }
-    }
-
-    private func updateMetadata(_ snapshot: RuntimeSnapshot) {
-        let localMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
-        let updateOperation = repository.saveOperation {
-            guard
-                let currentRuntimeItem = try localMetadataOperation.extractNoCancellableResultData(),
-                currentRuntimeItem.resolver != snapshot.metadata.resolver
-            else {
-                return []
-            }
-            var updateItem: [RuntimeMetadataItem] = []
-
-            let metadataItem = RuntimeMetadataItem(
-                chain: currentRuntimeItem.chain,
-                version: currentRuntimeItem.version,
-                txVersion: currentRuntimeItem.txVersion,
-                metadata: currentRuntimeItem.metadata,
-                resolver: snapshot.metadata.resolver
-            )
-
-            updateItem = [metadataItem]
-
-            return updateItem
-        } _: {
-            []
-        }
-
-        updateOperation.addDependency(localMetadataOperation)
-        operationQueue.addOperations([localMetadataOperation, updateOperation], waitUntilFinished: false)
     }
 
     private func resolveRequests() {
