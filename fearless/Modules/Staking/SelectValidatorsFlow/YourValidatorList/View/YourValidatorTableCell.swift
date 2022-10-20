@@ -2,16 +2,15 @@ import Foundation
 import FearlessUtils
 
 class YourValidatorTableCell: UITableViewCell {
-    let iconView: PolkadotIconView = {
-        let view = PolkadotIconView()
-        view.backgroundColor = .clear
-        view.fillColor = R.color.colorWhite()!
+    let iconView: UIImageView = {
+        let view = UIImageView()
+        view.image = R.image.iconListSelectionOn()
         return view
     }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = .h6Title
         label.textColor = R.color.colorWhite()!
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         label.setContentCompressionResistancePriority(.defaultLow, for: .vertical)
@@ -45,7 +44,7 @@ class YourValidatorTableCell: UITableViewCell {
 
     let infoImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = R.image.iconInfo()
+        imageView.image = R.image.iconInfoGrayFilled()
         return imageView
     }()
 
@@ -66,15 +65,17 @@ class YourValidatorTableCell: UITableViewCell {
             bottom: 8,
             right: UIConstants.horizontalInset
         )
-        stackView.isLayoutMarginsRelativeArrangement = true
         stackView.axis = .horizontal
         stackView.alignment = .center
+        stackView.distribution = .fill
+        stackView.spacing = 12
         return stackView
     }()
 
     let labelsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
+        stackView.spacing = 4
         return stackView
     }()
 
@@ -89,7 +90,7 @@ class YourValidatorTableCell: UITableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        backgroundColor = .clear
+        backgroundColor = R.color.colorBlack19()
         separatorInset = .init(
             top: 0,
             left: UIConstants.horizontalInset,
@@ -111,64 +112,69 @@ class YourValidatorTableCell: UITableViewCell {
     func setupLayout() {
         contentView.addSubview(mainStackView)
         mainStackView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview()
-            make.leading.equalToSuperview()
-            make.top.equalToSuperview()
-            make.bottom.equalToSuperview()
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.top.equalToSuperview().offset(12)
+            make.bottom.equalToSuperview().inset(12)
         }
 
         mainStackView.addArrangedSubview(iconView)
         iconView.snp.makeConstraints { make in
-            make.width.height.equalTo(24)
+            make.width.height.equalTo(20)
         }
 
         mainStackView.addArrangedSubview(labelsStackView)
 
         labelsStackView.addArrangedSubview(titleLabel)
         labelsStackView.addArrangedSubview(detailsLabel)
+        labelsStackView.addArrangedSubview(apyLabel)
 
         mainStackView.addArrangedSubview(iconsStackView)
 
         iconsStackView.addArrangedSubview(warningImageView)
         iconsStackView.addArrangedSubview(errorImageView)
-        iconsStackView.addArrangedSubview(apyLabel)
 
         mainStackView.addArrangedSubview(infoImageView)
         infoImageView.snp.makeConstraints { make in
-            make.size.equalTo(24)
+            make.size.equalTo(14)
         }
 
         mainStackView.setCustomSpacing(12, after: iconView)
         mainStackView.setCustomSpacing(8.0, after: labelsStackView)
         mainStackView.setCustomSpacing(13.0, after: iconsStackView)
+
+        labelsStackView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        iconsStackView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        labelsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
+        titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        detailsLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
     }
 
-    func bind(viewModel: YourValidatorViewModel, for locale: Locale) {
+    func bind(viewModel: YourValidatorViewModel, for _: Locale) {
         if let name = viewModel.name {
             titleLabel.lineBreakMode = .byTruncatingTail
-            titleLabel.text = name
+            titleLabel.text = name.uppercased()
         } else {
             titleLabel.text = viewModel.address
             titleLabel.lineBreakMode = .byTruncatingMiddle
         }
 
-        if let amount = viewModel.amount {
-            detailsLabel.text = R.string.localizable.stakingYourNominatedFormat(
-                amount,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            detailsLabel.text = nil
-        }
-
-        iconView.bind(icon: viewModel.icon)
+        detailsLabel.text = viewModel.staked
+//        if let amount = viewModel.amount {
+//            detailsLabel.text = R.string.localizable.stakingYourNominatedFormat(
+//                amount,
+//                preferredLanguages: locale.rLanguages
+//            ).uppercased()
+//        } else {
+//            detailsLabel.text = nil
+//        }
 
         warningImageView.isHidden = !viewModel.shouldHaveWarning
         errorImageView.isHidden = !viewModel.shouldHaveError
 
         if let apy = viewModel.apy {
             apyLabel.isHidden = false
-            apyLabel.text = apy
+            apyLabel.attributedText = apy
         } else {
             apyLabel.isHidden = true
             apyLabel.text = nil

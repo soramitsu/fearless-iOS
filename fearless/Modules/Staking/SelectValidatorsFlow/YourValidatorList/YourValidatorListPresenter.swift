@@ -34,6 +34,8 @@ final class YourValidatorListPresenter {
     }
 
     private func updateView() {
+        view?.didStopLoading()
+
         guard let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
             locale: selectedLocale
@@ -55,6 +57,8 @@ extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
         interactor.setup()
 
         viewModelState.setStateListener(self)
+
+        view?.didStartLoading()
     }
 
     func retry() {

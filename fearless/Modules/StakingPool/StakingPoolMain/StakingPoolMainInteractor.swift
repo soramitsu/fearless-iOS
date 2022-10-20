@@ -162,12 +162,19 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         }
 
         stakingAccountUpdatingService.clearSubscription()
+        clear(dataProvider: &poolMemberProvider)
 
         wallet = newSelectedWallet
 
         if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
-            try? stakingAccountUpdatingService.setupSubscription(for: accountId, chainAsset: chainAsset, chainFormat: chainAsset.chain.chainFormat, stakingType: .relayChain)
+            try? stakingAccountUpdatingService.setupSubscription(
+                for: accountId,
+                chainAsset: chainAsset,
+                chainFormat: chainAsset.chain.chainFormat,
+                stakingType: .relayChain
+            )
+            poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
         }
 
         output?.didReceive(wallet: newSelectedWallet)

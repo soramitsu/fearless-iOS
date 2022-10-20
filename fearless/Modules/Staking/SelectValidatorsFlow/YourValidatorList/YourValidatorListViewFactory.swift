@@ -171,8 +171,7 @@ struct YourValidatorListViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = YourValidatorListRelaychainViewModelFactory(
-                balanceViewModeFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                balanceViewModeFactory: balanceViewModelFactory
             )
 
             return YourValidatorListDependencyContainer(
@@ -209,8 +208,7 @@ struct YourValidatorListViewFactory {
                 output: viewModelState
             )
             let viewModelFactory = YourValidatorListPoolViewModelFactory(
-                balanceViewModeFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                balanceViewModeFactory: balanceViewModelFactory
             )
             return YourValidatorListDependencyContainer(
                 viewModelState: viewModelState,

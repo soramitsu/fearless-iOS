@@ -91,8 +91,6 @@ final class YourValidatorListRelaychainViewModelState: YourValidatorListViewMode
     private func handle(error: Error) {
         lastError = error
         validatorsModel = nil
-
-        updateView()
     }
 
     private func handle(validatorsModel: YourValidatorsModel?) {
