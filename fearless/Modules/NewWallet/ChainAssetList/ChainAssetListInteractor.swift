@@ -215,6 +215,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
 
         wallet = event.account
     }
+
+    func processRuntimeBuilded(count: RuntimesBuildedCount) {
+        output?.snapshotWasBuilded(count: count.count)
+    }
 }
 
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {

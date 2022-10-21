@@ -3,6 +3,7 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
     func showEmptyState()
+    func runtimesBuilded(count: Int)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
@@ -29,6 +30,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsWithIssues(_ issues: [ChainIssue])
     func updateViewModel()
+    func snapshotWasBuilded(count: Int)
 }
 
 protocol ChainAssetListRouterInput: AlertPresentable, ErrorPresentable, WarningPresentable, AppUpdatePresentable, SheetAlertPresentable {

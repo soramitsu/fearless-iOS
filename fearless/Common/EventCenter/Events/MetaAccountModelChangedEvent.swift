@@ -7,3 +7,11 @@ struct MetaAccountModelChangedEvent: EventProtocol {
         visitor.processMetaAccountChanged(event: self)
     }
 }
+
+struct RuntimesBuildedCount: EventProtocol {
+    let count: Int
+
+    func accept(visitor: EventVisitorProtocol) {
+        visitor.processRuntimeBuilded(count: self)
+    }
+}

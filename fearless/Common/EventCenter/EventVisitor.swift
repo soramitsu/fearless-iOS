@@ -29,6 +29,8 @@ protocol EventVisitorProtocol: AnyObject {
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
+
+    func processRuntimeBuilded(count: RuntimesBuildedCount)
 }
 
 extension EventVisitorProtocol {
@@ -60,4 +62,6 @@ extension EventVisitorProtocol {
 
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
+
+    func processRuntimeBuilded(count _: RuntimesBuildedCount) {}
 }

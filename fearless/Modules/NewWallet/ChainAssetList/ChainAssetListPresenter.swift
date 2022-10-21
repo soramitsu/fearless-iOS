@@ -159,6 +159,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
 // MARK: - ChainAssetListInteractorOutput
 
 extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
+    func snapshotWasBuilded(count: Int) {
+        view?.runtimesBuilded(count: count)
+    }
+
     func updateViewModel() {
         guard let chainAssets = chainAssets, chainAssets.isNotEmpty else {
             DispatchQueue.main.async { [weak self] in

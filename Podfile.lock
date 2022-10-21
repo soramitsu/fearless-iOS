@@ -136,7 +136,7 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `b9ca9c8a978ea491d86b942c1de2d6a983829187`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `19268759a2419e730b7179000cdf8b53f2e2423c`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -187,7 +187,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: b9ca9c8a978ea491d86b942c1de2d6a983829187
+    :commit: 19268759a2419e730b7179000cdf8b53f2e2423c
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -195,7 +195,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: b9ca9c8a978ea491d86b942c1de2d6a983829187
+    :commit: 19268759a2419e730b7179000cdf8b53f2e2423c
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: d8b6c8aea8f417342931cf9414f09aa063d5f760
@@ -232,6 +232,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: de6860dbaa1ba61201bc1edf5ca4294dd3e758e3
+PODFILE CHECKSUM: 37a7583023d0d637dcc8a4dedffb2547635b507f
 
 COCOAPODS: 1.11.3

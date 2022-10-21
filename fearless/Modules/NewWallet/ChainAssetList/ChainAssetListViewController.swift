@@ -93,6 +93,10 @@ private extension ChainAssetListViewController {
 // MARK: - ChainAssetListViewInput
 
 extension ChainAssetListViewController: ChainAssetListViewInput {
+    func runtimesBuilded(count: Int) {
+        rootView.bindRuntimeLabel(count: count)
+    }
+
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
         rootView.apply(state: .normal)

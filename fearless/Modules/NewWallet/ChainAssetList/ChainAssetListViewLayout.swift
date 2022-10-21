@@ -7,6 +7,13 @@ final class ChainAssetListViewLayout: UIView {
         case empty
     }
 
+    let runtimesCountLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textAlignment = .center
+        return label
+    }()
+
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = .clear
@@ -36,6 +43,11 @@ final class ChainAssetListViewLayout: UIView {
         emptyView.bind(viewModel: emptyViewModel)
     }
 
+    func bindRuntimeLabel(count: Int) {
+        let text = "\(count) / 200"
+        runtimesCountLabel.text = text
+    }
+
     func apply(state: ViewState) {
         switch state {
         case .normal:
@@ -50,13 +62,20 @@ final class ChainAssetListViewLayout: UIView {
     private func setupLayout() {
         addSubview(emptyView)
         addSubview(tableView)
+        addSubview(runtimesCountLabel)
 
         emptyView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
 
+        runtimesCountLabel.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            make.height.equalTo(30)
+        }
+
         tableView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.top.equalTo(runtimesCountLabel.snp.bottom)
+            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 }

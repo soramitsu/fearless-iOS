@@ -36,6 +36,8 @@ final class ChainRegistry {
 
     private var chains: [ChainModel] = []
 
+    private var runtimesBuildedCount = 0
+
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private let mutex = NSLock()
@@ -66,6 +68,7 @@ final class ChainRegistry {
         self.eventCenter = eventCenter
 
         connectionPool.setDelegate(self)
+        eventCenter.add(observer: self)
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -292,5 +295,14 @@ extension ChainRegistry: ConnectionPoolDelegate {
                 eventCenter.notify(with: event)
             }
         }
+    }
+}
+
+extension ChainRegistry: EventVisitorProtocol {
+    func processRuntimeCoderReady(event: RuntimeCoderCreated) {
+        runtimesBuildedCount += 1
+
+        let event = RuntimesBuildedCount(count: runtimesBuildedCount)
+        eventCenter.notify(with: event)
     }
 }
