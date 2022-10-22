@@ -1,5 +1,6 @@
 import Foundation
 import FearlessUtils
+import SoraFoundation
 
 struct SelectedValidatorViewModel {
     let name: String?
@@ -15,4 +16,6 @@ struct SelectValidatorsConfirmViewModel {
     let validatorsCount: Int?
     let maxValidatorCount: Int?
     let selectedCollatorViewModel: SelectedValidatorViewModel?
+    let stakeAmountViewModel: LocalizableResource<StakeAmountViewModel>?
+    let poolName: String?
 }

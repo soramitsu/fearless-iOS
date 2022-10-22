@@ -1,6 +1,11 @@
 import UIKit
 
 final class SelectValidatorsConfirmViewLayout: UIView {
+    enum LayoutConstants {
+        static let topOffset: CGFloat = 24
+        static let strokeWidth: CGFloat = 0.5
+    }
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
@@ -8,28 +13,101 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         return view
     }()
 
-    var stackView: UIStackView { contentView.stackView }
+    let infoBackground: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = LayoutConstants.strokeWidth
+        view.shadowOpacity = 0.0
 
-    let mainAccountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
-
-    let amountView: AmountInputViewV2 = {
-        let view = AmountInputViewV2()
-        view.isUserInteractionEnabled = false
         return view
     }()
 
-    let rewardDestinationView: TitleValueView = {
-        let view = UIFactory.default.createTitleValueView()
-        view.borderView.borderType = .none
+    let stakeAmountView = StakeAmountView()
+
+    let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+
+    let poolView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
         return view
     }()
 
-    private(set) var payoutAccountView: DetailsTriangularedView?
+    let mainAccountView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
+    }()
+
+    let rewardDestinationView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
+    }()
+
+    var payoutAccountView: TitleMultiValueView?
+
+    let amountView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
 
     let validatorsView: TitleValueView = {
-        let view = UIFactory.default.createTitleValueView()
-        view.borderView.strokeWidth = UIConstants.separatorHeight
-        view.borderView.borderType = [.top, .bottom]
+        let view = TitleValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h5Title
+        view.valueLabel.textColor = .white
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
+    let feeView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
         return view
     }()
 
@@ -41,16 +119,27 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         return label
     }()
 
-    let selectedCollatorView = UIFactory.default.createAccountView(for: .options, filled: false)
-
-    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
+    let selectedCollatorView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
 
     private(set) var hintViews: [UIView] = []
+
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()
+        backgroundColor = R.color.colorBlack19()
         setupLayout()
     }
 
@@ -64,15 +153,15 @@ final class SelectValidatorsConfirmViewLayout: UIView {
             return
         }
 
-        let view = UIFactory.default.createAccountView()
+        let view = createPayoutAccountView()
 
-        stackView.insertArranged(view: view, after: rewardDestinationView)
+        infoStackView.insertArranged(view: view, after: rewardDestinationView)
         view.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
         }
 
-        stackView.setCustomSpacing(13.0, after: view)
+        infoStackView.setCustomSpacing(13.0, after: view)
 
         payoutAccountView = view
     }
@@ -95,81 +184,102 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
         for (index, view) in hintViews.enumerated() {
             if index > 0 {
-                stackView.insertArranged(view: view, after: hintViews[index - 1])
+                infoStackView.insertArranged(view: view, after: hintViews[index - 1])
             } else {
-                stackView.insertArranged(view: view, after: validatorsView)
+                infoStackView.insertArranged(view: view, after: validatorsView)
             }
 
             view.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             }
 
-            stackView.setCustomSpacing(9, after: view)
+            infoStackView.setCustomSpacing(9, after: view)
         }
     }
 
+    private func createPayoutAccountView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = .white
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
+    }
+
     private func setupLayout() {
+        addSubview(contentView)
+//        addSubview(navigationBar)
+//
+//        navigationBar.snp.makeConstraints { make in
+//            make.leading.top.trailing.equalToSuperview()
+//        }
+
+        contentView.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+//            make.top.equalTo(navigationBar.snp.bottom)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        contentView.stackView.addArrangedSubview(stakeAmountView)
+        contentView.stackView.addArrangedSubview(infoBackground)
+
+        contentView.stackView.setCustomSpacing(UIConstants.hugeOffset, after: stakeAmountView)
+
+        infoBackground.addSubview(infoStackView)
+        infoStackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
+            make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
+            make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        infoStackView.addArrangedSubview(mainAccountView)
+        infoStackView.addArrangedSubview(poolView)
+        infoStackView.addArrangedSubview(amountView)
+        infoStackView.addArrangedSubview(rewardDestinationView)
+        infoStackView.addArrangedSubview(validatorsView)
+        infoStackView.addArrangedSubview(feeView)
+
+        mainAccountView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        poolView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        amountView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        rewardDestinationView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        validatorsView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        feeView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
         addSubview(networkFeeFooterView)
+
         networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
+            make.top.equalTo(contentView.snp.bottom)
         }
-
-        addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(networkFeeFooterView.snp.top)
-        }
-
-        stackView.addArrangedSubview(mainAccountView)
-        mainAccountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(52.0)
-        }
-
-        stackView.setCustomSpacing(16.0, after: mainAccountView)
-
-        stackView.addArrangedSubview(amountView)
-        amountView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(UIConstants.amountViewV2Height)
-        }
-
-        stackView.setCustomSpacing(16.0, after: amountView)
-
-        stackView.addArrangedSubview(rewardDestinationView)
-        rewardDestinationView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
-        }
-
-        stackView.addArrangedSubview(selectedCollatorContainer)
-        selectedCollatorContainer.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-        }
-
-        stackView.setCustomSpacing(16.0, after: selectedCollatorContainer)
-
-        selectedCollatorContainer.addSubview(selectedCollatorTitle)
-        selectedCollatorContainer.addSubview(selectedCollatorView)
-
-        selectedCollatorTitle.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
-        }
-
-        selectedCollatorView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
-            make.leading.trailing.bottom.equalToSuperview()
-            make.top.equalTo(selectedCollatorTitle.snp.bottom).offset(UIConstants.defaultOffset)
-        }
-
-        stackView.addArrangedSubview(validatorsView)
-        validatorsView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
-        }
-
-        stackView.setCustomSpacing(13.0, after: validatorsView)
     }
 }

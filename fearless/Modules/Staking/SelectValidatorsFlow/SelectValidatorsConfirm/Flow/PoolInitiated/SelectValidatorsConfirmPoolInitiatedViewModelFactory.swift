@@ -7,13 +7,16 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelFactory {
     private let iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
     }
 }
 
@@ -120,7 +123,8 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil
+                selectedCollatorViewModel: nil,
+                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount)
             )
         }
     }
@@ -137,5 +141,25 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+    }
+
+    private func createStakedAmountViewModel(
+        _: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorGray(),
+                range: (stakedString as NSString).range(of: stakedString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }
