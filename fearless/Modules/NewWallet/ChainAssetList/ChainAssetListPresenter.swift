@@ -93,18 +93,41 @@ final class ChainAssetListPresenter {
     private func showMissingAccountOptions(chain: ChainModel) {
         let unused = (wallet.unusedChainIds ?? []).contains(chain.chainId)
         let options: [MissingAccountOption?] = [.create, .import, unused ? nil : .skip]
+        let uniqueChainModel = UniqueChainModel(
+            meta: wallet,
+            chain: chain
+        )
+
+        let actions: [AlertPresentableAction] = options.compactMap { option in
+            switch option {
+            case .create:
+                let title = R.string.localizable
+                    .createNewAccount(preferredLanguages: selectedLocale.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.router.showCreate(uniqueChainModel: uniqueChainModel, from: self?.view)
+                }
+            case .import:
+                let title = R.string.localizable
+                    .alreadyHaveAccount(preferredLanguages: selectedLocale.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.router.showImport(uniqueChainModel: uniqueChainModel, from: self?.view)
+                }
+            case .skip:
+                let title = R.string.localizable
+                    .missingAccountSkip(preferredLanguages: selectedLocale.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.interactor.markUnused(chain: uniqueChainModel.chain)
+                }
+            case .none:
+                return nil
+            }
+        }
 
         router.presentAccountOptions(
             from: view,
             locale: selectedLocale,
-            options: options.compactMap { $0 },
-            uniqueChainModel: UniqueChainModel(
-                meta: wallet,
-                chain: chain
-            )
-        ) { [weak self] chain in
-            self?.interactor.markUnused(chain: chain)
-        }
+            actions: actions
+        )
     }
 }
 

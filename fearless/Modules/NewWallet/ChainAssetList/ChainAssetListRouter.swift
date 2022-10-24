@@ -59,32 +59,10 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,
-        options: [MissingAccountOption],
-        uniqueChainModel: UniqueChainModel,
-        skipBlock: @escaping (ChainModel) -> Void
+        actions: [AlertPresentableAction]
     ) {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
-
-        let actions: [AlertPresentableAction] = options.map { option in
-            switch option {
-            case .create:
-                let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
-                }
-            case .import:
-                let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
-                }
-            case .skip:
-                let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) {
-                    skipBlock(uniqueChainModel.chain)
-                }
-            }
-        }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
         let alertViewModel = AlertPresentableViewModel(
@@ -101,9 +79,7 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         )
     }
 
-    // MARK: - Private methods
-
-    private func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
             flow: .chain(model: uniqueChainModel)
         )?.controller else {
@@ -117,7 +93,7 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
-    private func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
         guard let importController = AccountImportViewFactory.createViewForOnboarding(
             .chain(model: uniqueChainModel)
         )?.controller else {

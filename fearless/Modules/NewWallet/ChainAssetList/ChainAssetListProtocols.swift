@@ -59,9 +59,15 @@ protocol ChainAssetListRouterInput:
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,
-        options: [MissingAccountOption],
+        actions: [AlertPresentableAction]
+    )
+    func showCreate(
         uniqueChainModel: UniqueChainModel,
-        skipBlock: @escaping (ChainModel) -> Void
+        from view: ControllerBackedProtocol?
+    )
+    func showImport(
+        uniqueChainModel: UniqueChainModel,
+        from view: ControllerBackedProtocol?
     )
 }
 
