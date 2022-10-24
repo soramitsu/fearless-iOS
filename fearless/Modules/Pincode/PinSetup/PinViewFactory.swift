@@ -12,7 +12,7 @@ class PinViewFactory: PinViewFactoryProtocol {
             R.string.localizable.pincodeSetupTopTitle(preferredLanguages: locale.rLanguages)
         }
         let interactor = PinSetupInteractor(
-            secretManager: FWKeychainManager.shared,
+            secretManager: KeychainManager.shared(with: .userInteractive),
             settingsManager: SettingsManager.shared,
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
@@ -41,7 +41,7 @@ class PinViewFactory: PinViewFactoryProtocol {
             R.string.localizable.profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
         }
 
-        let interactor = PinChangeInteractor(secretManager: FWKeychainManager.shared)
+        let interactor = PinChangeInteractor(secretManager: KeychainManager.shared(with: .userInteractive))
         let wireframe = PinChangeWireframe(localizationManager: LocalizationManager.shared)
         let presenter = PinSetupPresenter(
             interactor: interactor,
@@ -63,7 +63,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         pinVerifyView.mode = .securedInput
 
         let interactor = LocalAuthInteractor(
-            secretManager: FWKeychainManager.shared,
+            secretManager: KeychainManager.shared(with: .userInteractive),
             settingsManager: SettingsManager.shared,
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
@@ -90,7 +90,7 @@ class PinViewFactory: PinViewFactoryProtocol {
         pinVerifyView.mode = .securedInput
 
         let interactor = LocalAuthInteractor(
-            secretManager: FWKeychainManager.shared,
+            secretManager: KeychainManager.shared(with: .userInteractive),
             settingsManager: SettingsManager.shared,
             biometryAuth: BiometryAuth(),
             locale: LocalizationManager.shared.selectedLocale
