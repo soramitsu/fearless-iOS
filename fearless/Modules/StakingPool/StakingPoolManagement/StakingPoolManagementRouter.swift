@@ -109,21 +109,23 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
 
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
-        poolId: UInt32,
-        state: InitiatedBonding,
+        poolId _: UInt32,
+        state _: InitiatedBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let recommendedView = SelectValidatorsStartViewFactory
-            .createView(
-                wallet: wallet,
-                chainAsset: chainAsset,
-                flow: .poolInitiated(poolId: poolId, state: state)
-            )
-        else {
+        guard let validatorsView = YourValidatorListViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .pool
+        ) else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(recommendedView.controller, animated: true)
+        let navigationController = ImportantFlowViewFactory.createNavigation(
+            from: validatorsView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }
