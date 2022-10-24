@@ -17,7 +17,7 @@ final class ConnectionFactory {
 
 extension ConnectionFactory: ConnectionFactoryProtocol {
     func createConnection(for url: URL, delegate: WebSocketEngineDelegate) -> ChainConnection {
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(url: url, logger: nil)
         engine.delegate = delegate
         return engine
     }
