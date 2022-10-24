@@ -1,21 +1,13 @@
 import Foundation
 import FearlessUtils
-import SoraFoundation
 
-protocol YourValidatorListViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel
-}
-
-final class YourValidatorListViewModelFactory {
-    let balanceViewModeFactory: BalanceViewModelFactoryProtocol
-    private var iconGenerator: IconGenerating
+final class YourValidatorListPoolViewModelFactory {
+    private let balanceViewModeFactory: BalanceViewModelFactoryProtocol
 
     init(
-        balanceViewModeFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        balanceViewModeFactory: BalanceViewModelFactoryProtocol
     ) {
         self.balanceViewModeFactory = balanceViewModeFactory
-        self.iconGenerator = iconGenerator
     }
 
     private func createValidatorViewModel(
@@ -23,8 +15,6 @@ final class YourValidatorListViewModelFactory {
         apyFormatter: NumberFormatter,
         locale: Locale
     ) throws -> YourValidatorViewModel {
-        let icon = try iconGenerator.generateFromAddress(model.address)
-
         let amountTitle: String? = {
             guard case let .active(allocation) = model.myNomination else {
                 return nil
@@ -33,16 +23,30 @@ final class YourValidatorListViewModelFactory {
             return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
         }()
 
-        let apy: String? = model.stakeInfo.map { info in
-            apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+        let apy: NSAttributedString? = model.stakeInfo.map { info in
+            let stakeReturnString = apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+            let apyString = "APY \(stakeReturnString)"
+
+            let apyStringAttributed = NSMutableAttributedString(string: apyString)
+            apyStringAttributed.addAttribute(
+                .foregroundColor,
+                value: R.color.colorColdGreen(),
+                range: (apyString as NSString).range(of: stakeReturnString)
+            )
+            return apyStringAttributed
         }
+
+        let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+            "\(model.totalStake)",
+            preferredLanguages: locale.rLanguages
+        )
 
         return YourValidatorViewModel(
             address: model.address,
-            icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
             apy: apy,
+            staked: stakedString,
             shouldHaveWarning: model.oversubscribed,
             shouldHaveError: model.hasSlashes
         )
@@ -62,8 +66,16 @@ final class YourValidatorListViewModelFactory {
     }
 }
 
-extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel, locale: Locale) throws -> YourValidatorListViewModel {
+extension YourValidatorListPoolViewModelFactory: YourValidatorListViewModelFactoryProtocol {
+    func buildViewModel(
+        viewModelState: YourValidatorListViewModelState,
+        locale: Locale
+    ) -> YourValidatorListViewModel? {
+        guard let relaychainViewModelState = viewModelState as? YourValidatorListPoolViewModelState,
+              let model = relaychainViewModelState.validatorsModel else {
+            return nil
+        }
+
         let apyFormatter = NumberFormatter.percent
 
         let validatorsMapping = model.allValidators

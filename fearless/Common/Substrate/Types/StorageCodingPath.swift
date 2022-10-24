@@ -1,240 +1,191 @@
 import Foundation
 
-struct StorageCodingPath: Equatable {
-    let moduleName: String
-    let itemName: String
-}
-
-extension StorageCodingPath {
-    static var account: StorageCodingPath {
-        StorageCodingPath(moduleName: "System", itemName: "Account")
+enum StorageCodingPath: Equatable, CaseIterable {
+    var moduleName: String {
+        path.moduleName
     }
 
-    static var tokens: StorageCodingPath {
-        StorageCodingPath(moduleName: "Tokens", itemName: "Accounts")
+    var itemName: String {
+        path.itemName
     }
 
-    static var eqBalances: StorageCodingPath {
-        StorageCodingPath(moduleName: "EqBalances", itemName: "Account")
+    var path: (moduleName: String, itemName: String) {
+        switch self {
+        case .account:
+            return (moduleName: "System", itemName: "Account")
+        case .tokens:
+            return (moduleName: "Tokens", itemName: "Accounts")
+        case .eqBalances:
+            return (moduleName: "EqBalances", itemName: "Account")
+        case .events:
+            return (moduleName: "System", itemName: "Events")
+        case .activeEra:
+            return (moduleName: "Staking", itemName: "ActiveEra")
+        case .currentEra:
+            return (moduleName: "Staking", itemName: "CurrentEra")
+        case .erasStakers:
+            return (moduleName: "Staking", itemName: "ErasStakers")
+        case .erasPrefs:
+            return (moduleName: "Staking", itemName: "ErasValidatorPrefs")
+        case .controller:
+            return (moduleName: "Staking", itemName: "Bonded")
+        case .stakingLedger:
+            return (moduleName: "Staking", itemName: "Ledger")
+        case .nominators:
+            return (moduleName: "Staking", itemName: "Nominators")
+        case .validatorPrefs:
+            return (moduleName: "Staking", itemName: "Validators")
+        case .totalIssuance:
+            return (moduleName: "Balances", itemName: "TotalIssuance")
+        case .identity:
+            return (moduleName: "Identity", itemName: "IdentityOf")
+        case .superIdentity:
+            return (moduleName: "Identity", itemName: "SuperOf")
+        case .slashingSpans:
+            return (moduleName: "Staking", itemName: "SlashingSpans")
+        case .unappliedSlashes:
+            return (moduleName: "Staking", itemName: "UnappliedSlashes")
+        case .minNominatorBond:
+            return (moduleName: "Staking", itemName: "MinNominatorBond")
+        case .counterForNominators:
+            return (moduleName: "Staking", itemName: "CounterForNominators")
+        case .maxNominatorsCount:
+            return (moduleName: "Staking", itemName: "MaxNominatorsCount")
+        case .payee:
+            return (moduleName: "Staking", itemName: "Payee")
+        case .historyDepth:
+            return (moduleName: "Staking", itemName: "HistoryDepth")
+        case .totalValidatorReward:
+            return (moduleName: "Staking", itemName: "ErasValidatorReward")
+        case .rewardPointsPerValidator:
+            return (moduleName: "Staking", itemName: "ErasRewardPoints")
+        case .validatorExposureClipped:
+            return (moduleName: "Staking", itemName: "ErasStakersClipped")
+        case .eraStartSessionIndex:
+            return (moduleName: "Staking", itemName: "ErasStartSessionIndex")
+        case .currentSessionIndex:
+            return (moduleName: "Session", itemName: "CurrentIndex")
+        case .electionPhase:
+            return (moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
+        case .parachains:
+            return (moduleName: "Paras", itemName: "Parachains")
+        case .parachainSlotLeases:
+            return (moduleName: "Slots", itemName: "Leases")
+        case .crowdloanFunds:
+            return (moduleName: "Crowdloan", itemName: "Funds")
+        case .blockNumber:
+            return (moduleName: "System", itemName: "Number")
+        case .currentSlot:
+            return (moduleName: "Babe", itemName: "CurrentSlot")
+        case .genesisSlot:
+            return (moduleName: "Babe", itemName: "GenesisSlot")
+        case .balanceLocks:
+            return (moduleName: "Balances", itemName: "Locks")
+        case .candidatePool:
+            return (moduleName: "ParachainStaking", itemName: "CandidatePool")
+        case .selectedCandidates:
+            return (moduleName: "ParachainStaking", itemName: "SelectedCandidates")
+        case .candidateInfo:
+            return (moduleName: "ParachainStaking", itemName: "CandidateInfo")
+        case .topDelegations:
+            return (moduleName: "ParachainStaking", itemName: "TopDelegations")
+        case .atStake:
+            return (moduleName: "ParachainStaking", itemName: "AtStake")
+        case .delegatorState:
+            return (moduleName: "ParachainStaking", itemName: "DelegatorState")
+        case .round:
+            return (moduleName: "ParachainStaking", itemName: "Round")
+        case .delegationScheduledRequests:
+            return (moduleName: "ParachainStaking", itemName: "DelegationScheduledRequests")
+        case .collatorCommission:
+            return (moduleName: "ParachainStaking", itemName: "CollatorCommission")
+        case .bottomDelegations:
+            return (moduleName: "ParachainStaking", itemName: "BottomDelegations")
+        case .staked:
+            return (moduleName: "ParachainStaking", itemName: "Staked")
+        case .currentBlock:
+            return (moduleName: "System", itemName: "Number")
+        case .bondedPools:
+            return (moduleName: "NominationPools", itemName: "BondedPools")
+        case .stakingPoolMetadata:
+            return (moduleName: "NominationPools", itemName: "Metadata")
+        case .stakingPoolMinJoinBond:
+            return (moduleName: "NominationPools", itemName: "MinJoinBond")
+        case .stakingPoolMinCreateBond:
+            return (moduleName: "NominationPools", itemName: "MinCreateBond")
+        case .stakingPoolMembers:
+            return (moduleName: "NominationPools", itemName: "PoolMembers")
+        case .stakingPoolMaxPools:
+            return (moduleName: "NominationPools", itemName: "MaxPools")
+        case .stakingPoolMaxPoolMembersPerPool:
+            return (moduleName: "NominationPools", itemName: "MaxPoolMembersPerPool")
+        case .stakingPoolMaxPoolMembers:
+            return (moduleName: "NominationPools", itemName: "MaxPoolMembers")
+        case .stakingPoolCounterForBondedPools:
+            return (moduleName: "NominationPools", itemName: "CounterForBondedPools")
+        case .stakingPoolRewards:
+            return (moduleName: "NominationPools", itemName: "RewardPools")
+        case .stakingPoolLastPoolId:
+            return (moduleName: "NominationPools", itemName: "LastPoolId")
+        }
     }
 
-    static var events: StorageCodingPath {
-        StorageCodingPath(moduleName: "System", itemName: "Events")
-    }
-
-    static var activeEra: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ActiveEra")
-    }
-
-    static var currentEra: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "CurrentEra")
-    }
-
-    static var erasStakers: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasStakers")
-    }
-
-    static var erasPrefs: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorPrefs")
-    }
-
-    static var controller: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "Bonded")
-    }
-
-    static var stakingLedger: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "Ledger")
-    }
-
-    static var nominators: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "Nominators")
-    }
-
-    static var validatorPrefs: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "Validators")
-    }
-
-    static var totalIssuance: StorageCodingPath {
-        StorageCodingPath(moduleName: "Balances", itemName: "TotalIssuance")
-    }
-
-    static var identity: StorageCodingPath {
-        StorageCodingPath(moduleName: "Identity", itemName: "IdentityOf")
-    }
-
-    static var superIdentity: StorageCodingPath {
-        StorageCodingPath(moduleName: "Identity", itemName: "SuperOf")
-    }
-
-    static var slashingSpans: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "SlashingSpans")
-    }
-
-    static var unappliedSlashes: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
-    }
-
-    static var minNominatorBond: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "MinNominatorBond")
-    }
-
-    static var counterForNominators: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "CounterForNominators")
-    }
-
-    static var maxNominatorsCount: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "MaxNominatorsCount")
-    }
-
-    static var payee: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "Payee")
-    }
-
-    static var historyDepth: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "HistoryDepth")
-    }
-
-    static var totalValidatorReward: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorReward")
-    }
-
-    static var rewardPointsPerValidator: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasRewardPoints")
-    }
-
-    static var validatorExposureClipped: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasStakersClipped")
-    }
-
-    static var eraStartSessionIndex: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "ErasStartSessionIndex")
-    }
-
-    static var currentSessionIndex: StorageCodingPath {
-        StorageCodingPath(moduleName: "Session", itemName: "CurrentIndex")
-    }
-
-    static var electionPhase: StorageCodingPath {
-        StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
-    }
-
-    static var parachains: StorageCodingPath {
-        StorageCodingPath(moduleName: "Paras", itemName: "Parachains")
-    }
-
-    static var parachainSlotLeases: StorageCodingPath {
-        StorageCodingPath(moduleName: "Slots", itemName: "Leases")
-    }
-
-    static var crowdloanFunds: StorageCodingPath {
-        StorageCodingPath(moduleName: "Crowdloan", itemName: "Funds")
-    }
-
-    static var blockNumber: StorageCodingPath {
-        StorageCodingPath(moduleName: "System", itemName: "Number")
-    }
-
-    static var currentSlot: StorageCodingPath {
-        StorageCodingPath(moduleName: "Babe", itemName: "CurrentSlot")
-    }
-
-    static var genesisSlot: StorageCodingPath {
-        StorageCodingPath(moduleName: "Babe", itemName: "GenesisSlot")
-    }
-
-    static var balanceLocks: StorageCodingPath {
-        StorageCodingPath(moduleName: "Balances", itemName: "Locks")
-    }
-
-    static var candidatePool: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CandidatePool")
-    }
-
-    static var selectedCandidates: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "SelectedCandidates")
-    }
-
-    static var candidateInfo: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CandidateInfo")
-    }
-
-    static var topDelegations: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "TopDelegations")
-    }
-
-    static var atStake: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "AtStake")
-    }
-
-    static var delegatorState: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "DelegatorState")
-    }
-
-    static var round: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "Round")
-    }
-
-    static var delegationScheduledRequests: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "DelegationScheduledRequests")
-    }
-
-    static var collatorCommission: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "CollatorCommission")
-    }
-
-    static var bottomDelegations: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "BottomDelegations")
-    }
-
-    static var staked: StorageCodingPath {
-        StorageCodingPath(moduleName: "ParachainStaking", itemName: "Staked")
-    }
-
-    static var currentBlock: StorageCodingPath {
-        StorageCodingPath(moduleName: "System", itemName: "Number")
-    }
-
-    static var bondedPools: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "BondedPools")
-    }
-
-    static var stakingPoolMetadata: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "Metadata")
-    }
-
-    static var stakingPoolMinJoinBond: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "MinJoinBond")
-    }
-
-    static var stakingPoolMinCreateBond: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "MinCreateBond")
-    }
-
-    static var stakingPoolMembers: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "PoolMembers")
-    }
-
-    static var stakingPoolMaxPools: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPools")
-    }
-
-    static var stakingPoolMaxPoolMembersPerPool: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPoolMembersPerPool")
-    }
-
-    static var stakingPoolMaxPoolMembers: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "MaxPoolMembers")
-    }
-
-    static var stakingPoolCounterForBondedPools: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "CounterForBondedPools")
-    }
-
-    static var stakingPoolRewards: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "RewardPools")
-    }
-
-    static var stakingPoolLastPoolId: StorageCodingPath {
-        StorageCodingPath(moduleName: "NominationPools", itemName: "LastPoolId")
-    }
+    case account
+    case tokens
+    case eqBalances
+    case events
+    case activeEra
+    case currentEra
+    case erasStakers
+    case erasPrefs
+    case controller
+    case stakingLedger
+    case nominators
+    case validatorPrefs
+    case totalIssuance
+    case identity
+    case superIdentity
+    case slashingSpans
+    case unappliedSlashes
+    case minNominatorBond
+    case counterForNominators
+    case maxNominatorsCount
+    case payee
+    case historyDepth
+    case totalValidatorReward
+    case rewardPointsPerValidator
+    case validatorExposureClipped
+    case eraStartSessionIndex
+    case currentSessionIndex
+    case electionPhase
+    case parachains
+    case parachainSlotLeases
+    case crowdloanFunds
+    case blockNumber
+    case currentSlot
+    case genesisSlot
+    case balanceLocks
+    case candidatePool
+    case selectedCandidates
+    case candidateInfo
+    case topDelegations
+    case atStake
+    case delegatorState
+    case round
+    case delegationScheduledRequests
+    case collatorCommission
+    case bottomDelegations
+    case staked
+    case currentBlock
+    case bondedPools
+    case stakingPoolMetadata
+    case stakingPoolMinJoinBond
+    case stakingPoolMinCreateBond
+    case stakingPoolMembers
+    case stakingPoolMaxPools
+    case stakingPoolMaxPoolMembersPerPool
+    case stakingPoolMaxPoolMembers
+    case stakingPoolCounterForBondedPools
+    case stakingPoolRewards
+    case stakingPoolLastPoolId
 }

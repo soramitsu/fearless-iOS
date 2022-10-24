@@ -146,14 +146,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showNominatorValidators(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let validatorsView = YourValidatorListViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .relaychain
         ) else {
             return
         }
