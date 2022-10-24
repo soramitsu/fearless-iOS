@@ -3,10 +3,10 @@ import Foundation
 final class YourValidatorListRelaychainViewModelState: YourValidatorListViewModelState {
     var stateListener: YourValidatorListModelStateListener?
 
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let logger: LoggerProtocol?
-    var locale: Locale?
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let logger: LoggerProtocol?
+    private var locale: Locale?
 
     private(set) var validatorsModel: YourValidatorsModel?
     private var stashItem: StashItem?

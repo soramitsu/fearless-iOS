@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 
 final class YourValidatorListPoolViewModelFactory {
-    let balanceViewModeFactory: BalanceViewModelFactoryProtocol
+    private let balanceViewModeFactory: BalanceViewModelFactoryProtocol
 
     init(
         balanceViewModeFactory: BalanceViewModelFactoryProtocol

@@ -6,11 +6,11 @@ final class YourValidatorListPresenter {
     let wireframe: YourValidatorListWireframeProtocol
     let interactor: YourValidatorListInteractorInputProtocol
 
-    let viewModelFactory: YourValidatorListViewModelFactoryProtocol
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let logger: LoggerProtocol?
-    let viewModelState: YourValidatorListViewModelState
+    private let viewModelFactory: YourValidatorListViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let logger: LoggerProtocol?
+    private let viewModelState: YourValidatorListViewModelState
 
     init(
         interactor: YourValidatorListInteractorInputProtocol,

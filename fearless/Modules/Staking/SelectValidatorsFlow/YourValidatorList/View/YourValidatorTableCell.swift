@@ -160,14 +160,6 @@ class YourValidatorTableCell: UITableViewCell {
         }
 
         detailsLabel.text = viewModel.staked
-//        if let amount = viewModel.amount {
-//            detailsLabel.text = R.string.localizable.stakingYourNominatedFormat(
-//                amount,
-//                preferredLanguages: locale.rLanguages
-//            ).uppercased()
-//        } else {
-//            detailsLabel.text = nil
-//        }
 
         warningImageView.isHidden = !viewModel.shouldHaveWarning
         errorImageView.isHidden = !viewModel.shouldHaveError

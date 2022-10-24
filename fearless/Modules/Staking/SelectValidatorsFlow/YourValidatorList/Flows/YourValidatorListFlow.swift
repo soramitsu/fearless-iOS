@@ -46,5 +46,3 @@ protocol YourValidatorListStrategy {
 }
 
 protocol YourValidatorListUserInputHandler {}
-
-extension YourValidatorListUserInputHandler {}

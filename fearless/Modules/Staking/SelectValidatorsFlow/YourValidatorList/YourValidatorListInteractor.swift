@@ -6,9 +6,9 @@ import IrohaCrypto
 final class YourValidatorListInteractor: AccountFetching {
     weak var presenter: YourValidatorListInteractorOutputProtocol!
 
-    let chainAsset: ChainAsset
-    let wallet: MetaAccountModel
-    let strategy: YourValidatorListStrategy
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let strategy: YourValidatorListStrategy
 
     init(
         chainAsset: ChainAsset,

@@ -10,7 +10,7 @@ protocol YourValidatorListPoolStrategyOutput {
     func didReceive(nomination: Nomination?)
 }
 
-final class YourValidatorListPoolStrategy: RuntimeConstantFetching {
+final class YourValidatorListPoolStrategy: RuntimeConstantFetching, AnyProviderAutoCleaning {
     private var output: YourValidatorListPoolStrategyOutput?
     private var stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var chainAsset: ChainAsset
@@ -124,7 +124,9 @@ final class YourValidatorListPoolStrategy: RuntimeConstantFetching {
                 DispatchQueue.main.async {
                     self?.output?.didReceive(stakingPool: stakingPool)
                 }
-            } catch {}
+            } catch {
+                self?.output?.didReceive(error: error)
+            }
         }
 
         operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
@@ -136,55 +138,79 @@ final class YourValidatorListPoolStrategy: RuntimeConstantFetching {
         activeEra: EraIndex
     ) -> CompoundOperationWrapper<YourValidatorsModel> {
         if nomination.submittedIn >= activeEra {
-            let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(
-                for: stashAddress
+            return createActiveValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress,
+                activeEra: activeEra
             )
-
-            let selectedValidatorsWrapper = validatorOperationFactory.pendingValidatorsOperation(
-                for: nomination.targets
-            )
-
-            let mergeOperation = ClosureOperation<YourValidatorsModel> {
-                let activeValidators = try activeValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-                let selectedValidators = try selectedValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-
-                return YourValidatorsModel(
-                    currentValidators: activeValidators,
-                    pendingValidators: selectedValidators
-                )
-            }
-
-            mergeOperation.addDependency(selectedValidatorsWrapper.targetOperation)
-            mergeOperation.addDependency(activeValidatorsWrapper.targetOperation)
-
-            let dependencies = selectedValidatorsWrapper.allOperations + activeValidatorsWrapper.allOperations
-
-            return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
         } else {
-            let selectedValidatorsWrapper = validatorOperationFactory.allSelectedOperation(
-                by: nomination,
-                nominatorAddress: stashAddress
-            )
-
-            let mapOperation = ClosureOperation<YourValidatorsModel> {
-                let curentValidators = try selectedValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-
-                return YourValidatorsModel(
-                    currentValidators: curentValidators,
-                    pendingValidators: []
-                )
-            }
-
-            mapOperation.addDependency(selectedValidatorsWrapper.targetOperation)
-
-            return CompoundOperationWrapper(
-                targetOperation: mapOperation,
-                dependencies: selectedValidatorsWrapper.allOperations
+            return createSelectedValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress,
+                activeEra: activeEra
             )
         }
+    }
+
+    private func createActiveValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress,
+        activeEra _: EraIndex
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(
+            for: stashAddress
+        )
+
+        let selectedValidatorsWrapper = validatorOperationFactory.pendingValidatorsOperation(
+            for: nomination.targets
+        )
+
+        let mergeOperation = ClosureOperation<YourValidatorsModel> {
+            let activeValidators = try activeValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+            let selectedValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: activeValidators,
+                pendingValidators: selectedValidators
+            )
+        }
+
+        mergeOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+        mergeOperation.addDependency(activeValidatorsWrapper.targetOperation)
+
+        let dependencies = selectedValidatorsWrapper.allOperations + activeValidatorsWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    private func createSelectedValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress,
+        activeEra _: EraIndex
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let selectedValidatorsWrapper = validatorOperationFactory.allSelectedOperation(
+            by: nomination,
+            nominatorAddress: stashAddress
+        )
+
+        let mapOperation = ClosureOperation<YourValidatorsModel> {
+            let curentValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: curentValidators,
+                pendingValidators: []
+            )
+        }
+
+        mapOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: selectedValidatorsWrapper.allOperations
+        )
     }
 
     private func fetchValidators() {
@@ -213,16 +239,21 @@ final class YourValidatorListPoolStrategy: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: validatorsWrapper.allOperations, in: .transient)
     }
-}
 
-extension YourValidatorListPoolStrategy: YourValidatorListStrategy {
-    func setup() {
+    private func clearAllSubscriptions() {
+        clear(dataProvider: &poolMemberProvider)
+        clear(dataProvider: &activeEraProvider)
+    }
+
+    private func setupSubscriptions() {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
         }
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
+    }
 
+    private func fetchConstants() {
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
             runtimeCodingService: runtimeService,
@@ -241,8 +272,19 @@ extension YourValidatorListPoolStrategy: YourValidatorListStrategy {
             self?.output?.didReceive(palletIdResult: result)
         }
     }
+}
 
-    func refresh() {}
+extension YourValidatorListPoolStrategy: YourValidatorListStrategy {
+    func setup() {
+        setupSubscriptions()
+        fetchConstants()
+    }
+
+    func refresh() {
+        clearAllSubscriptions()
+        setupSubscriptions()
+        fetchConstants()
+    }
 }
 
 extension YourValidatorListPoolStrategy:

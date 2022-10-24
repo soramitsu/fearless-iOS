@@ -9,6 +9,7 @@ final class YourValidatorListPoolViewModelState: YourValidatorListViewModelState
     private var stakeInfo: StakingPoolMember?
     private var nomination: Nomination?
     private(set) var validatorsModel: YourValidatorsModel?
+    var locale: Locale?
 
     init(
         chainAsset: ChainAsset,
@@ -62,9 +63,13 @@ final class YourValidatorListPoolViewModelState: YourValidatorListViewModelState
         return .relaychain(validatorInfo: validatorInfo, address: nil)
     }
 
-    func resetState() {}
+    func resetState() {
+        validatorsModel = nil
+    }
 
-    func changeLocale(_: Locale) {}
+    func changeLocale(_ locale: Locale) {
+        self.locale = locale
+    }
 
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
         guard

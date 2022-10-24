@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 
 final class YourValidatorListRelaychainViewModelFactory {
-    let balanceViewModeFactory: BalanceViewModelFactoryProtocol
+    private let balanceViewModeFactory: BalanceViewModelFactoryProtocol
 
     init(
         balanceViewModeFactory: BalanceViewModelFactoryProtocol
@@ -67,8 +67,10 @@ final class YourValidatorListRelaychainViewModelFactory {
 }
 
 extension YourValidatorListRelaychainViewModelFactory: YourValidatorListViewModelFactoryProtocol {
-    func buildViewModel(viewModelState: YourValidatorListViewModelState,
-                        locale: Locale) -> YourValidatorListViewModel? {
+    func buildViewModel(
+        viewModelState: YourValidatorListViewModelState,
+        locale: Locale
+    ) -> YourValidatorListViewModel? {
         guard let relaychainViewModelState = viewModelState as? YourValidatorListRelaychainViewModelState,
               let model = relaychainViewModelState.validatorsModel else {
             return nil

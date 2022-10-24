@@ -65,61 +65,85 @@ final class YourValidatorListRelaychainStrategy: AccountFetching {
         }
     }
 
-    func createValidatorsWrapper(
+    private func createValidatorsWrapper(
         for nomination: Nomination,
         stashAddress: AccountAddress,
         activeEra: EraIndex
     ) -> CompoundOperationWrapper<YourValidatorsModel> {
         if nomination.submittedIn >= activeEra {
-            let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(
-                for: stashAddress
+            return createActiveValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress,
+                activeEra: activeEra
             )
-
-            let selectedValidatorsWrapper = validatorOperationFactory.pendingValidatorsOperation(
-                for: nomination.targets
-            )
-
-            let mergeOperation = ClosureOperation<YourValidatorsModel> {
-                let activeValidators = try activeValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-                let selectedValidators = try selectedValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-
-                return YourValidatorsModel(
-                    currentValidators: activeValidators,
-                    pendingValidators: selectedValidators
-                )
-            }
-
-            mergeOperation.addDependency(selectedValidatorsWrapper.targetOperation)
-            mergeOperation.addDependency(activeValidatorsWrapper.targetOperation)
-
-            let dependencies = selectedValidatorsWrapper.allOperations + activeValidatorsWrapper.allOperations
-
-            return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
         } else {
-            let selectedValidatorsWrapper = validatorOperationFactory.allSelectedOperation(
-                by: nomination,
-                nominatorAddress: stashAddress
-            )
-
-            let mapOperation = ClosureOperation<YourValidatorsModel> {
-                let curentValidators = try selectedValidatorsWrapper.targetOperation
-                    .extractNoCancellableResultData()
-
-                return YourValidatorsModel(
-                    currentValidators: curentValidators,
-                    pendingValidators: []
-                )
-            }
-
-            mapOperation.addDependency(selectedValidatorsWrapper.targetOperation)
-
-            return CompoundOperationWrapper(
-                targetOperation: mapOperation,
-                dependencies: selectedValidatorsWrapper.allOperations
+            return createSelectedValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress,
+                activeEra: activeEra
             )
         }
+    }
+
+    private func createActiveValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress,
+        activeEra _: EraIndex
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(
+            for: stashAddress
+        )
+
+        let selectedValidatorsWrapper = validatorOperationFactory.pendingValidatorsOperation(
+            for: nomination.targets
+        )
+
+        let mergeOperation = ClosureOperation<YourValidatorsModel> {
+            let activeValidators = try activeValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+            let selectedValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: activeValidators,
+                pendingValidators: selectedValidators
+            )
+        }
+
+        mergeOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+        mergeOperation.addDependency(activeValidatorsWrapper.targetOperation)
+
+        let dependencies = selectedValidatorsWrapper.allOperations + activeValidatorsWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    private func createSelectedValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress,
+        activeEra _: EraIndex
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let selectedValidatorsWrapper = validatorOperationFactory.allSelectedOperation(
+            by: nomination,
+            nominatorAddress: stashAddress
+        )
+
+        let mapOperation = ClosureOperation<YourValidatorsModel> {
+            let curentValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: curentValidators,
+                pendingValidators: []
+            )
+        }
+
+        mapOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: selectedValidatorsWrapper.allOperations
+        )
     }
 
     func clearAllSubscriptions() {
