@@ -230,8 +230,8 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
 
     func fetchPoolNomination(poolStashAccountId: AccountId) {
         let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
-        DispatchQueue.main.async {
-            nominationOperation.targetOperation.completionBlock = { [weak self] in
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(nomination: nomination)

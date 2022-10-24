@@ -57,7 +57,7 @@ final class RuntimeSyncService {
         dataOperationFactory: DataOperationFactoryProtocol,
         eventCenter: EventCenterProtocol,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
-        maxConcurrentSyncRequests: Int = 8,
+        maxConcurrentSyncRequests: Int = 16,
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil
     ) {
@@ -304,8 +304,7 @@ final class RuntimeSyncService {
                 chain: chainId,
                 version: runtimeVersion.specVersion,
                 txVersion: runtimeVersion.transactionVersion,
-                metadata: rawMetadata,
-                resolver: nil
+                metadata: rawMetadata
             )
 
             return metadataItem

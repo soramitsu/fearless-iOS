@@ -147,9 +147,8 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showNominatorValidators(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 
     func showRewardDestination(

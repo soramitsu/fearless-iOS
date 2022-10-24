@@ -211,7 +211,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 output: viewModelState
             )
 
-            let viewModelFactory = SelectValidatorsStartPoolViewModelFactory()
+            let viewModelFactory = SelectValidatorsStartPoolInitiatedViewModelFactory()
             return SelectValidatorsStartDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -275,7 +275,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 output: viewModelState
             )
 
-            let viewModelFactory = SelectValidatorsStartPoolViewModelFactory()
+            let viewModelFactory = SelectValidatorsStartPoolExistingViewModelFactory()
             return SelectValidatorsStartDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
