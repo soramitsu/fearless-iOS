@@ -124,7 +124,8 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount)
+                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                poolName: ""
             )
         }
     }

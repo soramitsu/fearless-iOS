@@ -112,7 +112,8 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
                 validatorsCount: nil,
                 maxValidatorCount: nil,
                 selectedCollatorViewModel: selectedCollatorViewModel,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount)
+                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                poolName: nil
             )
         }
     }
