@@ -5,7 +5,8 @@ import RobinHood
 protocol RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
-        dataHasher: StorageHasher
+        dataHasher: StorageHasher,
+        usedRuntimePaths: [String: [String]]
     ) -> CompoundOperationWrapper<RuntimeSnapshot?>
 }
 
@@ -28,7 +29,8 @@ final class RuntimeHotBootSnapshotFactory {
     }
 
     private func createWrapperForCommonAndChainTypes(
-        _ dataHasher: StorageHasher
+        _ dataHasher: StorageHasher,
+        usedRuntimePaths: [String: [String]]
     ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
         let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
 
@@ -37,12 +39,7 @@ final class RuntimeHotBootSnapshotFactory {
             let chainTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             guard let chainTypes = chainTypes else {
                 return nil
@@ -51,7 +48,8 @@ final class RuntimeHotBootSnapshotFactory {
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 strongSelf.commonTypes,
                 versioningData: chainTypes,
-                runtimeMetadata: runtimeMetadata
+                runtimeMetadata: runtimeMetadata,
+                usedRuntimePaths: usedRuntimePaths
             )
 
             return RuntimeSnapshot(
@@ -72,22 +70,19 @@ final class RuntimeHotBootSnapshotFactory {
     }
 
     private func createWrapperForCommonTypes(
-        _ dataHasher: StorageHasher
+        _ dataHasher: StorageHasher,
+        usedRuntimePaths: [String: [String]]
     ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
             guard let strongSelf = self else { return nil }
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 strongSelf.commonTypes,
-                runtimeMetadata: runtimeMetadata
+                runtimeMetadata: runtimeMetadata,
+                usedRuntimePaths: usedRuntimePaths
             )
 
             return RuntimeSnapshot(
@@ -104,7 +99,8 @@ final class RuntimeHotBootSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        _ dataHasher: StorageHasher
+        _ dataHasher: StorageHasher,
+        usedRuntimePaths: [String: [String]]
     ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
         let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
 
@@ -113,12 +109,7 @@ final class RuntimeHotBootSnapshotFactory {
             let ownTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
-            var runtimeMetadata: RuntimeMetadata
-            if let resolver = strongSelf.runtimeItem.resolver {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder, resolver: resolver)
-            } else {
-                runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-            }
+            let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
 
             guard let ownTypes = ownTypes else {
                 return nil
@@ -129,7 +120,8 @@ final class RuntimeHotBootSnapshotFactory {
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 try JSONEncoder().encode(json),
                 versioningData: ownTypes,
-                runtimeMetadata: runtimeMetadata
+                runtimeMetadata: runtimeMetadata,
+                usedRuntimePaths: usedRuntimePaths
             )
 
             return RuntimeSnapshot(
@@ -153,15 +145,16 @@ final class RuntimeHotBootSnapshotFactory {
 extension RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
-        dataHasher: StorageHasher
+        dataHasher: StorageHasher,
+        usedRuntimePaths: [String: [String]]
     ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
         switch typesUsage {
         case .onlyCommon:
-            return createWrapperForCommonTypes(dataHasher)
+            return createWrapperForCommonTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
         case .onlyOwn:
-            return createWrapperForChainTypes(dataHasher)
+            return createWrapperForChainTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
         case .both:
-            return createWrapperForCommonAndChainTypes(dataHasher)
+            return createWrapperForCommonAndChainTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
         }
     }
 }

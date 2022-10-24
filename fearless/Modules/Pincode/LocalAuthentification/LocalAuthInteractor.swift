@@ -31,7 +31,9 @@ class LocalAuthInteractor {
     private(set) var state = LocalAuthState.waitingPincode {
         didSet(oldValue) {
             if oldValue != state {
-                presenter?.didChangeState(from: oldValue)
+                DispatchQueue.main.async {
+                    self.presenter?.didChangeState(to: self.state)
+                }
             }
         }
     }
@@ -55,7 +57,7 @@ class LocalAuthInteractor {
 
         biometryAuth.authenticate(
             localizedReason: R.string.localizable.askBiometryReason(preferredLanguages: locale.rLanguages),
-            completionQueue: DispatchQueue.main
+            completionQueue: .global(qos: .userInteractive)
         ) { [weak self] (result: Bool) -> Void in
 
             self?.processBiometryAuth(result: result)
@@ -69,7 +71,9 @@ class LocalAuthInteractor {
 
         if result {
             state = .completed
-            presenter?.didCompleteAuth()
+            DispatchQueue.global(qos: .utility).async {
+                self.presenter?.didCompleteAuth()
+            }
             return
         }
 
@@ -84,11 +88,16 @@ class LocalAuthInteractor {
         if pincode == pin {
             state = .completed
             pincode = nil
-            presenter?.didCompleteAuth()
+            DispatchQueue.global(qos: .utility).async {
+                self.presenter?.didCompleteAuth()
+            }
+
         } else {
             state = .waitingPincode
             pincode = nil
-            presenter?.didEnterWrongPincode()
+            DispatchQueue.global(qos: .userInteractive).async {
+                self.presenter?.didEnterWrongPincode()
+            }
         }
     }
 }
@@ -120,7 +129,7 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
 
         secretManager.loadSecret(
             for: KeystoreTag.pincode.rawValue,
-            completionQueue: DispatchQueue.main
+            completionQueue: .global(qos: .userInteractive)
         ) { [weak self] (secret: SecretDataRepresentable?) -> Void in
             self?.processStored(pin: secret?.toUTF8String())
         }
