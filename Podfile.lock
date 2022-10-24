@@ -59,7 +59,7 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (6.3.1)
+  - Kingfisher (7.4.0)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -86,7 +86,7 @@ PODS:
   - SoraFoundation/Timer (1.0.0):
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (1.0.0)
-  - SoraKeystore (1.0.0)
+  - SoraKeystore (1.0.1)
   - SoraUI (1.10.3):
     - SoraUI/AdaptiveDesign (= 1.10.3)
     - SoraUI/Animator (= 1.10.3)
@@ -122,7 +122,7 @@ PODS:
   - Sourcery (1.9.0):
     - Sourcery/CLI-Only (= 1.9.0)
   - Sourcery/CLI-Only (1.9.0)
-  - Starscream (4.0.4)
+  - Starscream (4.0.5)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
@@ -136,7 +136,7 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `67bd501dc302c97968e584c2a5b64d46acaed038`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `d480f58860ff82b672e05ea835afc603ccf273cc`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -146,7 +146,7 @@ DEPENDENCIES:
   - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
-  - SoraKeystore
+  - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
@@ -174,7 +174,6 @@ SPEC REPOS:
     - secp256k1.c
     - SnapKit
     - SoraFoundation
-    - SoraKeystore
     - SoraUI
     - Sourcery
     - SVGKit
@@ -187,18 +186,24 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
+    :commit: d480f58860ff82b672e05ea835afc603ccf273cc
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  SoraKeystore:
+    :git: https://github.com/soramitsu/keystore-iOS.git
+    :tag: 1.0.1
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
+    :commit: d480f58860ff82b672e05ea835afc603ccf273cc
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  SoraKeystore:
+    :git: https://github.com/soramitsu/keystore-iOS.git
+    :tag: 1.0.1
   Starscream:
-    :commit: 1700d88ce40b958af828fb6a76fa55673e0ea2ec
+    :commit: c605e329c0a2757d30678f38a6b8e793272a7115
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 SPEC CHECKSUMS:
@@ -211,7 +216,7 @@ SPEC CHECKSUMS:
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: 016c8b653a35add51dd34a3aba36b580041acc74
+  Kingfisher: 596b207973051aae5e4c54a1c1cb39837ea10d36
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -220,10 +225,10 @@ SPEC CHECKSUMS:
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
-  SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
+  SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
-  Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
+  Starscream: 8cc648110705c09a15f0de84352c7f9595b7cb05
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
@@ -232,6 +237,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1a5c5773ee12078b84a1b193bf12479f59cccb04
+PODFILE CHECKSUM: 8d4458ead192baaf8fb24e21f911ea513075629e
 
 COCOAPODS: 1.11.3

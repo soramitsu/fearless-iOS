@@ -1,6 +1,6 @@
 import UIKit
 
-protocol PinSetupViewProtocol: ControllerBackedProtocol {
+protocol PinSetupViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didRequestBiometryUsage(
         biometryType: AvailableBiometryType,
         completionBlock: @escaping (Bool) -> Void
