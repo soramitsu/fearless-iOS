@@ -140,6 +140,14 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             save(updatedWallet)
         }
     }
+
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = wallet.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
+
+        save(updatedAccount)
+    }
 }
 
 private extension ChainAssetListInteractor {
@@ -210,6 +218,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         if wallet.assetIdsDisabled != event.account.assetIdsDisabled {
+            output?.updateViewModel()
+        }
+
+        if wallet.unusedChainIds != event.account.unusedChainIds {
             output?.updateViewModel()
         }
 
