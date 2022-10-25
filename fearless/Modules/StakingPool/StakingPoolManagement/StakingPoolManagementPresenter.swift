@@ -291,7 +291,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 
     func didTapOptionsButton() {
         let validatorsOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable.poolStakingManagementOptionNominees(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
             title: R.string.localizable.stakingPoolInfoTitle(preferredLanguages: selectedLocale.rLanguages).capitalized

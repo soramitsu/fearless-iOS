@@ -89,13 +89,13 @@ final class StakingPoolManagementViewLayout: UIView {
 
     let stakeMoreButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyEnabledStyle()
+        button.applyDisabledStyle()
         return button
     }()
 
     let unstakeButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyEnabledStyle()
+        button.applyDisabledStyle()
         return button
     }()
 
@@ -178,8 +178,8 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(viewModel: StakingPoolManagementViewModel?) {
-        stakeMoreButton.set(enabled: viewModel?.stakeMoreButtonEnabled == true)
-        unstakeButton.set(enabled: viewModel?.unstakeButtonEnabled == true)
+        stakeMoreButton.isEnabled = viewModel?.stakeMoreButtonEnabled == true
+        unstakeButton.isEnabled = viewModel?.unstakeButtonEnabled == true
     }
 
     func setSelectValidatorsAlert(visible: Bool) {
@@ -267,7 +267,7 @@ final class StakingPoolManagementViewLayout: UIView {
         stakeMoreButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         unstakeButton.snp.makeConstraints { make in
@@ -275,7 +275,7 @@ final class StakingPoolManagementViewLayout: UIView {
             make.leading.equalTo(stakeMoreButton.snp.trailing).offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             make.width.equalTo(stakeMoreButton.snp.width)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         [
