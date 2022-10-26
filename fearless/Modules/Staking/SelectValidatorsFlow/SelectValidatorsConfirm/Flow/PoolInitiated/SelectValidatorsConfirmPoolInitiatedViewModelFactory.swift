@@ -110,7 +110,11 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
         case let .payout(account):
             let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
 
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
+            rewardViewModel = .payout(
+                icon: payoutIcon,
+                title: account.username,
+                address: account.address
+            )
         }
 
         return LocalizableResource { locale in

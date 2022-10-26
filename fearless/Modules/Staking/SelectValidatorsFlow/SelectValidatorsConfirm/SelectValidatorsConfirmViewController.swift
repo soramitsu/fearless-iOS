@@ -130,7 +130,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             rootView.rewardDestinationView.valueTop.text = R.string.localizable
                 .stakingRestakeTitle(preferredLanguages: selectedLocale.rLanguages)
             rootView.removePayoutAccountIfNeeded()
-        case let .payout(icon, title):
+        case let .payout(icon, title, address):
             rootView.rewardDestinationView.valueTop.text = R.string.localizable
                 .stakingPayoutTitle(preferredLanguages: selectedLocale.rLanguages)
             rootView.addPayoutAccountIfNeeded()
@@ -138,6 +138,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
                 preferredLanguages: selectedLocale.rLanguages
             )
             rootView.payoutAccountView?.valueTop.text = title
+            rootView.payoutAccountView?.valueBottom.text = address
         case .none:
             rootView.rewardDestinationView.isHidden = true
             rootView.payoutAccountView?.isHidden = true

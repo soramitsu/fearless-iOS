@@ -98,7 +98,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
 
             updateAccountView()
 
-        case let .payout(icon, title):
+        case let .payout(icon, title, _):
             rootView.restakeOptionView.isSelected = false
             rootView.payoutOptionView.isSelected = true
 
