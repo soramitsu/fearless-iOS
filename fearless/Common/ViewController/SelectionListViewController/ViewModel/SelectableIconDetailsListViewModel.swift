@@ -4,19 +4,19 @@ final class SelectableIconDetailsListViewModel: SelectableViewModelProtocol {
     let title: String
     let subtitle: String?
     let icon: ImageViewModelProtocol?
-    let identifire: String?
+    let identifier: String?
 
     init(
         title: String,
         subtitle: String?,
         icon: ImageViewModelProtocol?,
         isSelected: Bool,
-        identifire: String?
+        identifier: String?
     ) {
         self.title = title
         self.subtitle = subtitle
         self.icon = icon
-        self.identifire = identifire
+        self.identifier = identifier
         self.isSelected = isSelected
     }
 }

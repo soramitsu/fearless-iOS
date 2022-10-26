@@ -13,16 +13,11 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     // MARK: Private properties
 
     private let listPresenter: SelectionListPresenterProtocol
-    private let searchTexts: SelectNetworkSearchTexts?
 
     // MARK: - Constructor
 
-    init(
-        listPresenter: SelectionListPresenterProtocol,
-        searchTexts: SelectNetworkSearchTexts?
-    ) {
+    init(listPresenter: SelectionListPresenterProtocol) {
         self.listPresenter = listPresenter
-        self.searchTexts = searchTexts
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -34,9 +29,7 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     // MARK: - Life cycle
 
     override func loadView() {
-        view = SelectableListViewLayout(
-            searchTexts: searchTexts
-        )
+        view = SelectableListViewLayout()
     }
 
     override func viewDidLoad() {
@@ -106,9 +99,13 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 // MARK: - SelectionListViewProtocol
 
 extension SelectableListViewController: SelectionListViewProtocol {
+    func bind(viewModel: SelectNetworkSearchViewModel?) {
+        rootView.bind(viewModel: viewModel)
+    }
+
     func didReload() {
         rootView.tableView.reloadData()
-        rootView.emtyView(isHidden: listPresenter.numberOfItems != 0)
+        rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
     }
 }
 

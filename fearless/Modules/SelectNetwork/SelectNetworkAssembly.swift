@@ -9,7 +9,7 @@ enum SelectNetworkAssembly {
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
         includingAllNetworks: Bool = true,
-        searchTexts: SelectNetworkSearchTexts?,
+        searchTextsViewModel: SelectNetworkSearchViewModel?,
         delegate: SelectNetworkDelegate?
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -32,6 +32,7 @@ enum SelectNetworkAssembly {
             selectedMetaAccount: wallet,
             selectedChainId: selectedChainId,
             includingAllNetworks: includingAllNetworks,
+            searchTextsViewModel: searchTextsViewModel,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager
@@ -39,8 +40,7 @@ enum SelectNetworkAssembly {
 
         let view = SelectNetworkViewController(
             output: presenter,
-            localizationManager: localizationManager,
-            searchTexts: searchTexts
+            localizationManager: localizationManager
         )
         view.modalPresentationStyle = .custom
 
@@ -53,7 +53,7 @@ enum SelectNetworkAssembly {
     }
 }
 
-enum SelectNetworkSearchTexts {
+enum SelectNetworkSearchViewModel {
     case searchNetworkPlaceholder
 
     var placeholder: LocalizableResource<String> {

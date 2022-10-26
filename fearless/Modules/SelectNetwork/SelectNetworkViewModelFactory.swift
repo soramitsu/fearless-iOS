@@ -45,7 +45,7 @@ final class SelectNetworkViewModelFactory: SelectNetworkViewModelFactoryProtocol
                     subtitle: nil,
                     icon: nil,
                     isSelected: selectedChainId == nil,
-                    identifire: nil
+                    identifier: nil
                 )
             case let .chain(chain):
                 let icon: ImageViewModelProtocol? = chain.icon.map { RemoteImageViewModel(url: $0) }
@@ -57,7 +57,7 @@ final class SelectNetworkViewModelFactory: SelectNetworkViewModelFactoryProtocol
                     subtitle: nil,
                     icon: icon,
                     isSelected: isSelected,
-                    identifire: chain.chainId
+                    identifier: chain.chainId
                 )
             }
         }

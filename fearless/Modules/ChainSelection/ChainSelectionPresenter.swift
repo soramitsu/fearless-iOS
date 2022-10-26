@@ -92,7 +92,7 @@ final class ChainSelectionPresenter {
                 subtitle: balance,
                 icon: icon,
                 isSelected: isSelected,
-                identifire: chain.chainId
+                identifier: chain.chainId
             )
         }
 
@@ -102,7 +102,7 @@ final class ChainSelectionPresenter {
                 subtitle: nil,
                 icon: nil,
                 isSelected: selectedChainId == nil,
-                identifire: nil
+                identifier: nil
             )
             viewModels.insert(allNetworksViewModel, at: 0)
         }

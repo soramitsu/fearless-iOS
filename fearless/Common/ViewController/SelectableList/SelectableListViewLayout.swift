@@ -7,8 +7,6 @@ final class SelectableListViewLayout: UIView {
         static let cornerRadius: CGFloat = 20.0
     }
 
-    private let searchTexts: SelectNetworkSearchTexts?
-
     let indicator = UIFactory.default.createIndicatorView()
 
     let contentStackView: UIStackView = {
@@ -32,20 +30,11 @@ final class SelectableListViewLayout: UIView {
         searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.shadowOpacity = 0
-        searchTextField.isHidden = searchTexts == nil
         return searchTextField
     }()
 
     let tableView = UITableView()
-    lazy var emptyView: EmptyView = {
-        let view = EmptyView()
-        let viewModel = EmptyViewModel(
-            title: searchTexts?.emptyViewTitle.value(for: locale) ?? "",
-            description: searchTexts?.emptyViewDescription.value(for: locale) ?? ""
-        )
-        view.bind(viewModel: viewModel)
-        return view
-    }()
+    lazy var emptyView = EmptyView()
 
     var locale: Locale = .current {
         didSet {
@@ -53,9 +42,8 @@ final class SelectableListViewLayout: UIView {
         }
     }
 
-    init(searchTexts: SelectNetworkSearchTexts?) {
-        self.searchTexts = searchTexts
-        super.init(frame: .zero)
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupLayout()
     }
 
@@ -64,16 +52,25 @@ final class SelectableListViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func emtyView(isHidden: Bool) {
-        emptyView.isHidden = isHidden
-        tableView.isHidden = !isHidden
+    func setEmptyView(vasible: Bool) {
+        emptyView.isHidden = !vasible
+        tableView.isHidden = vasible
+    }
+
+    func bind(viewModel: SelectNetworkSearchViewModel?) {
+        searchTextField.isHidden = viewModel == nil
+        searchTextField.textField.placeholder = viewModel?.placeholder.value(for: locale)
+        let viewModel = EmptyViewModel(
+            title: viewModel?.emptyViewTitle.value(for: locale) ?? "",
+            description: viewModel?.emptyViewDescription.value(for: locale) ?? ""
+        )
+        emptyView.bind(viewModel: viewModel)
     }
 
     private func applyLocale() {
         titleLabel.text = R.string.localizable.commonSelectNetwork(
             preferredLanguages: locale.rLanguages
         )
-        searchTextField.textField.placeholder = searchTexts?.placeholder.value(for: locale)
     }
 
     private func setupLayout() {

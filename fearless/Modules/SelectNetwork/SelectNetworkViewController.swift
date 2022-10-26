@@ -14,14 +14,10 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 
     init(
         output: SelectNetworkViewOutput,
-        localizationManager: LocalizationManagerProtocol?,
-        searchTexts: SelectNetworkSearchTexts?
+        localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
-        super.init(
-            listPresenter: output,
-            searchTexts: searchTexts
-        )
+        super.init(listPresenter: output)
         self.localizationManager = localizationManager
     }
 

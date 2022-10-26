@@ -12,6 +12,8 @@ final class SelectNetworkPresenter {
     private let viewModelFactory: SelectNetworkViewModelFactoryProtocol
     private let selectedMetaAccount: MetaAccountModel
     private let includingAllNetworks: Bool
+    private let searchTextsViewModel: SelectNetworkSearchViewModel?
+
     private var viewModels: [SelectableIconDetailsListViewModel] = []
     private var fullViewModels: [SelectableIconDetailsListViewModel] = []
     private var networkItems: [SelectNetworkItem] = []
@@ -23,6 +25,7 @@ final class SelectNetworkPresenter {
         selectedMetaAccount: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         includingAllNetworks: Bool,
+        searchTextsViewModel: SelectNetworkSearchViewModel?,
         interactor: SelectNetworkInteractorInput,
         router: SelectNetworkRouterInput,
         localizationManager: LocalizationManagerProtocol
@@ -31,6 +34,7 @@ final class SelectNetworkPresenter {
         self.selectedMetaAccount = selectedMetaAccount
         self.selectedChainId = selectedChainId
         self.includingAllNetworks = includingAllNetworks
+        self.searchTextsViewModel = searchTextsViewModel
         self.interactor = interactor
         self.router = router
         self.localizationManager = localizationManager
@@ -70,7 +74,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
                 guard case let .chain(chain) = networkItem else {
                     return false
                 }
-                return chain.chainId == selectedViewModel.identifire
+                return chain.chainId == selectedViewModel.identifier
             })
         else {
             router.complete(on: view, selecting: nil)
@@ -94,6 +98,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
     func didLoad(view: SelectNetworkViewInput) {
         self.view = view
         interactor.setup(with: self)
+        view.bind(viewModel: searchTextsViewModel)
     }
 }
 

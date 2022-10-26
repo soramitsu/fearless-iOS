@@ -87,7 +87,7 @@ final class AssetSelectionPresenter {
                 subtitle: balance,
                 icon: icon,
                 isSelected: isSelected,
-                identifire: chain.chainId
+                identifier: chain.chainId
             )
         }
 
