@@ -49,6 +49,8 @@ final class StakingPoolInfoPresenter {
             return
         }
 
+        view?.didStopLoading()
+
         let viewModel = viewModelFactory.buildViewModel(
             stashAccount: stashAccount,
             electedValidators: electedValidators,
@@ -93,9 +95,12 @@ final class StakingPoolInfoPresenter {
 extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
     func didLoad(view: StakingPoolInfoViewInput) {
         self.view = view
+
         interactor.setup(with: self)
 
         provideViewModel()
+
+        view.didStartLoading()
     }
 
     func didTapCloseButton() {

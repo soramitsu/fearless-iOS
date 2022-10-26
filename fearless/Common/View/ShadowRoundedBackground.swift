@@ -26,7 +26,7 @@ class ShadowRoundedBackground: UIView {
 
     func configureShadow() {
         layer.shadowColor = shadowColor.cgColor
-        layer.shadowRadius = 15.0
+        layer.shadowRadius = 10.0
         layer.shadowOpacity = 0.5
     }
 }
