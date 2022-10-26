@@ -27,15 +27,21 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-
         presenter.setup()
 
         configure()
 
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
 
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow), name: UIResponder.keyboardWillShowNotification, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide), name: UIResponder.keyboardWillHideNotification, object: nil)
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardHandler()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        clearKeyboardHandler()
     }
 
     func configure() {
@@ -74,16 +80,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
             return
         }
         presenter.didTapNextButton(with: address)
-    }
-
-    @objc private func keyboardWillShow(notification: NSNotification) {
-        if let keyboardSize = (notification.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue)?.cgRectValue {
-            rootView.keyboardAdoptableConstraint?.update(inset: keyboardSize.height + 16)
-        }
-    }
-
-    @objc private func keyboardWillHide(notification _: NSNotification) {
-        rootView.keyboardAdoptableConstraint?.update(inset: 16)
     }
 }
 
@@ -169,14 +165,12 @@ extension ChooseRecipientViewController: UITextFieldDelegate {
 
 extension ChooseRecipientViewController: HiddableBarWhenPushed {}
 
-// extension ChooseRecipientViewController: KeyboardViewAdoptable {
-//    var target: Constraint? { rootView.keyboardAdoptableConstraint }
-//
-//    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
-//
-//    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
-//        UIConstants.bigOffset
-//    }
-//
-//    func updateWhileKeyboardFrameChanging(_: CGRect) {}
-// }
+extension ChooseRecipientViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        UIConstants.bigOffset
+    }
+
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
+}

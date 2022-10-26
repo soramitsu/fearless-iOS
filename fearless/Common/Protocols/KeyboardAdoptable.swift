@@ -3,7 +3,7 @@ import SoraFoundation
 import SnapKit
 
 protocol KeyboardAdoptable: AnyObject {
-    var keyboardHandler: KeyboardHandler? { get set }
+    var keyboardHandler: FearlessKeyboardHandler? { get set }
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect)
 }
@@ -14,10 +14,7 @@ extension KeyboardAdoptable {
             return
         }
 
-        keyboardHandler = KeyboardHandler(with: nil)
-        keyboardHandler?.animateOnFrameChange = { [weak self] keyboardFrame in
-            self?.updateWhileKeyboardFrameChanging(keyboardFrame)
-        }
+        keyboardHandler = FearlessKeyboardHandler(with: nil)
     }
 
     func clearKeyboardHandler() {
@@ -25,10 +22,8 @@ extension KeyboardAdoptable {
     }
 }
 
-protocol KeyboardViewAdoptable: KeyboardAdoptable {
+protocol KeyboardViewAdoptable: KeyboardAdoptable, KeyboardHandlerDelegate {
     var target: Constraint? { get }
-    var currentKeyboardFrame: CGRect? { get set }
-    var shouldApplyKeyboardFrame: Bool { get }
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat
 }
@@ -39,10 +34,10 @@ private enum KeyboardViewAdoptableConstants {
 }
 
 extension KeyboardViewAdoptable where Self: UIViewController {
-    var keyboardHandler: KeyboardHandler? {
+    var keyboardHandler: FearlessKeyboardHandler? {
         get {
             objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardHandlerKey)
-                as? KeyboardHandler
+                as? FearlessKeyboardHandler
         }
 
         set {
@@ -55,24 +50,6 @@ extension KeyboardViewAdoptable where Self: UIViewController {
         }
     }
 
-    var currentKeyboardFrame: CGRect? {
-        get {
-            objc_getAssociatedObject(self, &KeyboardViewAdoptableConstants.keyboardFrameKey)
-                as? CGRect
-        }
-
-        set {
-            objc_setAssociatedObject(
-                self,
-                &KeyboardViewAdoptableConstants.keyboardFrameKey,
-                newValue,
-                .OBJC_ASSOCIATION_RETAIN
-            )
-        }
-    }
-
-    var shouldApplyKeyboardFrame: Bool { true }
-
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
 
     func setupKeyboardHandler() {
@@ -80,37 +57,48 @@ extension KeyboardViewAdoptable where Self: UIViewController {
             return
         }
 
-        let keyboardHandler = KeyboardHandler(with: nil)
-        keyboardHandler.animateOnFrameChange = { [weak self] keyboardFrame in
-            guard let strongSelf = self else {
-                return
-            }
-
-            strongSelf.currentKeyboardFrame = keyboardFrame
-            strongSelf.applyCurrentKeyboardFrame()
+        let keyboardHandler = FearlessKeyboardHandler(with: self)
+        keyboardHandler.handleWillHide = { [weak self] optionalInfo in
+            self?.animateFrameChangeIfNeeded(with: optionalInfo, keyboardHidden: true)
+        }
+        keyboardHandler.handleWillShow = { [weak self] optionalInfo in
+            self?.animateFrameChangeIfNeeded(with: optionalInfo, keyboardHidden: false)
         }
 
         self.keyboardHandler = keyboardHandler
     }
 
-    func applyCurrentKeyboardFrame() {
-        guard let keyboardFrame = currentKeyboardFrame else {
-            return
-        }
-
+    func apply(keyboardFrame: CGRect, keyboardHidden: Bool) {
         if let target = target {
-            if shouldApplyKeyboardFrame {
-                apply(keyboardFrame: keyboardFrame, to: target)
-                view.layoutIfNeeded()
-            }
+            apply(keyboardHeight: keyboardHidden ? 0 : keyboardFrame.height, to: target)
+            view.layoutIfNeeded()
         }
         updateWhileKeyboardFrameChanging(keyboardFrame)
     }
 
-    private func apply(keyboardFrame: CGRect, to target: Constraint) {
-        let localKeyboardFrame = view.convert(keyboardFrame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+    private func apply(keyboardHeight: CGFloat, to target: Constraint) {
+        target.update(inset: keyboardHeight + offsetFromKeyboardWithInset(keyboardHeight))
+    }
 
-        target.update(inset: bottomInset + offsetFromKeyboardWithInset(bottomInset))
+    private func animateFrameChangeIfNeeded(with optionalInfo: [AnyHashable: Any]?, keyboardHidden: Bool) {
+        guard let info = optionalInfo else {
+            return
+        }
+
+        guard let newBounds = info[UIResponder.keyboardFrameEndUserInfoKey] as? NSValue else {
+            return
+        }
+
+        let duration: TimeInterval = (info[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval) ?? 0.0
+        let curveRawValue: Int = (info[UIResponder.keyboardAnimationCurveUserInfoKey] as? Int) ?? 0
+        let curve = UIView.AnimationCurve(rawValue: curveRawValue) ?? UIView.AnimationCurve.linear
+
+        UIView.beginAnimations(nil, context: nil)
+        UIView.setAnimationDuration(duration)
+        UIView.setAnimationCurve(curve)
+
+        apply(keyboardFrame: newBounds.cgRectValue, keyboardHidden: keyboardHidden)
+
+        UIView.commitAnimations()
     }
 }
