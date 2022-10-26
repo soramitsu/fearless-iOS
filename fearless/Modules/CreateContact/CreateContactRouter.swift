@@ -13,6 +13,7 @@ final class CreateContactRouter: CreateContactRouterInput {
                 selectedChainId: selectedChainId,
                 chainModels: nil,
                 includingAllNetworks: false,
+                searchTexts: nil,
                 delegate: delegate
             )
         else {

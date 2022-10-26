@@ -44,7 +44,8 @@ final class SelectNetworkViewModelFactory: SelectNetworkViewModelFactoryProtocol
                     title: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: locale.rLanguages),
                     subtitle: nil,
                     icon: nil,
-                    isSelected: selectedChainId == nil
+                    isSelected: selectedChainId == nil,
+                    identifire: nil
                 )
             case let .chain(chain):
                 let icon: ImageViewModelProtocol? = chain.icon.map { RemoteImageViewModel(url: $0) }
@@ -55,7 +56,8 @@ final class SelectNetworkViewModelFactory: SelectNetworkViewModelFactoryProtocol
                     title: title,
                     subtitle: nil,
                     icon: icon,
-                    isSelected: isSelected
+                    isSelected: isSelected,
+                    identifire: chain.chainId
                 )
             }
         }

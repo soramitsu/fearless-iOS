@@ -8,14 +8,21 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     ViewHolder {
     typealias RootViewType = SelectableListViewLayout
 
+    var keyboardHandler: KeyboardHandler?
+
     // MARK: Private properties
 
     private let listPresenter: SelectionListPresenterProtocol
+    private let searchTexts: SelectNetworkSearchTexts?
 
     // MARK: - Constructor
 
-    init(listPresenter: SelectionListPresenterProtocol) {
+    init(
+        listPresenter: SelectionListPresenterProtocol,
+        searchTexts: SelectNetworkSearchTexts?
+    ) {
         self.listPresenter = listPresenter
+        self.searchTexts = searchTexts
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -27,12 +34,28 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     // MARK: - Life cycle
 
     override func loadView() {
-        view = SelectableListViewLayout()
+        view = SelectableListViewLayout(
+            searchTexts: searchTexts
+        )
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTableView()
+        bindSearchTextView()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -42,6 +65,12 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.allowsSelection = true
+    }
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.listPresenter.searchItem(with: text)
+        }
     }
 
     // MARK: - UITableView DataSource
@@ -79,5 +108,19 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 extension SelectableListViewController: SelectionListViewProtocol {
     func didReload() {
         rootView.tableView.reloadData()
+        rootView.emtyView(isHidden: listPresenter.numberOfItems != 0)
+    }
+}
+
+// MARK: - KeyboardAdoptable
+
+extension SelectableListViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+
+        rootView.contentStackView.snp.updateConstraints { make in
+            make.bottom.equalToSuperview().offset(-bottomInset)
+        }
     }
 }

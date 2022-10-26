@@ -14,10 +14,14 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 
     init(
         output: SelectNetworkViewOutput,
-        localizationManager: LocalizationManagerProtocol?
+        localizationManager: LocalizationManagerProtocol?,
+        searchTexts: SelectNetworkSearchTexts?
     ) {
         self.output = output
-        super.init(listPresenter: output)
+        super.init(
+            listPresenter: output,
+            searchTexts: searchTexts
+        )
         self.localizationManager = localizationManager
     }
 
@@ -46,7 +50,7 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 
     private func setupLayout() {
         rootView.tableView.snp.makeConstraints { make in
-            make.height.lessThanOrEqualTo(UIScreen.main.bounds.height / 2.5)
+            make.height.equalTo(UIScreen.main.bounds.height / 2.5)
         }
     }
 }

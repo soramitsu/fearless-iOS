@@ -180,6 +180,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
                 selectedChainId: selectedChainId,
                 chainModels: chainModels,
                 includingAllNetworks: false,
+                searchTexts: nil,
                 delegate: delegate
             )
         else {

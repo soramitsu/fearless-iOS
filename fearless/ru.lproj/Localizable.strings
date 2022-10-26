@@ -875,3 +875,5 @@ and depending on the network state, may not be selected to participate";
 "swipable.cell.button.teleport" = "Телепорт";
 "swipable.cell.button.hide" = "Скрыть";
 "swipable.cell.button.show" = "Показать";
+"select.network.search.placeholder" = "Поиск по сети";
+"select.network.search.empty.subtitle" = "Сети не найдены :(";

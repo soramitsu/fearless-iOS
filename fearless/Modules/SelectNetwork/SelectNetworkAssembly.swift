@@ -3,12 +3,13 @@ import SoraFoundation
 import RobinHood
 import SoraUI
 
-final class SelectNetworkAssembly {
+enum SelectNetworkAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
         includingAllNetworks: Bool = true,
+        searchTexts: SelectNetworkSearchTexts?,
         delegate: SelectNetworkDelegate?
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -38,7 +39,8 @@ final class SelectNetworkAssembly {
 
         let view = SelectNetworkViewController(
             output: presenter,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            searchTexts: searchTexts
         )
         view.modalPresentationStyle = .custom
 
@@ -48,5 +50,39 @@ final class SelectNetworkAssembly {
         view.modalTransitioningFactory = factory
 
         return (view, presenter)
+    }
+}
+
+enum SelectNetworkSearchTexts {
+    case searchNetworkPlaceholder
+
+    var placeholder: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder:
+                return R.string.localizable
+                    .selectNetworkSearchPlaceholder(preferredLanguages: locale.rLanguages)
+            }
+        }
+    }
+
+    var emptyViewTitle: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder:
+                return R.string.localizable
+                    .emptyViewTitle(preferredLanguages: locale.rLanguages)
+            }
+        }
+    }
+
+    var emptyViewDescription: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder:
+                return R.string.localizable
+                    .selectNetworkSearchEmptySubtitle(preferredLanguages: locale.rLanguages)
+            }
+        }
     }
 }

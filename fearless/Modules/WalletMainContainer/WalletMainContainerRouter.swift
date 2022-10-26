@@ -71,6 +71,7 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
                 wallet: wallet,
                 selectedChainId: selectedChainId,
                 chainModels: chainModels,
+                searchTexts: .searchNetworkPlaceholder,
                 delegate: delegate
             )
         else {

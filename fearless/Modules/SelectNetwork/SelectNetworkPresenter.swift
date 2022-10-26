@@ -13,6 +13,7 @@ final class SelectNetworkPresenter {
     private let selectedMetaAccount: MetaAccountModel
     private let includingAllNetworks: Bool
     private var viewModels: [SelectableIconDetailsListViewModel] = []
+    private var fullViewModels: [SelectableIconDetailsListViewModel] = []
     private var networkItems: [SelectNetworkItem] = []
 
     // MARK: - Constructors
@@ -44,6 +45,7 @@ final class SelectNetworkPresenter {
             selectedChainId: selectedChainId,
             locale: selectedLocale
         )
+        fullViewModels = viewModels
 
         view?.didReload()
     }
@@ -61,11 +63,32 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
     }
 
     func selectItem(at index: Int) {
-        guard let view = view else {
+        guard let view = view else { return }
+        guard
+            let selectedViewModel = viewModels[safe: index],
+            let selectedNetworkItem = networkItems.first(where: { networkItem in
+                guard case let .chain(chain) = networkItem else {
+                    return false
+                }
+                return chain.chainId == selectedViewModel.identifire
+            })
+        else {
+            router.complete(on: view, selecting: nil)
             return
         }
 
-        router.complete(on: view, selecting: networkItems[index].chain)
+        router.complete(on: view, selecting: selectedNetworkItem.chain)
+    }
+
+    func searchItem(with text: String?) {
+        guard let text = text, text.isNotEmpty else {
+            viewModels = fullViewModels
+            view?.didReload()
+            return
+        }
+
+        viewModels = viewModels.filter { $0.title.contains(text) }
+        view?.didReload()
     }
 
     func didLoad(view: SelectNetworkViewInput) {
