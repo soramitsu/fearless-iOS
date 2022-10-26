@@ -21,7 +21,11 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelFactory {
 }
 
 extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+    func buildAssetBalanceViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?,
+        balance: Decimal?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolInitiatedViewModelState
         else {
@@ -128,7 +132,7 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                stakeAmountViewModel: self.createStakedAmountViewModel(),
                 poolName: viewModelState.poolName
             )
         }
@@ -148,9 +152,7 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 
-    private func createStakedAmountViewModel(
-        _: Decimal
-    ) -> LocalizableResource<StakeAmountViewModel>? {
+    private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
@@ -160,7 +162,7 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorGray(),
+                value: R.color.colorGray() as Any,
                 range: (stakedString as NSString).range(of: stakedString)
             )
 

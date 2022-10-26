@@ -20,8 +20,13 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelFactory {
 }
 
 extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState else {
+    func buildAssetBalanceViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?,
+        balance: Decimal?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState
+        else {
             return nil
         }
 
@@ -32,7 +37,9 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         )
     }
 
-    func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
+    func buildHintsViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState
+    ) -> LocalizableResource<[TitleIconViewModel]>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
               let duration = viewModelState.stakingDuration else {
             return nil
@@ -80,8 +87,12 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         }
     }
 
-    func buildViewModel(viewModelState: SelectValidatorsConfirmViewModelState, asset _: AssetModel) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+    func buildViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        asset _: AssetModel
+    ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
+              let state = viewModelState.confirmationModel else {
             return nil
         }
 
@@ -107,23 +118,25 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                stakeAmountViewModel: self.createStakedAmountViewModel(),
                 poolName: nil
             )
         }
     }
 
-    func buildFeeViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let fee = viewModelState.fee else {
+    func buildFeeViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
+              let fee = viewModelState.fee else {
             return nil
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 
-    private func createStakedAmountViewModel(
-        _: Decimal
-    ) -> LocalizableResource<StakeAmountViewModel>? {
+    private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
@@ -133,7 +146,7 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorGray(),
+                value: R.color.colorGray() as Any,
                 range: (stakedString as NSString).range(of: stakedString)
             )
 

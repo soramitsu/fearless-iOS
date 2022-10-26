@@ -20,7 +20,11 @@ final class SelectValidatorsConfirmParachainViewModelFactory {
 }
 
 extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+    func buildAssetBalanceViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?,
+        balance: Decimal?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
               let state = viewModelState.confirmationModel else {
             return nil
@@ -33,7 +37,9 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         )
     }
 
-    func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
+    func buildHintsViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState
+    ) -> LocalizableResource<[TitleIconViewModel]>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
               let networkStakingInfo = viewModelState.networkStakingInfo,
               case let .parachain(baseInfo, parachainInfo) = networkStakingInfo else {
@@ -150,7 +156,7 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 

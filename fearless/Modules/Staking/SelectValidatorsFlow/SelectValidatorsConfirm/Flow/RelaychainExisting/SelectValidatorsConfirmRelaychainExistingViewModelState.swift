@@ -106,7 +106,9 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
             }
 
             let displayAddress = DisplayAddress(
-                address: strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() ?? payoutAddress,
+                address: strongSelf.wallet.fetch(
+                    for: strongSelf.chainAsset.chain.accountRequest()
+                )?.toAddress() ?? payoutAddress,
                 username: strongSelf.wallet.name
             )
 
