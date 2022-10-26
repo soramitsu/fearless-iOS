@@ -117,15 +117,15 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
             return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
-                rewardDestination: rewardViewModel,
+                amount: nil,
+                rewardDestination: .none,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
                 stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
-                poolName: ""
+                poolName: viewModelState.poolName
             )
         }
     }

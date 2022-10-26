@@ -102,30 +102,17 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
-        let rewardViewModel: RewardDestinationTypeViewModel
-
-        switch state.rewardDestination {
-        case .restake:
-            rewardViewModel = .restake
-        case let .payout(account):
-            let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
-
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
-        }
-
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
-
-            return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+        return LocalizableResource { _ in
+            SelectValidatorsConfirmViewModel(
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
-                rewardDestination: rewardViewModel,
+                amount: nil,
+                rewardDestination: .none,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
                 stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
-                poolName: ""
+                poolName: viewModelState.poolName
             )
         }
     }

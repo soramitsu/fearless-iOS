@@ -2,7 +2,7 @@ import Foundation
 
 typealias StakingPoolInfoModuleCreationResult = (view: StakingPoolInfoViewInput, input: StakingPoolInfoModuleInput)
 
-protocol StakingPoolInfoViewInput: ControllerBackedProtocol {
+protocol StakingPoolInfoViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: StakingPoolInfoViewModel)
 }
 

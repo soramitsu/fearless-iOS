@@ -23,6 +23,7 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidators
     private(set) var counterForNominators: UInt32?
     private(set) var maxNominatorsCount: UInt32?
     private(set) var stakingDuration: StakingDuration?
+    private(set) var poolName: String?
 
     var payoutAccountAddress: String? {
         initiatedBonding.rewardDestination.payoutAccount?.toAddress()
@@ -204,5 +205,14 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelState: SelectValidatorsCo
 
     func didReceive(feeError: Error) {
         stateListener?.didReceiveError(error: feeError)
+    }
+
+    func didReceive(error: Error) {
+        stateListener?.didReceiveError(error: error)
+    }
+
+    func didReceive(poolName: String?) {
+        self.poolName = poolName
+        stateListener?.provideConfirmationState(viewModelState: self)
     }
 }

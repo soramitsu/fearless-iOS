@@ -87,7 +87,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
 
         let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
+        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let rewardViewModel: RewardDestinationTypeViewModel
 
@@ -100,25 +100,33 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
             rewardViewModel = .payout(icon: payoutIcon, title: account.username)
         }
 
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
+        return LocalizableResource { [weak self] locale in
+            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
+            let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
+                state.amount,
+                priceData: viewModelState.priceData
+            ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
+                amount: amountViewModel,
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                stakeAmountViewModel: self?.createStakedAmountViewModel(state.amount),
                 poolName: nil
             )
         }
     }
 
-    func buildFeeViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let fee = viewModelState.fee else {
+    func buildFeeViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
+              let fee = viewModelState.fee else {
             return nil
         }
 
@@ -126,23 +134,19 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
     }
 
     private func createStakedAmountViewModel(
-        _ amount: Decimal
+        _: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
-
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
-            let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
-            let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
-                amountString,
+            let stakedString = R.string.localizable.stakingStake(
                 preferredLanguages: locale.rLanguages
             )
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
-                range: (stakedString as NSString).range(of: amountString)
+                value: R.color.colorGray(),
+                range: (stakedString as NSString).range(of: stakedString)
             )
 
             return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)

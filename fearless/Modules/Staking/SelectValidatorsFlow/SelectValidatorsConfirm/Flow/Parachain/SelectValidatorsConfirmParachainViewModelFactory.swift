@@ -93,7 +93,7 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
 
         let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
+        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let selectedCollatorViewModel = SelectedValidatorViewModel(
             name: state.target.identity?.name,
@@ -101,18 +101,22 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
             icon: try? iconGenerator.generateFromAddress(state.target.address)
         )
 
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
+        return LocalizableResource { [weak self] locale in
+            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
+            let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
+                state.amount,
+                priceData: viewModelState.priceData
+            ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
+                amount: amountViewModel,
                 rewardDestination: nil,
                 validatorsCount: nil,
                 maxValidatorCount: nil,
                 selectedCollatorViewModel: selectedCollatorViewModel,
-                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                stakeAmountViewModel: self?.createStakedAmountViewModel(state.amount),
                 poolName: nil
             )
         }

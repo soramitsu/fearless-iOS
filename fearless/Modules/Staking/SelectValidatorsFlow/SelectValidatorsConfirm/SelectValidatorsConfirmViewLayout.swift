@@ -157,7 +157,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
         infoStackView.insertArranged(view: view, after: rewardDestinationView)
         view.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview()
             make.height.equalTo(52.0)
         }
 
@@ -214,15 +214,9 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     private func setupLayout() {
         addSubview(contentView)
-//        addSubview(navigationBar)
-//
-//        navigationBar.snp.makeConstraints { make in
-//            make.leading.top.trailing.equalToSuperview()
-//        }
 
         contentView.snp.makeConstraints { make in
             make.top.equalToSuperview()
-//            make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
@@ -243,7 +237,6 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         infoStackView.addArrangedSubview(amountView)
         infoStackView.addArrangedSubview(rewardDestinationView)
         infoStackView.addArrangedSubview(validatorsView)
-        infoStackView.addArrangedSubview(feeView)
 
         mainAccountView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
@@ -266,11 +259,6 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         }
 
         validatorsView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        feeView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
