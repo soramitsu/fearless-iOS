@@ -54,6 +54,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             break
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
+            utilityChainAssets = sortAssetList(
+                wallet: selectedMetaAccount,
+                chainAssets: utilityChainAssets,
+                accountInfos: accountInfos,
+                priceData: prices.pricesData
+            )
         }
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
@@ -218,6 +224,103 @@ private extension ChainAssetListViewModelFactory {
         } else {
             return viewModel
         }
+    }
+
+    func sortAssetList(
+        wallet: MetaAccountModel,
+        chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        priceData: [PriceData]
+    ) -> [ChainAsset] {
+        func fetchAccountIds(
+            for ca1: ChainAsset,
+            for ca2: ChainAsset
+        ) -> (ca1AccountId: AccountId, ca2AccountId: AccountId)? {
+            let ca1Request = ca1.chain.accountRequest()
+            let ca2Request = ca2.chain.accountRequest()
+
+            guard
+                let ca1AccountId = wallet.fetch(for: ca1Request)?.accountId,
+                let ca2AccountId = wallet.fetch(for: ca2Request)?.accountId
+            else {
+                return nil
+            }
+
+            return (ca1AccountId: ca1AccountId, ca2AccountId: ca2AccountId)
+        }
+
+        func sortByOrderKey(
+            ca1: ChainAsset,
+            ca2: ChainAsset,
+            orderByKey: [String: Int]
+        ) -> Bool {
+            guard let accountIds = fetchAccountIds(for: ca1, for: ca2) else {
+                return false
+            }
+
+            let ca1Order = orderByKey[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? Int.max
+            let ca2Order = orderByKey[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? Int.max
+
+            return ca1Order < ca2Order
+        }
+
+        func sortByDefaultList(
+            ca1: ChainAsset,
+            ca2: ChainAsset
+        ) -> Bool {
+            guard let accountIds = fetchAccountIds(for: ca1, for: ca2) else {
+                return false
+            }
+
+            let ca1AccountInfo = accountInfos[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? nil
+            let ca2AccountInfo = accountInfos[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? nil
+
+            let ca1PriceId = ca1.asset.priceId ?? ca1.asset.id
+            let ca1PriceData = priceData.first(where: { $0.priceId == ca1PriceId })
+
+            let ca2PriceId = ca2.asset.priceId ?? ca2.asset.id
+            let ca2PriceData = priceData.first(where: { $0.priceId == ca2PriceId })
+
+            let fiatBalanceCa1 = getFiatBalance(for: ca1, accountInfo: ca1AccountInfo, priceData: ca1PriceData)
+            let fiatBalanceCa2 = getFiatBalance(for: ca2, accountInfo: ca2AccountInfo, priceData: ca2PriceData)
+
+            let balanceCa1 = getBalance(for: ca1, accountInfo: ca1AccountInfo)
+            let balanceCa2 = getBalance(for: ca2, accountInfo: ca2AccountInfo)
+
+            return (
+                fiatBalanceCa1,
+                balanceCa1,
+                ca1.chain.isTestnet.intValue,
+                ca1.chain.isPolkadotOrKusama.intValue,
+                ca1.chain.name
+            ) > (
+                fiatBalanceCa2,
+                balanceCa2,
+                ca2.chain.isTestnet.intValue,
+                ca2.chain.isPolkadotOrKusama.intValue,
+                ca2.chain.name
+            )
+        }
+
+        var orderByKey: [String: Int]?
+
+        if let sortedKeys = wallet.assetKeysOrder {
+            orderByKey = [:]
+            for (index, key) in sortedKeys.enumerated() {
+                orderByKey?[key] = index
+            }
+        }
+
+        let chainAssetsSorted = chainAssets
+            .sorted { ca1, ca2 in
+                if let orderByKey = orderByKey {
+                    return sortByOrderKey(ca1: ca1, ca2: ca2, orderByKey: orderByKey)
+                } else {
+                    return sortByDefaultList(ca1: ca1, ca2: ca2)
+                }
+            }
+
+        return chainAssetsSorted
     }
 
     func getBalanceString(
