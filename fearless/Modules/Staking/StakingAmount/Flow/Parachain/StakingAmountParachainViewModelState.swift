@@ -54,7 +54,9 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
             let call = SubstrateCallFactory().delegate(
                 candidate: accountId,
                 amount: amount,
+                autoCompound: 0,
                 candidateDelegationCount: UInt32.max,
+                candidateAutoCompoundingDelegationCount: UInt32.max,
                 delegationCount: UInt32.max
             )
 

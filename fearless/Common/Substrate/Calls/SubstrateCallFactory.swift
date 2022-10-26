@@ -60,7 +60,9 @@ protocol SubstrateCallFactoryProtocol {
     func delegate(
         candidate: AccountId,
         amount: BigUInt,
+        autoCompound: UInt8,
         candidateDelegationCount: UInt32,
+        candidateAutoCompoundingDelegationCount: UInt32,
         delegationCount: UInt32
     ) -> RuntimeCall<DelegateCall>
 
@@ -341,13 +343,17 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func delegate(
         candidate: AccountId,
         amount: BigUInt,
+        autoCompound: UInt8,
         candidateDelegationCount: UInt32,
+        candidateAutoCompoundingDelegationCount: UInt32,
         delegationCount: UInt32
     ) -> RuntimeCall<DelegateCall> {
         let args = DelegateCall(
             candidate: candidate,
             amount: amount,
+            autoCompound: autoCompound,
             candidateDelegationCount: candidateDelegationCount,
+            candidateAutoCompoundingDelegationCount: candidateAutoCompoundingDelegationCount,
             delegationCount: delegationCount
         )
 

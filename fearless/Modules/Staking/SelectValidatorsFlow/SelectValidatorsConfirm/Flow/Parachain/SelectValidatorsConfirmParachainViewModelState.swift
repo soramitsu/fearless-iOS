@@ -17,6 +17,7 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
     private(set) var networkStakingInfo: NetworkStakingInfo?
     private(set) var amount: Decimal?
     private(set) var candidateDelegationCount: UInt32?
+    private(set) var candidateAutoCompoundingDelegationCount: UInt32?
     private(set) var delegationCount: UInt32?
 
     var walletAccountAddress: String? {
@@ -85,14 +86,18 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         let closure: ExtrinsicBuilderClosure = { [weak self] builder in
             guard let strongSelf = self,
                   let candidateDelegationCount = self?.target.metadata?.delegationCount,
-                  let delegationCount = self?.delegationCount else {
+                  let delegationCount = self?.delegationCount,
+                  let candidateAutoCompoundingDelegationCount = self?.candidateAutoCompoundingDelegationCount
+            else {
                 return builder
             }
 
             let call = SubstrateCallFactory().delegate(
                 candidate: strongSelf.target.owner,
                 amount: amount,
+                autoCompound: 0,
                 candidateDelegationCount: candidateDelegationCount,
+                candidateAutoCompoundingDelegationCount: candidateAutoCompoundingDelegationCount,
                 delegationCount: delegationCount
             )
 
@@ -126,7 +131,7 @@ extension SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConfir
         }
 
         candidateDelegationCount = UInt32(snapshot.delegations.count)
-
+        candidateAutoCompoundingDelegationCount = UInt32(snapshot.delegations.filter { $0.autoCompound > 0 }.count)
         stateListener?.feeParametersUpdated()
     }
 

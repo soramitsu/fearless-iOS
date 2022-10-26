@@ -40,7 +40,7 @@ enum SubstrateCallPath: CaseIterable {
         case .addRemark:
             return (moduleName: "System", callName: "remark")
         case .delegate:
-            return (moduleName: "ParachainStaking", callName: "Delegate")
+            return (moduleName: "ParachainStaking", callName: "delegate_with_auto_compound")
         case .delegatorBondMore:
             return (moduleName: "ParachainStaking", callName: "delegator_bond_more")
         case .scheduleDelegatorBondLess:

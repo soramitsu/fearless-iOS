@@ -10,6 +10,7 @@ struct ParachainStakingDelegations: Codable, Equatable {
 struct ParachainStakingDelegation: Codable, Equatable {
     let owner: AccountId
     @StringCodable var amount: BigUInt
+    @StringCodable var autoCompound: UInt8
 }
 
 struct ParachainStakingDelegationInfo {
