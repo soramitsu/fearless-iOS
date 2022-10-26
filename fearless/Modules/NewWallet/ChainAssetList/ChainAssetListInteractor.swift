@@ -17,8 +17,6 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var chainAssets: [ChainAsset]?
-    private var filters: [ChainAssetsFetching.Filter] = []
-    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -87,8 +85,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        self.filters = filters
-        self.sorts = sorts
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts
@@ -139,6 +135,14 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
             save(updatedWallet)
         }
+    }
+
+    func markUnused(chain: ChainModel) {
+        var unusedChainIds = wallet.unusedChainIds ?? []
+        unusedChainIds.append(chain.chainId)
+        let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
+
+        save(updatedAccount)
     }
 }
 
@@ -210,6 +214,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         if wallet.assetIdsDisabled != event.account.assetIdsDisabled {
+            output?.updateViewModel()
+        }
+
+        if wallet.unusedChainIds != event.account.unusedChainIds {
             output?.updateViewModel()
         }
 

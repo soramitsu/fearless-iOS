@@ -30,6 +30,6 @@ final class SheetAletViewController: UIViewController, ViewHolder {
     }
 
     @objc private func dismissSelf() {
-        dismiss(animated: true)
+        dismiss(animated: true, completion: viewModel.dismissCompletion)
     }
 }

@@ -24,7 +24,9 @@ extension PresentDismissable {
 
 extension AnyDismissable {
     func dismiss(view: ControllerBackedProtocol?) {
-        if view?.controller.navigationController?.visibleViewController != view?.controller.navigationController?.viewControllers.first {
+        let visibleViewController = view?.controller.navigationController?.visibleViewController
+        let firstViewController = view?.controller.navigationController?.viewControllers.first
+        if visibleViewController != firstViewController {
             view?.controller.navigationController?.popViewController(animated: true)
         } else {
             view?.controller.dismiss(animated: true)

@@ -874,3 +874,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "your.validators.validator.total.stake" = "Total staked: %@";
 "your.validators.stop.nominating.title" = "Stop nominating";
 "your.validators.change.validators.title" = "Change validators";
+"swipable.cell.button.send" = "Send";
+"swipable.cell.button.receive" = "Receive";
+"swipable.cell.button.teleport" = "Teleport";
+"swipable.cell.button.hide" = "Hide";
+"swipable.cell.button.show" = "Show";

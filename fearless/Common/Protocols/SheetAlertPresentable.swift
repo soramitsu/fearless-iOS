@@ -14,19 +14,22 @@ struct SheetAlertPresentableViewModel {
     let subtitle: String?
     let subtitleStyle: SheetAlertPresentableStyle?
     let actions: [SheetAlertPresentableAction]
+    let dismissCompletion: (() -> Void)?
 
     init(
         title: String,
         titleStyle: SheetAlertPresentableStyle = .defaultTitle,
         subtitle: String?,
         subtitleStyle: SheetAlertPresentableStyle? = .defaultSubtitle,
-        actions: [SheetAlertPresentableAction]
+        actions: [SheetAlertPresentableAction],
+        dismissCompletion: (() -> Void)? = nil
     ) {
         self.title = title
         self.titleStyle = titleStyle
         self.subtitle = subtitle
         self.subtitleStyle = subtitleStyle
         self.actions = actions
+        self.dismissCompletion = dismissCompletion
     }
 }
 
