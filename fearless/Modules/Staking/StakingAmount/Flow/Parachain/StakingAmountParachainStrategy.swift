@@ -73,8 +73,8 @@ extension StakingAmountParachainStrategy: StakingAmountStrategy {
             runtimeService: runtimeService
         )
 
-        wrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let info = try wrapper.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(networkStakingInfo: info)

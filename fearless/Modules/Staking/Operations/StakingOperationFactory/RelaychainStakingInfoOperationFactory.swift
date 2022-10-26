@@ -153,10 +153,6 @@ extension RelaychainStakingInfoOperationFactory: NetworkStakingInfoOperationFact
             existentialDepositOperation
         ] + stakingDurationWrapper.allOperations
 
-        mapOperation.completionBlock = {
-            print("Map Operation completed")
-        }
-
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 }
