@@ -3,14 +3,20 @@ import FearlessUtils
 import SoraFoundation
 
 final class SelectValidatorsConfirmParachainViewModelFactory {
-    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol, iconGenerator: IconGenerating) {
-        self.balanceViewModelFactory = balanceViewModelFactory
-        self.iconGenerator = iconGenerator
-    }
-
     private let iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
+
+    init(
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
+    ) {
+        self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
+    }
 }
 
 extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
@@ -87,7 +93,7 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
 
         let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
+        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let selectedCollatorViewModel = SelectedValidatorViewModel(
             name: state.target.identity?.name,
@@ -95,17 +101,23 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
             icon: try? iconGenerator.generateFromAddress(state.target.address)
         )
 
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
+        return LocalizableResource { [weak self] locale in
+            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
+            let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
+                state.amount,
+                priceData: viewModelState.priceData
+            ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
+                amount: amountViewModel,
                 rewardDestination: nil,
                 validatorsCount: nil,
                 maxValidatorCount: nil,
-                selectedCollatorViewModel: selectedCollatorViewModel
+                selectedCollatorViewModel: selectedCollatorViewModel,
+                stakeAmountViewModel: self?.createStakedAmountViewModel(state.amount),
+                poolName: nil
             )
         }
     }
@@ -120,5 +132,29 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+    }
+
+    private func createStakedAmountViewModel(
+        _ amount: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
+            let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
+                amountString,
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorWhite() as Any,
+                range: (stakedString as NSString).range(of: amountString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }

@@ -53,12 +53,12 @@ final class YourValidatorListPresenter {
 }
 
 extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
-    func setup() {
+    func didLoad(view: YourValidatorListViewProtocol) {
         interactor.setup()
 
         viewModelState.setStateListener(self)
 
-        view?.didStartLoading()
+        view.didStartLoading()
     }
 
     func retry() {

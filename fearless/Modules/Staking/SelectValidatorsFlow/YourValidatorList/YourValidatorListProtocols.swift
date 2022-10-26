@@ -5,10 +5,10 @@ protocol YourValidatorListViewProtocol: ControllerBackedProtocol, Localizable, L
 }
 
 protocol YourValidatorListPresenterProtocol: AnyObject {
-    func setup()
     func retry()
     func didSelectValidator(viewModel: YourValidatorViewModel)
     func changeValidators()
+    func didLoad(view: YourValidatorListViewProtocol)
 }
 
 protocol YourValidatorListInteractorInputProtocol: AnyObject {

@@ -67,7 +67,7 @@ class YourValidatorTableCell: UITableViewCell {
         )
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.distribution = .fill
+        stackView.distribution = .fillProportionally
         stackView.spacing = 12
         return stackView
     }()
@@ -138,6 +138,12 @@ class YourValidatorTableCell: UITableViewCell {
         infoImageView.snp.makeConstraints { make in
             make.size.equalTo(14)
         }
+        errorImageView.snp.makeConstraints { make in
+            make.size.equalTo(12)
+        }
+        warningImageView.snp.makeConstraints { make in
+            make.size.equalTo(12)
+        }
 
         mainStackView.setCustomSpacing(12, after: iconView)
         mainStackView.setCustomSpacing(8.0, after: labelsStackView)
@@ -148,6 +154,8 @@ class YourValidatorTableCell: UITableViewCell {
         labelsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         detailsLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        iconsStackView.setContentHuggingPriority(.required, for: .horizontal)
+        errorImageView.setContentHuggingPriority(.required, for: .horizontal)
     }
 
     func bind(viewModel: YourValidatorViewModel, for _: Locale) {

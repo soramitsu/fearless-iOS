@@ -25,6 +25,7 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
     private(set) var counterForNominators: UInt32?
     private(set) var maxNominatorsCount: UInt32?
     private(set) var stakingDuration: StakingDuration?
+    private(set) var poolName: String?
 
     var payoutAccountAddress: String? {
         switch existingBonding.rewardDestination {
@@ -262,5 +263,14 @@ extension SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsCon
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
+    }
+
+    func didReceive(error: Error) {
+        stateListener?.didReceiveError(error: error)
+    }
+
+    func didReceive(poolName: String?) {
+        self.poolName = poolName
+        stateListener?.provideConfirmationState(viewModelState: self)
     }
 }

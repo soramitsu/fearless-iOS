@@ -7,13 +7,16 @@ final class SelectValidatorsConfirmPoolExistingViewModelFactory {
     private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
     }
 }
 
@@ -99,28 +102,17 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
-        let rewardViewModel: RewardDestinationTypeViewModel
-
-        switch state.rewardDestination {
-        case .restake:
-            rewardViewModel = .restake
-        case let .payout(account):
-            let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
-
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
-        }
-
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
-
-            return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+        return LocalizableResource { _ in
+            SelectValidatorsConfirmViewModel(
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
-                rewardDestination: rewardViewModel,
+                amount: nil,
+                rewardDestination: .none,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil
+                selectedCollatorViewModel: nil,
+                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                poolName: viewModelState.poolName
             )
         }
     }
@@ -137,5 +129,25 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+    }
+
+    func createStakedAmountViewModel(
+        _: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorGray(),
+                range: (stakedString as NSString).range(of: stakedString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }

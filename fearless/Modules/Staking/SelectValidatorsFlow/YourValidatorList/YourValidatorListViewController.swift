@@ -70,7 +70,7 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
         setupLocalization()
         updateChangeButtonState()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
     }
 
     private func setupLocalization() {

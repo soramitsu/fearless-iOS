@@ -7,13 +7,16 @@ final class SelectValidatorsConfirmPoolInitiatedViewModelFactory {
     private let iconGenerator: IconGenerating
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
     }
 }
 
@@ -107,20 +110,26 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
         case let .payout(account):
             let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
 
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
+            rewardViewModel = .payout(
+                icon: payoutIcon,
+                title: account.username,
+                address: account.address
+            )
         }
 
         return LocalizableResource { locale in
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
             return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
-                rewardDestination: rewardViewModel,
+                amount: nil,
+                rewardDestination: .none,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil
+                selectedCollatorViewModel: nil,
+                stakeAmountViewModel: self.createStakedAmountViewModel(state.amount),
+                poolName: viewModelState.poolName
             )
         }
     }
@@ -137,5 +146,25 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+    }
+
+    private func createStakedAmountViewModel(
+        _: Decimal
+    ) -> LocalizableResource<StakeAmountViewModel>? {
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorGray(),
+                range: (stakedString as NSString).range(of: stakedString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }
