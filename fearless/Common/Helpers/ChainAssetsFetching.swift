@@ -304,7 +304,11 @@ private extension ChainAssetsFetching {
         }
     }
 
-    func sortByBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAssetKey: AccountInfo?]) -> [ChainAsset] {
+    func sortByBalance(
+        chainAssets: [ChainAsset],
+        order: SortOrder,
+        accountInfos: [ChainAssetKey: AccountInfo?]
+    ) -> [ChainAsset] {
         chainAssets.sorted { chainAsset0, chainAsset1 in
             var balance0 = Decimal.zero
             var balance1 = Decimal.zero
@@ -327,7 +331,11 @@ private extension ChainAssetsFetching {
         }
     }
 
-    func sortByUsdBalance(chainAssets: [ChainAsset], order: SortOrder, accountInfos: [ChainAssetKey: AccountInfo?]) -> [ChainAsset] {
+    func sortByUsdBalance(
+        chainAssets: [ChainAsset],
+        order: SortOrder,
+        accountInfos: [ChainAssetKey: AccountInfo?]
+    ) -> [ChainAsset] {
         chainAssets.sorted { chainAsset0, chainAsset1 in
             var usdBalance0 = Decimal.zero
             var usdBalance1 = Decimal.zero
