@@ -10,7 +10,8 @@ protocol ChainAssetListViewModelFactoryProtocol {
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id]
+        chainsWithIssues: [ChainModel.Id],
+        chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAssetListViewModel
 }
 
@@ -28,7 +29,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        chainsWithIssues: [ChainModel.Id]
+        chainsWithIssues: [ChainModel.Id],
+        chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -67,11 +69,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 locale: locale,
                 currency: selectedMetaAccount.selectedCurrency,
                 selectedMetaAccount: selectedMetaAccount,
-                chainsWithIssues: chainsWithIssues
+                chainsWithIssues: chainsWithIssues,
+                chainsWithMissingAccounts: chainsWithMissingAccounts
             )
         }
 
-        let cellModelsDivide = chainAssetCellModels.divide(predicate: { $0.isHidden })
+        let cellModelsDivide = chainAssetCellModels.divide(predicate: { $0.isHidden || $0.isUnused })
         let activeSectionCellModels: [ChainAccountBalanceCellViewModel] = cellModelsDivide.remainder
         let hiddenSectionCellModels: [ChainAccountBalanceCellViewModel] = cellModelsDivide.slice
 
@@ -91,7 +94,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
         return ChainAssetListViewModel(
             sections: [
-                .active, .hidden
+                .active,
+                .hidden
             ],
             cellsForSections: [
                 .active: activeSectionCellModels,
@@ -122,7 +126,8 @@ private extension ChainAssetListViewModelFactory {
         locale: Locale,
         currency: Currency,
         selectedMetaAccount: MetaAccountModel,
-        chainsWithIssues: [ChainModel.Id]
+        chainsWithIssues: [ChainModel.Id],
+        chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         var accountInfo: AccountInfo?
         if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
@@ -146,7 +151,16 @@ private extension ChainAssetListViewModelFactory {
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
-        let isNetworkIssues = containsChainAssets.first(where: { chainsWithIssues.contains($0.chain.chainId) }) != nil
+        let isNetworkIssues = containsChainAssets.first(where: {
+            chainsWithIssues.contains($0.chain.chainId)
+        }) != nil
+        let isMissingAccount = containsChainAssets.first(where: {
+            chainsWithMissingAccounts.contains($0.chain.chainId)
+        }) != nil
+
+        if chainsWithMissingAccounts.contains(chainAsset.chain.chainId) {
+            isColdBoot = !isMissingAccount
+        }
 
         let totalAssetBalance = getBalanceString(
             for: containsChainAssets,
@@ -163,6 +177,11 @@ private extension ChainAssetListViewModelFactory {
             currency: currency,
             selectedMetaAccount: selectedMetaAccount
         )
+
+        var isUnused = false
+        if let unusedChainIds = selectedMetaAccount.unusedChainIds {
+            isUnused = unusedChainIds.contains(chainAsset.chain.chainId)
+        }
 
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: containsChainAssets,
@@ -186,7 +205,10 @@ private extension ChainAssetListViewModelFactory {
             isColdBoot: isColdBoot,
             priceDataWasUpdated: priceDataUpdated,
             isNetworkIssues: isNetworkIssues,
-            isHidden: checkForHide(chainAsset: chainAsset, selectedMetaAccount: selectedMetaAccount)
+            isMissingAccount: isMissingAccount,
+            isHidden: checkForHide(chainAsset: chainAsset, selectedMetaAccount: selectedMetaAccount),
+            isUnused: isUnused,
+            locale: locale
         )
 
         if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
