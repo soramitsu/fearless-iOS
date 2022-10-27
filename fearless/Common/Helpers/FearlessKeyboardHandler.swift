@@ -4,10 +4,10 @@ import SoraFoundation
 typealias KeyboardFrameChangeHandleBlock = ([AnyHashable: Any]?) -> Void
 
 final class FearlessKeyboardHandler {
-    public weak var delegate: KeyboardHandlerDelegate?
+    weak var delegate: KeyboardHandlerDelegate?
 
-    public var handleWillShow: KeyboardFrameChangeHandleBlock?
-    public var handleWillHide: KeyboardFrameChangeHandleBlock?
+    var handleWillShow: KeyboardFrameChangeHandleBlock?
+    var handleWillHide: KeyboardFrameChangeHandleBlock?
 
     // MARK: Initialization
 
