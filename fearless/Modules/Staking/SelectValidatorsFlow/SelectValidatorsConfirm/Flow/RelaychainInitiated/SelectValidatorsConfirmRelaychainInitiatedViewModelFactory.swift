@@ -20,8 +20,12 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelFactory {
 }
 
 extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let state = viewModelState.confirmationModel else {
+    func buildAssetBalanceViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?,
+        balance: Decimal?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState else {
             return nil
         }
 
@@ -32,7 +36,9 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
         )
     }
 
-    func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
+    func buildHintsViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState
+    ) -> LocalizableResource<[TitleIconViewModel]>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
               let duration = viewModelState.stakingDuration else {
             return nil
@@ -80,8 +86,12 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
         }
     }
 
-    func buildViewModel(viewModelState: SelectValidatorsConfirmViewModelState, asset: AssetModel) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState, let state = viewModelState.confirmationModel else {
+    func buildViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        asset: AssetModel
+    ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
+              let state = viewModelState.confirmationModel else {
             return nil
         }
 
@@ -115,7 +125,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
                 selectedCollatorViewModel: nil,
-                stakeAmountViewModel: self?.createStakedAmountViewModel(state.amount),
+                stakeAmountViewModel: self?.createStakedAmountViewModel(),
                 poolName: nil
             )
         }
@@ -133,9 +143,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
     }
 
-    private func createStakedAmountViewModel(
-        _: Decimal
-    ) -> LocalizableResource<StakeAmountViewModel>? {
+    private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
@@ -145,7 +153,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorGray(),
+                value: R.color.colorGray() as Any,
                 range: (stakedString as NSString).range(of: stakedString)
             )
 
