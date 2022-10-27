@@ -29,63 +29,15 @@ final class SelectValidatorsConfirmViewLayout: UIView {
 
     let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
 
-    let poolView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
+    let poolView: TitleMultiValueView = createTitleMultiValueView()
 
-    let mainAccountView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        view.valueTop.lineBreakMode = .byTruncatingTail
-        view.valueBottom.lineBreakMode = .byTruncatingMiddle
-        return view
-    }()
+    let mainAccountView: TitleMultiValueView = createTitleMultiValueView()
 
-    let rewardDestinationView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        view.valueTop.lineBreakMode = .byTruncatingTail
-        view.valueBottom.lineBreakMode = .byTruncatingMiddle
-        return view
-    }()
+    let rewardDestinationView: TitleMultiValueView = createTitleMultiValueView()
 
     var payoutAccountView: TitleMultiValueView?
 
-    let amountView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
+    let amountView: TitleMultiValueView = createTitleMultiValueView()
 
     let validatorsView: TitleValueView = {
         let view = TitleValueView()
@@ -98,18 +50,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         return view
     }()
 
-    let feeView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
+    let feeView: TitleMultiValueView = createTitleMultiValueView()
 
     let selectedCollatorContainer = UIView()
     let selectedCollatorTitle: UILabel = {
@@ -119,18 +60,7 @@ final class SelectValidatorsConfirmViewLayout: UIView {
         return label
     }()
 
-    let selectedCollatorView: TitleMultiValueView = {
-        let view = TitleMultiValueView()
-        view.titleLabel.font = .h5Title
-        view.titleLabel.textColor = R.color.colorStrokeGray()
-        view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
-        view.valueBottom.font = .p1Paragraph
-        view.valueBottom.textColor = R.color.colorStrokeGray()
-        view.borderView.isHidden = true
-        view.equalsLabelsWidth = true
-        return view
-    }()
+    let selectedCollatorView: TitleMultiValueView = createTitleMultiValueView()
 
     private(set) var hintViews: [UIView] = []
 
@@ -146,6 +76,21 @@ final class SelectValidatorsConfirmViewLayout: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private static func createTitleMultiValueView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        view.valueTop.lineBreakMode = .byTruncatingTail
+        view.valueBottom.lineBreakMode = .byTruncatingMiddle
+        return view
     }
 
     func addPayoutAccountIfNeeded() {

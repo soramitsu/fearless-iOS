@@ -46,23 +46,11 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
     }
 
     private func configure() {
-//        rootView.mainAccountView.addTarget(
-//            self,
-//            action: #selector(actionOnWalletAccount),
-//            for: .touchUpInside
-//        )
-
         rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(proceed),
             for: .touchUpInside
         )
-
-//        rootView.selectedCollatorView.addTarget(
-//            self,
-//            action: #selector(actionOnCollatorAccount),
-//            for: .touchUpInside
-//        )
     }
 
     private func setupLocalization() {
