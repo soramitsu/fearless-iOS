@@ -73,7 +73,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel = CopyableLabelView()
+    let addressCopyableLabel = CopyableLabelView()
 
     // MARK: - Ussues button
 

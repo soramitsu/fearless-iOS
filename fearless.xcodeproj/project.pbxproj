@@ -45,6 +45,7 @@
 		07349F2D28F962D300A802B9 /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */; };
 		07349F2F28F99ACB00A802B9 /* UsedRuntimeModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
+		074EB7A8290A3DBB000A2A6A /* ApplicationStatusViewViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A7290A3DBB000A2A6A /* ApplicationStatusViewViewModel.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
 		0761DEB228E1F54D00B90D2C /* StakingPoolCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */; };
@@ -2538,6 +2539,7 @@
 		07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
 		07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedRuntimeModules.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
+		074EB7A7290A3DBB000A2A6A /* ApplicationStatusViewViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusViewViewModel.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
 		0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModel.swift; sourceTree = "<group>"; };
@@ -6762,6 +6764,7 @@
 			isa = PBXGroup;
 			children = (
 				843910DD253F912500E3C217 /* ApplicationStatusView.swift */,
+				074EB7A7290A3DBB000A2A6A /* ApplicationStatusViewViewModel.swift */,
 			);
 			path = ApplicationStatusView;
 			sourceTree = "<group>";
@@ -15074,6 +15077,7 @@
 				27FA1D57A06AA3A030D226B6 /* StakingUnbondConfirmWireframe.swift in Sources */,
 				843A2C7326A8641400266F53 /* MultiValueView.swift in Sources */,
 				3FF8EE1158A273D0D50BC7A6 /* StakingUnbondConfirmPresenter.swift in Sources */,
+				074EB7A8290A3DBB000A2A6A /* ApplicationStatusViewViewModel.swift in Sources */,
 				FA99425728053C8800D771E5 /* SelectExportAccountPresenter.swift in Sources */,
 				FA2FC85A28B389EB00CC0A42 /* AssetSelectionTableViewCellModel.swift in Sources */,
 				F0C3DB0CEE1975626B0014A8 /* StakingUnbondConfirmInteractor.swift in Sources */,
