@@ -348,7 +348,7 @@ final class NetworkInfoView: UIView {
     }
 
     private func setupSkeleton() {
-        guard !expanded else {
+        guard expanded else {
             return
         }
 
@@ -371,6 +371,7 @@ final class NetworkInfoView: UIView {
 
         skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
         skeletonView.autoresizingMask = []
+        skeletonView.clipsToBounds = true
         networkInfoContainer.insertSubview(skeletonView, at: 0)
 
         self.skeletonView = skeletonView
