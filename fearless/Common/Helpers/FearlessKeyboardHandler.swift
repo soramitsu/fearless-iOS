@@ -1,9 +1,9 @@
 import UIKit
 import SoraFoundation
 
-public typealias KeyboardFrameChangeHandleBlock = ([AnyHashable: Any]?) -> Void
+typealias KeyboardFrameChangeHandleBlock = ([AnyHashable: Any]?) -> Void
 
-public class FearlessKeyboardHandler {
+final class FearlessKeyboardHandler {
     public weak var delegate: KeyboardHandlerDelegate?
 
     public var handleWillShow: KeyboardFrameChangeHandleBlock?
