@@ -869,6 +869,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "common.select" = "Select";
 "staking.pool.select.validators.manual" = "Select manual";
 "staking.pool.select.validators.suggested" = "Select suggested";
+"staking.select.validators.confirm.title" = "Selecting validators";
 "pool.staking.management.option.nominees" = "Nominees";
 "your.validators.validator.total.stake" = "Total staked: %@";
 "your.validators.stop.nominating.title" = "Stop nominating";
@@ -884,3 +885,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "application.status.view.offline.description" = "Please check your connection and try againt";
 "application.status.view.reconnected.title" = "Reconnected";
 "application.status.view.reconnected.description" = "Сonnection successfully restored";
+"select.network.search.placeholder" = "Search by network";
+"select.network.search.empty.subtitle" = "No networks were found :(";

@@ -13,6 +13,8 @@ protocol SelectValidatorsConfirmPoolExistingStrategyOutput: SelectValidatorsConf
     func didFailNomination(error: Error)
     func didReceive(paymentInfo: RuntimeDispatchInfo)
     func didReceive(feeError: Error)
+    func didReceive(error: Error)
+    func didReceive(poolName: String?)
 }
 
 final class SelectValidatorsConfirmPoolExistingStrategy: StakingDurationFetching {
@@ -27,6 +29,8 @@ final class SelectValidatorsConfirmPoolExistingStrategy: StakingDurationFetching
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let output: SelectValidatorsConfirmPoolExistingStrategyOutput?
+    private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
+    private let poolId: UInt32
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -45,7 +49,9 @@ final class SelectValidatorsConfirmPoolExistingStrategy: StakingDurationFetching
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
         chainAsset: ChainAsset,
-        output: SelectValidatorsConfirmPoolExistingStrategyOutput?
+        output: SelectValidatorsConfirmPoolExistingStrategyOutput?,
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
+        poolId: UInt32
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.balanceAccountId = balanceAccountId
@@ -58,6 +64,25 @@ final class SelectValidatorsConfirmPoolExistingStrategy: StakingDurationFetching
         self.signer = signer
         self.chainAsset = chainAsset
         self.output = output
+        self.stakingPoolOperationFactory = stakingPoolOperationFactory
+        self.poolId = poolId
+    }
+
+    private func fetchPoolMetadata() {
+        let fetchPoolMetadataOperation = stakingPoolOperationFactory.fetchPoolMetadataOperation(poolId: "\(poolId)")
+
+        fetchPoolMetadataOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let metadata = try fetchPoolMetadataOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(poolName: metadata)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: fetchPoolMetadataOperation.allOperations, in: .transient)
     }
 }
 
@@ -107,8 +132,6 @@ extension SelectValidatorsConfirmPoolExistingStrategy: SelectValidatorsConfirmSt
     }
 
     func setup() {
-        output?.didSetup()
-
         minBondProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
 
         counterForNominatorsProvider = subscribeToCounterForNominators(for: chainAsset.chain.chainId)
@@ -122,6 +145,8 @@ extension SelectValidatorsConfirmPoolExistingStrategy: SelectValidatorsConfirmSt
         ) { [weak self] result in
             self?.output?.didReceiveStakingDuration(result: result)
         }
+
+        fetchPoolMetadata()
 
         output?.didSetup()
     }

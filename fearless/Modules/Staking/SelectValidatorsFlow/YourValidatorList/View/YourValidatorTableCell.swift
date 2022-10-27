@@ -2,6 +2,11 @@ import Foundation
 import FearlessUtils
 
 class YourValidatorTableCell: UITableViewCell {
+    private enum LayoutConstants {
+        static let infoIconSize: CGFloat = 14
+        static let checkmarkIconSize: CGFloat = 20
+    }
+
     let iconView: UIImageView = {
         let view = UIImageView()
         view.image = R.image.iconListSelectionOn()
@@ -67,7 +72,7 @@ class YourValidatorTableCell: UITableViewCell {
         )
         stackView.axis = .horizontal
         stackView.alignment = .center
-        stackView.distribution = .fill
+        stackView.distribution = .fillProportionally
         stackView.spacing = 12
         return stackView
     }()
@@ -114,13 +119,13 @@ class YourValidatorTableCell: UITableViewCell {
         mainStackView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.top.equalToSuperview().offset(12)
-            make.bottom.equalToSuperview().inset(12)
+            make.top.equalToSuperview().offset(UIConstants.offset12)
+            make.bottom.equalToSuperview().inset(UIConstants.offset12)
         }
 
         mainStackView.addArrangedSubview(iconView)
         iconView.snp.makeConstraints { make in
-            make.width.height.equalTo(20)
+            make.width.height.equalTo(LayoutConstants.checkmarkIconSize)
         }
 
         mainStackView.addArrangedSubview(labelsStackView)
@@ -136,7 +141,13 @@ class YourValidatorTableCell: UITableViewCell {
 
         mainStackView.addArrangedSubview(infoImageView)
         infoImageView.snp.makeConstraints { make in
-            make.size.equalTo(14)
+            make.size.equalTo(LayoutConstants.infoIconSize)
+        }
+        errorImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.infoIconSize)
+        }
+        warningImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.infoIconSize)
         }
 
         mainStackView.setCustomSpacing(12, after: iconView)
@@ -148,6 +159,8 @@ class YourValidatorTableCell: UITableViewCell {
         labelsStackView.setContentCompressionResistancePriority(.required, for: .horizontal)
         titleLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         detailsLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
+        iconsStackView.setContentHuggingPriority(.required, for: .horizontal)
+        errorImageView.setContentHuggingPriority(.required, for: .horizontal)
     }
 
     func bind(viewModel: YourValidatorViewModel, for _: Locale) {

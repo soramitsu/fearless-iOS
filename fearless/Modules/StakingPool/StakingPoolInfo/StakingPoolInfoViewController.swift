@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingPoolInfoViewController: UIViewController, ViewHolder {
+final class StakingPoolInfoViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolInfoViewLayout
 
     // MARK: Private properties
@@ -53,6 +53,12 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder {
 
     @objc private func validatorsClicked() {
         output.didTapValidators()
+    }
+
+    // MARK: - LoadableViewProtocol
+
+    var loadableContentView: UIView! {
+        rootView.contentView
     }
 }
 

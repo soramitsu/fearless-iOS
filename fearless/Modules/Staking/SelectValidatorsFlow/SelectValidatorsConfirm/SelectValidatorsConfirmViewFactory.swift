@@ -77,6 +77,13 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             selectedMetaAccount: wallet
         )
 
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection
+        )
+
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmRelaychainInitiatedViewModelState(
@@ -101,7 +108,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainInitiatedViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
             return SelectValidatorsConfirmDependencyContainer(
@@ -133,7 +141,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
             return SelectValidatorsConfirmDependencyContainer(
@@ -179,7 +188,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chain)
+                iconGenerator: UniversalIconGenerator(chain: chain),
+                chainAsset: chainAsset
             )
             return SelectValidatorsConfirmDependencyContainer(
                 viewModelState: viewModelState,
@@ -207,11 +217,14 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 operationManager: OperationManagerFacade.sharedManager,
                 signer: signer,
                 chainAsset: chainAsset,
-                output: viewModelState
+                output: viewModelState,
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                poolId: poolId
             )
             let viewModelFactory = SelectValidatorsConfirmPoolInitiatedViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
             return SelectValidatorsConfirmDependencyContainer(
@@ -240,11 +253,14 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 operationManager: OperationManagerFacade.sharedManager,
                 signer: signer,
                 chainAsset: chainAsset,
-                output: viewModelState
+                output: viewModelState,
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                poolId: poolId
             )
             let viewModelFactory = SelectValidatorsConfirmPoolExistingViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
             return SelectValidatorsConfirmDependencyContainer(

@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 protocol LoadableViewProtocol: AnyObject {
-    var loadableContentView: UIView! { get }
+    var loadableContentView: UIView { get }
     var shouldDisableInteractionWhenLoading: Bool { get }
 
     func didStartLoading()
@@ -15,7 +15,7 @@ enum LoadableViewProtocolConstants {
 }
 
 extension LoadableViewProtocol where Self: UIViewController {
-    var loadableContentView: UIView! {
+    var loadableContentView: UIView {
         view
     }
 

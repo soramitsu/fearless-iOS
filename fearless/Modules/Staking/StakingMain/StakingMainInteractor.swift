@@ -263,8 +263,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     func provideRewardCalculator(from calculatorService: RewardCalculatorServiceProtocol) {
         let operation = calculatorService.fetchCalculatorOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let engine = try operation.extractNoCancellableResultData()
                     self?.presenter?.didReceive(calculator: engine)
@@ -280,8 +280,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     func provideEraStakersInfo(from eraValidatorService: EraValidatorServiceProtocol) {
         let operation = eraValidatorService.fetchInfoOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let info = try operation.extractNoCancellableResultData()
                     self?.presenter?.didReceive(eraStakersInfo: info)
@@ -310,8 +310,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             runtimeService: runtimeService
         )
 
-        wrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let info = try wrapper.targetOperation.extractNoCancellableResultData()
                     self?.presenter?.didReceive(networkStakingInfo: info)

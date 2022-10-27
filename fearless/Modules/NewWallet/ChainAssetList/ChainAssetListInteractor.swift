@@ -17,8 +17,6 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var chainAssets: [ChainAsset]?
-    private var filters: [ChainAssetsFetching.Filter] = []
-    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -87,8 +85,6 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        self.filters = filters
-        self.sorts = sorts
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts
