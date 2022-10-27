@@ -91,7 +91,8 @@ final class ChainSelectionPresenter {
                 title: title,
                 subtitle: balance,
                 icon: icon,
-                isSelected: isSelected
+                isSelected: isSelected,
+                identifier: chain.chainId
             )
         }
 
@@ -100,7 +101,8 @@ final class ChainSelectionPresenter {
                 title: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: selectedLocale.rLanguages),
                 subtitle: nil,
                 icon: nil,
-                isSelected: selectedChainId == nil
+                isSelected: selectedChainId == nil,
+                identifier: nil
             )
             viewModels.insert(allNetworksViewModel, at: 0)
         }

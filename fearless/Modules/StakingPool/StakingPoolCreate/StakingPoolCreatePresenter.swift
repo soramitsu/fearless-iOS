@@ -230,6 +230,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
+        provideAssetVewModel()
         provideInputViewModel()
 
         refreshFee()
@@ -237,6 +238,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        provideAssetVewModel()
 
         refreshFee()
     }

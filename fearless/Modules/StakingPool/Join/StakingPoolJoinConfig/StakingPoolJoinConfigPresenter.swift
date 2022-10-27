@@ -109,11 +109,13 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
         provideInputViewModel()
+        provideAssetVewModel()
         interactor.estimateFee()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        provideAssetVewModel()
         interactor.estimateFee()
     }
 

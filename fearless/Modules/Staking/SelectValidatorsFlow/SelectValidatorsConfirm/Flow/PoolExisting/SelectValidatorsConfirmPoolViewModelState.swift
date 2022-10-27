@@ -25,6 +25,7 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
     private(set) var counterForNominators: UInt32?
     private(set) var maxNominatorsCount: UInt32?
     private(set) var stakingDuration: StakingDuration?
+    private(set) var poolName: String?
 
     var payoutAccountAddress: String? {
         switch existingBonding.rewardDestination {
@@ -158,17 +159,17 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
-        mapOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 guard let strongSelf = self else {
                     return
                 }
                 do {
-                    self?.confirmationModel = try mapOperation.extractNoCancellableResultData()
+                    strongSelf.confirmationModel = try mapOperation.extractNoCancellableResultData()
 
-                    self?.stateListener?.provideConfirmationState(viewModelState: strongSelf)
+                    strongSelf.stateListener?.provideConfirmationState(viewModelState: strongSelf)
                 } catch {
-                    self?.stateListener?.didReceiveError(error: error)
+                    strongSelf.stateListener?.didReceiveError(error: error)
                 }
             }
         }
@@ -262,5 +263,14 @@ extension SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsCon
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
+    }
+
+    func didReceive(error: Error) {
+        stateListener?.didReceiveError(error: error)
+    }
+
+    func didReceive(poolName: String?) {
+        self.poolName = poolName
+        stateListener?.provideConfirmationState(viewModelState: self)
     }
 }

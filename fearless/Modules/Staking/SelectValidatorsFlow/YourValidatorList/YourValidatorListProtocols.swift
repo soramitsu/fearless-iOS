@@ -5,10 +5,10 @@ protocol YourValidatorListViewProtocol: ControllerBackedProtocol, Localizable, L
 }
 
 protocol YourValidatorListPresenterProtocol: AnyObject {
-    func setup()
     func retry()
     func didSelectValidator(viewModel: YourValidatorViewModel)
     func changeValidators()
+    func didLoad(view: YourValidatorListViewProtocol)
 }
 
 protocol YourValidatorListInteractorInputProtocol: AnyObject {
@@ -16,13 +16,7 @@ protocol YourValidatorListInteractorInputProtocol: AnyObject {
     func refresh()
 }
 
-protocol YourValidatorListInteractorOutputProtocol: AnyObject {
-    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceiveLedger(result: Result<StakingLedger?, Error>)
-    func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>)
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
-}
+protocol YourValidatorListInteractorOutputProtocol: AnyObject {}
 
 protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
@@ -35,9 +29,8 @@ protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
 
     func proceedToSelectValidatorsStart(
         from view: YourValidatorListViewProtocol?,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel,
-        existingBonding: ExistingBonding
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: SelectValidatorsStartFlow
     )
 }

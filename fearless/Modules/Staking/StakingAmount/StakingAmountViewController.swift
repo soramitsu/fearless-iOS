@@ -306,7 +306,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
             payoutView.isSelected = false
 
             updateAccountView()
-        case let .payout(icon, title):
+        case let .payout(icon, title, _):
             restakeView.isSelected = false
             payoutView.isSelected = true
 
