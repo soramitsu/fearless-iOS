@@ -43,6 +43,14 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         return button
     }()
 
+    let emptyView: UILabel = {
+        let label = UILabel()
+        label.textAlignment = .center
+        label.numberOfLines = 2
+        label.isHidden = true
+        return label
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -72,6 +80,7 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(tableView)
         addSubview(continueButton)
+        addSubview(emptyView)
 
         navigationBar.setRightViews([optionsButton])
 
@@ -95,6 +104,10 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        emptyView.snp.makeConstraints { make in
+            make.center.equalTo(tableView.snp.center)
+        }
     }
 
     private func applyLocalization() {
@@ -104,5 +117,6 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.poolStakingChoosepoolTitle(
             preferredLanguages: locale.rLanguages
         ))
+        emptyView.text = R.string.localizable.choosePoolEmptyTitle(preferredLanguages: locale.rLanguages)
     }
 }
