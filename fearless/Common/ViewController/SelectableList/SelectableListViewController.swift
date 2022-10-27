@@ -8,6 +8,8 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     ViewHolder {
     typealias RootViewType = SelectableListViewLayout
 
+    var keyboardHandler: KeyboardHandler?
+
     // MARK: Private properties
 
     private let listPresenter: SelectionListPresenterProtocol
@@ -33,6 +35,20 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTableView()
+        bindSearchTextView()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -42,6 +58,12 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.allowsSelection = true
+    }
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.listPresenter.searchItem(with: text)
+        }
     }
 
     // MARK: - UITableView DataSource
@@ -77,7 +99,25 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 // MARK: - SelectionListViewProtocol
 
 extension SelectableListViewController: SelectionListViewProtocol {
+    func bind(viewModel: SelectNetworkSearchViewModel?) {
+        rootView.bind(viewModel: viewModel)
+    }
+
     func didReload() {
         rootView.tableView.reloadData()
+        rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
+    }
+}
+
+// MARK: - KeyboardAdoptable
+
+extension SelectableListViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+
+        rootView.contentStackView.snp.updateConstraints { make in
+            make.bottom.equalToSuperview().offset(-bottomInset)
+        }
     }
 }
