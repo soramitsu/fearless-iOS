@@ -159,17 +159,17 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
-        mapOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 guard let strongSelf = self else {
                     return
                 }
                 do {
-                    self?.confirmationModel = try mapOperation.extractNoCancellableResultData()
+                    strongSelf.confirmationModel = try mapOperation.extractNoCancellableResultData()
 
-                    self?.stateListener?.provideConfirmationState(viewModelState: strongSelf)
+                    strongSelf.stateListener?.provideConfirmationState(viewModelState: strongSelf)
                 } catch {
-                    self?.stateListener?.didReceiveError(error: error)
+                    strongSelf.stateListener?.didReceiveError(error: error)
                 }
             }
         }

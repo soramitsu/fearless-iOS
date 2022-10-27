@@ -55,4 +55,55 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
 
         view?.controller.present(controller, animated: true)
     }
+
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        actions: [AlertPresentableAction]
+    ) {
+        let cancelTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
+        let alertViewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: cancelTitle
+        )
+
+        present(
+            viewModel: alertViewModel,
+            style: .actionSheet,
+            from: view
+        )
+    }
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
+            flow: .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: controller
+        )
+
+        view?.controller.present(navigationController, animated: true)
+    }
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: importController
+        )
+
+        view?.controller.present(navigationController, animated: true)
+    }
 }
