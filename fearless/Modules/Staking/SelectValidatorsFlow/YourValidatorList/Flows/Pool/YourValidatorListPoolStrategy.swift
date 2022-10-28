@@ -103,7 +103,13 @@ final class YourValidatorListPoolStrategy: RuntimeConstantFetching, AnyProviderA
                 self?.output?.didReceive(nomination: nomination)
                 self?.nomination = nomination
 
-                self?.fetchValidators()
+                if nomination != nil {
+                    self?.fetchValidators()
+                } else {
+                    DispatchQueue.main.async {
+                        self?.output?.didReceiveValidators(result: .success(YourValidatorsModel.empty()))
+                    }
+                }
             } catch {
                 self?.output?.didReceive(error: error)
             }
