@@ -32,9 +32,9 @@ final class ApplicationStatusView: TriangularedView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func bind(viewModel: ApplicationStatusViewViewModel) {
-        fillColor = viewModel.backgroundColor!
-        highlightedFillColor = viewModel.backgroundColor!
+    func bind(viewModel: ApplicationStatusAlertEvent) {
+        fillColor = viewModel.backgroundColor
+        highlightedFillColor = viewModel.backgroundColor
         imageView.image = viewModel.image
         titleLabel.text = viewModel.titleText
         descriptionLabel.text = viewModel.descriptionText

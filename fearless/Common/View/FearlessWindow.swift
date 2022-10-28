@@ -7,7 +7,7 @@ final class FearlessWindow: UIWindow {
         static let appearanceAnimationDuration: TimeInterval = 0.2
         static let changeAnimationDuration: TimeInterval = 0.2
         static let dismissAnimationDuration: TimeInterval = 0.2
-        static let autoDismissDuration: TimeInterval = 2.0
+        static let autoDismissDelay: TimeInterval = 2.0
     }
 
     private var statusView: ApplicationStatusView?
@@ -49,7 +49,7 @@ final class FearlessWindow: UIWindow {
         return statusView
     }
 
-    private func changeStatus(with viewModel: ApplicationStatusViewViewModel, animated: Bool) {
+    private func changeStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool) {
         guard let statusView = statusView else {
             return
         }
@@ -70,7 +70,7 @@ final class FearlessWindow: UIWindow {
 }
 
 extension FearlessWindow: ApplicationStatusPresentable {
-    func presentStatus(with viewModel: ApplicationStatusViewViewModel, animated: Bool) {
+    func presentStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool) {
         if statusView != nil {
             changeStatus(with: viewModel, animated: animated)
             return
@@ -95,13 +95,13 @@ extension FearlessWindow: ApplicationStatusPresentable {
         }
 
         if viewModel.autoDismissing {
-            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDuration) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + Constants.autoDismissDelay) {
                 self.dismissStatus(with: nil, animated: true)
             }
         }
     }
 
-    func dismissStatus(with viewModel: ApplicationStatusViewViewModel?, animated: Bool) {
+    func dismissStatus(with viewModel: ApplicationStatusAlertEvent?, animated: Bool) {
         guard let statusView = statusView else {
             return
         }

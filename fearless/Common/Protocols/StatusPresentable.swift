@@ -2,13 +2,13 @@ import UIKit
 import SoraUI
 
 protocol ApplicationStatusPresentable: AnyObject {
-    func presentStatus(with viewModel: ApplicationStatusViewViewModel, animated: Bool)
-    func dismissStatus(with viewModel: ApplicationStatusViewViewModel?, animated: Bool)
+    func presentStatus(with viewModel: ApplicationStatusAlertEvent, animated: Bool)
+    func dismissStatus(with viewModel: ApplicationStatusAlertEvent?, animated: Bool)
 }
 
 extension ApplicationStatusPresentable {
     func presentStatus(
-        with viewModel: ApplicationStatusViewViewModel,
+        with viewModel: ApplicationStatusAlertEvent,
         animated: Bool
     ) {
         guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
@@ -18,7 +18,7 @@ extension ApplicationStatusPresentable {
     }
 
     func dismissStatus(
-        with viewModel: ApplicationStatusViewViewModel?,
+        with viewModel: ApplicationStatusAlertEvent?,
         animated: Bool
     ) {
         guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {

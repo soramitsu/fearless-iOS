@@ -16,14 +16,14 @@ final class NetworkAvailabilityLayerPresenter {
 extension NetworkAvailabilityLayerPresenter: NetworkAvailabilityLayerInteractorOutputProtocol {
     func didDecideUnreachableStatusPresentation() {
         view.presentStatus(
-            with: .connectionOffline(locale: selectedLocale),
+            with: ConnectionOfflineEvent(locale: selectedLocale),
             animated: true
         )
     }
 
     func didDecideReachableStatusPresentation() {
         view.dismissStatus(
-            with: .connectionOnline(locale: selectedLocale),
+            with: ConnectionOnlineEvent(locale: selectedLocale),
             animated: true
         )
     }

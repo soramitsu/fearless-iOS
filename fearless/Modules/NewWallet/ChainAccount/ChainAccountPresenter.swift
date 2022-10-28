@@ -86,7 +86,7 @@ private extension ChainAccountPresenter {
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func addressDidCopied() {
         wireframe.presentStatus(
-            with: .addressCopied(locale: selectedLocale),
+            with: AddressCopiedEvent(locale: selectedLocale),
             animated: true
         )
     }

@@ -54,7 +54,7 @@ final class WalletMainContainerPresenter {
 extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     func addressDidCopied() {
         router.presentStatus(
-            with: .addressCopied(locale: selectedLocale),
+            with: AddressCopiedEvent(locale: selectedLocale),
             animated: true
         )
     }
