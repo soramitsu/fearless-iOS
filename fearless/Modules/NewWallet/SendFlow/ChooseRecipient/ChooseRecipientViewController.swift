@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class ChooseRecipientViewController: UIViewController, ViewHolder {
     typealias RootViewType = ChooseRecipientViewLayout
@@ -7,7 +8,6 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
     let presenter: ChooseRecipientPresenterProtocol
 
     private var tableViewModel: ChooseRecipientTableViewModel?
-    private var isFirstLayoutCompleted: Bool = false
 
     private lazy var searchActivityIndicatory: UIActivityIndicatorView = .init(style: .white)
 
@@ -25,29 +25,23 @@ final class ChooseRecipientViewController: UIViewController, ViewHolder {
         view = ChooseRecipientViewLayout()
     }
 
-    override func viewWillAppear(_ animated: Bool) {
-        super.viewWillAppear(animated)
-        setupKeyboardHandler()
-    }
-
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        clearKeyboardHandler()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        isFirstLayoutCompleted = true
-    }
-
     override func viewDidLoad() {
         super.viewDidLoad()
-
         presenter.setup()
 
         configure()
 
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardHandler()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        clearKeyboardHandler()
     }
 
     func configure() {
@@ -172,9 +166,7 @@ extension ChooseRecipientViewController: UITextFieldDelegate {
 extension ChooseRecipientViewController: HiddableBarWhenPushed {}
 
 extension ChooseRecipientViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.bottomContainer }
-
-    var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
         UIConstants.bigOffset

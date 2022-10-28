@@ -65,7 +65,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var uiFactory: UIFactoryProtocol?
     var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: - UIViewController
 

@@ -1,6 +1,7 @@
 import UIKit
 import CommonWallet
 import SoraFoundation
+import SnapKit
 
 final class WalletSendViewController: UIViewController, ViewHolder {
     typealias RootViewType = WalletSendViewLayout
@@ -165,7 +166,7 @@ extension WalletSendViewController: Localizable {
 }
 
 extension WalletSendViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.actionButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

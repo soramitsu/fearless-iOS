@@ -1,5 +1,6 @@
 import UIKit
 import MobileCoreServices
+import SnapKit
 
 final class ManageAssetsViewController: UIViewController, ViewHolder {
     private enum LayoutConstants {
@@ -192,7 +193,7 @@ extension ManageAssetsViewController: UISearchBarDelegate {
 }
 
 extension ManageAssetsViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.applyButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

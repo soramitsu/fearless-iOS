@@ -266,7 +266,7 @@ extension AccountCreateViewController: Localizable {
 }
 
 extension AccountCreateViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.nextButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

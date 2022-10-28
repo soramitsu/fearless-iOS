@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class CreateContactViewLayout: UIView {
     enum LayoutConstants {
@@ -51,6 +52,8 @@ final class CreateContactViewLayout: UIView {
         button.set(enabled: false)
         return button
     }()
+
+    var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -121,7 +124,7 @@ final class CreateContactViewLayout: UIView {
         createButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }
     }
