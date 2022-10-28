@@ -8,7 +8,7 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     ViewHolder {
     typealias RootViewType = SelectableListViewLayout
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 

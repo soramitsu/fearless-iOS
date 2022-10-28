@@ -15,9 +15,9 @@ final class FearlessKeyboardHandler {
         NotificationCenter.default.removeObserver(self)
     }
 
-    public convenience init() { self.init(with: nil) }
+    convenience init() { self.init(with: nil) }
 
-    public init(with delegate: KeyboardHandlerDelegate?) {
+    init(with delegate: KeyboardHandlerDelegate?) {
         self.delegate = delegate
 
         setupNotificationsObserver()
