@@ -43,12 +43,10 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         return button
     }()
 
-    let emptyView: UILabel = {
-        let label = UILabel()
-        label.textAlignment = .center
-        label.numberOfLines = 2
-        label.isHidden = true
-        return label
+    let emptyView: EmptyView = {
+        let view = EmptyView()
+        view.isHidden = true
+        return view
     }()
 
     var locale = Locale.current {
@@ -106,7 +104,8 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         }
 
         emptyView.snp.makeConstraints { make in
-            make.center.equalTo(tableView.snp.center)
+            make.top.leading.trailing.equalTo(tableView)
+            make.bottom.equalTo(continueButton.snp.top)
         }
     }
 
@@ -117,6 +116,11 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.poolStakingChoosepoolTitle(
             preferredLanguages: locale.rLanguages
         ))
-        emptyView.text = R.string.localizable.choosePoolEmptyTitle(preferredLanguages: locale.rLanguages)
+
+        let emptyViewModel = EmptyViewModel(
+            title: R.string.localizable.choosePoolEmptyTitle(preferredLanguages: locale.rLanguages),
+            description: ""
+        )
+        emptyView.bind(viewModel: emptyViewModel)
     }
 }
