@@ -879,6 +879,12 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "swipable.cell.button.teleport" = "Teleport";
 "swipable.cell.button.hide" = "Hide";
 "swipable.cell.button.show" = "Show";
+"application.status.view.copied.title" = "Address copied";
+"application.status.view.copied.description" = "Wallet address copied successfully";
+"application.status.view.offline.title" = "It seems that you’re offline";
+"application.status.view.offline.description" = "Please check your connection and try againt";
+"application.status.view.reconnected.title" = "Reconnected";
+"application.status.view.reconnected.description" = "Сonnection successfully restored";
 "select.network.search.placeholder" = "Search by network";
 "select.network.search.empty.subtitle" = "No networks were found :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";

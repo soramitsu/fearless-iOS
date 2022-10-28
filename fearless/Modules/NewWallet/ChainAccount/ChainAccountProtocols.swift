@@ -13,6 +13,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapBuyButton()
     func didTapOptionsButton()
     func didTapSelectNetwork()
+    func addressDidCopied()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -32,7 +33,8 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
     AlertPresentable,
     ModalAlertPresenting,
-    AuthorizationPresentable {
+    AuthorizationPresentable,
+    ApplicationStatusPresentable {
     func close(view: ControllerBackedProtocol?)
 
     func presentSendFlow(
