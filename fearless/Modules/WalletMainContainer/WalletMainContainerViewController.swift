@@ -50,6 +50,9 @@ final class WalletMainContainerViewController: UIViewController, ViewHolder {
         setupEmbededBalanceView()
         setupPageViewController()
         setupActions()
+        rootView.addressCopyableLabel.onСopied = { [weak self] in
+            self?.output.addressDidCopied()
+        }
     }
 
     private func setupEmbededBalanceView() {

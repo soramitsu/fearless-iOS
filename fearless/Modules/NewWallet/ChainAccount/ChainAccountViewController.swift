@@ -56,6 +56,9 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
         rootView.selectNetworkButton.addTarget(self, action: #selector(selectNetworkButtonClicked), for: .touchUpInside)
+        rootView.addressCopyableLabel.onСopied = { [weak self] in
+            self?.presenter.addressDidCopied()
+        }
         presenter.setup()
     }
 

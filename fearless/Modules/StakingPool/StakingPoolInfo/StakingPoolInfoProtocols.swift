@@ -10,6 +10,7 @@ protocol StakingPoolInfoViewOutput: AnyObject {
     func didLoad(view: StakingPoolInfoViewInput)
     func didTapCloseButton()
     func didTapValidators()
+    func willAppear(view: StakingPoolInfoViewInput)
 }
 
 protocol StakingPoolInfoInteractorInput: AnyObject {

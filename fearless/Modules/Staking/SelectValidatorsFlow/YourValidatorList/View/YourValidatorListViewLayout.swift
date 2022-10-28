@@ -15,6 +15,12 @@ final class YourValidatorListViewLayout: UIView {
         return button
     }()
 
+    let emptyView: EmptyView = {
+        let view = EmptyView()
+        view.isHidden = true
+        return view
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -35,6 +41,7 @@ final class YourValidatorListViewLayout: UIView {
     private func setupLayout() {
         addSubview(tableView)
         addSubview(changeValidatorsButton)
+        addSubview(emptyView)
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
@@ -47,6 +54,11 @@ final class YourValidatorListViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.hugeOffset)
         }
 
+        emptyView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(tableView)
+            make.bottom.equalTo(changeValidatorsButton.snp.top)
+        }
+
         var insets = tableView.contentInset
         insets.bottom = UIConstants.actionHeight + UIConstants.hugeOffset + safeAreaInsets.bottom
         tableView.contentInset = insets
@@ -56,5 +68,11 @@ final class YourValidatorListViewLayout: UIView {
         changeValidatorsButton.imageWithTitleView?.title = R.string.localizable.yourValidatorsChangeValidatorsTitle(
             preferredLanguages: locale.rLanguages
         )
+
+        let emptyViewModel = EmptyViewModel(
+            title: R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages),
+            description: ""
+        )
+        emptyView.bind(viewModel: emptyViewModel)
     }
 }

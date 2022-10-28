@@ -44,6 +44,10 @@
 		07349F2D28F962D300A802B9 /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */; };
 		07349F2F28F99ACB00A802B9 /* UsedRuntimeModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
+		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
+		074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */; };
+		074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */; };
+		074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */; };
 		075C647028098AFB00A55094 /* EthereumConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075C646F28098AFB00A55094 /* EthereumConstants.swift */; };
 		075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = 075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */; };
 		0761DEB228E1F54D00B90D2C /* StakingPoolCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */; };
@@ -2528,6 +2532,10 @@
 		07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
 		07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedRuntimeModules.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
+		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
+		074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCopiedEvent.swift; sourceTree = "<group>"; };
+		074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOfflineEvent.swift; sourceTree = "<group>"; };
+		074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionOnlineEvent.swift; sourceTree = "<group>"; };
 		075C646F28098AFB00A55094 /* EthereumConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumConstants.swift; sourceTree = "<group>"; };
 		075FC63428D9AB1600E25263 /* CommonInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputViewV2.swift; sourceTree = "<group>"; };
 		0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModel.swift; sourceTree = "<group>"; };
@@ -5179,6 +5187,16 @@
 			path = Swipable;
 			sourceTree = "<group>";
 		};
+		074EB7AB290B9F02000A2A6A /* Events */ = {
+			isa = PBXGroup;
+			children = (
+				074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */,
+				074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */,
+				074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */,
+			);
+			name = Events;
+			sourceTree = "<group>";
+		};
 		0761DEB028E1F53800B90D2C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -6692,6 +6710,8 @@
 			isa = PBXGroup;
 			children = (
 				843910DD253F912500E3C217 /* ApplicationStatusView.swift */,
+				074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */,
+				074EB7AB290B9F02000A2A6A /* Events */,
 			);
 			path = ApplicationStatusView;
 			sourceTree = "<group>";
@@ -13844,6 +13864,7 @@
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
 				FA66FE922779C9C90037C989 /* RuntimeFilesOperationFacade.swift in Sources */,
+				074EB7B1290BA142000A2A6A /* ConnectionOnlineEvent.swift in Sources */,
 				FAFBEE83284621900036D08C /* SelectedValidatorListParachainViewModelFactory.swift in Sources */,
 				84D1F2FB260F51770077DDFE /* SwitchAccount.swift in Sources */,
 				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
@@ -13937,6 +13958,7 @@
 				C6267B9D28BE24FA001E31BF /* ChooseRecipientRouter.swift in Sources */,
 				FA2E9BB727A13E890023FAD2 /* FiltersViewState.swift in Sources */,
 				FA4B92B52844D0E60003BCEF /* SelectCurrencyPresenter.swift in Sources */,
+				074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				AE6F7FE42685E812002BBC3E /* ValidatorListFilterViewFactory.swift in Sources */,
 				842876AA24AE049B00D91AD8 /* SelectionTitleTableViewCell.swift in Sources */,
@@ -14635,6 +14657,7 @@
 				07D05E5828EF083500B66C70 /* ValidatorInfoPoolViewModelState.swift in Sources */,
 				07DFA468289B8D8E0035A8AB /* EducationStoriesRouter.swift in Sources */,
 				FA4B92972844D0100003BCEF /* UIImageView+Shimmered.swift in Sources */,
+				074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */,
 				8448221C26B1850D007F4492 /* TitleIconViewModel.swift in Sources */,
 				F40966BC26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift in Sources */,
 				C6264C2C2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift in Sources */,
@@ -14673,6 +14696,7 @@
 				FA38C9B82760C33F005C5577 /* SearchPeopleTableCellViewModel.swift in Sources */,
 				84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */,
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
+				074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */,
 				840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */,
 				8488ECEA258CE456004591CC /* PurchaseViewController.swift in Sources */,
 				FA3430F828508C10002B5975 /* StakingRedeemRelaychainViewModelState.swift in Sources */,

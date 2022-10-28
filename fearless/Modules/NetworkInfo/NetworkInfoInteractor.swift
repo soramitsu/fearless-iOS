@@ -60,7 +60,10 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
         let fetchNetworkOperation = substrateOperationFactory.fetchChainOperation(newURL)
 
         let nodeSaveOperation = nodeRepository.saveOperation {
-            [updatedNode]
+            guard case .success = fetchNetworkOperation.result else {
+                throw AddConnectionError.invalidConnection
+            }
+            return [updatedNode]
         } _: {
             []
         }
