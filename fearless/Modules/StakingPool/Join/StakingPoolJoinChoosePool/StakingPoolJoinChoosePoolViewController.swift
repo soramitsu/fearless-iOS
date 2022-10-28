@@ -91,6 +91,8 @@ extension StakingPoolJoinChoosePoolViewController: StakingPoolJoinChoosePoolView
     }
 
     func didReceive(cellViewModels: [StakingPoolListTableCellModel]) {
+        rootView.emptyView.isHidden = cellViewModels.isNotEmpty
+
         if cellViewModels.first(where: { $0.isSelected == true }) != nil {
             rootView.continueButton.applyEnabledStyle()
         } else {

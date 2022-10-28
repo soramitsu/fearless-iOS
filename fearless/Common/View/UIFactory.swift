@@ -36,6 +36,7 @@ struct UIConstants {
     static let indicatorSize = CGSize(width: 35.0, height: 2.0)
     static let amountViewV2Height: CGFloat = 92
     static let offset12: CGFloat = 12
+    static let statusViewHeight: CGFloat = 51.0
 }
 
 enum AccountViewMode {

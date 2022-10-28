@@ -45,6 +45,12 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
         rootView.validatorsView.addGestureRecognizer(tapGesture)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        output.willAppear(view: self)
+    }
+
     // MARK: - Private methods
 
     @objc private func closeButtonClicked() {
