@@ -73,6 +73,12 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
         presenter.didLoad(view: self)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        presenter.willAppear(view: self)
+    }
+
     private func setupLocalization() {
         title = R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
@@ -387,6 +393,10 @@ extension YourValidatorListViewController: YourValidatorListViewProtocol {
         rootView.tableView.reloadData()
         reloadEmptyState(animated: true)
         updateChangeButtonState()
+
+        if case let .validatorList(viewModel) = state {
+            rootView.emptyView.isHidden = viewModel.sections.map { $0.validators }.reduce([], +).count > 0
+        }
     }
 }
 

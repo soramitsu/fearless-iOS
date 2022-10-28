@@ -246,6 +246,8 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceive(era: EraIndex) {
         self.era = era
+
+        provideStakeInfoViewModel()
     }
 
     func didReceive(eraStakersInfo: EraStakersInfo) {

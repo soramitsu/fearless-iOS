@@ -9,6 +9,7 @@ protocol YourValidatorListPresenterProtocol: AnyObject {
     func didSelectValidator(viewModel: YourValidatorViewModel)
     func changeValidators()
     func didLoad(view: YourValidatorListViewProtocol)
+    func willAppear(view: YourValidatorListViewProtocol)
 }
 
 protocol YourValidatorListInteractorInputProtocol: AnyObject {

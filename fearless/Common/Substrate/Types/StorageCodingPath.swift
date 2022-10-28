@@ -53,8 +53,6 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "Staking", itemName: "MaxNominatorsCount")
         case .payee:
             return (moduleName: "Staking", itemName: "Payee")
-        case .historyDepth:
-            return (moduleName: "Staking", itemName: "HistoryDepth")
         case .totalValidatorReward:
             return (moduleName: "Staking", itemName: "ErasValidatorReward")
         case .rewardPointsPerValidator:
@@ -151,7 +149,6 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case counterForNominators
     case maxNominatorsCount
     case payee
-    case historyDepth
     case totalValidatorReward
     case rewardPointsPerValidator
     case validatorExposureClipped

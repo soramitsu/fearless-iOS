@@ -8,8 +8,9 @@ extension YourValidatorList {
                 .commonTransactionSubmitted(preferredLanguages: languages)
 
             let navigationController = view?.controller.navigationController
-            navigationController?.popToRootViewController(animated: true)
-            presentSuccessNotification(title, from: navigationController, completion: nil)
+            let presentingViewCotroller = navigationController?.presentingViewController
+            navigationController?.dismiss(animated: true)
+            presentSuccessNotification(title, from: presentingViewCotroller, completion: nil)
         }
     }
 }

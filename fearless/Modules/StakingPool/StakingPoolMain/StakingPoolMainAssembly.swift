@@ -76,6 +76,7 @@ final class StakingPoolMainAssembly {
         ) else {
             return nil
         }
+        eraValidatorService.setup()
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
             for: chainAsset,
@@ -85,6 +86,7 @@ final class StakingPoolMainAssembly {
         ) else {
             return nil
         }
+        rewardCalculatorService.setup()
 
         let localizationManager = LocalizationManager.shared
         let keyFactory = StorageKeyFactory()
