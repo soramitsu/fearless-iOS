@@ -11,41 +11,19 @@ final class NetworkAvailabilityLayerPresenter {
         self.view = view
         self.localizationManager = localizationManager
     }
-
-    var unavailbleStyle: ApplicationStatusStyle {
-        ApplicationStatusStyle(
-            backgroundColor: R.color.colorPink()!,
-            titleColor: UIColor.white,
-            titleFont: UIFont.h6Title
-        )
-    }
-
-    var availableStyle: ApplicationStatusStyle {
-        ApplicationStatusStyle(
-            backgroundColor: R.color.colorGreen()!,
-            titleColor: UIColor.white,
-            titleFont: UIFont.h6Title
-        )
-    }
 }
 
 extension NetworkAvailabilityLayerPresenter: NetworkAvailabilityLayerInteractorOutputProtocol {
     func didDecideUnreachableStatusPresentation() {
-        let languages = localizationManager?.preferredLocalizations
         view.presentStatus(
-            title: R.string.localizable
-                .networkStatusConnecting(preferredLanguages: languages),
-            style: unavailbleStyle,
+            with: ConnectionOfflineEvent(locale: selectedLocale),
             animated: true
         )
     }
 
     func didDecideReachableStatusPresentation() {
-        let languages = localizationManager?.preferredLocalizations
         view.dismissStatus(
-            title: R.string.localizable
-                .networkStatusConnected(preferredLanguages: languages),
-            style: availableStyle,
+            with: ConnectionOnlineEvent(locale: selectedLocale),
             animated: true
         )
     }

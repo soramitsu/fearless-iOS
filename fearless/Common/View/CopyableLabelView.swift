@@ -6,6 +6,8 @@ final class CopyableLabelView: UIView {
         static let minIconImageViewSize = CGSize(width: 16, height: 16)
     }
 
+    var onСopied: (() -> Void)?
+
     private let label: UILabel = {
         let label = UILabel()
         label.lineBreakMode = .byTruncatingMiddle
@@ -47,6 +49,7 @@ final class CopyableLabelView: UIView {
 
     @objc private func handleTap() {
         UIPasteboard.general.string = label.text
+        onСopied?()
     }
 
     private func setupLayout() {

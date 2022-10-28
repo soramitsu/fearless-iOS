@@ -46,6 +46,7 @@ final class ChainAccountViewLayout: UIView {
 
     private let walletNameTitle: UILabel = {
         let label = UILabel()
+        label.textAlignment = .center
         label.font = .h4Title
         return label
     }()
@@ -57,10 +58,7 @@ final class ChainAccountViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel: CopyableLabelView = {
-        let label = CopyableLabelView()
-        return label
-    }()
+    let addressCopyableLabel = CopyableLabelView()
 
     let sendButton: VerticalContentButton = {
         let button = VerticalContentButton()
@@ -215,7 +213,7 @@ private extension ChainAccountViewLayout {
         walletInfoVStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.bottom.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(backButton.snp.trailing).priority(.low)
+            make.leading.greaterThanOrEqualTo(backButton.snp.trailing)
         }
 
         walletInfoVStackView.addArrangedSubview(walletNameTitle)
@@ -223,11 +221,14 @@ private extension ChainAccountViewLayout {
         selectNetworkButton.snp.makeConstraints { make in
             make.height.equalTo(22)
         }
+        walletNameTitle.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.minimalOffset)
+        }
 
         let accessoryButtonHStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
         navigationBar.addSubview(accessoryButtonHStackView)
         accessoryButtonHStackView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(walletInfoVStackView.snp.trailing).priority(.low)
+            make.leading.greaterThanOrEqualTo(walletInfoVStackView.snp.trailing)
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
         }

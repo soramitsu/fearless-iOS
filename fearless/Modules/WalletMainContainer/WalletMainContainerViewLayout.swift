@@ -39,6 +39,7 @@ final class WalletMainContainerViewLayout: UIView {
     private let walletNameTitle: UILabel = {
         let label = UILabel()
         label.font = .h4Title
+        label.textAlignment = .center
         return label
     }()
 
@@ -73,7 +74,7 @@ final class WalletMainContainerViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel = CopyableLabelView()
+    let addressCopyableLabel = CopyableLabelView()
 
     // MARK: - Ussues button
 
@@ -186,7 +187,7 @@ final class WalletMainContainerViewLayout: UIView {
         walletInfoVStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.top.bottom.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(switchWalletButton.snp.trailing).priority(.low)
+            make.leading.greaterThanOrEqualTo(switchWalletButton.snp.trailing)
         }
 
         walletInfoVStackView.addArrangedSubview(walletNameTitle)
@@ -195,10 +196,14 @@ final class WalletMainContainerViewLayout: UIView {
             make.height.equalTo(22)
         }
 
+        walletNameTitle.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.minimalOffset)
+        }
+
         let accessoryButtonHStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
         navigationContainerView.addSubview(accessoryButtonHStackView)
         accessoryButtonHStackView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(walletInfoVStackView.snp.trailing).priority(.low)
+            make.leading.greaterThanOrEqualTo(walletInfoVStackView.snp.trailing)
             make.trailing.equalToSuperview()
             make.centerY.equalToSuperview()
         }
