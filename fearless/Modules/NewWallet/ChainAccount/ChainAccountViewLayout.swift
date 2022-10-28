@@ -58,10 +58,7 @@ final class ChainAccountViewLayout: UIView {
 
     // MARK: - Address label
 
-    private let addressCopyableLabel: CopyableLabelView = {
-        let label = CopyableLabelView()
-        return label
-    }()
+    let addressCopyableLabel = CopyableLabelView()
 
     let sendButton: VerticalContentButton = {
         let button = VerticalContentButton()
