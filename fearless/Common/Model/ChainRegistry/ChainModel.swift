@@ -193,7 +193,6 @@ extension ChainModel: Hashable {
             && lhs.icon == rhs.icon
             && lhs.name == rhs.name
             && lhs.addressPrefix == rhs.addressPrefix
-            && lhs.selectedNode == rhs.selectedNode
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
     }

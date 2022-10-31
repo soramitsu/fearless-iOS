@@ -57,6 +57,9 @@ extension ConnectionPool: ConnectionPoolProtocol {
             if connection.url == url {
                 return connection
             } else {
+                if let oldConnection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+                    oldConnection.disconnectIfNeeded()
+                }
                 connectionsByChainIds[chain.chainId] = nil
             }
         }
