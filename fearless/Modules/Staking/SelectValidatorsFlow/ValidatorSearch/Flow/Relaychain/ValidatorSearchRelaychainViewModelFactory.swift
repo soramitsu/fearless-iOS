@@ -3,9 +3,14 @@ import FearlessUtils
 
 final class ValidatorSearchRelaychainViewModelFactory {
     private var iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    init(iconGenerator: IconGenerating) {
+    init(
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    ) {
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     private func createHeaderViewModel(
@@ -34,15 +39,35 @@ final class ValidatorSearchRelaychainViewModelFactory {
         return displayValidatorList.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
-            let detailsText = apyFormatter.string(
-                from: validator.stakeReturn as NSNumber
+            let apy: NSAttributedString? = validator.stakeInfo.map { info in
+                let stakeReturnString = apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+                let apyString = "APY \(stakeReturnString)"
+
+                let apyStringAttributed = NSMutableAttributedString(string: apyString)
+                apyStringAttributed.addAttribute(
+                    .foregroundColor,
+                    value: R.color.colorColdGreen() as Any,
+                    range: (apyString as NSString).range(of: stakeReturnString)
+                )
+                return apyStringAttributed
+            }
+
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                validator.totalStake,
+                priceData: nil
+            ).value(for: locale)
+
+            let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+                "\(balanceViewModel.amount)",
+                preferredLanguages: locale.rLanguages
             )
 
             return ValidatorSearchCellViewModel(
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
-                details: detailsText,
+                details: apy,
+                detailsAux: stakedString,
                 shouldShowWarning: validator.oversubscribed,
                 shouldShowError: validator.hasSlashes,
                 isSelected: selectedValidatorList.contains(validator)

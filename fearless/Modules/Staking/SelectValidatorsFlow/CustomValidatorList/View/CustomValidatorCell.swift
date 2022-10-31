@@ -8,22 +8,15 @@ protocol CustomValidatorCellDelegate: AnyObject {
 class CustomValidatorCell: UITableViewCell {
     weak var delegate: CustomValidatorCellDelegate?
 
-    let selectionImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.tintColor = R.color.colorWhite()
-        return imageView
-    }()
-
-    let iconView: PolkadotIconView = {
-        let view = PolkadotIconView()
-        view.backgroundColor = .clear
-        view.fillColor = R.color.colorWhite()!
+    let iconView: UIImageView = {
+        let view = UIImageView()
+        view.image = R.image.iconListSelectionOn()
         return view
     }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = .h6Title
         label.textColor = R.color.colorWhite()
         label.lineBreakMode = .byTruncatingTail
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
@@ -33,16 +26,14 @@ class CustomValidatorCell: UITableViewCell {
     let detailsLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textAlignment = .right
-        label.textColor = R.color.colorWhite()
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 
     let detailsAuxLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textAlignment = .right
-        label.textColor = R.color.colorGray()
+        label.textColor = R.color.colorLightGray()
         return label
     }()
 
@@ -64,6 +55,7 @@ class CustomValidatorCell: UITableViewCell {
     let detailsStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
+        stackView.spacing = 4
         stackView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         return stackView
     }()
@@ -81,60 +73,40 @@ class CustomValidatorCell: UITableViewCell {
     }
 
     private func configure() {
-        backgroundColor = .clear
-        separatorInset = .init(
-            top: 0,
-            left: UIConstants.horizontalInset,
-            bottom: 0,
-            right: UIConstants.horizontalInset
-        )
-
+        backgroundColor = R.color.colorBlack19()
+        infoButton.addTarget(self, action: #selector(tapInfoButton), for: .touchUpInside)
         selectedBackgroundView = UIView()
         selectedBackgroundView?.backgroundColor = R.color.colorHighlightedAccent()!
-
-        infoButton.addTarget(self, action: #selector(tapInfoButton), for: .touchUpInside)
     }
 
     private func setupLayout() {
-        contentView.addSubview(selectionImageView)
-        selectionImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
-            make.centerY.equalToSuperview()
-            make.size.equalTo(24)
-        }
-
         contentView.addSubview(iconView)
         iconView.snp.makeConstraints { make in
-            make.leading.equalTo(selectionImageView.snp.trailing).offset(8)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
             make.size.equalTo(24)
         }
 
         contentView.addSubview(infoButton)
         infoButton.snp.makeConstraints { make in
-            make.size.equalTo(24)
+            make.size.equalTo(14)
             make.trailing.equalToSuperview().inset(16)
             make.centerY.equalToSuperview()
-        }
-
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(iconView.snp.trailing).offset(12)
-            make.top.bottom.equalToSuperview().inset(16)
         }
 
         contentView.addSubview(statusStackView)
         statusStackView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8)
+            make.trailing.greaterThanOrEqualTo(infoButton.snp.leading).offset(-16)
         }
 
+        detailsStackView.addArrangedSubview(titleLabel)
         detailsStackView.addArrangedSubview(detailsLabel)
         detailsStackView.addArrangedSubview(detailsAuxLabel)
 
         contentView.addSubview(detailsStackView)
         detailsStackView.snp.makeConstraints { make in
-            make.leading.equalTo(statusStackView.snp.trailing).offset(8)
+            make.leading.equalTo(iconView.snp.trailing).offset(UIConstants.bigOffset)
             make.trailing.equalTo(infoButton.snp.leading).offset(-16)
             make.centerY.equalToSuperview()
         }
@@ -146,10 +118,6 @@ class CustomValidatorCell: UITableViewCell {
     }
 
     func bind(viewModel: CustomValidatorCellViewModel) {
-        if let icon = viewModel.icon {
-            iconView.bind(icon: icon)
-        }
-
         if let name = viewModel.name {
             titleLabel.lineBreakMode = .byTruncatingTail
             titleLabel.text = name
@@ -161,7 +129,7 @@ class CustomValidatorCell: UITableViewCell {
         clearStatusView()
         setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
-        detailsLabel.text = viewModel.details
+        detailsLabel.attributedText = viewModel.details
 
         if let auxDetailsText = viewModel.auxDetails {
             detailsAuxLabel.text = auxDetailsText
@@ -170,14 +138,10 @@ class CustomValidatorCell: UITableViewCell {
             detailsAuxLabel.isHidden = true
         }
 
-        selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
+        iconView.image = viewModel.isSelected ? R.image.iconListSelectionOn() : R.image.iconListSelectionOff()
     }
 
     func bind(viewModel: ValidatorSearchCellViewModel) {
-        if let icon = viewModel.icon {
-            iconView.bind(icon: icon)
-        }
-
         if let name = viewModel.name {
             titleLabel.lineBreakMode = .byTruncatingTail
             titleLabel.text = name
@@ -189,11 +153,30 @@ class CustomValidatorCell: UITableViewCell {
         clearStatusView()
         setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
-        detailsLabel.text = viewModel.details
+        detailsLabel.attributedText = viewModel.details
+        detailsAuxLabel.text = viewModel.detailsAux
 
-        detailsAuxLabel.isHidden = true
+        iconView.image = viewModel.isSelected ? R.image.iconListSelectionOn() : R.image.iconListSelectionOff()
+    }
 
-        selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
+    func bind(viewModel: RecommendedValidatorViewModelProtocol) {
+        iconView.image = R.image.iconListSelectionOn()
+
+        titleLabel.text = viewModel.title
+        detailsLabel.attributedText = viewModel.details
+        detailsAuxLabel.text = viewModel.detailsAux
+
+        selectionStyle = .none
+    }
+
+    func bind(viewModel: SelectedValidatorCellViewModel) {
+        iconView.image = R.image.iconListSelectionOn()
+
+        titleLabel.text = viewModel.name
+        detailsLabel.attributedText = viewModel.details
+        detailsAuxLabel.text = viewModel.detailsAux
+
+        selectionStyle = .none
     }
 
     private func clearStatusView() {

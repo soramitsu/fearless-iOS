@@ -55,6 +55,10 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         setupNavigationBar()
         setupActionButtons()
         presenter.setup()
+
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.presenter.searchTextDidChange(text)
+        }
     }
 
     // MARK: - Private functions
@@ -64,88 +68,27 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
-        rootView.tableView.rowHeight = 48.0
+        rootView.tableView.rowHeight = 77.0
+        rootView.tableView.separatorStyle = .none
     }
 
     private func setupNavigationBar() {
         let filterBarbutton = UIBarButtonItem(customView: filterButton)
-        let searchBarbutton = UIBarButtonItem(customView: searchButton)
 
-        navigationItem.rightBarButtonItems = [filterBarbutton,
-                                              searchBarbutton]
+        navigationItem.rightBarButtonItems = [filterBarbutton]
 
         filterButton.addTarget(self, action: #selector(tapFilterButton), for: .touchUpInside)
-        searchButton.addTarget(self, action: #selector(tapSearchButton), for: .touchUpInside)
     }
 
     private func setupActionButtons() {
-        rootView.fillRestButton.addTarget(self, action: #selector(tapFillRestButton), for: .touchUpInside)
-        rootView.clearButton.addTarget(self, action: #selector(tapClearButton), for: .touchUpInside)
-        rootView.deselectButton.addTarget(self, action: #selector(tapDeselectButton), for: .touchUpInside)
         rootView.proceedButton.addTarget(self, action: #selector(tapProceedButton), for: .touchUpInside)
-        rootView.identityFilterButton.addTarget(self, action: #selector(tapIdentityFilterButton), for: .touchUpInside)
-        rootView.minBondFilterButton.addTarget(self, action: #selector(tapMinBondFilterButton), for: .touchUpInside)
 
-        updateFillRestButton(visible: false, enabled: false)
-        updateDeselectButton(visible: false, enabled: false)
         updateProceedButton(title: nil)
     }
 
     private func updateSetFiltersButton() {
         let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
         filterButton.setImage(image, for: .normal)
-    }
-
-    private func updateFillRestButton(visible _: Bool, enabled: Bool) {
-        rootView.fillRestButton.isEnabled = enabled
-        rootView.fillRestButton.isHidden = !enabled
-
-        if enabled {
-            rootView.fillRestButton.applyEnabledStyle()
-        } else {
-            rootView.fillRestButton.applyDisabledStyle()
-        }
-    }
-
-    private func updateClearFiltersButton(visible _: Bool, enabled: Bool) {
-        rootView.clearButton.isEnabled = enabled
-
-        if enabled {
-            rootView.clearButton.applyEnabledStyle()
-        } else {
-            rootView.clearButton.applyDisabledStyle()
-        }
-    }
-
-    private func updateDeselectButton(visible: Bool, enabled: Bool) {
-        rootView.deselectButton.isEnabled = enabled
-        rootView.deselectButton.isHidden = !visible
-
-        if enabled {
-            rootView.deselectButton.applyEnabledStyle()
-        } else {
-            rootView.deselectButton.applyDisabledStyle()
-        }
-    }
-
-    private func updateMinBondFilterButton(visible: Bool, enabled: Bool) {
-        rootView.minBondFilterButton.isHidden = !visible
-
-        if !enabled {
-            rootView.minBondFilterButton.applyEnabledStyle()
-        } else {
-            rootView.minBondFilterButton.applyDisabledStyle()
-        }
-    }
-
-    private func updateIdentityFitlerButton(visible: Bool, enabled: Bool) {
-        rootView.identityFilterButton.isHidden = !visible
-
-        if !enabled {
-            rootView.identityFilterButton.applyEnabledStyle()
-        } else {
-            rootView.identityFilterButton.applyDisabledStyle()
-        }
     }
 
     private func updateProceedButton(title: String?) {
@@ -181,42 +124,14 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         }
     }
 
-    private func presentValidatorInfo(at index: Int) {
-        presenter.didSelectValidator(at: index)
-    }
-
     // MARK: - Actions
 
     @objc private func tapFilterButton() {
         presenter.presentFilter()
     }
 
-    @objc private func tapSearchButton() {
-        presenter.presentSearch()
-    }
-
-    @objc private func tapFillRestButton() {
-        presenter.fillWithRecommended()
-    }
-
-    @objc private func tapClearButton() {
-        presenter.clearFilter()
-    }
-
-    @objc private func tapDeselectButton() {
-        presenter.deselectAll()
-    }
-
     @objc private func tapProceedButton() {
         presenter.proceed()
-    }
-
-    @objc private func tapIdentityFilterButton() {
-        presenter.changeIdentityFilterValue()
-    }
-
-    @objc private func tapMinBondFilterButton() {
-        presenter.changeMinBondFilterValue()
     }
 }
 
@@ -228,16 +143,11 @@ extension CustomValidatorListViewController: Localizable {
             title = R.string.localizable
                 .stakingCustomValidatorsListTitle(preferredLanguages: selectedLocale.rLanguages)
 
-            rootView.identityFilterButton.imageWithTitleView?.title = R.string.localizable.stakingRecommendedHint3(preferredLanguages: selectedLocale.rLanguages).uppercased()
-            rootView.minBondFilterButton.imageWithTitleView?.title = R.string.localizable.stakingRecommendedFilterMinimumBond(preferredLanguages: selectedLocale.rLanguages).uppercased()
-            rootView.fillRestButton.imageWithTitleView?.title = R.string.localizable
-                .stakingCustomFillButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
-            rootView.clearButton.imageWithTitleView?.title = R.string.localizable
-                .stakingCustomClearButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
-            rootView.deselectButton.imageWithTitleView?.title = R.string.localizable
-                .stakingCustomDeselectButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
-
             updateProceedButton(title: nil)
+
+            rootView.searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
+                preferredLanguages: selectedLocale.rLanguages
+            )
         }
     }
 }
@@ -265,17 +175,11 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
             rootView.tableView.reloadData()
         }
 
-        updateFillRestButton(visible: viewModel.fillRestButtonVisible, enabled: viewModel.fillRestButtonEnabled)
-        updateDeselectButton(visible: viewModel.deselectButtonVisible, enabled: viewModel.deselectButtonEnabled)
-        updateIdentityFitlerButton(visible: viewModel.identityButtonVisible, enabled: viewModel.identityButtonSelected)
-        updateMinBondFilterButton(visible: viewModel.minBondButtonVisible, enabled: viewModel.minBondButtonSelected)
         updateProceedButton(title: viewModel.proceedButtonTitle)
-        rootView.clearButton.isHidden = !viewModel.clearButtonVisible
     }
 
     func setFilterAppliedState(to applied: Bool) {
         filterIsApplied = applied
-        updateClearFiltersButton(visible: true, enabled: applied)
         updateSetFiltersButton()
     }
 
@@ -307,19 +211,9 @@ extension CustomValidatorListViewController: UITableViewDataSource {
 extension CustomValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        presenter.changeValidatorSelection(at: indexPath.row)
-    }
+        let viewModel = cellViewModels[indexPath.row]
 
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        guard headerViewModel != nil else { return 0 }
-        return 26.0
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        guard let headerViewModel = headerViewModel else { return nil }
-        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        headerView.bind(viewModel: headerViewModel)
-        return headerView
+        presenter.changeValidatorSelection(address: viewModel.address)
     }
 }
 
@@ -328,7 +222,8 @@ extension CustomValidatorListViewController: UITableViewDelegate {
 extension CustomValidatorListViewController: CustomValidatorCellDelegate {
     func didTapInfoButton(in cell: CustomValidatorCell) {
         if let indexPath = rootView.tableView.indexPath(for: cell) {
-            presentValidatorInfo(at: indexPath.row)
+            let viewModel = cellViewModels[indexPath.row]
+            presenter.didSelectValidator(address: viewModel.address)
         }
     }
 }

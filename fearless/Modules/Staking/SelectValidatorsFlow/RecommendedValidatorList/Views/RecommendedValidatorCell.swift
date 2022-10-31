@@ -29,7 +29,7 @@ final class RecommendedValidatorCell: UITableViewCell {
         }
 
         titleLabel.text = viewModel.title
-        detailsLabel.text = viewModel.details
+        detailsLabel.attributedText = viewModel.details
     }
 
     @IBAction func infoButtonClicked() {

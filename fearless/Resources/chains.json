@@ -48,6 +48,10 @@
     ],
     "nodes": [
       {
+        "url": "wss://ws.relaychain-node-2.p1.tst.fearless.soramitsu.co.jp/",
+        "name": "SORA Polkadot Test node"
+      },
+      {
         "url": "wss://polkadot.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
         "name": "OnFinality node"
       },

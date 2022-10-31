@@ -82,10 +82,14 @@ final class TitleSubtitleSwitchTableViewCell: SwitchTableViewCell {
     }()
 
     override fileprivate func setupLayout() {
+        titleLabel.font = .h5Title
+        titleLabel.textColor = R.color.colorLightGray()
+
         contentView.addSubview(switchView)
         switchView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
+            make.height.equalTo(21)
         }
 
         contentView.addSubview(stackView)

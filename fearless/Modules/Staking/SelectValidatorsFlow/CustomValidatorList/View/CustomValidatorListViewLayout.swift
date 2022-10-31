@@ -13,6 +13,17 @@ final class CustomValidatorListViewLayout: UIView {
         return scrollView
     }()
 
+    private(set) var searchTextField: SearchTextField = {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
+    }()
+
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -29,30 +40,9 @@ final class CustomValidatorListViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
-        tableView.separatorColor = R.color.colorDarkGray()
+        tableView.backgroundColor = R.color.colorBlack19()
         tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 100.0, right: 0.0)
         return tableView
-    }()
-
-    let fillRestButton: GradientButton = {
-        createGradientButton()
-    }()
-
-    let clearButton: RoundedButton = {
-        createRoundedButton()
-    }()
-
-    let deselectButton: RoundedButton = {
-        createRoundedButton()
-    }()
-
-    let identityFilterButton: GradientButton = {
-        createGradientButton()
-    }()
-
-    let minBondFilterButton: GradientButton = {
-        createGradientButton()
     }()
 
     let proceedButton: TriangularedButton = {
@@ -61,16 +51,6 @@ final class CustomValidatorListViewLayout: UIView {
         button.contentOpacityWhenDisabled = 1.0
         return button
     }()
-
-    private static func createGradientButton() -> GradientButton {
-        let button = GradientButton()
-        button.applyEnabledStyle()
-        button.opacityAnimationDuration = 0
-        button.gradientBackgroundView?.cornerRadius = Constants.auxButtonHeight / 2.0
-        button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
-        button.imageWithTitleView?.titleFont = UIFont.capsTitle
-        return button
-    }
 
     private static func createRoundedButton() -> RoundedButton {
         let button = RoundedButton()
@@ -85,6 +65,7 @@ final class CustomValidatorListViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)
@@ -93,34 +74,13 @@ final class CustomValidatorListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        stackView.addArrangedSubview(identityFilterButton)
-        stackView.addArrangedSubview(minBondFilterButton)
-        stackView.addArrangedSubview(fillRestButton)
-        stackView.addArrangedSubview(clearButton)
-        stackView.addArrangedSubview(deselectButton)
-
-        stackContainerView.addSubview(stackView)
-        stackView.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(16)
-            make.leading.equalTo(stackContainerView.snp.leading).inset(UIConstants.horizontalInset)
-            make.trailing.equalTo(stackContainerView.snp.trailing).inset(UIConstants.horizontalInset)
+        addSubview(searchTextField)
+        searchTextField.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
-
-        scrollView.addSubview(stackContainerView)
-        stackContainerView.snp.makeConstraints { make in
-            make.top.bottom.leading.trailing.equalToSuperview()
-            make.height.equalTo(Constants.auxButtonContainerHeight)
-        }
-
-        addSubview(scrollView)
-        scrollView.snp.makeConstraints { make in
-            make.top.trailing.leading.equalTo(safeAreaLayoutGuide)
-            make.height.equalTo(Constants.auxButtonContainerHeight)
-        }
-
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.top.equalTo(scrollView.snp.bottom)
+            make.top.equalTo(searchTextField.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.bottom.trailing.equalToSuperview()
         }
 

@@ -4,11 +4,14 @@ import FearlessUtils
 
 class RecommendedValidatorListRelaychainViewModelFactory {
     private let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     private func createStakeReturnString(from stakeReturn: Decimal?) -> LocalizableResource<String> {
@@ -38,6 +41,8 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
             return nil
         }
 
+        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
             relaychainViewModelState.validators.compactMap { validator in
                 guard let icon = try? iconGenerator.generateFromAddress(validator.address) else {
@@ -46,13 +51,35 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
 
                 let title = validator.identity?.displayName ?? validator.address
 
-                let details = createStakeReturnString(from: validator.stakeInfo?.stakeReturn)
+                let apy: NSAttributedString? = validator.stakeInfo.map { info in
+                    let stakeReturnString = apyFormatter.stringFromDecimal(info.stakeReturn) ?? ""
+                    let apyString = "APY \(stakeReturnString)"
 
-                return LocalizableResource { locale in
+                    let apyStringAttributed = NSMutableAttributedString(string: apyString)
+                    apyStringAttributed.addAttribute(
+                        .foregroundColor,
+                        value: R.color.colorColdGreen() as Any,
+                        range: (apyString as NSString).range(of: stakeReturnString)
+                    )
+                    return apyStringAttributed
+                }
+
+                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                    validator.totalStake,
+                    priceData: nil
+                ).value(for: locale)
+
+                let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+                    "\(balanceViewModel.amount)",
+                    preferredLanguages: locale.rLanguages
+                )
+
+                return LocalizableResource { _ in
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: details.value(for: locale),
+                        details: apy,
+                        detailsAux: stakedString,
                         isSelected: false
                     )
                 }
@@ -62,7 +89,8 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
 
         return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
-            itemViewModels: items, title: R.string.localizable
+            itemViewModels: items,
+            title: R.string.localizable
                 .stakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages),
             continueButtonEnabled: true,
             rewardColumnTitle: R.string.localizable.stakingFilterTitleRewards(preferredLanguages: locale.rLanguages),

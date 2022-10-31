@@ -119,7 +119,7 @@ class SelectedValidatorCell: UITableViewCell {
         clearStatusView()
         setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
-        detailsLabel.text = viewModel.details
+        detailsLabel.attributedText = viewModel.details
     }
 
     private func clearStatusView() {
