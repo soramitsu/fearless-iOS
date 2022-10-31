@@ -28,6 +28,7 @@ final class RuntimeProvider {
     }
 
     internal let chainId: ChainModel.Id
+    private let chainName: String
     private(set) var typesUsage: ChainModel.TypesUsage
     private let usedRuntimePaths: [String: [String]]
 
@@ -61,6 +62,7 @@ final class RuntimeProvider {
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
+        chainName = chainModel.name
         self.snapshotOperationFactory = snapshotOperationFactory
         self.snapshotHotOperationFactory = snapshotHotOperationFactory
         self.eventCenter = eventCenter
@@ -84,6 +86,8 @@ final class RuntimeProvider {
             return
         }
 
+        logger?.debug("Will start building snapshot for \(chainName)")
+
         let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
@@ -105,6 +109,8 @@ final class RuntimeProvider {
     }
 
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
+        logger?.debug("Will start building hot snapshot for \(chainName)")
+
         let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
@@ -136,8 +142,7 @@ final class RuntimeProvider {
             if let snapshot = snapshot {
                 self.snapshot = snapshot
 
-                logger?.debug("Did complete snapshot for: \(chainId)")
-                logger?.debug("Will notify waiters: \(pendingRequests.count)")
+                logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
                 resolveRequests()
 
@@ -147,7 +152,7 @@ final class RuntimeProvider {
         case let .failure(error):
             currentWrapper = nil
 
-            logger?.debug("Failed to build snapshot for \(chainId): \(error)")
+            logger?.debug("Failed to build snapshot for \(chainName): \(error)")
 
             let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
             eventCenter.notify(with: event)
@@ -345,8 +350,6 @@ extension RuntimeProvider: EventVisitorProtocol {
         currentWrapper?.cancel()
         currentWrapper = nil
 
-        logger?.debug("Will start building snapshot after chain types update for \(chainId)")
-
         chainTypes = event.data
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
@@ -365,8 +368,6 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         currentWrapper?.cancel()
         currentWrapper = nil
-
-        logger?.debug("Will start building snapshot after metadata update for \(chainId)")
 
         chainMetadata = event.metadata
 
@@ -390,8 +391,6 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         currentWrapper?.cancel()
         currentWrapper = nil
-
-        logger?.debug("Will start building snapshot after common types update for \(chainId)")
 
         commonTypes = event.data
 
