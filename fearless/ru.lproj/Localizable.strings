@@ -884,3 +884,4 @@ and depending on the network state, may not be selected to participate";
 "application.status.view.reconnected.description" = "Соединения успешно восстановлено";
 "select.network.search.placeholder" = "Поиск по сети";
 "select.network.search.empty.subtitle" = "Сети не найдены :(";
+"choose.pool.empty.title" = "No pools\nhave been created yet";

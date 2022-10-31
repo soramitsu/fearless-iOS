@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class ChooseRecipientViewLayout: UIView {
     enum LayoutConstants {
@@ -19,7 +20,7 @@ final class ChooseRecipientViewLayout: UIView {
         return label
     }()
 
-    let bottomContainer: UIView = {
+    private let bottomContainer: UIView = {
         let view = UIView()
         view.backgroundColor = .clear
         return view
@@ -79,6 +80,8 @@ final class ChooseRecipientViewLayout: UIView {
         }
     }
 
+    var keyboardAdoptableConstraint: Constraint?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -133,7 +136,8 @@ final class ChooseRecipientViewLayout: UIView {
         bottomContainer.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint =
+                make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset).constraint
         }
 
         bottomContainer.addSubview(nextButton)

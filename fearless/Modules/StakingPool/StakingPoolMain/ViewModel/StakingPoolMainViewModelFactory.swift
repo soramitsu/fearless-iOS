@@ -335,30 +335,28 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         }
 
         return LocalizableResource { [weak self] locale in
-            if let era = era,
-               let redeemableAmount = Decimal.fromSubstrateAmount(
-                   stakeInfo.redeemable(inEra: era),
-                   precision: Int16(chainAsset.asset.precision)
-               ),
-               let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(
-                   redeemableAmount,
-                   priceData: priceData
-               ) {
-                redeemableViewModel = StakingUnitInfoViewModel(
-                    value: redeemable.value(for: locale).amount,
-                    subtitle: redeemable.value(for: locale).price
+            if let era = era {
+                let redeemableAmount = Decimal.fromSubstrateAmount(
+                    stakeInfo.redeemable(inEra: era),
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0
+                let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(
+                    redeemableAmount,
+                    priceData: priceData
                 )
-            }
+                redeemableViewModel = StakingUnitInfoViewModel(
+                    value: redeemable?.value(for: locale).amount,
+                    subtitle: redeemable?.value(for: locale).price
+                )
 
-            if let era = era,
-               let unstakingAmount = Decimal.fromSubstrateAmount(
-                   stakeInfo.unbonding(inEra: era),
-                   precision: Int16(chainAsset.asset.precision)
-               ),
-               let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData) {
+                let unstakingAmount = Decimal.fromSubstrateAmount(
+                    stakeInfo.unbonding(inEra: era),
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? 0
+                let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData)
                 unstakingViewModel = StakingUnitInfoViewModel(
-                    value: unstaking.value(for: locale).amount,
-                    subtitle: unstaking.value(for: locale).price
+                    value: unstaking?.value(for: locale).amount,
+                    subtitle: unstaking?.value(for: locale).price
                 )
             }
 

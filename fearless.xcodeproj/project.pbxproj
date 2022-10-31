@@ -1655,6 +1655,7 @@
 		C63CB31E284F790F0071AF26 /* DelegationInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */; };
 		C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */; };
 		C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */; };
+		C63FE88A29000EB500E97E8E /* FearlessKeyboardHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */; };
 		C640415D28F507E900845780 /* TriangularedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415C28F507E900845780 /* TriangularedTextField.swift */; };
 		C640416028F5191100845780 /* CreateContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415F28F5191100845780 /* CreateContactViewModel.swift */; };
 		C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */; };
@@ -4158,6 +4159,7 @@
 		C63CB31D284F790F0071AF26 /* DelegationInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCell.swift; sourceTree = "<group>"; };
 		C63CB321285077640071AF26 /* DelegationInfoCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationInfoCellModel.swift; sourceTree = "<group>"; };
 		C63CB3242851C5C90071AF26 /* StakingMainFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingMainFlow.swift; sourceTree = "<group>"; };
+		C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FearlessKeyboardHandler.swift; sourceTree = "<group>"; };
 		C640415C28F507E900845780 /* TriangularedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedTextField.swift; sourceTree = "<group>"; };
 		C640415F28F5191100845780 /* CreateContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModel.swift; sourceTree = "<group>"; };
 		C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7927,6 +7929,7 @@
 				C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */,
 				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
 				07F2B75E28AA183C00280C38 /* PrintTimer.swift */,
+				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -14395,6 +14398,7 @@
 				AEE5FB0526415E5D002B8FDC /* StakingRebondSetupViewFactory.swift in Sources */,
 				AEAC68F726E9FB8400346599 /* CoingeckoOperationFactory.swift in Sources */,
 				FA3430F2285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift in Sources */,
+				C63FE88A29000EB500E97E8E /* FearlessKeyboardHandler.swift in Sources */,
 				FAA0138D28DA1303000A5230 /* StakingPayoutConfirmationrelaychainStrategy.swift in Sources */,
 				FA256A24274CE7D600875A53 /* MoonbeamGuidinfoInfo.swift in Sources */,
 				84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */,

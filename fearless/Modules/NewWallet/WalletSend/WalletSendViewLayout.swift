@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class WalletSendViewLayout: UIView {
     enum LayoutConstants {
@@ -53,6 +54,8 @@ final class WalletSendViewLayout: UIView {
             }
         }
     }
+
+    var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -121,7 +124,7 @@ private extension WalletSendViewLayout {
 
         addSubview(actionButton) { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalToSuperview().inset(UIConstants.actionBottomInset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.actionBottomInset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }
 

@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class ManageAssetsViewLayout: UIView {
     let chainSelectionView: DetailsTriangularedView = {
@@ -39,6 +40,8 @@ final class ManageAssetsViewLayout: UIView {
         button.applyEnabledStyle()
         return button
     }()
+
+    var keyboardAdoptableConstraint: Constraint?
 
     var locale = Locale.current {
         didSet {
@@ -103,7 +106,8 @@ final class ManageAssetsViewLayout: UIView {
 
         applyButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.trailing.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
             make.height.equalTo(UIConstants.actionHeight)
         }
     }

@@ -57,6 +57,8 @@ enum ConstantCodingPath: CaseIterable {
             return (moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
         case .nominationPoolsPalletId:
             return (moduleName: "NominationPools", constantName: "PalletId")
+        case .historyDepth:
+            return (moduleName: "Staking", constantName: "HistoryDepth")
         }
     }
 
@@ -83,4 +85,5 @@ enum ConstantCodingPath: CaseIterable {
     case defaultTip
     case candidateBondLessDelay
     case nominationPoolsPalletId
+    case historyDepth
 }

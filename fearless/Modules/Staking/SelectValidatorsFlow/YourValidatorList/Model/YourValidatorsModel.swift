@@ -7,4 +7,8 @@ struct YourValidatorsModel {
     var allValidators: [SelectedValidatorInfo] {
         currentValidators + pendingValidators
     }
+
+    static func empty() -> YourValidatorsModel {
+        YourValidatorsModel(currentValidators: [], pendingValidators: [])
+    }
 }

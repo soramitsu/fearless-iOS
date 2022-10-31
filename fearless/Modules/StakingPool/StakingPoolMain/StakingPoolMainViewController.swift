@@ -4,7 +4,7 @@ import SoraFoundation
 final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolMainViewLayout
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 

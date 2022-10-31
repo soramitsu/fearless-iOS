@@ -65,7 +65,7 @@ final class EmptyView: UIView {
 
         imageBackgroundView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
             make.size.equalTo(LayoutConstants.imageBackgroundSize)
         }
 

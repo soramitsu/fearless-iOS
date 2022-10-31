@@ -319,17 +319,9 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
         titleLabel.frame = CGRect(
             x: labelX,
-            y: bounds.midY - LayoutConstants.titleVerticalOffset,
+            y: LayoutConstants.titleVerticalOffset,
             width: trailing - labelX,
             height: titleHeight
-        )
-
-        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
-        subtitleLabel?.frame = CGRect(
-            x: labelX,
-            y: titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset,
-            width: trailing - labelX,
-            height: subtitleHeight
         )
 
         if let iconView = lazyIconView {

@@ -38,9 +38,9 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
         case .addMemo:
             return (moduleName: "Crowdloan", callName: "add_memo")
         case .nominationPoolJoin:
-            return (moduleName: "NominationPools", callName: "Join")
+            return (moduleName: "NominationPools", callName: "join")
         case .createNominationPool:
-            return (moduleName: "NominationPools", callName: "Create")
+            return (moduleName: "NominationPools", callName: "create")
         case .setPoolMetadata:
             return (moduleName: "NominationPools", callName: "set_metadata")
         case .poolBondMore:

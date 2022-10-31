@@ -11,6 +11,7 @@ final class YourValidatorListPresenter {
     private let wallet: MetaAccountModel
     private let logger: LoggerProtocol?
     private let viewModelState: YourValidatorListViewModelState
+    private var viewLoaded: Bool = false
 
     init(
         interactor: YourValidatorListInteractorInputProtocol,
@@ -53,17 +54,19 @@ final class YourValidatorListPresenter {
 }
 
 extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
-    func didLoad(view: YourValidatorListViewProtocol) {
+    func didLoad(view _: YourValidatorListViewProtocol) {
         interactor.setup()
-
         viewModelState.setStateListener(self)
+    }
 
-        view.didStartLoading()
+    func willAppear(view: YourValidatorListViewProtocol) {
+        if !viewLoaded {
+            view.didStartLoading()
+        }
     }
 
     func retry() {
         viewModelState.resetState()
-
         interactor.refresh()
     }
 
@@ -121,6 +124,7 @@ extension YourValidatorListPresenter: YourValidatorListModelStateListener {
     }
 
     func modelStateDidChanged(viewModelState _: YourValidatorListViewModelState) {
+        viewLoaded = true
         updateView()
     }
 

@@ -12,6 +12,7 @@ final class StakingPoolInfoPresenter {
     private let chainAsset: ChainAsset
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
+    private var viewLoaded: Bool = false
 
     private var priceData: PriceData?
     private var palletId: Data?
@@ -49,6 +50,7 @@ final class StakingPoolInfoPresenter {
             return
         }
 
+        viewLoaded = true
         view?.didStopLoading()
 
         let viewModel = viewModelFactory.buildViewModel(
@@ -99,8 +101,12 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
         interactor.setup(with: self)
 
         provideViewModel()
+    }
 
-        view.didStartLoading()
+    func willAppear(view: StakingPoolInfoViewInput) {
+        if !viewLoaded {
+            view.didStartLoading()
+        }
     }
 
     func didTapCloseButton() {
