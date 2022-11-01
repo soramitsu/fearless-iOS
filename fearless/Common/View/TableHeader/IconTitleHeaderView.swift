@@ -5,10 +5,12 @@ final class IconTitleHeaderView: UITableViewHeaderFooterView {
     var customBackgroundColor: UIColor?
     @IBOutlet private(set) var titleView: ImageWithTitleView!
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    func bind(title: String, icon: UIImage?) {
+        titleView.title = title
+        titleView.iconImage = icon
+        contentView.invalidateIntrinsicContentSize()
 
-//Backward compatibility
+        // Backward compatibility
         if customBackgroundColor != nil {
             backgroundColor = customBackgroundColor
         } else {
@@ -16,11 +18,5 @@ final class IconTitleHeaderView: UITableViewHeaderFooterView {
             backgroundView.backgroundColor = R.color.colorBlack()
             self.backgroundView = backgroundView
         }
-    }
-
-    func bind(title: String, icon: UIImage?) {
-        titleView.title = title
-        titleView.iconImage = icon
-        contentView.invalidateIntrinsicContentSize()
     }
 }
