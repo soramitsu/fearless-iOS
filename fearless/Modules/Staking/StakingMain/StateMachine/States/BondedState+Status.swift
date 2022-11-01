@@ -9,7 +9,7 @@ extension BondedState {
         return .inactive(era: eraStakers.activeEra)
     }
 
-    func createStatusPresentableViewModel(locale: Locale?) -> AlertPresentableViewModel? {
+    func createStatusPresentableViewModel(locale: Locale?) -> SheetAlertPresentableViewModel? {
         switch status {
         case .inactive:
             return createInactiveStatus(locale: locale)
@@ -18,15 +18,14 @@ extension BondedState {
         }
     }
 
-    private func createInactiveStatus(locale: Locale?) -> AlertPresentableViewModel {
+    private func createInactiveStatus(locale: Locale?) -> SheetAlertPresentableViewModel {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
             .stakingNominatorStatusAlertInactiveTitle(preferredLanguages: locale?.rLanguages)
-        let message: String
+        let message = R.string.localizable
+            .stakingBondedInactive(preferredLanguages: locale?.rLanguages)
 
-        message = R.string.localizable.stakingBondedInactive(preferredLanguages: locale?.rLanguages)
-
-        return AlertPresentableViewModel(
+        return SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [],

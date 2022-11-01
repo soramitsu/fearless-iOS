@@ -6,12 +6,14 @@ final class SheetAlertViewLayout: UIView {
         static let cornerRadius: CGFloat = 20.0
         static let imageViewContainerSize: CGFloat = 80.0
         static let imageViewSize = CGSize(width: 48, height: 42)
+        static let closeButton: CGFloat = 32.0
     }
 
     private let viewModel: SheetAlertPresentableViewModel
 
     let closeButton: UIButton = {
         let button = UIButton()
+        button.backgroundColor = R.color.colorSemiBlack()
         button.setImage(R.image.iconClose(), for: .normal)
         return button
     }()
@@ -58,11 +60,24 @@ final class SheetAlertViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        closeButton.rounded()
+    }
+
     private func bind(viewModel: SheetAlertPresentableViewModel) {
         titleLabel.text = viewModel.title
-        descriptionLabel.text = viewModel.subtitle
+        descriptionLabel.text = viewModel.message
 
         bindActions(actions: viewModel.actions)
+
+        if let closeAction = viewModel.closeAction {
+            let action = SheetAlertPresentableAction(
+                title: closeAction,
+                style: UIFactory.default.createAccessoryButton()
+            )
+            bindActions(actions: [action])
+        }
     }
 
     private func bindActions(actions: [SheetAlertPresentableAction]) {
@@ -80,16 +95,17 @@ final class SheetAlertViewLayout: UIView {
         titleLabel.font = viewModel.titleStyle.font
         titleLabel.textColor = viewModel.titleStyle.textColor
 
-        descriptionLabel.font = viewModel.subtitleStyle?.font
-        descriptionLabel.textColor = viewModel.subtitleStyle?.textColor
+        descriptionLabel.font = viewModel.messageStyle?.font
+        descriptionLabel.textColor = viewModel.messageStyle?.textColor
     }
 
     private func createButton(with action: SheetAlertPresentableAction) -> TriangularedButton {
         let button = action.style
         button.imageWithTitleView?.title = action.title
-        button.actionHandler(controlEvents: .touchUpInside, forAction: { [weak self] in
-            action.handler?() ?? self?.closeButton.sendActions(for: .touchUpInside)
-        })
+        button.addAction { [unowned self] in
+            self.closeButton.sendActions(for: .touchUpInside)
+            action.handler?()
+        }
         return button
     }
 
@@ -109,6 +125,7 @@ final class SheetAlertViewLayout: UIView {
         addSubview(closeButton)
         closeButton.snp.makeConstraints { make in
             make.top.trailing.equalToSuperview().inset(20)
+            make.size.equalTo(Constants.closeButton)
         }
 
         let imageViewContainer = UIView()

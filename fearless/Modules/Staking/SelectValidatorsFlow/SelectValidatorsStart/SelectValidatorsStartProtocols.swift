@@ -20,7 +20,7 @@ protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
 
 protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {}
 
-protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol SelectValidatorsStartWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func proceedToCustomList(
         from view: ControllerBackedProtocol?,
         flow: CustomValidatorListFlow,

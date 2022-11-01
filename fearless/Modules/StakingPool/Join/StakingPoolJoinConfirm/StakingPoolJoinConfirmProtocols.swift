@@ -23,7 +23,7 @@ protocol StakingPoolJoinConfirmInteractorOutput: AnyObject {
     func didReceive(extrinsicResult: SubmitExtrinsicResult)
 }
 
-protocol StakingPoolJoinConfirmRouterInput: AnyObject, PushDismissable, AlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting {
+protocol StakingPoolJoinConfirmRouterInput: AnyObject, PushDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting {
     func finish(view: ControllerBackedProtocol?)
     func complete(
         on view: ControllerBackedProtocol?,

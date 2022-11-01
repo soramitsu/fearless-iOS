@@ -32,7 +32,10 @@ final class StakingBalancePresenter {
     }
 
     private func updateView() {
-        guard let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState, priceData: priceData) else {
+        guard let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        ) else {
             return
         }
 
@@ -45,7 +48,9 @@ final class StakingBalancePresenter {
         }
 
         let locale = locale ?? Locale.current
-        DataValidationRunner(validators: viewModelState.stakeMoreValidators(using: locale)).runValidation { [weak self] in
+        DataValidationRunner(
+            validators: viewModelState.stakeMoreValidators(using: locale)
+        ).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
             }
@@ -66,7 +71,9 @@ final class StakingBalancePresenter {
 
         let locale = locale ?? Locale.current
 
-        DataValidationRunner(validators: viewModelState.stakeLessValidators(using: locale)).runValidation { [weak self] in
+        DataValidationRunner(
+            validators: viewModelState.stakeLessValidators(using: locale)
+        ).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
             }
@@ -101,9 +108,9 @@ final class StakingBalancePresenter {
     }
 
     private func presentRebond(for view: StakingBalanceViewProtocol, locale: Locale?) {
-        let actions = viewModelState.rebondCases.map { option -> AlertPresentableAction in
+        let actions = viewModelState.rebondCases.map { option -> SheetAlertPresentableAction in
             let title = option.titleForLocale(locale)
-            let action = AlertPresentableAction(title: title) { [weak self] in
+            let action = SheetAlertPresentableAction(title: title) { [weak self] in
                 guard let self = self else {
                     return
                 }
@@ -116,14 +123,14 @@ final class StakingBalancePresenter {
 
         let title = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale?.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
             closeAction: closeTitle
         )
 
-        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 }
 
@@ -155,7 +162,9 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     func handleUnbondingMoreAction() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        DataValidationRunner(validators: viewModelState.unbondingMoreValidators(using: locale)).runValidation { [weak self] in
+        DataValidationRunner(
+            validators: viewModelState.unbondingMoreValidators(using: locale)
+        ).runValidation { [weak self] in
             guard let view = self?.view else {
                 return
             }

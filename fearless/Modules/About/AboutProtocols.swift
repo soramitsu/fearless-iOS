@@ -12,7 +12,7 @@ protocol AboutPresenterProtocol: AnyObject {
     func activate(url: URL)
 }
 
-protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, AlertPresentable {}
+protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, SheetAlertPresentable {}
 
 protocol AboutViewFactoryProtocol: AnyObject {
     static func createView() -> AboutViewProtocol?

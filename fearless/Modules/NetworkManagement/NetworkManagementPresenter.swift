@@ -170,7 +170,10 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let removeTitle = R.string.localizable
             .connectionDeleteConfirm(preferredLanguages: locale.rLanguages)
 
-        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+        let removeAction = SheetAlertPresentableAction(
+            title: removeTitle,
+            style: UIFactory.default.createDestructiveButton()
+        ) { [weak self] in
             self?.performCustomItemRemoval(at: index)
 
             self?.view?.didRemoveCustomItem(at: index)
@@ -184,14 +187,14 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let detailsParam = "\(viewModel.type.titleForLocale(locale)), \(viewModel.name)"
         let details = R.string.localizable
             .connectionDeleteDescription(detailsParam, preferredLanguages: locale.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: details,
             actions: [removeAction],
             closeAction: cancelTitle
         )
 
-        wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
+        wireframe.present(viewModel: alertViewModel, from: view)
     }
 
     private func performCustomItemRemoval(at index: Int) {
@@ -271,14 +274,14 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
 
         let proceedTitle = R.string.localizable
             .commonProceed(preferredLanguages: localizationManager.selectedLocale.rLanguages)
-        let proceedAction = AlertPresentableAction(title: proceedTitle) { [weak self] in
+        let proceedAction = SheetAlertPresentableAction(title: proceedTitle) { [weak self] in
             self?.wireframe.presentAccountCreation(for: connection, from: self?.view)
         }
 
         let closeTitle = R.string.localizable
             .commonCancel(preferredLanguages: localizationManager.selectedLocale.rLanguages)
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [proceedAction],
@@ -287,7 +290,6 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
 
         wireframe.present(
             viewModel: viewModel,
-            style: .alert,
             from: view
         )
     }

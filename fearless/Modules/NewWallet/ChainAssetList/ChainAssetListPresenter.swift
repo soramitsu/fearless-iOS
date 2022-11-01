@@ -98,24 +98,24 @@ final class ChainAssetListPresenter {
             chain: chain
         )
 
-        let actions: [AlertPresentableAction] = options.compactMap { option in
+        let actions: [SheetAlertPresentableAction] = options.compactMap { option in
             switch option {
             case .create:
                 let title = R.string.localizable
                     .createNewAccount(preferredLanguages: selectedLocale.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.router.showCreate(uniqueChainModel: uniqueChainModel, from: self?.view)
                 }
             case .import:
                 let title = R.string.localizable
                     .alreadyHaveAccount(preferredLanguages: selectedLocale.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.router.showImport(uniqueChainModel: uniqueChainModel, from: self?.view)
                 }
             case .skip:
                 let title = R.string.localizable
                     .missingAccountSkip(preferredLanguages: selectedLocale.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.interactor.markUnused(chain: uniqueChainModel.chain)
                 }
             case .none:
@@ -183,29 +183,24 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         let title = viewModel.chainAsset.chain.name + " "
             + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
 
-        var subtitle: String = ""
+        var message: String = ""
         var closeActionTitle: String = ""
         if viewModel.isNetworkIssues {
-            subtitle = R.string.localizable
+            message = R.string.localizable
                 .networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         } else if viewModel.isMissingAccount {
-            subtitle = R.string.localizable
+            message = R.string.localizable
                 .manageAssetsAccountMissingText(preferredLanguages: selectedLocale.rLanguages)
             closeActionTitle = R.string.localizable
                 .accountsAddAccount(preferredLanguages: selectedLocale.rLanguages)
         }
 
-        let closeAction = SheetAlertPresentableAction(
-            title: closeActionTitle,
-            style: UIFactory.default.createMainActionButton(),
-            handler: nil
-        )
-
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
-            subtitle: subtitle,
-            actions: [closeAction],
+            message: message,
+            actions: [],
+            closeAction: closeActionTitle,
             dismissCompletion: { [weak self] in
                 self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
             }

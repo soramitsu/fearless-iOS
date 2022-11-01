@@ -28,7 +28,7 @@ class ImportantFlowNavigationController: FearlessNavigationController, Controlle
     }
 }
 
-extension ImportantFlowNavigationController: UIAdaptivePresentationControllerDelegate, AlertPresentable {
+extension ImportantFlowNavigationController: UIAdaptivePresentationControllerDelegate, SheetAlertPresentable {
     func presentationControllerShouldDismiss(_: UIPresentationController) -> Bool {
         let containsImportantViews = viewControllers.contains { ($0 as? ImportantViewProtocol) != nil }
         return !containsImportantViews
@@ -37,20 +37,20 @@ extension ImportantFlowNavigationController: UIAdaptivePresentationControllerDel
     func presentationControllerDidAttemptToDismiss(_: UIPresentationController) {
         let languages = localizationManager.selectedLocale.rLanguages
 
-        let action = AlertPresentableAction(
+        let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonCancelOperationAction(preferredLanguages: languages),
-            style: .destructive
+            style: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.commonCancelOperationMessage(preferredLanguages: languages),
             message: nil,
             actions: [action],
             closeAction: R.string.localizable.commonKeepEditingAction(preferredLanguages: languages)
         )
 
-        present(viewModel: viewModel, style: .actionSheet, from: self)
+        present(viewModel: viewModel, from: self)
     }
 }

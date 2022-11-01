@@ -157,14 +157,20 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         let removeTitle = R.string.localizable
             .accountDeleteConfirm(preferredLanguages: locale?.rLanguages)
 
-        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+        let removeAction = SheetAlertPresentableAction(
+            title: removeTitle,
+            style: UIFactory.default.createDestructiveButton()
+        ) { [weak self] in
             self?.performRemoveItem(at: index)
 
             completion(true)
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel) {
+        let cancelAction = SheetAlertPresentableAction(
+            title: cancelTitle,
+            style: UIFactory.default.createAccessoryButton()
+        ) {
             completion(false)
         }
 
@@ -172,14 +178,14 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             .accountDeleteConfirmationTitle(preferredLanguages: locale?.rLanguages)
         let details = R.string.localizable
             .accountDeleteConfirmationDescription(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
             closeAction: nil
         )
 
-        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 
     private func performRemoveItem(at index: Int) {

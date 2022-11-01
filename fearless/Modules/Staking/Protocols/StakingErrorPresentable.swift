@@ -51,7 +51,7 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyD
     func presentMissingPoolName(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
-extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
+extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable.stakingSetupAmountTooLow(value)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)

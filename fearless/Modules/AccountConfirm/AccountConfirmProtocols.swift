@@ -23,7 +23,7 @@ protocol AccountConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error)
 }
 
-protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AccountConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func proceed(from view: AccountConfirmViewProtocol?, flow: AccountConfirmFlow?)
 }
 
