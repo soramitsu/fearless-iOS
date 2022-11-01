@@ -10,9 +10,6 @@ extension CDRuntimeMetadataItem: CoreDataCodable {
         version = Int32(bitPattern: item.version)
         txVersion = Int32(bitPattern: item.txVersion)
         metadata = item.metadata
-
-        let resolverData = try JSONEncoder().encode(item.resolver)
-        resolver = resolverData
     }
 
     public func encode(to encoder: Encoder) throws {
@@ -22,6 +19,5 @@ extension CDRuntimeMetadataItem: CoreDataCodable {
         try container.encode(metadata, forKey: .metadata)
         try container.encode(UInt32(bitPattern: version), forKey: .version)
         try container.encode(UInt32(bitPattern: txVersion), forKey: .txVersion)
-        try container.encode(resolver, forKey: .resolver)
     }
 }

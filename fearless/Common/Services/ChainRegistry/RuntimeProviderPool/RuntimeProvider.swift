@@ -30,6 +30,7 @@ final class RuntimeProvider {
     internal let chainId: ChainModel.Id
     private let chainName: String
     private(set) var typesUsage: ChainModel.TypesUsage
+    private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
     private let snapshotHotOperationFactory: RuntimeHotBootSnapshotFactoryProtocol?
@@ -56,7 +57,8 @@ final class RuntimeProvider {
         operationQueue: OperationQueue,
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil,
-        repository: AnyDataProviderRepository<RuntimeMetadataItem>
+        repository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        usedRuntimePaths: [String: [String]]
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -68,6 +70,7 @@ final class RuntimeProvider {
         self.dataHasher = dataHasher
         self.logger = logger
         self.repository = repository
+        self.usedRuntimePaths = usedRuntimePaths
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -90,7 +93,8 @@ final class RuntimeProvider {
             dataHasher: dataHasher,
             commonTypes: commonTypes,
             chainTypes: chainTypes,
-            chainMetadata: chainMetadata
+            chainMetadata: chainMetadata,
+            usedRuntimePaths: usedRuntimePaths
         )
 
         wrapper.completionBlock = { [weak self] in
@@ -109,7 +113,8 @@ final class RuntimeProvider {
 
         let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
             for: typesUsage,
-            dataHasher: dataHasher
+            dataHasher: dataHasher,
+            usedRuntimePaths: usedRuntimePaths
         )
 
         wrapper?.targetOperation.completionBlock = { [weak self] in
@@ -136,7 +141,6 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
-                updateMetadata(snapshot)
 
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
@@ -155,40 +159,6 @@ final class RuntimeProvider {
         case .none:
             break
         }
-    }
-
-    private func updateMetadata(_ snapshot: RuntimeSnapshot) {
-        let localMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
-        let updateOperation = repository.saveOperation {
-            guard
-                let currentRuntimeItem = try localMetadataOperation.extractNoCancellableResultData(),
-                currentRuntimeItem.resolver != snapshot.metadata.resolver
-            else {
-                return []
-            }
-            var updateItem: [RuntimeMetadataItem] = []
-
-            let metadataItem = RuntimeMetadataItem(
-                chain: currentRuntimeItem.chain,
-                version: currentRuntimeItem.version,
-                txVersion: currentRuntimeItem.txVersion,
-                metadata: currentRuntimeItem.metadata,
-                resolver: snapshot.metadata.resolver
-            )
-
-            updateItem = [metadataItem]
-
-            return updateItem
-        } _: {
-            []
-        }
-
-        updateOperation.addDependency(localMetadataOperation)
-        operationQueue.addOperations([localMetadataOperation, updateOperation], waitUntilFinished: false)
     }
 
     private func resolveRequests() {
