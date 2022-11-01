@@ -7,24 +7,28 @@ struct RuntimeMetadataItem: Codable & Equatable {
     let version: UInt32
     let txVersion: UInt32
     let metadata: Data
+    let resolver: Schema.Resolver?
 
     enum CodingKeys: String, CodingKey {
         case chain
         case version
         case txVersion
         case metadata
+        case resolver
     }
 
     init(
         chain: String,
         version: UInt32,
         txVersion: UInt32,
-        metadata: Data
+        metadata: Data,
+        resolver: Schema.Resolver?
     ) {
         self.chain = chain
         self.version = version
         self.txVersion = txVersion
         self.metadata = metadata
+        self.resolver = resolver
     }
 
     init(from decoder: Decoder) throws {
@@ -34,6 +38,7 @@ struct RuntimeMetadataItem: Codable & Equatable {
         version = try container.decode(UInt32.self, forKey: .version)
         txVersion = try container.decode(UInt32.self, forKey: .txVersion)
         metadata = try container.decode(Data.self, forKey: .metadata)
+        resolver = nil
     }
 
     func encode(to encoder: Encoder) throws {

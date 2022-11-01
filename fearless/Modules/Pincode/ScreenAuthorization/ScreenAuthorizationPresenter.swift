@@ -45,7 +45,7 @@ extension ScreenAuthorizationPresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
-    func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
+    func didChangeState(from _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in

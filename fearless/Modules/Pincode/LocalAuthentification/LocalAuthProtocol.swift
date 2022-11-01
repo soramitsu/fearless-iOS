@@ -10,7 +10,7 @@ protocol LocalAuthInteractorInputProtocol: AnyObject {
 
 protocol LocalAuthInteractorOutputProtocol: AnyObject {
     func didEnterWrongPincode()
-    func didChangeState(to state: LocalAuthInteractor.LocalAuthState)
+    func didChangeState(from state: LocalAuthInteractor.LocalAuthState)
     func didCompleteAuth()
     func didUnexpectedFail()
 }

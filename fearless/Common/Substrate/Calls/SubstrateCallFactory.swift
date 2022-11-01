@@ -150,42 +150,22 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             payee: destArg
         )
 
-        let path: SubstrateCallPath = .bond
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "bond", args: args)
     }
 
     func bondExtra(amount: BigUInt) -> RuntimeCall<BondExtraCall> {
         let args = BondExtraCall(amount: amount)
-        let path: SubstrateCallPath = .bondExtra
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "bond_extra", args: args)
     }
 
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall> {
         let args = UnbondCall(amount: amount)
-        let path: SubstrateCallPath = .unbond
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "unbond", args: args)
     }
 
     func rebond(amount: BigUInt) -> RuntimeCall<RebondCall> {
         let args = RebondCall(amount: amount)
-        let path: SubstrateCallPath = .rebond
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "rebond", args: args)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {
@@ -196,12 +176,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
         let args = NominateCall(targets: addresses)
 
-        let path: SubstrateCallPath = .nominate
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "nominate", args: args)
     }
 
     func poolNominate(
@@ -223,12 +198,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             era: era
         )
 
-        let path: SubstrateCallPath = .payout
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "payout_stakers", args: args)
     }
 
     func transfer(
@@ -257,51 +227,27 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        let path: SubstrateCallPath = .transfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
     }
 
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall> {
         let args = SetPayeeCall(payee: destination)
-        let path: SubstrateCallPath = .setPayee
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "set_payee", args: args)
     }
 
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall> {
         let args = WithdrawUnbondedCall(numberOfSlashingSpans: numberOfSlashingSpans)
-        let path: SubstrateCallPath = .withdrawUnbonded
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "withdraw_unbonded", args: args)
     }
 
     func setController(_ controller: AccountAddress) throws -> RuntimeCall<SetControllerCall> {
         let controllerId = try addressFactory.accountId(from: controller)
         let args = SetControllerCall(controller: .accoundId(controllerId))
-        let path: SubstrateCallPath = .setController
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Staking", callName: "set_controller", args: args)
     }
 
     func chill() -> RuntimeCall<NoRuntimeArgs> {
-        let path: SubstrateCallPath = .chill
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName
-        )
+        RuntimeCall(moduleName: "Staking", callName: "chill")
     }
 
     func contribute(
@@ -310,32 +256,17 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         multiSignature: MultiSignature? = nil
     ) -> RuntimeCall<CrowdloanContributeCall> {
         let args = CrowdloanContributeCall(index: paraId, value: amount, signature: multiSignature)
-        let path: SubstrateCallPath = .contribute
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
     }
 
     func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo> {
         let args = CrowdloanAddMemo(index: paraId, memo: memo)
-        let path: SubstrateCallPath = .addMemo
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Crowdloan", callName: "add_memo", args: args)
     }
 
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall> {
         let args = AddRemarkCall(remark: data)
-        let path: SubstrateCallPath = .addRemark
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "System", callName: "remark", args: args)
     }
 
     func delegate(
@@ -351,10 +282,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             delegationCount: delegationCount
         )
 
-        let path: SubstrateCallPath = .delegate
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "Delegate",
             args: args
         )
     }
@@ -365,10 +295,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<DelegatorBondMoreCall> {
         let args = DelegatorBondMoreCall(candidate: candidate, more: amount)
 
-        let path: SubstrateCallPath = .delegatorBondMore
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "delegator_bond_more",
             args: args
         )
     }
@@ -379,10 +308,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
         let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
 
-        let path: SubstrateCallPath = .scheduleCandidateBondLess
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "schedule_delegator_bond_less",
             args: args
         )
     }
@@ -390,10 +318,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func scheduleRevokeDelegation(candidate: AccountId) -> RuntimeCall<ScheduleRevokeDelegationCall> {
         let args = ScheduleRevokeDelegationCall(collator: candidate)
 
-        let path: SubstrateCallPath = .scheduleRevokeDelegation
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "schedule_revoke_delegation",
             args: args
         )
     }
@@ -404,57 +331,48 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<ExecuteDelegationRequestCall> {
         let args = ExecuteDelegationRequestCall(delegator: delegator, candidate: collator)
 
-        let path: SubstrateCallPath = .executeDelegationRequest
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "execute_delegation_request",
             args: args
         )
     }
 
     func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs> {
-        let path: SubstrateCallPath = .cancelCandidateBondLess
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName
+        RuntimeCall(
+            moduleName: "ParachainStaking",
+            callName: "cancel_candidate_bond_less"
         )
     }
 
     func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall> {
         let args = CancelDelegationRequestCall(candidate: candidate)
 
-        let path: SubstrateCallPath = .cancelDelegationRequest
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "cancel_delegation_request",
             args: args
         )
     }
 
     func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs> {
-        let path: SubstrateCallPath = .cancelLeaveDelegators
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName
-        )
+        RuntimeCall(moduleName: "ParachainStaking", callName: "cancel_leave_delegators")
     }
 
     func candidateBondMore(amount: BigUInt) -> RuntimeCall<CandidateBondMoreCall> {
         let args = CandidateBondMoreCall(more: amount)
-        let path: SubstrateCallPath = .candidateBondMore
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "candidate_bond_more",
             args: args
         )
     }
 
     func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall> {
         let args = ScheduleCandidateBondLessCall(less: amount)
-        let path: SubstrateCallPath = .scheduleCandidateBondLess
         return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
+            moduleName: "ParachainStaking",
+            callName: "schedule_candidate_bond_less",
             args: args
         )
     }
@@ -567,12 +485,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         currencyId: CurrencyId?
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
-        let path: SubstrateCallPath = .ormlChainTransfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Tokens", callName: "transfer", args: args)
     }
 
     private func ormlAssetTransfer(
@@ -581,12 +494,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         currencyId: CurrencyId?
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
-        let path: SubstrateCallPath = .ormlAssetTransfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Currencies", callName: "transfer", args: args)
     }
 
     private func equilibriumAssetTransfer(
@@ -595,12 +503,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         currencyId: CurrencyId?
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
-        let path: SubstrateCallPath = .equilibriumAssetTransfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "EqBalances", callName: "transfer", args: args)
     }
 
     private func defaultTransfer(
@@ -608,12 +511,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         amount: BigUInt
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
-        let path: SubstrateCallPath = .defaultTransfer
-        return RuntimeCall(
-            moduleName: path.moduleName,
-            callName: path.callName,
-            args: args
-        )
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
     }
 }
 

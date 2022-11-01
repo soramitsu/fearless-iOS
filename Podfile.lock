@@ -86,7 +86,7 @@ PODS:
   - SoraFoundation/Timer (1.0.0):
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (1.0.0)
-  - SoraKeystore (1.0.1)
+  - SoraKeystore (1.0.0)
   - SoraUI (1.10.3):
     - SoraUI/AdaptiveDesign (= 1.10.3)
     - SoraUI/Animator (= 1.10.3)
@@ -136,7 +136,7 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `d480f58860ff82b672e05ea835afc603ccf273cc`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `67bd501dc302c97968e584c2a5b64d46acaed038`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -146,7 +146,7 @@ DEPENDENCIES:
   - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
-  - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
+  - SoraKeystore
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
@@ -174,6 +174,7 @@ SPEC REPOS:
     - secp256k1.c
     - SnapKit
     - SoraFoundation
+    - SoraKeystore
     - SoraUI
     - Sourcery
     - SVGKit
@@ -186,22 +187,16 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: d480f58860ff82b672e05ea835afc603ccf273cc
+    :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  SoraKeystore:
-    :git: https://github.com/soramitsu/keystore-iOS.git
-    :tag: 1.0.1
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: d480f58860ff82b672e05ea835afc603ccf273cc
+    :commit: 67bd501dc302c97968e584c2a5b64d46acaed038
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  SoraKeystore:
-    :git: https://github.com/soramitsu/keystore-iOS.git
-    :tag: 1.0.1
   Starscream:
     :commit: c605e329c0a2757d30678f38a6b8e793272a7115
     :git: https://github.com/soramitsu/fearless-starscream.git
@@ -225,7 +220,7 @@ SPEC CHECKSUMS:
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
-  SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
+  SoraKeystore: 92cff6e2a12f212dd64ed089970ff7c365247b1c
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
   Starscream: 8cc648110705c09a15f0de84352c7f9595b7cb05
@@ -237,6 +232,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 8d4458ead192baaf8fb24e21f911ea513075629e
+PODFILE CHECKSUM: 1a5c5773ee12078b84a1b193bf12479f59cccb04
 
 COCOAPODS: 1.11.3

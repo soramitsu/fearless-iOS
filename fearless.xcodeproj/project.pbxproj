@@ -41,8 +41,6 @@
 		0716C85028880304004C8CB1 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84E28880304004C8CB1 /* UIResponder.swift */; };
 		072EB84828E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */; };
 		072EB84A28E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */; };
-		07349F2D28F962D300A802B9 /* SubstrateCallPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */; };
-		07349F2F28F99ACB00A802B9 /* UsedRuntimeModules.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
 		074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */; };
 		074EB7AD290B9F64000A2A6A /* AddressCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */; };
@@ -2529,8 +2527,6 @@
 		0716C84E28880304004C8CB1 /* UIResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
 		072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModel.swift; sourceTree = "<group>"; };
-		07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallPath.swift; sourceTree = "<group>"; };
-		07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsedRuntimeModules.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
 		074EB7A9290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusAlertEvent.swift; sourceTree = "<group>"; };
 		074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressCopiedEvent.swift; sourceTree = "<group>"; };
@@ -6654,7 +6650,6 @@
 				84F98D8925E3DD3F0040418E /* StorageCodingPath.swift */,
 				84DB4E6B25EA740600A6DF41 /* ConstantCodingPath.swift */,
 				84A6171A2625AC3E007B75E1 /* CallCodingPath.swift */,
-				07349F2C28F962D300A802B9 /* SubstrateCallPath.swift */,
 				848FFE9925E6E0E400652AA5 /* ValidatorExposure.swift */,
 				84F2FEFE25E7ADE7008338D5 /* ValidatorPrefs.swift */,
 				84BE207725E7D62100B4748C /* ActiveEraInfo.swift */,
@@ -8273,7 +8268,6 @@
 			children = (
 				845BB8C725E45D0600E5FCDC /* Calls */,
 				8438E1DC24C18F11001BDB13 /* Types */,
-				07349F2E28F99ACB00A802B9 /* UsedRuntimeModules.swift */,
 			);
 			path = Substrate;
 			sourceTree = "<group>";
@@ -13231,7 +13225,6 @@
 				84CD82B8263C3249001A6F01 /* SubstrateProviderSubscriber+Default.swift in Sources */,
 				845BB8B825E4465F00E5FCDC /* ExtrinsicService.swift in Sources */,
 				F4F65C2E26D8B7F7002EE838 /* FWXAxisChartLegendView.swift in Sources */,
-				07349F2D28F962D300A802B9 /* SubstrateCallPath.swift in Sources */,
 				FA4B92AD2844D0E60003BCEF /* SelectCurrencyViewModelFactory.swift in Sources */,
 				FA86442327671C8C00956D8E /* WalletTransactionHistorySection.swift in Sources */,
 				FAA0133228DA12B6000A5230 /* StakingPoolMainRouter.swift in Sources */,
@@ -15010,7 +15003,6 @@
 				9B4BE26140C63E07C256CC97 /* StakingRedeemProtocols.swift in Sources */,
 				078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */,
 				AEE5FB1C264A610C002B8FDC /* StakingRewardDestSetupLayout.swift in Sources */,
-				07349F2F28F99ACB00A802B9 /* UsedRuntimeModules.swift in Sources */,
 				07089AF928B78248001566CA /* SheetAlertPresentable.swift in Sources */,
 				B7CF31A548C02AD7AAC16A8D /* StakingRedeemWireframe.swift in Sources */,
 				C0B0DDF638915E8259B1CD67 /* StakingRedeemPresenter.swift in Sources */,

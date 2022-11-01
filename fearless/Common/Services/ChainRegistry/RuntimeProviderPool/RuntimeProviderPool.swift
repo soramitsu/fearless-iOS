@@ -15,7 +15,6 @@ protocol RuntimeProviderPoolProtocol {
 
 final class RuntimeProviderPool {
     private let runtimeProviderFactory: RuntimeProviderFactoryProtocol
-    private var usedRuntimeModules = UsedRuntimePaths()
     private(set) var runtimeProviders: [ChainModel.Id: RuntimeProviderProtocol] = [:]
 
     private let mutex = NSLock()
@@ -35,8 +34,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         let runtimeProvider = runtimeProviderFactory.createHotRuntimeProvider(
             for: chain,
             runtimeItem: runtimeItem,
-            commonTypes: commonTypes,
-            usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
+            commonTypes: commonTypes
         )
 
         runtimeProviders[chain.chainId] = runtimeProvider
@@ -59,10 +57,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
 
             return runtimeProvider
         } else {
-            let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
-                for: chain,
-                usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
-            )
+            let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(for: chain)
 
             runtimeProviders[chain.chainId] = runtimeProvider
 

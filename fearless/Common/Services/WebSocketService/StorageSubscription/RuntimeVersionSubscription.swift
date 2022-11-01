@@ -280,7 +280,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                     return nil
                 }
 
-                return try? RuntimeMetadata.v1(modules: modules, extrinsic: moduleExtrinsic)
+                return RuntimeMetadata.v1(modules: modules, extrinsic: moduleExtrinsic)
             }
 
             if let overriden = overridenRuntime() {
@@ -293,7 +293,8 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 chain: self.chain.genesisHash,
                 version: runtimeVersion.specVersion,
                 txVersion: runtimeVersion.transactionVersion,
-                metadata: rawMetadata
+                metadata: rawMetadata,
+                resolver: nil
             )
 
             return [item]

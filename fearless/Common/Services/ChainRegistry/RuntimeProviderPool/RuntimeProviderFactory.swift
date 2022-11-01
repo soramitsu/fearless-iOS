@@ -2,15 +2,11 @@ import Foundation
 import RobinHood
 
 protocol RuntimeProviderFactoryProtocol {
-    func createRuntimeProvider(
-        for chain: ChainModel,
-        usedRuntimePaths: [String: [String]]
-    ) -> RuntimeProviderProtocol
+    func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
-        usedRuntimePaths: [String: [String]]
+        commonTypes: Data
     ) -> RuntimeProviderProtocol
 }
 
@@ -40,10 +36,7 @@ final class RuntimeProviderFactory {
 }
 
 extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
-    func createRuntimeProvider(
-        for chain: ChainModel,
-        usedRuntimePaths: [String: [String]]
-    ) -> RuntimeProviderProtocol {
+    func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
             filesOperationFactory: fileOperationFactory,
@@ -57,16 +50,14 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             eventCenter: eventCenter,
             operationQueue: operationQueue,
             logger: logger,
-            repository: repository,
-            usedRuntimePaths: usedRuntimePaths
+            repository: repository
         )
     }
 
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
-        usedRuntimePaths: [String: [String]]
+        commonTypes: Data
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
@@ -88,8 +79,7 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             eventCenter: eventCenter,
             operationQueue: operationQueue,
             logger: logger,
-            repository: repository,
-            usedRuntimePaths: usedRuntimePaths
+            repository: repository
         )
     }
 }
