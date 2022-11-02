@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SoraUI
 
 final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
     func finish(view: ControllerBackedProtocol?) {
@@ -22,7 +23,14 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
         view?.controller.navigationController?.dismiss(animated: true, completion: nil)
 
         if let presenter = presenter as? ControllerBackedProtocol {
-            presentSuccessNotification(title, from: presenter)
+            let controller = AllDoneAlertViewController(hashString: title)
+            controller.modalPresentationStyle = .custom
+
+            let factory = ModalSheetBlurPresentationFactory(
+                configuration: ModalSheetPresentationConfiguration.fearlessBlur
+            )
+            controller.modalTransitioningFactory = factory
+            presenter.controller.present(controller, animated: true)
         }
     }
 }

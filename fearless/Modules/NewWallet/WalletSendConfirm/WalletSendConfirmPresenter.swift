@@ -222,11 +222,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         view?.didStopLoading()
 
         switch result {
-        case .success:
-            let title = R.string.localizable
-                .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
+        case let .success(hash):
 
-            wireframe.complete(on: view, title: title)
+            wireframe.complete(on: view, title: hash)
         case let .failure(error):
             guard let view = view else {
                 return
