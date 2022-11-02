@@ -1,11 +1,14 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 final class SelectableListViewLayout: UIView {
     private enum Constants {
         static let headerHeight: CGFloat = 56.0
         static let cornerRadius: CGFloat = 20.0
     }
+
+    var keyboardAdoptableConstraint: Constraint?
 
     let indicator = UIFactory.default.createIndicatorView()
 
@@ -101,7 +104,7 @@ final class SelectableListViewLayout: UIView {
         contentStackView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalToSuperview().offset(0)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
 
         contentStackView.addArrangedSubview(searchTextField)
