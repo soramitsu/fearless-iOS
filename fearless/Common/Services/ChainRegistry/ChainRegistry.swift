@@ -268,7 +268,7 @@ extension ChainRegistry: ConnectionPoolDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
-                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+//                connectionNeedsReconnect(for: failedChain, previusUrl: url)
             }
         case .connected:
             break
