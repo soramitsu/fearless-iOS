@@ -28,5 +28,6 @@ class ShadowRoundedBackground: UIView {
         layer.shadowColor = shadowColor.cgColor
         layer.shadowRadius = 10.0
         layer.shadowOpacity = 0.5
+        layer.masksToBounds = false
     }
 }
