@@ -4,7 +4,7 @@ struct CustomValidatorCellViewModel {
     let icon: DrawableIcon?
     let name: String?
     let address: String
-    let details: NSAttributedString?
+    let detailsAttributedString: NSAttributedString?
     let auxDetails: String?
     let shouldShowWarning: Bool
     let shouldShowError: Bool
