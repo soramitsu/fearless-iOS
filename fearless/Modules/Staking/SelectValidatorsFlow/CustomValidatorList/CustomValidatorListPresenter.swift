@@ -14,6 +14,7 @@ final class CustomValidatorListPresenter {
     let viewModelFactory: CustomValidatorListViewModelFactoryProtocol
 
     private var priceData: PriceData?
+    private var searchText: String?
 
     init(
         interactor: CustomValidatorListInteractorInputProtocol,
@@ -47,7 +48,8 @@ final class CustomValidatorListPresenter {
         if let viewModel = viewModelFactory.buildViewModel(
             viewModelState: viewModelState,
             priceData: priceData,
-            locale: selectedLocale
+            locale: selectedLocale,
+            searchText: searchText
         ) {
             self.viewModelState.updateViewModel(viewModel)
             view?.reload(viewModel)
@@ -113,14 +115,14 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
     // MARK: - Cell actions
 
-    func changeValidatorSelection(at index: Int) {
-        viewModelState.changeValidatorSelection(at: index)
+    func changeValidatorSelection(address: String) {
+        viewModelState.changeValidatorSelection(address: address)
     }
 
     // MARK: - Presenting actions
 
-    func didSelectValidator(at index: Int) {
-        guard let flow = viewModelState.validatorInfoFlow(validatorIndex: index) else {
+    func didSelectValidator(address: String) {
+        guard let flow = viewModelState.validatorInfoFlow(address: address) else {
             return
         }
 
@@ -160,6 +162,11 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
     func proceed() {
         viewModelState.proceed()
+    }
+
+    func searchTextDidChange(_ text: String?) {
+        searchText = text
+        provideViewModels(viewModelState: viewModelState)
     }
 }
 

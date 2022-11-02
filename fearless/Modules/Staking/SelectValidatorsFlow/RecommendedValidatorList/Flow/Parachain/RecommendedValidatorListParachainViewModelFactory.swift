@@ -1,13 +1,22 @@
 import Foundation
 import SoraFoundation
 import FearlessUtils
+import BigInt
 
 // swiftlint:disable type_name
 final class RecommendedValidatorListParachainViewModelFactory {
     private let iconGenerator: IconGenerating
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
-    init(iconGenerator: IconGenerating) {
+    init(
+        iconGenerator: IconGenerating,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        chainAsset: ChainAsset
+    ) {
         self.iconGenerator = iconGenerator
+        self.balanceViewModelFactory = balanceViewModelFactory
+        self.chainAsset = chainAsset
     }
 
     private func createStakeReturnString(from stakeReturn: Decimal?) -> LocalizableResource<String> {
@@ -36,19 +45,45 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
             return nil
         }
 
+        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+
         let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
             parachainViewModelState.collators.compactMap { collator in
                 let icon = try? iconGenerator.generateFromAddress(collator.address)
                 let title = collator.identity?.displayName ?? collator.address
 
-                let aprDecimal = Decimal(collator.subqueryData?.apr ?? 0)
-                let details = createStakeReturnString(from: aprDecimal)
+                let apy: NSAttributedString? = collator.subqueryData.map { info in
+                    let stakeReturnString = apyFormatter.stringFromDecimal(Decimal(info.apr)) ?? ""
+                    let apyString = "APY \(stakeReturnString)"
 
-                return LocalizableResource { locale in
+                    let apyStringAttributed = NSMutableAttributedString(string: apyString)
+                    apyStringAttributed.addAttribute(
+                        .foregroundColor,
+                        value: R.color.colorColdGreen() as Any,
+                        range: (apyString as NSString).range(of: stakeReturnString)
+                    )
+                    return apyStringAttributed
+                }
+
+                let totalStake = Decimal.fromSubstrateAmount(
+                    collator.metadata?.totalCounted ?? BigUInt.zero,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
+                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                    totalStake,
+                    priceData: nil
+                ).value(for: locale)
+                let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+                    "\(balanceViewModel.amount)",
+                    preferredLanguages: locale.rLanguages
+                )
+
+                return LocalizableResource { _ in
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: details.value(for: locale),
+                        detailsAttributedString: apy,
+                        detailsAux: stakedString,
                         isSelected: parachainViewModelState.selectedCollators.contains(collator)
                     )
                 }

@@ -55,118 +55,58 @@ final class CustomValidatorListParachainViewModelFactory {
     private func createCellsViewModel(
         from collatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
-        filter: CustomValidatorParachainListFilter,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> [CustomValidatorCellViewModel] {
         let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
-        return collatorList.map { collator in
-            let icon = try? self.iconGenerator.generateFromAddress(collator.address)
-
-            let detailsText: String?
-            let auxDetailsText: String?
-
-            switch filter.sortedBy {
-            case .estimatedReward:
-                detailsText =
-                    apyFormatter.string(from: (collator.subqueryData?.apr ?? 0.0) as NSNumber)
-                auxDetailsText = nil
-
-            case .ownStake:
-                let bond = Decimal.fromSubstrateAmount(
-                    collator.metadata?.bond ?? BigUInt.zero,
-                    precision: Int16(chainAsset.asset.precision)
-                ) ?? Decimal.zero
-                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
-                    bond,
-                    priceData: priceData
-                ).value(for: locale)
-
-                detailsText = balanceViewModel.amount
-                auxDetailsText = balanceViewModel.price
-
-            case .effectiveAmountBonded:
-                let totalStake = Decimal.fromSubstrateAmount(
-                    collator.metadata?.totalCounted ?? BigUInt.zero,
-                    precision: Int16(chainAsset.asset.precision)
-                ) ?? Decimal.zero
-                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
-                    totalStake,
-                    priceData: priceData
-                ).value(for: locale)
-
-                detailsText = balanceViewModel.amount
-                auxDetailsText = balanceViewModel.price
-            case .delegations:
-                detailsText = "\(collator.metadata?.delegationCount ?? 0)"
-                auxDetailsText = ""
-            case .minimumBond:
-                let minimumBond = Decimal.fromSubstrateAmount(
-                    collator.metadata?.totalCounted ?? BigUInt.zero,
-                    precision: Int16(chainAsset.asset.precision)
-                ) ?? Decimal.zero
-                detailsText = minimumBond.stringWithPointSeparator
-                auxDetailsText = ""
+        return collatorList.filter {
+            guard let searchText = searchText, searchText.isNotEmpty else {
+                return true
             }
 
-            // TODO: Real hasSlashes and oversubscribed value
+            return $0.identity?.displayName.contains(searchText) == true
+        }.map { collator in
+            let icon = try? self.iconGenerator.generateFromAddress(collator.address)
+
+            let apy: NSAttributedString? = collator.subqueryData.map { info in
+                let stakeReturnString = apyFormatter.stringFromDecimal(Decimal(info.apr)) ?? ""
+                let apyString = "APY \(stakeReturnString)"
+
+                let apyStringAttributed = NSMutableAttributedString(string: apyString)
+                apyStringAttributed.addAttribute(
+                    .foregroundColor,
+                    value: R.color.colorColdGreen() as Any,
+                    range: (apyString as NSString).range(of: stakeReturnString)
+                )
+                return apyStringAttributed
+            }
+
+            let totalStake = Decimal.fromSubstrateAmount(
+                collator.metadata?.totalCounted ?? BigUInt.zero,
+                precision: Int16(chainAsset.asset.precision)
+            ) ?? Decimal.zero
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                totalStake,
+                priceData: priceData
+            ).value(for: locale)
+            let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
+                "\(balanceViewModel.amount)",
+                preferredLanguages: locale.rLanguages
+            )
+
             return CustomValidatorCellViewModel(
                 icon: icon,
                 name: collator.identity?.displayName,
                 address: collator.address,
-                details: detailsText,
-                auxDetails: auxDetailsText,
+                detailsAttributedString: apy,
+                auxDetails: stakedString,
                 shouldShowWarning: false,
                 shouldShowError: false,
                 isSelected: selectedCollatorList.contains(collator)
             )
         }
-    }
-
-    func createViewModel(
-        from displayCollatorList: [ParachainStakingCandidateInfo],
-        selectedCollatorList: [ParachainStakingCandidateInfo],
-        totalCollatorsCount: Int,
-        filter: CustomValidatorParachainListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> CustomValidatorListViewModel {
-        let headerViewModel = createHeaderViewModel(
-            displayCollatorsCount: displayCollatorList.count,
-            totalCollatorsCount: totalCollatorsCount,
-            filter: filter,
-            locale: locale
-        )
-
-        let cellsViewModel = createCellsViewModel(
-            from: displayCollatorList,
-            selectedCollatorList: selectedCollatorList,
-            filter: filter,
-            priceData: priceData,
-            locale: locale
-        )
-
-        return CustomValidatorListViewModel(
-            headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedCollatorList.count,
-            proceedButtonTitle: R.string.localizable
-                .stakingStakeWithSelectedTitle(
-                    preferredLanguages: locale.rLanguages
-                ),
-            fillRestButtonVisible: false,
-            fillRestButtonEnabled: false,
-            clearButtonEnabled: filter != CustomValidatorParachainListFilter.defaultFilter(),
-            clearButtonVisible: false,
-            deselectButtonEnabled: false,
-            deselectButtonVisible: false,
-            identityButtonVisible: true,
-            identityButtonSelected: filter.allowsNoIdentity,
-            minBondButtonVisible: true,
-            minBondButtonSelected: filter.allowsOversubscribed,
-            title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
-        )
     }
 }
 
@@ -174,7 +114,8 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
     func buildViewModel(
         viewModelState: CustomValidatorListViewModelState,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> CustomValidatorListViewModel? {
         guard let parachainViewModelState = viewModelState as? CustomValidatorListParachainViewModelState else {
             return nil
@@ -190,9 +131,9 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
         let cellsViewModel = createCellsViewModel(
             from: parachainViewModelState.filteredValidatorList,
             selectedCollatorList: parachainViewModelState.selectedValidatorList.items,
-            filter: parachainViewModelState.filter,
             priceData: priceData,
-            locale: locale
+            locale: locale,
+            searchText: searchText
         )
 
         return CustomValidatorListViewModel(
@@ -204,16 +145,6 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
                 .stakingStakeWithSelectedTitle(
                     preferredLanguages: locale.rLanguages
                 ),
-            fillRestButtonVisible: false,
-            fillRestButtonEnabled: false,
-            clearButtonEnabled: parachainViewModelState.filterApplied,
-            clearButtonVisible: false,
-            deselectButtonEnabled: false,
-            deselectButtonVisible: false,
-            identityButtonVisible: true,
-            identityButtonSelected: parachainViewModelState.filter.allowsNoIdentity,
-            minBondButtonVisible: true,
-            minBondButtonSelected: parachainViewModelState.filter.allowsOversubscribed,
             title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
         )
     }
