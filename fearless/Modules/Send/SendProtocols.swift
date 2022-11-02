@@ -81,11 +81,16 @@ protocol SendRouterInput: AlertPresentable, ErrorPresentable, BaseErrorPresentab
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
-        chainModels: [ChainModel],
+        chainModels: [ChainModel]?,
         delegate: SelectNetworkDelegate?
     )
 
-//    func showSelectAsset()
+    func showSelectAsset(
+        from view: SendViewInput?,
+        wallet: MetaAccountModel,
+        selectedAssetId: AssetModel.Id?,
+        delegate: SelectAssetDelegate?
+    )
 }
 
 protocol SendModuleInput: AnyObject {}

@@ -71,6 +71,8 @@ final class SendViewController: UIViewController, ViewHolder {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)
 
+        rootView.amountView.selectHandler = selectAssetClicked
+
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.amountView.textField.inputAccessoryView = accessoryView

@@ -57,7 +57,7 @@ final class SelectableListViewLayout: UIView {
         tableView.isHidden = vasible
     }
 
-    func bind(viewModel: SelectNetworkSearchViewModel?) {
+    func bind(viewModel: TextSearchViewModel?) {
         searchTextField.isHidden = viewModel == nil
         searchTextField.textField.placeholder = viewModel?.placeholder.value(for: locale)
         let viewModel = EmptyViewModel(

@@ -886,5 +886,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "application.status.view.reconnected.title" = "Reconnected";
 "application.status.view.reconnected.description" = "Сonnection successfully restored";
 "select.network.search.placeholder" = "Search by network";
+"select.asset.search.placeholder" = "Search by token";
 "select.network.search.empty.subtitle" = "No networks were found :(";
+"select.asset.search.empty.subtitle" = "No assets were found :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";

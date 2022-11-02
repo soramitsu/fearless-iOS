@@ -12,7 +12,7 @@ final class SelectNetworkPresenter {
     private let viewModelFactory: SelectNetworkViewModelFactoryProtocol
     private let selectedMetaAccount: MetaAccountModel
     private let includingAllNetworks: Bool
-    private let searchTextsViewModel: SelectNetworkSearchViewModel?
+    private let searchTextsViewModel: TextSearchViewModel?
 
     private var viewModels: [SelectableIconDetailsListViewModel] = []
     private var fullViewModels: [SelectableIconDetailsListViewModel] = []
@@ -25,7 +25,7 @@ final class SelectNetworkPresenter {
         selectedMetaAccount: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         includingAllNetworks: Bool,
-        searchTextsViewModel: SelectNetworkSearchViewModel?,
+        searchTextsViewModel: TextSearchViewModel?,
         interactor: SelectNetworkInteractorInput,
         router: SelectNetworkRouterInput,
         localizationManager: LocalizationManagerProtocol

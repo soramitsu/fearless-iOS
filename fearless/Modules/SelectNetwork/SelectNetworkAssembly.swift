@@ -9,7 +9,7 @@ enum SelectNetworkAssembly {
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
         includingAllNetworks: Bool = true,
-        searchTextsViewModel: SelectNetworkSearchViewModel?,
+        searchTextsViewModel: TextSearchViewModel?,
         delegate: SelectNetworkDelegate?
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -53,8 +53,9 @@ enum SelectNetworkAssembly {
     }
 }
 
-enum SelectNetworkSearchViewModel {
+enum TextSearchViewModel {
     case searchNetworkPlaceholder
+    case searchAssetPlaceholder
 
     var placeholder: LocalizableResource<String> {
         LocalizableResource<String> { locale in
@@ -62,6 +63,9 @@ enum SelectNetworkSearchViewModel {
             case .searchNetworkPlaceholder:
                 return R.string.localizable
                     .selectNetworkSearchPlaceholder(preferredLanguages: locale.rLanguages)
+            case .searchAssetPlaceholder:
+                return R.string.localizable
+                    .selectAssetSearchPlaceholder(preferredLanguages: locale.rLanguages)
             }
         }
     }
@@ -69,7 +73,7 @@ enum SelectNetworkSearchViewModel {
     var emptyViewTitle: LocalizableResource<String> {
         LocalizableResource<String> { locale in
             switch self {
-            case .searchNetworkPlaceholder:
+            case .searchNetworkPlaceholder, .searchAssetPlaceholder:
                 return R.string.localizable
                     .emptyViewTitle(preferredLanguages: locale.rLanguages)
             }
@@ -82,6 +86,9 @@ enum SelectNetworkSearchViewModel {
             case .searchNetworkPlaceholder:
                 return R.string.localizable
                     .selectNetworkSearchEmptySubtitle(preferredLanguages: locale.rLanguages)
+            case .searchAssetPlaceholder:
+                return R.string.localizable
+                    .selectAssetSearchEmptySubtitle(preferredLanguages: locale.rLanguages)
             }
         }
     }

@@ -32,7 +32,7 @@ final class SendViewLayout: UIView {
         return view
     }()
 
-    let amountView = AmountInputViewV2()
+    let amountView = SelectableAmountInputView()
     let selectNetworkView = UIFactory.default.createSelectNetworkView()
     let scamWarningView: ScamWarningExpandableView = {
         let view = ScamWarningExpandableView()
@@ -43,6 +43,7 @@ final class SendViewLayout: UIView {
     let feeView: NetworkFeeView = {
         let view = UIFactory.default.createNetworkFeeView()
         view.borderView.isHidden = true
+        view.isHidden = true
         return view
     }()
 
@@ -133,6 +134,7 @@ final class SendViewLayout: UIView {
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
+        feeView.isHidden = false
     }
 
     func bind(tipViewModel: TipViewModel?) {

@@ -67,7 +67,7 @@ final class SendRouter: SendRouterInput {
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
-        chainModels: [ChainModel],
+        chainModels: [ChainModel]?,
         delegate: SelectNetworkDelegate?
     ) {
         guard
@@ -86,5 +86,23 @@ final class SendRouter: SendRouterInput {
         view?.controller.present(module.view.controller, animated: true)
     }
 
-//    func showSelectAsset()
+    func showSelectAsset(
+        from view: SendViewInput?,
+        wallet: MetaAccountModel,
+        selectedAssetId: AssetModel.Id?,
+        delegate: SelectAssetDelegate?
+    ) {
+        guard
+            let module = SelectAssetAssembly.configureModule(
+                wallet: wallet,
+                selectedAssetId: selectedAssetId,
+                searchTextsViewModel: .searchAssetPlaceholder,
+                delegate: delegate
+            )
+        else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }

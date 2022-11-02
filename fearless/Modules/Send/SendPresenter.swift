@@ -74,7 +74,12 @@ extension SendPresenter: SendViewOutput {
             provideInputViewModel()
         case let .address(address):
             recipientAddress = address
-//            router.showSelectAsset()
+            router.showSelectAsset(
+                from: view,
+                wallet: wallet,
+                selectedAssetId: nil,
+                delegate: self
+            )
         }
     }
 
@@ -90,7 +95,9 @@ extension SendPresenter: SendViewOutput {
         inputResult = .absolute(newValue)
         provideAssetVewModel()
         guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
-        refreshFee(for: chainAsset, address: address)
+        if interactor.validate(address: address, for: chainAsset.chain) {
+            refreshFee(for: chainAsset, address: address)
+        }
     }
 
     func didTapBackButton() {
@@ -164,21 +171,25 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapSelectAsset() {
-//        Show select asset
+        router.showSelectAsset(
+            from: view,
+            wallet: wallet,
+            selectedAssetId: selectedChainAsset?.asset.identifier,
+            delegate: self
+        )
     }
 
     func didTapSelectNetwork() {
         guard let chainAsset = selectedChainAsset else { return }
-        interactor.defineAvailableChains(for: chainAsset.asset) { [weak self] optionalChains in
-            if let chains = optionalChains, let strongSelf = self {
-                strongSelf.router.showSelectNetwork(
-                    from: strongSelf.view,
-                    wallet: strongSelf.wallet,
-                    selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
-                    chainModels: chains,
-                    delegate: strongSelf
-                )
-            }
+        interactor.defineAvailableChains(for: chainAsset.asset) { [weak self] chains in
+            guard let strongSelf = self, let availableChains = chains else { return }
+            strongSelf.router.showSelectNetwork(
+                from: strongSelf.view,
+                wallet: strongSelf.wallet,
+                selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
+                chainModels: availableChains,
+                delegate: strongSelf
+            )
         }
     }
 
@@ -308,35 +319,46 @@ extension SendPresenter: ContactsModuleOutput {
 
 extension SendPresenter: SendModuleInput {}
 
-// extension SendPresenter: SelectAssetDelegate {
-//    func chainSelection(
-//        view _: SelectAssetViewInput,
-//        didCompleteWith asset: AssetModel?
-//    ) {
-//        self.selectedAsset = asset
-//        interactor.defineAvailableChains(for: asset) { chains in
-//            router.showSelectNetwork(
-//                from: view,
-//                wallet: wallet,
-//                selectedChainId: selectedChainAsset?.chain.chainId,
-//                chainModels: chains,
-//                delegate: self
-//            )
-//        }
-//    }
-// }
+extension SendPresenter: SelectAssetDelegate {
+    func assetSelection(
+        view _: SelectAssetViewInput,
+        didCompleteWith asset: AssetModel?
+    ) {
+        selectedAsset = asset
+        if let asset = asset {
+            interactor.defineAvailableChains(for: asset) { [weak self] chains in
+                if let availableChains = chains, let strongSelf = self {
+                    strongSelf.router.showSelectNetwork(
+                        from: strongSelf.view,
+                        wallet: strongSelf.wallet,
+                        selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
+                        chainModels: availableChains,
+                        delegate: strongSelf
+                    )
+                }
+            }
+        } else if selectedChainAsset == nil {
+            router.close(view: view)
+        }
+    }
+}
 
 extension SendPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
         didCompleteWith chain: ChainModel?
     ) {
-        let optionalAsset: AssetModel? = selectedChainAsset?.asset ?? selectedAsset
-        if let selectedChain = chain, let selectedAsset = optionalAsset {
-            provideNetworkViewModel(for: selectedChain)
-            let selectedChainAsset = ChainAsset(chain: selectedChain, asset: selectedAsset)
+        let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
+        if let selectedChain = chain,
+           let selectedAsset = optionalAsset,
+           let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name })
+        {
             self.selectedChainAsset = selectedChainAsset
+            provideNetworkViewModel(for: selectedChain)
+            provideAssetVewModel()
             interactor.updateSubscriptions(for: selectedChainAsset)
+        } else if selectedChainAsset == nil {
+            router.close(view: view)
         }
     }
 }
