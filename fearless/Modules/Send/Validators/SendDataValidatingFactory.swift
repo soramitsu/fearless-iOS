@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-class WalletDataValidatingFactory: BaseDataValidatingFactoryProtocol {
+class SendDataValidatingFactory: BaseDataValidatingFactoryProtocol {
     weak var view: (Localizable & ControllerBackedProtocol)?
     var basePresentable: BaseErrorPresentable
 

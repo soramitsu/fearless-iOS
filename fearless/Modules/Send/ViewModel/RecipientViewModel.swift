@@ -1,6 +1,7 @@
 import FearlessUtils
 
-struct SearchPeopleTableCellViewModel {
+struct RecipientViewModel {
     let address: String
     let icon: DrawableIcon?
+    let isValid: Bool
 }

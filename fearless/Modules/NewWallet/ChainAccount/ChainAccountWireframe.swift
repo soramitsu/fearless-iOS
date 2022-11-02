@@ -9,17 +9,12 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     ) {
-        let searchView = ChooseRecipientViewFactory.createView(
-            chainAsset: chainAsset,
+        guard let controller = SendAssembly.configureModule(
             wallet: wallet,
-            flow: .token,
-            transferFinishBlock: transferFinishBlock
-        )
-
-        guard let controller = searchView?.controller else {
+            initialData: .chainAsset(chainAsset)
+        )?.view.controller else {
             return
         }
 

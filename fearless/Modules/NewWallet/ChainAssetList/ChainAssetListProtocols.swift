@@ -48,8 +48,7 @@ protocol ChainAssetListRouterInput:
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     )
     func showReceiveFlow(
         from view: ControllerBackedProtocol?,

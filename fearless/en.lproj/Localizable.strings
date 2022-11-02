@@ -811,7 +811,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issue.node.unavailable" = "Node is unavailable";
 "search.view.title" = "Send to";
 "search.textfield.placeholder" = " Public address";
-"choose.recipient.title" = "Choose recipient";
+"send.fund.title" = "Send fund";
 "choose.recipient.next.button.title" = "Enter amount";
 "common.paste" = "Paste";
 "pool.common" = "pool";

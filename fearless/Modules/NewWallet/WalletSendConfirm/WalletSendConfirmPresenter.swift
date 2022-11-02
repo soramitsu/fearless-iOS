@@ -18,7 +18,6 @@ final class WalletSendConfirmPresenter {
     private let selectedAccount: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
-    private let transferFinishBlock: WalletTransferFinishBlock?
 
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
@@ -42,8 +41,7 @@ final class WalletSendConfirmPresenter {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?,
-        transferFinishBlock: WalletTransferFinishBlock?
+        scamInfo: ScamInfo?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -58,7 +56,6 @@ final class WalletSendConfirmPresenter {
         self.tip = tip
         self.selectedAccount = selectedAccount
         self.scamInfo = scamInfo
-        self.transferFinishBlock = transferFinishBlock
     }
 
     private func provideViewModel() {
@@ -226,8 +223,6 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
 
         switch result {
         case .success:
-            transferFinishBlock?()
-
             let title = R.string.localizable
                 .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
 

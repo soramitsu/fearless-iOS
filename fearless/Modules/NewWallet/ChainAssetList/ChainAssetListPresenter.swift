@@ -161,8 +161,7 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             router.showSendFlow(
                 from: view,
                 chainAsset: viewModel.chainAsset,
-                wallet: wallet,
-                transferFinishBlock: nil
+                wallet: wallet
             )
         case .receive:
             router.showReceiveFlow(

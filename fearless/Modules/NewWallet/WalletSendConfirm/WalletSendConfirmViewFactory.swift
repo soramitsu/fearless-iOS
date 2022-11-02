@@ -10,8 +10,7 @@ struct WalletSendConfirmViewFactory {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?,
-        transferFinishBlock: WalletTransferFinishBlock?
+        scamInfo: ScamInfo?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
             chainAsset: chainAsset,
@@ -30,7 +29,7 @@ struct WalletSendConfirmViewFactory {
             selectedMetaAccount: selectedMetaAccount
         )
 
-        let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
+        let dataValidatingFactory = SendDataValidatingFactory(presentable: wireframe)
 
         let viewModelFactory = WalletSendConfirmViewModelFactory(
             amountFormatterFactory: AssetBalanceFormatterFactory(),
@@ -50,8 +49,7 @@ struct WalletSendConfirmViewFactory {
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
-            scamInfo: scamInfo,
-            transferFinishBlock: transferFinishBlock
+            scamInfo: scamInfo
         )
 
         let view = WalletSendConfirmViewController(
