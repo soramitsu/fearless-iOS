@@ -54,6 +54,8 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		079FD2C029124B020016D54E /* AllDoneAlertViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FD2BF29124B020016D54E /* AllDoneAlertViewController.swift */; };
+		079FD2C229124B520016D54E /* AllDoneAlertViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 079FD2C129124B510016D54E /* AllDoneAlertViewLayout.swift */; };
 		07B018CF28C70F3100E05510 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = 07B018C728C70F3100E05510 /* UserDataModel.xcdatamodeld */; };
 		07B018D128C7135400E05510 /* ScamInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D028C7135400E05510 /* ScamInfo.swift */; };
 		07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */; };
@@ -2542,6 +2544,8 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		079FD2BF29124B020016D54E /* AllDoneAlertViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDoneAlertViewController.swift; sourceTree = "<group>"; };
+		079FD2C129124B510016D54E /* AllDoneAlertViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDoneAlertViewLayout.swift; sourceTree = "<group>"; };
 		07B018C828C70F3100E05510 /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
 		07B018C928C70F3100E05510 /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
 		07B018CA28C70F3100E05510 /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
@@ -5206,6 +5210,15 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		079FD2BE29124A980016D54E /* AllDoneAlert */ = {
+			isa = PBXGroup;
+			children = (
+				079FD2BF29124B020016D54E /* AllDoneAlertViewController.swift */,
+				079FD2C129124B510016D54E /* AllDoneAlertViewLayout.swift */,
+			);
+			name = AllDoneAlert;
+			sourceTree = "<group>";
+		};
 		07B6BC7D28BC71BF00621864 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -7841,6 +7854,7 @@
 		8490144124A93CDC008F705E /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				079FD2BE29124A980016D54E /* AllDoneAlert */,
 				07089AFA28B7839C001566CA /* SheetAlert */,
 				07DFA473289BD5D90035A8AB /* SelectableList */,
 				FA864443276851BA00956D8E /* Container */,
@@ -13198,6 +13212,7 @@
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
 				843910C1253F36F300E3C217 /* BaseStorageChildSubscription.swift in Sources */,
 				84644AC52567EC05004EAA4B /* MultilineTriangularedView.swift in Sources */,
+				079FD2C029124B020016D54E /* AllDoneAlertViewController.swift in Sources */,
 				FA86443E2768439900956D8E /* ContainerProtocols.swift in Sources */,
 				84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */,
 				84C74361251E4B5E009576C6 /* FeeType.swift in Sources */,
@@ -14434,6 +14449,7 @@
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */,
 				847C96492553614F002D288F /* ExportRestoreJsonPresenter.swift in Sources */,
+				079FD2C229124B520016D54E /* AllDoneAlertViewLayout.swift in Sources */,
 				FA936BDE286EF93F0059B97A /* ScheduleCandidateBondLess.swift in Sources */,
 				FA37AE312859C074001DCA96 /* StakingUnbondSetupParachainViewModelState.swift in Sources */,
 				FA3430FA28508C20002B5975 /* StakingRedeemRelaychainViewModelFactory.swift in Sources */,

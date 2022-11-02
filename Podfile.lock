@@ -122,7 +122,7 @@ PODS:
   - Sourcery (1.9.0):
     - Sourcery/CLI-Only (= 1.9.0)
   - Sourcery/CLI-Only (1.9.0)
-  - Starscream (4.0.5)
+  - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
@@ -149,7 +149,7 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, branch `feature/without-origin`)
+  - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, commit `0540f13ffc1c5d930e76047f58175d34582ade5f`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
@@ -192,7 +192,7 @@ EXTERNAL SOURCES:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
   Starscream:
-    :branch: feature/without-origin
+    :commit: 0540f13ffc1c5d930e76047f58175d34582ade5f
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 CHECKOUT OPTIONS:
@@ -203,7 +203,7 @@ CHECKOUT OPTIONS:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
   Starscream:
-    :commit: c605e329c0a2757d30678f38a6b8e793272a7115
+    :commit: 0540f13ffc1c5d930e76047f58175d34582ade5f
     :git: https://github.com/soramitsu/fearless-starscream.git
 
 SPEC CHECKSUMS:
@@ -228,7 +228,7 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
-  Starscream: 8cc648110705c09a15f0de84352c7f9595b7cb05
+  Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
@@ -237,6 +237,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 0ba15a1df5a9c20a3803f8a971c0328c2688c848
+PODFILE CHECKSUM: 3ff0c2177396eaabe5b974b61306bd3a69437f3c
 
 COCOAPODS: 1.11.3

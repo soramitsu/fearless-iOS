@@ -3,7 +3,7 @@ platform :ios, '12.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'd480f58860ff82b672e05ea835afc603ccf273cc'
+  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'cfee5fcf711b2daaee48e5ab5b7f36456e0eac6c'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
@@ -13,7 +13,7 @@ abstract_target 'fearlessAll' do
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
-  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git', :branch => 'feature/without-origin'
+  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git', :commit => '0540f13ffc1c5d930e76047f58175d34582ade5f'
   pod 'ReachabilitySwift'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
@@ -27,7 +27,7 @@ abstract_target 'fearlessAll' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'd480f58860ff82b672e05ea835afc603ccf273cc'
+    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'cfee5fcf711b2daaee48e5ab5b7f36456e0eac6c'
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
