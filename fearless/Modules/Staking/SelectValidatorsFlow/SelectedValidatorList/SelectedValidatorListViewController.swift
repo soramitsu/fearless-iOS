@@ -49,7 +49,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.separatorStyle = .none
-        rootView.tableView.rowHeight = 77.0
+        rootView.tableView.rowHeight = UIConstants.validatorCellHeight
     }
 
     private func setupNavigationBar() {
@@ -186,7 +186,7 @@ extension SelectedValidatorListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
+        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self, forIndexPath: indexPath)
 
         let cellViewModel = viewModel.cellViewModels[indexPath.row]
         cell.bind(viewModel: cellViewModel)

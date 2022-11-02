@@ -82,7 +82,7 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: apy,
+                        detailsAttributedString: apy,
                         detailsAux: stakedString,
                         isSelected: parachainViewModelState.selectedCollators.contains(collator)
                     )

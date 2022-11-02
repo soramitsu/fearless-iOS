@@ -45,7 +45,6 @@ final class CustomValidatorListRelaychainViewModelFactory {
     private func createCellsViewModel(
         from validatorList: [SelectedValidatorInfo],
         selectedValidatorList: [SelectedValidatorInfo],
-        filter _: CustomValidatorRelaychainListFilter,
         priceData: PriceData?,
         locale: Locale,
         searchText: String?
@@ -96,44 +95,6 @@ final class CustomValidatorListRelaychainViewModelFactory {
             )
         }
     }
-
-    private func createViewModel(
-        from displayValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        totalValidatorsCount: Int,
-        filter: CustomValidatorRelaychainListFilter,
-        priceData: PriceData?,
-        locale: Locale,
-        maxTargets _: Int,
-        searchText: String?
-    ) -> CustomValidatorListViewModel {
-        let headerViewModel = createHeaderViewModel(
-            displayValidatorsCount: displayValidatorList.count,
-            totalValidatorsCount: totalValidatorsCount,
-            filter: filter,
-            locale: locale
-        )
-
-        let cellsViewModel = createCellsViewModel(
-            from: displayValidatorList,
-            selectedValidatorList: selectedValidatorList,
-            filter: filter,
-            priceData: priceData,
-            locale: locale, searchText: searchText
-        )
-
-        return CustomValidatorListViewModel(
-            headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedValidatorList.count,
-            proceedButtonTitle: R.string.localizable
-                .stakingCustomProceedButtonDisabledTitle(
-                    selectedValidatorList.count,
-                    preferredLanguages: locale.rLanguages
-                ),
-            title: R.string.localizable.stakingCustomValidatorsListTitle(preferredLanguages: locale.rLanguages)
-        )
-    }
 }
 
 extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
@@ -157,7 +118,6 @@ extension CustomValidatorListRelaychainViewModelFactory: CustomValidatorListView
         let cellsViewModel = createCellsViewModel(
             from: relaychainViewModelState.filteredValidatorList,
             selectedValidatorList: relaychainViewModelState.selectedValidatorList.items,
-            filter: relaychainViewModelState.filter,
             priceData: priceData,
             locale: locale,
             searchText: searchText

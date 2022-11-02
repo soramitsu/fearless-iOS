@@ -7,6 +7,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
     private enum Constants {
         static let headerId = "validatorListFilterHeaderId"
         static let headerHeight: CGFloat = 28
+        static let rowHeight: CGFloat = 58
     }
 
     let presenter: ValidatorListFilterPresenterProtocol
@@ -60,7 +61,7 @@ final class ValidatorListFilterViewController: UIViewController, ViewHolder {
         }
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
-        rootView.tableView.rowHeight = 58.0
+        rootView.tableView.rowHeight = Constants.rowHeight
         rootView.tableView.separatorInset = UIEdgeInsets(
             top: 0.0,
             left: UIConstants.horizontalInset,

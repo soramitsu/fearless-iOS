@@ -55,7 +55,6 @@ final class CustomValidatorListParachainViewModelFactory {
     private func createCellsViewModel(
         from collatorList: [ParachainStakingCandidateInfo],
         selectedCollatorList: [ParachainStakingCandidateInfo],
-        filter _: CustomValidatorParachainListFilter,
         priceData: PriceData?,
         locale: Locale,
         searchText: String?
@@ -109,43 +108,6 @@ final class CustomValidatorListParachainViewModelFactory {
             )
         }
     }
-
-    func createViewModel(
-        from displayCollatorList: [ParachainStakingCandidateInfo],
-        selectedCollatorList: [ParachainStakingCandidateInfo],
-        totalCollatorsCount: Int,
-        filter: CustomValidatorParachainListFilter,
-        priceData: PriceData?,
-        locale: Locale,
-        searchText: String?
-    ) -> CustomValidatorListViewModel {
-        let headerViewModel = createHeaderViewModel(
-            displayCollatorsCount: displayCollatorList.count,
-            totalCollatorsCount: totalCollatorsCount,
-            filter: filter,
-            locale: locale
-        )
-
-        let cellsViewModel = createCellsViewModel(
-            from: displayCollatorList,
-            selectedCollatorList: selectedCollatorList,
-            filter: filter,
-            priceData: priceData,
-            locale: locale,
-            searchText: searchText
-        )
-
-        return CustomValidatorListViewModel(
-            headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel,
-            selectedValidatorsCount: selectedCollatorList.count,
-            proceedButtonTitle: R.string.localizable
-                .stakingStakeWithSelectedTitle(
-                    preferredLanguages: locale.rLanguages
-                ),
-            title: R.string.localizable.stakingCustomCollatorsTitle(preferredLanguages: locale.rLanguages)
-        )
-    }
 }
 
 extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
@@ -169,7 +131,6 @@ extension CustomValidatorListParachainViewModelFactory: CustomValidatorListViewM
         let cellsViewModel = createCellsViewModel(
             from: parachainViewModelState.filteredValidatorList,
             selectedCollatorList: parachainViewModelState.selectedValidatorList.items,
-            filter: parachainViewModelState.filter,
             priceData: priceData,
             locale: locale,
             searchText: searchText

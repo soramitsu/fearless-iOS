@@ -29,7 +29,7 @@ final class RecommendedValidatorListViewController: UIViewController {
         tableView.tableFooterView = UIView()
 
         tableView.registerClassForCell(CustomValidatorCell.self)
-        tableView.rowHeight = 77.0
+        tableView.rowHeight = UIConstants.validatorCellHeight
         tableView.separatorStyle = .none
     }
 
@@ -50,7 +50,7 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
+        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self, forIndexPath: indexPath)
 
         let items = viewModel?.itemViewModels ?? []
         cell.bind(viewModel: items[indexPath.row].value(for: selectedLocale))

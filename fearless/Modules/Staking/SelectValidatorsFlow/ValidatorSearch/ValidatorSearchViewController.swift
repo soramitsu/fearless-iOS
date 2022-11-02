@@ -78,7 +78,7 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
-        rootView.tableView.rowHeight = 77.0
+        rootView.tableView.rowHeight = UIConstants.validatorCellHeight
         rootView.tableView.separatorStyle = .none
     }
 

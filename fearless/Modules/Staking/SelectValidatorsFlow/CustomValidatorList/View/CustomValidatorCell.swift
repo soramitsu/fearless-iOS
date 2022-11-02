@@ -89,25 +89,25 @@ class CustomValidatorCell: UITableViewCell {
 
         contentView.addSubview(infoButton)
         infoButton.snp.makeConstraints { make in
-            make.size.equalTo(14)
-            make.trailing.equalToSuperview().inset(16)
+            make.size.equalTo(UIConstants.infoButtonSize)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
         }
 
         contentView.addSubview(statusStackView)
         statusStackView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview()
-            make.trailing.greaterThanOrEqualTo(infoButton.snp.leading).offset(-16)
+            make.trailing.greaterThanOrEqualTo(infoButton.snp.leading).offset(-UIConstants.bigOffset)
         }
 
         detailsStackView.addArrangedSubview(titleLabel)
-        detailsStackView.addArrangedSubview(detailsLabel)
         detailsStackView.addArrangedSubview(detailsAuxLabel)
+        detailsStackView.addArrangedSubview(detailsLabel)
 
         contentView.addSubview(detailsStackView)
         detailsStackView.snp.makeConstraints { make in
             make.leading.equalTo(iconView.snp.trailing).offset(UIConstants.bigOffset)
-            make.trailing.equalTo(infoButton.snp.leading).offset(-16)
+            make.trailing.equalTo(infoButton.snp.leading).offset(-UIConstants.bigOffset)
             make.centerY.equalToSuperview()
         }
     }
@@ -138,7 +138,9 @@ class CustomValidatorCell: UITableViewCell {
             detailsAuxLabel.isHidden = true
         }
 
-        iconView.image = viewModel.isSelected ? R.image.iconListSelectionOn() : R.image.iconListSelectionOff()
+        iconView.image = viewModel.isSelected
+            ? R.image.iconListSelectionOn()
+            : R.image.iconListSelectionOff()
     }
 
     func bind(viewModel: ValidatorSearchCellViewModel) {
@@ -153,17 +155,19 @@ class CustomValidatorCell: UITableViewCell {
         clearStatusView()
         setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
-        detailsLabel.attributedText = viewModel.details
+        detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsAuxLabel.text = viewModel.detailsAux
 
-        iconView.image = viewModel.isSelected ? R.image.iconListSelectionOn() : R.image.iconListSelectionOff()
+        iconView.image = viewModel.isSelected
+            ? R.image.iconListSelectionOn()
+            : R.image.iconListSelectionOff()
     }
 
     func bind(viewModel: RecommendedValidatorViewModelProtocol) {
         iconView.image = R.image.iconListSelectionOn()
 
         titleLabel.text = viewModel.title
-        detailsLabel.attributedText = viewModel.details
+        detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsAuxLabel.text = viewModel.detailsAux
 
         selectionStyle = .none
@@ -173,7 +177,7 @@ class CustomValidatorCell: UITableViewCell {
         iconView.image = R.image.iconListSelectionOn()
 
         titleLabel.text = viewModel.name
-        detailsLabel.attributedText = viewModel.details
+        detailsLabel.attributedText = viewModel.detailsAttributedString
         detailsAuxLabel.text = viewModel.detailsAux
 
         selectionStyle = .none

@@ -78,7 +78,7 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
                     RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
-                        details: apy,
+                        detailsAttributedString: apy,
                         detailsAux: stakedString,
                         isSelected: false
                     )

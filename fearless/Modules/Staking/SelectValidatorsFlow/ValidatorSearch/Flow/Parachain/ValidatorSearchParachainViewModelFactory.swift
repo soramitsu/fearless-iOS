@@ -73,7 +73,7 @@ final class ValidatorSearchParachainViewModelFactory {
                 icon: icon,
                 name: collator.identity?.displayName,
                 address: collator.address,
-                details: apy,
+                detailsAttributedString: apy,
                 detailsAux: stakedString,
                 shouldShowWarning: collator.oversubscribed,
                 shouldShowError: false,

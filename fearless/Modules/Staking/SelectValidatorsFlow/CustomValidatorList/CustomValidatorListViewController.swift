@@ -68,7 +68,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder, Imp
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
-        rootView.tableView.rowHeight = 77.0
+        rootView.tableView.rowHeight = UIConstants.validatorCellHeight
         rootView.tableView.separatorStyle = .none
     }
 
@@ -144,10 +144,7 @@ extension CustomValidatorListViewController: Localizable {
                 .stakingCustomValidatorsListTitle(preferredLanguages: selectedLocale.rLanguages)
 
             updateProceedButton(title: nil)
-
-            rootView.searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
-                preferredLanguages: selectedLocale.rLanguages
-            )
+            rootView.locale = selectedLocale
         }
     }
 }

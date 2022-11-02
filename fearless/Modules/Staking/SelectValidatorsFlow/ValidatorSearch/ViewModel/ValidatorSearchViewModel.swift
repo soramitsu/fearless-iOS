@@ -4,7 +4,7 @@ struct ValidatorSearchCellViewModel {
     let icon: DrawableIcon?
     let name: String?
     let address: String
-    let details: NSAttributedString?
+    let detailsAttributedString: NSAttributedString?
     let detailsAux: String?
     let shouldShowWarning: Bool
     let shouldShowError: Bool

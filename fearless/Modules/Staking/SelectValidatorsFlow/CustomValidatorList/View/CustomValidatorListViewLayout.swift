@@ -13,16 +13,7 @@ final class CustomValidatorListViewLayout: UIView {
         return scrollView
     }()
 
-    private(set) var searchTextField: SearchTextField = {
-        let searchTextField = SearchTextField()
-        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
-        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
-        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
-        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
-        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
-        searchTextField.triangularedView?.shadowOpacity = 0
-        return searchTextField
-    }()
+    private(set) var searchTextField: SearchTextField = UIFactory.default.createSearchTextField()
 
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -62,6 +53,12 @@ final class CustomValidatorListViewLayout: UIView {
         return button
     }
 
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -90,5 +87,11 @@ final class CustomValidatorListViewLayout: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
+    }
+
+    private func applyLocalization() {
+        searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
+            preferredLanguages: locale.rLanguages
+        )
     }
 }

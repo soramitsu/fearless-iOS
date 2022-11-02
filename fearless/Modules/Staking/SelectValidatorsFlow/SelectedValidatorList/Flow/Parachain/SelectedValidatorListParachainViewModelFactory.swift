@@ -78,7 +78,7 @@ final class SelectedValidatorListParachainViewModelFactory {
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
-                details: apy,
+                detailsAttributedString: apy,
                 detailsAux: stakedString,
                 shouldShowWarning: validator.oversubscribed,
                 shouldShowError: false

@@ -8,16 +8,7 @@ final class AssetListSearchViewLayout: UIView {
         return imageView
     }()
 
-    let searchTextField: SearchTextField = {
-        let searchTextField = SearchTextField()
-        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
-        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
-        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
-        searchTextField.triangularedView?.fillColor = R.color.colorWhite16()!
-        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite16()!
-        searchTextField.triangularedView?.shadowOpacity = 0
-        return searchTextField
-    }()
+    let searchTextField: SearchTextField = UIFactory.default.createSearchTextField()
 
     let cancelButton: UIButton = {
         let button = UIButton()
