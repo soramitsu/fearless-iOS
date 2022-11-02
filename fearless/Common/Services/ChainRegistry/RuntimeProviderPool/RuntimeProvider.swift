@@ -216,7 +216,7 @@ final class RuntimeProvider {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
             self.fetchCoderFactory(runCompletionIn: queue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
@@ -241,7 +241,7 @@ final class RuntimeProvider {
                 throw RuntimeProviderError.providerUnavailable
             }
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
+            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
 
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 
