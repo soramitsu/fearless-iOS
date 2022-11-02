@@ -20,12 +20,27 @@ final class NodeSelectionInteractor {
         self.operationManager = operationManager
         self.eventCenter = eventCenter
     }
+
+    private func fetchChainModel() {
+        let operation = repository.fetchOperation(by: chain.chainId, options: RepositoryFetchOptions())
+
+        operation.completionBlock = { [weak self] in
+            guard let chainModel = try? operation.extractNoCancellableResultData() else {
+                return
+            }
+            self?.chain = chainModel
+            DispatchQueue.main.async {
+                self?.presenter?.didReceive(chain: chainModel)
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
 }
 
 extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     func setup() {
-        presenter?.didReceive(chain: chain)
-
+        fetchChainModel()
         eventCenter.add(observer: self)
     }
 

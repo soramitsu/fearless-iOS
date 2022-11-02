@@ -32,8 +32,7 @@ final class ValidatorSearchViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
-        tableView.separatorColor = R.color.colorDarkGray()
+        tableView.backgroundColor = R.color.colorBlack19()
         return tableView
     }()
 
@@ -46,6 +45,7 @@ final class ValidatorSearchViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)

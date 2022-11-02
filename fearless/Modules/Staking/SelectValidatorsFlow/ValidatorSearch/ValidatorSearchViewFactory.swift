@@ -6,7 +6,8 @@ import FearlessUtils
 struct ValidatorSearchViewFactory {
     private static func createContainer(
         flow: ValidatorSearchFlow,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> ValidatorSearchDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -72,6 +73,11 @@ struct ValidatorSearchViewFactory {
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
+        )
+
         switch flow {
         case let .relaychain(validatorList, selectedValidatorList, delegate):
             let viewModelState = ValidatorSearchRelaychainViewModelState(
@@ -84,7 +90,10 @@ struct ValidatorSearchViewFactory {
                 operationManager: OperationManagerFacade.sharedManager,
                 output: viewModelState
             )
-            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
+            )
             return ValidatorSearchDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -101,7 +110,11 @@ struct ValidatorSearchViewFactory {
                 operationManager: OperationManagerFacade.sharedManager,
                 output: viewModelState
             )
-            let viewModelFactory = ValidatorSearchParachainViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            let viewModelFactory = ValidatorSearchParachainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset
+            )
             return ValidatorSearchDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
@@ -117,7 +130,7 @@ extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
         flow: ValidatorSearchFlow,
         wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol? {
-        guard let container = createContainer(flow: flow, chainAsset: chainAsset) else {
+        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet) else {
             return nil
         }
 
