@@ -129,7 +129,7 @@ class CustomValidatorCell: UITableViewCell {
         clearStatusView()
         setupStatus(for: viewModel.shouldShowWarning, shouldShowError: viewModel.shouldShowError)
 
-        detailsLabel.attributedText = viewModel.details
+        detailsLabel.attributedText = viewModel.detailsAttributedString
 
         if let auxDetailsText = viewModel.auxDetails {
             detailsAuxLabel.text = auxDetailsText

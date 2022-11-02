@@ -87,7 +87,7 @@ final class CustomValidatorListRelaychainViewModelFactory {
                 icon: icon,
                 name: validator.identity?.displayName,
                 address: validator.address,
-                details: apy,
+                detailsAttributedString: apy,
                 auxDetails: stakedString,
                 shouldShowWarning: validator.oversubscribed,
                 shouldShowError: validator.hasSlashes,

@@ -100,7 +100,7 @@ final class CustomValidatorListParachainViewModelFactory {
                 icon: icon,
                 name: collator.identity?.displayName,
                 address: collator.address,
-                details: apy,
+                detailsAttributedString: apy,
                 auxDetails: stakedString,
                 shouldShowWarning: false,
                 shouldShowError: false,
