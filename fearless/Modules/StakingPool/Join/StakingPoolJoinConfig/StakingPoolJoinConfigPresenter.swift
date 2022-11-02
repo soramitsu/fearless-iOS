@@ -210,7 +210,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {
-                balance = nil
+                balance = Decimal.zero
             }
 
             provideAssetVewModel()
