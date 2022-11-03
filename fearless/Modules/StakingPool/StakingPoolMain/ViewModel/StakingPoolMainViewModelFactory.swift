@@ -278,13 +278,15 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
 
-        if let nomination = nomination {
-            if nomination.targets.isNotEmpty, let era = era {
+        if poolInfo.info.state == .open, let era = era {
+            if nomination?.targets.isNotEmpty == true {
                 status = .active(era: era)
             } else {
                 status = .validatorsNotSelected
             }
-        } else if let era = era {
+        } else if poolInfo.info.state == .blocked, let era = era {
+            status = .inactive(era: era)
+        } else if poolInfo.info.state == .destroying, let era = era {
             status = .inactive(era: era)
         }
 
