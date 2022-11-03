@@ -44,7 +44,7 @@ final class AllDoneViewController: UIViewController, ViewHolder {
     // MARK: - Private actions
 
     @objc private func dismissSelf() {
-        dismiss(animated: true)
+        output.dismiss()
     }
 }
 

@@ -9,6 +9,10 @@ final class AllDoneViewLayout: UIView {
         static let imageVerticalPosition: CGFloat = 3
         static let imageWidth: CGFloat = 15
         static let imageHeight: CGFloat = 15
+        static let closeButtonInset: CGFloat = 20
+        static let contentStackViewTopOffset: CGFloat = 76
+        static let spacing24: CGFloat = 24
+        static let spacing16: CGFloat = 16
     }
 
     var locale: Locale = .current {
@@ -119,7 +123,9 @@ final class AllDoneViewLayout: UIView {
             width: Constants.imageWidth,
             height: Constants.imageHeight
         )
-        imageAttachment.image = R.image.iconAboutArrow()!
+        if let iconAboutArrowImage = R.image.iconAboutArrow() {
+            imageAttachment.image = iconAboutArrowImage
+        }
 
         let imageString = NSAttributedString(attachment: imageAttachment)
         hashString.append(imageString)
@@ -156,7 +162,7 @@ final class AllDoneViewLayout: UIView {
 
         addSubview(closeButton)
         closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(20)
+            make.top.trailing.equalToSuperview().inset(Constants.closeButtonInset)
         }
 
         let imageViewContainer = UIView()
@@ -177,17 +183,17 @@ final class AllDoneViewLayout: UIView {
 
         addSubview(contentStackView)
         contentStackView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(76)
+            make.top.equalToSuperview().offset(Constants.contentStackViewTopOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
         }
 
         contentStackView.addArrangedSubview(imageViewContainer)
-        contentStackView.setCustomSpacing(24, after: imageViewContainer)
+        contentStackView.setCustomSpacing(Constants.spacing24, after: imageViewContainer)
         contentStackView.addArrangedSubview(titleLabel)
-        contentStackView.setCustomSpacing(16, after: titleLabel)
+        contentStackView.setCustomSpacing(Constants.spacing16, after: titleLabel)
         contentStackView.addArrangedSubview(descriptionLabel)
-        contentStackView.setCustomSpacing(24, after: descriptionLabel)
+        contentStackView.setCustomSpacing(Constants.spacing24, after: descriptionLabel)
 
         contentStackView.addArrangedSubview(infoBackground)
         infoBackground.addSubview(infoStackView)

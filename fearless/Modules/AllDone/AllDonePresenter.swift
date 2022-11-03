@@ -22,13 +22,11 @@ final class AllDonePresenter {
         self.interactor = interactor
         self.router = router
         self.localizationManager = localizationManager
-        
-        provide(hashString: hashString)
     }
 
     // MARK: - Private methods
 
-    private func provide(hashString: String) {
+    private func provideHashString() {
         view?.didReceive(hashString: hashString)
     }
 }
@@ -39,18 +37,23 @@ extension AllDonePresenter: AllDoneViewOutput {
     func didLoad(view: AllDoneViewInput) {
         self.view = view
         interactor.setup(with: self)
+        provideHashString()
     }
 }
 
 // MARK: - AllDoneInteractorOutput
 
-extension AllDonePresenter: AllDoneInteractorOutput {}
+extension AllDonePresenter: AllDoneInteractorOutput {
+    func dismiss() {
+        router.dismiss(view: view)
+    }
+}
 
 // MARK: - Localizable
 
 extension AllDonePresenter: Localizable {
     func applyLocalization() {
-        provide(hashString: hashString)
+        provideHashString()
     }
 }
 
