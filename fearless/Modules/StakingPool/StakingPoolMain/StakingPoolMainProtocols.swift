@@ -29,7 +29,8 @@ protocol StakingPoolMainInteractorInput: AnyObject {
     func updateWithChainAsset(_ chainAsset: ChainAsset)
     func save(chainAsset: ChainAsset)
     func saveNetworkInfoViewExpansion(isExpanded: Bool)
-    func fetchPoolBalance(poolAccountId: AccountId)
+    func fetchPoolBalance(poolRewardAccountId: AccountId)
+    func fetchPoolNomination(poolStashAccountId: AccountId)
 }
 
 protocol StakingPoolMainInteractorOutput: AnyObject {
@@ -54,6 +55,8 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(poolAccountInfo: AccountInfo?)
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
+    func didReceive(nomination: Nomination?)
+    func didReceive(nominationError: Error)
 }
 
 protocol StakingPoolMainRouterInput: AnyObject {

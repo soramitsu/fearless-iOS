@@ -28,6 +28,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -53,7 +54,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountOperationFactory: AccountOperationFactoryProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        validatorOperationFactory: ValidatorOperationFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -76,6 +78,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.accountOperationFactory = accountOperationFactory
         self.existentialDepositService = existentialDepositService
+        self.validatorOperationFactory = validatorOperationFactory
     }
 
     private func updateDependencies() {
@@ -436,8 +439,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         commonSettings.stakingNetworkExpansion = isExpanded
     }
 
-    func fetchPoolBalance(poolAccountId: AccountId) {
-        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolAccountId)
+    func fetchPoolBalance(poolRewardAccountId: AccountId) {
+        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolRewardAccountId)
 
         fetchAccountInfoOperation.targetOperation.completionBlock = { [weak self] in
             let poolAccountInfo = try? fetchAccountInfoOperation.targetOperation.extractNoCancellableResultData()
@@ -448,6 +451,22 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         }
 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
+    }
+
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(nomination: nomination)
+                } catch {
+                    self?.output?.didReceive(nominationError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 

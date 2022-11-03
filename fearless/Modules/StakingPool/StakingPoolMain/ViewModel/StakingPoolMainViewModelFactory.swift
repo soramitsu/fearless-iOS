@@ -19,6 +19,7 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         chainAsset: ChainAsset
     ) -> [LocalizableResource<NetworkInfoContentViewModel>]
 
+    // swiftlint:disable function_parameter_count
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
         priceData: PriceData?,
@@ -27,7 +28,8 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         poolRewards: StakingPoolRewards,
         poolInfo: StakingPool,
         accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        existentialDeposit: BigUInt,
+        nomination: Nomination?
     ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
@@ -271,12 +273,19 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         poolRewards: StakingPoolRewards,
         poolInfo: StakingPool,
         accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        existentialDeposit: BigUInt,
+        nomination: Nomination?
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
 
-        if let era = era {
-            status = .active(era: era)
+        if let nomination = nomination {
+            if nomination.targets.isNotEmpty, let era = era {
+                status = .active(era: era)
+            } else {
+                status = .validatorsNotSelected
+            }
+        } else if let era = era {
+            status = .inactive(era: era)
         }
 
         let precision = Int16(chainAsset.asset.precision)

@@ -130,6 +130,13 @@ final class StakingPoolMainAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chainAsset.chain
+        ) else {
+            return nil
+        }
+        eraValidatorService.setup()
+
         let accountOperationFactory = AccountOperationFactory(
             engine: connection,
             requestFactory: requestFactory,
@@ -140,6 +147,47 @@ final class StakingPoolMainAssembly {
             runtimeCodingService: runtimeService,
             operationManager: operationManager,
             engine: connection
+        )
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: Int16(chainAsset.asset.precision),
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        rewardService.setup()
+
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
         )
 
         let interactor = StakingPoolMainInteractor(
@@ -163,7 +211,8 @@ final class StakingPoolMainAssembly {
             stakingAccountUpdatingService: stakingAccountUpdatingService,
             runtimeService: runtimeService,
             accountOperationFactory: accountOperationFactory,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            validatorOperationFactory: validatorOperationFactory
         )
 
         let router = StakingPoolMainRouter()

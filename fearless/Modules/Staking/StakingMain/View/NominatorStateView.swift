@@ -94,6 +94,8 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
                 countdown.timeIntervalTillStart(targetEra: nominationEra + 1)
             }
             presentWaitingStatus(remainingTime: remainingTime)
+        case .validatorsNotSelected:
+            presentValidatorsAreNotSelectedStatus()
         }
 
         if !skeletonOptions.isEmpty, viewModel.hasPrice {
@@ -142,6 +144,14 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         } else {
             statusView.valueView.detailsLabel.text = ""
         }
+    }
+
+    private func presentValidatorsAreNotSelectedStatus() {
+        statusView.titleView.indicatorColor = R.color.colorOrange()!
+        statusView.titleView.titleLabel.textColor = R.color.colorOrange()!
+
+        statusView.titleView.titleLabel.text = R.string.localizable
+            .stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages).uppercased()
     }
 }
 
