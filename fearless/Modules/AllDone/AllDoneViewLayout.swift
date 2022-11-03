@@ -1,7 +1,7 @@
-import Foundation
 import UIKit
 
-final class AllDoneAlertViewLayout: UIView {
+// swiftlint:disable function_body_length
+final class AllDoneViewLayout: UIView {
     private enum Constants {
         static let cornerRadius: CGFloat = 20.0
         static let imageViewContainerSize: CGFloat = 80.0
@@ -9,6 +9,12 @@ final class AllDoneAlertViewLayout: UIView {
         static let imageVerticalPosition: CGFloat = 3
         static let imageWidth: CGFloat = 15
         static let imageHeight: CGFloat = 15
+    }
+
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
     }
 
     let closeButton: UIButton = {
@@ -38,7 +44,6 @@ final class AllDoneAlertViewLayout: UIView {
         label.textAlignment = .center
         label.font = .h2Title
         label.textColor = R.color.colorWhite()
-        label.text = "All done"
         return label
     }()
 
@@ -48,7 +53,6 @@ final class AllDoneAlertViewLayout: UIView {
         label.textAlignment = .center
         label.font = .p0Paragraph
         label.textColor = R.color.colorStrokeGray()
-        label.text = "You can now back to your app and do that you're usually do"
         return label
     }()
 
@@ -66,7 +70,7 @@ final class AllDoneAlertViewLayout: UIView {
 
     private let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
 
-    let hashView: TitleValueView = {
+    private let hashView: TitleValueView = {
         let view = TitleValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
@@ -75,28 +79,22 @@ final class AllDoneAlertViewLayout: UIView {
         view.valueLabel.lineBreakMode = .byTruncatingMiddle
         view.borderView.isHidden = true
         view.equalsLabelsWidth = true
-
-        view.titleLabel.text = "Hash"
         return view
     }()
 
-    let resultView: TitleValueView = {
+    private let resultView: TitleValueView = {
         let view = TitleValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueLabel.font = .h5Title
         view.valueLabel.textColor = R.color.colorGreen()
         view.borderView.isHidden = true
-
-        view.titleLabel.text = "Result"
-        view.valueLabel.text = "Success"
         return view
     }()
 
-    init(hashString: String) {
+    init() {
         super.init(frame: .zero)
         setupLayout()
-        bind(hashString)
     }
 
     @available(*, unavailable)
@@ -109,7 +107,9 @@ final class AllDoneAlertViewLayout: UIView {
         closeButton.rounded()
     }
 
-    private func bind(_ hashString: String) {
+    // MARK: - Public methods
+
+    func bind(_ hashString: String) {
         let hashString = NSMutableAttributedString(string: hashString + "  ")
 
         let imageAttachment = NSTextAttachment()
@@ -124,6 +124,21 @@ final class AllDoneAlertViewLayout: UIView {
         let imageString = NSAttributedString(attachment: imageAttachment)
         hashString.append(imageString)
         hashView.valueLabel.attributedText = hashString
+    }
+
+    // MARK: - Private methods
+
+    private func applyLocalization() {
+        titleLabel.text = R.string.localizable
+            .allDoneAlertAllDoneStub(preferredLanguages: locale.rLanguages)
+        descriptionLabel.text = R.string.localizable
+            .allDoneAlertDescriptionStub(preferredLanguages: locale.rLanguages)
+        hashView.titleLabel.text = R.string.localizable
+            .allDoneAlertHashStub(preferredLanguages: locale.rLanguages)
+        resultView.titleLabel.text = R.string.localizable
+            .allDoneAlertResultStub(preferredLanguages: locale.rLanguages)
+        resultView.valueLabel.text = R.string.localizable
+            .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -151,7 +166,7 @@ final class AllDoneAlertViewLayout: UIView {
         imageViewContainer.layer.shadowRadius = 12
         imageViewContainer.layer.shadowOpacity = 0.5
         imageViewContainer.snp.makeConstraints { make in
-            make.size.equalTo(80)
+            make.size.equalTo(Constants.imageViewContainerSize)
         }
 
         imageViewContainer.addSubview(imageView)
@@ -184,18 +199,13 @@ final class AllDoneAlertViewLayout: UIView {
         }
 
         infoStackView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
-            make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
         hashView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        hashView.valueLabel.snp.makeConstraints { make in
-            make.width.lessThanOrEqualToSuperview().dividedBy(0.5)
         }
 
         resultView.snp.makeConstraints { make in
