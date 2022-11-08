@@ -27,6 +27,7 @@ final class ChainRegistry {
     private let chainSyncService: ChainSyncServiceProtocol
     private let runtimeSyncService: RuntimeSyncServiceProtocol
     private let commonTypesSyncService: CommonTypesSyncServiceProtocol
+    private let chainsTypesSuncService: ChainsTypesSyncServiceProtocol
     private let chainProvider: StreamableProvider<ChainModel>
     private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
     private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
@@ -35,6 +36,7 @@ final class ChainRegistry {
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
+    private var chainsTypesMap: [String: Data]?
 
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
@@ -47,6 +49,7 @@ final class ChainRegistry {
         chainSyncService: ChainSyncServiceProtocol,
         runtimeSyncService: RuntimeSyncServiceProtocol,
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
+        chainsTypesSuncService: ChainsTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
@@ -59,11 +62,13 @@ final class ChainRegistry {
         self.chainSyncService = chainSyncService
         self.runtimeSyncService = runtimeSyncService
         self.commonTypesSyncService = commonTypesSyncService
+        self.chainsTypesSuncService = chainsTypesSuncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
+        self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPool.setDelegate(self)
     }
@@ -84,10 +89,10 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    runtimeProviderPool.setupRuntimeProvider(for: newChain)
+                    let chainTypes = chainsTypesMap?[newChain.chainId]
 
+                    runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
                     runtimeSyncService.register(chain: newChain, with: connection)
-
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
 
                     chains.append(newChain)
@@ -95,7 +100,9 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    let chainTypes = chainsTypesMap?[updatedChain.chainId]
+
+                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
                     chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -137,8 +144,11 @@ final class ChainRegistry {
     private func syncUpServices() {
         chainSyncService.syncUp()
         commonTypesSyncService.syncUp()
+        chainsTypesSuncService.syncUp()
     }
 }
+
+// MARK: - ChainRegistryProtocol
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
@@ -252,6 +262,8 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 }
 
+// MARK: - ConnectionPoolDelegate
+
 extension ChainRegistry: ConnectionPoolDelegate {
     func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
         let failedChain = chains.first { chain in
@@ -268,29 +280,37 @@ extension ChainRegistry: ConnectionPoolDelegate {
         case let .connecting(attempt):
             if attempt > 1 {
                 // temporary disable autobalance , maybe this causing crashes
-//                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+                connectionNeedsReconnect(for: failedChain, previusUrl: url)
             }
-        case .connected:
-            break
         default:
             break
         }
     }
 
-    private func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard chain.selectedNode == nil else {
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
+        guard
+            chain.selectedNode == nil,
+            let pendingRequests = getConnection(for: chain.chainId)?.pendingEngineRequests
+        else {
             return
         }
 
-        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != previusUrl })
+        do {
+            let connection = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
+            connection.connect(with: pendingRequests)
 
-        if let newUrl = node?.url {
-            if let connection = getConnection(for: chain.chainId) {
-                connection.reconnect(url: newUrl)
-
-                let event = ChainsUpdatedEvent(updatedChains: [chain])
-                eventCenter.notify(with: event)
-            }
+            let event = ChainsUpdatedEvent(updatedChains: [chain])
+            eventCenter.notify(with: event)
+        } catch {
+            logger?.error("\(chain.name) error: \(error.localizedDescription)")
         }
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension ChainRegistry: EventVisitorProtocol {
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
+        chainsTypesMap = event.versioningMap
     }
 }

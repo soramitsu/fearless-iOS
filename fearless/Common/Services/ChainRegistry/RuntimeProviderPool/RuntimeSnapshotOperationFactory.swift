@@ -14,9 +14,9 @@ protocol RuntimeSnapshotFactoryProtocol {
 }
 
 final class RuntimeSnapshotFactory {
-    let chainId: ChainModel.Id
-    let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
-    let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let chainId: ChainModel.Id
+    private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
+    private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
 
     init(
         chainId: ChainModel.Id,

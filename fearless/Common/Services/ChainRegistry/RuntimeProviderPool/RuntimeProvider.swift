@@ -58,7 +58,8 @@ final class RuntimeProvider {
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil,
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
-        usedRuntimePaths: [String: [String]]
+        usedRuntimePaths: [String: [String]],
+        chainTypes: Data?
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -71,6 +72,7 @@ final class RuntimeProvider {
         self.logger = logger
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
+        self.chainTypes = chainTypes
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -111,21 +113,25 @@ final class RuntimeProvider {
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
         logger?.debug("Will start building hot snapshot for \(chainName)")
 
-        let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
+        guard let snapshotHotOperationFactory = snapshotHotOperationFactory else {
+            return
+        }
+
+        let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
             usedRuntimePaths: usedRuntimePaths
         )
 
-        wrapper?.targetOperation.completionBlock = { [weak self] in
+        wrapper.completionBlock = { [weak self] in
             DispatchQueue.global(qos: .userInitiated).async {
-                self?.handleCompletion(result: wrapper?.targetOperation.result)
+                self?.handleCompletion(result: wrapper.result)
             }
         }
 
-        currentWrapper = wrapper?.targetOperation
+        currentWrapper = wrapper
 
-        operationQueue.addOperations(wrapper?.allOperations ?? [], waitUntilFinished: false)
+        operationQueue.addOperation(wrapper)
     }
 
     private func handleCompletion(result: Result<RuntimeSnapshot?, Error>?) {
@@ -141,6 +147,7 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
+                chainMetadata = nil
 
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
@@ -332,8 +339,8 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 }
 
 extension RuntimeProvider: EventVisitorProtocol {
-    func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted) {
-        guard event.chainId == chainId else {
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
+        guard let chainTypes = event.versioningMap[chainId] else {
             return
         }
 
@@ -343,14 +350,10 @@ extension RuntimeProvider: EventVisitorProtocol {
             mutex.unlock()
         }
 
-        guard snapshot?.localChainHash != event.fileHash else {
-            return
-        }
-
         currentWrapper?.cancel()
         currentWrapper = nil
 
-        chainTypes = event.data
+        self.chainTypes = chainTypes
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }

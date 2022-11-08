@@ -4,12 +4,14 @@ import RobinHood
 protocol RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
+        chainTypes: Data?,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
         commonTypes: Data,
+        chainTypes: Data,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol
 }
@@ -42,6 +44,7 @@ final class RuntimeProviderFactory {
 extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
+        chainTypes: Data?,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
@@ -58,7 +61,8 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             operationQueue: operationQueue,
             logger: logger,
             repository: repository,
-            usedRuntimePaths: usedRuntimePaths
+            usedRuntimePaths: usedRuntimePaths,
+            chainTypes: chainTypes
         )
     }
 
@@ -66,6 +70,7 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
         commonTypes: Data,
+        chainTypes: Data,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
@@ -78,6 +83,7 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             chainId: chain.chainId,
             runtimeItem: runtimeItem,
             commonTypes: commonTypes,
+            chainTypes: chainTypes,
             filesOperationFactory: fileOperationFactory
         )
 
@@ -89,7 +95,8 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             operationQueue: operationQueue,
             logger: logger,
             repository: repository,
-            usedRuntimePaths: usedRuntimePaths
+            usedRuntimePaths: usedRuntimePaths,
+            chainTypes: nil
         )
     }
 }
