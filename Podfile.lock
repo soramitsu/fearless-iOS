@@ -1,8 +1,9 @@
 PODS:
   - BigInt (5.2.0)
-  - Charts (3.6.0):
-    - Charts/Core (= 3.6.0)
-  - Charts/Core (3.6.0)
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -63,7 +64,7 @@ PODS:
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
-  - RobinHood (2.6.1)
+  - RobinHood (2.6.2)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -124,6 +125,7 @@ PODS:
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
+  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.46.5)
   - SwiftyBeaver (1.9.5)
@@ -131,10 +133,10 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - Charts
+  - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `bd8bc7a841d8726201b84d774c7cd860765ac2a8`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `6131a1c4d4424862f5f23debeebf95f999293ed7`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -142,6 +144,7 @@ DEPENDENCIES:
   - R.swift
   - ReachabilitySwift
   - RobinHood
+  - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -176,6 +179,7 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SVGKit
+    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
@@ -184,7 +188,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: bd8bc7a841d8726201b84d774c7cd860765ac2a8
+    :commit: 6131a1c4d4424862f5f23debeebf95f999293ed7
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -192,7 +196,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: bd8bc7a841d8726201b84d774c7cd860765ac2a8
+    :commit: 6131a1c4d4424862f5f23debeebf95f999293ed7
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -200,7 +204,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
+  Charts: 354f86803d11d9c35de280587fef50d1af063978
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 4da01933dfcc88b23a3bb3ac95314d35c93e7c3d
@@ -212,7 +216,7 @@ SPEC CHECKSUMS:
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  RobinHood: bd66f17e8aeb64d2a739d4fe07e4725fc87919d5
+  RobinHood: fe6c8892d85185cd5341f4be116eedba4f1a91e8
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
@@ -222,12 +226,13 @@ SPEC CHECKSUMS:
   Sourcery: 60248db99c17da7147b83acb9aca4266657c1f2e
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 2c16e8fa99dac2e440dc0c70ea74d2532048f6cf
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: e7212c5889b9f495a304bbabb1a01cc3173a6e00
+PODFILE CHECKSUM: 313d7aec205bdb729e352911e12125a3d9e70e86
 
 COCOAPODS: 1.11.3

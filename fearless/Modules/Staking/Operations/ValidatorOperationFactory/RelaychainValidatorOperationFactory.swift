@@ -79,7 +79,7 @@ final class RelaychainValidatorOperationFactory {
     func createSlashesOperation(
         for validatorIds: [AccountId],
         nomination: Nomination
-    ) -> CompoundOperationWrapper<[Bool]> {
+    ) -> CompoundOperationWrapper<[AccountId: Bool]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
@@ -92,18 +92,22 @@ final class RelaychainValidatorOperationFactory {
 
         slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
-        let operation = ClosureOperation<[Bool]> {
+        let operation = ClosureOperation<[AccountId: Bool]> {
             let slashingSpans = try slashingSpansWrapper.targetOperation.extractNoCancellableResultData()
+            var slashes: [AccountId: Bool] = [:]
 
-            return validatorIds.enumerated().map { index, _ in
-                let slashingSpan = slashingSpans[index]
+            slashingSpans.forEach { storageResponse in
+                let accountId = storageResponse.key.getAccountIdFromKey(accountIdLenght: 32)
 
-                if let lastSlashEra = slashingSpan.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
-                    return true
+                var isSlashed = false
+                if let lastSlashEra = storageResponse.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
+                    isSlashed = true
                 }
 
-                return false
+                slashes[accountId] = isSlashed
             }
+
+            return slashes
         }
 
         operation.addDependency(slashingSpansWrapper.targetOperation)
@@ -533,7 +537,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
-                    hasSlashes: slashes[index]
+                    hasSlashes: slashes[accountId] != nil
                 )
             }
         }

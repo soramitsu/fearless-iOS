@@ -27,7 +27,6 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
                 .activeEra,
                 .currentEra,
                 .totalIssuance,
-                .historyDepth,
                 .minNominatorBond,
                 .maxNominatorsCount,
                 .counterForNominators
