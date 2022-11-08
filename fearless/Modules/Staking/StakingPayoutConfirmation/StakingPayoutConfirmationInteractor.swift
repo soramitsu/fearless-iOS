@@ -68,30 +68,11 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
 
     // MARK: - Private functions
 
-    private func createExtrinsicBuilderClosure(for batches: [Batch]) -> ExtrinsicBuilderIndexedClosure? {
+    private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderIndexedClosure? {
         let callFactory = SubstrateCallFactory()
 
-        let closure: ExtrinsicBuilderIndexedClosure = { builder, index in
-            try batches[index].forEach { payout in
-                let payoutCall = try callFactory.payout(
-                    validatorId: payout.validator,
-                    era: payout.era
-                )
-
-                _ = try builder.adding(call: payoutCall)
-            }
-
-            return builder
-        }
-
-        return closure
-    }
-
-    private func createExtrinsicBuilderClosure(for batch: Batch) -> ExtrinsicBuilderClosure? {
-        let callFactory = SubstrateCallFactory()
-
-        let closure: ExtrinsicBuilderClosure = { builder in
-            try batch.forEach { payout in
+        let closure: ExtrinsicBuilderIndexedClosure = { [weak self] builder, _ in
+            try payouts.forEach { payout in
                 let payoutCall = try callFactory.payout(
                     validatorId: payout.validator,
                     era: payout.era
@@ -164,17 +145,13 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
     }
 
     private func createFeeOperationWrapper() -> CompoundOperationWrapper<Decimal>? {
-        guard let batches = batches, !batches.isEmpty else { return nil }
-
-        let feeBatches = batches.count > 1 ?
-            [batches[0], batches[batches.count - 1]] :
-            [batches[0]]
-
-        guard let feeClosure = createExtrinsicBuilderClosure(for: feeBatches) else { return nil }
+        let payoutsUnwrapped = payouts
+        guard !payoutsUnwrapped.isEmpty else { return nil }
+        guard let feeClosure = createExtrinsicBuilderClosure(for: payouts) else { return nil }
 
         let feeOperation = extrinsicOperationFactory.estimateFeeOperation(
             feeClosure,
-            numberOfExtrinsics: feeBatches.count
+            numberOfExtrinsics: payoutsUnwrapped.count
         )
 
         let dependencies = feeOperation.allOperations
@@ -190,7 +167,7 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
                 } ?? 0.0
             }
 
-            return (fees.first ?? 0.0) * Decimal(batches.count - 1) + (fees.last ?? 0.0)
+            return (fees.first ?? 0.0) * Decimal(payoutsUnwrapped.count - 1) + (fees.last ?? 0.0)
         }
 
         mergeOperation.addDependency(feeOperation.targetOperation)
@@ -200,85 +177,13 @@ final class StakingPayoutConfirmationInteractor: AccountFetching {
             dependencies: dependencies
         )
     }
-
-    private func createBatchesOperationWrapper(
-        from payouts: [PayoutInfo]
-    ) -> CompoundOperationWrapper<[Batch]>? {
-        guard let firstPayout = payouts.first,
-              let feeClosure = createExtrinsicBuilderClosure(for: [firstPayout])
-        else { return nil }
-
-        let blockWeightsWrapper = createBlockWeightsWrapper()
-        let feeWrapper = extrinsicOperationFactory.estimateFeeOperation(feeClosure)
-
-        let batchesOperationWrapper = ClosureOperation<[Batch]> {
-            let blockWeights = try blockWeightsWrapper.targetOperation.extractNoCancellableResultData()
-            let fee = try feeWrapper.targetOperation.extractNoCancellableResultData()
-
-            let batchSize = Int(Double(blockWeights.maxBlock) / Double(fee.weight) * 0.64)
-            let batches = stride(from: 0, to: payouts.count, by: batchSize).map {
-                Array(payouts[$0 ..< Swift.min($0 + batchSize, payouts.count)])
-            }
-
-            return batches
-        }
-
-        batchesOperationWrapper.addDependency(blockWeightsWrapper.targetOperation)
-        batchesOperationWrapper.addDependency(feeWrapper.targetOperation)
-
-        let dependencies = blockWeightsWrapper.allOperations + feeWrapper.allOperations
-
-        return CompoundOperationWrapper(
-            targetOperation: batchesOperationWrapper,
-            dependencies: dependencies
-        )
-    }
-
-    private func createBlockWeightsWrapper() -> CompoundOperationWrapper<BlockWeights> {
-        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let blockWeightsOperation = StorageConstantOperation<BlockWeights>(path: .blockWeights)
-        blockWeightsOperation.configurationBlock = {
-            do {
-                blockWeightsOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-            } catch {
-                blockWeightsOperation.result = .failure(error)
-            }
-        }
-
-        blockWeightsOperation.addDependency(codingFactoryOperation)
-
-        return CompoundOperationWrapper(
-            targetOperation: blockWeightsOperation,
-            dependencies: [codingFactoryOperation]
-        )
-    }
-
-    private func generateBatches(completion closure: @escaping () -> Void) {
-        guard let batchesOperation = createBatchesOperationWrapper(from: payouts) else {
-            return
-        }
-
-        batchesOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    self?.batches = try batchesOperation.targetOperation.extractNoCancellableResultData()
-                    closure()
-                } catch {
-                    self?.presenter.didReceiveFee(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: batchesOperation.allOperations, in: .transient)
-    }
 }
 
 // MARK: - StakingPayoutConfirmationInteractorInputProtocol
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
-        generateBatches { self.estimateFee() }
+        estimateFee()
 
         if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
@@ -296,17 +201,18 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
     }
 
     func submitPayout() {
-        guard let batches = batches, !batches.isEmpty else { return }
+        let payoutsUnwrapped = payouts
+        guard !payoutsUnwrapped.isEmpty else { return }
 
         presenter.didStartPayout()
 
-        guard let closure = createExtrinsicBuilderClosure(for: batches) else { return }
+        guard let closure = createExtrinsicBuilderClosure(for: payoutsUnwrapped) else { return }
 
         extrinsicService.submit(
             closure,
             signer: signer,
             runningIn: .main,
-            numberOfExtrinsics: batches.count
+            numberOfExtrinsics: payoutsUnwrapped.count
         ) { [weak self] result in
             do {
                 let txHashes: [String] = try result.map { result in
