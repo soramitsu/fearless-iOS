@@ -212,6 +212,21 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
         prepareRecommendedValidatorList()
         provideEraStakersInfo()
         fetchStakingDuration()
+
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+            let pendingRewardsOperation = stakingPoolOperationFactory.fetchPendingRewards(accountId: accountId)
+            pendingRewardsOperation.targetOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    do {
+                        let result = try pendingRewardsOperation.targetOperation.extractNoCancellableResultData()
+                        self?.output?.didReceive(pendingRewards: result)
+                    } catch {
+                        self?.output?.didReceive(pendingRewardsError: error)
+                    }
+                }
+            }
+            operationManager.enqueue(operations: pendingRewardsOperation.allOperations, in: .transient)
+        }
     }
 
     func fetchPoolBalance(poolAccountId: AccountId) {

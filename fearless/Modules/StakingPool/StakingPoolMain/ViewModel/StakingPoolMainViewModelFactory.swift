@@ -24,10 +24,7 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
-        poolRewards: StakingPoolRewards,
-        poolInfo: StakingPool,
-        accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        pendingRewards: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
@@ -268,10 +265,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
-        poolRewards: StakingPoolRewards,
-        poolInfo: StakingPool,
-        accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        pendingRewards: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
 
@@ -285,48 +279,10 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
             precision: precision
         ) ?? 0.0
 
-        let poolStakeAmount = Decimal.fromSubstrateAmount(
-            poolInfo.info.points,
-            precision: precision
-        ) ?? 0.0
-
-        let lastRecordedTotalPayouts = Decimal.fromSubstrateAmount(
-            poolRewards.lastRecordedTotalPayouts,
-            precision: precision
-        ) ?? 0.0
-
-        let totalRewardsClaimed = Decimal.fromSubstrateAmount(
-            poolRewards.totalRewardsClaimed,
-            precision: precision
-        ) ?? 0.0
-
-        let lastRecordedRewardCounter = Decimal.fromSubstrateAmount(
-            poolRewards.lastRecordedRewardCounter,
-            precision: precision
-        ) ?? 0.0
-
-        let ownLastRecordedRewardCounter = Decimal.fromSubstrateAmount(
-            stakeInfo.lastRecordedRewardCounter,
-            precision: precision
-        ) ?? 0.0
-
-        let existentialDepositDecimal = Decimal.fromSubstrateAmount(
-            existentialDeposit,
-            precision: precision
-        ) ?? 0.0
-
-        let balanceDecimal = (Decimal.fromSubstrateAmount(
-            accountInfo.data.free,
-            precision: precision
-        ) ?? 0.0) - existentialDepositDecimal
-
-        let payoutSinceLastRecord = balanceDecimal + totalRewardsClaimed - lastRecordedTotalPayouts
-        let rewardCounterBase: Decimal = pow(10, 18)
-        let currentRewardCounter = payoutSinceLastRecord * rewardCounterBase / poolStakeAmount + lastRecordedRewardCounter
-
-        let pendingReward = (currentRewardCounter - ownLastRecordedRewardCounter) * totalStakeAmount / rewardCounterBase
         var redeemableViewModel: StakingUnitInfoViewModel?
         var unstakingViewModel: StakingUnitInfoViewModel?
+
+        let pendingReward = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
 
         guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
               let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)

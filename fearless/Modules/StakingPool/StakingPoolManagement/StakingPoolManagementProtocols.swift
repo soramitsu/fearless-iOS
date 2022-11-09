@@ -56,6 +56,8 @@ protocol StakingPoolManagementInteractorOutput: AnyObject {
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
     func didReceive(nomination: Nomination?)
+    func didReceive(pendingRewards: BigUInt?)
+    func didReceive(pendingRewardsError: Error)
 }
 
 protocol StakingPoolManagementRouterInput: PresentDismissable {
