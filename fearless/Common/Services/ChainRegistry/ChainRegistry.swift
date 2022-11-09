@@ -36,7 +36,6 @@ final class ChainRegistry {
     private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
-    private var chainsTypesMap: [String: Data]?
 
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
@@ -68,7 +67,6 @@ final class ChainRegistry {
         self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
-        self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPool.setDelegate(self)
     }
@@ -89,9 +87,8 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    let chainTypes = chainsTypesMap?[newChain.chainId]
 
-                    runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
+                    runtimeProviderPool.setupRuntimeProvider(for: newChain)
                     runtimeSyncService.register(chain: newChain, with: connection)
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
 
@@ -100,9 +97,8 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    let chainTypes = chainsTypesMap?[updatedChain.chainId]
 
-                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
+                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
                     chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -304,13 +300,5 @@ extension ChainRegistry: ConnectionPoolDelegate {
         } catch {
             logger?.error("\(chain.name) error: \(error.localizedDescription)")
         }
-    }
-}
-
-// MARK: - EventVisitorProtocol
-
-extension ChainRegistry: EventVisitorProtocol {
-    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
-        chainsTypesMap = event.versioningMap
     }
 }

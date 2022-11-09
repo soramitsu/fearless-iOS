@@ -29,7 +29,7 @@ final class RuntimeProvider {
 
     internal let chainId: ChainModel.Id
     private let chainName: String
-    private(set) var typesUsage: ChainModel.TypesUsage
+    private var typesUsage: ChainModel.TypesUsage
     private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
@@ -39,6 +39,13 @@ final class RuntimeProvider {
     private let dataHasher: StorageHasher
     private let logger: LoggerProtocol?
     private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+
+    private lazy var completionQueue: DispatchQueue = {
+        DispatchQueue(
+            label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)",
+            qos: .userInitiated
+        )
+    }()
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -59,7 +66,7 @@ final class RuntimeProvider {
         logger: LoggerProtocol? = nil,
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
         usedRuntimePaths: [String: [String]],
-        chainTypes: Data?
+        chainMetadata: RuntimeMetadataItem?
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -72,7 +79,7 @@ final class RuntimeProvider {
         self.logger = logger
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
-        self.chainTypes = chainTypes
+        self.chainMetadata = chainMetadata
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -83,7 +90,9 @@ final class RuntimeProvider {
         guard
             commonTypes != nil || typesUsage == .onlyOwn,
             let chainTypes = chainTypes,
-            let chainMetadata = chainMetadata
+            let chainMetadata = chainMetadata,
+            let localChainTypes = runtimeSnapshot?.localChainTypes,
+            compareChainsTypes(local: localChainTypes, remote: chainTypes)
         else {
             return
         }
@@ -108,6 +117,17 @@ final class RuntimeProvider {
         currentWrapper = wrapper
 
         operationQueue.addOperation(wrapper)
+    }
+
+    private func compareChainsTypes(local: Data, remote: Data) -> Bool {
+        guard
+            let localJson = try? JSONDecoder().decode(JSON.self, from: local),
+            let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
+        else {
+            return false
+        }
+
+        return localJson != remoteJson
     }
 
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
@@ -147,7 +167,6 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
-                chainMetadata = nil
 
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
@@ -159,7 +178,7 @@ final class RuntimeProvider {
         case let .failure(error):
             currentWrapper = nil
 
-            logger?.debug("Failed to build snapshot for \(chainName): \(error)")
+            logger?.error("Failed to build snapshot for \(chainName): \(error)")
 
             let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
             eventCenter.notify(with: event)
@@ -215,7 +234,7 @@ final class RuntimeProvider {
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
@@ -223,8 +242,7 @@ final class RuntimeProvider {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -244,17 +262,14 @@ final class RuntimeProvider {
         closure _: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
-
             var fetchedFactory: RuntimeCoderFactoryProtocol?
-
             let semaphore = DispatchSemaphore(value: 0)
 
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }

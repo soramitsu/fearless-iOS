@@ -50,7 +50,7 @@ final class RuntimeHotBootSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: strongSelf.commonTypes).toHex(),
-                localChainHash: try dataHasher.hash(data: strongSelf.chainTypes).toHex(),
+                localChainTypes: strongSelf.chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
@@ -79,7 +79,7 @@ final class RuntimeHotBootSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: strongSelf.commonTypes).toHex(),
-                localChainHash: nil,
+                localChainTypes: nil,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
@@ -91,7 +91,7 @@ final class RuntimeHotBootSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        _ dataHasher: StorageHasher,
+        _: StorageHasher,
         usedRuntimePaths: [String: [String]]
     ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
@@ -111,7 +111,7 @@ final class RuntimeHotBootSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: nil,
-                localChainHash: try dataHasher.hash(data: strongSelf.chainTypes).toHex(),
+                localChainTypes: strongSelf.chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
