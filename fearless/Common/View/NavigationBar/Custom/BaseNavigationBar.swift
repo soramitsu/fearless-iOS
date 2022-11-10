@@ -22,7 +22,7 @@ class BaseNavigationBar: BaseTopBar {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

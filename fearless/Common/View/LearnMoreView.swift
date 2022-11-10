@@ -30,7 +30,7 @@ final class LearnMoreView: BackgroundedContentControl {
 
     let arrowIconView: UIView = {
         let imageView = UIImageView(image: R.image.iconAboutArrow())
-        imageView.tintColor = .white
+        imageView.tintColor = R.color.colorWhite()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()

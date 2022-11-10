@@ -10,10 +10,10 @@ final class TriangularedTextField: TriangularedView {
     let textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .none
-        textField.textColor = UIColor.white
+        textField.textColor = R.color.colorWhite()
         textField.font = .h4Title
         textField.returnKeyType = .done
-        textField.tintColor = UIColor.white
+        textField.tintColor = R.color.colorWhite()
         return textField
     }()
 

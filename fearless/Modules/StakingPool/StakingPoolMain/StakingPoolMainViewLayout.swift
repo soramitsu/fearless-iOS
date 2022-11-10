@@ -32,7 +32,7 @@ final class StakingPoolMainViewLayout: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h1Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

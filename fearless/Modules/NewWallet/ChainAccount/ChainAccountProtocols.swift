@@ -40,8 +40,7 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     )
 
     func presentReceiveFlow(
