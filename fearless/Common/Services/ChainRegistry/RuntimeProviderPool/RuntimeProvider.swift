@@ -66,7 +66,8 @@ final class RuntimeProvider {
         logger: LoggerProtocol? = nil,
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
         usedRuntimePaths: [String: [String]],
-        chainMetadata: RuntimeMetadataItem?
+        chainMetadata: RuntimeMetadataItem?,
+        chainTypes: Data?
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -80,6 +81,7 @@ final class RuntimeProvider {
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
         self.chainMetadata = chainMetadata
+        self.chainTypes = chainTypes
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -91,8 +93,7 @@ final class RuntimeProvider {
             commonTypes != nil || typesUsage == .onlyOwn,
             let chainTypes = chainTypes,
             let chainMetadata = chainMetadata,
-            let localChainTypes = runtimeSnapshot?.localChainTypes,
-            compareChainsTypes(local: localChainTypes, remote: chainTypes)
+            compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
         else {
             return
         }
@@ -119,12 +120,13 @@ final class RuntimeProvider {
         operationQueue.addOperation(wrapper)
     }
 
-    private func compareChainsTypes(local: Data, remote: Data) -> Bool {
+    private func compareChainsTypes(local: Data?, remote: Data) -> Bool {
         guard
-            let localJson = try? JSONDecoder().decode(JSON.self, from: local),
+            let localData = local,
+            let localJson = try? JSONDecoder().decode(JSON.self, from: localData),
             let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
         else {
-            return false
+            return true
         }
 
         return localJson != remoteJson
@@ -133,14 +135,17 @@ final class RuntimeProvider {
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
         logger?.debug("Will start building hot snapshot for \(chainName)")
 
-        guard let snapshotHotOperationFactory = snapshotHotOperationFactory else {
+        guard let snapshotHotOperationFactory = snapshotHotOperationFactory,
+              let chainTypes = chainTypes
+        else {
             return
         }
 
         let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
-            usedRuntimePaths: usedRuntimePaths
+            usedRuntimePaths: usedRuntimePaths,
+            chainTypes: chainTypes
         )
 
         wrapper.completionBlock = { [weak self] in

@@ -2,7 +2,10 @@ import Foundation
 
 protocol RuntimeProviderPoolProtocol {
     @discardableResult
-    func setupRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol
+    func setupRuntimeProvider(
+        for chain: ChainModel,
+        chainTypes: Data?
+    ) -> RuntimeProviderProtocol
     @discardableResult
     func setupHotRuntimeProvider(
         for chain: ChainModel,
@@ -51,7 +54,10 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     }
 
     @discardableResult
-    func setupRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol {
+    func setupRuntimeProvider(
+        for chain: ChainModel,
+        chainTypes: Data?
+    ) -> RuntimeProviderProtocol {
         mutex.lock()
 
         defer {
@@ -65,6 +71,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         } else {
             let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
                 for: chain,
+                chainTypes: chainTypes,
                 usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
             )
 

@@ -4,6 +4,7 @@ import RobinHood
 protocol RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
+        chainTypes: Data?,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol
     func createHotRuntimeProvider(
@@ -43,6 +44,7 @@ final class RuntimeProviderFactory {
 extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
     func createRuntimeProvider(
         for chain: ChainModel,
+        chainTypes: Data?,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
@@ -60,7 +62,8 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             logger: logger,
             repository: repository,
             usedRuntimePaths: usedRuntimePaths,
-            chainMetadata: nil
+            chainMetadata: nil,
+            chainTypes: chainTypes
         )
     }
 
@@ -81,7 +84,6 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             chainId: chain.chainId,
             runtimeItem: runtimeItem,
             commonTypes: commonTypes,
-            chainTypes: chainTypes,
             filesOperationFactory: fileOperationFactory
         )
 
@@ -94,7 +96,8 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             logger: logger,
             repository: repository,
             usedRuntimePaths: usedRuntimePaths,
-            chainMetadata: runtimeItem
+            chainMetadata: runtimeItem,
+            chainTypes: chainTypes
         )
     }
 }
