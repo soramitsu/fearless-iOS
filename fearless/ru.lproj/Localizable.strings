@@ -771,7 +771,7 @@ and depending on the network state, may not be selected to participate";
 "pool.staking.main.min.create.title" = "Min. to create a pool";
 "pool.staking.main.existing.pools.title" = "Existing pools";
 "pool.staking.main.possible.pools.title" = "Possible pools";
-"pool.staking.main.max.members.inpool.title" = "Max members in pool";
+"pool.staking.main.max.members.inpool.title" = "Max members in a pool";
 "pool.staking.main.max.pool.members.title" = "Max pools members";
 "pool.staking.main.description.title" = "Stakers (members) with a small amount of tokens can pool their funds together and act as a single nominator. The earnings of the pool are split pro rata to a member's stake in the bonded pool.";
 "pool.staking.start.about.title" = "What is Staking and how does it work, watch instruction";
