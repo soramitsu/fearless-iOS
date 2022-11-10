@@ -132,7 +132,7 @@ final class SelectableAmountInputView: UIView {
         }
 
         let symbol = viewModel.symbol.uppercased()
-        symbolLabel.text = symbol.uppercased()
+        symbolLabel.text = viewModel.symbol.uppercased()
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
     }
