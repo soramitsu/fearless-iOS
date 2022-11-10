@@ -434,7 +434,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
     }
 
     func didReceive(pendingRewardsError: Error) {
-        logger.error("StakingPoolMainPresenter:didReceive:pendingRewardsError: \(pendingRewardsError)")
+        logger.error("\(pendingRewardsError)")
     }
 }
 
