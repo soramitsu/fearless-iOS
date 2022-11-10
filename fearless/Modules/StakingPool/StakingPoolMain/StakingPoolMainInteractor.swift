@@ -209,7 +209,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let stakeInfo = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(stakeInfo: stakeInfo)
                 } catch {
-                    self?.output?.didReceive(stakeInfoError: error)
+                    self?.output?.didReceiveError(.stakeInfoError(error: error))
                 }
             }
         }
@@ -226,7 +226,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let poolRewards = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(poolRewards: poolRewards)
                 } catch {
-                    self?.output?.didReceive(poolRewardsError: error)
+                    self?.output?.didReceiveError(.poolRewardsError(error: error))
                 }
             }
         }
@@ -259,7 +259,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     self?.output?.didReceive(eraStakersInfo: info)
                     self?.fetchEraCompletionTime()
                 } catch {
-                    self?.output?.didReceive(eraStakersInfoError: error)
+                    self?.output?.didReceiveError(.eraStakersInfoError(error: error))
                 }
             }
         }
@@ -330,7 +330,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let networkInfo = try mapOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(networkInfo: networkInfo)
                 } catch {
-                    self?.output?.didReceive(networkInfoError: error)
+                    self?.output?.didReceiveError(.networkInfoError(error: error))
                 }
             }
         }
@@ -461,7 +461,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
                     let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(nomination: nomination)
                 } catch {
-                    self?.output?.didReceive(nominationError: error)
+                    self?.output?.didReceiveError(.nominationError(error: error))
                 }
             }
         }
@@ -490,7 +490,7 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
         case let .success(accountInfo):
             output?.didReceive(accountInfo: accountInfo)
         case let .failure(error):
-            output?.didReceive(balanceError: error)
+            output?.didReceiveError(.balanceError(error: error))
         }
     }
 }
@@ -505,7 +505,7 @@ extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubs
         case let .success(priceData):
             output?.didReceive(priceData: priceData)
         case let .failure(error):
-            output?.didReceive(priceError: error)
+            output?.didReceiveError(.priceError(error: error))
         }
     }
 }
@@ -539,7 +539,7 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
             }
         case let .failure(error):
             DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceive(stakeInfoError: error)
+                self?.output?.didReceiveError(.stakeInfoError(error: error))
             }
         }
     }

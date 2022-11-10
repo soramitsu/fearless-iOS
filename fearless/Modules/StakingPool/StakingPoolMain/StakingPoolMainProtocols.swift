@@ -35,28 +35,22 @@ protocol StakingPoolMainInteractorInput: AnyObject {
 
 protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(accountInfo: AccountInfo?)
-    func didReceive(balanceError: Error)
     func didReceive(chainAsset: ChainAsset)
     func didReceive(rewardCalculatorEngine: RewardCalculatorEngineProtocol?)
     func didReceive(priceData: PriceData?)
-    func didReceive(priceError: Error)
     func didReceive(wallet: MetaAccountModel)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
-    func didReceive(networkInfoError: Error)
     func didReceive(stakeInfo: StakingPoolMember?)
-    func didReceive(stakeInfoError: Error)
     func didReceive(era: EraIndex)
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
-    func didReceive(eraStakersInfoError: Error)
     func didReceive(poolRewards: StakingPoolRewards?)
-    func didReceive(poolRewardsError: Error)
     func didReceive(stakingPool: StakingPool?)
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(poolAccountInfo: AccountInfo?)
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
     func didReceive(nomination: Nomination?)
-    func didReceive(nominationError: Error)
+    func didReceiveError(_ error: StakingPoolMainError)
 }
 
 protocol StakingPoolMainRouterInput: AnyObject {

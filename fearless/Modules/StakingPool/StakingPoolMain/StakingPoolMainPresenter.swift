@@ -287,20 +287,12 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         }
     }
 
-    func didReceive(eraStakersInfoError: Error) {
-        logger?.error("StakingPoolMainPresenter:eraStakersInfoError: \(eraStakersInfoError.localizedDescription)")
-    }
-
     func didReceive(accountInfo: AccountInfo?) {
         self.accountInfo = accountInfo
 
         provideBalanceViewModel()
         provideRewardEstimationViewModel()
         provideStakeInfoViewModel()
-    }
-
-    func didReceive(balanceError: Error) {
-        logger?.error("StakingPoolMainPresenter:balanceError: \(balanceError.localizedDescription)")
     }
 
     func didReceive(chainAsset: ChainAsset) {
@@ -321,10 +313,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         self.rewardCalculatorEngine = rewardCalculatorEngine
 
         provideRewardEstimationViewModel()
-    }
-
-    func didReceive(priceError: Error) {
-        logger?.error("StakingPoolMainPresenter:priceError: \(priceError.localizedDescription)")
     }
 
     func didReceive(priceData: PriceData?) {
@@ -351,26 +339,14 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         view?.didReceiveNetworkInfoViewModels(viewModels)
     }
 
-    func didReceive(networkInfoError: Error) {
-        logger?.error("StakingPoolMainPresenter:networkInfoError: \(networkInfoError.localizedDescription)")
-    }
-
     func didReceive(stakeInfo: StakingPoolMember?) {
         self.stakeInfo = stakeInfo
         provideStakeInfoViewModel()
     }
 
-    func didReceive(stakeInfoError: Error) {
-        logger?.error("StakingPoolMainPresenter:stakeInfoError: \(stakeInfoError.localizedDescription)")
-    }
-
     func didReceive(poolRewards: StakingPoolRewards?) {
         self.poolRewards = poolRewards
         provideStakeInfoViewModel()
-    }
-
-    func didReceive(poolRewardsError: Error) {
-        logger?.error("StakingPoolMainPresenter:poolRewardsError: \(poolRewardsError.localizedDescription)")
     }
 
     func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
@@ -388,8 +364,8 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideStakeInfoViewModel()
     }
 
-    func didReceive(nominationError: Error) {
-        logger?.error("StakingPoolMainPresenter:nominationError: \(nominationError.localizedDescription)")
+    func didReceiveError(_ error: StakingPoolMainError) {
+        logger?.error("\(error)")
     }
 }
 

@@ -179,8 +179,8 @@ final class StakingPoolManagementPresenter {
     }
 
     private func fetchSelectedValidators() {
-        let userRoleCanSelectValidators =
-            stakingPool?.info.roles.nominator == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        let userRoleCanSelectValidators = stakingPool?.info.roles.nominator == accountId
 
         guard
             let nomination = nomination

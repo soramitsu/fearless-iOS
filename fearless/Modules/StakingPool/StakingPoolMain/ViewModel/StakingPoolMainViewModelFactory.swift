@@ -60,10 +60,6 @@ final class StakingPoolMainViewModelFactory {
     }
 
     private func getRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
-//        if let factory = rewardViewModelFactory {
-//            return factory
-//        }
-
         let factory = RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: wallet
@@ -277,16 +273,22 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         nomination: Nomination?
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
+        switch poolInfo.info.state {
+        case .open:
+            guard let era = era else {
+                break
+            }
 
-        if poolInfo.info.state == .open, let era = era {
             if nomination?.targets.isNotEmpty == true {
                 status = .active(era: era)
             } else {
                 status = .validatorsNotSelected
             }
-        } else if poolInfo.info.state == .blocked, let era = era {
-            status = .inactive(era: era)
-        } else if poolInfo.info.state == .destroying, let era = era {
+        case .blocked, .destroying:
+            guard let era = era else {
+                break
+            }
+
             status = .inactive(era: era)
         }
 

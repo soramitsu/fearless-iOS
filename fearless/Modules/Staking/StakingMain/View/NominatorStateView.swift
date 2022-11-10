@@ -147,8 +147,8 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
     }
 
     private func presentValidatorsAreNotSelectedStatus() {
-        statusView.titleView.indicatorColor = R.color.colorOrange()!
-        statusView.titleView.titleLabel.textColor = R.color.colorOrange()!
+        statusView.titleView.indicatorColor = R.color.colorOrange() ?? .orange
+        statusView.titleView.titleLabel.textColor = R.color.colorOrange()
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages).uppercased()

@@ -164,7 +164,7 @@ final class StakingPoolMainAssembly {
             storageRequestFactory: storageRequestFactory,
             runtimeService: runtimeService,
             engine: connection,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            identityOperationFactory: identityOperationFactory,
             subqueryOperationFactory: subqueryRewardOperationFactory
         )
 
