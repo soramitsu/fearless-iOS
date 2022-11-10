@@ -46,7 +46,7 @@ final class AccountManagementViewController: UIViewController {
 
         if navigationController?.presentingViewController != nil {
             let leftBarButton = UIBarButtonItem(image: R.image.iconClose(), style: .plain, target: self, action: #selector(closeButtonClicked))
-            leftBarButton.tintColor = .white
+            leftBarButton.tintColor = R.color.colorWhite()
             navigationItem.leftBarButtonItem = leftBarButton
         }
     }

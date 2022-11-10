@@ -561,7 +561,7 @@
 "confirm.mnemonic.mismatch.error.message.2.0" = "Неверная мнемоническая фраза, пожалуйста, проверьте еще раз порядок слов";
 "share.referral.code" = "Поделиться реферальным кодом";
 "copy.referral.code" = "Копировать реферальный код";
-"scan.qr.title" = "Сканирование QR";
+"scan.qr.title" = "QR Код";
 "scan.qr.subtitle" = "Поднесите QR код получателя";
 "scan.qr.upload.button.title" = "Из галереи";
 "wallet.receive.qr.description" = "Покажите этот QR-код отправителю";

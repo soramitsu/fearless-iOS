@@ -47,7 +47,7 @@ final class ValidatorInfoParachainViewModelFactory {
 
         let icon = try? iconGenerator.generateFromAddress(collatorInfo.address)
             .imageWithFillColor(
-                .white,
+                R.color.colorWhite()!,
                 size: UIConstants.normalAddressIconSize,
                 contentScale: UIScreen.main.scale
             )

@@ -20,7 +20,7 @@ final class SendViewLayout: UIView {
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h4Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -134,12 +134,13 @@ final class SendViewLayout: UIView {
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
-        feeView.isHidden = false
+        feeView.isHidden = (feeViewModel == nil)
     }
 
     func bind(tipViewModel: TipViewModel?) {
         tipView.bind(viewModel: tipViewModel?.balanceViewModel)
-        tipView.isHidden = !(tipViewModel?.tipRequired == true)
+        tipView.isHidden =
+            !(tipViewModel?.tipRequired == true && tipViewModel?.balanceViewModel != nil)
     }
 
     func bind(scamInfo: ScamInfo?) {

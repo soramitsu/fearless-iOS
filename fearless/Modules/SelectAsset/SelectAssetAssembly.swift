@@ -8,7 +8,7 @@ final class SelectAssetAssembly {
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
         searchTextsViewModel: TextSearchViewModel?,
-        delegate: SelectAssetDelegate?
+        output: SelectAssetModuleOutput
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -55,7 +55,7 @@ final class SelectAssetAssembly {
             assetRepository: AnyDataProviderRepository(assetRepository),
             operationQueue: operationQueue
         )
-        let router = SelectAssetRouter(delegate: delegate)
+        let router = SelectAssetRouter()
 
         let viewModelFactory = SelectAssetViewModelFactory(
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
@@ -67,6 +67,7 @@ final class SelectAssetAssembly {
             searchTextsViewModel: searchTextsViewModel,
             interactor: interactor,
             router: router,
+            output: output,
             localizationManager: localizationManager
         )
 

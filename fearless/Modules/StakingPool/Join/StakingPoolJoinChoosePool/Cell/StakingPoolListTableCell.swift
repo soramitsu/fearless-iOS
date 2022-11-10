@@ -21,7 +21,7 @@ class StakingPoolListTableCell: UITableViewCell {
     let poolNameLabel: UILabel = {
         let label = UILabel()
         label.font = .h6Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

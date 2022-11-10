@@ -51,7 +51,7 @@ extension TriangularedButton {
         triangularedView?.strokeColor = .clear
         triangularedView?.highlightedStrokeColor = .clear
 
-        imageWithTitleView?.titleColor = UIColor.white
+        imageWithTitleView?.titleColor = R.color.colorWhite()
         imageWithTitleView?.titleFont = .h4Title
 
         contentOpacityWhenDisabled = 1

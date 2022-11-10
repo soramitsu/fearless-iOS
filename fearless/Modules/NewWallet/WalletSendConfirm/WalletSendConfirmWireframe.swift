@@ -22,8 +22,8 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
 
         view?.controller.navigationController?.dismiss(animated: true, completion: nil)
 
-        if let presenter = presenter as? ControllerBackedProtocol {
-            let controller = AllDoneAlertViewController(hashString: title)
+        if let presenter = presenter as? ControllerBackedProtocol,
+           let controller = AllDoneAssembly.configureModule(with: title)?.view.controller {
             controller.modalPresentationStyle = .custom
 
             let factory = ModalSheetBlurPresentationFactory(

@@ -14,6 +14,7 @@ final class SelectAssetPresenter {
     private let viewModelFactory: SelectAssetViewModelFactoryProtocol
     private let wallet: MetaAccountModel
     private let searchTextsViewModel: TextSearchViewModel?
+    private let output: SelectAssetModuleOutput
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
@@ -36,6 +37,7 @@ final class SelectAssetPresenter {
         searchTextsViewModel: TextSearchViewModel?,
         interactor: SelectAssetInteractorInput,
         router: SelectAssetRouterInput,
+        output: SelectAssetModuleOutput,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.viewModelFactory = viewModelFactory
@@ -44,6 +46,7 @@ final class SelectAssetPresenter {
         self.searchTextsViewModel = searchTextsViewModel
         self.interactor = interactor
         self.router = router
+        self.output = output
         self.localizationManager = localizationManager
     }
 
@@ -103,11 +106,13 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
                 chainAsset.asset.name == selectedViewModel.symbol
             })
         else {
-            router.complete(on: view, selecting: nil)
+            output.assetSelection(didCompleteWith: nil)
+            router.dismiss(view: view)
             return
         }
 
-        router.complete(on: view, selecting: selectedAsset.asset)
+        output.assetSelection(didCompleteWith: selectedAsset.asset)
+        router.dismiss(view: view)
     }
 
     func searchItem(with text: String?) {

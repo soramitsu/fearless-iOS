@@ -23,14 +23,14 @@ final class SelectAssetCell: UITableViewCell {
 
     let symbolLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.white
+        label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
         return label
     }()
 
     let balanceLabel: UILabel = {
         let label = UILabel()
-        label.textColor = UIColor.white
+        label.textColor = R.color.colorWhite()
         label.font = .h5Title
         label.textAlignment = .right
         return label
@@ -48,7 +48,7 @@ final class SelectAssetCell: UITableViewCell {
 
     override func prepareForReuse() {
         super.prepareForReuse()
-
+        iconImageView.image = nil
         viewModel?.icon?.cancel(on: iconImageView)
         viewModel?.removeObserver(self)
     }
@@ -98,9 +98,7 @@ final class SelectAssetCell: UITableViewCell {
         rightTextStackView.addArrangedSubview(balanceLabel)
     }
 
-    private func updateSelectionState() {
-//        checkmarkImageView.isHidden = !(viewModel?.isSelected ?? false)
-    }
+    private func updateSelectionState() {}
 }
 
 extension SelectAssetCell: SelectionItemViewProtocol {
@@ -114,7 +112,6 @@ extension SelectAssetCell: SelectionItemViewProtocol {
         symbolLabel.text = selectAssetCellViewModel.symbol
         balanceLabel.text = selectAssetCellViewModel.balanceString
         fiatBalanceLabel.text = selectAssetCellViewModel.fiatBalanceString
-        iconImageView.image = nil
         if selectAssetCellViewModel.icon == nil {
             iconImageView.image = R.image.allNetworksIcon()
         } else {

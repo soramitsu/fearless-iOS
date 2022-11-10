@@ -1,4 +1,5 @@
 import UIKit
+import Kingfisher
 
 final class SelectableAmountInputView: UIView {
     enum LayoutConstants {
@@ -50,7 +51,7 @@ final class SelectableAmountInputView: UIView {
     private let symbolLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = UIColor.white
+        label.textColor = R.color.colorWhite()
         label.numberOfLines = 1
         return label
     }()
@@ -65,7 +66,7 @@ final class SelectableAmountInputView: UIView {
     private(set) var textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .none
-        textField.textColor = UIColor.white
+        textField.textColor = R.color.colorWhite()
         textField.font = .h2Title
         textField.returnKeyType = .done
         textField.attributedPlaceholder = NSAttributedString(
@@ -75,18 +76,15 @@ final class SelectableAmountInputView: UIView {
                 .font: UIFont.h2Title
             ]
         )
-        textField.tintColor = .white
+        textField.tintColor = R.color.colorWhite()
         textField.textAlignment = .right
         textField.keyboardType = .decimalPad
         return textField
     }()
 
-    private let symbolStackView: UIStackView = {
-        let view = UIStackView()
-        view.axis = .horizontal
-        view.spacing = UIConstants.minimalOffset
-        return view
-    }()
+    private let symbolStackView = UIFactory.default.createHorizontalStackView(
+        spacing: UIConstants.minimalOffset
+    )
 
     private let selectButton: UIButton = {
         let button = UIButton()
@@ -120,8 +118,7 @@ final class SelectableAmountInputView: UIView {
 
     func bind(viewModel: AssetBalanceViewModelProtocol) {
         iconView.isHidden = (viewModel.iconViewModel == nil)
-        viewModel.iconViewModel?.cancel(on: iconView)
-        iconView.image = nil
+        clearInputView()
 
         priceLabel.text = viewModel.price
 
@@ -141,6 +138,11 @@ final class SelectableAmountInputView: UIView {
     }
 
     // MARK: - Private methods
+
+    private func clearInputView() {
+        iconView.image = nil
+        iconView.kf.cancelDownloadTask()
+    }
 
     private func configure() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))

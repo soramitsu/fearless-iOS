@@ -79,7 +79,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
                 chainAssets: chainAssets,
                 chainAsset: chainAsset,
                 priceData: priceData,
-                priceDataUpdated: prices.updated,
                 accountInfos: accountInfos,
                 currency: wallet.selectedCurrency,
                 wallet: wallet,
@@ -89,31 +88,6 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
 
         return selectAssetCellModels
     }
-
-//    func buildViewModel(
-//        assets: [AssetModel],
-//        wallet _: MetaAccountModel,
-//        selectedAssetId: AssetModel.Id?,
-//        locale _: Locale
-//    ) -> [SelectableIconDetailsListViewModel] {
-//        var viewModels: [SelectableIconDetailsListViewModel] = []
-//
-//        viewModels = assets.map { asset in
-//            let icon: ImageViewModelProtocol? = asset.icon.map { RemoteImageViewModel(url: $0) }
-//            let title = asset.name
-//            let isSelected = asset.identifier == selectedAssetId
-//
-//            return SelectableIconDetailsListViewModel(
-//                title: title,
-//                subtitle: nil,
-//                icon: icon,
-//                isSelected: isSelected,
-//                identifier: asset.identifier
-//            )
-//        }
-//
-//        return viewModels
-//    }
 }
 
 private extension SelectAssetViewModelFactory {
@@ -121,7 +95,6 @@ private extension SelectAssetViewModelFactory {
         chainAssets: [ChainAsset],
         chainAsset: ChainAsset,
         priceData: PriceData?,
-        priceDataUpdated _: Bool,
         accountInfos: [ChainAssetKey: AccountInfo?],
         currency: Currency,
         wallet: MetaAccountModel,
@@ -129,7 +102,7 @@ private extension SelectAssetViewModelFactory {
     ) -> SelectAssetCellViewModel {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let key = chainAsset.uniqueKey(accountId: accountId)
-            let accountInfo = accountInfos[key] ?? nil
+            let accountInfo = accountInfos[key]
         }
 
         let containsChainAssets = chainAssets.filter {

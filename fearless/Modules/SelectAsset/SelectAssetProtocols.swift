@@ -16,10 +16,10 @@ protocol SelectAssetInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-protocol SelectAssetRouterInput: AlertPresentable, ErrorPresentable {
-    func complete(on view: SelectAssetViewInput, selecting chain: AssetModel?)
-}
+protocol SelectAssetRouterInput: AlertPresentable, ErrorPresentable, PresentDismissable {}
 
 protocol SelectAssetModuleInput: AnyObject {}
 
-protocol SelectAssetModuleOutput: AnyObject {}
+protocol SelectAssetModuleOutput: AnyObject {
+    func assetSelection(didCompleteWith asset: AssetModel?)
+}

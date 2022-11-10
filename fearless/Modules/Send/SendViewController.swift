@@ -61,12 +61,36 @@ final class SendViewController: UIViewController, ViewHolder {
         rootView.searchView.textField.delegate = self
         rootView.amountView.textField.delegate = self
 
-        rootView.actionButton.addTarget(self, action: #selector(continueButtonClicked), for: .touchUpInside)
-        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
-        rootView.actionButton.addTarget(self, action: #selector(continueButtonClicked), for: .touchUpInside)
-        rootView.scanButton.addTarget(self, action: #selector(scanButtonClicked), for: .touchUpInside)
-        rootView.historyButton.addTarget(self, action: #selector(historyButtonClicked), for: .touchUpInside)
-        rootView.pasteButton.addTarget(self, action: #selector(pasteButtonClicked), for: .touchUpInside)
+        rootView.actionButton.addTarget(
+            self,
+            action: #selector(continueButtonClicked),
+            for: .touchUpInside
+        )
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
+        rootView.actionButton.addTarget(
+            self,
+            action: #selector(continueButtonClicked),
+            for: .touchUpInside
+        )
+        rootView.scanButton.addTarget(
+            self,
+            action: #selector(scanButtonClicked),
+            for: .touchUpInside
+        )
+        rootView.historyButton.addTarget(
+            self,
+            action: #selector(historyButtonClicked),
+            for: .touchUpInside
+        )
+        rootView.pasteButton.addTarget(
+            self,
+            action: #selector(pasteButtonClicked),
+            for: .touchUpInside
+        )
 
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)

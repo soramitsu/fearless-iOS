@@ -78,7 +78,7 @@ extension SendPresenter: SendViewOutput {
                 from: view,
                 wallet: wallet,
                 selectedAssetId: nil,
-                delegate: self
+                output: self
             )
         }
     }
@@ -101,7 +101,7 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapBackButton() {
-        router.close(view: view)
+        router.dismiss(view: view)
     }
 
     func didTapContinueButton() {
@@ -175,7 +175,7 @@ extension SendPresenter: SendViewOutput {
             from: view,
             wallet: wallet,
             selectedAssetId: selectedChainAsset?.asset.identifier,
-            delegate: self
+            output: self
         )
     }
 
@@ -319,11 +319,8 @@ extension SendPresenter: ContactsModuleOutput {
 
 extension SendPresenter: SendModuleInput {}
 
-extension SendPresenter: SelectAssetDelegate {
-    func assetSelection(
-        view _: SelectAssetViewInput,
-        didCompleteWith asset: AssetModel?
-    ) {
+extension SendPresenter: SelectAssetModuleOutput {
+    func assetSelection(didCompleteWith asset: AssetModel?) {
         selectedAsset = asset
         if let asset = asset {
             interactor.defineAvailableChains(for: asset) { [weak self] chains in
@@ -338,7 +335,7 @@ extension SendPresenter: SelectAssetDelegate {
                 }
             }
         } else if selectedChainAsset == nil {
-            router.close(view: view)
+            router.dismiss(view: view)
         }
     }
 }
@@ -358,13 +355,13 @@ extension SendPresenter: SelectNetworkDelegate {
             provideAssetVewModel()
             interactor.updateSubscriptions(for: selectedChainAsset)
         } else if selectedChainAsset == nil {
-            router.close(view: view)
+            router.dismiss(view: view)
         }
     }
 }
 
 private extension SendPresenter {
-    private func provideAssetVewModel() {
+    func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset,
               let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
         else { return }
@@ -378,7 +375,7 @@ private extension SendPresenter {
         view?.didReceive(assetBalanceViewModel: viewModel)
     }
 
-    private func provideTipViewModel(for chainAsset: ChainAsset) {
+    func provideTipViewModel(for chainAsset: ChainAsset) {
         guard let chainAsset = selectedChainAsset,
               let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
         else { return }
@@ -392,7 +389,7 @@ private extension SendPresenter {
         view?.didReceive(tipViewModel: tipViewModel)
     }
 
-    private func provideFeeViewModel() {
+    func provideFeeViewModel() {
         guard let chainAsset = selectedChainAsset,
               let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
         else { return }
@@ -402,7 +399,7 @@ private extension SendPresenter {
         view?.didReceive(feeViewModel: viewModel)
     }
 
-    private func provideInputViewModel() {
+    func provideInputViewModel() {
         guard let chainAsset = selectedChainAsset,
               let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
         else { return }
@@ -413,12 +410,12 @@ private extension SendPresenter {
         view?.didReceive(amountInputViewModel: inputViewModel)
     }
 
-    private func provideNetworkViewModel(for chain: ChainModel) {
+    func provideNetworkViewModel(for chain: ChainModel) {
         let viewModel = viewModelFactory.buildNetworkViewModel(chain: chain)
         view?.didReceive(selectNetworkViewModel: viewModel)
     }
 
-    private func refreshFee(for chainAsset: ChainAsset, address: String) {
+    func refreshFee(for chainAsset: ChainAsset, address: String) {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         guard let amount = inputAmount.toSubstrateAmount(
             precision: Int16(chainAsset.asset.precision)
@@ -432,7 +429,7 @@ private extension SendPresenter {
         interactor.estimateFee(for: amount, tip: tip, for: address, chainAsset: chainAsset)
     }
 
-    private func handle(newAddress: String) {
+    func handle(newAddress: String) {
         recipientAddress = newAddress
         guard let chainAsset = selectedChainAsset else { return }
         let addressIsValid = interactor.validate(address: newAddress, for: chainAsset.chain)

@@ -28,13 +28,15 @@ final class SendDepencyContainer {
                 let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
                 let runtimeService = chainRegistry.getRuntimeProvider(
                     for: chainAsset.chain.chainId
-                ) else {
+                )
+            else {
                 return nil
             }
 
             guard let accountResponse = wallet.fetch(
                 for: chainAsset.chain.accountRequest()
-            ) else {
+            )
+            else {
                 return nil
             }
 

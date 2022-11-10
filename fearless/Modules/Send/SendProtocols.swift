@@ -53,8 +53,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceive(scamInfo: ScamInfo?)
 }
 
-protocol SendRouterInput: AlertPresentable, ErrorPresentable, BaseErrorPresentable {
-    func close(view: ControllerBackedProtocol?)
+protocol SendRouterInput: AlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
     func presentConfirm(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
@@ -89,7 +88,7 @@ protocol SendRouterInput: AlertPresentable, ErrorPresentable, BaseErrorPresentab
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
-        delegate: SelectAssetDelegate?
+        output: SelectAssetModuleOutput
     )
 }
 

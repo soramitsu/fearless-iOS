@@ -30,7 +30,7 @@ final class EmptyView: UIView {
         let label = UILabel()
         label.textAlignment = .center
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.numberOfLines = 2
         return label
     }()

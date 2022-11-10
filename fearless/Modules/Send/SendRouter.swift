@@ -1,10 +1,6 @@
 import Foundation
 
 final class SendRouter: SendRouterInput {
-    func close(view: ControllerBackedProtocol?) {
-        view?.controller.navigationController?.dismiss(animated: true)
-    }
-
     func presentConfirm(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
@@ -90,19 +86,18 @@ final class SendRouter: SendRouterInput {
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
-        delegate: SelectAssetDelegate?
+        output: SelectAssetModuleOutput
     ) {
         guard
             let module = SelectAssetAssembly.configureModule(
                 wallet: wallet,
                 selectedAssetId: selectedAssetId,
                 searchTextsViewModel: .searchAssetPlaceholder,
-                delegate: delegate
+                output: output
             )
         else {
             return
         }
-
         view?.controller.present(module.view.controller, animated: true)
     }
 }

@@ -97,7 +97,7 @@ final class AccountImportViewLayout: UIView {
     let usernameFooterLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         return label
     }()
@@ -186,7 +186,7 @@ final class AccountImportViewLayout: UIView {
 
     let warningImage: UIImageView = {
         let imageView = UIImageView(image: R.image.iconAlert())
-        imageView.tintColor = .white
+        imageView.tintColor = R.color.colorWhite()
         imageView.contentMode = .scaleAspectFit
         return imageView
     }()
@@ -228,9 +228,9 @@ final class AccountImportViewLayout: UIView {
 
     let substrateDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
         view.returnKeyType = .done
         return view
@@ -238,9 +238,9 @@ final class AccountImportViewLayout: UIView {
 
     let ethereumDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .never
         view.keyboardType = .decimalPad
         return view

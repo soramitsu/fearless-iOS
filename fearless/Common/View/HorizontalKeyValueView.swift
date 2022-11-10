@@ -4,8 +4,8 @@ class HorizontalKeyValueView: UIView {
     struct Style {
         var keyLabelFont: UIFont = .h3Title
         var valueLabelFont: UIFont = .h3Title
-        var keyLabelTextColor: UIColor? = .white
-        var valueLabelTextColor: UIColor? = .white
+        var keyLabelTextColor: UIColor? = R.color.colorWhite()
+        var valueLabelTextColor: UIColor? = R.color.colorWhite()
     }
 
     private var stackView: UIStackView = {
@@ -17,14 +17,14 @@ class HorizontalKeyValueView: UIView {
 
     let keyLabel: ShimmeredLabel = {
         let label = ShimmeredLabel()
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.font = .h3Title
         return label
     }()
 
     let valueLabel: ShimmeredLabel = {
         let label = ShimmeredLabel()
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.font = .h3Title
         label.textAlignment = .right
         return label
