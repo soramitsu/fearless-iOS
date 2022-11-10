@@ -6,8 +6,9 @@ protocol RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
         dataHasher: StorageHasher,
-        usedRuntimePaths: [String: [String]]
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?>
+        usedRuntimePaths: [String: [String]],
+        chainTypes: Data
+    ) -> ClosureOperation<RuntimeSnapshot?>
 }
 
 final class RuntimeHotBootSnapshotFactory {
@@ -30,20 +31,14 @@ final class RuntimeHotBootSnapshotFactory {
 
     private func createWrapperForCommonAndChainTypes(
         _ dataHasher: StorageHasher,
-        usedRuntimePaths: [String: [String]]
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
-        let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
-
+        usedRuntimePaths: [String: [String]],
+        chainTypes: Data
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
             guard let strongSelf = self else { return nil }
-            let chainTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-
-            guard let chainTypes = chainTypes else {
-                return nil
-            }
 
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 strongSelf.commonTypes,
@@ -54,7 +49,7 @@ final class RuntimeHotBootSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: strongSelf.commonTypes).toHex(),
-                localChainHash: try dataHasher.hash(data: chainTypes).toHex(),
+                localChainTypes: chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
@@ -62,17 +57,13 @@ final class RuntimeHotBootSnapshotFactory {
             )
         }
 
-        let dependencies = chainTypesFetchOperation.allOperations
-
-        dependencies.forEach { snapshotOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: dependencies)
+        return snapshotOperation
     }
 
     private func createWrapperForCommonTypes(
         _ dataHasher: StorageHasher,
         usedRuntimePaths: [String: [String]]
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
             guard let strongSelf = self else { return nil }
 
@@ -87,7 +78,7 @@ final class RuntimeHotBootSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: strongSelf.commonTypes).toHex(),
-                localChainHash: nil,
+                localChainTypes: nil,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
@@ -95,38 +86,32 @@ final class RuntimeHotBootSnapshotFactory {
             )
         }
 
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: [])
+        return snapshotOperation
     }
 
     private func createWrapperForChainTypes(
-        _ dataHasher: StorageHasher,
-        usedRuntimePaths: [String: [String]]
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
-        let chainTypesFetchOperation = filesOperationFactory.fetchChainTypesOperation(for: chainId)
-
+        _: StorageHasher,
+        usedRuntimePaths: [String: [String]],
+        chainTypes: Data
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         let snapshotOperation = ClosureOperation<RuntimeSnapshot?> { [weak self] in
             guard let strongSelf = self else { return nil }
-            let ownTypes = try chainTypesFetchOperation.targetOperation.extractNoCancellableResultData()
 
             let decoder = try ScaleDecoder(data: strongSelf.runtimeItem.metadata)
             let runtimeMetadata = try RuntimeMetadata(scaleDecoder: decoder)
-
-            guard let ownTypes = ownTypes else {
-                return nil
-            }
 
             // TODO: think about it
             let json: JSON = .dictionaryValue(["types": .dictionaryValue([:])])
             let catalog = try TypeRegistryCatalog.createFromTypeDefinition(
                 try JSONEncoder().encode(json),
-                versioningData: ownTypes,
+                versioningData: chainTypes,
                 runtimeMetadata: runtimeMetadata,
                 usedRuntimePaths: usedRuntimePaths
             )
 
             return RuntimeSnapshot(
                 localCommonHash: nil,
-                localChainHash: try dataHasher.hash(data: ownTypes).toHex(),
+                localChainTypes: chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: strongSelf.runtimeItem.version,
                 txVersion: strongSelf.runtimeItem.txVersion,
@@ -134,11 +119,7 @@ final class RuntimeHotBootSnapshotFactory {
             )
         }
 
-        let dependencies = chainTypesFetchOperation.allOperations
-
-        dependencies.forEach { snapshotOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: snapshotOperation, dependencies: dependencies)
+        return snapshotOperation
     }
 }
 
@@ -146,15 +127,27 @@ extension RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol {
     func createRuntimeSnapshotWrapper(
         for typesUsage: ChainModel.TypesUsage,
         dataHasher: StorageHasher,
-        usedRuntimePaths: [String: [String]]
-    ) -> CompoundOperationWrapper<RuntimeSnapshot?> {
+        usedRuntimePaths: [String: [String]],
+        chainTypes: Data
+    ) -> ClosureOperation<RuntimeSnapshot?> {
         switch typesUsage {
         case .onlyCommon:
-            return createWrapperForCommonTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
+            return createWrapperForCommonTypes(
+                dataHasher,
+                usedRuntimePaths: usedRuntimePaths
+            )
         case .onlyOwn:
-            return createWrapperForChainTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
+            return createWrapperForChainTypes(
+                dataHasher,
+                usedRuntimePaths: usedRuntimePaths,
+                chainTypes: chainTypes
+            )
         case .both:
-            return createWrapperForCommonAndChainTypes(dataHasher, usedRuntimePaths: usedRuntimePaths)
+            return createWrapperForCommonAndChainTypes(
+                dataHasher,
+                usedRuntimePaths: usedRuntimePaths,
+                chainTypes: chainTypes
+            )
         }
     }
 }

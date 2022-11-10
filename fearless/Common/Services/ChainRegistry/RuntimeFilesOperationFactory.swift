@@ -17,6 +17,15 @@ protocol RuntimeFilesOperationFactoryProtocol {
     func fetchCommonTypesOperation() -> CompoundOperationWrapper<Data?>
 
     /**
+     *  Constructs an operations wrapper that fetches data of
+     *  common runtime types from corresponding file.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces data
+     *  in case file exists on device and `nil` otherwise.
+     */
+    func fetchChainsTypesOperation() -> CompoundOperationWrapper<Data?>
+
+    /**
      *  Constructs an operations wrapper that fetches data of the
      *  runtime types from a file which matches concrete chain's id.
      *
@@ -42,6 +51,22 @@ protocol RuntimeFilesOperationFactoryProtocol {
      *  - Returns: `CompoundOperationWrapper` which produces nothing if completes successfully.
      */
     func saveCommonTypesOperation(
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void>
+
+    /**
+     *  Constructs an operations wrapper that saves data of the
+     *  runtime types to the corresponding file.
+     *
+     *  - Parameters:
+     *      - closure: A closure that returns file's data on call. It is guaranteed that
+     *       the closure will be called as part of the wrapper execution and not earlier.
+     *       This allows to make save wrapper to depend on another operation which fetches
+     *       the file from another source asynchroniously.
+     *
+     *  - Returns: `CompoundOperationWrapper` which produces nothing if completes successfully.
+     */
+    func saveChainsTypesOperation(
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void>
 
@@ -129,6 +154,10 @@ extension RuntimeFilesOperationFactory: RuntimeFilesOperationFactoryProtocol {
         fetchFileOperation(for: "common-types")
     }
 
+    func fetchChainsTypesOperation() -> CompoundOperationWrapper<Data?> {
+        fetchFileOperation(for: "chains-types")
+    }
+
     func fetchChainTypesOperation(for chainId: ChainModel.Id) -> CompoundOperationWrapper<Data?> {
         fetchFileOperation(for: "\(chainId)-types")
     }
@@ -137,6 +166,12 @@ extension RuntimeFilesOperationFactory: RuntimeFilesOperationFactoryProtocol {
         data closure: @escaping () throws -> Data
     ) -> CompoundOperationWrapper<Void> {
         saveFileOperation(for: "common-types", data: closure)
+    }
+
+    func saveChainsTypesOperation(
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void> {
+        saveFileOperation(for: "chains-types", data: closure)
     }
 
     func saveChainTypesOperation(

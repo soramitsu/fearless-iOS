@@ -29,7 +29,7 @@ final class RuntimeProvider {
 
     internal let chainId: ChainModel.Id
     private let chainName: String
-    private(set) var typesUsage: ChainModel.TypesUsage
+    private var typesUsage: ChainModel.TypesUsage
     private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
@@ -39,6 +39,13 @@ final class RuntimeProvider {
     private let dataHasher: StorageHasher
     private let logger: LoggerProtocol?
     private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+
+    private lazy var completionQueue: DispatchQueue = {
+        DispatchQueue(
+            label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)",
+            qos: .userInitiated
+        )
+    }()
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -58,7 +65,9 @@ final class RuntimeProvider {
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil,
         repository: AnyDataProviderRepository<RuntimeMetadataItem>,
-        usedRuntimePaths: [String: [String]]
+        usedRuntimePaths: [String: [String]],
+        chainMetadata: RuntimeMetadataItem?,
+        chainTypes: Data?
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
@@ -71,6 +80,8 @@ final class RuntimeProvider {
         self.logger = logger
         self.repository = repository
         self.usedRuntimePaths = usedRuntimePaths
+        self.chainMetadata = chainMetadata
+        self.chainTypes = chainTypes
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -81,7 +92,8 @@ final class RuntimeProvider {
         guard
             commonTypes != nil || typesUsage == .onlyOwn,
             let chainTypes = chainTypes,
-            let chainMetadata = chainMetadata
+            let chainMetadata = chainMetadata,
+            compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
         else {
             return
         }
@@ -108,24 +120,43 @@ final class RuntimeProvider {
         operationQueue.addOperation(wrapper)
     }
 
+    private func compareChainsTypes(local: Data?, remote: Data) -> Bool {
+        guard
+            let localData = local,
+            let localJson = try? JSONDecoder().decode(JSON.self, from: localData),
+            let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
+        else {
+            return true
+        }
+
+        return localJson != remoteJson
+    }
+
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
         logger?.debug("Will start building hot snapshot for \(chainName)")
 
-        let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
+        guard let snapshotHotOperationFactory = snapshotHotOperationFactory,
+              let chainTypes = chainTypes
+        else {
+            return
+        }
+
+        let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
-            usedRuntimePaths: usedRuntimePaths
+            usedRuntimePaths: usedRuntimePaths,
+            chainTypes: chainTypes
         )
 
-        wrapper?.targetOperation.completionBlock = { [weak self] in
+        wrapper.completionBlock = { [weak self] in
             DispatchQueue.global(qos: .userInitiated).async {
-                self?.handleCompletion(result: wrapper?.targetOperation.result)
+                self?.handleCompletion(result: wrapper.result)
             }
         }
 
-        currentWrapper = wrapper?.targetOperation
+        currentWrapper = wrapper
 
-        operationQueue.addOperations(wrapper?.allOperations ?? [], waitUntilFinished: false)
+        operationQueue.addOperation(wrapper)
     }
 
     private func handleCompletion(result: Result<RuntimeSnapshot?, Error>?) {
@@ -152,7 +183,7 @@ final class RuntimeProvider {
         case let .failure(error):
             currentWrapper = nil
 
-            logger?.debug("Failed to build snapshot for \(chainName): \(error)")
+            logger?.error("Failed to build snapshot for \(chainName): \(error)")
 
             let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
             eventCenter.notify(with: event)
@@ -208,7 +239,7 @@ final class RuntimeProvider {
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
@@ -216,8 +247,7 @@ final class RuntimeProvider {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -237,17 +267,14 @@ final class RuntimeProvider {
         closure _: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .userInitiated)
-
             var fetchedFactory: RuntimeCoderFactoryProtocol?
-
             let semaphore = DispatchSemaphore(value: 0)
 
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -332,8 +359,8 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 }
 
 extension RuntimeProvider: EventVisitorProtocol {
-    func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted) {
-        guard event.chainId == chainId else {
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
+        guard let chainTypes = event.versioningMap[chainId] else {
             return
         }
 
@@ -343,14 +370,10 @@ extension RuntimeProvider: EventVisitorProtocol {
             mutex.unlock()
         }
 
-        guard snapshot?.localChainHash != event.fileHash else {
-            return
-        }
-
         currentWrapper?.cancel()
         currentWrapper = nil
 
-        chainTypes = event.data
+        self.chainTypes = chainTypes
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
