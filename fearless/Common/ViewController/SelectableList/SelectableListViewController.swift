@@ -1,11 +1,13 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtocol>:
     UIViewController,
     UITableViewDataSource,
     UITableViewDelegate,
-    ViewHolder {
+    ViewHolder,
+    KeyboardViewAdoptable {
     typealias RootViewType = SelectableListViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?
@@ -94,6 +96,13 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 
         listPresenter.selectItem(at: indexPath.row)
     }
+
+    // MARK: - KeyboardViewAdoptable
+
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 // MARK: - SelectionListViewProtocol
@@ -106,18 +115,5 @@ extension SelectableListViewController: SelectionListViewProtocol {
     func didReload() {
         rootView.tableView.reloadData()
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
-    }
-}
-
-// MARK: - KeyboardAdoptable
-
-extension SelectableListViewController: KeyboardAdoptable {
-    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
-        let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
-
-        rootView.contentStackView.snp.updateConstraints { make in
-            make.bottom.equalToSuperview().offset(-bottomInset)
-        }
     }
 }

@@ -774,7 +774,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.staking.main.min.create.title" = "Min. to create a pool";
 "pool.staking.main.existing.pools.title" = "Existing pools";
 "pool.staking.main.possible.pools.title" = "Possible pools";
-"pool.staking.main.max.members.inpool.title" = "Max members in pool";
+"pool.staking.main.max.members.inpool.title" = "Max members in a pool";
 "pool.staking.main.max.pool.members.title" = "Max pools members";
 "pool.staking.main.description.title" = "Stakers (members) with a small amount of tokens can pool their funds together and act as a single nominator. The earnings of the pool are split pro rata to a member's stake in the bonded pool.";
 "pool.staking.start.about.title" = "What is Staking and how does it work, watch instruction";
@@ -888,3 +888,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "select.network.search.placeholder" = "Search by network";
 "select.network.search.empty.subtitle" = "No networks were found :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";
+"all.done.alert.all.done.stub" = "All done";
+"all.done.alert.description.stub" = "You can now back to your app and do that you're usually do";
+"all.done.alert.hash.stub" = "Hash";
+"all.done.alert.result.stub" = "Result";
+"all.done.alert.success.stub" = "Success";

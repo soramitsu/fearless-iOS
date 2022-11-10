@@ -57,7 +57,7 @@ protocol CustomValidatorListViewModelState: CustomValidatorListUserInputHandler 
     func setStateListener(_ stateListener: CustomValidatorListModelStateListener?)
     func updateViewModel(_ viewModel: CustomValidatorListViewModel)
 
-    func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow?
+    func validatorInfoFlow(address: String) -> ValidatorInfoFlow?
     func validatorSearchFlow() -> ValidatorSearchFlow?
     func validatorListFilterFlow() -> ValidatorListFilterFlow?
     func selectedValidatorListFlow() -> SelectedValidatorListFlow?
@@ -74,7 +74,8 @@ protocol CustomValidatorListViewModelFactoryProtocol {
     func buildViewModel(
         viewModelState: CustomValidatorListViewModelState,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        searchText: String?
     ) -> CustomValidatorListViewModel?
 }
 
@@ -90,7 +91,7 @@ protocol CustomValidatorListUserInputHandler {
     func performDeselect()
     func changeIdentityFilterValue()
     func changeMinBondFilterValue()
-    func changeValidatorSelection(at index: Int)
+    func changeValidatorSelection(address: String)
     func updateFilter(with flow: ValidatorListFilterFlow)
     func clearFilter()
     func proceed()
@@ -102,7 +103,7 @@ extension CustomValidatorListUserInputHandler {
     func changeIdentityFilterValue() {}
     func changeMinBondFilterValue() {}
     func performDeselect() {}
-    func changeValidatorSelection(at _: Int) {}
+    func changeValidatorSelection(address _: String) {}
     func updateFilter(with _: ValidatorListFilterFlow) {}
     func clearFilter() {}
     func proceed() {}

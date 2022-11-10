@@ -37,6 +37,8 @@ struct UIConstants {
     static let amountViewV2Height: CGFloat = 92
     static let offset12: CGFloat = 12
     static let statusViewHeight: CGFloat = 51.0
+    static let validatorCellHeight: CGFloat = 77.0
+    static let infoButtonSize: CGFloat = 14.0
 }
 
 enum AccountViewMode {
@@ -85,6 +87,7 @@ protocol UIFactoryProtocol {
     func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
+    func createSearchTextField() -> SearchTextField
 }
 
 extension UIFactoryProtocol {
@@ -603,5 +606,16 @@ final class UIFactory: UIFactoryProtocol {
         view.actionImage = R.image.iconExpandable()
         view.borderWidth = 1
         return view
+    }
+
+    func createSearchTextField() -> SearchTextField {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
     }
 }

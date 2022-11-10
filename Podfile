@@ -13,7 +13,7 @@ abstract_target 'fearlessAll' do
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
-  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git', :branch => 'feature/without-origin'
+  pod 'Starscream', :git => 'https://github.com/soramitsu/fearless-starscream.git', :commit => '0540f13ffc1c5d930e76047f58175d34582ade5f'
   pod 'ReachabilitySwift'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'

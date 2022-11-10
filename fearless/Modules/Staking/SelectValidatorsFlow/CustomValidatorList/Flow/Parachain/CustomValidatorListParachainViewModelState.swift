@@ -42,8 +42,12 @@ final class CustomValidatorListParachainViewModelState: CustomValidatorListViewM
         self.viewModel = viewModel
     }
 
-    func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {
-        .parachain(candidate: filteredValidatorList[validatorIndex])
+    func validatorInfoFlow(address: String) -> ValidatorInfoFlow? {
+        guard let validator = filteredValidatorList.first(where: { $0.address == address }) else {
+            return nil
+        }
+
+        return .parachain(candidate: validator)
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
@@ -96,8 +100,10 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
-    func changeValidatorSelection(at index: Int) {
-        let validator = filteredValidatorList[index]
+    func changeValidatorSelection(address: String) {
+        guard let validator = filteredValidatorList.first(where: { $0.address == address }) else {
+            return
+        }
 
         selectedValidatorList.set([validator])
 
@@ -105,8 +111,8 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
     }
 
     func remove(validator: ParachainStakingCandidateInfo) {
-        if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
-            changeValidatorSelection(at: displayedIndex)
+        if let displayedValidator = filteredValidatorList.first(where: { $0.address == validator.address }) {
+            changeValidatorSelection(address: displayedValidator.address)
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
 

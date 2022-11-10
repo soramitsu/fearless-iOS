@@ -193,15 +193,15 @@ class RemoteSubscriptionService {
 
         keyEncodingWrappers.forEach { containerOperation.addDependency($0.targetOperation) }
 
-        containerOperation.completionBlock = { [weak self] in
+        containerOperation.completionBlock = {
             DispatchQueue.global(qos: .default).async {
-                self?.mutex.lock()
+                self.mutex.lock()
 
                 defer {
-                    self?.mutex.unlock()
+                    self.mutex.unlock()
                 }
 
-                self?.handleSubscriptionInitResult(containerOperation.result, cacheKey: cacheKey)
+                self.handleSubscriptionInitResult(containerOperation.result, cacheKey: cacheKey)
             }
         }
 

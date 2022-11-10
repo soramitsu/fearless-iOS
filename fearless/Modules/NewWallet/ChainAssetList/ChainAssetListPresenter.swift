@@ -202,7 +202,9 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
             actions: [],
             closeAction: closeActionTitle,
             dismissCompletion: { [weak self] in
-                self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+                if viewModel.isMissingAccount {
+                    self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
+                }
             }
         )
         router.present(viewModel: sheetViewModel, from: view)
@@ -282,6 +284,12 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     }
 
     func didReceiveChainsWithIssues(_ issues: [ChainIssue]) {
+        guard issues.isNotEmpty else {
+            chainsWithNetworkIssues = []
+            chainsWithMissingAccounts = []
+            provideViewModel()
+            return
+        }
         issues.forEach { chainIssue in
             switch chainIssue {
             case let .network(chains):
