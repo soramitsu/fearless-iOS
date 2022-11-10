@@ -494,11 +494,11 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     func fetchPendingRewards(accountId: AccountId) -> CompoundOperationWrapper<BigUInt?> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let params = ["NominationPoolsApi_pending_rewards", accountId.toHex(includePrefix: true)]
+        let params = [RuntimeCallPath.nominationPoolsPendingRewards.rawValue, accountId.toHex(includePrefix: true)]
 
         let infoOperation = JSONRPCListOperation<String?>(
             engine: engine,
-            method: "state_call",
+            method: RPCMethod.stateCall,
             parameters: params
         )
 
