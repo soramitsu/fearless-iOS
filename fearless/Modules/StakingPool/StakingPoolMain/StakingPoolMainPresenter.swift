@@ -34,6 +34,7 @@ final class StakingPoolMainPresenter {
     private var poolAccountInfo: AccountInfo?
     private var existentialDeposit: BigUInt?
     private var nomination: Nomination?
+    private var pendingRewards: BigUInt?
 
     private var inputResult: AmountInputResult?
 
@@ -99,10 +100,9 @@ final class StakingPoolMainPresenter {
 
     private func provideStakeInfoViewModel() {
         guard let stakeInfo = stakeInfo,
-              let poolRewards = poolRewards,
-              let poolInfo = poolInfo,
-              let accountInfo = poolAccountInfo,
-              let existentialDeposit = existentialDeposit else {
+              let pendingRewards = pendingRewards,
+              let poolInfo = poolInfo
+        else {
             view?.didReceiveNominatorStateViewModel(nil)
 
             return
@@ -113,11 +113,9 @@ final class StakingPoolMainPresenter {
             priceData: priceData,
             chainAsset: chainAsset,
             era: eraStakersInfo?.activeEra,
-            poolRewards: poolRewards,
             poolInfo: poolInfo,
-            accountInfo: accountInfo,
-            existentialDeposit: existentialDeposit,
-            nomination: nomination
+            nomination: nomination,
+            pendingRewards: pendingRewards
         )
 
         view?.didReceiveNominatorStateViewModel(viewModel)
@@ -366,6 +364,15 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceiveError(_ error: StakingPoolMainError) {
         logger?.error("\(error)")
+    }
+
+    func didReceive(pendingRewards: BigUInt?) {
+        self.pendingRewards = pendingRewards
+        provideStakeInfoViewModel()
+    }
+
+    func didReceive(pendingRewardsError: Error) {
+        logger?.error("\(pendingRewardsError)")
     }
 }
 

@@ -32,6 +32,7 @@ final class StakingPoolManagementPresenter {
     private var existentialDeposit: BigUInt?
     private var totalRewardsDecimal: Decimal?
     private var nomination: Nomination?
+    private var pendingRewards: BigUInt?
 
     private var electedValidators: [ElectedValidatorInfo]?
 
@@ -125,36 +126,15 @@ final class StakingPoolManagementPresenter {
     }
 
     private func provideClaimableViewModel() {
-        guard
-            let stakeInfo = stakeInfo,
-            let poolRewards = poolRewards,
-            let poolInfo = stakingPool,
-            let poolAccountInfo = poolAccountInfo,
-            let existentialDeposit = existentialDeposit
-        else {
+        guard let pendingRewards = pendingRewards, pendingRewards != BigUInt.zero else {
             view?.didReceive(claimableViewModel: nil)
             return
         }
 
-        let rewards = rewardCalculator.calculate(
-            wallet: wallet,
-            chainAsset: chainAsset,
-            poolInfo: poolInfo,
-            poolAccountInfo: poolAccountInfo,
-            poolRewards: poolRewards,
-            stakeInfo: stakeInfo,
-            existentialDeposit: existentialDeposit,
-            priceData: priceData,
-            locale: selectedLocale
-        )
+        let pendingRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+        let viewModel = balanceViewModelFactory.balanceFromPrice(pendingRewardsDecimal, priceData: priceData)
 
-        guard !rewards.totalRewardsDecimal.isZero else {
-            view?.didReceive(claimableViewModel: nil)
-            return
-        }
-
-        view?.didReceive(claimableViewModel: rewards.totalRewards)
-        totalRewardsDecimal = rewards.totalRewardsDecimal
+        view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
     }
 
     private func presentStakingPoolInfo() {
@@ -311,7 +291,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
     }
 
     func didTapClaimButton() {
-        guard let totalRewardsDecimal = totalRewardsDecimal else {
+        guard let pendingRewards = pendingRewards,
+              pendingRewards != BigUInt.zero,
+              let totalRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision))
+        else {
             return
         }
         router.presentClaim(
@@ -397,7 +380,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         fetchPoolBalance()
         providePoolNomination()
 
-        let name = stakingPool?.name.isNotEmpty.orTrue() ? stakingPool?.name : stakingPool?.id
+        let name = (stakingPool?.name.isNotEmpty).orTrue() ? stakingPool?.name : stakingPool?.id
         view?.didReceive(poolName: name)
     }
 
@@ -445,6 +428,15 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         case let .failure(error):
             logger.error(error.localizedDescription)
         }
+    }
+
+    func didReceive(pendingRewards: BigUInt?) {
+        self.pendingRewards = pendingRewards
+        provideClaimableViewModel()
+    }
+
+    func didReceive(pendingRewardsError: Error) {
+        logger.error("\(pendingRewardsError)")
     }
 }
 

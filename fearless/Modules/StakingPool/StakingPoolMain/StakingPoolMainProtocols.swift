@@ -51,6 +51,8 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
     func didReceive(nomination: Nomination?)
     func didReceiveError(_ error: StakingPoolMainError)
+    func didReceive(pendingRewards: BigUInt?)
+    func didReceive(pendingRewardsError: Error)
 }
 
 protocol StakingPoolMainRouterInput: AnyObject {

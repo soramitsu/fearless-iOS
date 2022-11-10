@@ -142,11 +142,11 @@ extension NominatorState {
         nil
     }
 
-    private func createValidatorsAreNotSelectedStatus(locale: Locale?) -> AlertPresentableViewModel? {
+    private func createValidatorsAreNotSelectedStatus(locale: Locale?) -> SheetAlertPresentableViewModel? {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale?.rLanguages)
 
-        return AlertPresentableViewModel(
+        return SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: [],

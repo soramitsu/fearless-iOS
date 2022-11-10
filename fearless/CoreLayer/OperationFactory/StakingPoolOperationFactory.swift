@@ -16,6 +16,7 @@ protocol StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?>
     func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?>
     func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?>
+    func fetchPendingRewards(accountId: AccountId) -> CompoundOperationWrapper<BigUInt?>
 }
 
 final class StakingPoolOperationFactory {
@@ -488,5 +489,44 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
         let dependencies = [runtimeOperation] + lastPoolIdOperation.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func fetchPendingRewards(accountId: AccountId) -> CompoundOperationWrapper<BigUInt?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let params = [RuntimeCallPath.nominationPoolsPendingRewards.rawValue, accountId.toHex(includePrefix: true)]
+
+        let infoOperation = JSONRPCListOperation<String?>(
+            engine: engine,
+            method: RPCMethod.stateCall,
+            parameters: params
+        )
+
+        let mappingOperation = ClosureOperation<BigUInt?> {
+            guard let result = try infoOperation.extractNoCancellableResultData() else {
+                return BigUInt.zero
+            }
+
+            let data = try Data(hexString: result)
+            let decoder = try runtimeOperation.extractNoCancellableResultData().createDecoder(from: data)
+
+            guard let claimableString = try decoder.readU128().stringValue else {
+                return BigUInt.zero
+            }
+
+            let claimable = BigUInt(claimableString)
+
+            return claimable
+        }
+
+        mappingOperation.addDependency(infoOperation)
+        mappingOperation.addDependency(runtimeOperation)
+
+        let wrapper = CompoundOperationWrapper(
+            targetOperation: mappingOperation,
+            dependencies: [infoOperation, runtimeOperation]
+        )
+
+        return wrapper
     }
 }
