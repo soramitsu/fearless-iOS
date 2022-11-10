@@ -72,6 +72,8 @@ extension NominatorState {
             return createWaitingStatus(locale: locale)
         case .undefined:
             return createUndefinedStatus(locale: locale)
+        case .validatorsNotSelected:
+            return createValidatorsAreNotSelectedStatus(locale: locale)
         }
     }
 
@@ -138,5 +140,17 @@ extension NominatorState {
 
     private func createUndefinedStatus(locale _: Locale?) -> SheetAlertPresentableViewModel? {
         nil
+    }
+
+    private func createValidatorsAreNotSelectedStatus(locale: Locale?) -> AlertPresentableViewModel? {
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.stakingSetValidatorsMessage(preferredLanguages: locale?.rLanguages)
+
+        return AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: [],
+            closeAction: closeAction
+        )
     }
 }
