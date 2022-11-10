@@ -96,7 +96,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 
         let removeAction = SheetAlertPresentableAction(
             title: removeTitle,
-            style: UIFactory.default.createDestructiveButton()
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             guard let self = self else { return }
             self.wireframe.showCheckPincode(
@@ -108,7 +108,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
         let cancelAction = SheetAlertPresentableAction(
             title: cancelTitle,
-            style: UIFactory.default.createAccessoryButton()
+            button: UIFactory.default.createAccessoryButton()
         )
 
         let title = R.string.localizable

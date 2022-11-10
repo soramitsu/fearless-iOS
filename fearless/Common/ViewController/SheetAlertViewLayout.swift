@@ -74,7 +74,7 @@ final class SheetAlertViewLayout: UIView {
         if let closeAction = viewModel.closeAction {
             let action = SheetAlertPresentableAction(
                 title: closeAction,
-                style: UIFactory.default.createAccessoryButton()
+                button: UIFactory.default.createAccessoryButton()
             )
             bindActions(actions: [action])
         }
@@ -100,7 +100,7 @@ final class SheetAlertViewLayout: UIView {
     }
 
     private func createButton(with action: SheetAlertPresentableAction) -> TriangularedButton {
-        let button = action.style
+        let button = action.button
         button.imageWithTitleView?.title = action.title
         button.addAction { [unowned self] in
             self.closeButton.sendActions(for: .touchUpInside)

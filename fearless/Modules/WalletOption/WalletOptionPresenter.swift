@@ -34,7 +34,7 @@ final class WalletOptionPresenter {
 
         let removeAction = SheetAlertPresentableAction(
             title: removeTitle,
-            style: UIFactory.default.createDestructiveButton()
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.interactor.deleteWallet()
         }

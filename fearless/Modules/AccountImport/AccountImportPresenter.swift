@@ -471,16 +471,20 @@ private extension AccountImportPresenter {
         }
     }
 
-    func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler _: @escaping () -> Void) {
+    func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
         let showAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
             handler: showHandler
         )
+        let closeAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonNo(preferredLanguages: selectedLocale.rLanguages),
+            handler: closeHandler
+        )
         let alertViewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: selectedLocale.rLanguages),
             message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: selectedLocale.rLanguages),
-            actions: [showAction],
-            closeAction: R.string.localizable.commonNo(preferredLanguages: selectedLocale.rLanguages)
+            actions: [showAction, closeAction],
+            closeAction: nil
         )
         wireframe.present(viewModel: alertViewModel, from: view)
     }
@@ -798,7 +802,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
         let cancelAction = SheetAlertPresentableAction(
             title: cancelActionTitle,
-            style: UIFactory.default.createAccessoryButton()
+            button: UIFactory.default.createAccessoryButton()
         ) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
             self?.createAccount(data: data)

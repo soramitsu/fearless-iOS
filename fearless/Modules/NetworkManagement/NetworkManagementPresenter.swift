@@ -172,7 +172,7 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
 
         let removeAction = SheetAlertPresentableAction(
             title: removeTitle,
-            style: UIFactory.default.createDestructiveButton()
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.performCustomItemRemoval(at: index)
 

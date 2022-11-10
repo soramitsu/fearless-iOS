@@ -3,17 +3,17 @@ import UIKit
 
 struct SheetAlertPresentableAction {
     let title: String
-    let style: TriangularedButton
+    let button: TriangularedButton
 
     let handler: (() -> Void)?
 
     init(
         title: String,
-        style: TriangularedButton = UIFactory.default.createMainActionButton(),
+        button: TriangularedButton = UIFactory.default.createMainActionButton(),
         handler: (() -> Void)? = nil
     ) {
         self.title = title
-        self.style = style
+        self.button = button
         self.handler = handler
     }
 }
@@ -83,13 +83,7 @@ extension SheetAlertPresentable {
         closeAction: String?,
         from view: ControllerBackedProtocol?
     ) {
-        var currentController = view?.controller
-
-        if currentController == nil {
-            currentController = UIApplication.shared.delegate?.window??.rootViewController
-        }
-
-        guard let controller = currentController else {
+        guard let controller = view?.controller else {
             return
         }
 

@@ -159,7 +159,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
 
         let removeAction = SheetAlertPresentableAction(
             title: removeTitle,
-            style: UIFactory.default.createDestructiveButton()
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.performRemoveItem(at: index)
 
@@ -169,7 +169,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
         let cancelAction = SheetAlertPresentableAction(
             title: cancelTitle,
-            style: UIFactory.default.createAccessoryButton()
+            button: UIFactory.default.createAccessoryButton()
         ) {
             completion(false)
         }

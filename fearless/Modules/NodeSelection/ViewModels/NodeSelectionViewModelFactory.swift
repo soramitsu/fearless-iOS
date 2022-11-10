@@ -71,7 +71,7 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
     ) -> SheetAlertPresentableViewModel {
         let deleteAction = SheetAlertPresentableAction(
             title: R.string.localizable.connectionDeleteConfirm(preferredLanguages: locale.rLanguages),
-            style: UIFactory.default.createDestructiveButton(),
+            button: UIFactory.default.createDestructiveButton(),
             handler: deleteHandler
         )
 

@@ -39,7 +39,7 @@ extension ImportantFlowNavigationController: UIAdaptivePresentationControllerDel
 
         let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonCancelOperationAction(preferredLanguages: languages),
-            style: UIFactory.default.createDestructiveButton()
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.dismiss(animated: true, completion: nil)
         }
