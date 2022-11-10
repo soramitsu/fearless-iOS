@@ -397,7 +397,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         fetchPoolBalance()
         providePoolNomination()
 
-        let name = stakingPool?.name.isNotEmpty == true ? stakingPool?.name : stakingPool?.id
+        let name = stakingPool?.name.isNotEmpty.orTrue() ? stakingPool?.name : stakingPool?.id
         view?.didReceive(poolName: name)
     }
 
