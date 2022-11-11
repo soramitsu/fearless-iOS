@@ -37,9 +37,7 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
             }
             return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
         case .liquidCrowdloan:
-            guard
-                let currencyId = asset.currencyId
-            else {
+            guard let currencyId = asset.currencyId else {
                 return nil
             }
             return CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
@@ -54,6 +52,11 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
             return CurrencyId.stable(symbol: tokenSymbol)
         case .equilibrium:
             return CurrencyId.equilibrium(id: asset.symbol)
+        case .soraAsset:
+            guard let currencyId = asset.currencyId else {
+                return nil
+            }
+            return CurrencyId.soraAsset(id: currencyId)
         }
     }
 
@@ -91,7 +94,8 @@ extension ChainAsset {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .soraAsset:
             storagePath = StorageCodingPath.tokens
         case .equilibrium:
             storagePath = StorageCodingPath.eqBalances
@@ -121,4 +125,5 @@ enum ChainAssetType: String, Codable {
     case vsToken
     case stable
     case equilibrium
+    case soraAsset
 }

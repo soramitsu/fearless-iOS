@@ -43,7 +43,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         }
 
         switch chainAsset.chainAssetType {
-        case .normal, .ormlChain:
+        case .normal, .ormlChain, .soraAsset:
             fetchConstant(
                 for: .existentialDeposit,
                 runtimeCodingService: runtimeCodingService,

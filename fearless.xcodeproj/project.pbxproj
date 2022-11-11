@@ -63,6 +63,7 @@
 		07B6BC7F28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */; };
 		07B6BC8128BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */; };
 		07B6BC8428BC723500621864 /* NetworkIssuesNotificationTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */; };
+		07BCA15E291BA267002B2566 /* types.json in Resources */ = {isa = PBXBuildFile; fileRef = 07C3397029178D390057C4A5 /* types.json */; };
 		07C3397229189B720057C4A5 /* ChainsTypesSyncService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */; };
 		07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */; };
 		07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */; };
@@ -12709,6 +12710,7 @@
 				FA2569A5274CE6AD00875A53 /* polkadot-v14-runtime in Resources */,
 				84CD35792526554A0081BC0B /* WalletAssetCell.xib in Resources */,
 				8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */,
+				07BCA15E291BA267002B2566 /* types.json in Resources */,
 				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				84754C922511558200854599 /* ConnectionTableViewCell.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,

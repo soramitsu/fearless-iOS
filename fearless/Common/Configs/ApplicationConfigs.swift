@@ -181,7 +181,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json", branch: "v3-dev")
+        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
