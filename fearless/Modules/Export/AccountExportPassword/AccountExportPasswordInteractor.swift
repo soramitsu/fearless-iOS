@@ -105,6 +105,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                             }
                         }
                     }
+                    genesisOperation.qualityOfService = .userInitiated
                     self.operationManager.enqueue(operations: [genesisOperation], in: .transient)
                 } else {
                     self.createExportOperation(
@@ -177,6 +178,8 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
 
         fileSaveOperation.addDependency(exportOperation)
 
+        exportOperation.qualityOfService = .userInitiated
+        fileSaveOperation.qualityOfService = .userInitiated
         operationManager.enqueue(operations: [exportOperation, fileSaveOperation], in: .transient)
     }
 }
