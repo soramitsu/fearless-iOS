@@ -69,4 +69,18 @@ extension TriangularedButton {
 
         contentOpacityWhenDisabled = 1
     }
+
+    func applyDestructiveStyle() {
+        triangularedView?.shadowOpacity = 0
+        triangularedView?.fillColor = .clear
+        triangularedView?.highlightedFillColor = .clear
+        triangularedView?.strokeColor = R.color.colorDarkGray()!
+        triangularedView?.highlightedStrokeColor = R.color.colorDarkGray()!
+        triangularedView?.strokeWidth = 2
+
+        imageWithTitleView?.titleColor = R.color.colorRed()!
+        imageWithTitleView?.titleFont = UIFont.h5Title
+
+        changesContentOpacityWhenHighlighted = true
+    }
 }

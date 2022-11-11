@@ -20,7 +20,7 @@ protocol SelectCurrencyInteractorOutput: AnyObject {
     func didRecieve(selectedCurrency: Currency)
 }
 
-protocol SelectCurrencyRouterInput: ErrorPresentable, AlertPresentable {
+protocol SelectCurrencyRouterInput: ErrorPresentable, SheetAlertPresentable {
     func proceed(from view: SelectCurrencyViewInput?)
     func back(from view: SelectCurrencyViewInput?)
 }

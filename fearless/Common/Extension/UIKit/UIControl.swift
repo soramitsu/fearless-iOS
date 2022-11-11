@@ -2,24 +2,14 @@ import Foundation
 import UIKit
 
 extension UIControl {
-    func actionHandler(
-        controlEvents control: UIControl.Event,
-        forAction action: @escaping () -> Void
-    ) {
-        actionHandler(action: action)
-        addTarget(self, action: #selector(triggerActionHandler), for: control)
-    }
-
-    private func actionHandler(action: (() -> Void)? = nil) {
-        enum Action { static var action: (() -> Void)? }
-        if action != nil {
-            Action.action = action
-        } else {
-            Action.action?()
+    func addAction(for controlEvents: UIControl.Event = .touchUpInside, _ closure: @escaping () -> Void) {
+        @objc class ClosureSleeve: NSObject {
+            let closure: () -> Void
+            init(_ closure: @escaping () -> Void) { self.closure = closure }
+            @objc func invoke() { closure() }
         }
-    }
-
-    @objc private func triggerActionHandler() {
-        actionHandler()
+        let sleeve = ClosureSleeve(closure)
+        addTarget(sleeve, action: #selector(ClosureSleeve.invoke), for: controlEvents)
+        objc_setAssociatedObject(self, "\(UUID())", sleeve, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN)
     }
 }

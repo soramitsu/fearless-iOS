@@ -27,7 +27,11 @@ protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
     func didTransfer(result: Result<String, Error>)
 }
 
-protocol WalletSendConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting, SheetAlertPresentable {
+protocol WalletSendConfirmWireframeProtocol:
+    ErrorPresentable,
+    BaseErrorPresentable,
+    ModalAlertPresenting,
+    SheetAlertPresentable {
     func close(view: ControllerBackedProtocol?)
     func finish(view: ControllerBackedProtocol?)
     func complete(

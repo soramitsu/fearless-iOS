@@ -21,7 +21,7 @@ protocol AddConnectionInteractorOutputProtocol: AnyObject {
     func didReceiveError(error: Error, for url: URL)
 }
 
-protocol AddConnectionWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AddConnectionWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func close(view: AddConnectionViewProtocol?)
 }
 

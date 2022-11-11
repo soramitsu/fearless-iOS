@@ -15,6 +15,6 @@ protocol ReceiveAssetViewProtocol: ControllerBackedProtocol {
     func didReceive(locale: Locale)
 }
 
-protocol ReceiveAssetWireframeProtocol: AlertPresentable, ErrorPresentable, SharingPresentable, AddressOptionsPresentable {
+protocol ReceiveAssetWireframeProtocol: SheetAlertPresentable, ErrorPresentable, SharingPresentable, AddressOptionsPresentable {
     func close(_ view: ReceiveAssetViewProtocol)
 }

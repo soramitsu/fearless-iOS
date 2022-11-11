@@ -20,7 +20,7 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(priceResult: Result<PriceData?, Error>)
 }
 
-protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingBalanceWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showBondMore(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
