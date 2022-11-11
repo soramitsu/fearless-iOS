@@ -24,7 +24,7 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
         let address = (try? AddressFactory.address(for: account.accountId, chain: chainAsset.chain)) ?? ""
         let userIcon = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
-                .white,
+                R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )
@@ -47,7 +47,7 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
     ) -> LocalizableResource<PayoutConfirmViewModel> {
         let userIcon = try? iconGenerator.generateFromAddress(displayAddress.address)
             .imageWithFillColor(
-                .white,
+                R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )

@@ -28,7 +28,7 @@ protocol PinSetupInteractorOutputProtocol: AnyObject {
         type: AvailableBiometryType,
         completionBlock: @escaping (Bool) -> Void
     )
-    func didChangeState(from: PinSetupInteractor.PinSetupState)
+    func didChangeState(to state: PinSetupInteractor.PinSetupState)
 }
 
 protocol PinSetupWireframeProtocol: AnyObject {

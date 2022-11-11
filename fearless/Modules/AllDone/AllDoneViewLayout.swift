@@ -79,7 +79,7 @@ final class AllDoneViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueLabel.font = .h5Title
-        view.valueLabel.textColor = .white
+        view.valueLabel.textColor = R.color.colorWhite()
         view.valueLabel.lineBreakMode = .byTruncatingMiddle
         view.borderView.isHidden = true
         view.equalsLabelsWidth = true

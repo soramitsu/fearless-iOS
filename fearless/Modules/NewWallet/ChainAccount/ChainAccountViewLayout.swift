@@ -103,7 +103,7 @@ final class ChainAccountViewLayout: UIView {
     let optionsButton: UIButton = {
         let button = UIButton(type: .custom)
         button.setImage(R.image.iconHorMore(), for: .normal)
-        button.tintColor = .white
+        button.tintColor = R.color.colorWhite()
         button.backgroundColor = R.color.colorWhite8()
         button.layer.cornerRadius = LayoutConstants.accessoryButtonSize / 2
         return button

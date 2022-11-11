@@ -22,7 +22,7 @@ final class StakingUnitInfoView: UIView {
     let valueLabel: UILabel = {
         let label = UILabel()
         label.font = .p0Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

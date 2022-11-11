@@ -569,7 +569,7 @@ This is the hash of your transaction:";
 "confirm.mnemonic.mismatch.error.message.2.0" = "Invalid mnemonic passphrase, please check one more time the words order";
 "share.referral.code" = "Share referral code";
 "copy.referral.code" = "Copy referral code";
-"scan.qr.title" = "Scan QR";
+"scan.qr.title" = "QR Code";
 "scan.qr.subtitle" = "Scan code from receiver";
 "scan.qr.upload.button.title" = "Upload from gallery";
 "wallet.receive.qr.description" = "Show this QR code to sender";
@@ -811,7 +811,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "network.issue.node.unavailable" = "Node is unavailable";
 "search.view.title" = "Send to";
 "search.textfield.placeholder" = " Public address";
-"choose.recipient.title" = "Choose recipient";
+"send.fund.title" = "Send fund";
 "choose.recipient.next.button.title" = "Enter amount";
 "common.paste" = "Paste";
 "pool.common" = "pool";
@@ -886,7 +886,9 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "application.status.view.reconnected.title" = "Reconnected";
 "application.status.view.reconnected.description" = "Сonnection successfully restored";
 "select.network.search.placeholder" = "Search by network";
+"select.asset.search.placeholder" = "Search by token";
 "select.network.search.empty.subtitle" = "No networks were found :(";
+"select.asset.search.empty.subtitle" = "No assets were found :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";
 "all.done.alert.all.done.stub" = "All done";
 "all.done.alert.description.stub" = "You can now back to your app and do that you're usually do";

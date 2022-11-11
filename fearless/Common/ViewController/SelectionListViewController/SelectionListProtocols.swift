@@ -2,7 +2,7 @@ import Foundation
 
 protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func didReload()
-    func bind(viewModel: SelectNetworkSearchViewModel?)
+    func bind(viewModel: TextSearchViewModel?)
 }
 
 protocol SelectionListPresenterProtocol: AnyObject {

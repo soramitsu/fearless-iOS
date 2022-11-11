@@ -194,8 +194,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
         rewardDestinationView.fillColor = R.color.colorDarkGray()!
         rewardDestinationView.highlightedFillColor = R.color.colorDarkGray()!
-        rewardDestinationView.strokeColor = .white
-        rewardDestinationView.highlightedStrokeColor = .white
+        rewardDestinationView.strokeColor = R.color.colorWhite()!
+        rewardDestinationView.highlightedStrokeColor = R.color.colorWhite()!
         rewardDestinationView.borderWidth = 0.0
         rewardDestinationView.isSelected = true
     }

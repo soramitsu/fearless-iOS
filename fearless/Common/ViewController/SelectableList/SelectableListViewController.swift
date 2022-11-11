@@ -108,7 +108,7 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 // MARK: - SelectionListViewProtocol
 
 extension SelectableListViewController: SelectionListViewProtocol {
-    func bind(viewModel: SelectNetworkSearchViewModel?) {
+    func bind(viewModel: TextSearchViewModel?) {
         rootView.bind(viewModel: viewModel)
     }
 

@@ -9,13 +9,11 @@ struct RuntimeCommonTypesSyncCompleted: EventProtocol {
     }
 }
 
-struct RuntimeChainTypesSyncCompleted: EventProtocol {
-    let chainId: ChainModel.Id
-    let fileHash: String
-    let data: Data
+struct RuntimeChainsTypesSyncCompleted: EventProtocol {
+    let versioningMap: [String: Data]
 
     func accept(visitor: EventVisitorProtocol) {
-        visitor.processRuntimeChainTypesSyncCompleted(event: self)
+        visitor.processRuntimeChainsTypesSyncCompleted(event: self)
     }
 }
 
