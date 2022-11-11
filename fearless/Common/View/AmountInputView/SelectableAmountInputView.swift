@@ -15,9 +15,9 @@ final class SelectableAmountInputView: UIView {
         view.highlightedFillColor = R.color.colorSemiBlack()!
 
         view.strokeColor = R.color.colorWhite8()!
-        view.highlightedStrokeColor = R.color.colorWhite8()!
+        view.highlightedStrokeColor = R.color.colorPink()!
         view.strokeWidth = 0.5
-        view.layer.shadowOpacity = 0
+        view.shadowOpacity = 0
 
         return view
     }()
@@ -72,7 +72,7 @@ final class SelectableAmountInputView: UIView {
         textField.attributedPlaceholder = NSAttributedString(
             string: "0",
             attributes: [
-                .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
+                .foregroundColor: R.color.colorWhite()!,
                 .font: UIFont.h2Title
             ]
         )
@@ -131,7 +131,6 @@ final class SelectableAmountInputView: UIView {
             balanceLabel.text = nil
         }
 
-        let symbol = viewModel.symbol.uppercased()
         symbolLabel.text = viewModel.symbol.uppercased()
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
@@ -272,5 +271,9 @@ extension SelectableAmountInputView {
             textField.text = newValue
             setNeedsLayout()
         }
+    }
+
+    func set(highlighted: Bool, animated: Bool) {
+        triangularedBackgroundView.set(highlighted: highlighted, animated: animated)
     }
 }

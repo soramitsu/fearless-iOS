@@ -97,7 +97,6 @@ final class RuntimeSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        _: StorageHasher,
         ownTypes: Data,
         runtimeMetadataItem: RuntimeMetadataItem,
         usedRuntimePaths: [String: [String]]
@@ -148,7 +147,6 @@ extension RuntimeSnapshotFactory: RuntimeSnapshotFactoryProtocol {
             )
         case .onlyOwn:
             return createWrapperForChainTypes(
-                dataHasher,
                 ownTypes: chainTypes,
                 runtimeMetadataItem: chainMetadata,
                 usedRuntimePaths: usedRuntimePaths

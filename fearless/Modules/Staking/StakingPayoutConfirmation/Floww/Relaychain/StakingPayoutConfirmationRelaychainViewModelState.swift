@@ -49,30 +49,11 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
         self.dataValidatingFactory = dataValidatingFactory
     }
 
-    private func createExtrinsicBuilderClosure(for batches: [Batch]) -> ExtrinsicBuilderIndexedClosure? {
+    private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderIndexedClosure? {
         let callFactory = SubstrateCallFactory()
 
-        let closure: ExtrinsicBuilderIndexedClosure = { builder, index in
-            try batches[index].forEach { payout in
-                let payoutCall = try callFactory.payout(
-                    validatorId: payout.validator,
-                    era: payout.era
-                )
-
-                _ = try builder.adding(call: payoutCall)
-            }
-
-            return builder
-        }
-
-        return closure
-    }
-
-    private func createExtrinsicBuilderClosure(for batch: Batch) -> ExtrinsicBuilderClosure? {
-        let callFactory = SubstrateCallFactory()
-
-        let closure: ExtrinsicBuilderClosure = { builder in
-            try batch.forEach { payout in
+        let closure: ExtrinsicBuilderIndexedClosure = { builder, _ in
+            try payouts.forEach { payout in
                 let payoutCall = try callFactory.payout(
                     validatorId: payout.validator,
                     era: payout.era

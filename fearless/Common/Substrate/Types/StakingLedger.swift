@@ -11,13 +11,23 @@ struct StakingLedger: Decodable, Equatable {
 }
 
 struct UnlockChunk: Decodable, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case value
+        case era
+    }
+
     @StringCodable var value: BigUInt
     @StringCodable var era: UInt32
 
     init(from decoder: Decoder) throws {
-        var container = try decoder.unkeyedContainer()
-        era = try container.decode(StringScaleMapper<UInt32>.self).value
-        value = try container.decode(StringScaleMapper<BigUInt>.self).value
+        if let container = try? decoder.container(keyedBy: CodingKeys.self) {
+            era = try container.decode(StringScaleMapper<UInt32>.self, forKey: .era).value
+            value = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .value).value
+        } else {
+            var container = try decoder.unkeyedContainer()
+            era = try container.decode(StringScaleMapper<UInt32>.self).value
+            value = try container.decode(StringScaleMapper<BigUInt>.self).value
+        }
     }
 }
 

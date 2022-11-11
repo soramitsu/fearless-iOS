@@ -90,7 +90,6 @@ final class RuntimeHotBootSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        _: StorageHasher,
         usedRuntimePaths: [String: [String]],
         chainTypes: Data
     ) -> ClosureOperation<RuntimeSnapshot?> {
@@ -138,7 +137,6 @@ extension RuntimeHotBootSnapshotFactory: RuntimeHotBootSnapshotFactoryProtocol {
             )
         case .onlyOwn:
             return createWrapperForChainTypes(
-                dataHasher,
                 usedRuntimePaths: usedRuntimePaths,
                 chainTypes: chainTypes
             )

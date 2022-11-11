@@ -14,9 +14,9 @@ final class SearchTriangularedView: UIView {
         let view = TriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
-        view.strokeColor = R.color.colorDarkGray()!
-        view.highlightedStrokeColor = R.color.colorDarkGray()!
-        view.strokeWidth = 1.0
+        view.strokeColor = R.color.colorWhite8()!
+        view.highlightedStrokeColor = R.color.colorPink()!
+        view.strokeWidth = 0.5
         view.shadowOpacity = 0
         return view
     }()
@@ -47,7 +47,7 @@ final class SearchTriangularedView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
-        label.textColor = R.color.colorWhite()
+        label.textColor = R.color.colorStrokeGray()
         return label
     }()
 
@@ -94,6 +94,10 @@ final class SearchTriangularedView: UIView {
             addressImage.isHidden = true
             placeholderImage.isHidden = false
         }
+    }
+
+    func set(highlighted: Bool, animated: Bool) {
+        backgroundView.set(highlighted: highlighted, animated: animated)
     }
 
     private func setupLayout() {
