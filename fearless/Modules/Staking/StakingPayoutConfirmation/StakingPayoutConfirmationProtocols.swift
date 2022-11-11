@@ -23,7 +23,7 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,
+protocol StakingPayoutConfirmationWireframeProtocol: SheetAlertPresentable,
     ErrorPresentable,
     StakingErrorPresentable,
     AddressOptionsPresentable, AnyDismissable {

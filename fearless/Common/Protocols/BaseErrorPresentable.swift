@@ -13,7 +13,7 @@ protocol BaseErrorPresentable {
     )
 }
 
-extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
+extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
             .commonNotEnoughBalanceMessage(preferredLanguages: locale?.rLanguages)
@@ -76,14 +76,14 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
     ) {
         let proceedTitle = R.string.localizable
             .commonProceed(preferredLanguages: locale?.rLanguages)
-        let proceedAction = AlertPresentableAction(title: proceedTitle) {
+        let proceedAction = SheetAlertPresentableAction(title: proceedTitle) {
             action()
         }
 
         let closeTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [proceedAction],
@@ -92,7 +92,6 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
 
         present(
             viewModel: viewModel,
-            style: .alert,
             from: view
         )
     }

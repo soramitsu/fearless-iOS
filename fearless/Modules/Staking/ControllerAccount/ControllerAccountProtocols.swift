@@ -41,7 +41,7 @@ protocol ControllerAccountWireframeProtocol: WebPresentable,
     AddressOptionsPresentable,
     AccountSelectionPresentable,
     StakingErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     ErrorPresentable {
     func showConfirmation(
         from view: ControllerBackedProtocol?,

@@ -10,7 +10,7 @@ protocol UsernameSetupPresenterProtocol: AnyObject {
     func proceed()
 }
 
-protocol UsernameSetupWireframeProtocol: AlertPresentable, NetworkTypeSelectionPresentable {
+protocol UsernameSetupWireframeProtocol: SheetAlertPresentable, NetworkTypeSelectionPresentable {
     func proceed(from view: UsernameSetupViewProtocol?, flow: AccountCreateFlow, model: UsernameSetupModel)
 }
 

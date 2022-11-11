@@ -29,7 +29,7 @@ protocol StakingPoolCreateConfirmInteractorOutput: AnyObject {
 
 protocol StakingPoolCreateConfirmRouterDeps:
     PushDismissable,
-    AlertPresentable,
+    SheetAlertPresentable,
     ErrorPresentable,
     BaseErrorPresentable,
     ModalAlertPresenting {}

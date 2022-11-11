@@ -26,7 +26,7 @@ protocol NodeSelectionInteractorOutputProtocol: AnyObject {
     func didReceive(chain: ChainModel)
 }
 
-protocol NodeSelectionWireframeProtocol: PresentDismissable, AlertPresentable {
+protocol NodeSelectionWireframeProtocol: PresentDismissable, SheetAlertPresentable {
     func presentAddNodeFlow(
         with chain: ChainModel,
         moduleOutput: AddCustomNodeModuleOutput?,

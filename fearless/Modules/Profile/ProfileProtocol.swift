@@ -26,7 +26,7 @@ protocol ProfileInteractorOutputProtocol: AnyObject {
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     WebPresentable,
     ModalAlertPresenting,
     AddressOptionsPresentable {

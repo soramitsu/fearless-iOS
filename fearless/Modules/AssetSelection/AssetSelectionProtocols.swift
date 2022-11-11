@@ -1,4 +1,4 @@
-protocol AssetSelectionWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AssetSelectionWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func complete(
         on view: ChainSelectionViewProtocol,
         selecting chainAsset: ChainAsset,

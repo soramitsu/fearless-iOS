@@ -31,7 +31,7 @@ protocol ControllerAccountConfirmationInteractorOutputProtocol: AnyObject {
 
 protocol ControllerAccountConfirmationWireframeProtocol: AddressOptionsPresentable,
     ErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     StakingErrorPresentable {
     func complete(from view: ControllerAccountConfirmationViewProtocol?)
     func close(view: ControllerBackedProtocol?)

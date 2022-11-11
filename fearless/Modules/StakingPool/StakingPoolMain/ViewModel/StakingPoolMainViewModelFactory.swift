@@ -19,6 +19,7 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         chainAsset: ChainAsset
     ) -> [LocalizableResource<NetworkInfoContentViewModel>]
 
+    // swiftlint:disable function_parameter_count
     func buildNominatorStateViewModel(
         stakeInfo: StakingPoolMember,
         priceData: PriceData?,
@@ -27,7 +28,8 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         poolRewards: StakingPoolRewards,
         poolInfo: StakingPool,
         accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        existentialDeposit: BigUInt,
+        nomination: Nomination?
     ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
@@ -58,10 +60,6 @@ final class StakingPoolMainViewModelFactory {
     }
 
     private func getRewardViewModelFactory(for chainAsset: ChainAsset) -> RewardViewModelFactoryProtocol {
-//        if let factory = rewardViewModelFactory {
-//            return factory
-//        }
-
         let factory = RewardViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: wallet
@@ -271,12 +269,27 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         poolRewards: StakingPoolRewards,
         poolInfo: StakingPool,
         accountInfo: AccountInfo,
-        existentialDeposit: BigUInt
+        existentialDeposit: BigUInt,
+        nomination: Nomination?
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
+        switch poolInfo.info.state {
+        case .open:
+            guard let era = era else {
+                break
+            }
 
-        if let era = era {
-            status = .active(era: era)
+            if nomination?.targets.isNotEmpty == true {
+                status = .active(era: era)
+            } else {
+                status = .validatorsNotSelected
+            }
+        case .blocked, .destroying:
+            guard let era = era else {
+                break
+            }
+
+            status = .inactive(era: era)
         }
 
         let precision = Int16(chainAsset.asset.precision)
