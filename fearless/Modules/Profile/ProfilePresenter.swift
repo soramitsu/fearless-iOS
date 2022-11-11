@@ -94,7 +94,10 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         let removeTitle = R.string.localizable
             .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
 
-        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+        let removeAction = SheetAlertPresentableAction(
+            title: removeTitle,
+            button: UIFactory.default.createDestructiveButton()
+        ) { [weak self] in
             guard let self = self else { return }
             self.wireframe.showCheckPincode(
                 from: self.view,
@@ -103,20 +106,23 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
-        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel)
+        let cancelAction = SheetAlertPresentableAction(
+            title: cancelTitle,
+            button: UIFactory.default.createAccessoryButton()
+        )
 
         let title = R.string.localizable
             .profileLogoutTitle(preferredLanguages: selectedLocale.rLanguages)
         let details = R.string.localizable
             .profileLogoutDescription(preferredLanguages: selectedLocale.rLanguages)
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
             closeAction: nil
         )
 
-        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 }
 

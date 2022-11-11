@@ -888,3 +888,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "select.network.search.placeholder" = "Search by network";
 "select.network.search.empty.subtitle" = "No networks were found :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";
+"all.done.alert.all.done.stub" = "All done";
+"all.done.alert.description.stub" = "You can now back to your app and do that you're usually do";
+"all.done.alert.hash.stub" = "Hash";
+"all.done.alert.result.stub" = "Result";
+"all.done.alert.success.stub" = "Success";

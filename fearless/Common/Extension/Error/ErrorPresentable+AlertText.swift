@@ -10,7 +10,7 @@ protocol ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent
 }
 
-extension ErrorPresentable where Self: AlertPresentable {
+extension ErrorPresentable where Self: SheetAlertPresentable {
     func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool {
         let optionalContent: ErrorContent? = {
             if let contentConvertibleError = error as? ErrorContentConvertible {

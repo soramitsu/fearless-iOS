@@ -2,7 +2,9 @@ import Foundation
 
 final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
+        guard let importController = AccountImportViewFactory
+            .createViewForOnboarding(.chain(model: uniqueChainModel))?.controller
+        else {
             return
         }
 
@@ -10,7 +12,9 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
     }
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+        guard let controller = UsernameSetupViewFactory
+            .createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller
+        else {
             return
         }
 
@@ -24,31 +28,31 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
         uniqueChainModel: UniqueChainModel,
         skipBlock: @escaping (ChainModel) -> Void
     ) {
-        let cancelTitle = R.string.localizable
-            .commonCancel(preferredLanguages: locale?.rLanguages)
-
-        let actions: [AlertPresentableAction] = options.map { option in
+        var actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .create:
                 let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
                 let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
         }
 
+        let cancelTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -57,7 +61,6 @@ final class ManageAssetsWireframe: ManageAssetsWireframeProtocol {
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }

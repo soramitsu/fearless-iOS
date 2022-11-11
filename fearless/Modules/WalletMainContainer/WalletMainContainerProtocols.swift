@@ -30,7 +30,7 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
 }
 
-protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable, ApplicationStatusPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

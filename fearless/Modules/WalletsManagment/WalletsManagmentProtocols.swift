@@ -27,7 +27,7 @@ protocol WalletsManagmentInteractorOutput: AnyObject {
     func didCompleteSelection()
 }
 
-protocol WalletsManagmentRouterInput: AlertPresentable, ErrorPresentable {
+protocol WalletsManagmentRouterInput: SheetAlertPresentable, ErrorPresentable {
     func showOptions(
         from view: WalletsManagmentViewInput?,
         metaAccount: ManagedMetaAccountModel,

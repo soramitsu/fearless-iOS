@@ -36,7 +36,7 @@ protocol ManageAssetsInteractorOutputProtocol: AnyObject {
     func didReceiveWallet(_ wallet: MetaAccountModel)
 }
 
-protocol ManageAssetsWireframeProtocol: AlertPresentable, ErrorPresentable, PresentDismissable {
+protocol ManageAssetsWireframeProtocol: SheetAlertPresentable, ErrorPresentable, PresentDismissable {
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,

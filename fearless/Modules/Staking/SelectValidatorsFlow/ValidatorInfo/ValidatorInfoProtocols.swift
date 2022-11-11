@@ -63,7 +63,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
     EmailPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     AddressOptionsPresentable,
     ErrorPresentable {
     func showStakingAmounts(

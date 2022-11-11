@@ -29,7 +29,7 @@ protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol CustomValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,

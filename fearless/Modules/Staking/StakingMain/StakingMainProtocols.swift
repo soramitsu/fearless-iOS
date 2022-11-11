@@ -87,7 +87,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
-protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(
         from view: StakingMainViewProtocol?,
         amount: Decimal?,

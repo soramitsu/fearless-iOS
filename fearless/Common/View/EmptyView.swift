@@ -8,21 +8,21 @@ struct EmptyViewModel {
 final class EmptyView: UIView {
     private enum LayoutConstants {
         static let imageSize = CGSize(width: 36, height: 32)
-        static let imageBackgroundSize: CGFloat = 56
+        static let imageBackgroundSize: CGFloat = 80
         static let imageOffset: CGFloat = 10
     }
 
     private let imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = R.image.iconWarningBig()?.withRenderingMode(.alwaysTemplate)
-        imageView.tintColor = R.color.colorWhite16()!
+        imageView.image = R.image.iconWarningBig()
         return imageView
     }()
 
-    private let imageBackgroundView: UIView = {
-        let view = UIView()
-        view.layer.cornerRadius = LayoutConstants.imageBackgroundSize / 2
-        view.backgroundColor = R.color.colorWhite8()!
+    private let imageBackgroundView: ShadowRoundedBackground = {
+        let view = ShadowRoundedBackground()
+        view.shadowColor = R.color.colorOrange()!
+        view.backgroundColor = R.color.colorBlack19()!
+
         return view
     }()
 
@@ -31,6 +31,7 @@ final class EmptyView: UIView {
         label.textAlignment = .center
         label.font = .h3Title
         label.textColor = .white
+        label.numberOfLines = 2
         return label
     }()
 
@@ -59,20 +60,18 @@ final class EmptyView: UIView {
 
     private func setupLayout() {
         addSubview(imageBackgroundView)
-        addSubview(imageView)
         addSubview(titleLabel)
         addSubview(descriptionLabel)
+        imageBackgroundView.addSubview(imageView)
 
         imageBackgroundView.snp.makeConstraints { make in
-            make.centerX.equalToSuperview()
-            make.top.equalTo(safeAreaLayoutGuide).offset(UIConstants.bigOffset)
+            make.centerX.centerY.equalToSuperview()
             make.size.equalTo(LayoutConstants.imageBackgroundSize)
         }
 
         imageView.snp.makeConstraints { make in
-            make.top.leading.equalTo(imageBackgroundView).offset(LayoutConstants.imageOffset)
-            make.trailing.equalTo(imageBackgroundView).offset(-LayoutConstants.imageOffset)
-            make.bottom.equalTo(imageBackgroundView).offset(-UIConstants.bigOffset)
+            make.size.equalTo(LayoutConstants.imageSize)
+            make.center.equalTo(imageBackgroundView.snp.center)
         }
 
         titleLabel.snp.makeConstraints { make in

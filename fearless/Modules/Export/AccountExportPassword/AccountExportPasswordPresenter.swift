@@ -35,20 +35,19 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
         let message = R.string.localizable.accountExportWarningMessage(preferredLanguages: locale.rLanguages)
 
         let exportTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let exportAction = AlertPresentableAction(title: exportTitle) { [weak self] in
+        let exportAction = SheetAlertPresentableAction(title: exportTitle) { [weak self] in
             self?.wireframe.back(from: self?.view)
         }
 
         let cancelTitle = R.string.localizable.commonProceed(preferredLanguages: locale.rLanguages)
-        let cancelAction = AlertPresentableAction(title: cancelTitle) {}
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [exportAction, cancelAction],
-            closeAction: nil
+            actions: [exportAction],
+            closeAction: cancelTitle
         )
 
-        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 
     func proceed() {
