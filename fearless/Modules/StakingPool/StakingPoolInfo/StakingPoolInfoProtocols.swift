@@ -1,12 +1,16 @@
+import Foundation
+
 typealias StakingPoolInfoModuleCreationResult = (view: StakingPoolInfoViewInput, input: StakingPoolInfoModuleInput)
 
-protocol StakingPoolInfoViewInput: ControllerBackedProtocol {
+protocol StakingPoolInfoViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: StakingPoolInfoViewModel)
 }
 
 protocol StakingPoolInfoViewOutput: AnyObject {
     func didLoad(view: StakingPoolInfoViewInput)
     func didTapCloseButton()
+    func didTapValidators()
+    func willAppear(view: StakingPoolInfoViewInput)
 }
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
@@ -15,9 +19,19 @@ protocol StakingPoolInfoInteractorInput: AnyObject {
 
 protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
+    func didReceive(palletIdResult: Result<Data, Error>)
 }
 
-protocol StakingPoolInfoRouterInput: AnyObject, PresentDismissable {}
+protocol StakingPoolInfoRouterInput: PresentDismissable {
+    func proceedToSelectValidatorsStart(
+        from view: ControllerBackedProtocol?,
+        poolId: UInt32,
+        state: ExistingBonding,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+}
 
 protocol StakingPoolInfoModuleInput: AnyObject {}
 

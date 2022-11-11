@@ -65,8 +65,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private func provideRewardCalculator() {
         let operation = calculatorService.fetchCalculatorOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let engine = try operation.extractNoCancellableResultData()
                     self?.presenter.didReceiveCalculator(result: .success(engine))

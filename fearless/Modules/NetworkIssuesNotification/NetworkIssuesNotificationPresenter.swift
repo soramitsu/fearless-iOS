@@ -59,20 +59,17 @@ final class NetworkIssuesNotificationPresenter {
     }
 
     private func showSheetAlert(for chain: ChainModel) {
-        let closepAction = SheetAlertPresentableAction(
-            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-            style: UIFactory.default.createMainActionButton(),
-            handler: nil
-        )
-        let title = chain.name + " "
-            + R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        let title = [
+            chain.name,
+            R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        ].joined(separator: " ")
+
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
-            titleStyle: .defaultTitle,
-            subtitle: subtitle,
-            subtitleStyle: .defaultSubtitle,
-            actions: [closepAction]
+            message: subtitle,
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         )
         router.present(viewModel: sheetViewModel, from: view)
     }

@@ -34,8 +34,7 @@ final class StakingPoolCreateConfirmViewModelFactory: StakingPoolCreateConfirmVi
         data: CreatePoolConfirmData,
         locale: Locale
     ) -> StakingPoolCreateConfirmViewModel {
-        let displayInfo = AssetBalanceDisplayInfo.forCurrency(data.currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
 
         let amountString = tokenFormatter.value(for: locale).stringFromDecimal(data.amount) ?? ""

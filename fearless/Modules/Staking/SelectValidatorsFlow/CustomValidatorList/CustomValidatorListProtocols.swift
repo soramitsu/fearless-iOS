@@ -11,15 +11,14 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func fillWithRecommended()
     func clearFilter()
     func deselectAll()
-
-    func changeValidatorSelection(at index: Int)
-
-    func didSelectValidator(at index: Int)
+    func changeValidatorSelection(address: String)
+    func didSelectValidator(address: String)
     func presentFilter()
     func presentSearch()
     func changeIdentityFilterValue()
     func changeMinBondFilterValue()
     func proceed()
+    func searchTextDidChange(_ text: String?)
 }
 
 protocol CustomValidatorListInteractorInputProtocol: AnyObject {
@@ -30,7 +29,7 @@ protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol CustomValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,

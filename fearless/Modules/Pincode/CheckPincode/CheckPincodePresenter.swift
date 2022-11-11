@@ -43,7 +43,7 @@ extension CheckPincodePresenter: LocalAuthInteractorOutputProtocol {
         }
     }
 
-    func didChangeState(from _: LocalAuthInteractor.LocalAuthState) {}
+    func didChangeState(to _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in

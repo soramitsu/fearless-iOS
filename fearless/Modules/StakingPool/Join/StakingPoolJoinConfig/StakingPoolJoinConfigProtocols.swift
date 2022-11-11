@@ -35,7 +35,11 @@ protocol StakingPoolJoinConfigInteractorOutput: AnyObject {
     func didReceive(existentialDepositResult: Result<BigUInt, Error>)
 }
 
-protocol StakingPoolJoinConfigRouterInput: AnyObject, PushDismissable, StakingErrorPresentable, AlertPresentable, ErrorPresentable {
+protocol StakingPoolJoinConfigRouterInput:
+    PushDismissable,
+    StakingErrorPresentable,
+    SheetAlertPresentable,
+    ErrorPresentable {
     func presentPoolsList(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

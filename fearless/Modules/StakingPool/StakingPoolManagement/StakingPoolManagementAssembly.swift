@@ -1,7 +1,9 @@
 import UIKit
 import SoraFoundation
 import FearlessUtils
+import SoraKeystore
 
+// swiftlint:disable function_body_length
 final class StakingPoolManagementAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
@@ -13,9 +15,20 @@ final class StakingPoolManagementAssembly {
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
+        let stakingSettings = StakingAssetSettings(
+            storageFacade: substrateStorageFacade,
+            settings: SettingsManager.shared,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: wallet
+        )
+
+        stakingSettings.setup()
+
         guard
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let settings = stakingSettings.value
+        else {
             return nil
         }
 
@@ -93,6 +106,47 @@ final class StakingPoolManagementAssembly {
             engine: connection
         )
 
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: settings.assetDisplayInfo.assetPrecision,
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        rewardService.setup()
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
+
         let interactor = StakingPoolManagementInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
@@ -107,7 +161,8 @@ final class StakingPoolManagementAssembly {
             stakingDurationOperationFactory: stakingDurationOperationFactory,
             runtimeService: runtimeService,
             accountOperationFactory: accountOperationFactory,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            validatorOperationFactory: validatorOperationFactory
         )
         let router = StakingPoolManagementRouter()
 

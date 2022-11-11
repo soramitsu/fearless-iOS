@@ -20,7 +20,11 @@ final class NodeSelectionPresenter {
     }
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.buildViewModel(from: interactor.chain, locale: selectedLocale, cellsDelegate: self)
+        let viewModel = viewModelFactory.buildViewModel(
+            from: interactor.chain,
+            locale: selectedLocale,
+            cellsDelegate: self
+        )
         view?.didReceive(state: .loaded(viewModel: viewModel))
     }
 }
@@ -77,7 +81,7 @@ extension NodeSelectionPresenter: NodeSelectionTableCellViewModelDelegate {
             self?.interactor.deleteNode(node)
         }
 
-        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 
     func showCustomNodeInfo(_ node: ChainNodeModel) {

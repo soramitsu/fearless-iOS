@@ -30,6 +30,15 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol, Equatable, Recommendable {
         stakeInfo?.ownStake ?? 0.0
     }
 
+    var isActive: Bool {
+        switch myNomination {
+        case .active:
+            return true
+        default:
+            return false
+        }
+    }
+
     init(
         address: AccountAddress,
         identity: AccountIdentity? = nil,

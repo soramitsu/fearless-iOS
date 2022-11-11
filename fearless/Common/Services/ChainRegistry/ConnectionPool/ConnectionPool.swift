@@ -1,6 +1,10 @@
 import Foundation
 import FearlessUtils
 
+enum ConnectionPoolError: Error {
+    case onlyOneNode
+}
+
 protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
@@ -42,7 +46,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != ignoredUrl })
 
         guard let url = node?.url else {
-            throw JSONRPCEngineError.unknownError
+            throw ConnectionPoolError.onlyOneNode
         }
 
         mutex.lock()
@@ -61,7 +65,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
             }
         }
 
-        let connection = connectionFactory.createConnection(for: url, delegate: self)
+        let connection = connectionFactory.createConnection(
+            connectionName: chain.name,
+            for: url,
+            delegate: self
+        )
         let wrapper = WeakWrapper(target: connection)
 
         connectionsByChainIds[chain.chainId] = wrapper

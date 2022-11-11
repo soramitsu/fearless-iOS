@@ -18,7 +18,6 @@ final class WalletSendConfirmPresenter {
     private let selectedAccount: MetaAccountModel
     private let walletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtocol
     private let scamInfo: ScamInfo?
-    private let transferFinishBlock: WalletTransferFinishBlock?
 
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
@@ -42,8 +41,7 @@ final class WalletSendConfirmPresenter {
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        scamInfo: ScamInfo?,
-        transferFinishBlock: WalletTransferFinishBlock?
+        scamInfo: ScamInfo?
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -58,7 +56,6 @@ final class WalletSendConfirmPresenter {
         self.tip = tip
         self.selectedAccount = selectedAccount
         self.scamInfo = scamInfo
-        self.transferFinishBlock = transferFinishBlock
     }
 
     private func provideViewModel() {
@@ -143,23 +140,17 @@ final class WalletSendConfirmPresenter {
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func didTapScamWarningButton() {
-        let closeAction = SheetAlertPresentableAction(
-            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-            style: UIFactory.default.createMainActionButton(),
-            handler: nil
-        )
         let title = R.string.localizable.scamWarningAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        let subtitle = R.string.localizable.scamWarningAlertSubtitle(
+        let message = R.string.localizable.scamWarningAlertSubtitle(
             chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
         )
 
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
-            titleStyle: .defaultTitle,
-            subtitle: subtitle,
-            subtitleStyle: .defaultSubtitle,
-            actions: [closeAction]
+            message: message,
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         )
         wireframe.present(
             viewModel: sheetViewModel,
@@ -225,13 +216,9 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         view?.didStopLoading()
 
         switch result {
-        case .success:
-            transferFinishBlock?()
+        case let .success(hash):
 
-            let title = R.string.localizable
-                .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
-
-            wireframe.complete(on: view, title: title)
+            wireframe.complete(on: view, title: hash)
         case let .failure(error):
             guard let view = view else {
                 return

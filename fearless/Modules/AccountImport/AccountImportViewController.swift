@@ -481,7 +481,7 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.nextButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

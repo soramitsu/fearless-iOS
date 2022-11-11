@@ -35,6 +35,10 @@ struct UIConstants {
     static let standardButtonSize = CGSize(width: 36, height: 36)
     static let indicatorSize = CGSize(width: 35.0, height: 2.0)
     static let amountViewV2Height: CGFloat = 92
+    static let offset12: CGFloat = 12
+    static let statusViewHeight: CGFloat = 51.0
+    static let validatorCellHeight: CGFloat = 77.0
+    static let infoButtonSize: CGFloat = 14.0
 }
 
 enum AccountViewMode {
@@ -47,6 +51,7 @@ protocol UIFactoryProtocol {
     func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
+    func createDestructiveButton() -> TriangularedButton
     func createDetailsView(
         with layout: DetailsTriangularedView.Layout,
         filled: Bool
@@ -82,6 +87,7 @@ protocol UIFactoryProtocol {
     func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
+    func createSearchTextField() -> SearchTextField
 }
 
 extension UIFactoryProtocol {
@@ -115,6 +121,9 @@ final class UIFactory: UIFactoryProtocol {
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
         button.applyEnabledStyle()
         return button
     }
@@ -122,6 +131,12 @@ final class UIFactory: UIFactoryProtocol {
     func createAccessoryButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyAccessoryStyle()
+        return button
+    }
+
+    func createDestructiveButton() -> TriangularedButton {
+        let button = TriangularedButton()
+        button.applyDestructiveStyle()
         return button
     }
 
@@ -582,5 +597,25 @@ final class UIFactory: UIFactoryProtocol {
         indicator.highlightedFillColor = R.color.colorLightGray()!
         indicator.shadowOpacity = 0.0
         return indicator
+    }
+
+    func createSelectNetworkView() -> DetailsTriangularedView {
+        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: false)
+        view.titleLabel.textColor = R.color.colorWhite()
+        view.titleLabel.font = UIFont.h5Title
+        view.actionImage = R.image.iconExpandable()
+        view.borderWidth = 1
+        return view
+    }
+
+    func createSearchTextField() -> SearchTextField {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
     }
 }

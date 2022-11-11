@@ -49,7 +49,9 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
             return
         }
 
-        view?.controller.present(module.view.controller, animated: true)
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     func presentOptions(
@@ -103,5 +105,27 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
         }
 
         view?.controller.navigationController?.pushViewController(redeemModule.controller, animated: true)
+    }
+
+    func proceedToSelectValidatorsStart(
+        from view: ControllerBackedProtocol?,
+        poolId _: UInt32,
+        state _: InitiatedBonding,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let validatorsView = YourValidatorListViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .pool
+        ) else {
+            return
+        }
+
+        let navigationController = ImportantFlowViewFactory.createNavigation(
+            from: validatorsView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }

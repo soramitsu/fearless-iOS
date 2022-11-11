@@ -68,7 +68,7 @@ final class StakingRedeemLayout: UIView {
 
         let iconSize = 2.0 * accountView.iconRadius
         collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
-            R.color.colorWhite() ?? .white,
+            R.color.colorWhite()!,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )

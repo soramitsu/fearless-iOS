@@ -1,52 +1,75 @@
 import Foundation
 
-struct CallCodingPath: Equatable, Codable {
-    let moduleName: String
-    let callName: String
-}
+enum CallCodingPath: Equatable, Codable, CaseIterable {
+    #warning("Do not forget added new case in allCases")
+    static var allCases: [CallCodingPath] {
+        [
+            .transfer,
+            .transferKeepAlive,
+            .addMemo,
+            .nominationPoolJoin,
+            .createNominationPool,
+            .setPoolMetadata,
+            .poolBondMore,
+            .poolUnbond,
+            .claimPendingRewards,
+            .poolWithdrawUnbonded
+        ]
+    }
 
-extension CallCodingPath {
     var isTransfer: Bool {
         [.transfer, .transferKeepAlive].contains(self)
     }
 
-    static var transfer: CallCodingPath {
-        CallCodingPath(moduleName: "Balances", callName: "transfer")
+    var moduleName: String {
+        path.moduleName
     }
 
-    static var transferKeepAlive: CallCodingPath {
-        CallCodingPath(moduleName: "Balances", callName: "transfer_keep_alive")
+    var callName: String {
+        path.callName
     }
 
-    static var addMemo: CallCodingPath {
-        CallCodingPath(moduleName: "Crowdloan", callName: "add_memo")
+    var path: (moduleName: String, callName: String) {
+        switch self {
+        case .transfer:
+            return (moduleName: "Balances", callName: "transfer")
+        case .transferKeepAlive:
+            return (moduleName: "Balances", callName: "transfer_keep_alive")
+        case .addMemo:
+            return (moduleName: "Crowdloan", callName: "add_memo")
+        case .nominationPoolJoin:
+            return (moduleName: "NominationPools", callName: "join")
+        case .createNominationPool:
+            return (moduleName: "NominationPools", callName: "create")
+        case .setPoolMetadata:
+            return (moduleName: "NominationPools", callName: "set_metadata")
+        case .poolBondMore:
+            return (moduleName: "NominationPools", callName: "bond_extra")
+        case .poolUnbond:
+            return (moduleName: "NominationPools", callName: "unbond")
+        case .claimPendingRewards:
+            return (moduleName: "NominationPools", callName: "claim_payout")
+        case .poolWithdrawUnbonded:
+            return (moduleName: "NominationPools", callName: "withdraw_unbonded")
+        case let .fromInit(moduleName, callName):
+            return (moduleName: moduleName, callName: callName)
+        }
     }
 
-    static var nominationPoolJoin: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "Join")
+    init(moduleName: String, callName: String) {
+        self = .fromInit(moduleName: moduleName, callName: callName)
     }
 
-    static var createNominationPool: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "Create")
-    }
+    case fromInit(moduleName: String, callName: String)
 
-    static var setPoolMetadata: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "set_metadata")
-    }
-
-    static var poolBondMore: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "bond_extra")
-    }
-
-    static var poolUnbond: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "unbond")
-    }
-
-    static var claimPendingRewards: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "claim_payout")
-    }
-
-    static var poolWithdrawUnbonded: CallCodingPath {
-        CallCodingPath(moduleName: "NominationPools", callName: "withdraw_unbonded")
-    }
+    case transfer
+    case transferKeepAlive
+    case addMemo
+    case nominationPoolJoin
+    case createNominationPool
+    case setPoolMetadata
+    case poolBondMore
+    case poolUnbond
+    case claimPendingRewards
+    case poolWithdrawUnbonded
 }

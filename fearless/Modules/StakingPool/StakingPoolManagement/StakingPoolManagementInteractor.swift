@@ -19,9 +19,11 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -37,7 +39,8 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
         stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountOperationFactory: AccountOperationFactoryProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        validatorOperationFactory: ValidatorOperationFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
@@ -53,6 +56,7 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.accountOperationFactory = accountOperationFactory
         self.existentialDepositService = existentialDepositService
+        self.validatorOperationFactory = validatorOperationFactory
     }
 
     private func provideEraStakersInfo() {
@@ -152,6 +156,23 @@ final class StakingPoolManagementInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: stakeInfoOperation.allOperations, in: .transient)
     }
+
+    private func prepareRecommendedValidatorList() {
+        let wrapper = validatorOperationFactory.allElectedOperation()
+
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let validators = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceiveValidators(result: .success(validators))
+                } catch {
+                    self?.output?.didReceiveValidators(result: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
 }
 
 // MARK: - StakingPoolManagementInteractorInput
@@ -188,6 +209,7 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
             self?.output?.didReceive(existentialDepositResult: result)
         }
 
+        prepareRecommendedValidatorList()
         provideEraStakersInfo()
         fetchStakingDuration()
     }
@@ -204,6 +226,22 @@ extension StakingPoolManagementInteractor: StakingPoolManagementInteractorInput 
         }
 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
+    }
+
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(nomination: nomination)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 

@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingPoolInfoViewController: UIViewController, ViewHolder {
+final class StakingPoolInfoViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolInfoViewLayout
 
     // MARK: Private properties
@@ -39,12 +39,32 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder {
             action: #selector(closeButtonClicked),
             for: .touchUpInside
         )
+
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.addTarget(self, action: #selector(validatorsClicked))
+        rootView.validatorsView.addGestureRecognizer(tapGesture)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        output.willAppear(view: self)
     }
 
     // MARK: - Private methods
 
     @objc private func closeButtonClicked() {
         output.didTapCloseButton()
+    }
+
+    @objc private func validatorsClicked() {
+        output.didTapValidators()
+    }
+
+    // MARK: - LoadableViewProtocol
+
+    var loadableContentView: UIView! {
+        rootView.contentView
     }
 }
 

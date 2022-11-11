@@ -28,7 +28,9 @@ final class RuntimeProvider {
     }
 
     internal let chainId: ChainModel.Id
-    private(set) var typesUsage: ChainModel.TypesUsage
+    private let chainName: String
+    private var typesUsage: ChainModel.TypesUsage
+    private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
     private let snapshotHotOperationFactory: RuntimeHotBootSnapshotFactoryProtocol?
@@ -37,6 +39,13 @@ final class RuntimeProvider {
     private let dataHasher: StorageHasher
     private let logger: LoggerProtocol?
     private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+
+    private lazy var completionQueue: DispatchQueue = {
+        DispatchQueue(
+            label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)",
+            qos: .userInitiated
+        )
+    }()
 
     private(set) var snapshot: RuntimeSnapshot?
     private(set) var pendingRequests: [PendingRequest] = []
@@ -55,10 +64,14 @@ final class RuntimeProvider {
         operationQueue: OperationQueue,
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil,
-        repository: AnyDataProviderRepository<RuntimeMetadataItem>
+        repository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        usedRuntimePaths: [String: [String]],
+        chainMetadata: RuntimeMetadataItem?,
+        chainTypes: Data?
     ) {
         chainId = chainModel.chainId
         typesUsage = chainModel.typesUsage
+        chainName = chainModel.name
         self.snapshotOperationFactory = snapshotOperationFactory
         self.snapshotHotOperationFactory = snapshotHotOperationFactory
         self.eventCenter = eventCenter
@@ -66,6 +79,9 @@ final class RuntimeProvider {
         self.dataHasher = dataHasher
         self.logger = logger
         self.repository = repository
+        self.usedRuntimePaths = usedRuntimePaths
+        self.chainMetadata = chainMetadata
+        self.chainTypes = chainTypes
 
         self.operationQueue.maxConcurrentOperationCount = 10
 
@@ -76,17 +92,21 @@ final class RuntimeProvider {
         guard
             commonTypes != nil || typesUsage == .onlyOwn,
             let chainTypes = chainTypes,
-            let chainMetadata = chainMetadata
+            let chainMetadata = chainMetadata,
+            compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
         else {
             return
         }
+
+        logger?.debug("Will start building snapshot for \(chainName)")
 
         let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
             dataHasher: dataHasher,
             commonTypes: commonTypes,
             chainTypes: chainTypes,
-            chainMetadata: chainMetadata
+            chainMetadata: chainMetadata,
+            usedRuntimePaths: usedRuntimePaths
         )
 
         wrapper.completionBlock = { [weak self] in
@@ -100,21 +120,43 @@ final class RuntimeProvider {
         operationQueue.addOperation(wrapper)
     }
 
+    private func compareChainsTypes(local: Data?, remote: Data) -> Bool {
+        guard
+            let localData = local,
+            let localJson = try? JSONDecoder().decode(JSON.self, from: localData),
+            let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
+        else {
+            return true
+        }
+
+        return localJson != remoteJson
+    }
+
     private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
-        let wrapper = snapshotHotOperationFactory?.createRuntimeSnapshotWrapper(
+        logger?.debug("Will start building hot snapshot for \(chainName)")
+
+        guard let snapshotHotOperationFactory = snapshotHotOperationFactory,
+              let chainTypes = chainTypes
+        else {
+            return
+        }
+
+        let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
             for: typesUsage,
-            dataHasher: dataHasher
+            dataHasher: dataHasher,
+            usedRuntimePaths: usedRuntimePaths,
+            chainTypes: chainTypes
         )
 
-        wrapper?.targetOperation.completionBlock = { [weak self] in
+        wrapper.completionBlock = { [weak self] in
             DispatchQueue.global(qos: .userInitiated).async {
-                self?.handleCompletion(result: wrapper?.targetOperation.result)
+                self?.handleCompletion(result: wrapper.result)
             }
         }
 
-        currentWrapper = wrapper?.targetOperation
+        currentWrapper = wrapper
 
-        operationQueue.addOperations(wrapper?.allOperations ?? [], waitUntilFinished: false)
+        operationQueue.addOperation(wrapper)
     }
 
     private func handleCompletion(result: Result<RuntimeSnapshot?, Error>?) {
@@ -130,10 +172,8 @@ final class RuntimeProvider {
 
             if let snapshot = snapshot {
                 self.snapshot = snapshot
-                updateMetadata(snapshot)
 
-                logger?.debug("Did complete snapshot for: \(chainId)")
-                logger?.debug("Will notify waiters: \(pendingRequests.count)")
+                logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
                 resolveRequests()
 
@@ -143,47 +183,13 @@ final class RuntimeProvider {
         case let .failure(error):
             currentWrapper = nil
 
-            logger?.debug("Failed to build snapshot for \(chainId): \(error)")
+            logger?.error("Failed to build snapshot for \(chainName): \(error)")
 
             let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
             eventCenter.notify(with: event)
         case .none:
             break
         }
-    }
-
-    private func updateMetadata(_ snapshot: RuntimeSnapshot) {
-        let localMetadataOperation = repository.fetchOperation(
-            by: chainId,
-            options: RepositoryFetchOptions()
-        )
-
-        let updateOperation = repository.saveOperation {
-            guard
-                let currentRuntimeItem = try localMetadataOperation.extractNoCancellableResultData(),
-                currentRuntimeItem.resolver != snapshot.metadata.resolver
-            else {
-                return []
-            }
-            var updateItem: [RuntimeMetadataItem] = []
-
-            let metadataItem = RuntimeMetadataItem(
-                chain: currentRuntimeItem.chain,
-                version: currentRuntimeItem.version,
-                txVersion: currentRuntimeItem.txVersion,
-                metadata: currentRuntimeItem.metadata,
-                resolver: snapshot.metadata.resolver
-            )
-
-            updateItem = [metadataItem]
-
-            return updateItem
-        } _: {
-            []
-        }
-
-        updateOperation.addDependency(localMetadataOperation)
-        operationQueue.addOperations([localMetadataOperation, updateOperation], waitUntilFinished: false)
     }
 
     private func resolveRequests() {
@@ -233,7 +239,7 @@ final class RuntimeProvider {
 
     func fetchCoderFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
@@ -241,8 +247,7 @@ final class RuntimeProvider {
 
             let semaphore = DispatchSemaphore(value: 0)
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -262,17 +267,14 @@ final class RuntimeProvider {
         closure _: RuntimeMetadataClosure?
     ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation { [weak self] in
-            guard let self = self else {
+            guard let strongSelf = self else {
                 throw RuntimeProviderError.providerUnavailable
             }
 
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchCoder.\(self.chainId)", qos: .utility)
-
             var fetchedFactory: RuntimeCoderFactoryProtocol?
-
             let semaphore = DispatchSemaphore(value: 0)
 
-            self.fetchCoderFactory(runCompletionIn: queue) { factory in
+            strongSelf.fetchCoderFactory(runCompletionIn: strongSelf.completionQueue) { factory in
                 fetchedFactory = factory
                 semaphore.signal()
             }
@@ -357,8 +359,8 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 }
 
 extension RuntimeProvider: EventVisitorProtocol {
-    func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted) {
-        guard event.chainId == chainId else {
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
+        guard let chainTypes = event.versioningMap[chainId] else {
             return
         }
 
@@ -368,16 +370,10 @@ extension RuntimeProvider: EventVisitorProtocol {
             mutex.unlock()
         }
 
-        guard snapshot?.localChainHash != event.fileHash else {
-            return
-        }
-
         currentWrapper?.cancel()
         currentWrapper = nil
 
-        logger?.debug("Will start building snapshot after chain types update for \(chainId)")
-
-        chainTypes = event.data
+        self.chainTypes = chainTypes
 
         buildSnapshot(with: typesUsage, dataHasher: dataHasher)
     }
@@ -395,8 +391,6 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         currentWrapper?.cancel()
         currentWrapper = nil
-
-        logger?.debug("Will start building snapshot after metadata update for \(chainId)")
 
         chainMetadata = event.metadata
 
@@ -420,8 +414,6 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         currentWrapper?.cancel()
         currentWrapper = nil
-
-        logger?.debug("Will start building snapshot after common types update for \(chainId)")
 
         commonTypes = event.data
 

@@ -68,45 +68,12 @@ final class StakingPoolCreateViewLayout: UIView {
         return indicator
     }()
 
-    let poolIdView: CommonInputViewV2 = {
-        let view = CommonInputViewV2()
-        view.disable()
-        return view
-    }()
+    let poolIdView: CommonInputViewV2 = createInputV2View()
+    let depositorView: CommonInputViewV2 = createInputV2View()
+    let rootAccountView: CommonInputViewV2 = createInputV2View()
 
-    let depositorView: CommonInputViewV2 = {
-        let view = CommonInputViewV2()
-        view.disable()
-        return view
-    }()
-
-    let rootAccountView: CommonInputViewV2 = {
-        let view = CommonInputViewV2()
-        view.disable()
-        return view
-    }()
-
-    let nominatorView: DetailsTriangularedView = {
-        let view = UIFactory.default.createAccountView(for: .selection, filled: false)
-        view.layout = .withoutIcon
-        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.strokeWidth = 0.5
-        return view
-    }()
-
-    let stateTogglerView: DetailsTriangularedView = {
-        let view = UIFactory.default.createAccountView(for: .selection, filled: true)
-        view.layout = .withoutIcon
-        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
-        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
-        view.triangularedBackgroundView?.strokeWidth = 0.5
-        return view
-    }()
+    let nominatorView: DetailsTriangularedView = createRoleView()
+    let stateTogglerView: DetailsTriangularedView = createRoleView()
 
     // MARK: - Lifecycle
 
@@ -162,6 +129,25 @@ final class StakingPoolCreateViewLayout: UIView {
     }
 
     // MARK: - Private methods
+
+    private static func createRoleView() -> DetailsTriangularedView {
+        let view = UIFactory.default.createAccountView(for: .selection, filled: true)
+        view.layout = .withoutIcon
+        view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
+        view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite8()!
+        view.triangularedBackgroundView?.strokeWidth = 0.5
+        view.titleLabel.font = .h5Title
+        return view
+    }
+
+    private static func createInputV2View() -> CommonInputViewV2 {
+        let view = CommonInputViewV2()
+        view.animatedInputField.titleFont = .h5Title
+        view.disable()
+        return view
+    }
 
     private func configure() {
         backgroundColor = R.color.colorBlack19()

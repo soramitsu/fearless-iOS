@@ -35,7 +35,7 @@ final class FWBarChartView: BarChartView {
 
         delegate = self
         backgroundColor = .clear
-        chartDescription?.enabled = false
+        chartDescription.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
@@ -60,7 +60,7 @@ final class FWBarChartView: BarChartView {
         leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = yAxisFormatter
         leftAxis.labelFont = .systemFont(ofSize: 9, weight: .semibold)
-        leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
+        leftAxis.labelTextColor = R.color.colorWhite()!.withAlphaComponent(0.64)
         leftAxis.axisMinimum = 0
 
         rightAxis.enabled = false

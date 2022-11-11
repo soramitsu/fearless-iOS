@@ -31,13 +31,13 @@ final class StakingPoolCreatePresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) - (existentialDeposit ?? 0) }
     private var minCreateBond: Decimal?
     private var nominatorWallet: MetaAccountModel
     private var stateTogglerWallet: MetaAccountModel
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
-    private var existentialDeposit: BigUInt?
+    private var existentialDeposit: Decimal?
 
     // MARK: - Constructors
 
@@ -120,21 +120,31 @@ final class StakingPoolCreatePresenter {
     private func presentAlert() {
         let languages = localizationManager?.selectedLocale.rLanguages
 
-        let action = AlertPresentableAction(
+        let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonCancelOperationAction(preferredLanguages: languages),
-            style: .destructive
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.stakingPoolCreateMissingNameTitle(preferredLanguages: languages),
             message: nil,
             actions: [action],
             closeAction: nil
         )
 
-        router.present(viewModel: viewModel, style: .alert, from: view)
+        DispatchQueue.main.async { [weak self] in
+            self?.router.present(viewModel: viewModel, from: self?.view)
+        }
+    }
+
+    private func refreshFee() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let poolName = poolNameInputViewModel.inputHandler.value
+
+        interactor.estimateFee(amount: spendingAmount, poolName: poolName, poolId: lastPoolId)
     }
 }
 
@@ -143,8 +153,11 @@ final class StakingPoolCreatePresenter {
 // swiftlint:disable function_body_length
 extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
     func createDidTapped() {
+        let precision = Int16(chainAsset.asset.precision)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
-        let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let spendingAmount = inputAmount.toSubstrateAmount(precision: precision)
+        let existentialDepositAmount = existentialDeposit?.toSubstrateAmount(precision: precision)
+
         DataValidationRunner(validators: [
             dataValidatingFactory.canNominate(
                 amount: inputAmount,
@@ -156,7 +169,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
                 fee: fee,
                 locale: selectedLocale,
                 onError: { [weak self] in
-                    self?.interactor.estimateFee()
+                    self?.refreshFee()
                 }
             ),
             dataValidatingFactory.canPayFeeAndAmount(
@@ -172,7 +185,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
             dataValidatingFactory.exsitentialDepositIsNotViolated(
                 spendingAmount: spendingAmount,
                 totalAmount: totalAmount,
-                minimumBalance: existentialDeposit,
+                minimumBalance: existentialDepositAmount,
                 locale: selectedLocale,
                 chainAsset: chainAsset
             )
@@ -216,23 +229,35 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
 
     func selectAmountPercentage(_ percentage: Float) {
         inputResult = .rate(Decimal(Double(percentage)))
+        provideAssetVewModel()
+        provideInputViewModel()
+
+        refreshFee()
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
+        provideAssetVewModel()
+
+        refreshFee()
     }
 
     func didLoad(view: StakingPoolCreateViewInput) {
         self.view = view
         interactor.setup(with: self)
-        interactor.estimateFee()
+        refreshFee()
         provideViewModel()
+        provideInputViewModel()
 
         view.didReceive(nameViewModel: poolNameInputViewModel)
     }
 
     func backDidTapped() {
         router.dismiss(view: view)
+    }
+
+    func nameTextFieldInputValueChanged() {
+        refreshFee()
     }
 }
 
@@ -242,7 +267,12 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
         switch existentialDepositResult {
         case let .success(existentialDeposit):
-            self.existentialDeposit = existentialDeposit
+            self.existentialDeposit = Decimal.fromSubstrateAmount(
+                existentialDeposit,
+                precision: Int16(chainAsset.asset.precision)
+            )
+
+            refreshFee()
         case let .failure(error):
             logger.error(error.localizedDescription)
         }
@@ -251,6 +281,8 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceiveLastPoolId(_ lastPoolId: UInt32?) {
         self.lastPoolId = lastPoolId
         provideViewModel()
+
+        refreshFee()
     }
 
     func didReceivePoolMember(_ poolMember: StakingPoolMember?) {
@@ -293,7 +325,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {
-                balance = nil
+                balance = Decimal.zero
             }
 
             provideAssetVewModel()
@@ -313,6 +345,14 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
 
             provideAssetVewModel()
             provideFeeViewModel()
+
+            switch inputResult {
+            case .rate:
+                provideInputViewModel()
+            default:
+                break
+            }
+
         case let .failure(error):
             logger.error("error: \(error)")
         }

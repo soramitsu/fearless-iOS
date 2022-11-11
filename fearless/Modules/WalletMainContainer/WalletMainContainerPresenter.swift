@@ -59,6 +59,13 @@ final class WalletMainContainerPresenter: NSObject {
 // MARK: - WalletMainContainerViewOutput
 
 extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
+    func addressDidCopied() {
+        router.presentStatus(
+            with: AddressCopiedEvent(locale: selectedLocale),
+            animated: true
+        )
+    }
+
     func didLoad(view: WalletMainContainerViewInput) {
         self.view = view
         interactor.setup(with: self)

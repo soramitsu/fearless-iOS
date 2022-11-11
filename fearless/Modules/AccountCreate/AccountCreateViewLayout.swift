@@ -88,9 +88,9 @@ final class AccountCreateViewLayout: UIView {
 
     let substrateDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .done
         return view
@@ -98,9 +98,9 @@ final class AccountCreateViewLayout: UIView {
 
     let ethereumDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.keyboardType = .decimalPad
         view.returnKeyType = .done
@@ -195,6 +195,8 @@ final class AccountCreateViewLayout: UIView {
         subtype: .fromTop,
         curve: .easeIn
     )
+
+    var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -364,7 +366,7 @@ private extension AccountCreateViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
     }
 

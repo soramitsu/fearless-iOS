@@ -1,4 +1,6 @@
 import UIKit
+import SoraFoundation
+import SnapKit
 
 final class SelectableListViewLayout: UIView {
     private enum Constants {
@@ -6,7 +8,15 @@ final class SelectableListViewLayout: UIView {
         static let cornerRadius: CGFloat = 20.0
     }
 
+    var keyboardAdoptableConstraint: Constraint?
+
     let indicator = UIFactory.default.createIndicatorView()
+
+    let contentStackView: UIStackView = {
+        let view = UIFactory.default.createVerticalStackView(spacing: 5)
+        view.alignment = .center
+        return view
+    }()
 
     let titleLabel: UILabel = {
         let titleLabel = UILabel()
@@ -15,10 +25,19 @@ final class SelectableListViewLayout: UIView {
         return titleLabel
     }()
 
-    let tableView: SelfSizingTableView = {
-        let view = SelfSizingTableView()
-        return view
+    lazy var searchTextField: SearchTextField = {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
     }()
+
+    let tableView = UITableView()
+    lazy var emptyView = EmptyView()
 
     var locale: Locale = .current {
         didSet {
@@ -34,6 +53,21 @@ final class SelectableListViewLayout: UIView {
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func setEmptyView(vasible: Bool) {
+        emptyView.isHidden = !vasible
+        tableView.isHidden = vasible
+    }
+
+    func bind(viewModel: TextSearchViewModel?) {
+        searchTextField.isHidden = viewModel == nil
+        searchTextField.textField.placeholder = viewModel?.placeholder.value(for: locale)
+        let viewModel = EmptyViewModel(
+            title: viewModel?.emptyViewTitle.value(for: locale) ?? "",
+            description: viewModel?.emptyViewDescription.value(for: locale) ?? ""
+        )
+        emptyView.bind(viewModel: viewModel)
     }
 
     private func applyLocale() {
@@ -66,11 +100,28 @@ final class SelectableListViewLayout: UIView {
             make.centerY.equalToSuperview()
         }
 
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
+        addSubview(contentStackView)
+        contentStackView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        }
+
+        contentStackView.addArrangedSubview(searchTextField)
+        contentStackView.addArrangedSubview(tableView)
+        contentStackView.addArrangedSubview(emptyView)
+
+        tableView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        searchTextField.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        emptyView.snp.makeConstraints { make in
+            make.edges.equalTo(tableView)
         }
     }
 }

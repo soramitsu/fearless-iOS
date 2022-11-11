@@ -235,7 +235,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performNominationStatusAction() {
-        let optViewModel: AlertPresentableViewModel? = {
+        let optViewModel: SheetAlertPresentableViewModel? = {
             let locale = view?.localizationManager?.selectedLocale
 
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
@@ -252,14 +252,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         if let viewModel = optViewModel {
             wireframe.present(
                 viewModel: viewModel,
-                style: .alert,
                 from: view
             )
         }
     }
 
     func performValidationStatusAction() {
-        let optViewModel: AlertPresentableViewModel? = stateMachine.viewState { (state: ValidatorState) in
+        let optViewModel: SheetAlertPresentableViewModel? = stateMachine.viewState { (state: ValidatorState) in
             let locale = view?.localizationManager?.selectedLocale
             return state.createStatusPresentableViewModel(for: locale)
         }
@@ -267,7 +266,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         if let viewModel = optViewModel {
             wireframe.present(
                 viewModel: viewModel,
-                style: .alert,
                 from: view
             )
         }
@@ -367,16 +365,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func performChangeValidatorsAction() {
         guard
-            let selectedAccount = SelectedWalletSettings.shared.value,
+            let wallet = SelectedWalletSettings.shared.value,
             let chainAsset = chainAsset else {
             return
         }
 
         wireframe.showNominatorValidators(
             from: view,
-            chain: chainAsset.chain,
-            asset: chainAsset.asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
@@ -754,7 +751,10 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         guard
             let selectedAccount = SelectedWalletSettings.shared.value,
             let manageStakingItems = context as? [StakingManageOption],
-            index >= 0, index < manageStakingItems.count, let chainAsset = chainAsset else {
+            index >= 0,
+            index < manageStakingItems.count,
+            let chainAsset = chainAsset
+        else {
             return
         }
 
@@ -802,9 +802,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .changeValidators:
             wireframe.showNominatorValidators(
                 from: view,
-                chain: chainAsset.chain,
-                asset: chainAsset.asset,
-                selectedAccount: selectedAccount
+                chainAsset: chainAsset,
+                wallet: selectedAccount
             )
         case .setupValidators:
             if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {

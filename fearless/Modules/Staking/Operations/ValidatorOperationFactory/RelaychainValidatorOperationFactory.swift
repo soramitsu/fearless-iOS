@@ -79,7 +79,7 @@ final class RelaychainValidatorOperationFactory {
     func createSlashesOperation(
         for validatorIds: [AccountId],
         nomination: Nomination
-    ) -> CompoundOperationWrapper<[Bool]> {
+    ) -> CompoundOperationWrapper<[AccountId: Bool]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
@@ -92,18 +92,22 @@ final class RelaychainValidatorOperationFactory {
 
         slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
-        let operation = ClosureOperation<[Bool]> {
+        let operation = ClosureOperation<[AccountId: Bool]> {
             let slashingSpans = try slashingSpansWrapper.targetOperation.extractNoCancellableResultData()
+            var slashes: [AccountId: Bool] = [:]
 
-            return validatorIds.enumerated().map { index, _ in
-                let slashingSpan = slashingSpans[index]
+            slashingSpans.forEach { storageResponse in
+                let accountId = storageResponse.key.getAccountIdFromKey(accountIdLenght: 32)
 
-                if let lastSlashEra = slashingSpan.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
-                    return true
+                var slashed = false
+                if let lastSlashEra = storageResponse.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
+                    slashed = true
                 }
 
-                return false
+                slashes[accountId] = slashed
             }
+
+            return slashes
         }
 
         operation.addDependency(slashingSpansWrapper.targetOperation)
@@ -406,9 +410,42 @@ final class RelaychainValidatorOperationFactory {
             }
         }
     }
+
+    func createNominatorsOperation(
+        for accountId: AccountId
+    ) -> CompoundOperationWrapper<Nomination?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let nominatorsWrapper: CompoundOperationWrapper<[StorageResponse<Nomination>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: { [accountId] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .nominators
+            )
+
+        nominatorsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        let operation = ClosureOperation<Nomination?> {
+            let nominators = try nominatorsWrapper.targetOperation.extractNoCancellableResultData()
+
+            return nominators.compactMap { $0.value }.first
+        }
+
+        operation.addDependency(nominatorsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: operation,
+            dependencies: [runtimeOperation] + nominatorsWrapper.allOperations
+        )
+    }
 }
 
 extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol {
+    func nomination(accountId: AccountId) -> CompoundOperationWrapper<Nomination?> {
+        createNominatorsOperation(for: accountId)
+    }
+
     // swiftlint:disable function_body_length
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
@@ -533,7 +570,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
-                    hasSlashes: slashes[index]
+                    hasSlashes: slashes[accountId] != nil
                 )
             }
         }

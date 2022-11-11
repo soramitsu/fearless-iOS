@@ -43,6 +43,12 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         return button
     }()
 
+    let emptyView: EmptyView = {
+        let view = EmptyView()
+        view.isHidden = true
+        return view
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -72,6 +78,7 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         addSubview(navigationBar)
         addSubview(tableView)
         addSubview(continueButton)
+        addSubview(emptyView)
 
         navigationBar.setRightViews([optionsButton])
 
@@ -95,6 +102,11 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        emptyView.snp.makeConstraints { make in
+            make.top.leading.trailing.equalTo(tableView)
+            make.bottom.equalTo(continueButton.snp.top)
+        }
     }
 
     private func applyLocalization() {
@@ -104,5 +116,11 @@ final class StakingPoolJoinChoosePoolViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.poolStakingChoosepoolTitle(
             preferredLanguages: locale.rLanguages
         ))
+
+        let emptyViewModel = EmptyViewModel(
+            title: R.string.localizable.choosePoolEmptyTitle(preferredLanguages: locale.rLanguages),
+            description: ""
+        )
+        emptyView.bind(viewModel: emptyViewModel)
     }
 }

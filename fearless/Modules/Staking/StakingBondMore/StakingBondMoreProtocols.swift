@@ -28,7 +28,7 @@ protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable, AnyDismissable {
+protocol StakingBondMoreWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable, AnyDismissable {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
         flow: StakingBondMoreConfirmationFlow,

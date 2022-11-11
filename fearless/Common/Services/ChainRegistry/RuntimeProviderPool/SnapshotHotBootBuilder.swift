@@ -29,24 +29,32 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         self.logger = logger
     }
 
+    // MARK: - Public
+
     func startHotBoot() {
         let baseTypesFetchOperation = filesOperationFactory.fetchCommonTypesOperation()
+        let chainsTypesFetchOperation = filesOperationFactory.fetchChainsTypesOperation()
         let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainModelOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let mergeOperation = ClosureOperation<MergeOperationResult> {
             let commonTypesResult = try baseTypesFetchOperation.targetOperation.extractNoCancellableResultData()
+            let chainsTypesResult = try chainsTypesFetchOperation.targetOperation.extractNoCancellableResultData()
             let runtimesResult = try runtimeItemsOperation.extractNoCancellableResultData()
             let chainModelResult = try chainModelOperation.extractNoCancellableResultData()
 
             return MergeOperationResult(
                 commonTypes: commonTypesResult,
+                chainsTypes: chainsTypesResult,
                 runtimes: runtimesResult,
                 chains: chainModelResult
             )
         }
 
-        let dependencies = baseTypesFetchOperation.allOperations + [runtimeItemsOperation] + [chainModelOperation]
+        let dependencies = baseTypesFetchOperation.allOperations
+            + chainsTypesFetchOperation.allOperations
+            + [runtimeItemsOperation]
+            + [chainModelOperation]
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
@@ -64,6 +72,8 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         operationQueue.addOperations(compoundOperation.allOperations, waitUntilFinished: false)
     }
 
+    // MARK: - Private
+
     private func handleMergeOperation(result: SnapshotHotBootBuilder.MergeOperationResult) {
         let runtimeItemsMap = result.runtimes.reduce(
             into: [String: RuntimeMetadataItem]()
@@ -71,21 +81,34 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
             result[runtimeItem.chain] = runtimeItem
         }
 
+        guard
+            let chainsTypes = result.chainsTypes,
+            let chainsTypesJson = try? JSONDecoder().decode([String: Data].self, from: chainsTypes)
+        else {
+            return
+        }
+
         result.chains.forEach { chain in
-            guard let commonTypes = result.commonTypes,
-                  let runtimeItem = runtimeItemsMap[chain.chainId] else {
+            guard
+                let commonTypes = result.commonTypes,
+                let runtimeItem = runtimeItemsMap[chain.chainId],
+                let chainTypes = chainsTypesJson[chain.chainId]
+            else {
                 return
             }
+
             runtimeProviderPool.setupHotRuntimeProvider(
                 for: chain,
                 runtimeItem: runtimeItem,
-                commonTypes: commonTypes
+                commonTypes: commonTypes,
+                chainTypes: chainTypes
             )
         }
     }
 
     private struct MergeOperationResult {
         let commonTypes: Data?
+        let chainsTypes: Data?
         let runtimes: [RuntimeMetadataItem]
         let chains: [ChainModel]
     }

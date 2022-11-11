@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 
+// swiftlint:disable type_body_length
 final class StakingPoolManagementViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
@@ -47,7 +48,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
+        view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p1Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         view.borderView.isHidden = true
@@ -59,7 +60,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
+        view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p1Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         view.borderView.isHidden = true
@@ -71,7 +72,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueLabel.font = .h5Title
-        view.valueLabel.textColor = .white
+        view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
         return view
     }()
@@ -81,59 +82,35 @@ final class StakingPoolManagementViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueLabel.font = .h5Title
-        view.valueLabel.textColor = .white
+        view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
         return view
     }()
 
     let stakeMoreButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyEnabledStyle()
+        button.applyDisabledStyle()
         return button
     }()
 
     let unstakeButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyEnabledStyle()
+        button.applyDisabledStyle()
         return button
     }()
 
     let alertsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
 
-    let claimView: DetailsTriangularedView = {
-        let view = DetailsTriangularedView()
-        view.actionColor = R.color.colorPink1()
-        view.fillColor = R.color.colorSemiBlack()!
-        view.highlightedFillColor = R.color.colorSemiBlack()!
-        view.iconImage = R.image.iconAttention()
-        view.titleLabel.font = .h6Title
-        view.titleLabel.textColor = R.color.colorPink1()!
-        view.subtitleLabel?.font = .p1Paragraph
-        view.subtitleLabel?.textColor = R.color.colorTransparentText()
-        view.layout = .smallIconTitleSubtitleButton
-        view.isUserInteractionEnabled = true
-        view.contentView?.isUserInteractionEnabled = true
-        view.backgroundView?.isUserInteractionEnabled = true
-        view.isHidden = true
-        return view
+    lazy var selectValidatorsView: DetailsTriangularedView = {
+        createAlertView()
     }()
 
-    let redeemView: DetailsTriangularedView = {
-        let view = DetailsTriangularedView()
-        view.actionColor = R.color.colorPink1()
-        view.fillColor = R.color.colorSemiBlack()!
-        view.highlightedFillColor = R.color.colorSemiBlack()!
-        view.iconImage = R.image.iconAttention()
-        view.titleLabel.font = .h6Title
-        view.titleLabel.textColor = R.color.colorPink1()!
-        view.subtitleLabel?.font = .p1Paragraph
-        view.subtitleLabel?.textColor = R.color.colorTransparentText()
-        view.layout = .smallIconTitleSubtitleButton
-        view.isUserInteractionEnabled = true
-        view.contentView?.isUserInteractionEnabled = true
-        view.backgroundView?.isUserInteractionEnabled = true
-        view.isHidden = true
-        return view
+    lazy var claimView: DetailsTriangularedView = {
+        createAlertView()
+    }()
+
+    lazy var redeemView: DetailsTriangularedView = {
+        createAlertView()
     }()
 
     let optionsButton: UIButton = {
@@ -164,11 +141,80 @@ final class StakingPoolManagementViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        optionsButton.layer.cornerRadius = optionsButton.frame.size.height / 2
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        optionsButton.rounded()
+        navigationBar.backButton.rounded()
     }
 
+    // MARK: - Public methods
+
+    func bind(poolName: String?) {
+        poolInfoView.bind(viewModel: poolName)
+    }
+
+    func bind(balanceViewModel: BalanceViewModelProtocol?) {
+        balanceView.bind(viewModel: balanceViewModel)
+    }
+
+    func bind(unstakeBalanceViewModel: BalanceViewModelProtocol?) {
+        unstakingView.bind(viewModel: unstakeBalanceViewModel)
+    }
+
+    func bind(stakedAmountString: NSAttributedString) {
+        totalStakeLabel.attributedText = stakedAmountString
+    }
+
+    func bind(redeemDelayViewModel: LocalizableResource<String>?) {
+        reedeemDelayView.bind(viewModel: redeemDelayViewModel?.value(for: locale))
+    }
+
+    func bind(claimableViewModel: BalanceViewModelProtocol?) {
+        claimView.isHidden = claimableViewModel == nil
+        claimView.subtitle = claimableViewModel?.amount
+    }
+
+    func bind(redeemableViewModel: BalanceViewModelProtocol?) {
+        redeemView.isHidden = redeemableViewModel == nil
+        redeemView.subtitle = redeemableViewModel?.amount
+    }
+
+    func bind(viewModel: StakingPoolManagementViewModel?) {
+        stakeMoreButton.isEnabled = viewModel?.stakeMoreButtonEnabled == true
+        unstakeButton.isEnabled = viewModel?.unstakeButtonEnabled == true
+    }
+
+    func setSelectValidatorsAlert(visible: Bool) {
+        selectValidatorsView.isHidden = !visible
+    }
+
+    // MARK: - Private methods
+
+    private func createAlertView() -> DetailsTriangularedView {
+        let view = DetailsTriangularedView()
+        view.actionColor = R.color.colorPink1()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.iconImage = R.image.iconAttention()
+        view.titleLabel.font = .h6Title
+        view.titleLabel.textColor = R.color.colorPink1()!
+        view.subtitleLabel?.font = .p1Paragraph
+        view.subtitleLabel?.textColor = R.color.colorTransparentText()
+        view.layout = .smallIconTitleSubtitleButton
+        view.isUserInteractionEnabled = true
+        view.contentView?.isUserInteractionEnabled = true
+        view.backgroundView?.isUserInteractionEnabled = true
+        view.isHidden = true
+        return view
+    }
+
+    // swiftlint:disable function_body_length
     private func setupLayout() {
+        func makeDefaultConstraints(for view: UIView) {
+            view.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+                make.height.equalTo(UIConstants.cellHeight)
+            }
+        }
+
         addSubview(navigationBar)
         addSubview(contentView)
         addSubview(stakeMoreButton)
@@ -186,6 +232,7 @@ final class StakingPoolManagementViewLayout: UIView {
         infoStackView.addArrangedSubview(poolInfoView)
         infoStackView.addArrangedSubview(reedeemDelayView)
 
+        alertsStackView.addArrangedSubview(selectValidatorsView)
         alertsStackView.addArrangedSubview(claimView)
         alertsStackView.addArrangedSubview(redeemView)
 
@@ -220,7 +267,7 @@ final class StakingPoolManagementViewLayout: UIView {
         stakeMoreButton.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
         unstakeButton.snp.makeConstraints { make in
@@ -228,37 +275,21 @@ final class StakingPoolManagementViewLayout: UIView {
             make.leading.equalTo(stakeMoreButton.snp.trailing).offset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
             make.width.equalTo(stakeMoreButton.snp.width)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
-        balanceView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
+        [
+            balanceView,
+            unstakingView,
+            poolInfoView,
+            reedeemDelayView,
+            claimView,
+            redeemView
+        ].forEach { makeDefaultConstraints(for: $0) }
 
-        unstakingView.snp.makeConstraints { make in
+        selectValidatorsView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        poolInfoView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        reedeemDelayView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
-        }
-
-        claimView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        redeemView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
+            make.height.equalTo(UIConstants.amountViewHeight)
         }
     }
 
@@ -272,50 +303,40 @@ final class StakingPoolManagementViewLayout: UIView {
         unstakeButton.imageWithTitleView?.title = R.string.localizable.stakingUnbond_v190(
             preferredLanguages: locale.rLanguages
         )
-        balanceView.titleLabel.text = R.string.localizable.walletBalanceAvailable(preferredLanguages: locale.rLanguages)
-        unstakingView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(preferredLanguages: locale.rLanguages)
-        poolInfoView.titleLabel.text = R.string.localizable.stakingPoolInfoTitle(preferredLanguages: locale.rLanguages)
-        reedeemDelayView.titleLabel.text = R.string.localizable.poolStakingRedeemDelayTitle(preferredLanguages: locale.rLanguages)
+        balanceView.titleLabel.text = R.string.localizable.walletBalanceAvailable(
+            preferredLanguages: locale.rLanguages
+        )
+        unstakingView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(
+            preferredLanguages: locale.rLanguages
+        )
+        poolInfoView.titleLabel.text = R.string.localizable.stakingPoolInfoTitle(
+            preferredLanguages: locale.rLanguages
+        )
+        reedeemDelayView.titleLabel.text = R.string.localizable.poolStakingRedeemDelayTitle(
+            preferredLanguages: locale.rLanguages
+        )
 
-        claimView.title = R.string.localizable.poolStakingManagementClaimTitle(preferredLanguages: locale.rLanguages)
-        redeemView.title = R.string.localizable.poolStakingManagementRedeemTitle(preferredLanguages: locale.rLanguages)
+        selectValidatorsView.title = R.string.localizable.stakingPoolManagementSelectValidatorsTitle(
+            preferredLanguages: locale.rLanguages
+        )
+        selectValidatorsView.subtitle = R.string.localizable.stakingPoolManagementSelectValidatorsSubtitle(
+            preferredLanguages: locale.rLanguages
+        )
+        selectValidatorsView.actionButton?.imageWithTitleView?.title = R.string.localizable.commonSelect(
+            preferredLanguages: locale.rLanguages
+        )
+        claimView.title = R.string.localizable.poolStakingManagementClaimTitle(
+            preferredLanguages: locale.rLanguages
+        )
+        redeemView.title = R.string.localizable.poolStakingManagementRedeemTitle(
+            preferredLanguages: locale.rLanguages
+        )
 
-        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.poolStakingClaimAmountTitle("", preferredLanguages: locale.rLanguages)
-        redeemView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(preferredLanguages: locale.rLanguages)
-    }
-
-    func bind(poolName: String?) {
-        poolInfoView.bind(viewModel: poolName)
-    }
-
-    func bind(balanceViewModel: BalanceViewModelProtocol?) {
-        balanceView.bind(viewModel: balanceViewModel)
-    }
-
-    func bind(unstakeBalanceViewModel: BalanceViewModelProtocol?) {
-        unstakingView.bind(viewModel: unstakeBalanceViewModel)
-    }
-
-    func bind(stakedAmountString: NSAttributedString) {
-        totalStakeLabel.attributedText = stakedAmountString
-    }
-
-    func bind(redeemDelayViewModel: LocalizableResource<String>?) {
-        reedeemDelayView.bind(viewModel: redeemDelayViewModel?.value(for: locale))
-    }
-
-    func bind(claimableViewModel: BalanceViewModelProtocol?) {
-        claimView.isHidden = claimableViewModel == nil
-        claimView.subtitle = claimableViewModel?.amount
-    }
-
-    func bind(redeemableViewModel: BalanceViewModelProtocol?) {
-        redeemView.isHidden = redeemableViewModel == nil
-        redeemView.subtitle = redeemableViewModel?.amount
-    }
-
-    func bind(viewModel: StakingPoolManagementViewModel?) {
-        stakeMoreButton.set(enabled: viewModel?.stakeMoreButtonEnabled == true)
-        unstakeButton.set(enabled: viewModel?.unstakeButtonEnabled == true)
+        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.poolStakingClaimAmountTitle(
+            "", preferredLanguages: locale.rLanguages
+        )
+        redeemView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(
+            preferredLanguages: locale.rLanguages
+        )
     }
 }

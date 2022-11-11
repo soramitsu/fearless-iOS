@@ -15,6 +15,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
     func didTapSelectNetwork()
     func didTapOnBalance()
     func didTapIssueButton()
+    func addressDidCopied()
 }
 
 protocol WalletMainContainerInteractorInput: AnyObject {
@@ -29,7 +30,7 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
 }
 
-protocol WalletMainContainerRouterInput: AlertPresentable, ErrorPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

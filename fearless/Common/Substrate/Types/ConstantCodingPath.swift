@@ -1,100 +1,89 @@
 import Foundation
 
-struct ConstantCodingPath {
-    let moduleName: String
-    let constantName: String
-}
-
-extension ConstantCodingPath {
-    static var slashDeferDuration: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Staking", constantName: "SlashDeferDuration")
+enum ConstantCodingPath: CaseIterable {
+    var moduleName: String {
+        path.moduleName
     }
 
-    static var maxNominatorRewardedPerValidator: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Staking", constantName: "MaxNominatorRewardedPerValidator")
+    var constantName: String {
+        path.constantName
     }
 
-    static var lockUpPeriod: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Staking", constantName: "BondingDuration")
+    var path: (moduleName: String, constantName: String) {
+        switch self {
+        case .slashDeferDuration:
+            return (moduleName: "Staking", constantName: "SlashDeferDuration")
+        case .maxNominatorRewardedPerValidator:
+            return (moduleName: "Staking", constantName: "MaxNominatorRewardedPerValidator")
+        case .lockUpPeriod:
+            return (moduleName: "Staking", constantName: "BondingDuration")
+        case .eraLength:
+            return (moduleName: "Staking", constantName: "SessionsPerEra")
+        case .maxNominations:
+            return (moduleName: "Staking", constantName: "MaxNominations")
+        case .existentialDeposit:
+            return (moduleName: "Balances", constantName: "ExistentialDeposit")
+        case .equilibriumExistentialDeposit:
+            return (moduleName: "eqBalances", constantName: "depositEq")
+        case .paraLeasingPeriod:
+            return (moduleName: "Slots", constantName: "LeasePeriod")
+        case .babeBlockTime:
+            return (moduleName: "Babe", constantName: "ExpectedBlockTime")
+        case .sessionLength:
+            return (moduleName: "Babe", constantName: "EpochDuration")
+        case .minimumPeriodBetweenBlocks:
+            return (moduleName: "Timestamp", constantName: "MinimumPeriod")
+        case .minimumContribution:
+            return (moduleName: "Crowdloan", constantName: "MinContribution")
+        case .blockWeights:
+            return (moduleName: "System", constantName: "BlockWeights")
+        case .blockHashCount:
+            return (moduleName: "System", constantName: "BlockHashCount")
+        case .revokeDelegationDelay:
+            return (moduleName: "ParachainStaking", constantName: "RevokeDelegationDelay")
+        case .minDelegation:
+            return (moduleName: "ParachainStaking", constantName: "MinDelegation")
+        case .rewardPaymentDelay:
+            return (moduleName: "ParachainStaking", constantName: "RewardPaymentDelay")
+        case .maxDelegationsPerDelegator:
+            return (moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
+        case .maxTopDelegationsPerCandidate:
+            return (moduleName: "ParachainStaking", constantName: "MaxTopDelegationsPerCandidate")
+        case .maxBottomDelegationsPerCandidate:
+            return (moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
+        case .defaultTip:
+            return (moduleName: "Balances", constantName: "DefaultTip")
+        case .candidateBondLessDelay:
+            return (moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
+        case .nominationPoolsPalletId:
+            return (moduleName: "NominationPools", constantName: "PalletId")
+        case .historyDepth:
+            return (moduleName: "Staking", constantName: "HistoryDepth")
+        }
     }
 
-    static var eraLength: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Staking", constantName: "SessionsPerEra")
-    }
-
-    static var maxNominations: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Staking", constantName: "MaxNominations")
-    }
-
-    static var existentialDeposit: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
-    }
-
-    static var equilibriumExistentialDeposit: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "eqBalances", constantName: "depositEq")
-    }
-
-    static var paraLeasingPeriod: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Slots", constantName: "LeasePeriod")
-    }
-
-    static var babeBlockTime: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Babe", constantName: "ExpectedBlockTime")
-    }
-
-    static var sessionLength: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Babe", constantName: "EpochDuration")
-    }
-
-    static var minimumPeriodBetweenBlocks: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Timestamp", constantName: "MinimumPeriod")
-    }
-
-    static var minimumContribution: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Crowdloan", constantName: "MinContribution")
-    }
-
-    static var blockWeights: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "System", constantName: "BlockWeights")
-    }
-
-    static var blockHashCount: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "System", constantName: "BlockHashCount")
-    }
-
-    static var revokeDelegationDelay: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RevokeDelegationDelay")
-    }
-
-    static var minDelegation: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MinDelegation")
-    }
-
-    static var rewardPaymentDelay: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "RewardPaymentDelay")
-    }
-
-    static var maxDelegationsPerDelegator: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxDelegationsPerDelegator")
-    }
-
-    static var maxTopDelegationsPerCandidate: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxTopDelegationsPerCandidate")
-    }
-
-    static var maxBottomDelegationsPerCandidate: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "MaxBottomDelegationsPerCandidate")
-    }
-
-    static var defaultTip: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "Balances", constantName: "DefaultTip")
-    }
-
-    static var candidateBondLessDelay: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "ParachainStaking", constantName: "CandidateBondLessDelay")
-    }
-
-    static var nominationPoolsPalletId: ConstantCodingPath {
-        ConstantCodingPath(moduleName: "NominationPools", constantName: "PalletId")
-    }
+    case slashDeferDuration
+    case maxNominatorRewardedPerValidator
+    case lockUpPeriod
+    case eraLength
+    case maxNominations
+    case existentialDeposit
+    case equilibriumExistentialDeposit
+    case paraLeasingPeriod
+    case babeBlockTime
+    case sessionLength
+    case minimumPeriodBetweenBlocks
+    case minimumContribution
+    case blockWeights
+    case blockHashCount
+    case revokeDelegationDelay
+    case minDelegation
+    case rewardPaymentDelay
+    case maxDelegationsPerDelegator
+    case maxTopDelegationsPerCandidate
+    case maxBottomDelegationsPerCandidate
+    case defaultTip
+    case candidateBondLessDelay
+    case nominationPoolsPalletId
+    case historyDepth
 }

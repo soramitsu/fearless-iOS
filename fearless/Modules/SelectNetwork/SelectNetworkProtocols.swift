@@ -14,7 +14,7 @@ protocol SelectNetworkInteractorOutput: AnyObject {
     func didReceiveChains(result: Result<[ChainModel], Error>)
 }
 
-protocol SelectNetworkRouterInput: AlertPresentable, ErrorPresentable {
+protocol SelectNetworkRouterInput: SheetAlertPresentable, ErrorPresentable {
     func complete(on view: SelectNetworkViewInput, selecting chain: ChainModel?)
 }
 

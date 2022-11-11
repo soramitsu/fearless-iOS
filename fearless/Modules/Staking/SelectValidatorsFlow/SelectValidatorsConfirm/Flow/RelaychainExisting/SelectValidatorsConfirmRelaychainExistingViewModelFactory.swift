@@ -6,19 +6,27 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelFactory {
     private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var amountFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
     }
 }
 
 extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
-    func buildAssetBalanceViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?, balance: Decimal?) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+    func buildAssetBalanceViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?,
+        balance: Decimal?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState
+        else {
             return nil
         }
 
@@ -29,7 +37,9 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         )
     }
 
-    func buildHintsViewModel(viewModelState: SelectValidatorsConfirmViewModelState) -> LocalizableResource<[TitleIconViewModel]>? {
+    func buildHintsViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState
+    ) -> LocalizableResource<[TitleIconViewModel]>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
               let duration = viewModelState.stakingDuration else {
             return nil
@@ -77,14 +87,16 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         }
     }
 
-    func buildViewModel(viewModelState: SelectValidatorsConfirmViewModelState, asset: AssetModel) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let state = viewModelState.confirmationModel else {
+    func buildViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        asset _: AssetModel
+    ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
+              let state = viewModelState.confirmationModel else {
             return nil
         }
 
         let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
         let rewardViewModel: RewardDestinationTypeViewModel
 
@@ -94,29 +106,51 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
         case let .payout(account):
             let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
 
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
+            rewardViewModel = .payout(icon: payoutIcon, title: account.username, address: account.address)
         }
 
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
-
-            return SelectValidatorsConfirmViewModel(
-                senderIcon: icon,
+        return LocalizableResource { _ in
+            SelectValidatorsConfirmViewModel(
+                senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
-                amount: amount ?? "",
+                amount: nil,
                 rewardDestination: rewardViewModel,
                 validatorsCount: state.targets.count,
                 maxValidatorCount: state.maxTargets,
-                selectedCollatorViewModel: nil
+                selectedCollatorViewModel: nil,
+                stakeAmountViewModel: self.createStakedAmountViewModel(),
+                poolName: nil
             )
         }
     }
 
-    func buildFeeViewModel(viewModelState: SelectValidatorsConfirmViewModelState, priceData: PriceData?) -> LocalizableResource<BalanceViewModelProtocol>? {
-        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState, let fee = viewModelState.fee else {
+    func buildFeeViewModel(
+        viewModelState: SelectValidatorsConfirmViewModelState,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
+              let fee = viewModelState.fee else {
             return nil
         }
 
         return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+    }
+
+    private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
+        let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
+
+        return LocalizableResource { locale in
+            let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
+                preferredLanguages: locale.rLanguages
+            )
+            let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
+            stakedAmountAttributedString.addAttribute(
+                NSAttributedString.Key.foregroundColor,
+                value: R.color.colorGray() as Any,
+                range: (stakedString as NSString).range(of: stakedString)
+            )
+
+            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+        }
     }
 }

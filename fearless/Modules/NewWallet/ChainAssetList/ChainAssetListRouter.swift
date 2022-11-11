@@ -20,17 +20,12 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     ) {
-        let chooseRecipient = ChooseRecipientViewFactory.createView(
-            chainAsset: chainAsset,
+        guard let controller = SendAssembly.configureModule(
             wallet: wallet,
-            flow: .token,
-            transferFinishBlock: transferFinishBlock
-        )
-
-        guard let controller = chooseRecipient?.controller else {
+            initialData: .chainAsset(chainAsset)
+        )?.view.controller else {
             return
         }
 
@@ -54,5 +49,55 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
         }
 
         view?.controller.present(controller, animated: true)
+    }
+
+    func presentAccountOptions(
+        from view: ControllerBackedProtocol?,
+        locale: Locale?,
+        actions: [SheetAlertPresentableAction]
+    ) {
+        let cancelTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: cancelTitle
+        )
+
+        present(
+            viewModel: alertViewModel,
+            from: view
+        )
+    }
+
+    func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
+            flow: .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: controller
+        )
+
+        view?.controller.present(navigationController, animated: true)
+    }
+
+    func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            .chain(model: uniqueChainModel)
+        )?.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: importController
+        )
+
+        view?.controller.present(navigationController, animated: true)
     }
 }

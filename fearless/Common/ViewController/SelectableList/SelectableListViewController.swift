@@ -1,12 +1,16 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtocol>:
     UIViewController,
     UITableViewDataSource,
     UITableViewDelegate,
-    ViewHolder {
+    ViewHolder,
+    KeyboardViewAdoptable {
     typealias RootViewType = SelectableListViewLayout
+
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 
@@ -33,6 +37,20 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     override func viewDidLoad() {
         super.viewDidLoad()
         configureTableView()
+        bindSearchTextView()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     // MARK: - Private methods
@@ -42,6 +60,12 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
         rootView.tableView.allowsSelection = true
+    }
+
+    private func bindSearchTextView() {
+        rootView.searchTextField.onTextDidChanged = { [weak self] text in
+            self?.listPresenter.searchItem(with: text)
+        }
     }
 
     // MARK: - UITableView DataSource
@@ -72,12 +96,24 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 
         listPresenter.selectItem(at: indexPath.row)
     }
+
+    // MARK: - KeyboardViewAdoptable
+
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 // MARK: - SelectionListViewProtocol
 
 extension SelectableListViewController: SelectionListViewProtocol {
+    func bind(viewModel: TextSearchViewModel?) {
+        rootView.bind(viewModel: viewModel)
+    }
+
     func didReload() {
         rootView.tableView.reloadData()
+        rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
     }
 }

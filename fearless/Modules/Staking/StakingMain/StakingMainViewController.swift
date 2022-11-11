@@ -65,7 +65,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var uiFactory: UIFactoryProtocol?
     var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: - UIViewController
 
@@ -395,16 +395,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func changeActionButtonVisibility(_ isVisible: Bool) {
-        let insets = scrollView.contentInset
+        var insets = scrollView.contentInset
         let bottomInset: CGFloat = isVisible ? 84 : 0
+        let currentInset = insets.bottom
+        insets.bottom = max(currentInset, bottomInset)
 
-        scrollView.contentInset = UIEdgeInsets(
-            top: insets.top,
-            left: insets.left,
-            bottom: bottomInset,
-            right: insets.right
-        )
-
+        scrollView.contentInset = insets
         actionButton.isHidden = !isVisible
     }
 }

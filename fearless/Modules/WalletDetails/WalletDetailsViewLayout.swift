@@ -11,7 +11,7 @@ final class WalletDetailsViewLayout: UIView {
     var subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.isHidden = true
         return label
     }()

@@ -33,7 +33,8 @@ final class ChainAccountPresenter {
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
         moduleOutput: ChainAccountModuleOutput?,
-        balanceInfoModule: BalanceInfoModuleInput
+        balanceInfoModule: BalanceInfoModuleInput,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -42,6 +43,7 @@ final class ChainAccountPresenter {
         self.wallet = wallet
         self.moduleOutput = moduleOutput
         self.balanceInfoModule = balanceInfoModule
+        self.localizationManager = localizationManager
     }
 
     func provideViewModel() {
@@ -84,6 +86,13 @@ private extension ChainAccountPresenter {
 }
 
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
+    func addressDidCopied() {
+        wireframe.presentStatus(
+            with: AddressCopiedEvent(locale: selectedLocale),
+            animated: true
+        )
+    }
+
     func setup() {
         interactor.setup()
         provideViewModel()
@@ -97,8 +106,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         wireframe.presentSendFlow(
             from: view,
             chainAsset: chainAsset,
-            wallet: wallet,
-            transferFinishBlock: nil
+            wallet: wallet
         )
     }
 

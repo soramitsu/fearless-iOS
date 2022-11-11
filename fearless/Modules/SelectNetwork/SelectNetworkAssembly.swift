@@ -3,12 +3,13 @@ import SoraFoundation
 import RobinHood
 import SoraUI
 
-final class SelectNetworkAssembly {
+enum SelectNetworkAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
         includingAllNetworks: Bool = true,
+        searchTextsViewModel: TextSearchViewModel?,
         delegate: SelectNetworkDelegate?
     ) -> SelectNetworkModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -31,6 +32,7 @@ final class SelectNetworkAssembly {
             selectedMetaAccount: wallet,
             selectedChainId: selectedChainId,
             includingAllNetworks: includingAllNetworks,
+            searchTextsViewModel: searchTextsViewModel,
             interactor: interactor,
             router: router,
             localizationManager: localizationManager
@@ -48,5 +50,46 @@ final class SelectNetworkAssembly {
         view.modalTransitioningFactory = factory
 
         return (view, presenter)
+    }
+}
+
+enum TextSearchViewModel {
+    case searchNetworkPlaceholder
+    case searchAssetPlaceholder
+
+    var placeholder: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder:
+                return R.string.localizable
+                    .selectNetworkSearchPlaceholder(preferredLanguages: locale.rLanguages)
+            case .searchAssetPlaceholder:
+                return R.string.localizable
+                    .selectAssetSearchPlaceholder(preferredLanguages: locale.rLanguages)
+            }
+        }
+    }
+
+    var emptyViewTitle: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder, .searchAssetPlaceholder:
+                return R.string.localizable
+                    .emptyViewTitle(preferredLanguages: locale.rLanguages)
+            }
+        }
+    }
+
+    var emptyViewDescription: LocalizableResource<String> {
+        LocalizableResource<String> { locale in
+            switch self {
+            case .searchNetworkPlaceholder:
+                return R.string.localizable
+                    .selectNetworkSearchEmptySubtitle(preferredLanguages: locale.rLanguages)
+            case .searchAssetPlaceholder:
+                return R.string.localizable
+                    .selectAssetSearchEmptySubtitle(preferredLanguages: locale.rLanguages)
+            }
+        }
     }
 }

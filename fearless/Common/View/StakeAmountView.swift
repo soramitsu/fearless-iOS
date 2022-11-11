@@ -3,7 +3,7 @@ import SoraFoundation
 
 class StakeAmountView: UIView {
     private enum LayoutConstants {
-        static let iconBackgroundSize = CGSize(width: 80, height: 80)
+        static let iconBackgroundSize = CGSize(width: 100, height: 100)
     }
 
     let iconBackground: ShadowRoundedBackground = {
@@ -45,7 +45,7 @@ class StakeAmountView: UIView {
 
         iconBackground.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
-            make.top.equalToSuperview()
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.size.equalTo(LayoutConstants.iconBackgroundSize)
         }
 

@@ -110,6 +110,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
             case .smallIconTitleSubtitleButton:
                 if subtitleLabel == nil {
                     let label = UILabel()
+                    label.numberOfLines = 0
                     subtitleLabel = label
                     contentView?.addSubview(label)
                 }
@@ -191,9 +192,8 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
 
         let titleHeight = titleLabel.intrinsicContentSize.height
-        let titleWidth = titleLabel.intrinsicContentSize.width
-        let subtitleHeight = subtitleLabel.intrinsicContentSize.height
-        let subtitleWidth = subtitleLabel.intrinsicContentSize.width
+        var titleWidth = titleLabel.intrinsicContentSize.width
+        var subtitleWidth = subtitleLabel.intrinsicContentSize.width
 
         let iconOffset = lazyIconView != nil ? LayoutConstants.iconSize + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
@@ -205,6 +205,9 @@ class DetailsTriangularedView: BackgroundedContentControl {
                 width: LayoutConstants.actionButtonSize.width,
                 height: LayoutConstants.actionButtonSize.height
             )
+
+            titleWidth = actionButton.frame.minX - labelX - UIConstants.defaultOffset
+            subtitleWidth = actionButton.frame.minX - labelX - UIConstants.defaultOffset
         }
 
         titleLabel.frame = CGRect(
@@ -214,9 +217,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
             height: titleHeight
         )
 
+        let subtitleY = titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset
+        let subtitleHeight = frame.size.height - subtitleY - UIConstants.defaultOffset
+
         subtitleLabel.frame = CGRect(
             x: labelX,
-            y: bounds.size.height / 2 + LayoutConstants.labelVerticalOffset,
+            y: subtitleY,
             width: subtitleWidth,
             height: subtitleHeight
         )
@@ -313,17 +319,9 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
         titleLabel.frame = CGRect(
             x: labelX,
-            y: bounds.midY - LayoutConstants.titleVerticalOffset,
+            y: LayoutConstants.titleVerticalOffset,
             width: trailing - labelX,
             height: titleHeight
-        )
-
-        let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
-        subtitleLabel?.frame = CGRect(
-            x: labelX,
-            y: titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset,
-            width: trailing - labelX,
-            height: subtitleHeight
         )
 
         if let iconView = lazyIconView {
@@ -491,6 +489,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
         if subtitleLabel == nil, layout != .singleTitle {
             let label = UILabel()
+            label.numberOfLines = 0
             contentView?.addSubview(label)
             subtitleLabel = label
         }

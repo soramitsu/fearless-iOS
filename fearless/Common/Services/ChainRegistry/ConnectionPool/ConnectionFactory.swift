@@ -4,7 +4,11 @@ import FearlessUtils
 typealias ChainConnection = JSONRPCEngine & ConnectionAutobalancing & ConnectionStateReporting
 
 protocol ConnectionFactoryProtocol {
-    func createConnection(for url: URL, delegate: WebSocketEngineDelegate) -> ChainConnection
+    func createConnection(
+        connectionName: String?,
+        for url: URL,
+        delegate: WebSocketEngineDelegate
+    ) -> ChainConnection
 }
 
 final class ConnectionFactory {
@@ -16,8 +20,12 @@ final class ConnectionFactory {
 }
 
 extension ConnectionFactory: ConnectionFactoryProtocol {
-    func createConnection(for url: URL, delegate: WebSocketEngineDelegate) -> ChainConnection {
-        let engine = WebSocketEngine(url: url, logger: logger)
+    func createConnection(
+        connectionName: String?,
+        for url: URL,
+        delegate: WebSocketEngineDelegate
+    ) -> ChainConnection {
+        let engine = WebSocketEngine(connectionName: connectionName, url: url, logger: nil)
         engine.delegate = delegate
         return engine
     }

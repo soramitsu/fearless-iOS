@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable {
+protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(viewModel: SelectValidatorsStartViewModel?)
     func didReceive(textsViewModel: SelectValidatorsStartTextsViewModel)
 }
@@ -20,7 +20,7 @@ protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
 
 protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {}
 
-protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol SelectValidatorsStartWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func proceedToCustomList(
         from view: ControllerBackedProtocol?,
         flow: CustomValidatorListFlow,

@@ -20,7 +20,7 @@ class ManageAssetsTableViewCell: UITableViewCell {
     let chainNameLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()

@@ -48,6 +48,7 @@ enum CustomValidatorListViewFactory {
     }
 }
 
+// swiftlint:disable function_body_length
 extension CustomValidatorListViewFactory {
     static func createContainer(
         flow: CustomValidatorListFlow,
@@ -81,7 +82,13 @@ extension CustomValidatorListViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .relaychainInitiated(validatorList, recommendedValidatorList, selectedValidatorList, maxTargets, bonding):
+        case let .relaychainInitiated(
+            validatorList,
+            recommendedValidatorList,
+            selectedValidatorList,
+            maxTargets,
+            _
+        ):
             let viewModelState = CustomValidatorListRelaychainViewModelState(
                 baseFlow: flow,
                 fullValidatorList: validatorList,
@@ -100,7 +107,65 @@ extension CustomValidatorListViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
-        case let .relaychainExisting(validatorList, recommendedValidatorList, selectedValidatorList, maxTargets, bonding):
+        case let .relaychainExisting(
+            validatorList,
+            recommendedValidatorList,
+            selectedValidatorList,
+            maxTargets,
+            _
+        ):
+            let viewModelState = CustomValidatorListRelaychainViewModelState(
+                baseFlow: flow,
+                fullValidatorList: validatorList,
+                recommendedValidatorList: recommendedValidatorList,
+                selectedValidatorList: selectedValidatorList,
+                maxTargets: maxTargets
+            )
+            let strategy = CustomValidatorListRelaychainStrategy()
+            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
+
+            return CustomValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(
+            validatorList,
+            recommendedValidatorList,
+            selectedValidatorList,
+            _,
+            maxTargets,
+            _
+        ):
+            let viewModelState = CustomValidatorListRelaychainViewModelState(
+                baseFlow: flow,
+                fullValidatorList: validatorList,
+                recommendedValidatorList: recommendedValidatorList,
+                selectedValidatorList: selectedValidatorList,
+                maxTargets: maxTargets
+            )
+            let strategy = CustomValidatorListRelaychainStrategy()
+            let viewModelFactory = CustomValidatorListRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator
+            )
+
+            return CustomValidatorListDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(
+            validatorList,
+            recommendedValidatorList,
+            selectedValidatorList,
+            _,
+            maxTargets,
+            _
+        ):
             let viewModelState = CustomValidatorListRelaychainViewModelState(
                 baseFlow: flow,
                 fullValidatorList: validatorList,

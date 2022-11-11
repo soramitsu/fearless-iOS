@@ -2,11 +2,17 @@ import Foundation
 import RobinHood
 
 protocol RuntimeProviderFactoryProtocol {
-    func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol
+    func createRuntimeProvider(
+        for chain: ChainModel,
+        chainTypes: Data?,
+        usedRuntimePaths: [String: [String]]
+    ) -> RuntimeProviderProtocol
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data
+        commonTypes: Data,
+        chainTypes: Data,
+        usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol
 }
 
@@ -36,7 +42,11 @@ final class RuntimeProviderFactory {
 }
 
 extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
-    func createRuntimeProvider(for chain: ChainModel) -> RuntimeProviderProtocol {
+    func createRuntimeProvider(
+        for chain: ChainModel,
+        chainTypes: Data?,
+        usedRuntimePaths: [String: [String]]
+    ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
             filesOperationFactory: fileOperationFactory,
@@ -50,14 +60,19 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             eventCenter: eventCenter,
             operationQueue: operationQueue,
             logger: logger,
-            repository: repository
+            repository: repository,
+            usedRuntimePaths: usedRuntimePaths,
+            chainMetadata: nil,
+            chainTypes: chainTypes
         )
     }
 
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data
+        commonTypes: Data,
+        chainTypes: Data,
+        usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol {
         let snapshotOperationFactory = RuntimeSnapshotFactory(
             chainId: chain.chainId,
@@ -79,7 +94,10 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
             eventCenter: eventCenter,
             operationQueue: operationQueue,
             logger: logger,
-            repository: repository
+            repository: repository,
+            usedRuntimePaths: usedRuntimePaths,
+            chainMetadata: runtimeItem,
+            chainTypes: chainTypes
         )
     }
 }

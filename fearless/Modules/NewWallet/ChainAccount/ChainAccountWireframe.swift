@@ -9,21 +9,18 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func presentSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     ) {
-        let searchView = ChooseRecipientViewFactory.createView(
-            chainAsset: chainAsset,
+        guard let controller = SendAssembly.configureModule(
             wallet: wallet,
-            flow: .token,
-            transferFinishBlock: transferFinishBlock
-        )
-
-        guard let controller = searchView?.controller else {
+            initialData: .chainAsset(chainAsset)
+        )?.view.controller else {
             return
         }
 
-        view?.controller.present(controller, animated: true)
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
     }
 
     func presentReceiveFlow(
@@ -178,6 +175,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
                 selectedChainId: selectedChainId,
                 chainModels: chainModels,
                 includingAllNetworks: false,
+                searchTextsViewModel: nil,
                 delegate: delegate
             )
         else {
@@ -200,11 +198,11 @@ private extension ChainAccountWireframe {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let actions: [AlertPresentableAction] = options.map { option in
+        let actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -217,7 +215,7 @@ private extension ChainAccountWireframe {
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -230,7 +228,7 @@ private extension ChainAccountWireframe {
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -245,7 +243,7 @@ private extension ChainAccountWireframe {
         }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -254,7 +252,6 @@ private extension ChainAccountWireframe {
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }
