@@ -47,7 +47,7 @@ final class SearchTriangularedView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
-        label.textColor = R.color.colorWhite()
+        label.textColor = R.color.colorStrokeGray()
         return label
     }()
 
