@@ -14,9 +14,9 @@ protocol RuntimeSnapshotFactoryProtocol {
 }
 
 final class RuntimeSnapshotFactory {
-    let chainId: ChainModel.Id
-    let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
-    let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let chainId: ChainModel.Id
+    private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
+    private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
 
     init(
         chainId: ChainModel.Id,
@@ -52,7 +52,7 @@ final class RuntimeSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: commonTypes).toHex(),
-                localChainHash: try dataHasher.hash(data: chainTypes).toHex(),
+                localChainTypes: chainTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: runtimeMetadataItem.version,
                 txVersion: runtimeMetadataItem.txVersion,
@@ -85,7 +85,7 @@ final class RuntimeSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: try dataHasher.hash(data: commonTypes).toHex(),
-                localChainHash: nil,
+                localChainTypes: nil,
                 typeRegistryCatalog: catalog,
                 specVersion: runtimeMetadataItem.version,
                 txVersion: runtimeMetadataItem.txVersion,
@@ -97,7 +97,6 @@ final class RuntimeSnapshotFactory {
     }
 
     private func createWrapperForChainTypes(
-        _ dataHasher: StorageHasher,
         ownTypes: Data,
         runtimeMetadataItem: RuntimeMetadataItem,
         usedRuntimePaths: [String: [String]]
@@ -117,7 +116,7 @@ final class RuntimeSnapshotFactory {
 
             return RuntimeSnapshot(
                 localCommonHash: nil,
-                localChainHash: try dataHasher.hash(data: ownTypes).toHex(),
+                localChainTypes: ownTypes,
                 typeRegistryCatalog: catalog,
                 specVersion: runtimeMetadataItem.version,
                 txVersion: runtimeMetadataItem.txVersion,
@@ -148,7 +147,6 @@ extension RuntimeSnapshotFactory: RuntimeSnapshotFactoryProtocol {
             )
         case .onlyOwn:
             return createWrapperForChainTypes(
-                dataHasher,
                 ownTypes: chainTypes,
                 runtimeMetadataItem: chainMetadata,
                 usedRuntimePaths: usedRuntimePaths

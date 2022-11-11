@@ -24,14 +24,12 @@ final class RuntimeSyncService {
 
     struct SyncResult {
         let chainId: ChainModel.Id
-        let typesSyncResult: Result<(fileHash: String, data: Data), Error>?
         let metadataSyncResult: Result<RuntimeMetadataItem?, Error>?
         let runtimeVersion: RuntimeVersion?
     }
 
     struct RetryAttempt {
         let chainId: ChainModel.Id
-        let shouldSyncTypes: Bool
         let runtimeVersion: RuntimeVersion?
         let attempt: Int
     }
@@ -77,16 +75,11 @@ final class RuntimeSyncService {
 
     private func performSync(
         for chainId: ChainModel.Id,
-        shouldSyncTypes: Bool,
         newVersion: RuntimeVersion? = nil
     ) {
         guard let syncInfo = knownChains[chainId] else {
             return
         }
-
-        let chainTypesSyncWrapper = shouldSyncTypes ? syncInfo.typesURL.map {
-            createChainTypesSyncOperation(chainId, hasher: dataHasher, url: $0)
-        } : nil
 
         let metadataSyncWrapper = newVersion.map {
             createMetadataSyncOperation(
@@ -96,17 +89,15 @@ final class RuntimeSyncService {
             )
         }
 
-        if chainTypesSyncWrapper == nil, metadataSyncWrapper == nil {
+        if metadataSyncWrapper == nil {
             return
         }
 
-        let dependencies = (chainTypesSyncWrapper?.allOperations ?? []) +
-            (metadataSyncWrapper?.allOperations ?? [])
+        let dependencies = (metadataSyncWrapper?.allOperations ?? [])
 
         let processingOperation = ClosureOperation<SyncResult> {
             SyncResult(
                 chainId: chainId,
-                typesSyncResult: chainTypesSyncWrapper?.targetOperation.result,
                 metadataSyncResult: metadataSyncWrapper?.targetOperation.result,
                 runtimeVersion: newVersion
             )
@@ -124,7 +115,6 @@ final class RuntimeSyncService {
                 } catch {
                     let result = SyncResult(
                         chainId: chainId,
-                        typesSyncResult: .failure(error),
                         metadataSyncResult: .failure(error),
                         runtimeVersion: newVersion
                     )
@@ -159,14 +149,6 @@ final class RuntimeSyncService {
     }
 
     private func addRetryRequestIfNeeded(for result: SyncResult) {
-        let shouldSyncTypes: Bool
-
-        if case .failure = result.typesSyncResult {
-            shouldSyncTypes = true
-        } else {
-            shouldSyncTypes = false
-        }
-
         let runtimeSyncVersion: RuntimeVersion?
 
         if let version = result.runtimeVersion, case .failure = result.metadataSyncResult {
@@ -175,12 +157,11 @@ final class RuntimeSyncService {
             runtimeSyncVersion = nil
         }
 
-        if shouldSyncTypes || (runtimeSyncVersion != nil) {
+        if runtimeSyncVersion != nil {
             let nextAttempt = retryAttempts[result.chainId].map { $0.attempt + 1 } ?? 1
 
             let retryAttempt = RetryAttempt(
                 chainId: result.chainId,
-                shouldSyncTypes: shouldSyncTypes,
                 runtimeVersion: runtimeSyncVersion,
                 attempt: nextAttempt
             )
@@ -210,19 +191,6 @@ final class RuntimeSyncService {
     }
 
     private func notifyCompletion(for result: SyncResult) {
-        logger?.debug("Did complete sync \(result)")
-
-        if case let .success(typesSyncResult) = result.typesSyncResult {
-            logger?.debug("Did sync chain type: \(result.chainId)")
-
-            let event = RuntimeChainTypesSyncCompleted(
-                chainId: result.chainId,
-                fileHash: typesSyncResult.fileHash,
-                data: typesSyncResult.data
-            )
-            eventCenter.notify(with: event)
-        }
-
         if
             case .success = result.metadataSyncResult,
             let version = result.runtimeVersion,
@@ -236,36 +204,6 @@ final class RuntimeSyncService {
             )
             eventCenter.notify(with: event)
         }
-    }
-
-    private func createChainTypesSyncOperation(
-        _ chainId: ChainModel.Id,
-        hasher: StorageHasher,
-        url: URL
-    ) -> CompoundOperationWrapper<(fileHash: String, data: Data)> {
-        let remoteFileOperation = dataOperationFactory.fetchData(from: url)
-
-        let fileSaveWrapper = filesOperationFactory.saveChainTypesOperation(for: chainId) {
-            try remoteFileOperation.extractNoCancellableResultData()
-        }
-
-        fileSaveWrapper.addDependency(operations: [remoteFileOperation])
-
-        let mapOperation = ClosureOperation<(fileHash: String, data: Data)> {
-            _ = try fileSaveWrapper.targetOperation.extractNoCancellableResultData()
-            let data = try remoteFileOperation.extractNoCancellableResultData()
-            let fileHash = try hasher.hash(data: data).toHex()
-
-            return (fileHash: fileHash, data: data)
-        }
-
-        mapOperation.addDependency(fileSaveWrapper.targetOperation)
-        mapOperation.addDependency(remoteFileOperation)
-
-        return CompoundOperationWrapper(
-            targetOperation: mapOperation,
-            dependencies: [remoteFileOperation] + fileSaveWrapper.allOperations
-        )
     }
 
     private func createMetadataSyncOperation(
@@ -362,7 +300,6 @@ extension RuntimeSyncService: SchedulerDelegate {
         for requestKeyValue in retryAttempts where syncingChains[requestKeyValue.key] == nil {
             performSync(
                 for: requestKeyValue.key,
-                shouldSyncTypes: requestKeyValue.value.shouldSyncTypes,
                 newVersion: requestKeyValue.value.runtimeVersion
             )
         }
@@ -385,7 +322,7 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
         if syncInfo.typesURL != chain.types?.url {
             knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
 
-            performSync(for: chain.chainId, shouldSyncTypes: true)
+            performSync(for: chain.chainId)
         }
     }
 
@@ -409,7 +346,7 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
 
         clearOperations(for: chainId)
 
-        performSync(for: chainId, shouldSyncTypes: true, newVersion: version)
+        performSync(for: chainId, newVersion: version)
     }
 
     func hasChain(with chainId: ChainModel.Id) -> Bool {
