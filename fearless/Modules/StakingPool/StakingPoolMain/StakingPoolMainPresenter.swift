@@ -340,6 +340,8 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     func didReceive(stakeInfo: StakingPoolMember?) {
         self.stakeInfo = stakeInfo
         provideStakeInfoViewModel()
+
+        fetchPoolNomination()
     }
 
     func didReceive(poolRewards: StakingPoolRewards?) {
