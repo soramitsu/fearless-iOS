@@ -53,7 +53,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceive(scamInfo: ScamInfo?)
 }
 
-protocol SendRouterInput: AlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
+protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
     func presentConfirm(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

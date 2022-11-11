@@ -16,7 +16,7 @@ protocol SelectAssetInteractorOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
 }
 
-protocol SelectAssetRouterInput: AlertPresentable, ErrorPresentable, PresentDismissable {}
+protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, PresentDismissable {}
 
 protocol SelectAssetModuleInput: AnyObject {}
 

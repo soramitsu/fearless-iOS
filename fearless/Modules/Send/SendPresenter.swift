@@ -108,7 +108,7 @@ extension SendPresenter: SendViewOutput {
         guard let chainAsset = selectedChainAsset else { return }
         guard let address = recipientAddress,
               interactor.validate(address: address, for: chainAsset.chain) else {
-            router.present(message: "Incorrect address", title: nil, closeAction: "Close", from: view)
+            router.present(message: nil, title: "Incorrect address", closeAction: "Close", from: view)
             return
         }
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
