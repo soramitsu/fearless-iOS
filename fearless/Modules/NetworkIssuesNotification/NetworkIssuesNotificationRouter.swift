@@ -16,28 +16,28 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let actions: [AlertPresentableAction] = options.map { option in
+        let actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .create:
                 let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
                 let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) {
+                return SheetAlertPresentableAction(title: title) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
         }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -46,7 +46,6 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }

@@ -47,7 +47,7 @@ protocol AccountImportInteractorOutputProtocol: AnyObject {
     func didSuggestKeystore(text: String, preferredInfo: MetaAccountImportPreferredInfo?)
 }
 
-protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable, DocumentPickerPresentable {
+protocol AccountImportWireframeProtocol: SheetAlertPresentable, ErrorPresentable, DocumentPickerPresentable {
     func showSecondStep(from view: AccountImportViewProtocol?, with data: AccountCreationStep.FirstStepData)
 
     func proceed(from view: AccountImportViewProtocol?, flow: AccountImportFlow)

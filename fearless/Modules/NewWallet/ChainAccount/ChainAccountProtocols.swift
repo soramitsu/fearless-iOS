@@ -31,7 +31,7 @@ protocol ChainAccountInteractorOutputProtocol: AnyObject {
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     ModalAlertPresenting,
     AuthorizationPresentable,
     ApplicationStatusPresentable {

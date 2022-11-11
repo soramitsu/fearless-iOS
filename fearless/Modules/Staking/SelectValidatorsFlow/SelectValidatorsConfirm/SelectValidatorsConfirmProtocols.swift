@@ -28,7 +28,7 @@ protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
-protocol SelectValidatorsConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol SelectValidatorsConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     AddressOptionsPresentable, StakingErrorPresentable {
     func complete(from view: SelectValidatorsConfirmViewProtocol?)
 }

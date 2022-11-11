@@ -24,7 +24,7 @@ protocol StakingRebondConfirmationInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingRebondConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRebondConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable {
     func complete(from view: StakingRebondConfirmationViewProtocol?)
 }

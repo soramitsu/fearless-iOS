@@ -24,7 +24,7 @@ extension ValidatorState {
 
     func createStatusPresentableViewModel(
         for locale: Locale?
-    ) -> AlertPresentableViewModel? {
+    ) -> SheetAlertPresentableViewModel? {
         switch status {
         case .active:
             return createActiveStatus(for: locale)
@@ -37,14 +37,14 @@ extension ValidatorState {
 
     private func createActiveStatus(
         for locale: Locale?
-    ) -> AlertPresentableViewModel? {
+    ) -> SheetAlertPresentableViewModel? {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
             .stakingNominatorStatusAlertActiveTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
             .stakingNominatorStatusAlertActiveMessage(preferredLanguages: locale?.rLanguages)
 
-        return AlertPresentableViewModel(
+        return SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [],
@@ -54,14 +54,14 @@ extension ValidatorState {
 
     private func createInactiveStatus(
         for locale: Locale?
-    ) -> AlertPresentableViewModel? {
+    ) -> SheetAlertPresentableViewModel? {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
             .stakingNominatorStatusAlertInactiveTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
             .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)
 
-        return AlertPresentableViewModel(
+        return SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [],
@@ -71,7 +71,7 @@ extension ValidatorState {
 
     private func createUndefinedStatus(
         for _: Locale?
-    ) -> AlertPresentableViewModel? {
+    ) -> SheetAlertPresentableViewModel? {
         nil
     }
 }

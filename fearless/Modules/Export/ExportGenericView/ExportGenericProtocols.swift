@@ -25,7 +25,7 @@ extension ExportGenericPresenterProtocol {
     func didTapStringExport(_: String?) {}
 }
 
-protocol ExportGenericWireframeProtocol: ErrorPresentable, AlertPresentable, SharingPresentable {
+protocol ExportGenericWireframeProtocol: ErrorPresentable, SheetAlertPresentable, SharingPresentable {
     func close(view: ExportGenericViewProtocol?)
     func back(view: ExportGenericViewProtocol?)
 }

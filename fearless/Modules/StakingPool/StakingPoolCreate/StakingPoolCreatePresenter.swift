@@ -120,14 +120,14 @@ final class StakingPoolCreatePresenter {
     private func presentAlert() {
         let languages = localizationManager?.selectedLocale.rLanguages
 
-        let action = AlertPresentableAction(
+        let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonCancelOperationAction(preferredLanguages: languages),
-            style: .destructive
+            button: UIFactory.default.createDestructiveButton()
         ) { [weak self] in
             self?.router.dismiss(view: self?.view)
         }
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.stakingPoolCreateMissingNameTitle(preferredLanguages: languages),
             message: nil,
             actions: [action],
@@ -135,7 +135,7 @@ final class StakingPoolCreatePresenter {
         )
 
         DispatchQueue.main.async { [weak self] in
-            self?.router.present(viewModel: viewModel, style: .alert, from: self?.view)
+            self?.router.present(viewModel: viewModel, from: self?.view)
         }
     }
 
@@ -156,7 +156,6 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
         let precision = Int16(chainAsset.asset.precision)
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
         let spendingAmount = inputAmount.toSubstrateAmount(precision: precision)
-        let poolName = poolNameInputViewModel.inputHandler.value
         let existentialDepositAmount = existentialDeposit?.toSubstrateAmount(precision: precision)
 
         DataValidationRunner(validators: [

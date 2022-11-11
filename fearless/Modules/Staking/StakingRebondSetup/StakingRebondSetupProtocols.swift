@@ -31,7 +31,7 @@ protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
-protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRebondSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func proceed(
         view: StakingRebondSetupViewProtocol?,

@@ -21,7 +21,7 @@ protocol WalletOptionInteractorOutput: AnyObject {
     func walletRemoved()
 }
 
-protocol WalletOptionRouterInput: AlertPresentable {
+protocol WalletOptionRouterInput: SheetAlertPresentable {
     func showWalletDetails(
         from view: ControllerBackedProtocol?,
         for wallet: MetaAccountModel
