@@ -85,7 +85,8 @@ extension WalletLocalStorageSubscriber {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .soraAsset:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
         case .equilibrium:
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)

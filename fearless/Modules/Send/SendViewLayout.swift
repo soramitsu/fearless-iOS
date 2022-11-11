@@ -43,7 +43,6 @@ final class SendViewLayout: UIView {
     let feeView: NetworkFeeView = {
         let view = UIFactory.default.createNetworkFeeView()
         view.borderView.isHidden = true
-        view.isHidden = true
         return view
     }()
 
@@ -134,7 +133,6 @@ final class SendViewLayout: UIView {
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
         feeView.bind(viewModel: feeViewModel)
-        feeView.isHidden = (feeViewModel == nil)
     }
 
     func bind(tipViewModel: TipViewModel?) {

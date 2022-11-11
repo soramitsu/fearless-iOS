@@ -72,6 +72,7 @@ extension SendPresenter: SendViewOutput {
             interactor.updateSubscriptions(for: chainAsset)
             provideNetworkViewModel(for: chainAsset.chain)
             provideInputViewModel()
+            refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
             router.showSelectAsset(
@@ -346,10 +347,10 @@ extension SendPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
-        if let selectedChain = chain,
-           let selectedAsset = optionalAsset,
-           let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name })
-        {
+        if
+            let selectedChain = chain,
+            let selectedAsset = optionalAsset,
+            let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name }) {
             self.selectedChainAsset = selectedChainAsset
             provideNetworkViewModel(for: selectedChain)
             provideAssetVewModel()
@@ -363,7 +364,10 @@ extension SendPresenter: SelectNetworkDelegate {
 private extension SendPresenter {
     func provideAssetVewModel() {
         guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
+              let balanceViewModelFactory = interactor
+              .dependencyContainer
+              .prepareDepencies(chainAsset: chainAsset)?
+              .balanceViewModelFactory
         else { return }
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
 
@@ -377,7 +381,10 @@ private extension SendPresenter {
 
     func provideTipViewModel(for chainAsset: ChainAsset) {
         guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
+              let balanceViewModelFactory = interactor
+              .dependencyContainer
+              .prepareDepencies(chainAsset: chainAsset)?
+              .balanceViewModelFactory
         else { return }
         let viewModel = tip
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
@@ -391,7 +398,10 @@ private extension SendPresenter {
 
     func provideFeeViewModel() {
         guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
+              let balanceViewModelFactory = interactor
+              .dependencyContainer
+              .prepareDepencies(chainAsset: chainAsset)?
+              .balanceViewModelFactory
         else { return }
         let viewModel = fee
             .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
@@ -401,7 +411,10 @@ private extension SendPresenter {
 
     func provideInputViewModel() {
         guard let chainAsset = selectedChainAsset,
-              let balanceViewModelFactory = interactor.dependencyContainer.prepareDepencies(chainAsset: chainAsset)?.balanceViewModelFactory
+              let balanceViewModelFactory = interactor
+              .dependencyContainer
+              .prepareDepencies(chainAsset: chainAsset)?
+              .balanceViewModelFactory
         else { return }
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
 
@@ -415,7 +428,7 @@ private extension SendPresenter {
         view?.didReceive(selectNetworkViewModel: viewModel)
     }
 
-    func refreshFee(for chainAsset: ChainAsset, address: String) {
+    func refreshFee(for chainAsset: ChainAsset, address: String?) {
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         guard let amount = inputAmount.toSubstrateAmount(
             precision: Int16(chainAsset.asset.precision)
