@@ -29,7 +29,7 @@ class ContactTableCell: UITableViewCell {
     private let addressLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = UIColor.white
+        label.textColor = R.color.colorWhite()
         label.lineBreakMode = .byTruncatingMiddle
         return label
     }()

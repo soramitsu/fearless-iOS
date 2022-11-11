@@ -20,17 +20,12 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func showSendFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?
+        wallet: MetaAccountModel
     ) {
-        let chooseRecipient = ChooseRecipientViewFactory.createView(
-            chainAsset: chainAsset,
+        guard let controller = SendAssembly.configureModule(
             wallet: wallet,
-            flow: .token,
-            transferFinishBlock: transferFinishBlock
-        )
-
-        guard let controller = chooseRecipient?.controller else {
+            initialData: .chainAsset(chainAsset)
+        )?.view.controller else {
             return
         }
 

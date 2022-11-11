@@ -96,7 +96,7 @@ extension CheckPincodeViewController: PinSetupViewProtocol {
     func didChangeAccessoryState(enabled: Bool, availableBiometryType: AvailableBiometryType) {
         rootView.pinView.numpadView?.supportsAccessoryControl = enabled
         rootView.pinView.numpadView?.accessoryIcon = availableBiometryType.accessoryIcon?.tinted(
-            with: R.color.colorWhite() ?? UIColor.white
+            with: R.color.colorWhite()!
         )
     }
 }

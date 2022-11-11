@@ -174,7 +174,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: address,
-            icon: try? iconGenerator.generateFromAddress(address).imageWithFillColor(UIColor.white, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
+            icon: try? iconGenerator.generateFromAddress(address).imageWithFillColor(R.color.colorWhite()!, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
             transactionType: data.type,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,

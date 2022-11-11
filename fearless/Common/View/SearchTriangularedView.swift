@@ -38,7 +38,7 @@ final class SearchTriangularedView: UIView {
     private let cleanButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.deleteGrey()?.withRenderingMode(.alwaysTemplate), for: .normal)
-        button.tintColor = .white
+        button.tintColor = R.color.colorWhite()
         button.isHidden = true
         button.addTarget(self, action: #selector(clean), for: .touchUpInside)
         return button
@@ -47,7 +47,7 @@ final class SearchTriangularedView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -55,7 +55,7 @@ final class SearchTriangularedView: UIView {
         let view = UITextField()
         view.tintColor = R.color.colorPink()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.returnKeyType = .done
 
         if let oldStyle = view.defaultTextAttributes[

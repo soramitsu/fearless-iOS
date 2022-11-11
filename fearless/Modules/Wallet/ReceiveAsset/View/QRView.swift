@@ -10,7 +10,7 @@ final class QRView: UIView {
     private let fearlessIcon: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.qrFearless()
-        imageView.backgroundColor = .white
+        imageView.backgroundColor = R.color.colorWhite()
         return imageView
     }()
 
@@ -26,7 +26,7 @@ final class QRView: UIView {
     }
 
     func configure() {
-        backgroundColor = .white
+        backgroundColor = R.color.colorWhite()
         layer.cornerRadius = LayoutConstants.cornerRadius
     }
 

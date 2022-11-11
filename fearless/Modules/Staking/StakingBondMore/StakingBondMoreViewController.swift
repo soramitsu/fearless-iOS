@@ -146,7 +146,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
         let iconSize = 2.0 * rootView.collatorView.iconRadius
 
         rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
-            R.color.colorWhite() ?? UIColor.white,
+            R.color.colorWhite() ?? R.color.colorWhite()!,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )

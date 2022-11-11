@@ -601,7 +601,7 @@ final class UIFactory: UIFactoryProtocol {
 
     func createSelectNetworkView() -> DetailsTriangularedView {
         let view = createDetailsView(with: .largeIconTitleSubtitle, filled: false)
-        view.titleLabel.textColor = UIColor.white
+        view.titleLabel.textColor = R.color.colorWhite()
         view.titleLabel.font = UIFont.h5Title
         view.actionImage = R.image.iconExpandable()
         view.borderWidth = 1

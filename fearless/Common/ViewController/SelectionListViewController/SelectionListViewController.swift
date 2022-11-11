@@ -67,5 +67,5 @@ extension SelectionListViewController: SelectionListViewProtocol {
         tableView.reloadData()
     }
 
-    func bind(viewModel _: SelectNetworkSearchViewModel?) {}
+    func bind(viewModel _: TextSearchViewModel?) {}
 }

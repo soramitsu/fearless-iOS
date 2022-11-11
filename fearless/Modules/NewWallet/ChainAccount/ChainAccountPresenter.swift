@@ -106,8 +106,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         wireframe.presentSendFlow(
             from: view,
             chainAsset: chainAsset,
-            wallet: wallet,
-            transferFinishBlock: nil
+            wallet: wallet
         )
     }
 
