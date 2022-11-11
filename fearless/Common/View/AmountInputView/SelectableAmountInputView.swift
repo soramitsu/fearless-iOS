@@ -72,7 +72,7 @@ final class SelectableAmountInputView: UIView {
         textField.attributedPlaceholder = NSAttributedString(
             string: "0",
             attributes: [
-                .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
+                .foregroundColor: R.color.colorWhite()!,
                 .font: UIFont.h2Title
             ]
         )
@@ -131,7 +131,6 @@ final class SelectableAmountInputView: UIView {
             balanceLabel.text = nil
         }
 
-        let symbol = viewModel.symbol.uppercased()
         symbolLabel.text = viewModel.symbol.uppercased()
 
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconView, animated: true)
