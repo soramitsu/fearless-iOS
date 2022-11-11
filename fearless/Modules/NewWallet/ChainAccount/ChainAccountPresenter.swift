@@ -33,7 +33,8 @@ final class ChainAccountPresenter {
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
         moduleOutput: ChainAccountModuleOutput?,
-        balanceInfoModule: BalanceInfoModuleInput
+        balanceInfoModule: BalanceInfoModuleInput,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
@@ -42,6 +43,7 @@ final class ChainAccountPresenter {
         self.wallet = wallet
         self.moduleOutput = moduleOutput
         self.balanceInfoModule = balanceInfoModule
+        self.localizationManager = localizationManager
     }
 
     func provideViewModel() {

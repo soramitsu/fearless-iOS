@@ -26,7 +26,7 @@ protocol StakingRedeemConfirmationInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingRedeemConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRedeemConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
     func complete(from view: StakingRedeemConfirmationViewProtocol?)
 }

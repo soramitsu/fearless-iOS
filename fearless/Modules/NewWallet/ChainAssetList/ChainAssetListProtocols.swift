@@ -35,7 +35,6 @@ protocol ChainAssetListInteractorOutput: AnyObject {
 }
 
 protocol ChainAssetListRouterInput:
-    AlertPresentable,
     ErrorPresentable,
     WarningPresentable,
     AppUpdatePresentable,
@@ -59,7 +58,7 @@ protocol ChainAssetListRouterInput:
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,
-        actions: [AlertPresentableAction]
+        actions: [SheetAlertPresentableAction]
     )
     func showCreate(
         uniqueChainModel: UniqueChainModel,

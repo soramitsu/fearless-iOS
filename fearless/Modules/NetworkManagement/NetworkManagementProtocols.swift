@@ -48,7 +48,7 @@ protocol NetworkManagementInteractorOutputProtocol: AnyObject {
     func didReceiveConnection(selectionError: Error)
 }
 
-protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable {
+protocol NetworkManagementWireframeProtocol: ErrorPresentable, SheetAlertPresentable {
     func presentAccountSelection(
         _ accounts: [ChainAccountResponse],
         addressType: SNAddressType,

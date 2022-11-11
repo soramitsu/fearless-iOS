@@ -22,7 +22,7 @@ protocol AddCustomNodeInteractorOutputProtocol: AnyObject {
     func didReceiveError(error: Error, for url: URL)
 }
 
-protocol AddCustomNodeWireframeProtocol: PresentDismissable, AlertPresentable, ErrorPresentable {}
+protocol AddCustomNodeWireframeProtocol: PresentDismissable, SheetAlertPresentable, ErrorPresentable {}
 
 protocol AddCustomNodeModuleOutput: AnyObject {
     func didChangedNodesList()

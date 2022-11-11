@@ -25,7 +25,7 @@ protocol CrowdloanContributionConfirmInteractorOutputProtocol: CrowdloanContribu
     func didReceiveDisplayAddress(result: Result<DisplayAddress, Error>)
 }
 
-protocol CrowdloanContributionConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol CrowdloanContributionConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     CrowdloanErrorPresentable, AddressOptionsPresentable {
     func complete(on view: CrowdloanContributionConfirmViewProtocol?)
 }

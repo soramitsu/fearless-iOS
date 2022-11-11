@@ -59,13 +59,13 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,
         locale: Locale?,
-        actions: [AlertPresentableAction]
+        actions: [SheetAlertPresentableAction]
     ) {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -74,7 +74,6 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }

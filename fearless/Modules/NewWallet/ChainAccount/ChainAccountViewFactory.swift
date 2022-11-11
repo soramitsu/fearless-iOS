@@ -72,7 +72,8 @@ enum ChainAccountViewFactory {
             logger: Logger.shared,
             wallet: wallet,
             moduleOutput: moduleOutput,
-            balanceInfoModule: balanceInfoModule.input
+            balanceInfoModule: balanceInfoModule.input,
+            localizationManager: LocalizationManager.shared
         )
 
         interactor.presenter = presenter

@@ -26,7 +26,7 @@ protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingUnbondConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingUnbondConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
     func complete(from view: StakingUnbondConfirmViewProtocol?)
 }

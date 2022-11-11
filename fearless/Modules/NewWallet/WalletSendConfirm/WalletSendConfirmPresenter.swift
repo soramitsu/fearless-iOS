@@ -143,23 +143,17 @@ final class WalletSendConfirmPresenter {
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func didTapScamWarningButton() {
-        let closeAction = SheetAlertPresentableAction(
-            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-            style: UIFactory.default.createMainActionButton(),
-            handler: nil
-        )
         let title = R.string.localizable.scamWarningAlertTitle(preferredLanguages: selectedLocale.rLanguages)
-        let subtitle = R.string.localizable.scamWarningAlertSubtitle(
+        let message = R.string.localizable.scamWarningAlertSubtitle(
             chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
         )
 
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
-            titleStyle: .defaultTitle,
-            subtitle: subtitle,
-            subtitleStyle: .defaultSubtitle,
-            actions: [closeAction]
+            message: message,
+            actions: [],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         )
         wireframe.present(
             viewModel: sheetViewModel,

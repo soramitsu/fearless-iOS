@@ -51,6 +51,7 @@ protocol UIFactoryProtocol {
     func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
+    func createDestructiveButton() -> TriangularedButton
     func createDetailsView(
         with layout: DetailsTriangularedView.Layout,
         filled: Bool
@@ -130,6 +131,12 @@ final class UIFactory: UIFactoryProtocol {
     func createAccessoryButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyAccessoryStyle()
+        return button
+    }
+
+    func createDestructiveButton() -> TriangularedButton {
+        let button = TriangularedButton()
+        button.applyDestructiveStyle()
         return button
     }
 
