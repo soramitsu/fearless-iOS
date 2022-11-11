@@ -39,7 +39,7 @@ protocol SendInteractorInput: AnyObject {
         for asset: AssetModel,
         completionBlock: @escaping ([ChainModel]?) -> Void
     )
-    func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String, chainAsset: ChainAsset)
+    func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)
     func validate(address: String, for chain: ChainModel) -> Bool
     func fetchScamInfo(for address: String)
 }
