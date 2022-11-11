@@ -119,7 +119,7 @@ final class ChainRegistryFactory {
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
             commonTypesSyncService: commonTypesSyncService,
-            chainsTypesSuncService: chainsTypesSuncService,
+            chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
             networkIssuesCenter: NetworkIssuesCenter.shared,

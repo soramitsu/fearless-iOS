@@ -27,7 +27,7 @@ final class ChainRegistry {
     private let chainSyncService: ChainSyncServiceProtocol
     private let runtimeSyncService: RuntimeSyncServiceProtocol
     private let commonTypesSyncService: CommonTypesSyncServiceProtocol
-    private let chainsTypesSuncService: ChainsTypesSyncServiceProtocol
+    private let chainsTypesSyncService: ChainsTypesSyncServiceProtocol
     private let chainProvider: StreamableProvider<ChainModel>
     private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
     private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
@@ -49,7 +49,7 @@ final class ChainRegistry {
         chainSyncService: ChainSyncServiceProtocol,
         runtimeSyncService: RuntimeSyncServiceProtocol,
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
-        chainsTypesSuncService: ChainsTypesSyncServiceProtocol,
+        chainsTypesSyncService: ChainsTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
         networkIssuesCenter: NetworkIssuesCenterProtocol,
@@ -62,7 +62,7 @@ final class ChainRegistry {
         self.chainSyncService = chainSyncService
         self.runtimeSyncService = runtimeSyncService
         self.commonTypesSyncService = commonTypesSyncService
-        self.chainsTypesSuncService = chainsTypesSuncService
+        self.chainsTypesSyncService = chainsTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
         self.networkIssuesCenter = networkIssuesCenter
@@ -144,7 +144,7 @@ final class ChainRegistry {
     private func syncUpServices() {
         chainSyncService.syncUp()
         commonTypesSyncService.syncUp()
-        chainsTypesSuncService.syncUp()
+        chainsTypesSyncService.syncUp()
     }
 }
 
@@ -290,14 +290,15 @@ extension ChainRegistry: ConnectionPoolDelegate {
     func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
         guard
             chain.selectedNode == nil,
-            let pendingRequests = getConnection(for: chain.chainId)?.pendingEngineRequests
+            let connection = getConnection(for: chain.chainId)
         else {
             return
         }
 
         do {
+            let pendingEngineRequests = connection.pendingEngineRequests
             let connection = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
-            connection.connect(with: pendingRequests)
+            connection.connect(with: pendingEngineRequests)
 
             let event = ChainsUpdatedEvent(updatedChains: [chain])
             eventCenter.notify(with: event)
