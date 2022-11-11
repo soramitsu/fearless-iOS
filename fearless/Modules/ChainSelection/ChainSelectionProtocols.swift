@@ -13,7 +13,7 @@ protocol ChainSelectionInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAssetKey: ChainAssetKey)
 }
 
-protocol ChainSelectionWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol ChainSelectionWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func complete(on view: ChainSelectionViewProtocol, selecting chain: ChainModel?)
 }
 

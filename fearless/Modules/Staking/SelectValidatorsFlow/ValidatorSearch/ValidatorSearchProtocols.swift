@@ -1,6 +1,6 @@
 import SoraFoundation
 
-protocol ValidatorSearchWireframeProtocol: AlertPresentable {
+protocol ValidatorSearchWireframeProtocol: SheetAlertPresentable {
     func present(
         flow: ValidatorInfoFlow,
         chainAsset: ChainAsset,

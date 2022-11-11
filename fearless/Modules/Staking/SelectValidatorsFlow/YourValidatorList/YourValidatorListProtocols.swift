@@ -19,7 +19,7 @@ protocol YourValidatorListInteractorInputProtocol: AnyObject {
 
 protocol YourValidatorListInteractorOutputProtocol: AnyObject {}
 
-protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol YourValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func present(
         flow: ValidatorInfoFlow,

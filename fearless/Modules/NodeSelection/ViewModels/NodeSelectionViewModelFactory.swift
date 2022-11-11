@@ -10,7 +10,7 @@ protocol NodeSelectionViewModelFactoryProtocol {
         node: ChainNodeModel,
         locale: Locale,
         deleteHandler: @escaping () -> Void
-    ) -> AlertPresentableViewModel
+    ) -> SheetAlertPresentableViewModel
 }
 
 class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
@@ -43,14 +43,16 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
 
         if !customNodeCellViewModels.isEmpty {
             sections.append(NodeSelectionTableSection(
-                title: R.string.localizable.connectionManagementCustomTitle(preferredLanguages: locale.rLanguages).uppercased(),
+                title: R.string.localizable
+                    .connectionManagementCustomTitle(preferredLanguages: locale.rLanguages).uppercased(),
                 viewModels: customNodeCellViewModels
             ))
         }
 
         if !defaultNodeCellViewModels.isEmpty {
             sections.append(NodeSelectionTableSection(
-                title: R.string.localizable.connectionManagementDefaultTitle(preferredLanguages: locale.rLanguages).uppercased(),
+                title: R.string.localizable
+                    .connectionManagementDefaultTitle(preferredLanguages: locale.rLanguages).uppercased(),
                 viewModels: defaultNodeCellViewModels
             ))
         }
@@ -66,14 +68,14 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
         node: ChainNodeModel,
         locale: Locale,
         deleteHandler: @escaping () -> Void
-    ) -> AlertPresentableViewModel {
-        let deleteAction = AlertPresentableAction(
+    ) -> SheetAlertPresentableViewModel {
+        let deleteAction = SheetAlertPresentableAction(
             title: R.string.localizable.connectionDeleteConfirm(preferredLanguages: locale.rLanguages),
-            style: .destructive,
+            button: UIFactory.default.createDestructiveButton(),
             handler: deleteHandler
         )
 
-        return AlertPresentableViewModel(
+        return SheetAlertPresentableViewModel(
             title: R.string.localizable.nodeSelectionDeleteNodeTitle(preferredLanguages: locale.rLanguages),
             message: node.name,
             actions: [deleteAction],

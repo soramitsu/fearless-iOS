@@ -24,7 +24,7 @@ protocol NetworkIssuesNotificationInteractorOutput: AnyObject {
     func didReceiveChainsIssues(issues: [ChainIssue])
 }
 
-protocol NetworkIssuesNotificationRouterInput: SheetAlertPresentable, AlertPresentable {
+protocol NetworkIssuesNotificationRouterInput: SheetAlertPresentable, SheetAlertPresentable {
     func dismiss(view: ControllerBackedProtocol?)
     func presentAccountOptions(
         from view: ControllerBackedProtocol?,

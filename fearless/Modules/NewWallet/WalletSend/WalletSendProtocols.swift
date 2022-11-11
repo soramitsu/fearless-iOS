@@ -34,7 +34,7 @@ protocol WalletSendInteractorOutputProtocol: AnyObject {
     func didReceiveTip(result: Result<BigUInt, Error>)
 }
 
-protocol WalletSendWireframeProtocol: AlertPresentable, ErrorPresentable, BaseErrorPresentable {
+protocol WalletSendWireframeProtocol: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable {
     func close(view: ControllerBackedProtocol?)
     func presentConfirm(
         from view: ControllerBackedProtocol?,

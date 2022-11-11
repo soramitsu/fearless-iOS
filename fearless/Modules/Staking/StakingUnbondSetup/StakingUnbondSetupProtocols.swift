@@ -32,7 +32,7 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingUnbondSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AnyDismissable {
     func close(view: StakingUnbondSetupViewProtocol?)
     func proceed(
