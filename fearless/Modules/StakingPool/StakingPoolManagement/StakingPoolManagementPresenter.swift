@@ -159,16 +159,16 @@ final class StakingPoolManagementPresenter {
     }
 
     private func fetchSelectedValidators() {
+        let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        let userRoleCanSelectValidators = stakingPool?.info.roles.nominator == accountId
+
         guard
             let nomination = nomination
         else {
-            view?.didReceiveSelectValidator(visible: true)
+            view?.didReceiveSelectValidator(visible: userRoleCanSelectValidators)
 
             return
         }
-
-        let userRoleCanSelectValidators =
-            stakingPool?.info.roles.nominator == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
         let shouldSelectValidators = nomination.targets.isEmpty && userRoleCanSelectValidators
 
@@ -379,7 +379,9 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         self.stakingPool = stakingPool
         fetchPoolBalance()
         providePoolNomination()
-        view?.didReceive(poolName: stakingPool?.name)
+
+        let name = (stakingPool?.name.isNotEmpty).orTrue() ? stakingPool?.name : stakingPool?.id
+        view?.didReceive(poolName: name)
     }
 
     func didReceive(error: Error) {

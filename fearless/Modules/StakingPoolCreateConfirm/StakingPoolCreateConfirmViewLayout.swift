@@ -79,7 +79,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.tokenLabel.font = .h5Title
-        view.tokenLabel.textColor = .white
+        view.tokenLabel.textColor = R.color.colorWhite()
         view.fiatLabel?.font = .p1Paragraph
         view.fiatLabel?.textColor = R.color.colorStrokeGray()
         return view
@@ -252,7 +252,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueTop.font = .h5Title
-        view.valueTop.textColor = .white
+        view.valueTop.textColor = R.color.colorWhite()
         view.valueBottom.font = .p1Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         return view

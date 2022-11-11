@@ -77,7 +77,7 @@ final class ChainRegistryFactory {
             dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
-            operationQueue: OperationQueue(),
+            operationQueue: OperationManagerFacade.syncQueue,
             logger: Logger.shared
         )
 
@@ -91,7 +91,16 @@ final class ChainRegistryFactory {
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
             eventCenter: EventCenter.shared,
-            operationQueue: OperationQueue()
+            operationQueue: OperationManagerFacade.syncQueue
+        )
+
+        let chainsTypesSuncService = ChainsTypesSyncService(
+            url: ApplicationConfig.shared.chainsTypesURL,
+            filesOperationFactory: filesOperationFactory,
+            dataOperationFactory: dataFetchOperationFactory,
+            eventCenter: EventCenter.shared,
+            operationQueue: OperationManagerFacade.syncQueue,
+            logger: Logger.shared
         )
 
         let snapshotHotBootBuilder = SnapshotHotBootBuilder(
@@ -110,6 +119,7 @@ final class ChainRegistryFactory {
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
             commonTypesSyncService: commonTypesSyncService,
+            chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
             networkIssuesCenter: NetworkIssuesCenter.shared,

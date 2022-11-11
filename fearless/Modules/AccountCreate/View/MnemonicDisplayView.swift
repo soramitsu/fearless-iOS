@@ -33,7 +33,7 @@ private final class WordColumnView: UIView {
         }
     }
 
-    var wordTitleColor: UIColor = .white {
+    var wordTitleColor: UIColor = R.color.colorWhite()! {
         didSet {
             applyWordStyle(to: words)
         }

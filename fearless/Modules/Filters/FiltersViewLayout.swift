@@ -10,7 +10,7 @@ final class FiltersViewLayout: UIView {
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -25,7 +25,7 @@ final class FiltersViewLayout: UIView {
     let resetButton: UIButton = {
         let button = UIButton(type: .custom)
         button.titleLabel?.font = .p0Paragraph
-        button.setTitleColor(.white, for: .normal)
+        button.setTitleColor(R.color.colorWhite(), for: .normal)
         return button
     }()
 

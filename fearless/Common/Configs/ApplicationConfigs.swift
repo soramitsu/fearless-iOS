@@ -33,6 +33,7 @@ protocol ApplicationConfigProtocol {
     var chainListURL: URL? { get }
     var assetListURL: URL? { get }
     var commonTypesURL: URL? { get }
+    var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
 }
@@ -177,6 +178,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var commonTypesURL: URL? {
         GitHubUrl.url(suffix: "type_registry/default.json")
+    }
+
+    var chainsTypesURL: URL? {
+        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
     }
 
     var appVersionURL: URL? {

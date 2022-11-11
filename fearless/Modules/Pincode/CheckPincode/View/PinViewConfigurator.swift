@@ -16,10 +16,10 @@ enum PinViewConfigurator {
         pinView.numpadView?.verticalSpacing = 15
         pinView.numpadView?.horizontalSpacing = 22
         pinView.numpadView?.backspaceIcon =
-            R.image.pinBackspace()?.tinted(with: .white)?.withRenderingMode(.automatic)
+            R.image.pinBackspace()?.tinted(with: R.color.colorWhite()!)?.withRenderingMode(.automatic)
         pinView.numpadView?.fillColor = .clear
         pinView.numpadView?.highlightedFillColor = R.color.colorCellSelection()
-        pinView.numpadView?.titleColor = .white
+        pinView.numpadView?.titleColor = R.color.colorWhite()
         pinView.numpadView?.highlightedTitleColor = UIColor(
             red: 255 / 255,
             green: 255 / 255,
@@ -30,8 +30,8 @@ enum PinViewConfigurator {
         pinView.securedCharacterFieldsView?.strokeWidth = 2
         pinView.securedCharacterFieldsView?.fieldRadius = 6
         pinView.verticalSpacing = 79
-        pinView.securedCharacterFieldsView?.fillColor = .white
-        pinView.securedCharacterFieldsView?.strokeColor = .white
+        pinView.securedCharacterFieldsView?.fillColor = R.color.colorWhite()!
+        pinView.securedCharacterFieldsView?.strokeColor = R.color.colorWhite()!
         pinView.numpadView?.shadowOpacity = 0
         pinView.numpadView?.shadowRadius = 0
         pinView.numpadView?.shadowOffset = CGSize(width: 0, height: 1)

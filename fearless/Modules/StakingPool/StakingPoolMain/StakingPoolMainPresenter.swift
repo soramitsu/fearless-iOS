@@ -34,6 +34,7 @@ final class StakingPoolMainPresenter {
     private var poolAccountInfo: AccountInfo?
     private var existentialDeposit: BigUInt?
     private var pendingRewards: BigUInt?
+    private var nomination: Nomination?
 
     private var inputResult: AmountInputResult?
 
@@ -99,7 +100,8 @@ final class StakingPoolMainPresenter {
 
     private func provideStakeInfoViewModel() {
         guard let stakeInfo = stakeInfo,
-              let pendingRewards = pendingRewards
+              let pendingRewards = pendingRewards,
+              let poolInfo = poolInfo
         else {
             view?.didReceiveNominatorStateViewModel(nil)
 
@@ -111,23 +113,43 @@ final class StakingPoolMainPresenter {
             priceData: priceData,
             chainAsset: chainAsset,
             era: eraStakersInfo?.activeEra,
-            pendingRewards: pendingRewards
+            pendingRewards: pendingRewards,
+            poolInfo: poolInfo,
+            nomination: nomination
         )
 
         view?.didReceiveNominatorStateViewModel(viewModel)
     }
 
+    private func fetchPoolNomination() {
+        guard
+            let poolStashAccountId = fetchPoolAccount(for: .stash) else {
+            return
+        }
+
+        interactor.fetchPoolNomination(poolStashAccountId: poolStashAccountId)
+    }
+
     private func fetchPoolBalance() {
+        guard
+            let poolRewardAccountId = fetchPoolAccount(for: .rewards) else {
+            return
+        }
+
+        interactor.fetchPoolBalance(poolRewardAccountId: poolRewardAccountId)
+    }
+
+    private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
         guard
             let modPrefix = "modl".data(using: .utf8),
             let palletIdData = palletId,
             let poolId = poolInfo?.id,
             let poolIdUintValue = UInt(poolId)
         else {
-            return
+            return nil
         }
 
-        var index: UInt8 = 1
+        var index: UInt8 = type.rawValue
         var poolIdValue = poolIdUintValue
         let indexData = Data(
             bytes: &index,
@@ -143,7 +165,7 @@ final class StakingPoolMainPresenter {
         let emptyH256 = [UInt8](repeating: 0, count: 32)
         let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
 
-        interactor.fetchPoolBalance(poolAccountId: poolAccountId[0 ... 31])
+        return poolAccountId[0 ... 31]
     }
 }
 
@@ -229,6 +251,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         case let .success(palletId):
             self.palletId = palletId
             fetchPoolBalance()
+            fetchPoolNomination()
         case .failure:
             break
         }
@@ -237,6 +260,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     func didReceive(stakingPool: StakingPool?) {
         poolInfo = stakingPool
         fetchPoolBalance()
+        fetchPoolNomination()
         provideStakeInfoViewModel()
     }
 
@@ -257,11 +281,9 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         case let .success(eraCountdown):
             self.eraCountdown = eraCountdown
         case let .failure(error):
-            break
+            logger?.error("StakingPoolMainPresenter:eraCountdownResult:error: \(error.localizedDescription)")
         }
     }
-
-    func didReceive(eraStakersInfoError _: Error) {}
 
     func didReceive(accountInfo: AccountInfo?) {
         self.accountInfo = accountInfo
@@ -270,8 +292,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideRewardEstimationViewModel()
         provideStakeInfoViewModel()
     }
-
-    func didReceive(balanceError _: Error) {}
 
     func didReceive(chainAsset: ChainAsset) {
         balanceViewModelFactory = BalanceViewModelFactory(
@@ -292,8 +312,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
         provideRewardEstimationViewModel()
     }
-
-    func didReceive(priceError _: Error) {}
 
     func didReceive(priceData: PriceData?) {
         self.priceData = priceData
@@ -319,21 +337,15 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         view?.didReceiveNetworkInfoViewModels(viewModels)
     }
 
-    func didReceive(networkInfoError _: Error) {}
-
     func didReceive(stakeInfo: StakingPoolMember?) {
         self.stakeInfo = stakeInfo
         provideStakeInfoViewModel()
     }
 
-    func didReceive(stakeInfoError _: Error) {}
-
     func didReceive(poolRewards: StakingPoolRewards?) {
         self.poolRewards = poolRewards
         provideStakeInfoViewModel()
     }
-
-    func didReceive(poolRewardsError _: Error) {}
 
     func didReceive(existentialDepositResult: Result<BigUInt, Error>) {
         switch existentialDepositResult {
@@ -341,7 +353,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
             self.existentialDeposit = existentialDeposit
             provideStakeInfoViewModel()
         case let .failure(error):
-            break
+            logger?.error("StakingPoolMainPresenter:existentialDepositResult:error: \(error.localizedDescription)")
         }
     }
 
@@ -352,6 +364,15 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceive(pendingRewardsError: Error) {
         logger?.error("\(pendingRewardsError)")
+    }
+
+    func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
+        provideStakeInfoViewModel()
+    }
+
+    func didReceiveError(_ error: StakingPoolMainError) {
+        logger?.error("\(error)")
     }
 }
 

@@ -248,7 +248,8 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .soraAsset:
             return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
         case .equilibrium:
             return equilibriumAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)

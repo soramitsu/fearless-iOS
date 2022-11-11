@@ -15,6 +15,7 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
 
     func fetchChainOperation(_ url: URL) -> BaseOperation<String> {
         let engine = WebSocketEngine(
+            connectionName: nil,
             url: url,
             reachabilityManager: nil,
             reconnectionStrategy: nil,

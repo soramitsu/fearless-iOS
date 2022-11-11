@@ -28,6 +28,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -53,7 +54,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountOperationFactory: AccountOperationFactoryProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        validatorOperationFactory: ValidatorOperationFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -76,6 +78,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.accountOperationFactory = accountOperationFactory
         self.existentialDepositService = existentialDepositService
+        self.validatorOperationFactory = validatorOperationFactory
     }
 
     private func updateDependencies() {
@@ -208,7 +211,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let stakeInfo = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(stakeInfo: stakeInfo)
                 } catch {
-                    self?.output?.didReceive(stakeInfoError: error)
+                    self?.output?.didReceiveError(.stakeInfoError(error: error))
                 }
             }
         }
@@ -225,7 +228,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let poolRewards = try stakeInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(poolRewards: poolRewards)
                 } catch {
-                    self?.output?.didReceive(poolRewardsError: error)
+                    self?.output?.didReceiveError(.poolRewardsError(error: error))
                 }
             }
         }
@@ -258,7 +261,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     self?.output?.didReceive(eraStakersInfo: info)
                     self?.fetchEraCompletionTime()
                 } catch {
-                    self?.output?.didReceive(eraStakersInfoError: error)
+                    self?.output?.didReceiveError(.eraStakersInfoError(error: error))
                 }
             }
         }
@@ -329,7 +332,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                     let networkInfo = try mapOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(networkInfo: networkInfo)
                 } catch {
-                    self?.output?.didReceive(networkInfoError: error)
+                    self?.output?.didReceiveError(.networkInfoError(error: error))
                 }
             }
         }
@@ -459,8 +462,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         commonSettings.stakingNetworkExpansion = isExpanded
     }
 
-    func fetchPoolBalance(poolAccountId: AccountId) {
-        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolAccountId)
+    func fetchPoolBalance(poolRewardAccountId: AccountId) {
+        let fetchAccountInfoOperation = accountOperationFactory.createAccountInfoFetchOperation(poolRewardAccountId)
 
         fetchAccountInfoOperation.targetOperation.completionBlock = { [weak self] in
             let poolAccountInfo = try? fetchAccountInfoOperation.targetOperation.extractNoCancellableResultData()
@@ -471,6 +474,22 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         }
 
         operationManager.enqueue(operations: fetchAccountInfoOperation.allOperations, in: .transient)
+    }
+
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(nomination: nomination)
+                } catch {
+                    self?.output?.didReceiveError(.nominationError(error: error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 
@@ -494,7 +513,7 @@ extension StakingPoolMainInteractor: AccountInfoSubscriptionAdapterHandler {
         case let .success(accountInfo):
             output?.didReceive(accountInfo: accountInfo)
         case let .failure(error):
-            output?.didReceive(balanceError: error)
+            output?.didReceiveError(.balanceError(error: error))
         }
     }
 }
@@ -509,7 +528,7 @@ extension StakingPoolMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubs
         case let .success(priceData):
             output?.didReceive(priceData: priceData)
         case let .failure(error):
-            output?.didReceive(priceError: error)
+            output?.didReceiveError(.priceError(error: error))
         }
     }
 }
@@ -545,7 +564,7 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
             }
         case let .failure(error):
             DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceive(stakeInfoError: error)
+                self?.output?.didReceiveError(.stakeInfoError(error: error))
             }
         }
     }
