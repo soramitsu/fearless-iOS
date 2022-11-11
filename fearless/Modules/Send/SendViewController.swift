@@ -226,6 +226,18 @@ extension SendViewController: UITextFieldDelegate {
         }
         return false
     }
+
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let amountIsFirstResponder = textField == rootView.amountView.textField
+        rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
+        let searchIsFirstResponder = textField == rootView.searchView.textField
+        rootView.searchView.set(highlighted: searchIsFirstResponder, animated: false)
+    }
+
+    func textFieldDidEndEditing(_: UITextField) {
+        rootView.amountView.set(highlighted: false, animated: false)
+        rootView.searchView.set(highlighted: false, animated: false)
+    }
 }
 
 extension SendViewController: AmountInputAccessoryViewDelegate {

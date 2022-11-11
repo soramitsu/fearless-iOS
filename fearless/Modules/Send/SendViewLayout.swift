@@ -55,7 +55,7 @@ final class SendViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyEnabledStyle()
+        button.applyDisabledStyle()
         return button
     }()
 
@@ -251,7 +251,7 @@ private extension SendViewLayout {
         )
 
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonPreview(preferredLanguages: locale.rLanguages)
+            .commonContinue(preferredLanguages: locale.rLanguages)
 
         tipView.titleLabel.text = R.string.localizable.walletSendTipTitle(preferredLanguages: locale.rLanguages)
 
