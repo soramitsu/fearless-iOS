@@ -178,6 +178,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                 stakingType: .relayChain
             )
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
+
+            fetchPendingRewards()
         }
 
         output?.didReceive(wallet: newSelectedWallet)
@@ -359,6 +361,25 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             in: .transient
         )
     }
+
+    private func fetchPendingRewards() {
+        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return
+        }
+
+        let pendingRewardsOperation = stakingPoolOperationFactory.fetchPendingRewards(accountId: accountId)
+        pendingRewardsOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let result = try pendingRewardsOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(pendingRewards: result)
+                } catch {
+                    self?.output?.didReceive(pendingRewardsError: error)
+                }
+            }
+        }
+        operationManager.enqueue(operations: pendingRewardsOperation.allOperations, in: .transient)
+    }
 }
 
 // MARK: - StakingPoolMainInteractorInput
@@ -398,6 +419,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
                 chainFormat: chainAsset.chain.chainFormat,
                 stakingType: .relayChain
             )
+
+            fetchPendingRewards()
         }
 
         output?.didReceive(chainAsset: chainAsset)
@@ -533,6 +556,8 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
                 fetchPoolInfo(poolId: poolId.description)
                 fetchPoolRewards(poolId: poolId.description)
             }
+
+            fetchPendingRewards()
 
             DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceive(stakeInfo: poolMember)

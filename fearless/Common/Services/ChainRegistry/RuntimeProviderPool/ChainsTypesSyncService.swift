@@ -12,6 +12,8 @@ protocol ChainsTypesSyncServiceProtocol {
 }
 
 final class ChainsTypesSyncService {
+    static let fetchLocalData = false
+
     private let url: URL?
     private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     private let dataOperationFactory: DataOperationFactoryProtocol
@@ -53,12 +55,24 @@ final class ChainsTypesSyncService {
             return
         }
 
+        isSyncing = true
+
+        if Self.fetchLocalData {
+            do {
+                try fetchLocalData()
+            } catch {
+                handleFailure(with: error)
+            }
+        } else {
+            fetchRemoteData()
+        }
+    }
+
+    private func fetchRemoteData() {
         guard let url = url else {
             assertionFailure()
             return
         }
-
-        isSyncing = true
 
         let fetchOperation = dataOperationFactory.fetchData(from: url)
         fetchOperation.completionBlock = { [weak self] in
@@ -76,6 +90,18 @@ final class ChainsTypesSyncService {
         }
 
         operationQueue.addOperation(fetchOperation)
+    }
+
+    private func fetchLocalData() throws {
+        guard
+            let chainsUrl = Bundle.main.url(forResource: "types", withExtension: "json")
+        else {
+            throw ChainSyncServiceError.missingLocalFile
+        }
+
+        let chainsData = try Data(contentsOf: chainsUrl)
+
+        handle(data: chainsData)
     }
 
     private func handle(data: Data) {
