@@ -99,12 +99,12 @@ final class RelaychainValidatorOperationFactory {
             slashingSpans.forEach { storageResponse in
                 let accountId = storageResponse.key.getAccountIdFromKey(accountIdLenght: 32)
 
-                var slashed = false
+                var isSlashed = false
                 if let lastSlashEra = storageResponse.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
-                    slashed = true
+                    isSlashed = true
                 }
 
-                slashes[accountId] = slashed
+                slashes[accountId] = isSlashed
             }
 
             return slashes
