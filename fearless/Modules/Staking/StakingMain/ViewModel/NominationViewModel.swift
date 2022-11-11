@@ -5,6 +5,7 @@ enum NominationViewStatus {
     case active(era: EraIndex)
     case inactive(era: EraIndex)
     case waiting(eraCountdown: EraCountdown?, nominationEra: EraIndex)
+    case validatorsNotSelected
 }
 
 protocol NominationViewModelProtocol {
