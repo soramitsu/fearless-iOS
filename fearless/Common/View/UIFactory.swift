@@ -147,18 +147,18 @@ final class UIFactory: UIFactoryProtocol {
         let view = DetailsTriangularedView()
         view.layout = layout
 
-        if !filled {
+        if filled {
+            view.fillColor = R.color.colorSemiBlack()!
+            view.highlightedFillColor = R.color.colorSemiBlack()!
+            view.strokeColor = R.color.colorWhite8()!
+            view.highlightedStrokeColor = R.color.colorWhite8()!
+            view.borderWidth = 0.5
+        } else {
             view.fillColor = .clear
             view.highlightedFillColor = .clear
-            view.strokeColor = R.color.colorStrokeGray()!
-            view.highlightedStrokeColor = R.color.colorStrokeGray()!
-            view.borderWidth = 1.0
-        } else {
-            view.fillColor = R.color.colorDarkGray()!
-            view.highlightedFillColor = R.color.colorDarkGray()!
-            view.strokeColor = .clear
-            view.highlightedStrokeColor = .clear
-            view.borderWidth = 0.0
+            view.strokeColor = R.color.colorWhite8()!
+            view.highlightedStrokeColor = R.color.colorWhite8()!
+            view.borderWidth = 0.5
         }
 
         switch layout {
@@ -600,11 +600,10 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createSelectNetworkView() -> DetailsTriangularedView {
-        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: false)
-        view.titleLabel.textColor = R.color.colorWhite()
+        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: true)
+        view.titleLabel.textColor = R.color.colorStrokeGray()
         view.titleLabel.font = UIFont.h5Title
         view.actionImage = R.image.iconExpandable()
-        view.borderWidth = 1
         return view
     }
 

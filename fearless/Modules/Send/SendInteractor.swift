@@ -112,14 +112,22 @@ extension SendInteractor: SendInteractorInput {
         }
     }
 
-    func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String, chainAsset: ChainAsset) {
-        guard
-            let accountId = try? AddressFactory.accountId(
-                from: address,
-                chain: chainAsset.chain
-            ),
-            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
+    func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset) {
+        func accountId(from address: String?, chain: ChainModel) -> AccountId {
+            guard let address = address,
+                  let accountId = try? AddressFactory.accountId(from: address, chain: chain)
+            else {
+                return AddressFactory.randomAccountId(for: chain)
+            }
 
+            return accountId
+        }
+        
+        guard
+            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset)
+        else { return }
+
+        let accountId = accountId(from: address, chain: chainAsset.chain)
         let call = callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
         var identifier = String(amount)
         if let tip = tip {
