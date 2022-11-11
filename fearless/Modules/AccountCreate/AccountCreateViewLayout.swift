@@ -88,9 +88,9 @@ final class AccountCreateViewLayout: UIView {
 
     let substrateDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.returnKeyType = .done
         return view
@@ -98,9 +98,9 @@ final class AccountCreateViewLayout: UIView {
 
     let ethereumDerivationPathField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         view.keyboardType = .decimalPad
         view.returnKeyType = .done

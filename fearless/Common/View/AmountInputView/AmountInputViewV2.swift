@@ -50,7 +50,7 @@ final class AmountInputViewV2: UIView {
     private let symbolLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = UIColor.white
+        label.textColor = R.color.colorWhite()
         label.numberOfLines = 1
         return label
     }()
@@ -58,7 +58,7 @@ final class AmountInputViewV2: UIView {
     private(set) var textField: UITextField = {
         let textField = UITextField()
         textField.borderStyle = .none
-        textField.textColor = UIColor.white
+        textField.textColor = R.color.colorWhite()
         textField.font = .h2Title
         textField.returnKeyType = .done
         textField.attributedPlaceholder = NSAttributedString(
@@ -68,7 +68,7 @@ final class AmountInputViewV2: UIView {
                 .font: UIFont.h2Title
             ]
         )
-        textField.tintColor = .white
+        textField.tintColor = R.color.colorWhite()
         textField.textAlignment = .right
         textField.keyboardType = .decimalPad
         return textField

@@ -35,7 +35,7 @@ final class StakingPoolStartViewLayout: UIView {
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.iconImage = R.image.iconBook()
         view.titleLabel.font = .h6Title
-        view.titleLabel.textColor = .white.withAlphaComponent(0.5)
+        view.titleLabel.textColor = R.color.colorWhite()!.withAlphaComponent(0.5)
         view.titleLabel.numberOfLines = 0
         view.layout = .smallIconTitleButton
         view.isUserInteractionEnabled = true

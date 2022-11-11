@@ -11,7 +11,7 @@ final class NodeSelectionViewLayout: UIView {
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -30,7 +30,7 @@ final class NodeSelectionViewLayout: UIView {
 
     let switchTitle: UILabel = {
         let label = UILabel()
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
         return label
     }()
