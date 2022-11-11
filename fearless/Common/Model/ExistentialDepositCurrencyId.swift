@@ -48,7 +48,7 @@ enum ExistentialDepositCurrencyId {
             // when sub-assets are added, this part needs to be researched
             return nil
         case .soraAsset:
-            // Sora chain zero ED 
+            // Sora chain zero ED
             return nil
         }
     }
