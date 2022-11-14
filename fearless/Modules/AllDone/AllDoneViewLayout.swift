@@ -15,6 +15,9 @@ final class AllDoneViewLayout: UIView {
         static let spacing16: CGFloat = 16
     }
 
+    var copyOnTap: (() -> Void)?
+    var hashString: String?
+
     var locale: Locale = .current {
         didSet {
             applyLocalization()
@@ -99,6 +102,7 @@ final class AllDoneViewLayout: UIView {
     init() {
         super.init(frame: .zero)
         setupLayout()
+        setupCopyHashTap()
     }
 
     @available(*, unavailable)
@@ -114,6 +118,7 @@ final class AllDoneViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(_ hashString: String) {
+        self.hashString = hashString
         let hashString = NSMutableAttributedString(string: hashString + "  ")
 
         let imageAttachment = NSTextAttachment()
@@ -133,6 +138,13 @@ final class AllDoneViewLayout: UIView {
     }
 
     // MARK: - Private methods
+
+    private func setupCopyHashTap() {
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.addTarget(self, action: #selector(handleHashCopyTapped))
+        hashView.valueLabel.addGestureRecognizer(tapGesture)
+        hashView.valueLabel.isUserInteractionEnabled = true
+    }
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
@@ -218,5 +230,12 @@ final class AllDoneViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
+    }
+
+    // MARK: - Private actions
+
+    @objc private func handleHashCopyTapped() {
+        UIPasteboard.general.string = hashString
+        copyOnTap?()
     }
 }
