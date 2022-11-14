@@ -5,7 +5,6 @@ import RobinHood
 final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     let settings: SettingsManagerProtocol
     let operationQueue: OperationQueue
-    var onUpdate: (() -> Void)?
 
     init(
         storageFacade: StorageFacadeProtocol,
@@ -86,8 +85,6 @@ extension CrowdloanChainSettings: EventVisitorProtocol {
             return
         }
 
-        performSave(value: updatedChain) { [weak self] _ in
-            self?.onUpdate?()
-        }
+        performSave(value: updatedChain) { _ in }
     }
 }
