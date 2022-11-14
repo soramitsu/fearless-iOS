@@ -350,7 +350,7 @@ extension CrowdloanListInteractor {
 
 extension CrowdloanListInteractor: EventVisitorProtocol {
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
-        guard let updatedChain = event.newOrUpdatedChains.first(where: { $0.chainId == value?.chainId }) else {
+        guard let updatedChain = event.newOrUpdatedChains.first(where: { $0.chainId == settings.value?.chainId }) else {
             return
         }
 
