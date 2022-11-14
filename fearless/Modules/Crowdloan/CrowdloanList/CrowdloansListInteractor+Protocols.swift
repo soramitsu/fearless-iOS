@@ -18,6 +18,10 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
         }
 
         setup(with: accountId, chain: chain)
+
+        settings.onUpdate = { [weak self] in
+            self?.refresh()
+        }
     }
 
     func refresh() {
