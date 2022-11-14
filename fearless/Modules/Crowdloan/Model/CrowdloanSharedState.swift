@@ -17,8 +17,7 @@ final class CrowdloanSharedState {
         settings = CrowdloanChainSettings(
             storageFacade: storageFacade,
             settings: internalSettings,
-            operationQueue: operationQueue,
-            eventCenter: EventCenter.shared
+            operationQueue: operationQueue
         )
 
         crowdloanLocalSubscriptionFactory = CrowdloanLocalSubscriptionFactory(
