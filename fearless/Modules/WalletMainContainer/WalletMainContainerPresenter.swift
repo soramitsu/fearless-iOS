@@ -12,7 +12,6 @@ final class WalletMainContainerPresenter: NSObject {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
-    private let sendPrepareUseCase: SendPrepareUseCase
 
     // MARK: - State
 
@@ -27,7 +26,6 @@ final class WalletMainContainerPresenter: NSObject {
         viewModelFactory: WalletMainContainerViewModelFactoryProtocol,
         interactor: WalletMainContainerInteractorInput,
         router: WalletMainContainerRouterInput,
-        sendPrepareUseCase: SendPrepareUseCase,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.assetListModuleInput = assetListModuleInput
@@ -35,7 +33,6 @@ final class WalletMainContainerPresenter: NSObject {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
-        self.sendPrepareUseCase = sendPrepareUseCase
 
         super.init()
 
@@ -169,38 +166,17 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
     func didFinishWith(addressInfo: AddressQRInfo) {
-        sendPrepareUseCase.getPossibleChains(
-            for: addressInfo.address,
-            delegate: self
+        router.showSendFlow(
+            from: view,
+            wallet: wallet,
+            address: addressInfo.address
         )
     }
 
-    func didFinishWith(address _: String) {}
-}
-
-extension WalletMainContainerPresenter: SendPrepareUseCaseDelegate {
-    func didReceive(possibleChains: [ChainModel]) {
-        if possibleChains.isEmpty {
-            return
-        } else if possibleChains.count == 1 {
-            sendPrepareUseCase.createChainAsset(for: possibleChains.first)
-        } else {
-            router.showSelectNetwork(
-                from: view,
-                wallet: wallet,
-                selectedChainId: nil,
-                chainModels: possibleChains,
-                delegate: sendPrepareUseCase
-            )
-        }
-    }
-
-    func didReceive(chainAsset: ChainAsset, address: String) {
+    func didFinishWith(address: String) {
         router.showSendFlow(
             from: view,
-            chainAsset: chainAsset,
             wallet: wallet,
-            transferFinishBlock: nil,
             address: address
         )
     }

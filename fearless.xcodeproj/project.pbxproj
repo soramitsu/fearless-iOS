@@ -2389,7 +2389,6 @@
 		FAADC1BC2926597400DA9903 /* ScanQRRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC1B52926597400DA9903 /* ScanQRRouter.swift */; };
 		FAADC1C029265A7900DA9903 /* NewQRCoderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC1BE29265A7900DA9903 /* NewQRCoderFactory.swift */; };
 		FAADC1C129265A7900DA9903 /* QRScanMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC1BF29265A7900DA9903 /* QRScanMatcher.swift */; };
-		FAADC1C429265A9E00DA9903 /* SendPrepareUseCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAADC1C329265A9E00DA9903 /* SendPrepareUseCase.swift */; };
 		FAAF61742877DBC50094B4BC /* EthereumIcon.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAAF61732877DBC50094B4BC /* EthereumIcon.swift */; };
 		FAB0EDD927AA692D003D93C2 /* NodeSelectionTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDD827AA692D003D93C2 /* NodeSelectionTableCell.swift */; };
 		FAB0EDDC27AA6DB8003D93C2 /* NodeSelectionViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDB27AA6DB8003D93C2 /* NodeSelectionViewState.swift */; };
@@ -4930,7 +4929,6 @@
 		FAADC1B52926597400DA9903 /* ScanQRRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScanQRRouter.swift; sourceTree = "<group>"; };
 		FAADC1BE29265A7900DA9903 /* NewQRCoderFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewQRCoderFactory.swift; sourceTree = "<group>"; };
 		FAADC1BF29265A7900DA9903 /* QRScanMatcher.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRScanMatcher.swift; sourceTree = "<group>"; };
-		FAADC1C329265A9E00DA9903 /* SendPrepareUseCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SendPrepareUseCase.swift; sourceTree = "<group>"; };
 		FAAF61732877DBC50094B4BC /* EthereumIcon.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumIcon.swift; sourceTree = "<group>"; };
 		FAB0EDD827AA692D003D93C2 /* NodeSelectionTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionTableCell.swift; sourceTree = "<group>"; };
 		FAB0EDDB27AA6DB8003D93C2 /* NodeSelectionViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewState.swift; sourceTree = "<group>"; };
@@ -5557,7 +5555,6 @@
 		170BF5A5BE2725B7AE99C472 /* WalletMainContainer */ = {
 			isa = PBXGroup;
 			children = (
-				FAADC1C229265A9E00DA9903 /* UseCases */,
 				C8312AF0B70350EE27DB5B4A /* WalletMainContainerProtocols.swift */,
 				80C632A122CE8D02B84806C3 /* WalletMainContainerRouter.swift */,
 				1D738FE711DD760B47C0BA65 /* WalletMainContainerPresenter.swift */,
@@ -12286,14 +12283,6 @@
 			path = QRCoding;
 			sourceTree = "<group>";
 		};
-		FAADC1C229265A9E00DA9903 /* UseCases */ = {
-			isa = PBXGroup;
-			children = (
-				FAADC1C329265A9E00DA9903 /* SendPrepareUseCase.swift */,
-			);
-			path = UseCases;
-			sourceTree = "<group>";
-		};
 		FAB0EDD727AA6922003D93C2 /* Views */ = {
 			isa = PBXGroup;
 			children = (
@@ -14533,7 +14522,6 @@
 				849ABE81262811CF00011A2A /* NominationsListReducer.swift in Sources */,
 				FA7154C4286B0C7D00100672 /* SelectValidatorsStartTextsViewModel.swift in Sources */,
 				843910CE253F7E8000E3C217 /* SubstrateDataStorageFacade.swift in Sources */,
-				FAADC1C429265A9E00DA9903 /* SendPrepareUseCase.swift in Sources */,
 				84E731C326652B5C00D5B15A /* AttributedString+Crowdloan.swift in Sources */,
 				84C91FAA261E724F002796B9 /* SwitchTableViewCell.swift in Sources */,
 				84644A0725670B03004EAA4B /* TriangularedBlurView.swift in Sources */,

@@ -46,17 +46,12 @@ final class WalletMainContainerAssembly {
             return nil
         }
 
-        let sendPrepareUseCase = SendPrepareUseCase(
-            chainModelRepository: AnyDataProviderRepository(chainRepository)
-        )
-
         let presenter = WalletMainContainerPresenter(
             assetListModuleInput: assetListModule.input,
             wallet: wallet,
             viewModelFactory: WalletMainContainerViewModelFactory(),
             interactor: interactor,
             router: router,
-            sendPrepareUseCase: sendPrepareUseCase,
             localizationManager: localizationManager
         )
 

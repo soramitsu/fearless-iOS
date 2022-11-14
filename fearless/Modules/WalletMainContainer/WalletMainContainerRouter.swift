@@ -121,20 +121,11 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
 
     func showSendFlow(
         from view: ControllerBackedProtocol?,
-        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?,
         address: String
     ) {
-        let chooseRecipient = ChooseRecipientViewFactory.createView(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            flow: .token,
-            transferFinishBlock: transferFinishBlock,
-            address: address
-        )
-
-        guard let controller = chooseRecipient?.controller else {
+        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: .address(address))
+        guard let controller = sendModule?.view.controller else {
             return
         }
 

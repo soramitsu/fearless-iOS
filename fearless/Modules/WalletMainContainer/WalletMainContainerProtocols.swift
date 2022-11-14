@@ -58,9 +58,7 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
 
     func showSendFlow(
         from view: ControllerBackedProtocol?,
-        chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        transferFinishBlock: WalletTransferFinishBlock?,
         address: String
     )
 }
