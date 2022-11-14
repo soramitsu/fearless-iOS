@@ -138,8 +138,8 @@ final class WalletBalanceBuilder: WalletBalanceBuilderProtocol {
             }
 
             if
-                let assetIdsDisabled = metaAccount.assetIdsDisabled,
-                assetIdsDisabled.contains(chainAssetKey) {
+                let assetIdsEnabled = metaAccount.assetIdsEnabled,
+                assetIdsEnabled.contains(chainAssetKey) {
                 disabledChainAssets.append(chainAsset)
             } else {
                 enabledChainAssets.append(chainAsset)

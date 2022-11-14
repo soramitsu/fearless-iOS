@@ -124,11 +124,11 @@ extension ManageAssetsInteractor: ManageAssetsInteractorInputProtocol {
             updatedAccount = selectedMetaAccount.replacingAssetKeysOrder(keys)
         }
 
-        if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsDisabled {
+        if let assetIdsEnabled = assetIdsEnabled, assetIdsEnabled != selectedMetaAccount.assetIdsEnabled {
             if let accountForSave = updatedAccount {
-                updatedAccount = accountForSave.replacingAssetIdsDisabled(assetIdsEnabled)
+                updatedAccount = accountForSave.replacingAssetIdsEnabled(assetIdsEnabled)
             } else {
-                updatedAccount = selectedMetaAccount.replacingAssetIdsDisabled(assetIdsEnabled)
+                updatedAccount = selectedMetaAccount.replacingAssetIdsEnabled(assetIdsEnabled)
             }
         }
 

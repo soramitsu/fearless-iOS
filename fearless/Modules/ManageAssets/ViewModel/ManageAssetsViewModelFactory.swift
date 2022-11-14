@@ -236,7 +236,7 @@ extension ManageAssetsViewModelFactory: ManageAssetsViewModelFactoryProtocol {
                 || selectedMetaAccount.unusedChainIds?.contains($0.chainAsset.chain.chainId) == true
         })
 
-        let applyEnabled = selectedMetaAccount.assetIdsDisabled != assetIdsEnabled
+        let applyEnabled = selectedMetaAccount.assetIdsEnabled != assetIdsEnabled
             || selectedMetaAccount.assetKeysOrder != sortedKeys
             || selectedMetaAccount.assetFilterOptions != filterOptions
 

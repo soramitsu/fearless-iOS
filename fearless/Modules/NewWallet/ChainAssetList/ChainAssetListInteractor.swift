@@ -121,11 +121,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var disabledAssets = wallet.assetIdsDisabled ?? []
-        disabledAssets.append(chainAssetKey)
-
-        let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
-        save(updatedWallet)
+        if var enabledAssets = wallet.assetIdsEnabled {
+            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
+            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
+            save(updatedWallet)
+        }
     }
 
     func showChainAsset(_ chainAsset: ChainAsset) {
@@ -135,11 +135,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var disabledAssets = wallet.assetIdsDisabled {
-            disabledAssets = disabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
-            save(updatedWallet)
-        }
+        var enabledAssets = wallet.assetIdsEnabled ?? []
+        enabledAssets.append(chainAssetKey)
+
+        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
+        save(updatedWallet)
     }
 
     func markUnused(chain: ChainModel) {
@@ -218,7 +218,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             pricesProvider?.refresh()
         }
 
-        if wallet.assetIdsDisabled != event.account.assetIdsDisabled {
+        if wallet.assetIdsEnabled != event.account.assetIdsEnabled {
             output?.updateViewModel()
         }
 
