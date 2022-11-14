@@ -9,12 +9,15 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     init(
         storageFacade: StorageFacadeProtocol,
         settings: SettingsManagerProtocol,
-        operationQueue: OperationQueue
+        operationQueue: OperationQueue,
+        eventCenter: EventCenterProtocol
     ) {
         self.settings = settings
         self.operationQueue = operationQueue
 
         super.init(storageFacade: storageFacade)
+
+        eventCenter.add(observer: self)
     }
 
     override func performSetup(completionClosure: @escaping (Result<ChainModel?, Error>) -> Void) {
@@ -73,5 +76,15 @@ final class CrowdloanChainSettings: PersistentValueSettings<ChainModel> {
     ) {
         settings.crowdloanChainId = value.chainId
         completionClosure(.success(value))
+    }
+}
+
+extension CrowdloanChainSettings: EventVisitorProtocol {
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        guard let updatedChain = event.newOrUpdatedChains.first(where: { $0.chainId == value?.chainId }) else {
+            return
+        }
+
+        performSave(value: updatedChain) { _ in }
     }
 }
