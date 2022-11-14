@@ -164,7 +164,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #if F_DEV
             GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains.json")
         #endif
     }
 
@@ -172,7 +172,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #if F_DEV
             GitHubUrl.url(suffix: "chains/assets_dev.json")
         #else
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
+            GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 
