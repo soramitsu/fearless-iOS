@@ -61,7 +61,8 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .liquidCrowdloan,
                     .vToken,
                     .vsToken,
-                    .stable:
+                    .stable,
+                    .soraAsset:
                     self?.handleOrmlAccountInfo(
                         chainAsset: chainAsset,
                         item: item,

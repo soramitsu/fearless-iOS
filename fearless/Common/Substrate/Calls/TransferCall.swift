@@ -24,9 +24,14 @@ enum CurrencyId {
     case vsToken(symbol: TokenSymbol?)
     case stable(symbol: TokenSymbol?)
     case equilibrium(id: String)
+    case soraAsset(id: String)
+
+    enum CodingKeys: String, CodingKey {
+        case code
+    }
 }
 
-extension CurrencyId: Codable {
+extension CurrencyId: Encodable {
     public func encode(to encoder: Encoder) throws {
         switch self {
         case let .token(symbol):
@@ -60,6 +65,10 @@ extension CurrencyId: Codable {
         case let .equilibrium(id):
             var container = encoder.singleValueContainer()
             try container.encode(id)
+        case let .soraAsset(id):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            let assetId32 = try Data(hexString: id)
+            try container.encode(assetId32, forKey: .code)
         }
     }
 }

@@ -463,9 +463,10 @@ private extension ChainAssetListViewModelFactory {
     }
 
     func checkForHide(chainAsset: ChainAsset, selectedMetaAccount: MetaAccountModel) -> Bool {
-        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled {
+        let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled, let accountId = accountId {
             return assetIdsDisabled.contains { assetId in
-                assetId == chainAsset.uniqueKey(accountId: selectedMetaAccount.substrateAccountId)
+                assetId == chainAsset.uniqueKey(accountId: accountId)
             }
         }
         return false

@@ -48,7 +48,7 @@
         ]
     },
     {
-        "chainId": "amplitude",
+        "chainId": "cceae7f3b9947cdb67369c026ef78efa5f34a08fe5808d373c04421ecf4f1aaf",
         "runtime_id": 2,
         "types": { },
         "versioning": [
@@ -1285,7 +1285,7 @@
         ]
     },
     {
-        "chainId": "sora_test.json",
+        "chainId": "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17",
         "runtime_id": 42,
         "types": { },
         "versioning": [
@@ -1295,10 +1295,11 @@
                     null
                 ],
                 "types": {
+                    "Address": "0",
                     "Balance": "u128",
                     "Index": "u32",
-                    "GenericEvent": "framenode_runtime::Event",
-                    "GenericCall": "framenode_runtime::Call"
+                    "17": "GenericEvent",
+                    "181": "GenericCall"
                 }
             }
         ]

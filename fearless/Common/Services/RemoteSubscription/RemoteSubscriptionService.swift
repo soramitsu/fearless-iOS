@@ -100,6 +100,15 @@ class RemoteSubscriptionService {
 
         let wrapper = subscriptionOperation(using: requests, chainId: chainId, cacheKey: cacheKey)
 
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            switch wrapper.targetOperation.result {
+            case let .failure(error):
+                self?.logger.error("\(error)")
+            default:
+                break
+            }
+        }
+
         let pending = Pending(
             subscriptionIds: [subscriptionId],
             wrapper: wrapper,
