@@ -54,13 +54,13 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             break
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
-            utilityChainAssets = sortAssetList(
-                wallet: selectedMetaAccount,
-                chainAssets: utilityChainAssets,
-                accountInfos: accountInfos,
-                priceData: prices.pricesData
-            )
         }
+        utilityChainAssets = sortAssetList(
+            wallet: selectedMetaAccount,
+            chainAssets: utilityChainAssets,
+            accountInfos: accountInfos,
+            priceData: prices.pricesData
+        )
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
