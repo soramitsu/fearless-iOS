@@ -23,10 +23,9 @@ final class ScanQRPresenter: NSObject {
     private let interactor: ScanQRInteractorInput
     private let moduleOutput: ScanQRModuleOutput
     private let qrScanMatcher: QRScanMatcher
+    private let logger: LoggerProtocol
 
     private var scanState: ScanState = .initializing(accessRequested: false)
-
-    private var logger: LoggerProtocol?
 
     // MARK: - Constructors
 
@@ -51,7 +50,7 @@ final class ScanQRPresenter: NSObject {
 
     private func handleQRCaptureService(error: QRCaptureServiceError) {
         guard case let .initializing(alreadyAskedAccess) = scanState, !alreadyAskedAccess else {
-            logger?.warning("Requested to ask access but already done earlier")
+            logger.warning("Requested to ask access but already done earlier")
             return
         }
 
@@ -64,7 +63,7 @@ final class ScanQRPresenter: NSObject {
             let message = L10n.InvoiceScan.Error.cameraRestrictedPreviously
             let title = L10n.InvoiceScan.Error.cameraTitle
             router.askOpenApplicationSettings(with: message, title: title, from: view)
-        default:
+        case .deviceAccessDeniedNow:
             break
         }
     }
@@ -86,7 +85,7 @@ final class ScanQRPresenter: NSObject {
             let message = L10n.InvoiceScan.Error.galleryRestrictedPreviously
             let title = L10n.InvoiceScan.Error.galleryTitle
             router.askOpenApplicationSettings(with: message, title: title, from: view)
-        default:
+        case .accessDeniedNow, .unknownAuthorizationStatus:
             break
         }
     }
@@ -176,7 +175,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
             handleImageGallery(error: imageGalleryError)
         }
 
-        logger?.error("Unexpected qr service error \(error)")
+        logger.error("Unexpected qr service error \(error)")
     }
 
     func handleMatched(addressInfo: AddressQRInfo) {
@@ -193,7 +192,7 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
         guard let addressInfo = qrScanMatcher.addressInfo else {
-            logger?.warning("Can't find receiver's info for matched code")
+            logger.warning("Can't find receiver's info for matched code")
             return
         }
 

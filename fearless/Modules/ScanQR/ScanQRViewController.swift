@@ -18,8 +18,6 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
     // MARK: Private properties
 
     private let output: ScanQRViewOutput
-    private lazy var messageAppearanceAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
-    private lazy var messageDissmisAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
 
     // MARK: - Constructor
 
@@ -79,7 +77,7 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
     }
 
     private func configure() {
-        setupLocalization()
+        applyLocalization()
 
         rootView.qrFrameView.windowSize = CGSize(
             width: Constants.cameraWindowSize,
@@ -101,10 +99,6 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
             action: #selector(backButtonClicked),
             for: .touchUpInside
         )
-    }
-
-    private func setupLocalization() {
-        rootView.locale = selectedLocale
     }
 
     private func configureVideoLayer(with captureSession: AVCaptureSession) {
@@ -135,8 +129,6 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
         let block: () -> Void = { [weak self] in
             self?.rootView.messageLabel.alpha = 0.0
         }
-
-        messageDissmisAnimator.animate(block: block, completionBlock: nil)
     }
 
     // MARK: Actions
@@ -159,19 +151,9 @@ extension ScanQRViewController: ScanQRViewInput {
         configureVideoLayer(with: session)
     }
 
-    func present(message: String, animated: Bool) {
+    func present(message: String, animated _: Bool) {
         rootView.messageLabel.text = message
-
-        let block: () -> Void = { [weak self] in
-            self?.rootView.messageLabel.alpha = 1.0
-        }
-
-        if animated {
-            messageAppearanceAnimator.animate(block: block, completionBlock: nil)
-        } else {
-            block()
-        }
-
+        rootView.messageLabel.alpha = 1.0
         scheduleMessageHide()
     }
 }
@@ -181,6 +163,5 @@ extension ScanQRViewController: ScanQRViewInput {
 extension ScanQRViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
-        view.setNeedsLayout()
     }
 }

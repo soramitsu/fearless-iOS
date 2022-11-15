@@ -5,7 +5,7 @@ final class ScanQRAssembly {
     static func configureModule(moduleOutput: ScanQRModuleOutput) -> ScanQRModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let qrDecoder = NewQRCoderFactory().createDecoder()
+        let qrDecoder = QRCoderFactory().createDecoder()
         let qrScanMatcher = QRScanMatcher(decoder: qrDecoder)
 
         let qrScanService = QRCaptureServiceFactory().createService(

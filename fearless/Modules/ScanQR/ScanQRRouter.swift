@@ -13,7 +13,7 @@ final class ScanQRRouter: ScanQRRouterInput {
             PHPhotoLibrary.requestAuthorization { newStatus in
                 DispatchQueue.main.async {
                     if newStatus == PHAuthorizationStatus.authorized {
-                        self.presentGallery(from: view, delegate: delegate, pickerDelegate: pickerDelegate)
+                        self.presentGallery(from: view, pickerDelegate: pickerDelegate)
                     } else {
                         delegate.didFail(in: self, with: ImageGalleryError.accessDeniedNow)
                     }
@@ -24,13 +24,12 @@ final class ScanQRRouter: ScanQRRouterInput {
         case .denied:
             delegate.didFail(in: self, with: ImageGalleryError.accessDeniedPreviously)
         default:
-            presentGallery(from: view, delegate: delegate, pickerDelegate: pickerDelegate)
+            presentGallery(from: view, pickerDelegate: pickerDelegate)
         }
     }
 
     private func presentGallery(
         from view: ControllerBackedProtocol?,
-        delegate _: ImageGalleryDelegate,
         pickerDelegate: UIImagePickerControllerDelegate & UINavigationControllerDelegate
     ) {
         let imagePicker = UIImagePickerController()

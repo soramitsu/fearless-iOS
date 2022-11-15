@@ -5,12 +5,12 @@ final class ScanQRInteractor {
     // MARK: - Private properties
 
     private weak var output: ScanQRInteractorOutput?
-    private let qrDecoder: NewQRDecoderProtocol
+    private let qrDecoder: QRDecoderProtocol
     private let qrExtractionService: QRExtractionServiceProtocol
     private let qrScanService: QRCaptureServiceProtocol
 
     init(
-        qrDecoder: NewQRDecoderProtocol,
+        qrDecoder: QRDecoderProtocol,
         qrExtractionService: QRExtractionServiceProtocol,
         qrScanService: QRCaptureServiceProtocol
     ) {

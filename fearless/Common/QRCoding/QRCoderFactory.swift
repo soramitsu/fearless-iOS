@@ -1,36 +1,36 @@
 import Foundation
 import FearlessUtils
 
-public protocol NewQRCoderFactoryProtocol {
-    func createEncoder() -> NewQREncoderProtocol
-    func createDecoder() -> NewQRDecoderProtocol
+public protocol QRCoderFactoryProtocol {
+    func createEncoder() -> QREncoderProtocol
+    func createDecoder() -> QRDecoderProtocol
 }
 
-public protocol NewQREncoderProtocol {
+public protocol QREncoderProtocol {
     func encode(addressInfo: AddressQRInfo) throws -> Data
 }
 
-public protocol NewQRDecoderProtocol {
+public protocol QRDecoderProtocol {
     func decode(data: Data) throws -> AddressQRInfo
 }
 
-final class NewQRCoderFactory: NewQRCoderFactoryProtocol {
-    func createEncoder() -> NewQREncoderProtocol {
-        NewQREncoder()
+final class QRCoderFactory: QRCoderFactoryProtocol {
+    func createEncoder() -> QREncoderProtocol {
+        QREncoder()
     }
 
-    func createDecoder() -> NewQRDecoderProtocol {
-        NewQRDecoder()
+    func createDecoder() -> QRDecoderProtocol {
+        QRDecoder()
     }
 }
 
-final class NewQREncoder: NewQREncoderProtocol {
+final class QREncoder: QREncoderProtocol {
     func encode(addressInfo: AddressQRInfo) throws -> Data {
         try AddressQREncoder().encode(info: addressInfo)
     }
 }
 
-final class NewQRDecoder: NewQRDecoderProtocol {
+final class QRDecoder: QRDecoderProtocol {
     private lazy var qrDecoders: [QRDecodable] = [
         NewAddressQRDecoder(),
         CexQRDecoder()

@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 
-final class WalletMainContainerPresenter: NSObject {
+final class WalletMainContainerPresenter {
     // MARK: Private properties
 
     private weak var assetListModuleInput: ChainAssetListModuleInput?
@@ -33,8 +33,6 @@ final class WalletMainContainerPresenter: NSObject {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
-
-        super.init()
 
         self.localizationManager = localizationManager
     }
