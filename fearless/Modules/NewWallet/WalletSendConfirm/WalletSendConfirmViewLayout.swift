@@ -151,6 +151,14 @@ final class WalletSendConfirmViewLayout: UIView {
         tipView.valueBottom.text = confirmViewModel.tipPriceString
         tipView.isHidden = !confirmViewModel.tipRequired
         receiverWarningButton.isHidden = !confirmViewModel.showWarning
+
+        confirmViewModel.feeAmountString.isEmpty
+            ? feeView.activityIndicator.startAnimating()
+            : feeView.activityIndicator.stopAnimating()
+
+        confirmViewModel.tipAmountString.isEmpty
+            ? tipView.activityIndicator.startAnimating()
+            : tipView.activityIndicator.stopAnimating()
     }
 
     private func configure() {
