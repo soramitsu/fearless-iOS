@@ -1,7 +1,11 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
-final class ChainAssetListViewController: UIViewController, ViewHolder {
+final class ChainAssetListViewController:
+    UIViewController,
+    ViewHolder,
+    KeyboardViewAdoptable {
     enum HiddenSectionState {
         case hidden
         case expanded
@@ -52,7 +56,25 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
         configureEmptyView()
     }
 
-    // MARK: - Private methods
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
+    // MARK: - KeyboardViewAdoptable
+
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 private extension ChainAssetListViewController {

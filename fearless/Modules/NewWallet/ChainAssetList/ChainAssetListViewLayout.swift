@@ -1,11 +1,16 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class ChainAssetListViewLayout: UIView {
     enum ViewState {
         case normal
         case empty
     }
+
+    var keyboardAdoptableConstraint: Constraint?
+
+    private let container = UIView()
 
     let tableView: UITableView = {
         let view = UITableView()
@@ -48,8 +53,14 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(emptyView)
-        addSubview(tableView)
+        addSubview(container)
+        container.addSubview(tableView)
+        container.addSubview(emptyView)
+
+        container.snp.makeConstraints { make in
+            make.top.leading.trailing.equalToSuperview()
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+        }
 
         emptyView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
