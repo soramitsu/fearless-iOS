@@ -23,15 +23,8 @@ final class ScanQRViewLayout: UIView {
 
     let qrFrameView = CameraFrameView()
 
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
-
-    let messageLabel: UILabel = {
-        let label = UILabel()
-        return label
-    }()
+    let titleLabel = UILabel()
+    let messageLabel = UILabel()
 
     var locale = Locale.current {
         didSet {
@@ -39,12 +32,6 @@ final class ScanQRViewLayout: UIView {
                 applyLocalization()
             }
         }
-    }
-
-    func applyLocalization() {
-        navigationBar.setTitle(
-            R.string.localizable.contactsScan(preferredLanguages: locale.rLanguages)
-        )
     }
 
     override init(frame: CGRect) {
@@ -62,10 +49,10 @@ final class ScanQRViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        navigationBar.backButton.rounded()
     }
 
-    func setupLayout() {
+    private func setupLayout() {
         addSubview(navigationBar)
         navigationBar.setRightViews([addButton])
         navigationBar.snp.makeConstraints { make in
@@ -89,5 +76,11 @@ final class ScanQRViewLayout: UIView {
             make.bottom.equalToSuperview().offset(-UIConstants.bigOffset)
             make.centerX.equalToSuperview()
         }
+    }
+
+    private func applyLocalization() {
+        navigationBar.setTitle(
+            R.string.localizable.contactsScan(preferredLanguages: locale.rLanguages)
+        )
     }
 }
