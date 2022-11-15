@@ -128,7 +128,7 @@ final class AllDoneViewLayout: UIView {
             width: Constants.imageWidth,
             height: Constants.imageHeight
         )
-        if let iconAboutArrowImage = R.image.iconAboutArrow() {
+        if let iconAboutArrowImage = R.image.iconCopy() {
             imageAttachment.image = iconAboutArrowImage
         }
 
