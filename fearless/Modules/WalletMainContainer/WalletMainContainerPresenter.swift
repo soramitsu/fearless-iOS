@@ -163,14 +163,6 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
 }
 
 extension WalletMainContainerPresenter: ScanQRModuleOutput {
-    func didFinishWith(addressInfo: AddressQRInfo) {
-        router.showSendFlow(
-            from: view,
-            wallet: wallet,
-            address: addressInfo.address
-        )
-    }
-
     func didFinishWith(address: String) {
         router.showSendFlow(
             from: view,
