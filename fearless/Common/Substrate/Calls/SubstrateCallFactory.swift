@@ -119,6 +119,8 @@ protocol SubstrateCallFactoryProtocol {
     func claimPoolRewards() -> RuntimeCall<NoRuntimeArgs>
 
     func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall>
+
+    func nominationPoolUpdateRoles(poolId: String, roles: StakingPoolRoles) -> RuntimeCall<NominationPoolsUpdateRolesCall>
 }
 
 // swiftlint:disable type_body_length file_length
@@ -558,6 +560,42 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             moduleName: CallCodingPath.claimPendingRewards.moduleName,
             callName: CallCodingPath.claimPendingRewards.callName
         )
+    }
+
+    func nominationPoolUpdateRoles(
+        poolId: String,
+        roles: StakingPoolRoles
+    ) -> RuntimeCall<NominationPoolsUpdateRolesCall> {
+        var rootRoleUpdate: UpdateRoleCase
+        var nominatorRoleUpdate: UpdateRoleCase
+        var stateTogglerRoleUpdate: UpdateRoleCase
+
+        if let rootAccountId = roles.root {
+            rootRoleUpdate = .set(rootAccountId)
+        } else {
+            rootRoleUpdate = .remove
+        }
+
+        if let nominatorAccountId = roles.nominator {
+            nominatorRoleUpdate = .set(nominatorAccountId)
+        } else {
+            nominatorRoleUpdate = .remove
+        }
+
+        if let stateTogglerAccountId = roles.stateToggler {
+            stateTogglerRoleUpdate = .set(stateTogglerAccountId)
+        } else {
+            stateTogglerRoleUpdate = .remove
+        }
+
+        let args = NominationPoolsUpdateRolesCall(
+            poolId: poolId,
+            newRoot: rootRoleUpdate,
+            newNominator: nominatorRoleUpdate,
+            newStateToggler: stateTogglerRoleUpdate
+        )
+
+        return RuntimeCall(callCodingPath: .nominationPoolUpdateRoles, args: args)
     }
 
     // MARK: - Private methods

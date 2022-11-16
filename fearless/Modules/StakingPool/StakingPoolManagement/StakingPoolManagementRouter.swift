@@ -42,7 +42,7 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
         from view: ControllerBackedProtocol?
     ) {
         guard let module = StakingPoolInfoAssembly.configureModule(
-            stakingPool: stakingPool,
+            poolId: stakingPool.id,
             chainAsset: chainAsset,
             wallet: wallet
         ) else {

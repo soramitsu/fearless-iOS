@@ -4,8 +4,9 @@ import FearlessUtils
 import SoraKeystore
 
 final class StakingPoolInfoAssembly {
+    // swiftlint:disable function_body_length
     static func configureModule(
-        stakingPool: StakingPool,
+        poolId: String,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) -> StakingPoolInfoModuleCreationResult? {
@@ -98,12 +99,26 @@ final class StakingPoolInfoAssembly {
             identityOperationFactory: identityOperationFactory
         )
 
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: requestFactory,
+            runtimeService: runtimeService,
+            engine: connection
+        )
+
         let interactor = StakingPoolInfoInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
             operationManager: operationManager,
             runtimeService: runtimeService,
-            validatorOperationFactory: validatorOperationFactory
+            validatorOperationFactory: validatorOperationFactory,
+            poolId: poolId,
+            stakingPoolOperationFactory: stakingPoolOperationFactory
         )
         let router = StakingPoolInfoRouter()
 
@@ -120,7 +135,6 @@ final class StakingPoolInfoAssembly {
             interactor: interactor,
             router: router,
             viewModelFactory: viewModelFactory,
-            stakingPool: stakingPool,
             chainAsset: chainAsset,
             logger: logger,
             wallet: wallet,
