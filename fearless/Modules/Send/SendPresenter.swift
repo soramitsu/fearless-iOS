@@ -297,7 +297,7 @@ extension SendPresenter: WalletScanQRModuleOutput {
         else {
             return
         }
-        
+
         searchTextDidChanged(address)
     }
 
