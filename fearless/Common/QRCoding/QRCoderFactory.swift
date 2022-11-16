@@ -56,7 +56,7 @@ final class NewAddressQRDecoder: QRDecodable {
             throw QRDecoderError.brokenFormat
         }
 
-        guard fields.count >= 3, fields.count <= 4 else {
+        guard fields.count >= 3 else {
             throw QRDecoderError.unexpectedNumberOfFields
         }
 
