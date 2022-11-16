@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class WalletMainContainerPresenter {
     // MARK: Private properties
@@ -32,6 +33,7 @@ final class WalletMainContainerPresenter {
         self.viewModelFactory = viewModelFactory
         self.interactor = interactor
         self.router = router
+
         self.localizationManager = localizationManager
     }
 
@@ -70,7 +72,7 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapOnQR() {
-        router.showScanQr(from: view)
+        router.showScanQr(from: view, moduleOutput: self)
     }
 
     func didTapSearch() {
@@ -157,5 +159,15 @@ extension WalletMainContainerPresenter: SelectNetworkDelegate {
         didCompleteWith chain: ChainModel?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
+    }
+}
+
+extension WalletMainContainerPresenter: ScanQRModuleOutput {
+    func didFinishWith(address: String) {
+        router.showSendFlow(
+            from: view,
+            wallet: wallet,
+            address: address
+        )
     }
 }

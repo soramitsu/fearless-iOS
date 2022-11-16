@@ -44,7 +44,16 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         view?.controller.present(module.view.controller, animated: true)
     }
 
-    func showScanQr(from _: WalletMainContainerViewInput?) {}
+    func showScanQr(from view: WalletMainContainerViewInput?, moduleOutput: ScanQRModuleOutput) {
+        guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: module.view.controller
+        )
+        view?.controller.present(navigationController, animated: true)
+    }
 
     func showSearch(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel) {
         guard let module = AssetListSearchAssembly.configureModule(wallet: wallet) else {
@@ -108,5 +117,19 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         }
 
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showSendFlow(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        address: String
+    ) {
+        let sendModule = SendAssembly.configureModule(wallet: wallet, initialData: .address(address))
+        guard let controller = sendModule?.view.controller else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+        view?.controller.present(navigationController, animated: true)
     }
 }

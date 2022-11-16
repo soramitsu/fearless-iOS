@@ -35,7 +35,7 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?
     )
-    func showScanQr(from view: WalletMainContainerViewInput?)
+    func showScanQr(from view: WalletMainContainerViewInput?, moduleOutput: ScanQRModuleOutput)
     func showSearch(from view: WalletMainContainerViewInput?, wallet: MetaAccountModel)
     func showSelectNetwork(
         from view: WalletMainContainerViewInput?,
@@ -54,6 +54,12 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         from view: WalletMainContainerViewInput?,
         issues: [ChainIssue],
         wallet: MetaAccountModel
+    )
+
+    func showSendFlow(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        address: String
     )
 }
 

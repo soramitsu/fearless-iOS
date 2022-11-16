@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import CommonWallet
+import FearlessUtils
 
 final class SendPresenter {
     // MARK: Private properties
@@ -158,12 +158,7 @@ extension SendPresenter: SendViewOutput {
 
     func didTapScanButton() {
         guard let chainAsset = selectedChainAsset else { return }
-        router.presentScan(
-            from: view,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            moduleOutput: self
-        )
+        router.presentScan(from: view, moduleOutput: self)
     }
 
     func didTapHistoryButton() {
@@ -288,26 +283,8 @@ extension SendPresenter: SendInteractorOutput {
     }
 }
 
-extension SendPresenter: WalletScanQRModuleOutput {
-    func didFinishWith(payload: TransferPayload) {
-        guard let chainAsset = selectedChainAsset else { return }
-        let chainFormat: ChainFormat = chainAsset.chain.isEthereumBased
-            ? .ethereum
-            : .substrate(chainAsset.chain.addressPrefix)
-
-        guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
-              let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
-            return
-        }
-
-        searchTextDidChanged(address)
-    }
-
-    func didFinishWith(incorrectAddress: String) {
-        guard let address = try? qrParser.extractAddress(from: incorrectAddress) else {
-            return
-        }
-
+extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWith(address: String) {
         searchTextDidChanged(address)
     }
 }
