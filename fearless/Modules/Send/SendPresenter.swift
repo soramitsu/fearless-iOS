@@ -28,7 +28,7 @@ final class SendPresenter {
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var inputResult: AmountInputResult?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var balanceMinusFeeAndTip: Decimal { (balance ?? 0) - (fee ?? 0) - (tip ?? 0) }
     private var scamInfo: ScamInfo?
 
     // MARK: - Constructors
@@ -108,11 +108,12 @@ extension SendPresenter: SendViewOutput {
     func didTapContinueButton() {
         guard let chainAsset = selectedChainAsset else { return }
         guard let address = recipientAddress,
-              interactor.validate(address: address, for: chainAsset.chain) else {
+              interactor.validate(address: address, for: chainAsset.chain)
+        else {
             router.present(message: nil, title: "Incorrect address", closeAction: "Close", from: view)
             return
         }
-        let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
+        let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
             (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
@@ -290,16 +291,13 @@ extension SendPresenter: SendInteractorOutput {
 
 extension SendPresenter: WalletScanQRModuleOutput {
     func didFinishWith(payload: TransferPayload) {
-        guard let chainAsset = selectedChainAsset else { return }
-        let chainFormat: ChainFormat = chainAsset.chain.isEthereumBased
-            ? .ethereum
-            : .substrate(chainAsset.chain.addressPrefix)
-
-        guard let accountId = try? Data(hexString: payload.receiveInfo.accountId),
-              let address = try? AddressFactory.address(for: accountId, chainFormat: chainFormat) else {
+        guard let chainAsset = selectedChainAsset,
+              let accountId = try? Data(hexString: payload.receiveInfo.accountId),
+              let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain)
+        else {
             return
         }
-
+        
         searchTextDidChanged(address)
     }
 
@@ -369,7 +367,7 @@ private extension SendPresenter {
               .prepareDepencies(chainAsset: chainAsset)?
               .balanceViewModelFactory
         else { return }
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0.0
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
@@ -416,7 +414,7 @@ private extension SendPresenter {
               .prepareDepencies(chainAsset: chainAsset)?
               .balanceViewModelFactory
         else { return }
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
 
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
@@ -429,7 +427,7 @@ private extension SendPresenter {
     }
 
     func refreshFee(for chainAsset: ChainAsset, address: String?) {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndTip) ?? 0
         guard let amount = inputAmount.toSubstrateAmount(
             precision: Int16(chainAsset.asset.precision)
         ) else {

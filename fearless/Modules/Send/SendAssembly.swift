@@ -83,6 +83,7 @@ final class SendAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        dataValidatingFactory.view = view
 
         return (view, presenter)
     }
