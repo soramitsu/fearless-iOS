@@ -162,9 +162,12 @@ private extension ChainAssetListViewModelFactory {
         }) != nil
         let isMissingAccount = containsChainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
+                || selectedMetaAccount.unusedChainIds.or([]).contains($0.chain.chainId)
         }) != nil
 
-        if chainsWithMissingAccounts.contains(chainAsset.chain.chainId) {
+        if
+            chainsWithMissingAccounts.contains(chainAsset.chain.chainId)
+            || selectedMetaAccount.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
             isColdBoot = !isMissingAccount
         }
 
