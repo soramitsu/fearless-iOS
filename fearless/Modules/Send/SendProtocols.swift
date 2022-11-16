@@ -64,9 +64,7 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
     )
     func presentScan(
         from view: ControllerBackedProtocol?,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        moduleOutput: WalletScanQRModuleOutput?
+        moduleOutput: ScanQRModuleOutput
     )
 
     func presentHistory(

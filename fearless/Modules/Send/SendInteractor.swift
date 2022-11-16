@@ -122,7 +122,7 @@ extension SendInteractor: SendInteractorInput {
 
             return accountId
         }
-        
+
         guard
             let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset)
         else { return }
