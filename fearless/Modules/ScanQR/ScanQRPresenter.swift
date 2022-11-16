@@ -179,7 +179,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     }
 
     func handleMatched(addressInfo: AddressQRInfo) {
-        moduleOutput.didFinishWith(addressInfo: addressInfo)
+        moduleOutput.didFinishWith(address: addressInfo.address)
     }
 }
 

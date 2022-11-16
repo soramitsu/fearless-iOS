@@ -284,10 +284,6 @@ extension SendPresenter: SendInteractorOutput {
 }
 
 extension SendPresenter: ScanQRModuleOutput {
-    func didFinishWith(addressInfo: AddressQRInfo) {
-        searchTextDidChanged(addressInfo.address)
-    }
-
     func didFinishWith(address: String) {
         searchTextDidChanged(address)
     }

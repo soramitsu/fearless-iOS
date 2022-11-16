@@ -36,6 +36,5 @@ protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, 
 protocol ScanQRModuleInput: AnyObject {}
 
 protocol ScanQRModuleOutput: AnyObject {
-    func didFinishWith(addressInfo: AddressQRInfo)
     func didFinishWith(address: String)
 }

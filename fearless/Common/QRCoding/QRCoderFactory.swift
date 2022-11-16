@@ -1,16 +1,16 @@
 import Foundation
 import FearlessUtils
 
-public protocol QRCoderFactoryProtocol {
+protocol QRCoderFactoryProtocol {
     func createEncoder() -> QREncoderProtocol
     func createDecoder() -> QRDecoderProtocol
 }
 
-public protocol QREncoderProtocol {
+protocol QREncoderProtocol {
     func encode(addressInfo: AddressQRInfo) throws -> Data
 }
 
-public protocol QRDecoderProtocol {
+protocol QRDecoderProtocol {
     func decode(data: Data) throws -> AddressQRInfo
 }
 

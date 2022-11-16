@@ -2567,9 +2567,6 @@
 		07B6BC7E28BC71DB00621864 /* NetworkIssuesNotificationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationViewModelFactory.swift; sourceTree = "<group>"; };
 		07B6BC8028BC720F00621864 /* NetworkIssuesNotificationCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationCellViewModel.swift; sourceTree = "<group>"; };
 		07B6BC8328BC723500621864 /* NetworkIssuesNotificationTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkIssuesNotificationTableCell.swift; sourceTree = "<group>"; };
-		07C3397029178D390057C4A5 /* types.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = types.json; sourceTree = "<group>"; };
-		07C3397129189B720057C4A5 /* ChainsTypesSyncService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainsTypesSyncService.swift; sourceTree = "<group>"; };
-		07C68FD733FDBB372E078824 /* SendAssembly.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SendAssembly.swift; sourceTree = "<group>"; };
 		07D05E4028EC08B800B66C70 /* StakinkPoolRewardCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakinkPoolRewardCalculator.swift; sourceTree = "<group>"; };
 		07D05E4628EEFDC900B66C70 /* SelectValidatorsStartPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolStrategy.swift; sourceTree = "<group>"; };
 		07D05E4728EEFDC900B66C70 /* SelectValidatorsStartPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartPoolViewModelState.swift; sourceTree = "<group>"; };
@@ -7682,8 +7679,6 @@
 				057BA4E50A9EE2EEBF923F7F /* Contacts */,
 				9A497C6616A1EB7D4AE1244B /* CreateContact */,
 				01D711F640932FAD689EDB83 /* AllDone */,
-				B2073BB1848C75A15FF973C6 /* Send */,
-				7100DDAD3685464F08DEFD4E /* SelectAsset */,
 				6010E1FEC5DE216E419CBFE8 /* ScanQR */,
 			);
 			path = Modules;
@@ -10230,14 +10225,6 @@
 				C640416628F6C9B600845780 /* QRScanMatcher.swift */,
 			);
 			path = QRCoding;
-			sourceTree = "<group>";
-		};
-		C654F4342911E1E900B634DD /* Validators */ = {
-			isa = PBXGroup;
-			children = (
-				C654F4352911E1FB00B634DD /* SendDataValidatingFactory.swift */,
-			);
-			path = Validators;
 			sourceTree = "<group>";
 		};
 		C65817CF28DA70D900988FC4 /* View */ = {
@@ -15380,19 +15367,6 @@
 				65E0BC7A96EDE5E52D32A11B /* AllDoneViewController.swift in Sources */,
 				AB678EAA622BFEAEEA8166F2 /* AllDoneViewLayout.swift in Sources */,
 				37AE170856990F9FBEF052FC /* AllDoneAssembly.swift in Sources */,
-				9C5F085AA042CD9D2926BE08 /* SendProtocols.swift in Sources */,
-				9404D96176C3E3F2C5A47C9A /* SendRouter.swift in Sources */,
-				BA6A4AEEFC50E165CCBC1730 /* SendPresenter.swift in Sources */,
-				61384BFBA491B3F1589CB9FF /* SendInteractor.swift in Sources */,
-				5B766C825776CCFDBAABA573 /* SendViewController.swift in Sources */,
-				D531EE3326ED87D0BD209395 /* SendViewLayout.swift in Sources */,
-				8DA8D6B6824EF5D1DE57CB4F /* SendAssembly.swift in Sources */,
-				A59AC2A93189BF30213E950C /* SelectAssetProtocols.swift in Sources */,
-				E6F7C205C679B0C282420177 /* SelectAssetRouter.swift in Sources */,
-				3CCD439BCE207BF693602737 /* SelectAssetPresenter.swift in Sources */,
-				632C7D22299478BCC823B92D /* SelectAssetInteractor.swift in Sources */,
-				F4679A277EA1C317A60DB20F /* SelectAssetViewController.swift in Sources */,
-				BAFB909D3209CA9FD2F6FE5F /* SelectAssetAssembly.swift in Sources */,
 				EB0942F62C1FACAE8AE1A3AE /* ScanQRProtocols.swift in Sources */,
 				42F6285F9BB16D23EE2BD18E /* ScanQRRouter.swift in Sources */,
 				22F7417EB3976D158B3E571A /* ScanQRPresenter.swift in Sources */,
