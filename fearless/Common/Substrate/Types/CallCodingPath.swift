@@ -13,7 +13,8 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
             .poolBondMore,
             .poolUnbond,
             .claimPendingRewards,
-            .poolWithdrawUnbonded
+            .poolWithdrawUnbonded,
+            .nominationPoolUpdateRoles
         ]
     }
 
@@ -51,6 +52,8 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
             return (moduleName: "NominationPools", callName: "claim_payout")
         case .poolWithdrawUnbonded:
             return (moduleName: "NominationPools", callName: "withdraw_unbonded")
+        case .nominationPoolUpdateRoles:
+            return (moduleName: "NominationPools", callName: "update_roles")
         case let .fromInit(moduleName, callName):
             return (moduleName: moduleName, callName: callName)
         }
@@ -72,4 +75,5 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
     case poolUnbond
     case claimPendingRewards
     case poolWithdrawUnbonded
+    case nominationPoolUpdateRoles
 }

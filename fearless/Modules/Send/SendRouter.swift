@@ -27,19 +27,13 @@ final class SendRouter: SendRouterInput {
 
     func presentScan(
         from view: ControllerBackedProtocol?,
-        chainAsset: ChainAsset,
-        wallet: MetaAccountModel,
-        moduleOutput: WalletScanQRModuleOutput?
+        moduleOutput: ScanQRModuleOutput
     ) {
-        guard let controller = WalletScanQRViewFactory.createView(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            moduleOutput: moduleOutput
-        )?.controller else {
+        guard let module = ScanQRAssembly.configureModule(moduleOutput: moduleOutput) else {
             return
         }
 
-        view?.controller.present(controller, animated: true, completion: nil)
+        view?.controller.present(module.view.controller, animated: true, completion: nil)
     }
 
     func presentHistory(

@@ -66,8 +66,8 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
         }
 
         return StakingPoolManagementViewModel(
-            stakeMoreButtonEnabled: stakeInfo?.points != BigUInt.zero,
-            unstakeButtonEnabled: unstakeButtonEnabled
+            stakeMoreButtonVisible: stakeInfo?.points != BigUInt.zero,
+            unstakeButtonVisible: unstakeButtonEnabled
         )
     }
 
