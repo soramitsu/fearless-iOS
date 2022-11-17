@@ -17,7 +17,6 @@ final class AccountInfoUpdatingService {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
-    private var chainIdsWithCodersReady: [ChainModel.Id] = []
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
@@ -63,9 +62,7 @@ final class AccountInfoUpdatingService {
         for change in changes {
             switch change {
             case let .insert(newItem):
-                if
-                    chainIdsWithCodersReady.contains(newItem.chainId)
-                    || (chainRegistry.availableChainIds?.contains(newItem.chainId) ?? false) {
+                if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
                     newItem.chainAssets.forEach {
                         addSubscriptionIfNeeded(for: $0)
                     }
