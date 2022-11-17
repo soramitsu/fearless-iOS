@@ -158,7 +158,6 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapScanButton() {
-        guard let chainAsset = selectedChainAsset else { return }
         router.presentScan(from: view, moduleOutput: self)
     }
 
