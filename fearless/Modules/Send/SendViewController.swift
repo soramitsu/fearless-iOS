@@ -45,7 +45,7 @@ final class SendViewController: UIViewController, ViewHolder {
         super.viewWillAppear(animated)
         setupKeyboardHandler()
     }
-
+    
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
         rootView.searchView.textField.becomeFirstResponder()

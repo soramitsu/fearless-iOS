@@ -120,49 +120,8 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
     }
 
     func didTapValidators() {
-        guard
-            let electedValidators = electedValidators,
-            let stakingPool = stakingPool,
-            let poolId = UInt32(stakingPool.id),
-            let stashAddress = try? fetchPoolAccount(for: .stash)?.toAddress(using: chainAsset.chain.chainFormat),
-            let rewardAccount = fetchPoolAccount(for: .rewards),
-            let rewardAddress = try? rewardAccount.toAddress(using: chainAsset.chain.chainFormat),
-            let controller = wallet.fetch(for: chainAsset.chain.accountRequest())
-        else {
-            return
-        }
-
-        let stashItem = StashItem(
-            stash: stashAddress,
-            controller: rewardAddress
-        )
-
-        guard
-            let rewardDestination = try? RewardDestination(
-                payee: .account(rewardAccount),
-                stashItem: stashItem,
-                chainFormat: chainAsset.chain.chainFormat
-            )
-        else {
-            return
-        }
-
-        let selectedValidators = electedValidators.map { validator in
-            validator.toSelected(for: stashAddress)
-        }.filter { $0.isActive }
-
-        let state = ExistingBonding(
-            stashAddress: stashAddress,
-            controllerAccount: controller,
-            amount: .zero,
-            rewardDestination: rewardDestination,
-            selectedTargets: selectedValidators
-        )
-
         router.proceedToSelectValidatorsStart(
             from: view,
-            poolId: poolId,
-            state: state,
             chainAsset: chainAsset,
             wallet: wallet
         )

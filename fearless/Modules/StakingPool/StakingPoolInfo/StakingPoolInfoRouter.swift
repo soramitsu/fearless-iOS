@@ -3,8 +3,6 @@ import Foundation
 final class StakingPoolInfoRouter: StakingPoolInfoRouterInput {
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
-        poolId _: UInt32,
-        state _: ExistingBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {

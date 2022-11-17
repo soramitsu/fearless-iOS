@@ -2,7 +2,6 @@ import Foundation
 import SoraFoundation
 import BigInt
 import FearlessUtils
-import CommonWallet
 
 final class SendPresenter {
     // MARK: Private properties
@@ -281,27 +280,6 @@ extension SendPresenter: SendInteractorOutput {
             guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
             refreshFee(for: chainAsset, address: address)
         }
-    }
-}
-
-extension SendPresenter: WalletScanQRModuleOutput {
-    func didFinishWith(payload: TransferPayload) {
-        guard let chainAsset = selectedChainAsset,
-              let accountId = try? Data(hexString: payload.receiveInfo.accountId),
-              let address = try? AddressFactory.address(for: accountId, chain: chainAsset.chain)
-        else {
-            return
-        }
-
-        searchTextDidChanged(address)
-    }
-
-    func didFinishWith(incorrectAddress: String) {
-        guard let address = try? qrParser.extractAddress(from: incorrectAddress) else {
-            return
-        }
-
-        searchTextDidChanged(address)
     }
 }
 

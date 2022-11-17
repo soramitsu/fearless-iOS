@@ -1,3 +1,5 @@
+import Foundation
+
 typealias StakingPoolJoinConfirmModuleCreationResult = (view: StakingPoolJoinConfirmViewInput, input: StakingPoolJoinConfirmModuleInput)
 
 protocol StakingPoolJoinConfirmViewInput: ControllerBackedProtocol, LoadableViewProtocol {
@@ -15,12 +17,16 @@ protocol StakingPoolJoinConfirmInteractorInput: AnyObject {
     func setup(with output: StakingPoolJoinConfirmInteractorOutput)
     func estimateFee()
     func submit()
+    func fetchPoolNomination(poolStashAccountId: AccountId)
 }
 
 protocol StakingPoolJoinConfirmInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceive(extrinsicResult: SubmitExtrinsicResult)
+    func didReceive(palletIdResult: Result<Data, Error>)
+    func didReceive(nomination: Nomination?)
+    func didReceive(error: Error)
 }
 
 protocol StakingPoolJoinConfirmRouterInput: AnyObject, PushDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, ModalAlertPresenting {

@@ -32,8 +32,6 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
 protocol StakingPoolInfoRouterInput: PresentDismissable {
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
-        poolId: UInt32,
-        state: ExistingBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )

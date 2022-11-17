@@ -82,8 +82,6 @@ private extension ChainAssetListViewController {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
-        rootView.tableView.contentInsetAdjustmentBehavior = .never
-        rootView.tableView.contentInset = .zero
     }
 
     func configureEmptyView() {
