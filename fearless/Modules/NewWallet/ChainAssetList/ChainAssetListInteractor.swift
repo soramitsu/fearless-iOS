@@ -121,11 +121,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var enabledAssets = wallet.assetIdsEnabled {
-            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
-            save(updatedWallet)
-        }
+        var disabledAssets = wallet.assetIdsEnabled ?? []
+        disabledAssets.append(chainAssetKey)
+
+        let updatedWallet = wallet.replacingAssetIdsEnabled(disabledAssets)
+        save(updatedWallet)
     }
 
     func showChainAsset(_ chainAsset: ChainAsset) {
@@ -135,11 +135,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var enabledAssets = wallet.assetIdsEnabled ?? []
-        enabledAssets.append(chainAssetKey)
-
-        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
-        save(updatedWallet)
+        if var disabledAssets = wallet.assetIdsEnabled {
+            disabledAssets = disabledAssets.filter { $0 != chainAssetKey }
+            let updatedWallet = wallet.replacingAssetIdsEnabled(disabledAssets)
+            save(updatedWallet)
+        }
     }
 
     func markUnused(chain: ChainModel) {
@@ -147,6 +147,19 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
 
+        save(updatedAccount)
+    }
+
+    func saveHiddenSection(state: HiddenSectionState) {
+        var filterOptions = wallet.assetFilterOptions
+        switch state {
+        case .hidden:
+            filterOptions.removeAll(where: { $0 == .hiddenSectionOpen })
+        case .expanded:
+            filterOptions.append(.hiddenSectionOpen)
+        }
+
+        let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
         save(updatedAccount)
     }
 }

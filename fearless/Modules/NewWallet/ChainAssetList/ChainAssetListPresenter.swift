@@ -208,6 +208,10 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
         )
         router.present(viewModel: sheetViewModel, from: view)
     }
+
+    func didTapExpandSections(state: HiddenSectionState) {
+        interactor.saveHiddenSection(state: state)
+    }
 }
 
 // MARK: - ChainAssetListInteractorOutput
