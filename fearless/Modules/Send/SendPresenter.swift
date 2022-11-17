@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import FearlessUtils
 import CommonWallet
 
 final class SendPresenter {
@@ -158,13 +159,7 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapScanButton() {
-        guard let chainAsset = selectedChainAsset else { return }
-        router.presentScan(
-            from: view,
-            chainAsset: chainAsset,
-            wallet: wallet,
-            moduleOutput: self
-        )
+        router.presentScan(from: view, moduleOutput: self)
     }
 
     func didTapHistoryButton() {
@@ -306,6 +301,12 @@ extension SendPresenter: WalletScanQRModuleOutput {
             return
         }
 
+        searchTextDidChanged(address)
+    }
+}
+
+extension SendPresenter: ScanQRModuleOutput {
+    func didFinishWith(address: String) {
         searchTextDidChanged(address)
     }
 }
