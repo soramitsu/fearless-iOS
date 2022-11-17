@@ -20,7 +20,8 @@ final class ConnectionPool {
     private let connectionFactory: ConnectionFactoryProtocol
     private weak var delegate: ConnectionPoolDelegate?
 
-    private var mutex = NSLock()
+    private let mutex = NSLock()
+    private lazy var readLock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
 
@@ -78,13 +79,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        return connectionsByChainIds[chainId]?.target as? ChainConnection
+        readLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
     }
 }
 

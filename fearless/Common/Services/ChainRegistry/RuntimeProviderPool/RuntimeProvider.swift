@@ -176,17 +176,11 @@ final class RuntimeProvider {
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
 
                 resolveRequests()
-
-                let event = RuntimeCoderCreated(chainId: chainId)
-                eventCenter.notify(with: event)
             }
         case let .failure(error):
             currentWrapper = nil
 
             logger?.error("Failed to build snapshot for \(chainName): \(error)")
-
-            let event = RuntimeCoderCreationFailed(chainId: chainId, error: error)
-            eventCenter.notify(with: event)
         case .none:
             break
         }
