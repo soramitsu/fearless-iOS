@@ -198,14 +198,14 @@ class StakingRewardCalculatorView: UIView {
             }
 
             monthlyAmountLabel.text = viewModel.monthlyReward.amount
-            monthlyFiatAmountLabel.text = viewModel.monthlyReward.price
+            monthlyFiatAmountLabel.text = viewModel.monthlyReward.price ?? " "
 
             yearlyTitleLabel.text = viewModel.yearlyReward.increase.map {
                 R.string.localizable.stakingYearPeriodFormat($0, preferredLanguages: locale.rLanguages)
             }
 
             yearlyAmountLabel.text = viewModel.yearlyReward.amount
-            yearlyFiatAmountLabel.text = viewModel.yearlyReward.price
+            yearlyFiatAmountLabel.text = viewModel.yearlyReward.price ?? " "
         } else {
             startLoadingIfNeeded()
 

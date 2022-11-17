@@ -895,3 +895,6 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "all.done.alert.hash.stub" = "Hash";
 "all.done.alert.result.stub" = "Result";
 "all.done.alert.success.stub" = "Success";
+"pool.update.roles.title" = "Edit pool";
+"pool.update.roles.warning" = "WARNING: Changing the role is irreversible and may lead to loss of access to the pool.";
+"contacts.scan" = "Scan QR code";
