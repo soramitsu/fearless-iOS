@@ -18,6 +18,7 @@ final class ApplicationStatusView: TriangularedView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textAlignment = .center
+        label.numberOfLines = 2
         return label
     }()
 
@@ -43,10 +44,11 @@ final class ApplicationStatusView: TriangularedView {
     override func layoutSubviews() {
         super.layoutSubviews()
         snp.makeConstraints { make in
-            make.height.equalTo(UIConstants.statusViewHeight)
+            make.height.greaterThanOrEqualTo(UIConstants.statusViewHeight)
         }
 
         addSubview(imageView)
+        imageView.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
         imageView.snp.makeConstraints { make in
             make.width.lessThanOrEqualTo(Constants.imageViewWidth)
             make.centerY.equalToSuperview()
@@ -58,11 +60,19 @@ final class ApplicationStatusView: TriangularedView {
         textVStackView.snp.makeConstraints { make in
             make.centerX.equalToSuperview().offset(Constants.imageViewWidth)
             make.leading.greaterThanOrEqualTo(imageView.snp.trailing).offset(UIConstants.horizontalInset)
-            make.trailing.greaterThanOrEqualToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.lessThanOrEqualToSuperview().inset(UIConstants.horizontalInset)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
         textVStackView.addArrangedSubview(titleLabel)
         textVStackView.addArrangedSubview(descriptionLabel)
+
+        titleLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
+
+        descriptionLabel.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
     }
 }
