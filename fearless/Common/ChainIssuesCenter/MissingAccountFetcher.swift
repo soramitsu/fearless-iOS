@@ -29,7 +29,7 @@ final class MissingAccountFetcher: MissingAccountFetcherProtocol {
             case let .success(chains):
                 let missingAccounts = chains.filter { chain in
                     wallet.fetch(for: chain.accountRequest()) == nil
-                }
+                }.filter { !wallet.unusedChainIds.or([]).contains($0.chainId) }
                 complection(missingAccounts)
             case .failure:
                 break
