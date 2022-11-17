@@ -169,14 +169,4 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
             }
         }
     }
-
-    func processRuntimeCoderReady(event: RuntimeCoderCreated) {
-        chainIdsWithCodersReady.append(event.chainId)
-
-        let chain = chains[event.chainId]
-
-        chain?.chainAssets.forEach {
-            addSubscriptionIfNeeded(for: $0)
-        }
-    }
 }
