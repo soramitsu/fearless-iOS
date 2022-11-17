@@ -43,6 +43,8 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
         let tapGesture = UITapGestureRecognizer()
         tapGesture.addTarget(self, action: #selector(validatorsClicked))
         rootView.validatorsView.addGestureRecognizer(tapGesture)
+
+        setupActions()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -52,6 +54,45 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
     }
 
     // MARK: - Private methods
+
+    private func setupActions() {
+        rootView.roleNominatorView.addTarget(
+            self,
+            action: #selector(handleNominationTapped),
+            for: .touchUpInside
+        )
+        rootView.roleStateTogglerView.addTarget(
+            self,
+            action: #selector(handleStateTogglerTapped),
+            for: .touchUpInside
+        )
+        rootView.roleRootView.addTarget(
+            self,
+            action: #selector(handleRootTapped),
+            for: .touchUpInside
+        )
+        rootView.saveRolesButton.addTarget(
+            self,
+            action: #selector(saveRolesTapped),
+            for: .touchUpInside
+        )
+    }
+
+    @objc private func saveRolesTapped() {
+        output.saveRolesDidTapped()
+    }
+
+    @objc private func handleNominationTapped() {
+        output.nominatorDidTapped()
+    }
+
+    @objc private func handleStateTogglerTapped() {
+        output.stateTogglerDidTapped()
+    }
+
+    @objc private func handleRootTapped() {
+        output.rootDidTapped()
+    }
 
     @objc private func closeButtonClicked() {
         output.didTapCloseButton()

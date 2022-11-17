@@ -892,4 +892,6 @@ and depending on the network state, may not be selected to participate";
 "all.done.alert.hash.stub" = "Hash";
 "all.done.alert.result.stub" = "Result";
 "all.done.alert.success.stub" = "Success";
+"pool.update.roles.title" = "Edit pool";
+"pool.update.roles.warning" = "WARNING: Changing the role is irreversible and may lead to loss of access to the pool.";
 "contacts.scan" = "Сканировать QR-код";
