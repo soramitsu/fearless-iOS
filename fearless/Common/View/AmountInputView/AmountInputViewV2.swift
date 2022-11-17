@@ -1,10 +1,17 @@
 import UIKit
 
+enum AmountInputViewV2Type {
+    case balance
+    case available
+}
+
 final class AmountInputViewV2: UIView {
     enum LayoutConstants {
         static let iconSize: CGFloat = 28
         static let offset: CGFloat = 12
     }
+
+    let type: AmountInputViewV2Type
 
     private let triangularedBackgroundView: TriangularedView = {
         let view = TriangularedView()
@@ -89,8 +96,9 @@ final class AmountInputViewV2: UIView {
 
     // MARK: - Constructor
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(type: AmountInputViewV2Type = .balance) {
+        self.type = type
+        super.init(frame: .zero)
         configure()
         setupLayout()
         applyLocalization()
@@ -111,10 +119,18 @@ final class AmountInputViewV2: UIView {
         priceLabel.text = viewModel.price
 
         if let balance = viewModel.balance {
-            balanceLabel.text = R.string.localizable.commonBalanceFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
+            switch type {
+            case .balance:
+                balanceLabel.text = R.string.localizable.commonBalanceFormat(
+                    balance,
+                    preferredLanguages: locale.rLanguages
+                )
+            case .available:
+                balanceLabel.text = R.string.localizable.commonAvailableFormat(
+                    balance,
+                    preferredLanguages: locale.rLanguages
+                )
+            }
         } else {
             balanceLabel.text = nil
         }
