@@ -35,7 +35,9 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
             return []
         }
 
-        let sortedPools = pools.sorted { pool1, pool2 in
+        let openPools = pools.filter { $0.info.state == .open }
+
+        let sortedPools = openPools.sorted { pool1, pool2 in
             switch sort {
             case .totalStake:
                 return pool1.info.points < pool2.info.points

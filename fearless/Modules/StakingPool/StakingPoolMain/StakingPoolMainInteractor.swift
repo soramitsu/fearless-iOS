@@ -28,7 +28,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
-    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
+    private var validatorOperationFactory: ValidatorOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -145,6 +145,17 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         )
 
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
+
+        validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardCalculationService,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
     }
 
     private func updateAfterChainAssetSave() {
