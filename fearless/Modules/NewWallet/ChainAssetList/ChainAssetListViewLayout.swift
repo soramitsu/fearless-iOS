@@ -10,7 +10,7 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    private let container = UIView()
+    private let contentContainer = UIView()
 
     let tableView: UITableView = {
         let view = UITableView()
@@ -53,11 +53,11 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(container)
-        container.addSubview(tableView)
-        container.addSubview(emptyView)
+        addSubview(contentContainer)
+        contentContainer.addSubview(tableView)
+        contentContainer.addSubview(emptyView)
 
-        container.snp.makeConstraints { make in
+        contentContainer.snp.makeConstraints { make in
             make.top.leading.trailing.equalToSuperview()
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }

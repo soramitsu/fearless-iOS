@@ -16,7 +16,7 @@ final class AllDoneViewLayout: UIView {
     }
 
     var copyOnTap: (() -> Void)?
-    var hashString: String?
+    private var hashString: String?
 
     var locale: Locale = .current {
         didSet {

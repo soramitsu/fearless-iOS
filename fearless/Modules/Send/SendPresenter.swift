@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import FearlessUtils
 import CommonWallet
 
 final class SendPresenter {
