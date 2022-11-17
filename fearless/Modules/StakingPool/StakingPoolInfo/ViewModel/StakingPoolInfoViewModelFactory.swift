@@ -7,7 +7,9 @@ protocol StakingPoolInfoViewModelFactoryProtocol {
         electedValidators: [ElectedValidatorInfo],
         stakingPool: StakingPool,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        roles: StakingPoolRoles,
+        wallet: MetaAccountModel
     ) -> StakingPoolInfoViewModel
 }
 
@@ -27,7 +29,9 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
         electedValidators: [ElectedValidatorInfo],
         stakingPool: StakingPool,
         priceData: PriceData?,
-        locale: Locale
+        locale: Locale,
+        roles: StakingPoolRoles,
+        wallet: MetaAccountModel
     ) -> StakingPoolInfoViewModel {
         let staked = Decimal.fromSubstrateAmount(
             stakingPool.info.points,
@@ -53,6 +57,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
         let imageString = NSAttributedString(attachment: imageAttachment)
         validatorsCountAttributedString.append(imageString)
 
+        let currentAccountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         return StakingPoolInfoViewModel(
             indexTitle: stakingPool.id,
             name: stakingPool.name,
@@ -60,10 +65,12 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             stakedAmountViewModel: stakedAmountViewModel.value(for: locale),
             membersCountTitle: "\(stakingPool.info.memberCounter)",
             validatorsCountAttributedString: validatorsCountAttributedString,
-            depositorName: try? stakingPool.info.roles.depositor.toAddress(using: chainAsset.chain.chainFormat),
-            rootName: try? stakingPool.info.roles.root?.toAddress(using: chainAsset.chain.chainFormat),
-            nominatorName: try? stakingPool.info.roles.nominator?.toAddress(using: chainAsset.chain.chainFormat),
-            stateTogglerName: try? stakingPool.info.roles.stateToggler?.toAddress(using: chainAsset.chain.chainFormat)
+            depositorName: try? roles.depositor.toAddress(using: chainAsset.chain.chainFormat),
+            rootName: try? roles.root?.toAddress(using: chainAsset.chain.chainFormat),
+            nominatorName: try? roles.nominator?.toAddress(using: chainAsset.chain.chainFormat),
+            stateTogglerName: try? roles.stateToggler?.toAddress(using: chainAsset.chain.chainFormat),
+            rolesChanged: roles != stakingPool.info.roles,
+            userIsRoot: currentAccountId == stakingPool.info.roles.root
         )
     }
 }
