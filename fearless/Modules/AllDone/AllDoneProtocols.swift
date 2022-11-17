@@ -7,6 +7,7 @@ protocol AllDoneViewInput: ControllerBackedProtocol {
 protocol AllDoneViewOutput: AnyObject {
     func didLoad(view: AllDoneViewInput)
     func dismiss()
+    func didCopyTapped()
 }
 
 protocol AllDoneInteractorInput: AnyObject {
@@ -15,7 +16,7 @@ protocol AllDoneInteractorInput: AnyObject {
 
 protocol AllDoneInteractorOutput: AnyObject {}
 
-protocol AllDoneRouterInput: PresentDismissable {}
+protocol AllDoneRouterInput: PresentDismissable, ApplicationStatusPresentable {}
 
 protocol AllDoneModuleInput: AnyObject {}
 

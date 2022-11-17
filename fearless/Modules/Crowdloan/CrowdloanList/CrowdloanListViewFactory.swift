@@ -95,7 +95,8 @@ struct CrowdloanListViewFactory {
             ),
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,
-            logger: logger
+            logger: logger,
+            eventCenter: EventCenter.shared
         )
     }
 }

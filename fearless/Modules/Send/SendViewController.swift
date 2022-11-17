@@ -46,6 +46,11 @@ final class SendViewController: UIViewController, ViewHolder {
         setupKeyboardHandler()
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        rootView.searchView.textField.becomeFirstResponder()
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         clearKeyboardHandler()

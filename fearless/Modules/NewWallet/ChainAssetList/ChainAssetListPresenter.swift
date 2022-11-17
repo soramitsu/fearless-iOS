@@ -248,15 +248,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 }
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
-
-                switch displayType {
-                case .chain:
-                    break
-                case .assetChains:
-                    guard chainAssets?.count == (accountInfos.keys.count + chainsWithMissingAccounts.count) else {
-                        return
-                    }
-                }
                 accountInfosFetched = true
                 provideViewModel()
             }

@@ -33,12 +33,16 @@ final class AllDoneViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        setup()
     }
 
     // MARK: - Private methods
 
     private func setup() {
         rootView.closeButton.addTarget(self, action: #selector(dismissSelf), for: .touchUpInside)
+        rootView.copyOnTap = { [weak self] in
+            self?.output.didCopyTapped()
+        }
     }
 
     // MARK: - Private actions

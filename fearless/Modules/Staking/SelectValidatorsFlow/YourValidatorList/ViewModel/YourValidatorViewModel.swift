@@ -11,6 +11,7 @@ enum YourValidatorListViewState {
 struct YourValidatorListViewModel {
     let allValidatorWithoutRewards: Bool
     let sections: [YourValidatorListSection]
+    let userCanSelectValidators: Bool
 }
 
 struct YourValidatorListSection {

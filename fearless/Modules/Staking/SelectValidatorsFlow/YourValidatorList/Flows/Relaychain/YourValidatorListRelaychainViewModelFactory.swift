@@ -126,7 +126,8 @@ extension YourValidatorListRelaychainViewModelFactory: YourValidatorListViewMode
 
         return YourValidatorListViewModel(
             allValidatorWithoutRewards: allValidatorsWithoutReward,
-            sections: sections
+            sections: sections,
+            userCanSelectValidators: relaychainViewModelState.selectValidatorsStartFlow() != nil
         )
     }
 }

@@ -108,6 +108,7 @@ final class ChainRegistryFactory {
             chainRepository: AnyDataProviderRepository(chainRepository),
             filesOperationFactory: filesOperationFactory,
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            dataOperationFactory: DataOperationFactory(),
             operationQueue: OperationManagerFacade.runtimeBuildingQueue,
             logger: Logger.shared
         )
