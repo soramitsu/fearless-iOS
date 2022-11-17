@@ -102,4 +102,13 @@ extension ChainsIssuesCenter: EventVisitorProtocol {
             self?.notify()
         }
     }
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
+
+        missingAccountFetcher.fetchMissingAccounts(for: wallet) { [weak self] missingAccounts in
+            self?.missingAccountsChains = missingAccounts
+            self?.notify()
+        }
+    }
 }

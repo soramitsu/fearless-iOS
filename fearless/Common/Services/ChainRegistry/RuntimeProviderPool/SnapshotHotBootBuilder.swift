@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol SnapshotHotBootBuilderProtocol {
     func startHotBoot()
@@ -10,6 +11,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let dataOperationFactory: DataOperationFactoryProtocol
     private let operationQueue: OperationQueue
     private let logger: Logger
 
@@ -18,6 +20,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         chainRepository: AnyDataProviderRepository<ChainModel>,
         filesOperationFactory: RuntimeFilesOperationFactoryProtocol,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
+        dataOperationFactory: DataOperationFactoryProtocol,
         operationQueue: OperationQueue,
         logger: Logger
     ) {
@@ -25,6 +28,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         self.chainRepository = chainRepository
         self.filesOperationFactory = filesOperationFactory
         self.runtimeItemRepository = runtimeItemRepository
+        self.dataOperationFactory = dataOperationFactory
         self.operationQueue = operationQueue
         self.logger = logger
     }
@@ -32,8 +36,12 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     // MARK: - Public
 
     func startHotBoot() {
+        guard let chainsTypesUrl = ApplicationConfig.shared.chainsTypesURL else {
+            assertionFailure()
+            return
+        }
+        let chainsTypesFetchOperation = fetchChainsTypes(url: chainsTypesUrl)
         let baseTypesFetchOperation = filesOperationFactory.fetchCommonTypesOperation()
-        let chainsTypesFetchOperation = filesOperationFactory.fetchChainsTypesOperation()
         let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
         let chainModelOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
 
@@ -83,7 +91,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
 
         guard
             let chainsTypes = result.chainsTypes,
-            let chainsTypesJson = try? JSONDecoder().decode([String: Data].self, from: chainsTypes)
+            let chainsTypesJson = try? prepareVersionedJsons(from: chainsTypes)
         else {
             return
         }
@@ -103,6 +111,51 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
                 commonTypes: commonTypes,
                 chainTypes: chainTypes
             )
+        }
+    }
+
+    private func fetchChainsTypes(url: URL) -> CompoundOperationWrapper<Data> {
+        let chainsTypesFetchOperation = filesOperationFactory.fetchChainsTypesOperation()
+        let remoteChainsTypesOperation = dataOperationFactory.fetchData(from: url)
+
+        remoteChainsTypesOperation.configurationBlock = { [weak self] in
+            do {
+                let localResult = try chainsTypesFetchOperation.targetOperation.extractNoCancellableResultData()
+                if let data = localResult {
+                    remoteChainsTypesOperation.result = .success(data)
+                }
+            } catch {
+                self?.logger.error("\(error)")
+            }
+        }
+
+        remoteChainsTypesOperation.addDependency(chainsTypesFetchOperation.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: remoteChainsTypesOperation,
+            dependencies: chainsTypesFetchOperation.allOperations
+        )
+    }
+
+    private func prepareVersionedJsons(from data: Data) throws -> [String: Data] {
+        if let localData = try? JSONDecoder().decode([String: Data].self, from: data) {
+            return localData
+        }
+        guard let versionedDefinitionJsons = try JSONDecoder().decode(JSON.self, from: data).arrayValue else {
+            throw ChainsTypesSyncError.missingData
+        }
+
+        return try versionedDefinitionJsons.reduce([String: Data]()) { partialResult, json in
+            var partialResult = partialResult
+
+            guard let chainId = json.chainId?.stringValue else {
+                throw ChainsTypesSyncError.missingChainId
+            }
+
+            let data = try JSONEncoder().encode(json)
+
+            partialResult[chainId] = data
+            return partialResult
         }
     }
 
