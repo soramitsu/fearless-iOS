@@ -91,6 +91,10 @@ class ChainModel: Codable {
         name.lowercased() == "westend"
     }
 
+    var isSora: Bool {
+        name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
+    }
+
     var hasStakingRewardHistory: Bool {
         isPolkadotOrKusama || isWestend
     }

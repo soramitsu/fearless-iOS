@@ -1647,6 +1647,9 @@
 		C640416728F6C9B600845780 /* QRScanMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640416628F6C9B600845780 /* QRScanMatcher.swift */; };
 		C648FFC828DC43A70072951B /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C648FFC728DC43A70072951B /* EmptyView.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
+		C650892F2927A88400440227 /* QRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C650892E2927A88400440227 /* QRService.swift */; };
+		C65089312927A92D00440227 /* QROperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65089302927A92D00440227 /* QROperationFactory.swift */; };
+		C65089332927BF3500440227 /* QRCreationOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65089322927BF3500440227 /* QRCreationOperation.swift */; };
 		C65817D128DA70FC00988FC4 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65817D028DA70FC00988FC4 /* QRView.swift */; };
 		C65A6592288E5CF400679D65 /* AccountInfoFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */; };
 		C65A6594288E5E0500679D65 /* NSLockExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65A6593288E5E0500679D65 /* NSLockExtension.swift */; };
@@ -4162,6 +4165,9 @@
 		C640416628F6C9B600845780 /* QRScanMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRScanMatcher.swift; sourceTree = "<group>"; };
 		C648FFC728DC43A70072951B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
+		C650892E2927A88400440227 /* QRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
+		C65089302927A92D00440227 /* QROperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationFactory.swift; sourceTree = "<group>"; };
+		C65089322927BF3500440227 /* QRCreationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCreationOperation.swift; sourceTree = "<group>"; };
 		C65817D028DA70FC00988FC4 /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
 		C65A6593288E5E0500679D65 /* NSLockExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLockExtension.swift; sourceTree = "<group>"; };
@@ -10223,6 +10229,9 @@
 			children = (
 				C640416428F6BCFC00845780 /* QRCoderFactory.swift */,
 				C640416628F6C9B600845780 /* QRScanMatcher.swift */,
+				C650892E2927A88400440227 /* QRService.swift */,
+				C65089302927A92D00440227 /* QROperationFactory.swift */,
+				C65089322927BF3500440227 /* QRCreationOperation.swift */,
 			);
 			path = QRCoding;
 			sourceTree = "<group>";
@@ -13575,6 +13584,7 @@
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
 				84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
+				C65089312927A92D00440227 /* QROperationFactory.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				07D05E4928EEFF2C00B66C70 /* SelectValidatorsStartPoolViewModelState.swift in Sources */,
 				842348E92614F6EA002127AF /* SkeletonLoadable.swift in Sources */,
@@ -14623,6 +14633,7 @@
 				AEA2C1BE2681E9DD0069492E /* ValidatorSearchViewController.swift in Sources */,
 				84A6171B2625AC3E007B75E1 /* CallCodingPath.swift in Sources */,
 				FA936BF12872E35F0059B97A /* TitleSwitchTableViewCellModelFactory.swift in Sources */,
+				C650892F2927A88400440227 /* QRService.swift in Sources */,
 				8488ECD7258CDCBC004591CC /* PurchaseCompletionHandler.swift in Sources */,
 				F47BBD562630B9EF0087DA11 /* StakingBalanceInteractor.swift in Sources */,
 				84FAB06B2542F2C700319F74 /* ContactsViewModelFactory.swift in Sources */,
@@ -15180,6 +15191,7 @@
 				07DFA44B289918E10035A8AB /* ModalSheetBlurPresentationController.swift in Sources */,
 				FA2E9BBF27A297CE0023FAD2 /* FilterSectionViewModel.swift in Sources */,
 				FA2FC80A28B3807C00CC0A42 /* StakingPoolJoinConfirmViewModelFactory.swift in Sources */,
+				C65089332927BF3500440227 /* QRCreationOperation.swift in Sources */,
 				FA8644302767539400956D8E /* WalletTransactionHistoryViewModel.swift in Sources */,
 				FA86443A2767BD1800956D8E /* HistoryDataProviderFactory.swift in Sources */,
 				FA2FC85B28B389EB00CC0A42 /* AssetSelectionTableViewCell.swift in Sources */,
