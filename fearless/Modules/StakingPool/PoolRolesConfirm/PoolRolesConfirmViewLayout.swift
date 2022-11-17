@@ -1,11 +1,14 @@
 import UIKit
 
 final class PoolRolesConfirmViewLayout: UIView {
+    private enum LayoutConstants {
+        static let stackViewLayoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+    }
+
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
-        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
-        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backButton.backgroundColor = R.color.colorWhite8()
         bar.backgroundColor = R.color.colorBlack19()
         return bar
     }()
@@ -13,7 +16,7 @@ final class PoolRolesConfirmViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = LayoutConstants.stackViewLayoutMargins
         view.stackView.spacing = UIConstants.bigOffset
         return view
     }()

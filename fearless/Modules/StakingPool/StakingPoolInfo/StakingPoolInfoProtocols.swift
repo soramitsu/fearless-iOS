@@ -26,6 +26,7 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(stakingPool: StakingPool?)
+    func didReceive(error: Error)
 }
 
 protocol StakingPoolInfoRouterInput: PresentDismissable {

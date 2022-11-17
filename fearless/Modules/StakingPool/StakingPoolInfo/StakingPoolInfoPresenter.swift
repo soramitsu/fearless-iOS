@@ -252,6 +252,10 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
 
         provideViewModel()
     }
+
+    func didReceive(error: Error) {
+        logger?.error(error.localizedDescription)
+    }
 }
 
 // MARK: - Localizable

@@ -4,6 +4,7 @@ import RobinHood
 final class PoolRolesConfirmInteractor: AccountFetching {
     // MARK: - Private properties
 
+    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private weak var output: PoolRolesConfirmInteractorOutput?
     private let chainAsset: ChainAsset
     private let extrinsicService: ExtrinsicServiceProtocol
@@ -11,7 +12,6 @@ final class PoolRolesConfirmInteractor: AccountFetching {
     private let poolId: String
     private let roles: StakingPoolRoles
     private let signingWrapper: SigningWrapperProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>

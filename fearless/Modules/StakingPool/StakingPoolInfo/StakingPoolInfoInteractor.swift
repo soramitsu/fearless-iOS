@@ -52,13 +52,14 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private func fetchPoolInfo(poolId: String) {
         let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchBondedPoolOperation(poolId: poolId)
         fetchPoolInfoOperation.targetOperation.completionBlock = { [weak self] in
-            do {
-                let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
-
-                DispatchQueue.main.async {
+            DispatchQueue.main.async {
+                do {
+                    let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceive(stakingPool: stakingPool)
+                } catch {
+                    self?.output?.didReceive(error: error)
                 }
-            } catch {}
+            }
         }
 
         operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
