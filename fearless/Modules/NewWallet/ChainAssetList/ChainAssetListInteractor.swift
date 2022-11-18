@@ -121,10 +121,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var disabledAssets = wallet.assetIdsEnabled ?? []
-        disabledAssets.append(chainAssetKey)
+        var enabledAssets = wallet.assetIdsEnabled ?? []
+        enabledAssets.append(chainAssetKey)
 
-        let updatedWallet = wallet.replacingAssetIdsEnabled(disabledAssets)
+        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
         save(updatedWallet)
     }
 
@@ -135,9 +135,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var disabledAssets = wallet.assetIdsEnabled {
-            disabledAssets = disabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsEnabled(disabledAssets)
+        if var enabledAssets = wallet.assetIdsEnabled {
+            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
+            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
             save(updatedWallet)
         }
     }
