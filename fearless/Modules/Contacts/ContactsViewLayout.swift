@@ -3,7 +3,7 @@ import UIKit
 final class ContactsViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
-        view.backgroundColor = .clear
+        view.backgroundColor = R.color.colorBlack19()
         view.refreshControl = UIRefreshControl()
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(
@@ -16,6 +16,8 @@ final class ContactsViewLayout: UIView {
         return view
     }()
 
+    let emptyView = EmptyView()
+
     let createButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
@@ -27,16 +29,13 @@ final class ContactsViewLayout: UIView {
         bar.set(.push)
         bar.backButton.backgroundColor = R.color.colorWhite8()
         bar.backButton.rounded()
-        bar.backgroundColor = R.color.colorAlmostBlack()
+        bar.backgroundColor = R.color.colorBlack19()
         return bar
     }()
 
     var locale = Locale.current {
         didSet {
             applyLocalization()
-            backgroundColor = R.color.colorAlmostBlack()
-
-            setupLayout()
         }
     }
 
@@ -53,17 +52,31 @@ final class ContactsViewLayout: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
+        navigationBar.backButton.rounded()
+    }
 
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+    func showEmptyView() {
+        tableView.isHidden = true
+        emptyView.isHidden = false
+
+        let title = R.string.localizable.nftStubTitle(preferredLanguages: locale.rLanguages)
+        let description = R.string.localizable.historyEmptyDescription(preferredLanguages: locale.rLanguages)
+        let viewModel = EmptyViewModel(title: title, description: description)
+        emptyView.bind(viewModel: viewModel)
     }
 
     private func setupLayout() {
+        addSubview(emptyView)
         addSubview(navigationBar)
         addSubview(tableView)
         addSubview(createButton)
 
         navigationBar.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview()
+        }
+
+        emptyView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
 
         tableView.snp.makeConstraints { make in

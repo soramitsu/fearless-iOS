@@ -26,7 +26,6 @@ final class SelectAssetAssembly {
             storageFacade: SubstrateDataStorageFacade.shared
         )
         let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
-        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,

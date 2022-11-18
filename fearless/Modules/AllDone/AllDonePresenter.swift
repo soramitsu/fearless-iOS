@@ -49,7 +49,7 @@ extension AllDonePresenter: AllDoneInteractorOutput {
     }
 
     func didCopyTapped() {
-        let copyEvent = AddressCopiedEvent(locale: selectedLocale)
+        let copyEvent = HashCopiedEvent(locale: selectedLocale)
         router.presentStatus(with: copyEvent, animated: true)
     }
 }
