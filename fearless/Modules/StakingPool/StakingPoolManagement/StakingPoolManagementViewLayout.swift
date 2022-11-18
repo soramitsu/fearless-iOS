@@ -178,8 +178,8 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(viewModel: StakingPoolManagementViewModel?) {
-        stakeMoreButton.isHidden = viewModel?.stakeMoreButtonVisible == true
-        unstakeButton.isHidden = viewModel?.unstakeButtonVisible == true
+        stakeMoreButton.isHidden = viewModel?.stakeMoreButtonVisible == false
+        unstakeButton.isHidden = viewModel?.unstakeButtonVisible == false
     }
 
     func setSelectValidatorsAlert(visible: Bool) {
