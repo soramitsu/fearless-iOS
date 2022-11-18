@@ -24,7 +24,7 @@ final class StakingPoolJoinConfigViewLayout: UIView {
     }()
 
     let accountView: DetailsTriangularedView = {
-        let view = UIFactory.default.createAccountView(for: .options, filled: true)
+        let view = UIFactory.default.createAccountView(for: .none, filled: true)
         view.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
         view.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         view.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
