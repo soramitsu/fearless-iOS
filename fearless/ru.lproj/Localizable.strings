@@ -878,6 +878,8 @@ and depending on the network state, may not be selected to participate";
 "swipable.cell.button.show" = "Показать";
 "application.status.view.copied.title" = "Адрес скопирован";
 "application.status.view.copied.description" = "Адрес кошелька успешно скопирован";
+"application.status.view.hash.copied.title" = "Хеш скопирован";
+"application.status.view.hash.copied.description" = "Хеш удачно скопирован";
 "application.status.view.offline.title" = "Похоже, вы не в сети";
 "application.status.view.offline.description" = "Пожалуйста, проверьте подключение и повторите попытку";
 "application.status.view.reconnected.title" = "Подключено";

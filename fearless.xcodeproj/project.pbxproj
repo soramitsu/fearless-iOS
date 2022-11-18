@@ -39,6 +39,7 @@
 		0716C84C288802EB004C8CB1 /* SwipableTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */; };
 		0716C84F28880304004C8CB1 /* UITableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84D28880304004C8CB1 /* UITableViewCell.swift */; };
 		0716C85028880304004C8CB1 /* UIResponder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0716C84E28880304004C8CB1 /* UIResponder.swift */; };
+		071BC67529274F47007685D1 /* HashCopiedEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 071BC67429274F47007685D1 /* HashCopiedEvent.swift */; };
 		072EB84828E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */; };
 		072EB84A28E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */; };
 		07349F3228FE5EEB00A802B9 /* SwipeCellButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */; };
@@ -2521,6 +2522,7 @@
 		0716C84B288802EB004C8CB1 /* SwipableTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SwipableTableViewCell.swift; sourceTree = "<group>"; };
 		0716C84D28880304004C8CB1 /* UITableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UITableViewCell.swift; sourceTree = "<group>"; };
 		0716C84E28880304004C8CB1 /* UIResponder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIResponder.swift; sourceTree = "<group>"; };
+		071BC67429274F47007685D1 /* HashCopiedEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HashCopiedEvent.swift; sourceTree = "<group>"; };
 		072EB84728E2A267007E70FF /* StakingPoolCreateConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		072EB84928E2A2A1007E70FF /* StakingPoolCreateConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateConfirmViewModel.swift; sourceTree = "<group>"; };
 		07349F3128FE5EEB00A802B9 /* SwipeCellButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwipeCellButton.swift; sourceTree = "<group>"; };
@@ -5194,6 +5196,7 @@
 			isa = PBXGroup;
 			children = (
 				074EB7AC290B9F64000A2A6A /* AddressCopiedEvent.swift */,
+				071BC67429274F47007685D1 /* HashCopiedEvent.swift */,
 				074EB7AE290BA056000A2A6A /* ConnectionOfflineEvent.swift */,
 				074EB7B0290BA142000A2A6A /* ConnectionOnlineEvent.swift */,
 			);
@@ -15102,6 +15105,7 @@
 				07D05E6928EF0F2700B66C70 /* PoolNominateCall.swift in Sources */,
 				3B1D59D21B409CADFCEF5EEA /* WalletScanQRProtocols.swift in Sources */,
 				22B4A2BC93406867653AB93C /* WalletScanQRWireframe.swift in Sources */,
+				071BC67529274F47007685D1 /* HashCopiedEvent.swift in Sources */,
 				E7D7BBACA85195FCF8D19A35 /* WalletScanQRPresenter.swift in Sources */,
 				03435A4A73C6FB543097D4D2 /* WalletScanQRInteractor.swift in Sources */,
 				A1B361A6D27209C39EC30564 /* WalletScanQRViewController.swift in Sources */,
