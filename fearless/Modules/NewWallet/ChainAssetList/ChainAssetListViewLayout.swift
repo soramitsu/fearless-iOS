@@ -22,7 +22,7 @@ final class ChainAssetListViewLayout: UIView {
     private let contentContainer = UIView()
 
     let tableView: UITableView = {
-        let view = UITableView()
+        let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = Constants.tableViewContentInset

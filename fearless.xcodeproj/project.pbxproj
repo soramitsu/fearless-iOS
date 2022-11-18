@@ -534,7 +534,6 @@
 		8434C9E425401EF3009E4191 /* TransactionHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */; };
 		8434C9E625403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */; };
 		8434C9EA2540AE51009E4191 /* ExtrinsicEraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E92540AE51009E4191 /* ExtrinsicEraTests.swift */; };
-		8436E94226C840C8003D4EA7 /* RuntimeCoderEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436E94126C840C8003D4EA7 /* RuntimeCoderEvents.swift */; };
 		8436E94426C853E4003D4EA7 /* RuntimeSnapshotOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436E94326C853E4003D4EA7 /* RuntimeSnapshotOperationFactory.swift */; };
 		8436E94626C85405003D4EA7 /* RuntimeSnapshot.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436E94526C85405003D4EA7 /* RuntimeSnapshot.swift */; };
 		8436EDDC25893FA0004D9E97 /* WalletBuyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436EDDB25893FA0004D9E97 /* WalletBuyCommand.swift */; };
@@ -3035,7 +3034,6 @@
 		8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryItem.swift; sourceTree = "<group>"; };
 		8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDTransactionHistoryItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
 		8434C9E92540AE51009E4191 /* ExtrinsicEraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicEraTests.swift; sourceTree = "<group>"; };
-		8436E94126C840C8003D4EA7 /* RuntimeCoderEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeCoderEvents.swift; sourceTree = "<group>"; };
 		8436E94326C853E4003D4EA7 /* RuntimeSnapshotOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeSnapshotOperationFactory.swift; sourceTree = "<group>"; };
 		8436E94526C85405003D4EA7 /* RuntimeSnapshot.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeSnapshot.swift; sourceTree = "<group>"; };
 		8436EDDB25893FA0004D9E97 /* WalletBuyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBuyCommand.swift; sourceTree = "<group>"; };
@@ -9054,7 +9052,6 @@
 				AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */,
 				840BF22626C2C8A600E3A955 /* ChainSyncEvents.swift */,
 				849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */,
-				8436E94126C840C8003D4EA7 /* RuntimeCoderEvents.swift */,
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
@@ -13472,7 +13469,6 @@
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
 				8401AE8D2641EF7B000B03E3 /* NetworkFeeFooterView.swift in Sources */,
 				841AAC2F26F73E0C00F0A25E /* LocalStorageKeyFactory.swift in Sources */,
-				8436E94226C840C8003D4EA7 /* RuntimeCoderEvents.swift in Sources */,
 				C6264C3C279B008600FCA0DB /* WalletDetailsWireframe.swift in Sources */,
 				8461CC8A26BD2F07007460E4 /* RuntimeProviderPool.swift in Sources */,
 				848DE76626D642670045CD29 /* StorageMigrator.swift in Sources */,
