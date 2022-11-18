@@ -16,6 +16,7 @@ protocol TitleSwitchTableViewCellModelFactoryProtocol {
 
 enum FilterOption: String, Codable {
     case hideZeroBalance
+    case hiddenSectionOpen
 }
 
 enum PoolSortOption: Equatable {
@@ -31,7 +32,7 @@ final class TitleSwitchTableViewCellModelFactory: TitleSwitchTableViewCellModelF
         locale: Locale?,
         delegate: TitleSwitchTableViewCellModelDelegate?
     ) -> [TitleSwitchTableViewCellModel] {
-        enabledFilters.map { option -> TitleSwitchTableViewCellModel in
+        enabledFilters.compactMap { option -> TitleSwitchTableViewCellModel? in
             switch option {
             case .hideZeroBalance:
                 let model = TitleSwitchTableViewCellModel(
@@ -42,6 +43,8 @@ final class TitleSwitchTableViewCellModelFactory: TitleSwitchTableViewCellModelF
                 )
                 model.delegate = delegate
                 return model
+            case .hiddenSectionOpen:
+                return nil
             }
         }
     }

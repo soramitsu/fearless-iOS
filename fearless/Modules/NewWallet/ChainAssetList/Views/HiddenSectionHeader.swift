@@ -42,7 +42,8 @@ final class HiddenSectionHeader: UITableViewHeaderFooterView {
 
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
-        backgroundColor = .clear
+        backgroundView = UIView()
+        backgroundView?.backgroundColor = .clear
         expandButton.addTarget(self, action: #selector(expandButtonTapped), for: .touchUpInside)
 
         setupLayout()

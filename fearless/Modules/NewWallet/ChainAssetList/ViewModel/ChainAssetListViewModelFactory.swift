@@ -98,6 +98,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
+        let hiddenSectionIsOpen = selectedMetaAccount.assetFilterOptions.contains(.hiddenSectionOpen)
+        var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
+            ? .expanded
+            : .hidden
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -107,7 +111,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 .active: activeSectionCellModels,
                 .hidden: hiddenSectionCellModels
             ],
-            isColdBoot: isColdBoot
+            isColdBoot: isColdBoot,
+            hiddenSectionState: hiddenSectionState
         )
     }
 }
@@ -469,7 +474,7 @@ private extension ChainAssetListViewModelFactory {
         let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
         if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled, let accountId = accountId {
-            return !assetIdsEnabled.contains { assetId in
+            return assetIdsEnabled.contains { assetId in
                 assetId == chainAsset.uniqueKey(accountId: accountId)
             }
         }
