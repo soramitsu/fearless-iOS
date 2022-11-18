@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
 import FearlessUtils
+import RobinHood
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
     static func createView() -> ProfileViewProtocol? {
@@ -20,12 +21,39 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             settings: settings
         )
 
+        let eventCenter = EventCenter.shared
+        let logger = Logger.shared
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
+            metaAccountRepository: AnyDataProviderRepository(accountRepository),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: eventCenter,
+            logger: logger
+        )
+
         let interactor = ProfileInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
             eventCenter: EventCenter.shared,
             repository: repository,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: selectedMetaAccount,
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
         )
 
         let presenter = ProfilePresenter(
