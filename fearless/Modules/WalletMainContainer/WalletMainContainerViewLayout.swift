@@ -262,7 +262,7 @@ final class WalletMainContainerViewLayout: UIView {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(16)
+            make.top.equalTo(contentView.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
         }
