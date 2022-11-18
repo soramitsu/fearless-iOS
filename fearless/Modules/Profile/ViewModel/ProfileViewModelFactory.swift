@@ -9,7 +9,8 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         from wallet: MetaAccountModel,
         locale: Locale,
         language: Language,
-        currency: Currency
+        currency: Currency,
+        balance: WalletBalanceInfo?
     ) -> ProfileViewModelProtocol
 }
 
@@ -28,6 +29,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
+    private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
 
     // MARK: - Constructors
 
@@ -47,9 +49,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         from wallet: MetaAccountModel,
         locale: Locale,
         language: Language,
-        currency: Currency
+        currency: Currency,
+        balance: WalletBalanceInfo?
     ) -> ProfileViewModelProtocol {
-        let profileUserViewModel = createUserViewModel(from: wallet, locale: locale)
+        let profileUserViewModel = createUserViewModel(
+            from: wallet,
+            balance: balance,
+            locale: locale
+        )
         let profileOptionViewModel = createOptionViewModels(
             language: language,
             currency: currency,
@@ -66,15 +73,29 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     // MARK: - Private methods
 
+    private func tokenFormatter(for currency: Currency, locale: Locale) -> TokenFormatter {
+        let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo)
+        let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
+        return balanceTokenFormatterValue
+    }
+
     private func createUserViewModel(
         from wallet: MetaAccountModel,
-        locale _: Locale
+        balance: WalletBalanceInfo?,
+        locale: Locale
     ) -> ProfileUserViewModelProtocol {
         let icon = try? iconGenerator.generateFromAddress("")
 
+        var details: String = ""
+        if let balance = balance {
+            let formatter = tokenFormatter(for: balance.currency, locale: locale)
+            details = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
+        }
+
         return ProfileUserViewModel(
             name: wallet.name,
-            details: "",
+            details: details,
             icon: icon
         )
     }

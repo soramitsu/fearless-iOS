@@ -25,7 +25,7 @@ final class ChainAssetListViewLayout: UIView {
         let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
-        view.contentInset = Constants.tableViewContentInset
+        view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
         return view
     }()
 
