@@ -331,6 +331,9 @@ extension SendPresenter: SelectNetworkDelegate {
             self.selectedChainAsset = selectedChainAsset
             provideNetworkViewModel(for: selectedChain)
             provideAssetVewModel()
+            if let recipientAddress = recipientAddress {
+                handle(newAddress: recipientAddress)
+            }
             interactor.updateSubscriptions(for: selectedChainAsset)
         } else if selectedChainAsset == nil {
             router.dismiss(view: view)
