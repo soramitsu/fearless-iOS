@@ -19,6 +19,7 @@ final class SendInteractor: RuntimeConstantFetching {
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
     private(set) lazy var callFactory = SubstrateCallFactory()
 
@@ -65,20 +66,29 @@ private extension SendInteractor {
         }
     }
 
-    func subscribeToAccountInfo(for chainAsset: ChainAsset) {
-        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            output?.didReceiveAccountInfo(result: .failure(ChainAccountFetchingError.accountNotExists))
-            return
+    func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
+        var chainAssets: [ChainAsset] = [chainAsset]
+        if let utilityAsset = utilityAsset {
+            chainAssets.append(utilityAsset)
         }
-        accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: chainAssets,
+            handler: self
+        )
     }
 
     func subscribeToPrice(for chainAsset: ChainAsset) {
         priceProvider?.removeObserver(self)
+        utilityPriceProvider?.removeObserver(self)
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         } else {
-            output?.didReceivePriceData(result: .success(nil))
+            output?.didReceivePriceData(result: .success(nil), for: nil)
+        }
+        if !chainAsset.isUtility,
+            let utilityAsset = getUtilityAsset(for: chainAsset),
+            let priceId = utilityAsset.asset.priceId {
+            utilityPriceProvider = subscribeToPrice(for: priceId)
         }
     }
 }
@@ -91,8 +101,13 @@ extension SendInteractor: SendInteractorInput {
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
         subscribeToPrice(for: chainAsset)
-        subscribeToAccountInfo(for: chainAsset)
-        provideConstants(for: chainAsset)
+        if !chainAsset.isUtility, let utilityAsset = getUtilityAsset(for: chainAsset) {
+            subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
+            provideConstants(for: utilityAsset)
+        } else {
+            subscribeToAccountInfo(for: chainAsset)
+            provideConstants(for: chainAsset)
+        }
     }
 
     func defineAvailableChains(
@@ -166,21 +181,30 @@ extension SendInteractor: SendInteractorInput {
         }
         operationManager.enqueue(operations: [allOperation], in: .transient)
     }
+
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+        guard let chainAsset = chainAsset else { return nil }
+        if !chainAsset.isUtility,
+           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+            return utilityAsset
+        }
+        return chainAsset
+    }
 }
 
 extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainAsset _: ChainAsset
+        chainAsset: ChainAsset
     ) {
-        output?.didReceiveAccountInfo(result: result)
+        output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
 
 extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
-        output?.didReceivePriceData(result: result)
+    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        output?.didReceivePriceData(result: result, for: priceId)
     }
 }
 
