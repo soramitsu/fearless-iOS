@@ -1,8 +1,10 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
+import FearlessUtils
 
 final class StakingPoolJoinConfirmAssembly {
+    // swiftlint:disable function_body_length
     static func configureModule(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -19,8 +21,13 @@ final class StakingPoolJoinConfirmAssembly {
             let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
-
         let operationManager = OperationManagerFacade.sharedManager
+
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
@@ -43,6 +50,61 @@ final class StakingPoolJoinConfirmAssembly {
             accountResponse: accountResponse
         )
 
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chainAsset.chain
+        ) else {
+            return nil
+        }
+        eraValidatorService.setup()
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: Int16(chainAsset.asset.precision),
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        rewardService.setup()
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory
+        )
+
         let interactor = StakingPoolJoinConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
@@ -51,7 +113,10 @@ final class StakingPoolJoinConfirmAssembly {
             feeProxy: feeProxy,
             amount: inputAmount,
             pool: selectedPool,
-            signingWrapper: signingWrapper
+            signingWrapper: signingWrapper,
+            runtimeService: runtimeService,
+            operationManager: operationManager,
+            validatorOperationFactory: validatorOperationFactory
         )
         let router = StakingPoolJoinConfirmRouter()
 

@@ -396,6 +396,7 @@ extension YourValidatorListViewController: YourValidatorListViewProtocol {
 
         if case let .validatorList(viewModel) = state {
             rootView.emptyView.isHidden = viewModel.sections.map { $0.validators }.reduce([], +).count > 0
+            rootView.changeValidatorsButton.isHidden = !viewModel.userCanSelectValidators
         }
     }
 }

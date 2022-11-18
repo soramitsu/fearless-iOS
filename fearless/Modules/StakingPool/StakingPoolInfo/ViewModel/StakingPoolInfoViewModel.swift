@@ -11,4 +11,6 @@ struct StakingPoolInfoViewModel {
     let rootName: String?
     let nominatorName: String?
     let stateTogglerName: String?
+    let rolesChanged: Bool
+    let userIsRoot: Bool
 }

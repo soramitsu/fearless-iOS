@@ -85,6 +85,15 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         return button
     }()
 
+    let hintView: IconDetailsView = {
+        let view = IconDetailsView()
+        view.iconWidth = UIConstants.iconSize
+        view.imageView.contentMode = .top
+        view.imageView.image = R.image.iconWarning()
+        view.isHidden = true
+        return view
+    }()
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -118,6 +127,7 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         accountView.valueTop.text = confirmViewModel.accountNameString
         accountView.valueBottom.text = confirmViewModel.accountAddressString
         selectedPoolView.valueTop.text = confirmViewModel.selectedPoolName
+        hintView.isHidden = !confirmViewModel.poolHasNoValidators
     }
 
     private func configure() {
@@ -147,11 +157,15 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         continueButton.imageWithTitleView?.title = R.string.localizable.commonConfirm(
             preferredLanguages: locale.rLanguages
         )
+        hintView.detailsLabel.text = R.string.localizable.poolJoinNoValidatorsMessage(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)
+        addSubview(hintView)
         addSubview(continueButton)
 
         contentView.stackView.addArrangedSubview(iconImageView)
@@ -170,7 +184,14 @@ final class StakingPoolJoinConfirmViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(continueButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(hintView.snp.bottom).offset(UIConstants.bigOffset)
+        }
+
+        hintView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(continueButton.snp.top).inset(-UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
         continueButton.snp.makeConstraints { make in

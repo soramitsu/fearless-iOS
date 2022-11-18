@@ -1,12 +1,16 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
-final class ChainAssetListViewController: UIViewController, ViewHolder {
-    enum HiddenSectionState {
-        case hidden
-        case expanded
-    }
+enum HiddenSectionState {
+    case hidden
+    case expanded
+}
 
+final class ChainAssetListViewController:
+    UIViewController,
+    ViewHolder,
+    KeyboardViewAdoptable {
     enum Constants {
         static let sectionHeaderHeight: CGFloat = 80
     }
@@ -52,7 +56,25 @@ final class ChainAssetListViewController: UIViewController, ViewHolder {
         configureEmptyView()
     }
 
-    // MARK: - Private methods
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
+    // MARK: - KeyboardViewAdoptable
+
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
 
 private extension ChainAssetListViewController {
@@ -86,6 +108,7 @@ private extension ChainAssetListViewController {
         case .hidden:
             hiddenSectionState = .expanded
         }
+        output.didTapExpandSections(state: hiddenSectionState)
         rootView.tableView.reloadData()
     }
 }
@@ -95,6 +118,7 @@ private extension ChainAssetListViewController {
 extension ChainAssetListViewController: ChainAssetListViewInput {
     func didReceive(viewModel: ChainAssetListViewModel) {
         self.viewModel = viewModel
+        hiddenSectionState = viewModel.hiddenSectionState
         rootView.apply(state: .normal)
         rootView.tableView.reloadData()
     }

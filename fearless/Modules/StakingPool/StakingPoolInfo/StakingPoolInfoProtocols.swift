@@ -11,6 +11,10 @@ protocol StakingPoolInfoViewOutput: AnyObject {
     func didTapCloseButton()
     func didTapValidators()
     func willAppear(view: StakingPoolInfoViewInput)
+    func nominatorDidTapped()
+    func stateTogglerDidTapped()
+    func rootDidTapped()
+    func saveRolesDidTapped()
 }
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
@@ -21,15 +25,29 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
     func didReceive(palletIdResult: Result<Data, Error>)
+    func didReceive(stakingPool: StakingPool?)
+    func didReceive(error: Error)
 }
 
 protocol StakingPoolInfoRouterInput: PresentDismissable {
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
-        poolId: UInt32,
-        state: ExistingBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
+    )
+
+    func showWalletManagment(
+        contextTag: Int,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput?
+    )
+
+    func showUpdateRoles(
+        roles: StakingPoolRoles,
+        poolId: String,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
     )
 }
 

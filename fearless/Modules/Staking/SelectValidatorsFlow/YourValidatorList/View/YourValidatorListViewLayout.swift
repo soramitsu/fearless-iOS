@@ -12,6 +12,7 @@ final class YourValidatorListViewLayout: UIView {
     let changeValidatorsButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        button.isHidden = true
         return button
     }()
 

@@ -54,13 +54,13 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             break
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
-            utilityChainAssets = sortAssetList(
-                wallet: selectedMetaAccount,
-                chainAssets: utilityChainAssets,
-                accountInfos: accountInfos,
-                priceData: prices.pricesData
-            )
         }
+        utilityChainAssets = sortAssetList(
+            wallet: selectedMetaAccount,
+            chainAssets: utilityChainAssets,
+            accountInfos: accountInfos,
+            priceData: prices.pricesData
+        )
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
@@ -98,6 +98,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
+        let hiddenSectionIsOpen = selectedMetaAccount.assetFilterOptions.contains(.hiddenSectionOpen)
+        var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
+            ? .expanded
+            : .hidden
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -107,7 +111,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 .active: activeSectionCellModels,
                 .hidden: hiddenSectionCellModels
             ],
-            isColdBoot: isColdBoot
+            isColdBoot: isColdBoot,
+            hiddenSectionState: hiddenSectionState
         )
     }
 }
@@ -162,9 +167,12 @@ private extension ChainAssetListViewModelFactory {
         }) != nil
         let isMissingAccount = containsChainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
+                || selectedMetaAccount.unusedChainIds.or([]).contains($0.chain.chainId)
         }) != nil
 
-        if chainsWithMissingAccounts.contains(chainAsset.chain.chainId) {
+        if
+            chainsWithMissingAccounts.contains(chainAsset.chain.chainId)
+            || selectedMetaAccount.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
             isColdBoot = !isMissingAccount
         }
 
@@ -464,8 +472,9 @@ private extension ChainAssetListViewModelFactory {
 
     func checkForHide(chainAsset: ChainAsset, selectedMetaAccount: MetaAccountModel) -> Bool {
         let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId
-        if let assetIdsDisabled = selectedMetaAccount.assetIdsDisabled, let accountId = accountId {
-            return assetIdsDisabled.contains { assetId in
+
+        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled, let accountId = accountId {
+            return assetIdsEnabled.contains { assetId in
                 assetId == chainAsset.uniqueKey(accountId: accountId)
             }
         }

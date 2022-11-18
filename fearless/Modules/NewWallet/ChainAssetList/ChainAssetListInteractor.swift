@@ -17,6 +17,8 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var chainAssets: [ChainAsset]?
+    private var filters: [ChainAssetsFetching.Filter] = []
+    private var sorts: [ChainAssetsFetching.SortDescriptor] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -85,6 +87,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
+        self.filters = filters
+        self.sorts = sorts
+
         chainAssetFetching.fetch(
             filters: filters,
             sortDescriptors: sorts
@@ -116,10 +121,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var disabledAssets = wallet.assetIdsDisabled ?? []
-        disabledAssets.append(chainAssetKey)
+        var enabledAssets = wallet.assetIdsEnabled ?? []
+        enabledAssets.append(chainAssetKey)
 
-        let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
+        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
         save(updatedWallet)
     }
 
@@ -130,9 +135,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var disabledAssets = wallet.assetIdsDisabled {
-            disabledAssets = disabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsDisabled(disabledAssets)
+        if var enabledAssets = wallet.assetIdsEnabled {
+            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
+            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
             save(updatedWallet)
         }
     }
@@ -142,6 +147,19 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         unusedChainIds.append(chain.chainId)
         let updatedAccount = wallet.replacingUnusedChainIds(unusedChainIds)
 
+        save(updatedAccount)
+    }
+
+    func saveHiddenSection(state: HiddenSectionState) {
+        var filterOptions = wallet.assetFilterOptions
+        switch state {
+        case .hidden:
+            filterOptions.removeAll(where: { $0 == .hiddenSectionOpen })
+        case .expanded:
+            filterOptions.append(.hiddenSectionOpen)
+        }
+
+        let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
         save(updatedAccount)
     }
 }
@@ -213,7 +231,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             pricesProvider?.refresh()
         }
 
-        if wallet.assetIdsDisabled != event.account.assetIdsDisabled {
+        if wallet.assetIdsEnabled != event.account.assetIdsEnabled {
             output?.updateViewModel()
         }
 
@@ -222,6 +240,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
         }
 
         wallet = event.account
+    }
+
+    func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        updateChainAssets(using: filters, sorts: sorts)
     }
 }
 
