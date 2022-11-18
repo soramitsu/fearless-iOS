@@ -2,6 +2,12 @@ import UIKit
 import Photos
 
 final class ScanQRRouter: ScanQRRouterInput {
+    func close(view: ControllerBackedProtocol?, completion: @escaping () -> Void) {
+        view?.controller.dismiss(animated: true) {
+            completion()
+        }
+    }
+
     func presentImageGallery(
         from view: ControllerBackedProtocol?,
         delegate: ImageGalleryDelegate,

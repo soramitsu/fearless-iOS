@@ -27,6 +27,7 @@ final class ScanQRAssembly {
             logger: Logger.shared,
             moduleOutput: moduleOutput,
             qrScanMatcher: qrScanMatcher,
+            qrScanService: qrScanService,
             localizationManager: LocalizationManager.shared
         )
 

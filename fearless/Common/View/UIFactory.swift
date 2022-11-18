@@ -44,6 +44,7 @@ struct UIConstants {
 enum AccountViewMode {
     case options
     case selection
+    case none
 }
 
 protocol UIFactoryProtocol {
@@ -437,6 +438,8 @@ final class UIFactory: UIFactoryProtocol {
             view.actionImage = R.image.iconMore()
         case .selection:
             view.actionImage = R.image.iconExpandable()
+        case .none:
+            view.actionView.image = nil
         }
 
         view.highlightedFillColor = R.color.colorHighlightedPink()!
