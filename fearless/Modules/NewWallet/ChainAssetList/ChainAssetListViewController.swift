@@ -82,6 +82,9 @@ private extension ChainAssetListViewController {
         rootView.tableView.registerClassForCell(ChainAccountBalanceTableCell.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+        if #available(iOS 15.0, *) {
+            rootView.tableView.sectionHeaderTopPadding = 0
+        }
     }
 
     func configureEmptyView() {
