@@ -21,8 +21,10 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
             .commonNotEnoughBalanceMessage(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable
+            .stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable
+            .commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
     }

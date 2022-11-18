@@ -39,11 +39,7 @@ final class SelectableListViewLayout: UIView {
     let tableView = UITableView()
     lazy var emptyView = EmptyView()
 
-    var locale: Locale = .current {
-        didSet {
-            applyLocale()
-        }
-    }
+    var locale: Locale = .current
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -68,12 +64,6 @@ final class SelectableListViewLayout: UIView {
             description: viewModel?.emptyViewDescription.value(for: locale) ?? ""
         )
         emptyView.bind(viewModel: viewModel)
-    }
-
-    private func applyLocale() {
-        titleLabel.text = R.string.localizable.commonSelectNetwork(
-            preferredLanguages: locale.rLanguages
-        )
     }
 
     private func setupLayout() {
