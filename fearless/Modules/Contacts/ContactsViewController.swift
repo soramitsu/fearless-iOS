@@ -42,6 +42,11 @@ final class ContactsViewController: UIViewController, ViewHolder, HiddableBarWhe
         navigationController?.setNavigationBarHidden(true, animated: true)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        didStartLoading()
+    }
+
     // MARK: - Private methods
 
     private func configure() {
@@ -79,6 +84,10 @@ extension ContactsViewController: ContactsViewInput {
     }
 
     func didReceive(sections: [ContactsTableSectionModel]) {
+        guard sections.isNotEmpty else {
+            rootView.showEmptyView()
+            return
+        }
         self.sections = sections
         rootView.tableView.reloadData()
     }

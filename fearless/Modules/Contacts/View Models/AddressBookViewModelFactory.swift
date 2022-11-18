@@ -47,6 +47,9 @@ final class AddressBookViewModelFactory: AddressBookViewModelFactoryProtocol {
             }
             return ContactsTableSectionModel(name: String(firstLetter), cellViewModels: cellModels)
         }
+        if savedContacts.isEmpty || recentContacts.isEmpty {
+            return []
+        }
         return [recentContactsSection] + savedContactsSections
     }
 }
