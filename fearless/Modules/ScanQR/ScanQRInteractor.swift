@@ -23,8 +23,9 @@ final class ScanQRInteractor {
 // MARK: - ScanQRInteractorInput
 
 extension ScanQRInteractor: ScanQRInteractorInput {
-    func setup(with output: ScanQRInteractorOutput) {
+    func setup(with output: ScanQRInteractorOutput & QRCaptureServiceDelegate) {
         self.output = output
+        qrScanService.delegate = output
     }
 
     func extractQr(from image: UIImage) {

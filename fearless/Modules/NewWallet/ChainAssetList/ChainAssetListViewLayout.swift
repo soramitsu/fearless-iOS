@@ -3,6 +3,15 @@ import SoraUI
 import SnapKit
 
 final class ChainAssetListViewLayout: UIView {
+    private enum Constants {
+        static let tableViewContentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: UIConstants.bigOffset,
+            right: 0
+        )
+    }
+
     enum ViewState {
         case normal
         case empty

@@ -19,7 +19,7 @@ final class NetworkFeeView: UIView {
     let borderView: BorderedContainerView = {
         let view = BorderedContainerView()
         view.backgroundColor = .clear
-        view.borderType = .bottom
+        view.borderType = .none
         view.strokeWidth = 1.0
         view.strokeColor = R.color.colorStrokeGray()!
         return view
@@ -94,13 +94,13 @@ final class NetworkFeeView: UIView {
         addSubview(fiatLabel)
         fiatLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
-            make.bottom.equalTo(self.snp.centerY)
+            make.top.equalTo(self.snp.centerY)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 
         tokenLabel.snp.remakeConstraints { make in
             make.trailing.equalToSuperview()
-            make.top.equalTo(self.snp.centerY)
+            make.bottom.equalTo(self.snp.centerY)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 
