@@ -336,6 +336,7 @@ extension SendPresenter: SelectNetworkDelegate {
             self.selectedChainAsset = selectedChainAsset
             provideNetworkViewModel(for: selectedChain)
             provideAssetVewModel()
+            provideInputViewModel()
             if let recipientAddress = recipientAddress {
                 handle(newAddress: recipientAddress)
             }

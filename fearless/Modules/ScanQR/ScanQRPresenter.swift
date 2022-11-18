@@ -102,7 +102,9 @@ final class ScanQRPresenter: NSObject {
     }
 
     private func handleFailedMatching(for code: String) {
-        moduleOutput.didFinishWith(address: code)
+        router.close(view: view) {
+            self.moduleOutput.didFinishWith(address: code)
+        }
     }
 
     private func didCompleteImageSelection(with selectedImages: [UIImage]) {

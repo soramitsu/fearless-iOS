@@ -36,6 +36,11 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
         configure()
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        output.willDisappear()
+    }
+
     // MARK: - Private methods
 
     private func setupTableView() {

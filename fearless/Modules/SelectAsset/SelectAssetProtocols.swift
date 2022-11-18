@@ -4,6 +4,7 @@ protocol SelectAssetViewInput: SelectionListViewProtocol {}
 
 protocol SelectAssetViewOutput: SelectionListPresenterProtocol {
     func didLoad(view: SelectAssetViewInput)
+    func willDisappear()
 }
 
 protocol SelectAssetInteractorInput: AnyObject {
