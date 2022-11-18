@@ -19,7 +19,7 @@ final class NetworkFeeView: UIView {
     let borderView: BorderedContainerView = {
         let view = BorderedContainerView()
         view.backgroundColor = .clear
-        view.borderType = .bottom
+        view.borderType = .none
         view.strokeWidth = 1.0
         view.strokeColor = R.color.colorStrokeGray()!
         return view
