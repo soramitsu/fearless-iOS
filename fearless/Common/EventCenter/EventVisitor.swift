@@ -22,9 +22,6 @@ protocol EventVisitorProtocol: AnyObject {
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
 
-    func processRuntimeCoderReady(event: RuntimeCoderCreated)
-    func processRuntimeCoderCreationFailed(event: RuntimeCoderCreationFailed)
-
     func processUserInactive(event: UserInactiveEvent)
 
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
@@ -52,9 +49,6 @@ extension EventVisitorProtocol {
     func processRuntimeCommonTypesSyncCompleted(event _: RuntimeCommonTypesSyncCompleted) {}
     func processRuntimeChainsTypesSyncCompleted(event _: RuntimeChainsTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
-
-    func processRuntimeCoderReady(event _: RuntimeCoderCreated) {}
-    func processRuntimeCoderCreationFailed(event _: RuntimeCoderCreationFailed) {}
 
     func processUserInactive(event _: UserInactiveEvent) {}
 

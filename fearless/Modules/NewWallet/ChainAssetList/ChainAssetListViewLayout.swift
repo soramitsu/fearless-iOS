@@ -13,11 +13,10 @@ final class ChainAssetListViewLayout: UIView {
     private let contentContainer = UIView()
 
     let tableView: UITableView = {
-        let view = UITableView()
+        let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
-
         return view
     }()
 

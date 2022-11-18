@@ -41,6 +41,7 @@ final class ChainRegistry {
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private let mutex = NSLock()
+    private lazy var readLock = ReaderWriterLock()
 
     init(
         snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
@@ -196,17 +197,11 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        return connectionPool.getConnection(for: chainId)
+        readLock.concurrentlyRead { connectionPool.getConnection(for: chainId) }
     }
 
     func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
-        if let connection = connectionPool.getConnection(for: chainModel.chainId) {
+        if let connection = readLock.concurrentlyRead({ connectionPool.getConnection(for: chainModel.chainId) }) {
             return connection
         } else {
             return try? connectionPool.setupConnection(for: chainModel)
