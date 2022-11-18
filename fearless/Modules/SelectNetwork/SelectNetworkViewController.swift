@@ -33,6 +33,7 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
         output.didLoad(view: self)
         setupTableView()
         setupLayout()
+        configure()
     }
 
     // MARK: - Private methods
@@ -41,13 +42,18 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
         rootView.tableView.rowHeight = Constants.cellHeight
         rootView.tableView.backgroundColor = .clear
         rootView.tableView.separatorStyle = .none
-        rootView.backgroundColor = R.color.colorAlmostBlack()
     }
 
     private func setupLayout() {
         rootView.tableView.snp.makeConstraints { make in
             make.height.equalTo(UIScreen.main.bounds.height / 2.5)
         }
+    }
+
+    private func configure() {
+        rootView.backgroundColor = R.color.colorAlmostBlack()
+        rootView.titleLabel.text = R.string.localizable
+            .commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
     }
 }
 
