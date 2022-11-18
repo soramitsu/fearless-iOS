@@ -23,6 +23,7 @@ final class SelectAssetPresenter {
     private var chainAssets: [ChainAsset] = []
     private var accountInfosFetched = false
     private var pricesFetched = false
+    private var selectedAsset: AssetModel?
 
     private lazy var factoryOperationQueue: OperationQueue = {
         OperationQueue()
@@ -102,7 +103,7 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
         guard let view = view else { return }
         guard
             let selectedViewModel = viewModels[safe: index],
-            let selectedAsset = chainAssets.first(where: { chainAsset in
+            let selectedChainAsset = chainAssets.first(where: { chainAsset in
                 chainAsset.asset.name == selectedViewModel.symbol
             })
         else {
@@ -110,8 +111,8 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
             router.dismiss(view: view)
             return
         }
-
-        output.assetSelection(didCompleteWith: selectedAsset.asset)
+        selectedAsset = selectedChainAsset.asset
+        output.assetSelection(didCompleteWith: selectedChainAsset.asset)
         router.dismiss(view: view)
     }
 
@@ -130,6 +131,10 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
         self.view = view
         interactor.setup(with: self)
         view.bind(viewModel: searchTextsViewModel)
+    }
+
+    func willDisappear() {
+        output.assetSelection(didCompleteWith: selectedAsset)
     }
 }
 
