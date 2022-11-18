@@ -55,6 +55,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
         }
+
         utilityChainAssets = sortAssetList(
             wallet: selectedMetaAccount,
             chainAssets: utilityChainAssets,
@@ -319,7 +320,11 @@ private extension ChainAssetListViewModelFactory {
             }
         }
 
-        let chainAssetsSorted = chainAssets
+        let chainAssetsDivide = chainAssets.divide(predicate: { wallet.fetch(for: $0.chain.accountRequest())?.accountId != nil })
+        let chainAssetsWithAccount: [ChainAsset] = chainAssetsDivide.slice
+        let chainAssetsWithoutAccount: [ChainAsset] = chainAssetsDivide.remainder
+
+        var chainAssetsSorted = chainAssetsWithAccount
             .sorted { ca1, ca2 in
                 if let orderByKey = orderByKey {
                     return sortByOrderKey(ca1: ca1, ca2: ca2, orderByKey: orderByKey)
@@ -327,6 +332,8 @@ private extension ChainAssetListViewModelFactory {
                     return sortByDefaultList(ca1: ca1, ca2: ca2)
                 }
             }
+
+        chainAssetsSorted.append(contentsOf: chainAssetsWithoutAccount)
 
         return chainAssetsSorted
     }
