@@ -44,7 +44,9 @@ final class ContactsViewController: UIViewController, ViewHolder, HiddableBarWhe
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        didStartLoading()
+        if isMovingToParent {
+            didStartLoading()
+        }
     }
 
     // MARK: - Private methods
