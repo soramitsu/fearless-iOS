@@ -20,7 +20,7 @@ protocol ScanQRViewOutput: AnyObject {
 }
 
 protocol ScanQRInteractorInput: AnyObject {
-    func setup(with output: ScanQRInteractorOutput)
+    func setup(with output: ScanQRInteractorOutput & QRCaptureServiceDelegate)
     func extractQr(from image: UIImage)
     func startScanning()
     func stopScanning()
@@ -31,7 +31,9 @@ protocol ScanQRInteractorOutput: AnyObject {
     func handleMatched(addressInfo: AddressQRInfo)
 }
 
-protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable {}
+protocol ScanQRRouterInput: ApplicationSettingsPresentable, PresentDismissable, ImageGalleryPresentable {
+    func close(view: ControllerBackedProtocol?, completion: @escaping () -> Void)
+}
 
 protocol ScanQRModuleInput: AnyObject {}
 

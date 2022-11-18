@@ -24,6 +24,7 @@ final class ScanQRPresenter: NSObject {
     private let moduleOutput: ScanQRModuleOutput
     private let qrScanMatcher: QRScanMatcher
     private let logger: LoggerProtocol
+    private let qrScanService: QRCaptureServiceProtocol
 
     private var scanState: ScanState = .initializing(accessRequested: false)
 
@@ -35,6 +36,7 @@ final class ScanQRPresenter: NSObject {
         logger: LoggerProtocol,
         moduleOutput: ScanQRModuleOutput,
         qrScanMatcher: QRScanMatcher,
+        qrScanService: QRCaptureServiceProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
@@ -42,6 +44,7 @@ final class ScanQRPresenter: NSObject {
         self.logger = logger
         self.qrScanMatcher = qrScanMatcher
         self.moduleOutput = moduleOutput
+        self.qrScanService = qrScanService
 
         self.localizationManager = localizationManager
     }
@@ -100,7 +103,6 @@ final class ScanQRPresenter: NSObject {
 
     private func handleFailedMatching(for code: String) {
         moduleOutput.didFinishWith(address: code)
-        router.dismiss(view: view)
     }
 
     private func didCompleteImageSelection(with selectedImages: [UIImage]) {
@@ -179,7 +181,9 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     }
 
     func handleMatched(addressInfo: AddressQRInfo) {
-        moduleOutput.didFinishWith(address: addressInfo.address)
+        router.close(view: view) {
+            self.moduleOutput.didFinishWith(address: addressInfo.address)
+        }
     }
 }
 
@@ -234,19 +238,17 @@ extension ScanQRPresenter: UIImagePickerControllerDelegate, UINavigationControll
         _ picker: UIImagePickerController,
         didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey: Any]
     ) {
+        picker.presentingViewController?.dismiss(animated: true, completion: nil)
         if let originalImage = info[UIImagePickerController.InfoKey.originalImage] as? UIImage {
             didCompleteImageSelection(with: [originalImage])
         } else {
             didCompleteImageSelection(with: [])
         }
-
-        picker.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
     @objc func imagePickerControllerDidCancel(_ picker: UIImagePickerController) {
-        didCompleteImageSelection(with: [])
-
         picker.presentingViewController?.dismiss(animated: true, completion: nil)
+        didCompleteImageSelection(with: [])
     }
 }
 
