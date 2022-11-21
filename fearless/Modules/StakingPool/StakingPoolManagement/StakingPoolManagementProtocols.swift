@@ -29,6 +29,7 @@ protocol StakingPoolManagementViewOutput: AnyObject {
     func didTapClaimButton()
     func didTapRedeemButton()
     func didTapSelectValidators()
+    func didTapPoolInfoName()
 }
 
 protocol StakingPoolManagementInteractorInput: AnyObject {

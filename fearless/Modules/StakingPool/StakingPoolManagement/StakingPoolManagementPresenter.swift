@@ -131,7 +131,10 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        let pendingRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+        let pendingRewardsDecimal = Decimal.fromSubstrateAmount(
+            pendingRewards,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? Decimal.zero
         let viewModel = balanceViewModelFactory.balanceFromPrice(pendingRewardsDecimal, priceData: priceData)
 
         view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
@@ -271,7 +274,8 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 
     func didTapOptionsButton() {
         let validatorsOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.poolStakingManagementOptionNominees(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable
+                .poolStakingManagementOptionNominees(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
             title: R.string.localizable.stakingPoolInfoTitle(preferredLanguages: selectedLocale.rLanguages).capitalized
@@ -293,7 +297,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
     func didTapClaimButton() {
         guard let pendingRewards = pendingRewards,
               pendingRewards != BigUInt.zero,
-              let totalRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision))
+              let totalRewardsDecimal = Decimal.fromSubstrateAmount(
+                  pendingRewards,
+                  precision: Int16(chainAsset.asset.precision)
+              )
         else {
             return
         }
@@ -312,6 +319,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             wallet: wallet,
             from: view
         )
+    }
+
+    func didTapPoolInfoName() {
+        presentStakingPoolInfo()
     }
 }
 

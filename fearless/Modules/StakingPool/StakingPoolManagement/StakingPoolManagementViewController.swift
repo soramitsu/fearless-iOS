@@ -81,6 +81,10 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
             action: #selector(selectValidatorsButtonClicked),
             for: .touchUpInside
         )
+
+        let poolInfoTapGesture = UITapGestureRecognizer()
+        poolInfoTapGesture.addTarget(self, action: #selector(poolInfoNameTapped))
+        rootView.poolInfoView.valueLabel.addGestureRecognizer(poolInfoTapGesture)
     }
 
     // MARK: - Private actions
@@ -111,6 +115,10 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
 
     @objc private func selectValidatorsButtonClicked() {
         output.didTapSelectValidators()
+    }
+
+    @objc private func poolInfoNameTapped() {
+        output.didTapPoolInfoName()
     }
 }
 
