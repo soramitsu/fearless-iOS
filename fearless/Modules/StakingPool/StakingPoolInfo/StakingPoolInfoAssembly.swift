@@ -8,7 +8,8 @@ final class StakingPoolInfoAssembly {
     static func configureModule(
         poolId: String,
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        status: NominationViewStatus?
     ) -> StakingPoolInfoModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -138,6 +139,7 @@ final class StakingPoolInfoAssembly {
             chainAsset: chainAsset,
             logger: logger,
             wallet: wallet,
+            status: status,
             localizationManager: localizationManager
         )
 

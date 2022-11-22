@@ -80,8 +80,9 @@ protocol StakingPoolMainRouterInput: AnyObject {
     func showStakingManagement(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
-    )
+    ) -> StakingPoolManagementModuleInput?
 }
 
 protocol StakingPoolMainModuleInput: AnyObject {}

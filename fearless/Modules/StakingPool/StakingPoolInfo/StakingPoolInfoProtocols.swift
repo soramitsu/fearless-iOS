@@ -4,6 +4,7 @@ typealias StakingPoolInfoModuleCreationResult = (view: StakingPoolInfoViewInput,
 
 protocol StakingPoolInfoViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: StakingPoolInfoViewModel)
+    func didReceive(status: NominationViewStatus?)
 }
 
 protocol StakingPoolInfoViewOutput: AnyObject {
@@ -15,6 +16,7 @@ protocol StakingPoolInfoViewOutput: AnyObject {
     func stateTogglerDidTapped()
     func rootDidTapped()
     func saveRolesDidTapped()
+    func copyAddressTapped()
 }
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
@@ -29,7 +31,7 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceive(error: Error)
 }
 
-protocol StakingPoolInfoRouterInput: PresentDismissable {
+protocol StakingPoolInfoRouterInput: PresentDismissable, ApplicationStatusPresentable {
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
@@ -51,6 +53,8 @@ protocol StakingPoolInfoRouterInput: PresentDismissable {
     )
 }
 
-protocol StakingPoolInfoModuleInput: AnyObject {}
+protocol StakingPoolInfoModuleInput: AnyObject {
+    func didChange(status: NominationViewStatus)
+}
 
 protocol StakingPoolInfoModuleOutput: AnyObject {}
