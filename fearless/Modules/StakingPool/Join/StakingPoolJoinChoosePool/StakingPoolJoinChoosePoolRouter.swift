@@ -48,7 +48,8 @@ final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInpu
         guard let module = StakingPoolInfoAssembly.configureModule(
             poolId: stakingPool.id,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            status: nil
         ) else {
             return
         }

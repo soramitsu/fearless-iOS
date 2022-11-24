@@ -11,6 +11,7 @@ final class StakingPoolManagementPresenter {
     // MARK: Private properties
 
     private weak var view: StakingPoolManagementViewInput?
+    private weak var poolInfoModuleInput: StakingPoolInfoModuleInput?
     private let router: StakingPoolManagementRouterInput
     private let interactor: StakingPoolManagementInteractorInput
     private let chainAsset: ChainAsset
@@ -19,6 +20,7 @@ final class StakingPoolManagementPresenter {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol
     private var rewardCalculator: StakinkPoolRewardCalculatorProtocol
+    private var status: NominationViewStatus?
 
     private var balance: Decimal?
     private var stakeInfo: StakingPoolMember?
@@ -47,6 +49,7 @@ final class StakingPoolManagementPresenter {
         viewModelFactory: StakingPoolManagementViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         rewardCalculator: StakinkPoolRewardCalculatorProtocol,
+        status: NominationViewStatus?,
         logger: LoggerProtocol
     ) {
         self.interactor = interactor
@@ -57,6 +60,7 @@ final class StakingPoolManagementPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.logger = logger
         self.rewardCalculator = rewardCalculator
+        self.status = status
         self.localizationManager = localizationManager
     }
 
@@ -131,7 +135,10 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        let pendingRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
+        let pendingRewardsDecimal = Decimal.fromSubstrateAmount(
+            pendingRewards,
+            precision: Int16(chainAsset.asset.precision)
+        ) ?? Decimal.zero
         let viewModel = balanceViewModelFactory.balanceFromPrice(pendingRewardsDecimal, priceData: priceData)
 
         view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
@@ -142,12 +149,15 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        router.presentPoolInfo(
+        let moduleInput = router.presentPoolInfo(
             stakingPool: stakingPool,
             chainAsset: chainAsset,
             wallet: wallet,
+            status: status,
             from: view
         )
+
+        poolInfoModuleInput = moduleInput
     }
 
     private func fetchPoolBalance() {
@@ -271,7 +281,8 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
 
     func didTapOptionsButton() {
         let validatorsOptionViewModel = TitleWithSubtitleViewModel(
-            title: R.string.localizable.poolStakingManagementOptionNominees(preferredLanguages: selectedLocale.rLanguages)
+            title: R.string.localizable
+                .poolStakingManagementOptionNominees(preferredLanguages: selectedLocale.rLanguages)
         )
         let poolInfoOptionViewModel = TitleWithSubtitleViewModel(
             title: R.string.localizable.stakingPoolInfoTitle(preferredLanguages: selectedLocale.rLanguages).capitalized
@@ -293,7 +304,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
     func didTapClaimButton() {
         guard let pendingRewards = pendingRewards,
               pendingRewards != BigUInt.zero,
-              let totalRewardsDecimal = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision))
+              let totalRewardsDecimal = Decimal.fromSubstrateAmount(
+                  pendingRewards,
+                  precision: Int16(chainAsset.asset.precision)
+              )
         else {
             return
         }
@@ -312,6 +326,10 @@ extension StakingPoolManagementPresenter: StakingPoolManagementViewOutput {
             wallet: wallet,
             from: view
         )
+    }
+
+    func didTapPoolInfoName() {
+        presentStakingPoolInfo()
     }
 }
 
@@ -446,4 +464,9 @@ extension StakingPoolManagementPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension StakingPoolManagementPresenter: StakingPoolManagementModuleInput {}
+extension StakingPoolManagementPresenter: StakingPoolManagementModuleInput {
+    func didChange(status: NominationViewStatus) {
+        self.status = status
+        poolInfoModuleInput?.didChange(status: status)
+    }
+}
