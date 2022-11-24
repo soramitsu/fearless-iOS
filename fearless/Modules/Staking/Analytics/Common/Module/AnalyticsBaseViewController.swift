@@ -108,7 +108,10 @@ class AnalyticsRewardsBaseViewController<
             return
         }
 
-        let rawModel = viewModel.sections[indexPath.section].items[indexPath.row].rawModel
+        guard let rawModel = viewModel.sections[safe: indexPath.section]?.items[safe: indexPath.row]?.rawModel
+        else {
+            return
+        }
         presenter.handleReward(rawModel)
     }
 
