@@ -339,7 +339,10 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                 status: status,
                 hasPrice: priceData != nil,
                 redeemableViewModel: redeemableViewModel,
-                unstakingViewModel: unstakingViewModel
+                unstakingViewModel: unstakingViewModel,
+                rewardViewTitle: R.string.localizable.poolClaimableTitle(
+                    preferredLanguages: locale.rLanguages
+                )
             )
         }
     }
