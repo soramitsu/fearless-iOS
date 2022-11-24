@@ -114,6 +114,10 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
     var loadableContentView: UIView! {
         rootView.contentView
     }
+
+    var shouldDisableInteractionWhenLoading: Bool {
+        false
+    }
 }
 
 // MARK: - StakingPoolInfoViewInput

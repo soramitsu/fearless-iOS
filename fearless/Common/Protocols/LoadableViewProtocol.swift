@@ -37,9 +37,10 @@ extension LoadableViewProtocol where Self: UIViewController {
         newIndicator.frame = loadableContentView.bounds
         newIndicator.autoresizingMask = UIView.AutoresizingMask.flexibleWidth.union(.flexibleHeight)
         newIndicator.alpha = 0.0
+        newIndicator.isUserInteractionEnabled = false
         loadableContentView.addSubview(newIndicator)
 
-        loadableContentView.isUserInteractionEnabled = shouldDisableInteractionWhenLoading
+        loadableContentView.isUserInteractionEnabled = !shouldDisableInteractionWhenLoading
 
         newIndicator.startAnimating()
 
