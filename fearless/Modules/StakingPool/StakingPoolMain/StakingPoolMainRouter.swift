@@ -72,17 +72,21 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
     func showStakingManagement(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
-    ) {
+    ) -> StakingPoolManagementModuleInput? {
         guard let module = StakingPoolManagementAssembly.configureModule(
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            status: status
         ) else {
-            return
+            return nil
         }
 
         let navigationController = ImportantFlowViewFactory.createNavigation(from: module.view.controller)
 
         view?.controller.present(navigationController, animated: true)
+
+        return module.input
     }
 }

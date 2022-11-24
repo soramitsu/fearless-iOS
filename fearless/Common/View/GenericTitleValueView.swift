@@ -33,15 +33,12 @@ class GenericTitleValueView<T: UIView, V: UIView>: UIView {
     }
 
     private func setup() {
-        addSubview(titleView)
-        titleView.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+        let commonStackView = UIFactory.default.createHorizontalStackView(spacing: 8)
+        addSubview(commonStackView)
+        commonStackView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
         }
-
-        addSubview(valueView)
-        valueView.snp.makeConstraints { make in
-            make.trailing.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleView).offset(8.0)
-        }
+        commonStackView.addArrangedSubview(titleView)
+        commonStackView.addArrangedSubview(valueView)
     }
 }

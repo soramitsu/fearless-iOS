@@ -39,19 +39,23 @@ final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
         stakingPool: StakingPool,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
-    ) {
+    ) -> StakingPoolInfoModuleInput? {
         guard let module = StakingPoolInfoAssembly.configureModule(
             poolId: stakingPool.id,
             chainAsset: chainAsset,
-            wallet: wallet
+            wallet: wallet,
+            status: status
         ) else {
-            return
+            return nil
         }
 
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
 
         view?.controller.present(navigationController, animated: true)
+
+        return module.input
     }
 
     func presentOptions(

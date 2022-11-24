@@ -12,6 +12,7 @@ final class StakingPoolInfoPresenter {
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
     private var viewLoaded: Bool = false
+    private var status: NominationViewStatus?
 
     private var priceData: PriceData?
     private var palletId: Data?
@@ -29,6 +30,7 @@ final class StakingPoolInfoPresenter {
         chainAsset: ChainAsset,
         logger: LoggerProtocol?,
         wallet: MetaAccountModel,
+        status: NominationViewStatus?,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
@@ -37,6 +39,7 @@ final class StakingPoolInfoPresenter {
         self.chainAsset = chainAsset
         self.logger = logger
         self.wallet = wallet
+        self.status = status
 
         self.localizationManager = localizationManager
     }
@@ -48,7 +51,7 @@ final class StakingPoolInfoPresenter {
             let stashAccount = fetchPoolAccount(for: .stash),
             let electedValidators = electedValidators,
             let stakingPool = stakingPool,
-            var editedRoles = editedRoles
+            let editedRoles = editedRoles
         else {
             return
         }
@@ -107,6 +110,7 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
         interactor.setup(with: self)
 
         provideViewModel()
+        view.didReceive(status: status)
     }
 
     func willAppear(view: StakingPoolInfoViewInput) {
@@ -165,6 +169,10 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
             wallet: wallet,
             from: view
         )
+    }
+
+    func copyAddressTapped() {
+        router.presentStatus(with: AddressCopiedEvent(locale: selectedLocale), animated: true)
     }
 }
 
@@ -225,7 +233,12 @@ extension StakingPoolInfoPresenter: Localizable {
     }
 }
 
-extension StakingPoolInfoPresenter: StakingPoolInfoModuleInput {}
+extension StakingPoolInfoPresenter: StakingPoolInfoModuleInput {
+    func didChange(status: NominationViewStatus) {
+        self.status = status
+        view?.didReceive(status: status)
+    }
+}
 
 extension StakingPoolInfoPresenter: WalletsManagmentModuleOutput {
     private enum StakingPoolInfoContextTag: Int {

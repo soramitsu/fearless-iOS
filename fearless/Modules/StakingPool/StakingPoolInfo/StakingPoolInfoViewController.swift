@@ -33,17 +33,6 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
-
-        rootView.navigationBar.backButton.addTarget(
-            self,
-            action: #selector(closeButtonClicked),
-            for: .touchUpInside
-        )
-
-        let tapGesture = UITapGestureRecognizer()
-        tapGesture.addTarget(self, action: #selector(validatorsClicked))
-        rootView.validatorsView.addGestureRecognizer(tapGesture)
-
         setupActions()
     }
 
@@ -56,6 +45,24 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
     // MARK: - Private methods
 
     private func setupActions() {
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(closeButtonClicked),
+            for: .touchUpInside
+        )
+
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.addTarget(self, action: #selector(validatorsClicked))
+        rootView.validatorsView.addGestureRecognizer(tapGesture)
+
+        rootView.roleViews.forEach {
+            $0.onCopied = { [weak self] in
+                self?.output.copyAddressTapped()
+            }
+        }
+    }
+
+    private func setupRolesActions() {
         rootView.roleNominatorView.addTarget(
             self,
             action: #selector(handleNominationTapped),
@@ -118,6 +125,13 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
 extension StakingPoolInfoViewController: StakingPoolInfoViewInput {
     func didReceive(viewModel: StakingPoolInfoViewModel) {
         rootView.bind(viewModel: viewModel)
+        if viewModel.userIsRoot {
+            setupRolesActions()
+        }
+    }
+
+    func didReceive(status: NominationViewStatus?) {
+        rootView.bind(status: status)
     }
 }
 
