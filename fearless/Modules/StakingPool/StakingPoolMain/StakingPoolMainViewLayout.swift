@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {
@@ -16,10 +17,18 @@ final class StakingPoolMainViewLayout: UIView {
         static let nominatorStateViewHeight: CGFloat = 232
     }
 
+    var keyboardAdoptableConstraint: Constraint?
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = .zero
+        view.scrollView.contentInset = UIEdgeInsets(
+            top: 0,
+            left: 0,
+            bottom: UIConstants.bigOffset * 3 + UIConstants.actionHeight,
+            right: 0
+        )
         return view
     }()
 
@@ -116,7 +125,7 @@ final class StakingPoolMainViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(walletSelectionButton.snp.bottom).offset(UIConstants.defaultOffset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
 
         assetSelectionContainerView.translatesAutoresizingMaskIntoConstraints = false
@@ -177,18 +186,12 @@ final class StakingPoolMainViewLayout: UIView {
         }
 
         startStakingButton.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            make.bottom.equalTo(contentView.snp.bottom).inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
 
         contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: networkInfoView)
-
-        contentView.scrollView.contentInset = UIEdgeInsets(
-            top: 0,
-            left: 0,
-            bottom: UIConstants.bigOffset * 2 + UIConstants.actionHeight,
-            right: 0
-        )
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {

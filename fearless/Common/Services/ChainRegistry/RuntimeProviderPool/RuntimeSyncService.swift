@@ -15,13 +15,7 @@ enum RuntimeSyncServiceError: Error {
     case skipMetadataUnchanged
 }
 
-// swiftlint:disable type_body_length file_length
 final class RuntimeSyncService {
-    struct SyncInfo {
-        let typesURL: URL?
-        let connection: JSONRPCEngine
-    }
-
     struct SyncResult {
         let chainId: ChainModel.Id
         let metadataSyncResult: Result<RuntimeMetadataItem?, Error>?
@@ -43,7 +37,7 @@ final class RuntimeSyncService {
     private let dataHasher: StorageHasher
     private let logger: LoggerProtocol?
 
-    private(set) var knownChains: [ChainModel.Id: SyncInfo] = [:]
+    private(set) var knownChains: [ChainModel.Id: ChainConnection] = [:]
     private(set) var syncingChains: [ChainModel.Id: CompoundOperationWrapper<SyncResult>] = [:]
     private(set) var retryAttempts: [ChainModel.Id: RetryAttempt] = [:]
     private var mutex = NSLock()
@@ -77,7 +71,7 @@ final class RuntimeSyncService {
         for chainId: ChainModel.Id,
         newVersion: RuntimeVersion? = nil
     ) {
-        guard let syncInfo = knownChains[chainId] else {
+        guard let connection = knownChains[chainId] else {
             return
         }
 
@@ -85,7 +79,7 @@ final class RuntimeSyncService {
             createMetadataSyncOperation(
                 for: chainId,
                 runtimeVersion: $0,
-                connection: syncInfo.connection
+                connection: connection
             )
         }
 
@@ -314,13 +308,13 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
             mutex.unlock()
         }
 
-        guard let syncInfo = knownChains[chain.chainId] else {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
+        guard let knownConnection = knownChains[chain.chainId] else {
+            knownChains[chain.chainId] = connection
             return
         }
 
-        if syncInfo.typesURL != chain.types?.url {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
+        if knownConnection.url != connection.url {
+            knownChains[chain.chainId] = connection
 
             performSync(for: chain.chainId)
         }

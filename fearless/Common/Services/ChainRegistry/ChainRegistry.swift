@@ -268,37 +268,31 @@ extension ChainRegistry: ConnectionPoolDelegate {
         }
 
         guard let failedChain = failedChain else { return }
-        let reconnectedEvent = ChainReconnectingEvent(chain: failedChain, state: state)
-        eventCenter.notify(with: reconnectedEvent)
 
         switch state {
-        case let .connecting(attempt):
+        case let .waitingReconnection(attempt: attempt):
             if attempt > 1 {
-                // temporary disable autobalance , maybe this causing crashes
-                connectionNeedsReconnect(for: failedChain, previusUrl: url)
+                connectionNeedsReconnect(for: failedChain, previusUrl: url, state: state)
             }
         default:
             break
         }
     }
 
-    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL) {
-        guard
-            chain.selectedNode == nil,
-            let connection = getConnection(for: chain.chainId)
-        else {
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state: WebSocketEngine.State) {
+        guard chain.selectedNode == nil else {
             return
         }
 
         do {
-            let pendingEngineRequests = connection.pendingEngineRequests
-            let connection = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
-            connection.connect(with: pendingEngineRequests)
+            _ = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
 
             let event = ChainsUpdatedEvent(updatedChains: [chain])
             eventCenter.notify(with: event)
         } catch {
             logger?.error("\(chain.name) error: \(error.localizedDescription)")
+            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: state)
+            eventCenter.notify(with: reconnectedEvent)
         }
     }
 }
