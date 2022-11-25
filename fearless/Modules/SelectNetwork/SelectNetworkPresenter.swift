@@ -92,7 +92,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
             return
         }
 
-        viewModels = viewModels.filter { $0.title.lowercased().contains(text.lowercased()) }
+        viewModels = fullViewModels.filter { $0.title.lowercased().contains(text.lowercased()) }
         view?.didReload()
     }
 

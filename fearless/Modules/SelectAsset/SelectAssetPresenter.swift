@@ -123,7 +123,10 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
             return
         }
 
-        viewModels = viewModels.filter { $0.symbol.lowercased().contains(text.lowercased()) }
+        viewModels = fullViewModels.filter {
+            $0.symbol.lowercased().contains(text.lowercased())
+                || $0.name.lowercased().contains(text.lowercased())
+        }
         view?.didReload()
     }
 
