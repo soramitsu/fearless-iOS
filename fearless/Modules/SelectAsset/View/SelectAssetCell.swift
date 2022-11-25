@@ -9,6 +9,7 @@ final class SelectAssetCell: UITableViewCell {
     let checkmarkImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconCheckMark()
+        imageView.isHidden = true
         return imageView
     }()
 
@@ -91,14 +92,24 @@ final class SelectAssetCell: UITableViewCell {
         contentView.addSubview(rightTextStackView)
         rightTextStackView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(UIConstants.defaultOffset)
-            make.trailing.equalToSuperview().offset(-UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
         rightTextStackView.addArrangedSubview(fiatBalanceLabel)
         rightTextStackView.addArrangedSubview(balanceLabel)
+
+        let checkmarkStackView = UIFactory.default.createHorizontalStackView()
+        checkmarkStackView.addArrangedSubview(checkmarkImageView)
+        addSubview(checkmarkStackView)
+        checkmarkStackView.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.leading.equalTo(rightTextStackView.snp.trailing).offset(UIConstants.defaultOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
     }
 
-    private func updateSelectionState() {}
+    private func updateSelectionState() {
+        checkmarkImageView.isHidden = !(viewModel?.isSelected ?? false)
+    }
 }
 
 extension SelectAssetCell: SelectionItemViewProtocol {
@@ -112,6 +123,7 @@ extension SelectAssetCell: SelectionItemViewProtocol {
         symbolLabel.text = selectAssetCellViewModel.symbol
         balanceLabel.text = selectAssetCellViewModel.balanceString
         fiatBalanceLabel.text = selectAssetCellViewModel.fiatBalanceString
+        fiatBalanceLabel.isHidden = selectAssetCellViewModel.fiatBalanceString == nil
         if selectAssetCellViewModel.icon == nil {
             iconImageView.image = R.image.allNetworksIcon()
         } else {

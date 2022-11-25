@@ -3,6 +3,7 @@ import Foundation
 final class SendRouter: SendRouterInput {
     func presentConfirm(
         from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
@@ -10,6 +11,7 @@ final class SendRouter: SendRouterInput {
         scamInfo: ScamInfo?
     ) {
         guard let controller = WalletSendConfirmViewFactory.createView(
+            wallet: wallet,
             chainAsset: chainAsset,
             receiverAddress: receiverAddress,
             amount: amount,

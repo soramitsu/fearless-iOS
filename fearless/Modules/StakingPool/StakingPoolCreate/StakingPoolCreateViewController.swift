@@ -44,6 +44,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
         rootView.poolNameInputView.animatedInputField.delegate = self
         rootView.amountView.textField.delegate = self
         navigationController?.setNavigationBarHidden(true, animated: true)
+        updateActionButton()
     }
 
     // MARK: - Private methods
@@ -52,6 +53,11 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.amountView.textField.inputAccessoryView = accessoryView
+    }
+
+    private func updateActionButton() {
+        let isEnabled = (amountInputViewModel?.isValid == true)
+        rootView.feeView.actionButton.set(enabled: isEnabled)
     }
 
     private func setupActions() {
@@ -111,12 +117,13 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)
-
         self.amountInputViewModel?.observable.add(observer: self)
+        updateActionButton()
     }
 
     func didReceiveAssetBalanceViewModel(_ assetBalanceViewModel: AssetBalanceViewModelProtocol) {
         rootView.bind(assetViewModel: assetBalanceViewModel)
+        updateActionButton()
     }
 
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {

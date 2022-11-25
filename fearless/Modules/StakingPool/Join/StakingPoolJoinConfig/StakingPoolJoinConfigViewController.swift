@@ -51,7 +51,7 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
         setupBalanceAccessoryView()
 
         rootView.amountView.textField.delegate = self
-
+        updateActionButton()
         applyLocalization()
     }
 
@@ -61,6 +61,11 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.amountView.textField.inputAccessoryView = accessoryView
+    }
+
+    private func updateActionButton() {
+        let isEnabled = (amountInputViewModel?.isValid == true)
+        rootView.feeView.actionButton.set(enabled: isEnabled)
     }
 
     @objc private func backButtonClicked() {
@@ -81,14 +86,15 @@ extension StakingPoolJoinConfigViewController: StakingPoolJoinConfigViewInput {
 
     func didReceiveAssetBalanceViewModel(_ assetBalanceViewModel: AssetBalanceViewModelProtocol) {
         rootView.bind(assetViewModel: assetBalanceViewModel)
+        updateActionButton()
     }
 
     func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)
-
         self.amountInputViewModel?.observable.add(observer: self)
+        updateActionButton()
     }
 
     func didReceive(locale: Locale) {
