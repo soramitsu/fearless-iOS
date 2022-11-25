@@ -7,19 +7,22 @@ final class SelectAssetCellViewModel: SelectableViewModelProtocol {
     let icon: ImageViewModelProtocol?
     let balanceString: String?
     let fiatBalanceString: String?
+    let isSelected: Bool
 
     init(
         name: String,
         symbol: String,
         icon: ImageViewModelProtocol?,
         balanceString: String?,
-        fiatBalanceString: String?
+        fiatBalanceString: String?,
+        isSelected: Bool
     ) {
         self.name = name
         self.symbol = symbol
         self.icon = icon
         self.balanceString = balanceString
         self.fiatBalanceString = fiatBalanceString
+        self.isSelected = isSelected
     }
 }
 
@@ -29,7 +32,8 @@ protocol SelectAssetViewModelFactoryProtocol {
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        locale: Locale
+        locale: Locale,
+        selectedAssetId: String?
     ) -> [SelectAssetCellViewModel]
 }
 
@@ -45,7 +49,8 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
         chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
-        locale: Locale
+        locale: Locale,
+        selectedAssetId: String?
     ) -> [SelectAssetCellViewModel] {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -82,7 +87,8 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
                 accountInfos: accountInfos,
                 currency: wallet.selectedCurrency,
                 wallet: wallet,
-                locale: locale
+                locale: locale,
+                selectedAssetId: selectedAssetId
             )
         }
 
@@ -98,7 +104,8 @@ private extension SelectAssetViewModelFactory {
         accountInfos: [ChainAssetKey: AccountInfo?],
         currency: Currency,
         wallet: MetaAccountModel,
-        locale: Locale
+        locale: Locale,
+        selectedAssetId: String?
     ) -> SelectAssetCellViewModel {
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let key = chainAsset.uniqueKey(accountId: accountId)
@@ -130,7 +137,8 @@ private extension SelectAssetViewModelFactory {
             symbol: chainAsset.asset.name,
             icon: chainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
             balanceString: totalAssetBalance,
-            fiatBalanceString: totalFiatBalance
+            fiatBalanceString: totalFiatBalance,
+            isSelected: chainAsset.asset.id == selectedAssetId
         )
     }
 

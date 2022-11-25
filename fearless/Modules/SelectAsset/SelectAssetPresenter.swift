@@ -75,7 +75,8 @@ final class SelectAssetPresenter {
                     self.accountInfos
                 },
                 prices: self.prices,
-                locale: self.selectedLocale
+                locale: self.selectedLocale,
+                selectedAssetId: self.selectedAssetId
             )
             self.fullViewModels = self.viewModels
 
