@@ -21,14 +21,16 @@ protocol StakingPoolInfoViewOutput: AnyObject {
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
     func setup(with output: StakingPoolInfoInteractorOutput)
+    func fetchPoolNomination(poolStashAccountId: AccountId, activeEra: EraIndex)
 }
 
 protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
+    func didReceiveValidators(validators: YourValidatorsModel)
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(stakingPool: StakingPool?)
     func didReceive(error: Error)
+    func didReceive(activeEra: Result<ActiveEraInfo?, Error>)
 }
 
 protocol StakingPoolInfoRouterInput: PresentDismissable, ApplicationStatusPresentable {

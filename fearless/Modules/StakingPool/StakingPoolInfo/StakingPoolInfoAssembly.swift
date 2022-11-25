@@ -112,6 +112,15 @@ final class StakingPoolInfoAssembly {
             engine: connection
         )
 
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
+
         let interactor = StakingPoolInfoInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
@@ -119,7 +128,8 @@ final class StakingPoolInfoAssembly {
             runtimeService: runtimeService,
             validatorOperationFactory: validatorOperationFactory,
             poolId: poolId,
-            stakingPoolOperationFactory: stakingPoolOperationFactory
+            stakingPoolOperationFactory: stakingPoolOperationFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
         )
         let router = StakingPoolInfoRouter()
 

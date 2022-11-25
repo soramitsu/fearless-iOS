@@ -105,7 +105,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
                 maxTargets: maxTargets
             )
             let strategy = RecommendedValidatorListRelaychainStrategy()
-            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
+            let viewModelFactory = RecommendedValidatorListPoolViewModelFactory(
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
                 balanceViewModelFactory: balanceViewModelFactory
             )
@@ -122,7 +122,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
                 maxTargets: maxTargets
             )
             let strategy = RecommendedValidatorListRelaychainStrategy()
-            let viewModelFactory = RecommendedValidatorListRelaychainViewModelFactory(
+            let viewModelFactory = RecommendedValidatorListPoolViewModelFactory(
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
                 balanceViewModelFactory: balanceViewModelFactory
             )
