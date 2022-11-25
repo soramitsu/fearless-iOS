@@ -43,6 +43,7 @@ protocol SendInteractorInput: AnyObject {
     func validate(address: String, for chain: ChainModel) -> Bool
     func fetchScamInfo(for address: String)
     func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset?
+    func getPossibleChains(for address: String)
 }
 
 protocol SendInteractorOutput: AnyObject {
@@ -52,6 +53,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)
+    func didReceive(possibleChains: [ChainModel]?)
 }
 
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
