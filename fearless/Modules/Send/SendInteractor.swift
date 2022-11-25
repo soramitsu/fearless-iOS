@@ -14,6 +14,7 @@ final class SendInteractor: RuntimeConstantFetching {
     private let operationManager: OperationManagerProtocol
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
+    private let chainModelRepository: AnyDataProviderRepository<ChainModel>
 
     let dependencyContainer: SendDepencyContainer
 
@@ -30,7 +31,8 @@ final class SendInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
-        dependencyContainer: SendDepencyContainer
+        dependencyContainer: SendDepencyContainer,
+        chainModelRepository: AnyDataProviderRepository<ChainModel>
     ) {
         self.wallet = wallet
         self.feeProxy = feeProxy
@@ -40,6 +42,7 @@ final class SendInteractor: RuntimeConstantFetching {
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
+        self.chainModelRepository = chainModelRepository
     }
 }
 
@@ -165,6 +168,22 @@ extension SendInteractor: SendInteractorInput {
             }
         }
         operationManager.enqueue(operations: [allOperation], in: .transient)
+    }
+
+    func getPossibleChains(for address: String) {
+        let fetchOperation = chainModelRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        fetchOperation.completionBlock = {
+            let chains = try? fetchOperation.extractNoCancellableResultData()
+            let posssibleChains = chains?.filter { [weak self] chain in
+                guard let strongSelf = self else { return false }
+                return strongSelf.validate(address: address, for: chain)
+            }
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceive(possibleChains: posssibleChains)
+            }
+        }
+        operationManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 }
 

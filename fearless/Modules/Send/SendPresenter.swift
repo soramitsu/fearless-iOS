@@ -19,6 +19,7 @@ final class SendPresenter {
     private weak var moduleOutput: SendModuleOutput?
 
     private var recipientAddress: String?
+    private var selectedChain: ChainModel?
     private var selectedChainAsset: ChainAsset?
     private var selectedAsset: AssetModel?
     private var totalBalanceValue: BigUInt?
@@ -80,12 +81,7 @@ extension SendPresenter: SendViewOutput {
                 isValid: true
             )
             view.didReceive(viewModel: viewModel)
-            router.showSelectAsset(
-                from: view,
-                wallet: wallet,
-                selectedAssetId: nil,
-                output: self
-            )
+            interactor.getPossibleChains(for: address)
         }
     }
 
@@ -286,6 +282,37 @@ extension SendPresenter: SendInteractorOutput {
             refreshFee(for: chainAsset, address: address)
         }
     }
+
+    func didReceive(possibleChains: [ChainModel]?) {
+        if let chains = possibleChains, chains.count == 1, let selectedChain = chains.first {
+            self.selectedChain = selectedChain
+            if selectedChain.chainAssets.count == 1,
+               let selectedChainAsset = selectedChain.chainAssets.first {
+                self.selectedChainAsset = selectedChainAsset
+                provideNetworkViewModel(for: selectedChain)
+                provideAssetVewModel()
+                provideInputViewModel()
+                if let recipientAddress = recipientAddress {
+                    handle(newAddress: recipientAddress)
+                }
+                interactor.updateSubscriptions(for: selectedChainAsset)
+            } else {
+                router.showSelectAsset(
+                    from: view,
+                    wallet: wallet,
+                    selectedAssetId: nil,
+                    output: self
+                )
+            }
+        } else {
+            router.showSelectAsset(
+                from: view,
+                wallet: wallet,
+                selectedAssetId: nil,
+                output: self
+            )
+        }
+    }
 }
 
 extension SendPresenter: ScanQRModuleOutput {
@@ -306,15 +333,22 @@ extension SendPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith asset: AssetModel?) {
         selectedAsset = asset
         if let asset = asset {
-            interactor.defineAvailableChains(for: asset) { [weak self] chains in
-                if let availableChains = chains, let strongSelf = self {
-                    strongSelf.router.showSelectNetwork(
-                        from: strongSelf.view,
-                        wallet: strongSelf.wallet,
-                        selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
-                        chainModels: availableChains,
-                        delegate: strongSelf
-                    )
+            if let chain = selectedChain {
+                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+            } else {
+                interactor.defineAvailableChains(for: asset) { [weak self] chains in
+                    if let availableChains = chains, let strongSelf = self {
+                        if availableChains.count == 1 {
+                            self?.handle(selectedChain: availableChains.first)
+                        }
+                        strongSelf.router.showSelectNetwork(
+                            from: strongSelf.view,
+                            wallet: strongSelf.wallet,
+                            selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
+                            chainModels: availableChains,
+                            delegate: strongSelf
+                        )
+                    }
                 }
             }
         } else if selectedChainAsset == nil {
@@ -328,22 +362,7 @@ extension SendPresenter: SelectNetworkDelegate {
         view _: SelectNetworkViewInput,
         didCompleteWith chain: ChainModel?
     ) {
-        let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
-        if
-            let selectedChain = chain,
-            let selectedAsset = optionalAsset,
-            let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name }) {
-            self.selectedChainAsset = selectedChainAsset
-            provideNetworkViewModel(for: selectedChain)
-            provideAssetVewModel()
-            provideInputViewModel()
-            if let recipientAddress = recipientAddress {
-                handle(newAddress: recipientAddress)
-            }
-            interactor.updateSubscriptions(for: selectedChainAsset)
-        } else if selectedChainAsset == nil {
-            router.dismiss(view: view)
-        }
+        handle(selectedChain: chain)
     }
 }
 
@@ -442,6 +461,25 @@ private extension SendPresenter {
             interactor.updateSubscriptions(for: chainAsset)
             interactor.fetchScamInfo(for: newAddress)
             refreshFee(for: chainAsset, address: newAddress)
+        }
+    }
+
+    func handle(selectedChain: ChainModel?) {
+        let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
+        if
+            let selectedChain = selectedChain,
+            let selectedAsset = optionalAsset,
+            let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name }) {
+            self.selectedChainAsset = selectedChainAsset
+            provideNetworkViewModel(for: selectedChain)
+            provideAssetVewModel()
+            provideInputViewModel()
+            if let recipientAddress = recipientAddress {
+                handle(newAddress: recipientAddress)
+            }
+            interactor.updateSubscriptions(for: selectedChainAsset)
+        } else if selectedChainAsset == nil {
+            router.dismiss(view: view)
         }
     }
 }
