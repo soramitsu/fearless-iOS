@@ -85,9 +85,9 @@ private extension SendInteractor {
         } else {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
-        if !chainAsset.isUtility,
-            let utilityAsset = getUtilityAsset(for: chainAsset),
-            let priceId = utilityAsset.asset.priceId {
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = getUtilityAsset(for: chainAsset),
+           let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
     }
@@ -101,7 +101,7 @@ extension SendInteractor: SendInteractorInput {
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
         subscribeToPrice(for: chainAsset)
-        if !chainAsset.isUtility, let utilityAsset = getUtilityAsset(for: chainAsset) {
+        if chainAsset.chain.isSora, !chainAsset.isUtility, let utilityAsset = getUtilityAsset(for: chainAsset) {
             subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
             provideConstants(for: utilityAsset)
         } else {
@@ -184,7 +184,7 @@ extension SendInteractor: SendInteractorInput {
 
     func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if !chainAsset.isUtility,
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
            let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }

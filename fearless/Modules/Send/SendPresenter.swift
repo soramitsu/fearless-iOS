@@ -126,8 +126,8 @@ extension SendPresenter: SendViewOutput {
             (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0) +
             (tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
-        let balanceType: BalanceType = chainAsset.isUtility ?
-            .utility(balance: balance) : .orml(balance: balance, utilityBalance: utilityBalance)
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isSora) ?
+            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
