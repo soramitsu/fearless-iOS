@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
+import SnapKit
 
-final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
+final class StakingPoolMainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed, KeyboardViewAdoptable {
     typealias RootViewType = StakingPoolMainViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?
@@ -158,24 +159,19 @@ extension StakingPoolMainViewController: NetworkInfoViewDelegate {
     }
 }
 
+// MARK: - KeyboardViewAdoptable
+
 extension StakingPoolMainViewController: KeyboardAdoptable {
-    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
-        let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
-        let scrollViewOffset = view.bounds.height - rootView.contentView.frame.maxY
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
-        var contentInsets = rootView.contentView.scrollView.contentInset
-        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
-        rootView.contentView.scrollView.contentInset = contentInsets
-
-        if contentInsets.bottom > 0.0 {
-            let firstResponderView = rootView.rewardCalculatorView
-            let fieldFrame = rootView.contentView.scrollView.convert(
-                firstResponderView.frame,
-                from: firstResponderView.superview
-            )
-
-            rootView.contentView.scrollView.scrollRectToVisible(fieldFrame, animated: true)
+    func offsetFromKeyboardWithInset(_ frame: CGFloat) -> CGFloat {
+        if frame > 0 {
+            let tabBarHeight = tabBarController?.tabBar.frame.height
+            return -(tabBarHeight ?? 0)
         }
+
+        return 0
     }
+
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }

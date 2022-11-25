@@ -225,6 +225,7 @@ extension SendPresenter: SendViewOutput {
 
 extension SendPresenter: SendInteractorOutput {
     func didReceive(scamInfo: ScamInfo?) {
+        self.scamInfo = scamInfo
         view?.didReceive(scamInfo: scamInfo)
     }
 
