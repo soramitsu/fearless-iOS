@@ -24,6 +24,7 @@ final class ConnectionPool {
     private lazy var readLock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
+    private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
         connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
@@ -44,16 +45,26 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != ignoredUrl })
-
-        guard let url = node?.url else {
-            throw ConnectionPoolError.onlyOneNode
-        }
-
         mutex.lock()
 
         defer {
             mutex.unlock()
+        }
+
+        if ignoredUrl == nil,
+           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+            return connection
+        }
+
+        var chainFaledUrls = failedUrls[chain.chainId].or([])
+        let node = chain.selectedNode ?? chain.nodes.first(where: {
+            ($0.url != ignoredUrl) && !chainFaledUrls.contains($0.url)
+        })
+        chainFaledUrls.insert(ignoredUrl)
+        failedUrls[chain.chainId] = chainFaledUrls
+
+        guard let url = node?.url else {
+            throw ConnectionPoolError.onlyOneNode
         }
 
         clearUnusedConnections()
@@ -61,8 +72,9 @@ extension ConnectionPool: ConnectionPoolProtocol {
         if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
             if connection.url == url {
                 return connection
-            } else {
-                connectionsByChainIds[chain.chainId] = nil
+            } else if ignoredUrl != nil {
+                connection.reconnect(url: url)
+                return connection
             }
         }
 
