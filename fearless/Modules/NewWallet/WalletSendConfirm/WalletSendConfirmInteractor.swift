@@ -79,7 +79,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             handler: self
         )
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-            let utilityAsset = getUtilityAsset(for: chainAsset) {
+           let utilityAsset = getUtilityAsset(for: chainAsset) {
             accountInfoSubscriptionAdapter.subscribe(
                 chainAsset: utilityAsset,
                 accountId: accountId,
