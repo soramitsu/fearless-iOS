@@ -29,6 +29,7 @@ protocol StakingPoolManagementViewOutput: AnyObject {
     func didTapClaimButton()
     func didTapRedeemButton()
     func didTapSelectValidators()
+    func didTapPoolInfoName()
 }
 
 protocol StakingPoolManagementInteractorInput: AnyObject {
@@ -79,8 +80,9 @@ protocol StakingPoolManagementRouterInput: PresentDismissable {
         stakingPool: StakingPool,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
+        status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
-    )
+    ) -> StakingPoolInfoModuleInput?
 
     func presentOptions(
         viewModels: [TitleWithSubtitleViewModel],
@@ -111,6 +113,8 @@ protocol StakingPoolManagementRouterInput: PresentDismissable {
     )
 }
 
-protocol StakingPoolManagementModuleInput: AnyObject {}
+protocol StakingPoolManagementModuleInput: AnyObject {
+    func didChange(status: NominationViewStatus)
+}
 
 protocol StakingPoolManagementModuleOutput: AnyObject {}

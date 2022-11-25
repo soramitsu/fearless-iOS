@@ -18,6 +18,9 @@ final class StakingPoolJoinConfirmPresenter {
 
     private var priceData: PriceData?
     private var fee: Decimal?
+    private var palletId: Data?
+    private var nomination: Nomination?
+    private var nominationReceived: Bool = false
 
     // MARK: - Constructors
 
@@ -52,7 +55,9 @@ final class StakingPoolJoinConfirmPresenter {
             amount: inputAmount,
             pool: pool,
             wallet: wallet,
-            locale: selectedLocale
+            locale: selectedLocale,
+            poolNomination: nomination,
+            nominationReceived: nominationReceived
         )
 
         view?.didReceive(confirmViewModel: viewModel)
@@ -64,6 +69,42 @@ final class StakingPoolJoinConfirmPresenter {
             .value(for: selectedLocale)
 
         view?.didReceive(feeViewModel: feeViewModel)
+    }
+
+    private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
+        guard
+            let modPrefix = "modl".data(using: .utf8),
+            let palletIdData = palletId,
+            let poolIdUintValue = UInt(pool.id)
+        else {
+            return nil
+        }
+
+        var index: UInt8 = type.rawValue
+        var poolIdValue = poolIdUintValue
+        let indexData = Data(
+            bytes: &index,
+            count: MemoryLayout.size(ofValue: index)
+        )
+
+        let poolIdSize = MemoryLayout.size(ofValue: poolIdValue)
+        let poolIdData = Data(
+            bytes: &poolIdValue,
+            count: poolIdSize
+        )
+
+        let emptyH256 = [UInt8](repeating: 0, count: 32)
+        let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
+
+        return poolAccountId[0 ... 31]
+    }
+
+    private func providePoolNomination() {
+        guard let stashAccountId = fetchPoolAccount(for: .stash) else {
+            return
+        }
+
+        interactor.fetchPoolNomination(poolStashAccountId: stashAccountId)
     }
 }
 
@@ -93,6 +134,10 @@ extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmViewOutput {
 // MARK: - StakingPoolJoinConfirmInteractorOutput
 
 extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmInteractorOutput {
+    func didReceive(error: Error) {
+        logger?.error(error.localizedDescription)
+    }
+
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -137,6 +182,22 @@ extension StakingPoolJoinConfirmPresenter: StakingPoolJoinConfirmInteractorOutpu
                 router.presentExtrinsicFailed(from: view, locale: selectedLocale)
             }
         }
+    }
+
+    func didReceive(palletIdResult: Result<Data, Error>) {
+        switch palletIdResult {
+        case let .success(palletId):
+            self.palletId = palletId
+            providePoolNomination()
+        case let .failure(error):
+            logger?.error(error.localizedDescription)
+        }
+    }
+
+    func didReceive(nomination: Nomination?) {
+        nominationReceived = true
+        self.nomination = nomination
+        provideViewModel()
     }
 }
 

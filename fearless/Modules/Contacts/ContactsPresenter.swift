@@ -52,7 +52,6 @@ extension ContactsPresenter: ContactsViewOutput {
         self.view = view
         interactor.setup(with: self)
         view.didReceive(locale: selectedLocale)
-        view.didStartLoading()
     }
 
     func didSelect(address: String) {

@@ -4,6 +4,7 @@ typealias StakingPoolInfoModuleCreationResult = (view: StakingPoolInfoViewInput,
 
 protocol StakingPoolInfoViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: StakingPoolInfoViewModel)
+    func didReceive(status: NominationViewStatus?)
 }
 
 protocol StakingPoolInfoViewOutput: AnyObject {
@@ -11,6 +12,11 @@ protocol StakingPoolInfoViewOutput: AnyObject {
     func didTapCloseButton()
     func didTapValidators()
     func willAppear(view: StakingPoolInfoViewInput)
+    func nominatorDidTapped()
+    func stateTogglerDidTapped()
+    func rootDidTapped()
+    func saveRolesDidTapped()
+    func copyAddressTapped()
 }
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
@@ -21,18 +27,34 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>)
     func didReceive(palletIdResult: Result<Data, Error>)
+    func didReceive(stakingPool: StakingPool?)
+    func didReceive(error: Error)
 }
 
-protocol StakingPoolInfoRouterInput: PresentDismissable {
+protocol StakingPoolInfoRouterInput: PresentDismissable, ApplicationStatusPresentable {
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
-        poolId: UInt32,
-        state: ExistingBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
+
+    func showWalletManagment(
+        contextTag: Int,
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput?
+    )
+
+    func showUpdateRoles(
+        roles: StakingPoolRoles,
+        poolId: String,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
+    )
 }
 
-protocol StakingPoolInfoModuleInput: AnyObject {}
+protocol StakingPoolInfoModuleInput: AnyObject {
+    func didChange(status: NominationViewStatus)
+}
 
 protocol StakingPoolInfoModuleOutput: AnyObject {}

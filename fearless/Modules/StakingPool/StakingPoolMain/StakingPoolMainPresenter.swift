@@ -15,6 +15,7 @@ final class StakingPoolMainPresenter {
     }
 
     private weak var moduleOutput: StakingMainModuleOutput?
+    private weak var stakingManagmentModuleInput: StakingPoolManagementModuleInput?
     private let viewModelFactory: StakingPoolMainViewModelFactoryProtocol
     private let logger: LoggerProtocol?
 
@@ -33,8 +34,8 @@ final class StakingPoolMainPresenter {
     private var palletId: Data?
     private var poolAccountInfo: AccountInfo?
     private var existentialDeposit: BigUInt?
-    private var pendingRewards: BigUInt?
     private var nomination: Nomination?
+    private var pendingRewards: BigUInt?
 
     private var inputResult: AmountInputResult?
 
@@ -98,14 +99,15 @@ final class StakingPoolMainPresenter {
         }
     }
 
-    private func provideStakeInfoViewModel() {
+    @discardableResult
+    private func provideStakeInfoViewModel() -> LocalizableResource<NominationViewModelProtocol>? {
         guard let stakeInfo = stakeInfo,
               let pendingRewards = pendingRewards,
               let poolInfo = poolInfo
         else {
             view?.didReceiveNominatorStateViewModel(nil)
 
-            return
+            return nil
         }
 
         let viewModel = viewModelFactory.buildNominatorStateViewModel(
@@ -113,12 +115,19 @@ final class StakingPoolMainPresenter {
             priceData: priceData,
             chainAsset: chainAsset,
             era: eraStakersInfo?.activeEra,
-            pendingRewards: pendingRewards,
             poolInfo: poolInfo,
-            nomination: nomination
+            nomination: nomination,
+            pendingRewards: pendingRewards
         )
 
         view?.didReceiveNominatorStateViewModel(viewModel)
+
+        guard let status = viewModel?.value(for: selectedLocale).status else {
+            return nil
+        }
+        stakingManagmentModuleInput?.didChange(status: status)
+
+        return viewModel
     }
 
     private func fetchPoolNomination() {
@@ -234,7 +243,14 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
     }
 
     func didTapStakeInfoView() {
-        router.showStakingManagement(chainAsset: chainAsset, wallet: wallet, from: view)
+        let status = provideStakeInfoViewModel()?.value(for: selectedLocale).status
+        let input = router.showStakingManagement(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            status: status,
+            from: view
+        )
+        stakingManagmentModuleInput = input
     }
 }
 
@@ -340,6 +356,8 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
     func didReceive(stakeInfo: StakingPoolMember?) {
         self.stakeInfo = stakeInfo
         provideStakeInfoViewModel()
+
+        fetchPoolNomination()
     }
 
     func didReceive(poolRewards: StakingPoolRewards?) {
@@ -357,15 +375,6 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         }
     }
 
-    func didReceive(pendingRewards: BigUInt?) {
-        self.pendingRewards = pendingRewards
-        provideStakeInfoViewModel()
-    }
-
-    func didReceive(pendingRewardsError: Error) {
-        logger?.error("\(pendingRewardsError)")
-    }
-
     func didReceive(nomination: Nomination?) {
         self.nomination = nomination
         provideStakeInfoViewModel()
@@ -373,6 +382,15 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
 
     func didReceiveError(_ error: StakingPoolMainError) {
         logger?.error("\(error)")
+    }
+
+    func didReceive(pendingRewards: BigUInt?) {
+        self.pendingRewards = pendingRewards
+        provideStakeInfoViewModel()
+    }
+
+    func didReceive(pendingRewardsError: Error) {
+        logger?.error("\(pendingRewardsError)")
     }
 }
 

@@ -74,6 +74,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.valueLabel.font = .h5Title
         view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
+        view.valueLabel.isUserInteractionEnabled = true
         return view
     }()
 
@@ -148,6 +149,8 @@ final class StakingPoolManagementViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(poolName: String?) {
+        let icon = R.image.iconExpandable()?.rotate(radians: -(.pi / 2))
+        poolInfoView.valueImageView.image = icon
         poolInfoView.bind(viewModel: poolName)
     }
 
@@ -178,8 +181,8 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(viewModel: StakingPoolManagementViewModel?) {
-        stakeMoreButton.isEnabled = viewModel?.stakeMoreButtonEnabled == true
-        unstakeButton.isEnabled = viewModel?.unstakeButtonEnabled == true
+        stakeMoreButton.isHidden = viewModel?.stakeMoreButtonVisible == false
+        unstakeButton.isHidden = viewModel?.unstakeButtonVisible == false
     }
 
     func setSelectValidatorsAlert(visible: Bool) {

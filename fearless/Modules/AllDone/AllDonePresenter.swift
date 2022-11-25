@@ -47,6 +47,11 @@ extension AllDonePresenter: AllDoneInteractorOutput {
     func dismiss() {
         router.dismiss(view: view)
     }
+
+    func didCopyTapped() {
+        let copyEvent = HashCopiedEvent(locale: selectedLocale)
+        router.presentStatus(with: copyEvent, animated: true)
+    }
 }
 
 // MARK: - Localizable

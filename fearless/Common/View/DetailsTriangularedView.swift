@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 
+// swiftlint:disable type_body_length
 class DetailsTriangularedView: BackgroundedContentControl {
     enum LayoutConstants {
         static let actionButtonSize = CGSize(width: 68, height: 24)
@@ -19,6 +20,11 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case largeIconTitleInfoSubtitle
         case smallIconTitleSubtitleButton
         case withoutIcon
+    }
+
+    enum Copiable {
+        case title
+        case subtitle
     }
 
     var triangularedBackgroundView: TriangularedView? {
@@ -42,29 +48,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
     }
 
-    func makeAdditionalInfoView() -> UIButton {
-        let button = UIButton()
-        button.backgroundColor = R.color.colorWhite16()
-        button.setTitleColor(R.color.colorTransparentText(), for: .normal)
-        button.layer.cornerRadius = LayoutConstants.cornerRadius
-        button.titleLabel?.font = UIFont.capsTitle
-        button.titleEdgeInsets = UIEdgeInsets(
-            top: 0,
-            left: UIConstants.minimalOffset,
-            bottom: 0,
-            right: UIConstants.minimalOffset
-        )
-        return button
-    }
-
-    func makeActionButton() -> TriangularedButton {
-        let actionButton = TriangularedButton()
-        actionButton.applyEnabledStyle()
-        actionButton.triangularedView?.fillColor = actionColor ?? R.color.colorPurple()!
-        actionButton.imageWithTitleView?.titleFont = .h6Title
-        actionButton.triangularedView?.sideLength = 4
-        return actionButton
-    }
+    var onCopied: (() -> Void)?
 
     var iconRadius: CGFloat = LayoutConstants.iconRadius {
         didSet {
@@ -74,69 +58,11 @@ class DetailsTriangularedView: BackgroundedContentControl {
 
     var layout: Layout = .largeIconTitleSubtitle {
         didSet {
-            switch layout {
-            case .largeIconTitleSubtitle, .smallIconTitleSubtitle:
-                if subtitleLabel == nil {
-                    let label = UILabel()
-                    subtitleLabel = label
-                    contentView?.addSubview(label)
-                }
-            case .singleTitle:
-                if subtitleLabel != nil {
-                    subtitleLabel?.removeFromSuperview()
-                    subtitleLabel = nil
-                }
-            case .smallIconTitleButton:
-                if subtitleLabel != nil {
-                    subtitleLabel?.removeFromSuperview()
-                    subtitleLabel = nil
-                }
-                if actionButton == nil {
-                    let actionButton = makeActionButton()
-                    self.actionButton = actionButton
-                    contentView?.addSubview(actionButton)
-                }
-            case .largeIconTitleInfoSubtitle:
-                if subtitleLabel == nil {
-                    let label = UILabel()
-                    subtitleLabel = label
-                    contentView?.addSubview(label)
-                }
-                if additionalInfoView == nil {
-                    let view = makeAdditionalInfoView()
-                    additionalInfoView = view
-                    contentView?.addSubview(view)
-                }
-            case .smallIconTitleSubtitleButton:
-                if subtitleLabel == nil {
-                    let label = UILabel()
-                    label.numberOfLines = 0
-                    subtitleLabel = label
-                    contentView?.addSubview(label)
-                }
-                if actionButton == nil {
-                    let actionButton = makeActionButton()
-                    self.actionButton = actionButton
-                    contentView?.addSubview(actionButton)
-                }
-            case .largeIconTitleInfoSubtitle:
-                if subtitleLabel == nil {
-                    let label = UILabel()
-                    subtitleLabel = label
-                    contentView?.addSubview(label)
-                }
-                if additionalInfoView == nil {
-                    let view = makeAdditionalInfoView()
-                    additionalInfoView = view
-                    contentView?.addSubview(view)
-                }
-            case .withoutIcon:
-                iconView.removeFromSuperview()
-            }
-
-            setNeedsLayout()
+            resolveLayout()
         }
     }
+
+    // MARK: - Constructors
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -147,6 +73,8 @@ class DetailsTriangularedView: BackgroundedContentControl {
         super.init(coder: aDecoder)
         configure()
     }
+
+    // MARK: - lifecycle
 
     override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
@@ -184,6 +112,100 @@ class DetailsTriangularedView: BackgroundedContentControl {
         case .withoutIcon:
             layoutWithoutIcon()
         }
+    }
+
+    // MARK: - Public methods
+
+    func setupCopiable(for label: DetailsTriangularedView.Copiable) {
+        actionView.image = R.image.iconCopy()
+        addAction { [weak self] in
+            switch label {
+            case .title:
+                UIPasteboard.general.string = self?.titleLabel.text
+            case .subtitle:
+                UIPasteboard.general.string = self?.subtitleLabel?.text
+            }
+            self?.onCopied?()
+        }
+    }
+
+    // MARK: - Private methods
+
+    private func resolveLayout() {
+        switch layout {
+        case .largeIconTitleSubtitle, .smallIconTitleSubtitle:
+            if subtitleLabel == nil {
+                let label = UILabel()
+                subtitleLabel = label
+                contentView?.addSubview(label)
+            }
+        case .singleTitle:
+            if subtitleLabel != nil {
+                subtitleLabel?.removeFromSuperview()
+                subtitleLabel = nil
+            }
+        case .smallIconTitleButton:
+            if subtitleLabel != nil {
+                subtitleLabel?.removeFromSuperview()
+                subtitleLabel = nil
+            }
+            if actionButton == nil {
+                let actionButton = makeActionButton()
+                self.actionButton = actionButton
+                contentView?.addSubview(actionButton)
+            }
+        case .largeIconTitleInfoSubtitle:
+            if subtitleLabel == nil {
+                let label = UILabel()
+                subtitleLabel = label
+                contentView?.addSubview(label)
+            }
+            if additionalInfoView == nil {
+                let view = makeAdditionalInfoView()
+                additionalInfoView = view
+                contentView?.addSubview(view)
+            }
+        case .smallIconTitleSubtitleButton:
+            if subtitleLabel == nil {
+                let label = UILabel()
+                label.numberOfLines = 0
+                subtitleLabel = label
+                contentView?.addSubview(label)
+            }
+            if actionButton == nil {
+                let actionButton = makeActionButton()
+                self.actionButton = actionButton
+                contentView?.addSubview(actionButton)
+            }
+        case .withoutIcon:
+            iconView.removeFromSuperview()
+        }
+
+        setNeedsLayout()
+    }
+
+    private func makeAdditionalInfoView() -> UIButton {
+        let button = UIButton()
+        button.backgroundColor = R.color.colorWhite16()
+        button.setTitleColor(R.color.colorTransparentText(), for: .normal)
+        button.layer.cornerRadius = LayoutConstants.cornerRadius
+        button.titleLabel?.font = UIFont.capsTitle
+        button.titleEdgeInsets = UIEdgeInsets(
+            top: 0,
+            left: UIConstants.minimalOffset,
+            bottom: 0,
+            right: UIConstants.minimalOffset
+        )
+        return button
+    }
+
+    private func makeActionButton() -> TriangularedButton {
+        let actionButton = TriangularedButton()
+        actionButton.applyEnabledStyle()
+        actionButton.triangularedView?.fillColor = actionColor ?? R.color.colorPurple()!
+        actionButton.imageWithTitleView?.titleFont = .h6Title
+        actionButton.triangularedView?.sideLength = 4
+        return actionButton
     }
 
     private func layoutSmallIconTitleSubtitleButton() {

@@ -3,6 +3,8 @@ import RobinHood
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
+        settings.setup()
+
         guard let chain = settings.value else {
             presenter.didReceiveSelectedChain(result: .failure(
                 PersistentValueSettingsError.missingValue

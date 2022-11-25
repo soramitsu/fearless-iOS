@@ -10,7 +10,8 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let validatorOperationFactory: ValidatorOperationFactoryProtocol
-
+    private let poolId: String
+    private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
@@ -18,13 +19,17 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         chainAsset: ChainAsset,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        validatorOperationFactory: ValidatorOperationFactoryProtocol
+        validatorOperationFactory: ValidatorOperationFactoryProtocol,
+        poolId: String,
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
         self.operationManager = operationManager
         self.runtimeService = runtimeService
         self.validatorOperationFactory = validatorOperationFactory
+        self.poolId = poolId
+        self.stakingPoolOperationFactory = stakingPoolOperationFactory
     }
 
     private func prepareRecommendedValidatorList() {
@@ -42,6 +47,22 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         }
 
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    private func fetchPoolInfo(poolId: String) {
+        let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchBondedPoolOperation(poolId: poolId)
+        fetchPoolInfoOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(stakingPool: stakingPool)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
     }
 }
 
@@ -64,6 +85,8 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
+
+        fetchPoolInfo(poolId: poolId)
     }
 }
 

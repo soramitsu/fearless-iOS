@@ -570,7 +570,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
-                    hasSlashes: slashes[accountId] != nil
+                    hasSlashes: slashes[accountId] == true
                 )
             }
         }

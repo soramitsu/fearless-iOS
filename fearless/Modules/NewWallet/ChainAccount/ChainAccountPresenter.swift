@@ -46,7 +46,7 @@ final class ChainAccountPresenter {
         self.localizationManager = localizationManager
     }
 
-    func provideViewModel() {
+    private func provideViewModel() {
         let chainAccountViewModel = viewModelFactory.buildChainAccountViewModel(
             chainAsset: chainAsset,
             wallet: wallet
@@ -56,12 +56,8 @@ final class ChainAccountPresenter {
             self.view?.didReceiveState(.loaded(chainAccountViewModel))
         }
     }
-}
 
-extension ChainAccountPresenter: ChainAccountModuleInput {}
-
-private extension ChainAccountPresenter {
-    func getPurchaseActions() -> [PurchaseAction] {
+    private func getPurchaseActions() -> [PurchaseAction] {
         var actions: [PurchaseAction] = []
 
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
@@ -83,7 +79,46 @@ private extension ChainAccountPresenter {
         }
         return actions
     }
+
+    private func startReplaceAccountFlow() {
+        func showCreateFlow() {
+            let rLanguages = localizationManager?.selectedLocale.rLanguages
+            let actionTitle = R.string.localizable.commonOk(preferredLanguages: rLanguages)
+            let action = SheetAlertPresentableAction(title: actionTitle) { [weak self] in
+                self?.wireframe.showCreate(uniqueChainModel: model, from: self?.view)
+            }
+
+            let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)
+            let message = R.string.localizable.commonNoScreenshotMessage(preferredLanguages: rLanguages)
+            let viewModel = SheetAlertPresentableViewModel(
+                title: title,
+                message: message,
+                actions: [action],
+                closeAction: nil
+            )
+
+            wireframe.present(viewModel: viewModel, from: view)
+        }
+
+        let model = UniqueChainModel(meta: wallet, chain: chainAsset.chain)
+        let options: [ReplaceChainOption] = ReplaceChainOption.allCases
+        wireframe.showUniqueChainSourceSelection(
+            from: view,
+            items: options,
+            callback: { [weak self] selectedIndex in
+                let option = options[selectedIndex]
+                switch option {
+                case .create:
+                    showCreateFlow()
+                case .import:
+                    self?.wireframe.showImport(uniqueChainModel: model, from: self?.view)
+                }
+            }
+        )
+    }
 }
+
+extension ChainAccountPresenter: ChainAccountModuleInput {}
 
 extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func addressDidCopied() {
@@ -170,21 +205,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
                     chain: self.chainAsset.chain
                 )
             case .replace:
-                let model = UniqueChainModel(meta: self.wallet, chain: self.chainAsset.chain)
-                let options: [ReplaceChainOption] = ReplaceChainOption.allCases
-                self.wireframe.showUniqueChainSourceSelection(
-                    from: self.view,
-                    items: options,
-                    callback: { [weak self] selectedIndex in
-                        let option = options[selectedIndex]
-                        switch option {
-                        case .create:
-                            self?.wireframe.showCreate(uniqueChainModel: model, from: self?.view)
-                        case .import:
-                            self?.wireframe.showImport(uniqueChainModel: model, from: self?.view)
-                        }
-                    }
-                )
+                self.startReplaceAccountFlow()
             default:
                 break
             }

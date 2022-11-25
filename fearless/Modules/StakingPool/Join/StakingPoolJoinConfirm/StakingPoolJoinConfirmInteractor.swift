@@ -1,6 +1,7 @@
 import UIKit
+import RobinHood
 
-final class StakingPoolJoinConfirmInteractor {
+final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
 
     private weak var output: StakingPoolJoinConfirmInteractorOutput?
@@ -13,7 +14,9 @@ final class StakingPoolJoinConfirmInteractor {
     private let amount: Decimal
     private let pool: StakingPool
     private let signingWrapper: SigningWrapperProtocol
-
+    private let runtimeService: RuntimeCodingServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let validatorOperationFactory: ValidatorOperationFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
@@ -24,7 +27,10 @@ final class StakingPoolJoinConfirmInteractor {
         feeProxy: ExtrinsicFeeProxyProtocol,
         amount: Decimal,
         pool: StakingPool,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol,
+        validatorOperationFactory: ValidatorOperationFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
@@ -34,6 +40,9 @@ final class StakingPoolJoinConfirmInteractor {
         self.amount = amount
         self.pool = pool
         self.signingWrapper = signingWrapper
+        self.runtimeService = runtimeService
+        self.operationManager = operationManager
+        self.validatorOperationFactory = validatorOperationFactory
     }
 
     private var feeReuseIdentifier: String? {
@@ -69,6 +78,14 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
+
+        fetchCompoundConstant(
+            for: .nominationPoolsPalletId,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<Data, Error>) in
+            self?.output?.didReceive(palletIdResult: result)
+        }
     }
 
     func estimateFee() {
@@ -95,6 +112,22 @@ extension StakingPoolJoinConfirmInteractor: StakingPoolJoinConfirmInteractorInpu
         ) { [weak self] result in
             self?.output?.didReceive(extrinsicResult: result)
         }
+    }
+
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(nomination: nomination)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 

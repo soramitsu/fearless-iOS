@@ -2,6 +2,10 @@ import UIKit
 import SoraUI
 
 final class TitleValueView: UIView {
+    private enum Constants {
+        static let valueImageViewSize = CGSize(width: 6, height: 12)
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -16,6 +20,8 @@ final class TitleValueView: UIView {
         label.textAlignment = .right
         return label
     }()
+
+    let valueImageView = UIImageView()
 
     let borderView: BorderedContainerView = {
         let view = BorderedContainerView()
@@ -74,16 +80,23 @@ final class TitleValueView: UIView {
             make.leading.centerY.equalToSuperview()
         }
 
-        addSubview(valueLabel)
-        valueLabel.snp.makeConstraints { make in
+        let valueStackView = UIFactory.default.createHorizontalStackView(spacing: 5)
+        valueStackView.addArrangedSubview(valueLabel)
+        valueStackView.addArrangedSubview(valueImageView)
+        addSubview(valueStackView)
+        valueStackView.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+        }
+
+        valueImageView.snp.makeConstraints { make in
+            make.size.equalTo(Constants.valueImageViewSize)
         }
 
         addSubview(activityIndicator)
         activityIndicator.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.trailing.equalTo(valueLabel.snp.trailing)
+            make.trailing.equalTo(valueStackView.snp.trailing)
         }
     }
 }

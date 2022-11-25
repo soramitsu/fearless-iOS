@@ -27,6 +27,7 @@ final class TriangularedTextField: TriangularedView {
         highlightedFillColor = R.color.colorSemiBlack()!
         strokeColor = R.color.colorWhite8()!
         highlightedStrokeColor = R.color.colorWhite8()!
+        shadowOpacity = 0
     }
 
     @available(*, unavailable)

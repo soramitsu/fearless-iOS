@@ -24,11 +24,15 @@ final class YourValidatorListPoolViewModelState: YourValidatorListViewModelState
     }
 
     func selectValidatorsStartFlow() -> SelectValidatorsStartFlow? {
+        let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        let userRoleCanSelectValidators = stakingPool?.info.roles.nominator == accountId
+
         guard let stashAddress = try? fetchPoolAccount(for: .stash)?.toAddress(using: chainAsset.chain.chainFormat),
               let rewardAddress = try? fetchPoolAccount(for: .rewards)?.toAddress(using: chainAsset.chain.chainFormat),
               let amount = stakeInfo?.points,
               let amountDecimal = Decimal.fromSubstrateAmount(amount, precision: Int16(chainAsset.asset.precision)),
-              let controller = wallet.fetch(for: chainAsset.chain.accountRequest())
+              let controller = wallet.fetch(for: chainAsset.chain.accountRequest()),
+              userRoleCanSelectValidators == true
         else {
             return nil
         }

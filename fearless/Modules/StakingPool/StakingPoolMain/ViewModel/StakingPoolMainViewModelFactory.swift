@@ -25,9 +25,9 @@ protocol StakingPoolMainViewModelFactoryProtocol {
         priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
-        pendingRewards: BigUInt,
         poolInfo: StakingPool,
-        nomination: Nomination?
+        nomination: Nomination?,
+        pendingRewards: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>?
 }
 
@@ -264,9 +264,9 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         priceData: PriceData?,
         chainAsset: ChainAsset,
         era: EraIndex?,
-        pendingRewards: BigUInt,
         poolInfo: StakingPool,
-        nomination: Nomination?
+        nomination: Nomination?,
+        pendingRewards: BigUInt
     ) -> LocalizableResource<NominationViewModelProtocol>? {
         var status: NominationViewStatus = .undefined
         switch poolInfo.info.state {
@@ -339,7 +339,10 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                 status: status,
                 hasPrice: priceData != nil,
                 redeemableViewModel: redeemableViewModel,
-                unstakingViewModel: unstakingViewModel
+                unstakingViewModel: unstakingViewModel,
+                rewardViewTitle: R.string.localizable.poolClaimableTitle(
+                    preferredLanguages: locale.rLanguages
+                )
             )
         }
     }

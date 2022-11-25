@@ -34,7 +34,7 @@ final class StakingBondMoreViewLayout: UIView {
         return view
     }()
 
-    let amountInputView = AmountInputViewV2()
+    let amountInputView = AmountInputViewV2(type: .available)
 
     let hintView: IconDetailsView = {
         let view = IconDetailsView()
@@ -86,8 +86,7 @@ final class StakingBondMoreViewLayout: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        navigationBar.backButton.rounded()
     }
 
     private func setupLayout() {

@@ -147,7 +147,8 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
                 totalAmount: totalAmount,
                 minimumBalance: existentialDeposit,
                 locale: selectedLocale,
-                chainAsset: chainAsset
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
             )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }

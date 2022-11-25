@@ -5,7 +5,9 @@ protocol StakingPoolJoinConfirmViewModelFactoryProtocol {
         amount: Decimal,
         pool: StakingPool,
         wallet: MetaAccountModel,
-        locale: Locale
+        locale: Locale,
+        poolNomination: Nomination?,
+        nominationReceived: Bool
     ) -> StakingPoolJoinConfirmViewModel
 }
 
@@ -27,7 +29,9 @@ extension StakingPoolJoinConfirmViewModelFactory: StakingPoolJoinConfirmViewMode
         amount: Decimal,
         pool: StakingPool,
         wallet: MetaAccountModel,
-        locale: Locale
+        locale: Locale,
+        poolNomination: Nomination?,
+        nominationReceived: Bool
     ) -> StakingPoolJoinConfirmViewModel {
         let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
 
@@ -45,11 +49,13 @@ extension StakingPoolJoinConfirmViewModelFactory: StakingPoolJoinConfirmViewMode
 
         let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
         let poolName: String = pool.name.isEmpty ? pool.id : pool.name
+
         return StakingPoolJoinConfirmViewModel(
             amountAttributedString: stakedAmountAttributedString,
             accountNameString: wallet.name,
             accountAddressString: address,
-            selectedPoolName: poolName
+            selectedPoolName: poolName,
+            poolHasNoValidators: (poolNomination?.targets).isNullOrEmpty == true && nominationReceived
         )
     }
 }

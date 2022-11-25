@@ -13,7 +13,7 @@ struct MetaAccountModel: Equatable, Codable {
     let ethereumPublicKey: Data?
     let chainAccounts: Set<ChainAccountModel>
     let assetKeysOrder: [String]?
-    let assetIdsDisabled: [String]?
+    let assetIdsEnabled: [String]?
     let assetFilterOptions: [FilterOption]
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
@@ -49,7 +49,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: newChainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -69,7 +69,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -89,7 +89,7 @@ extension MetaAccountModel {
             ethereumPublicKey: newEthereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -109,7 +109,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -129,7 +129,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: newAssetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -138,7 +138,7 @@ extension MetaAccountModel {
         )
     }
 
-    func replacingAssetIdsDisabled(_ newAssetIdsEnabled: [String]) -> MetaAccountModel {
+    func replacingAssetIdsEnabled(_ newAssetIdsEnabled: [String]) -> MetaAccountModel {
         MetaAccountModel(
             metaId: metaId,
             name: name,
@@ -149,7 +149,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: newAssetIdsEnabled,
+            assetIdsEnabled: newAssetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -169,7 +169,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: newUnusedChainIds,
@@ -189,7 +189,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -209,7 +209,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: options,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
@@ -229,7 +229,7 @@ extension MetaAccountModel {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
-            assetIdsDisabled: assetIdsDisabled,
+            assetIdsEnabled: assetIdsEnabled,
             assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,

@@ -13,6 +13,7 @@ final class ProfilePresenter {
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
+    private var balance: WalletBalanceInfo?
 
     init(
         viewModelFactory: ProfileViewModelFactoryProtocol,
@@ -48,7 +49,8 @@ final class ProfilePresenter {
             from: wallet,
             locale: selectedLocale,
             language: language,
-            currency: currency
+            currency: currency,
+            balance: balance
         )
         let state = ProfileViewState.loaded(viewModel)
         view?.didReceive(state: state)
@@ -161,6 +163,18 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
     func didRecieve(selectedCurrency: Currency) {
         self.selectedCurrency = selectedCurrency
         receiveState()
+    }
+
+    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>) {
+        switch balances {
+        case let .success(balances):
+            if let wallet = selectedWallet {
+                balance = balances[wallet.metaId]
+                receiveState()
+            }
+        case let .failure(error):
+            logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
+        }
     }
 }
 

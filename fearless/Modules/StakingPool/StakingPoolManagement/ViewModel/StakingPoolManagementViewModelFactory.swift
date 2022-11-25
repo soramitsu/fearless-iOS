@@ -6,13 +6,10 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<NSAttributedString>
-
     func buildUnstakeViewModel(
         unstakePeriod: TimeInterval?
     ) -> LocalizableResource<String>?
-
     func buildViewModel(stakeInfo: StakingPoolMember?, era: EraIndex?) -> StakingPoolManagementViewModel
-
     func buildOptionsPickerViewModels(locale: Locale) -> [IconWithTitleViewModel]
 }
 
@@ -40,7 +37,7 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 
@@ -66,14 +63,22 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
         }
 
         return StakingPoolManagementViewModel(
-            stakeMoreButtonEnabled: stakeInfo?.points != BigUInt.zero,
-            unstakeButtonEnabled: unstakeButtonEnabled
+            stakeMoreButtonVisible: stakeInfo?.points != BigUInt.zero,
+            unstakeButtonVisible: unstakeButtonEnabled
         )
     }
 
     func buildOptionsPickerViewModels(locale: Locale) -> [IconWithTitleViewModel] {
-        let validatorsOptionViewModel = IconWithTitleViewModel(icon: nil, title: R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages))
-        let poolInfoOptionViewModel = IconWithTitleViewModel(icon: nil, title: R.string.localizable.poolCommon(preferredLanguages: locale.rLanguages))
+        let validatorsOptionViewModel = IconWithTitleViewModel(
+            icon: nil,
+            title: R.string.localizable
+                .stakingValidatorNominators(preferredLanguages: locale.rLanguages)
+        )
+        let poolInfoOptionViewModel = IconWithTitleViewModel(
+            icon: nil,
+            title: R.string.localizable
+                .poolCommon(preferredLanguages: locale.rLanguages)
+        )
 
         return [validatorsOptionViewModel, poolInfoOptionViewModel]
     }

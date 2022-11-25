@@ -7,7 +7,8 @@ import SoraKeystore
 final class StakingPoolManagementAssembly {
     static func configureModule(
         chainAsset: ChainAsset,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        status: NominationViewStatus?
     ) -> StakingPoolManagementModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -180,6 +181,7 @@ final class StakingPoolManagementAssembly {
             wallet: wallet, viewModelFactory: viewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             rewardCalculator: StakinkPoolRewardCalculator(),
+            status: status,
             logger: logger
         )
 

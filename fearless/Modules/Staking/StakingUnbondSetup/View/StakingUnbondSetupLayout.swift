@@ -25,7 +25,7 @@ final class StakingUnbondSetupLayout: UIView {
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
     let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let amountInputView = AmountInputViewV2()
+    let amountInputView = AmountInputViewV2(type: .available)
 
     let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
     private(set) var hintViews: [UIView] = []
@@ -118,7 +118,7 @@ final class StakingUnbondSetupLayout: UIView {
 
         addSubview(networkFeeFooterView)
         networkFeeFooterView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
         }
 
