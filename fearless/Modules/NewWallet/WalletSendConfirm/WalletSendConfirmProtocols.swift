@@ -12,16 +12,19 @@ protocol WalletSendConfirmPresenterProtocol: AnyObject {
 }
 
 protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
+    var dependencyContainer: SendDepencyContainer { get }
+
     func setup()
     func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String)
     func estimateFee(for amount: BigUInt, tip: BigUInt?)
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset?
 }
 
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveBlockDuration(result: Result<BlockTime, Error>)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
 
     func didTransfer(result: Result<String, Error>)

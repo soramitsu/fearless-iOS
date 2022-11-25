@@ -9,7 +9,7 @@ final class SendPresenter {
     private weak var view: SendViewInput?
     private let router: SendRouterInput
     private let interactor: SendInteractorInput
-    private let dataValidatingFactory: BaseDataValidatingFactoryProtocol
+    private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol?
     private let wallet: MetaAccountModel
     private let qrParser: QRParser
@@ -23,7 +23,9 @@ final class SendPresenter {
     private var selectedAsset: AssetModel?
     private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
+    private var utilityBalance: Decimal?
     private var priceData: PriceData?
+    private var utilityPriceData: PriceData?
     private var tip: Decimal?
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
@@ -38,7 +40,7 @@ final class SendPresenter {
         router: SendRouterInput,
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: SendViewModelFactoryProtocol,
-        dataValidatingFactory: BaseDataValidatingFactoryProtocol,
+        dataValidatingFactory: SendDataValidatingFactory,
         qrParser: QRParser,
         logger: LoggerProtocol? = nil,
         wallet: MetaAccountModel,
@@ -121,24 +123,43 @@ extension SendPresenter: SendViewOutput {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
-            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
+            (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0) +
+            (tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
+
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isSora) ?
+            .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
+        var minimumBalanceDecimal: Decimal?
+        if let minBalance = minimumBalance {
+            minimumBalanceDecimal = Decimal.fromSubstrateAmount(
+                minBalance,
+                precision: Int16(chainAsset.asset.precision)
+            )
+        }
+
+        let edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
+            .utility(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance
+            ) :
+            .orml(
+                minimumBalance: minimumBalanceDecimal,
+                feeAndTip: (fee ?? 0) + (tip ?? 0),
+                utilityBalance: utilityBalance
+            )
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee(for: chainAsset, address: address)
             }),
-
             dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: sendAmountDecimal,
+                balanceType: balanceType,
+                feeAndTip: (fee ?? 0) + (tip ?? 0),
+                sendAmount: sendAmountDecimal,
                 locale: selectedLocale
             ),
-
             dataValidatingFactory.exsitentialDepositIsNotViolated(
-                spendingAmount: spendingValue,
-                totalAmount: totalBalanceValue,
-                minimumBalance: minimumBalance,
+                parameters: edParameters,
                 locale: selectedLocale,
                 chainAsset: chainAsset
             )
@@ -147,6 +168,7 @@ extension SendPresenter: SendViewOutput {
             guard let strongSelf = self, let amount = sendAmountDecimal else { return }
             strongSelf.router.presentConfirm(
                 from: strongSelf.view,
+                wallet: strongSelf.wallet,
                 chainAsset: chainAsset,
                 receiverAddress: address,
                 amount: amount,
@@ -203,23 +225,31 @@ extension SendPresenter: SendViewOutput {
 
 extension SendPresenter: SendInteractorOutput {
     func didReceive(scamInfo: ScamInfo?) {
+        self.scamInfo = scamInfo
         view?.didReceive(scamInfo: scamInfo)
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-            guard let chainAsset = selectedChainAsset else { return }
-            totalBalanceValue = accountInfo?.data.total ?? 0
+            if chainAsset == selectedChainAsset {
+                totalBalanceValue = accountInfo?.data.total ?? 0
+                balance = accountInfo.map {
+                    Decimal.fromSubstrateAmount(
+                        $0.data.available,
+                        precision: Int16(chainAsset.asset.precision)
+                    )
+                } ?? 0.0
 
-            balance = accountInfo.map {
-                Decimal.fromSubstrateAmount(
-                    $0.data.available,
-                    precision: Int16(chainAsset.asset.precision)
-                )
-            } ?? 0.0
-
-            provideAssetVewModel()
+                provideAssetVewModel()
+            } else if let utilityAsset = selectedChainAsset {
+                utilityBalance = accountInfo.map {
+                    Decimal.fromSubstrateAmount(
+                        $0.data.available,
+                        precision: Int16(utilityAsset.asset.precision)
+                    )
+                } ?? 0
+            }
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
         }
@@ -234,14 +264,17 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceivePriceData(result: Result<PriceData?, Error>) {
+    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?) {
         switch result {
         case let .success(priceData):
-            guard let chainAsset = selectedChainAsset else { return }
-            self.priceData = priceData
+            if selectedChainAsset?.asset.priceId == priceId {
+                self.priceData = priceData
+            } else {
+                utilityPriceData = priceData
+            }
             provideAssetVewModel()
             provideFeeViewModel()
-            provideTipViewModel(for: chainAsset)
+            provideTipViewModel()
         case let .failure(error):
             logger?.error("Did receive price error: \(error)")
         }
@@ -251,9 +284,10 @@ extension SendPresenter: SendInteractorOutput {
         view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
-            guard let chainAsset = selectedChainAsset else { return }
+            guard var chainAsset = selectedChainAsset,
+                  let utilityAsset = interactor.getUtilityAsset(for: chainAsset) else { return }
             fee = BigUInt(dispatchInfo.fee).map {
-                Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision))
+                Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 
             provideAssetVewModel()
@@ -277,7 +311,7 @@ extension SendPresenter: SendInteractorOutput {
             guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
             self.tip = Decimal.fromSubstrateAmount(tip, precision: Int16(chainAsset.asset.precision))
 
-            provideTipViewModel(for: chainAsset)
+            provideTipViewModel()
             refreshFee(for: chainAsset, address: address)
         case let .failure(error):
             logger?.error("Did receive tip error: \(error)")
@@ -365,28 +399,33 @@ private extension SendPresenter {
         view?.didReceive(assetBalanceViewModel: viewModel)
     }
 
-    func provideTipViewModel(for chainAsset: ChainAsset) {
+    func provideTipViewModel() {
         guard let chainAsset = selectedChainAsset,
+              let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
-              .prepareDepencies(chainAsset: chainAsset)?
+              .prepareDepencies(chainAsset: utilityAsset)?
               .balanceViewModelFactory
         else { return }
         let viewModel = tip
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
-            .value(for: selectedLocale)
+            .map { balanceViewModelFactory
+                .balanceFromPrice(
+                    $0,
+                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData
+                )
+            }?.value(for: selectedLocale)
         let tipViewModel = TipViewModel(
             balanceViewModel: viewModel,
-            tipRequired: chainAsset.chain.isTipRequired
+            tipRequired: utilityAsset.chain.isTipRequired
         )
         view?.didReceive(tipViewModel: tipViewModel)
     }
 
     func provideFeeViewModel() {
-        guard let chainAsset = selectedChainAsset,
+        guard let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
-              .prepareDepencies(chainAsset: chainAsset)?
+              .prepareDepencies(chainAsset: utilityAsset)?
               .balanceViewModelFactory
         else { return }
         let viewModel = fee

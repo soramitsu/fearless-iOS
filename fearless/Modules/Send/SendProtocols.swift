@@ -42,12 +42,13 @@ protocol SendInteractorInput: AnyObject {
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)
     func validate(address: String, for chain: ChainModel) -> Bool
     func fetchScamInfo(for address: String)
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset?
 }
 
 protocol SendInteractorOutput: AnyObject {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
-    func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)
@@ -56,6 +57,7 @@ protocol SendInteractorOutput: AnyObject {
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
     func presentConfirm(
         from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,

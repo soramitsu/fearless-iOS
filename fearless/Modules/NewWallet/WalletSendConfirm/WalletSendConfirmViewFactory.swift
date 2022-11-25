@@ -6,6 +6,7 @@ import SoraKeystore
 
 struct WalletSendConfirmViewFactory {
     static func createView(
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
@@ -13,10 +14,10 @@ struct WalletSendConfirmViewFactory {
         scamInfo: ScamInfo?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
+            wallet: wallet,
             chainAsset: chainAsset,
             receiverAddress: receiverAddress
-        ),
-            let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+        ) else {
             return nil
         }
 
@@ -24,10 +25,6 @@ struct WalletSendConfirmViewFactory {
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
         let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: assetInfo,
-            selectedMetaAccount: selectedMetaAccount
-        )
 
         let dataValidatingFactory = SendDataValidatingFactory(presentable: wireframe)
 
@@ -39,13 +36,12 @@ struct WalletSendConfirmViewFactory {
         let presenter = WalletSendConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            balanceViewModelFactory: balanceViewModelFactory,
             accountViewModelFactory: accountViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             walletSendConfirmViewModelFactory: viewModelFactory,
             logger: Logger.shared,
             chainAsset: chainAsset,
-            selectedAccount: selectedMetaAccount,
+            wallet: wallet,
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
@@ -65,6 +61,7 @@ struct WalletSendConfirmViewFactory {
     }
 
     private static func createInteractor(
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         receiverAddress: String
     ) -> WalletSendConfirmInteractor? {
@@ -109,20 +106,15 @@ struct WalletSendConfirmViewFactory {
             metaId: selectedMetaAccount.metaId,
             accountResponse: accountResponse
         )
-
-        let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager,
-            engine: connection
+        let dependencyContainer = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: operationManager
         )
-
         return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chainAsset: chainAsset,
             receiverAddress: receiverAddress,
-            runtimeService: runtimeService,
             feeProxy: feeProxy,
-            extrinsicService: extrinsicService,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
@@ -130,7 +122,7 @@ struct WalletSendConfirmViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
             signingWrapper: signingWrapper,
-            existentialDepositService: existentialDepositService
+            dependencyContainer: dependencyContainer
         )
     }
 }
