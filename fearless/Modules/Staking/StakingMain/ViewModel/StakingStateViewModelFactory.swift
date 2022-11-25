@@ -129,7 +129,9 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil
+                hasPrice: commonData.price != nil,
+                rewardViewTitle: R.string.localizable
+                    .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
             )
         }
     }

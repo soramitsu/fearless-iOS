@@ -902,3 +902,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "contacts.scan" = "Scan QR code";
 "pool.join.no.validators.message" = "The pool hasn't chosen any validators yet. If you join it you won't get any rewards until validators are selected";
 "history.empty.description" = "You don't have any transactions here";
+"pool.claimable.title" = "Claimable";

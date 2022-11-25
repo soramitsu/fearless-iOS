@@ -35,7 +35,7 @@ final class StakingUnbondSetupPoolViewModelFactory: StakingUnbondSetupViewModelF
 
     func buildTitleViewModel() -> LocalizableResource<String> {
         LocalizableResource { locale in
-            R.string.localizable.parachainStakingStakeLess(preferredLanguages: locale.rLanguages)
+            R.string.localizable.poolStakingUnstakeAmountTitle("", preferredLanguages: locale.rLanguages)
         }
     }
 
