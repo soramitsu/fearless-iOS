@@ -61,7 +61,8 @@ final class SendAssembly {
             operationManager: operationManager,
             scamServiceOperationFactory: scamServiceOperationFactory,
             chainAssetFetching: chainAssetFetching,
-            dependencyContainer: dependencyContainer
+            dependencyContainer: dependencyContainer,
+            chainModelRepository: AnyDataProviderRepository(chainRepository)
         )
         let router = SendRouter()
 
