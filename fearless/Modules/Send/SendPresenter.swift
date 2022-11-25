@@ -77,6 +77,11 @@ extension SendPresenter: SendViewOutput {
             refreshFee(for: chainAsset, address: nil)
         case let .address(address):
             recipientAddress = address
+            let viewModel = viewModelFactory.buildRecipientViewModel(
+                address: address,
+                isValid: true
+            )
+            view.didReceive(viewModel: viewModel)
             router.showSelectAsset(
                 from: view,
                 wallet: wallet,
@@ -364,6 +369,10 @@ extension SendPresenter: SelectNetworkDelegate {
             self.selectedChainAsset = selectedChainAsset
             provideNetworkViewModel(for: selectedChain)
             provideAssetVewModel()
+            provideInputViewModel()
+            if let recipientAddress = recipientAddress {
+                handle(newAddress: recipientAddress)
+            }
             interactor.updateSubscriptions(for: selectedChainAsset)
         } else if selectedChainAsset == nil {
             router.dismiss(view: view)

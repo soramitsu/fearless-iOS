@@ -19,9 +19,6 @@ final class CreateContactViewLayout: UIView {
     var locale = Locale.current {
         didSet {
             applyLocalization()
-            backgroundColor = R.color.colorAlmostBlack()
-
-            setupLayout()
         }
     }
 
@@ -33,7 +30,7 @@ final class CreateContactViewLayout: UIView {
             .paragraphStyle,
             default: NSParagraphStyle()
         ] as? NSParagraphStyle,
-            let style: NSMutableParagraphStyle = oldStyle.mutableCopy() as? NSParagraphStyle as? NSMutableParagraphStyle {
+            let style: NSMutableParagraphStyle = oldStyle.mutableCopy() as? NSMutableParagraphStyle {
             style.lineBreakMode = .byTruncatingMiddle
             view.textField.defaultTextAttributes[.paragraphStyle] = style
         }
@@ -68,8 +65,7 @@ final class CreateContactViewLayout: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-
-        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+        navigationBar.backButton.rounded()
     }
 
     func bind(viewModel: CreateContactViewModel) {

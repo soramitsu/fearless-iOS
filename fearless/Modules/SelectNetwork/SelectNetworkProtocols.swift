@@ -4,6 +4,7 @@ protocol SelectNetworkViewInput: SelectionListViewProtocol {}
 
 protocol SelectNetworkViewOutput: SelectionListPresenterProtocol {
     func didLoad(view: SelectNetworkViewInput)
+    func willDisappear()
 }
 
 protocol SelectNetworkInteractorInput: AnyObject {

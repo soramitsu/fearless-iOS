@@ -21,17 +21,12 @@ final class StakingPoolMainAssembly {
 
         stakingSettings.setup()
 
-        guard
-            let chainAsset = stakingSettings.value else {
-            return nil
-        }
-
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
-            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest())
+            let chainAsset = stakingSettings.value,
+            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
         else {
             return nil
         }

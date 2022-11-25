@@ -17,6 +17,7 @@ final class SelectNetworkPresenter {
     private var viewModels: [SelectableIconDetailsListViewModel] = []
     private var fullViewModels: [SelectableIconDetailsListViewModel] = []
     private var networkItems: [SelectNetworkItem] = []
+    private var selectedNetwork: ChainModel?
 
     // MARK: - Constructors
 
@@ -80,7 +81,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
             router.complete(on: view, selecting: nil)
             return
         }
-
+        selectedNetwork = selectedNetworkItem.chain
         router.complete(on: view, selecting: selectedNetworkItem.chain)
     }
 
@@ -99,6 +100,11 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
         self.view = view
         interactor.setup(with: self)
         view.bind(viewModel: searchTextsViewModel)
+    }
+
+    func willDisappear() {
+        guard let view = view else { return }
+        router.complete(on: view, selecting: selectedNetwork)
     }
 }
 

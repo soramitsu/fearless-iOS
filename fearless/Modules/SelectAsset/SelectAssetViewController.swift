@@ -33,6 +33,12 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
         output.didLoad(view: self)
         setupTableView()
         setupLayout()
+        configure()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        output.willDisappear()
     }
 
     // MARK: - Private methods
@@ -41,13 +47,18 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
         rootView.tableView.rowHeight = Constants.cellHeight
         rootView.tableView.backgroundColor = .clear
         rootView.tableView.separatorStyle = .none
-        rootView.backgroundColor = R.color.colorAlmostBlack()
     }
 
     private func setupLayout() {
         rootView.tableView.snp.makeConstraints { make in
             make.height.equalTo(UIScreen.main.bounds.height / 2.5)
         }
+    }
+
+    private func configure() {
+        rootView.backgroundColor = R.color.colorAlmostBlack()
+        rootView.titleLabel.text = R.string.localizable
+            .commonSelectAsset(preferredLanguages: selectedLocale.rLanguages)
     }
 }
 

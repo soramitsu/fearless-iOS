@@ -17,6 +17,7 @@ protocol NominationViewModelProtocol {
     var hasPrice: Bool { get }
     var redeemableViewModel: StakingUnitInfoViewModel? { get }
     var unstakingViewModel: StakingUnitInfoViewModel? { get }
+    var rewardViewTitle: String { get }
 }
 
 struct NominationViewModel: NominationViewModelProtocol {
@@ -28,4 +29,5 @@ struct NominationViewModel: NominationViewModelProtocol {
     let hasPrice: Bool
     var redeemableViewModel: StakingUnitInfoViewModel?
     var unstakingViewModel: StakingUnitInfoViewModel?
+    var rewardViewTitle: String
 }
