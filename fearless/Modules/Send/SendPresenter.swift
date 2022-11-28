@@ -91,17 +91,15 @@ extension SendPresenter: SendViewOutput {
         inputResult = .rate(Decimal(Double(percentage)))
         provideAssetVewModel()
         provideInputViewModel()
-        guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
-        refreshFee(for: chainAsset, address: address)
+        guard let chainAsset = selectedChainAsset else { return }
+        refreshFee(for: chainAsset, address: recipientAddress)
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
         provideAssetVewModel()
-        guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
-        if interactor.validate(address: address, for: chainAsset.chain) {
-            refreshFee(for: chainAsset, address: address)
-        }
+        guard let chainAsset = selectedChainAsset else { return }
+        refreshFee(for: chainAsset, address: recipientAddress)
     }
 
     func didTapBackButton() {
@@ -319,7 +317,6 @@ extension SendPresenter: SendInteractorOutput {
 
     func didReceive(possibleChains: [ChainModel]?) {
         if let chains = possibleChains, chains.count == 1, let selectedChain = chains.first {
-            self.selectedChain = selectedChain
             if selectedChain.chainAssets.count == 1,
                let selectedChainAsset = selectedChain.chainAssets.first {
                 self.selectedChainAsset = selectedChainAsset
@@ -331,6 +328,7 @@ extension SendPresenter: SendInteractorOutput {
                 }
                 interactor.updateSubscriptions(for: selectedChainAsset)
             } else {
+                self.selectedChain = selectedChain
                 router.showSelectAsset(
                     from: view,
                     wallet: wallet,
@@ -369,19 +367,21 @@ extension SendPresenter: SelectAssetModuleOutput {
         if let asset = asset {
             if let chain = selectedChain {
                 selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+                selectedChain = nil
             } else {
                 interactor.defineAvailableChains(for: asset) { [weak self] chains in
                     if let availableChains = chains, let strongSelf = self {
                         if availableChains.count == 1 {
                             self?.handle(selectedChain: availableChains.first)
+                        } else {
+                            strongSelf.router.showSelectNetwork(
+                                from: strongSelf.view,
+                                wallet: strongSelf.wallet,
+                                selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
+                                chainModels: availableChains,
+                                delegate: strongSelf
+                            )
                         }
-                        strongSelf.router.showSelectNetwork(
-                            from: strongSelf.view,
-                            wallet: strongSelf.wallet,
-                            selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
-                            chainModels: availableChains,
-                            delegate: strongSelf
-                        )
                     }
                 }
             }
@@ -496,11 +496,9 @@ private extension SendPresenter {
         )
         view?.didReceive(viewModel: viewModel)
 
-        if addressIsValid {
-            interactor.updateSubscriptions(for: chainAsset)
-            interactor.fetchScamInfo(for: newAddress)
-            refreshFee(for: chainAsset, address: newAddress)
-        }
+        interactor.updateSubscriptions(for: chainAsset)
+        interactor.fetchScamInfo(for: newAddress)
+        refreshFee(for: chainAsset, address: newAddress)
     }
 
     func handle(selectedChain: ChainModel?) {
