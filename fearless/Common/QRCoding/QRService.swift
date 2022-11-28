@@ -1,5 +1,4 @@
 import RobinHood
-import Foundation
 
 protocol QRServiceProtocol: AnyObject {
     @discardableResult

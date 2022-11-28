@@ -1,4 +1,3 @@
-import CommonWallet
 import SoraFoundation
 import SoraUI
 
