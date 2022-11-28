@@ -13,9 +13,14 @@ struct ReceiveAssetViewFactory {
         }
         let wireframe = ReceiveAssetWireframe()
 
-        let qrService = QRService(
-            operationFactory: QROperationFactory(),
-            encoder: QREncoder()
+        let qrEncoder = WalletQREncoder(
+            addressPrefix: chain.addressPrefix,
+            publicKey: chainAccount.publicKey,
+            username: chainAccount.name
+        )
+        let qrService = WalletQRService(
+            operationFactory: WalletQROperationFactory(),
+            encoder: qrEncoder
         )
         let sharingFactory = AccountShareFactory()
         let presenter = ReceiveAssetPresenter(
