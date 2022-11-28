@@ -3,6 +3,7 @@ import FearlessUtils
 import SoraFoundation
 import SoraUI
 import CommonWallet
+import SnapKit
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
@@ -15,6 +16,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             bottom: UIConstants.bigOffset,
             right: 0
         )
+        static let keyboardAnimateDuration: TimeInterval = 0.3
     }
 
     var presenter: StakingMainPresenterProtocol?
@@ -539,7 +541,11 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
     }
 }
 
-extension StakingMainViewController: KeyboardAdoptable {
+extension StakingMainViewController: KeyboardViewAdoptable {
+    var target: Constraint? { nil }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         let localKeyboardFrame = view.convert(frame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
@@ -554,8 +560,28 @@ extension StakingMainViewController: KeyboardAdoptable {
                 firstResponderView.frame,
                 from: firstResponderView.superview
             )
+            let updatedFrame = CGRect(
+                origin: CGPoint(
+                    x: fieldFrame.origin.x,
+                    y: fieldFrame.origin.y + UIConstants.actionHeight + UIConstants.bigOffset
+                ),
+                size: fieldFrame.size
+            )
 
-            scrollView.scrollRectToVisible(fieldFrame, animated: true)
+            scrollView.scrollRectToVisible(updatedFrame, animated: true)
+
+            actionButton.snp.updateConstraints { make in
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+                    .inset(updatedFrame.height + UIConstants.bigOffset)
+            }
+        } else {
+            actionButton.snp.updateConstraints { make in
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
+        }
+
+        UIView.animate(withDuration: Constants.keyboardAnimateDuration) {
+            self.view.layoutIfNeeded()
         }
     }
 }
