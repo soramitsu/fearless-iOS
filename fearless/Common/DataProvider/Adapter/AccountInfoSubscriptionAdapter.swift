@@ -63,6 +63,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     }()
 
     private var deliveryQueue: DispatchQueue?
+    private let lock = ReaderWriterLock()
 
     // MARK: - Constructor
 
@@ -111,7 +112,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         chainsAssets.forEach { chainAsset in
             if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
                let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-                subscriptions.append(subscription)
+                lock.exclusivelyWrite { [unowned self] in self.subscriptions.append(subscription) }
             }
         }
     }
