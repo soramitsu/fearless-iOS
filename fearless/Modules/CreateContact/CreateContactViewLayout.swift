@@ -22,7 +22,7 @@ final class CreateContactViewLayout: UIView {
         }
     }
 
-    let selectNetworkView = UIFactory.default.createSelectNetworkView()
+    let networkView = UIFactory.default.createNetworkView(selectable: false)
     let contactNameField = TriangularedTextField()
     let contactAddressField: TriangularedTextField = {
         let view = TriangularedTextField()
@@ -70,10 +70,10 @@ final class CreateContactViewLayout: UIView {
 
     func bind(viewModel: CreateContactViewModel) {
         contactAddressField.textField.text = viewModel.address
-        selectNetworkView.subtitle = viewModel.chainName
-        viewModel.iconViewModel?.cancel(on: selectNetworkView.iconView)
-        selectNetworkView.iconView.image = nil
-        viewModel.iconViewModel?.loadAmountInputIcon(on: selectNetworkView.iconView, animated: true)
+        networkView.subtitle = viewModel.chainName
+        viewModel.iconViewModel?.cancel(on: networkView.iconView)
+        networkView.iconView.image = nil
+        viewModel.iconViewModel?.loadAmountInputIcon(on: networkView.iconView, animated: true)
     }
 
     func updateState(isValid: Bool) {
@@ -85,7 +85,7 @@ final class CreateContactViewLayout: UIView {
         addSubview(contentView)
         addSubview(createButton)
 
-        contentView.stackView.addArrangedSubview(selectNetworkView)
+        contentView.stackView.addArrangedSubview(networkView)
         contentView.stackView.addArrangedSubview(contactNameField)
         contentView.stackView.addArrangedSubview(contactAddressField)
 
@@ -99,7 +99,7 @@ final class CreateContactViewLayout: UIView {
             make.bottom.equalTo(createButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
-        selectNetworkView.snp.makeConstraints { make in
+        networkView.snp.makeConstraints { make in
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
@@ -138,6 +138,6 @@ final class CreateContactViewLayout: UIView {
         contactAddressField.textField.placeholder = R.string.localizable.contactsContactAddress(
             preferredLanguages: locale.rLanguages
         )
-        selectNetworkView.title = R.string.localizable.commonSelectNetwork(preferredLanguages: locale.rLanguages)
+        networkView.title = R.string.localizable.commonNetwork(preferredLanguages: locale.rLanguages)
     }
 }

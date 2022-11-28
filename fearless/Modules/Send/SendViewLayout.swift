@@ -33,7 +33,7 @@ final class SendViewLayout: UIView {
     }()
 
     let amountView = SelectableAmountInputView()
-    let selectNetworkView = UIFactory.default.createSelectNetworkView()
+    let selectNetworkView = UIFactory.default.createNetworkView(selectable: true)
     let scamWarningView: ScamWarningExpandableView = {
         let view = ScamWarningExpandableView()
         view.isHidden = true
