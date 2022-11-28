@@ -4,7 +4,7 @@ abstract_target 'fearlessAll' do
   use_frameworks!
 
   pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => '606bbd0a10457e283edcc27b26c69c36f787b044'
-  pod 'SwiftLint'
+  pod 'SwiftLint', '~> 0.49.1'
   pod 'R.swift', '~> 6.1.0' , :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
   pod 'SoraUI', '~> 1.10.3'
