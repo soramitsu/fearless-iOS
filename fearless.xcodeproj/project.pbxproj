@@ -4138,9 +4138,6 @@
 		C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModelFactory.swift; sourceTree = "<group>"; };
 		C648FFC728DC43A70072951B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
-		C650892E2927A88400440227 /* QRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
-		C65089302927A92D00440227 /* QROperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationFactory.swift; sourceTree = "<group>"; };
-		C65089322927BF3500440227 /* QRCreationOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCreationOperation.swift; sourceTree = "<group>"; };
 		C65817D028DA70FC00988FC4 /* QRView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRView.swift; sourceTree = "<group>"; };
 		C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoFetching.swift; sourceTree = "<group>"; };
 		C65A6593288E5E0500679D65 /* NSLockExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NSLockExtension.swift; sourceTree = "<group>"; };
@@ -8720,9 +8717,6 @@
 				070B2C4B289BEB6D00F78F82 /* SelectNetworkViewModelFactory.swift */,
 				C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */,
 				C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */,
-				C65089302927A92D00440227 /* QROperationFactory.swift */,
-				C650892E2927A88400440227 /* QRService.swift */,
-				C65089322927BF3500440227 /* QRCreationOperation.swift */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
