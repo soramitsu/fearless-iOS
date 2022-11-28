@@ -2,9 +2,11 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 import SoraUI
+import SnapKit
 
 final class StakingPoolCreateViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingPoolCreateViewLayout
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
 
@@ -47,6 +49,19 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
         updateActionButton()
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
+    }
+
     // MARK: - Private methods
 
     private func setupBalanceAccessoryView() {
@@ -56,7 +71,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
+        let isEnabled = (amountInputViewModel?.isValid == true && (rootView.poolNameInputView.text?.isNotEmpty == true))
         rootView.feeView.actionButton.set(enabled: isEnabled)
     }
 
@@ -202,4 +217,13 @@ extension StakingPoolCreateViewController: AnimatedTextFieldDelegate {
 
         return shouldApply
     }
+}
+
+// MARK: -
+
+extension StakingPoolCreateViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
 }
