@@ -1,3 +1,4 @@
+import CommonWallet
 import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
