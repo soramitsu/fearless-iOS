@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
+// swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {
     let asset: AssetModel
     let chain: ChainModel

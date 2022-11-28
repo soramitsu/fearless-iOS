@@ -76,6 +76,7 @@ struct StakingBondMoreViewFactory {
         return interactor
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,

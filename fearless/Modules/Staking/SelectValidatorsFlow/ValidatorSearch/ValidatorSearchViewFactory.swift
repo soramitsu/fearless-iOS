@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import FearlessUtils
 
+// swiftlint:disable function_body_length
 struct ValidatorSearchViewFactory {
     private static func createContainer(
         flow: ValidatorSearchFlow,
