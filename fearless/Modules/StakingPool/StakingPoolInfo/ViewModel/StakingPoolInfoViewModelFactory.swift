@@ -3,7 +3,6 @@ import UIKit
 
 protocol StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount: AccountId,
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,
@@ -31,7 +30,6 @@ final class StakingPoolInfoViewModelFactory {
 
 extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount _: AccountId,
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,

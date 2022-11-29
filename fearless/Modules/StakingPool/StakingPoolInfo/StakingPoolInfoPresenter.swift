@@ -52,7 +52,6 @@ final class StakingPoolInfoPresenter {
 
     private func provideViewModel() {
         guard
-            let stashAccount = fetchPoolAccount(for: .stash),
             let validators = validators,
             let stakingPool = stakingPool,
             let editedRoles = editedRoles
@@ -64,7 +63,6 @@ final class StakingPoolInfoPresenter {
         view?.didStopLoading()
 
         let viewModel = viewModelFactory.buildViewModel(
-            stashAccount: stashAccount,
             validators: validators,
             stakingPool: stakingPool,
             priceData: priceData,

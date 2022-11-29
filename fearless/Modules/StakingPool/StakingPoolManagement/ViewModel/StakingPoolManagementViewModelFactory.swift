@@ -11,7 +11,6 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
     ) -> LocalizableResource<String>?
     func buildViewModel(
         stakeInfo: StakingPoolMember?,
-        era: EraIndex?,
         stakingPool: StakingPool?,
         wallet: MetaAccountModel
     ) -> StakingPoolManagementViewModel
@@ -62,7 +61,6 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
 
     func buildViewModel(
         stakeInfo: StakingPoolMember?,
-        era _: EraIndex?,
         stakingPool: StakingPool?,
         wallet: MetaAccountModel
     ) -> StakingPoolManagementViewModel {
