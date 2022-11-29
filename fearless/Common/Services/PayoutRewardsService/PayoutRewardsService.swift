@@ -40,6 +40,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.logger = logger
     }
 
+    // swiftlint:disable function_body_length
     func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
             let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()

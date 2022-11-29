@@ -15,6 +15,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
+    private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -24,7 +25,8 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         poolId: String,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
-        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        eraValidatorService: EraValidatorServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
@@ -34,6 +36,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         self.poolId = poolId
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.eraValidatorService = eraValidatorService
     }
 
     private func createValidatorsWrapper(
@@ -118,6 +121,8 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
 
         operation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
+                self?.output?.didReceive(nomination: nomination)
+
                 do {
                     let result = try operation.targetOperation.extractNoCancellableResultData()
                     self?.output?.didReceiveValidators(validators: result)
@@ -145,6 +150,23 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
     }
+
+    private func provideEraStakersInfo() {
+        let operation = eraValidatorService.fetchInfoOperation()
+
+        operation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try operation.extractNoCancellableResultData()
+                    self?.output?.didReceive(eraStakersInfo: info)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
 }
 
 // MARK: - StakingPoolInfoInteractorInput
@@ -167,6 +189,8 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
 
         fetchPoolInfo(poolId: poolId)
 
+        provideEraStakersInfo()
+
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
     }
 
@@ -180,11 +204,14 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
         nominationOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    guard let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData() else {
-                        return
-                    }
+                    let nomination = try? nominationOperation.targetOperation.extractNoCancellableResultData()
 
-                    self?.fetchSelectedValidators(stashAddress: address, nomination: nomination, activeEra: activeEra)
+                    if let nomination = nomination {
+                        self?.fetchSelectedValidators(stashAddress: address, nomination: nomination, activeEra: activeEra)
+                    } else {
+                        self?.output?.didReceive(nomination: nomination)
+                        self?.output?.didReceiveValidators(validators: YourValidatorsModel(currentValidators: [], pendingValidators: []))
+                    }
                 } catch {
                     self?.output?.didReceive(error: error)
                 }

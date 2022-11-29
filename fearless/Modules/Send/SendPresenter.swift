@@ -4,6 +4,11 @@ import BigInt
 import FearlessUtils
 
 final class SendPresenter {
+    enum State {
+        case initialSelection
+        case normal
+    }
+
     // MARK: Private properties
 
     private weak var view: SendViewInput?
@@ -33,6 +38,7 @@ final class SendPresenter {
     private var inputResult: AmountInputResult?
     private var balanceMinusFeeAndTip: Decimal { (balance ?? 0) - (fee ?? 0) - (tip ?? 0) }
     private var scamInfo: ScamInfo?
+    private var state: State = .normal
 
     // MARK: - Constructors
 
@@ -91,17 +97,15 @@ extension SendPresenter: SendViewOutput {
         inputResult = .rate(Decimal(Double(percentage)))
         provideAssetVewModel()
         provideInputViewModel()
-        guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
-        refreshFee(for: chainAsset, address: address)
+        guard let chainAsset = selectedChainAsset else { return }
+        refreshFee(for: chainAsset, address: recipientAddress)
     }
 
     func updateAmount(_ newValue: Decimal) {
         inputResult = .absolute(newValue)
         provideAssetVewModel()
-        guard let chainAsset = selectedChainAsset, let address = recipientAddress else { return }
-        if interactor.validate(address: address, for: chainAsset.chain) {
-            refreshFee(for: chainAsset, address: address)
-        }
+        guard let chainAsset = selectedChainAsset else { return }
+        refreshFee(for: chainAsset, address: recipientAddress)
     }
 
     func didTapBackButton() {
@@ -194,6 +198,7 @@ extension SendPresenter: SendViewOutput {
             from: view,
             wallet: wallet,
             selectedAssetId: selectedChainAsset?.asset.identifier,
+            chainAssets: nil,
             output: self
         )
     }
@@ -318,32 +323,26 @@ extension SendPresenter: SendInteractorOutput {
     }
 
     func didReceive(possibleChains: [ChainModel]?) {
-        if let chains = possibleChains, chains.count == 1, let selectedChain = chains.first {
-            self.selectedChain = selectedChain
-            if selectedChain.chainAssets.count == 1,
-               let selectedChainAsset = selectedChain.chainAssets.first {
-                self.selectedChainAsset = selectedChainAsset
-                provideNetworkViewModel(for: selectedChain)
-                provideAssetVewModel()
-                provideInputViewModel()
-                if let recipientAddress = recipientAddress {
-                    handle(newAddress: recipientAddress)
-                }
-                interactor.updateSubscriptions(for: selectedChainAsset)
-            } else {
-                router.showSelectAsset(
-                    from: view,
-                    wallet: wallet,
-                    selectedAssetId: nil,
-                    output: self
-                )
-            }
-        } else {
+        guard let chains = possibleChains else {
             router.showSelectAsset(
                 from: view,
                 wallet: wallet,
                 selectedAssetId: nil,
+                chainAssets: nil,
                 output: self
+            )
+            return
+        }
+        if chains.count == 1, let selectedChain = chains.first {
+            defineOrSelectAsset(for: selectedChain)
+        } else {
+            state = .initialSelection
+            router.showSelectNetwork(
+                from: view,
+                wallet: wallet,
+                selectedChainId: nil,
+                chainModels: possibleChains,
+                delegate: self
             )
         }
     }
@@ -367,21 +366,24 @@ extension SendPresenter: SelectAssetModuleOutput {
     func assetSelection(didCompleteWith asset: AssetModel?) {
         selectedAsset = asset
         if let asset = asset {
-            if let chain = selectedChain {
+            if case .initialSelection = state, let chain = selectedChain {
+                state = .normal
                 selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
             } else {
+                state = .normal
                 interactor.defineAvailableChains(for: asset) { [weak self] chains in
                     if let availableChains = chains, let strongSelf = self {
                         if availableChains.count == 1 {
                             self?.handle(selectedChain: availableChains.first)
+                        } else {
+                            strongSelf.router.showSelectNetwork(
+                                from: strongSelf.view,
+                                wallet: strongSelf.wallet,
+                                selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
+                                chainModels: availableChains,
+                                delegate: strongSelf
+                            )
                         }
-                        strongSelf.router.showSelectNetwork(
-                            from: strongSelf.view,
-                            wallet: strongSelf.wallet,
-                            selectedChainId: strongSelf.selectedChainAsset?.chain.chainId,
-                            chainModels: availableChains,
-                            delegate: strongSelf
-                        )
                     }
                 }
             }
@@ -496,29 +498,58 @@ private extension SendPresenter {
         )
         view?.didReceive(viewModel: viewModel)
 
-        if addressIsValid {
-            interactor.updateSubscriptions(for: chainAsset)
-            interactor.fetchScamInfo(for: newAddress)
-            refreshFee(for: chainAsset, address: newAddress)
-        }
+        interactor.updateSubscriptions(for: chainAsset)
+        interactor.fetchScamInfo(for: newAddress)
+        refreshFee(for: chainAsset, address: newAddress)
     }
 
     func handle(selectedChain: ChainModel?) {
-        let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
-        if
-            let selectedChain = selectedChain,
-            let selectedAsset = optionalAsset,
-            let selectedChainAsset = selectedChain.chainAssets.first(where: { $0.asset.name == selectedAsset.name }) {
-            self.selectedChainAsset = selectedChainAsset
-            provideNetworkViewModel(for: selectedChain)
-            provideAssetVewModel()
-            provideInputViewModel()
-            if let recipientAddress = recipientAddress {
-                handle(newAddress: recipientAddress)
+        switch state {
+        case .initialSelection:
+            if let chain = selectedChain {
+                defineOrSelectAsset(for: chain)
             }
-            interactor.updateSubscriptions(for: selectedChainAsset)
-        } else if selectedChainAsset == nil {
+            state = .normal
+        case .normal:
+            let optionalAsset: AssetModel? = selectedAsset ?? selectedChainAsset?.asset
+            if
+                let selectedChain = selectedChain,
+                let selectedAsset = optionalAsset,
+                let selectedChainAsset = selectedChain.chainAssets.first(where: {
+                    $0.asset.name == selectedAsset.name
+                }) {
+                self.selectedChainAsset = selectedChainAsset
+                handle(selectedChainAsset: selectedChainAsset)
+            }
+        }
+        if selectedChainAsset == nil {
             router.dismiss(view: view)
+        }
+    }
+
+    func handle(selectedChainAsset: ChainAsset) {
+        provideNetworkViewModel(for: selectedChainAsset.chain)
+        provideAssetVewModel()
+        provideInputViewModel()
+        if let recipientAddress = recipientAddress {
+            handle(newAddress: recipientAddress)
+        }
+        interactor.updateSubscriptions(for: selectedChainAsset)
+    }
+
+    func defineOrSelectAsset(for chain: ChainModel) {
+        if chain.chainAssets.count == 1,
+           let selectedChainAsset = chain.chainAssets.first {
+            self.selectedChainAsset = selectedChainAsset
+            handle(selectedChainAsset: selectedChainAsset)
+        } else {
+            router.showSelectAsset(
+                from: view,
+                wallet: wallet,
+                selectedAssetId: nil,
+                chainAssets: nil,
+                output: self
+            )
         }
     }
 }

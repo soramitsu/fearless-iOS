@@ -227,6 +227,10 @@ final class ValidatorInfoViewLayout: UIView {
             make.width.equalTo(self)
         }
 
+        rowContentView.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        rowContentView.titleView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        rowContentView.valueView.setContentCompressionResistancePriority(.required, for: .horizontal)
+
         return rowView
     }
 

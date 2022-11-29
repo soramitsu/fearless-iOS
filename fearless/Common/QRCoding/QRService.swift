@@ -1,4 +1,15 @@
 import RobinHood
+import Foundation
+
+protocol QROperationFactoryProtocol: AnyObject {
+    func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation
+}
+
+final class QROperationFactory: QROperationFactoryProtocol {
+    func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation {
+        QRCreationOperation(payload: payload, qrSize: qrSize)
+    }
+}
 
 protocol QRServiceProtocol: AnyObject {
     @discardableResult
@@ -11,12 +22,11 @@ protocol QRServiceProtocol: AnyObject {
 }
 
 final class QRService {
-    let operationFactory: QROperationFactoryProtocol
-    let operationQueue: OperationQueue
-
+    private let operationFactory: QROperationFactoryProtocol
+    private let operationQueue: OperationQueue
     private let encoder: QREncoderProtocol
 
-    public init(
+    init(
         operationFactory: QROperationFactoryProtocol,
         encoder: QREncoderProtocol = QREncoder(),
         operationQueue: OperationQueue = OperationQueue()

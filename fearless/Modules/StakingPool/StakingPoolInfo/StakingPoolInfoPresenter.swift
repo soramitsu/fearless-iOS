@@ -21,6 +21,8 @@ final class StakingPoolInfoPresenter {
     private var stakingPool: StakingPool?
     private var editedRoles: StakingPoolRoles?
     private var activeEraInfo: ActiveEraInfo?
+    private var nomination: Nomination?
+    private var eraStakersInfo: EraStakersInfo?
 
     // MARK: - Constructors
 
@@ -49,7 +51,6 @@ final class StakingPoolInfoPresenter {
 
     private func provideViewModel() {
         guard
-            let stashAccount = fetchPoolAccount(for: .stash),
             let validators = validators,
             let stakingPool = stakingPool,
             let editedRoles = editedRoles
@@ -61,7 +62,6 @@ final class StakingPoolInfoPresenter {
         view?.didStopLoading()
 
         let viewModel = viewModelFactory.buildViewModel(
-            stashAccount: stashAccount,
             validators: validators,
             stakingPool: stakingPool,
             priceData: priceData,
@@ -70,6 +70,21 @@ final class StakingPoolInfoPresenter {
             wallet: wallet
         )
         view?.didReceive(viewModel: viewModel)
+    }
+
+    private func provideStatus() {
+        guard let poolInfo = stakingPool
+        else {
+            return
+        }
+
+        let status = viewModelFactory.buildStatus(
+            poolInfo: poolInfo,
+            era: eraStakersInfo?.activeEra,
+            nomination: nomination
+        )
+
+        view?.didReceive(status: status)
     }
 
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
@@ -125,6 +140,10 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
 
         provideViewModel()
         view.didReceive(status: status)
+
+        if status == nil {
+            fetchValidators()
+        }
     }
 
     func willAppear(view: StakingPoolInfoViewInput) {
@@ -233,6 +252,7 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
             editedRoles = stakingPool.info.roles
         }
 
+        provideStatus()
         provideViewModel()
         fetchValidators()
     }
@@ -244,6 +264,17 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
     func didReceiveValidators(validators: YourValidatorsModel) {
         self.validators = validators
         provideViewModel()
+    }
+
+    func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
+        provideStatus()
+        provideViewModel()
+    }
+
+    func didReceive(eraStakersInfo: EraStakersInfo) {
+        self.eraStakersInfo = eraStakersInfo
+        provideStatus()
     }
 }
 

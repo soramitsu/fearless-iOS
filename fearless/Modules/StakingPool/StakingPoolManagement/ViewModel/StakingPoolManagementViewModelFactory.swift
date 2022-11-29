@@ -9,7 +9,11 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
     func buildUnstakeViewModel(
         unstakePeriod: TimeInterval?
     ) -> LocalizableResource<String>?
-    func buildViewModel(stakeInfo: StakingPoolMember?, era: EraIndex?) -> StakingPoolManagementViewModel
+    func buildViewModel(
+        stakeInfo: StakingPoolMember?,
+        stakingPool: StakingPool?,
+        wallet: MetaAccountModel
+    ) -> StakingPoolManagementViewModel
     func buildOptionsPickerViewModels(locale: Locale) -> [IconWithTitleViewModel]
 }
 
@@ -55,11 +59,17 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
         return unstakePeriod.localizedReadableValue()
     }
 
-    func buildViewModel(stakeInfo: StakingPoolMember?, era _: EraIndex?) -> StakingPoolManagementViewModel {
+    func buildViewModel(
+        stakeInfo: StakingPoolMember?,
+        stakingPool: StakingPool?,
+        wallet: MetaAccountModel
+    ) -> StakingPoolManagementViewModel {
         var unstakeButtonEnabled = false
 
-        if let stakeInfo = stakeInfo {
-            unstakeButtonEnabled = stakeInfo.points != BigUInt.zero
+        if let stakeInfo = stakeInfo, let stakingPool = stakingPool {
+            let userIsPoolOwner = stakingPool.info.roles.root == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+
+            unstakeButtonEnabled = stakeInfo.points != BigUInt.zero && !userIsPoolOwner
         }
 
         return StakingPoolManagementViewModel(

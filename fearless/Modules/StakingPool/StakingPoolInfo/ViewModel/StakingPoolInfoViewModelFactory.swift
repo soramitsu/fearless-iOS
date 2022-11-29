@@ -3,7 +3,6 @@ import UIKit
 
 protocol StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount: AccountId,
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,
@@ -11,6 +10,12 @@ protocol StakingPoolInfoViewModelFactoryProtocol {
         roles: StakingPoolRoles,
         wallet: MetaAccountModel
     ) -> StakingPoolInfoViewModel
+
+    func buildStatus(
+        poolInfo: StakingPool,
+        era: EraIndex?,
+        nomination: Nomination?
+    ) -> NominationViewStatus
 }
 
 final class StakingPoolInfoViewModelFactory {
@@ -25,7 +30,6 @@ final class StakingPoolInfoViewModelFactory {
 
 extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount _: AccountId,
         validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,
@@ -67,5 +71,33 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             rolesChanged: roles != stakingPool.info.roles,
             userIsRoot: currentAccountId == stakingPool.info.roles.root
         )
+    }
+
+    func buildStatus(
+        poolInfo: StakingPool,
+        era: EraIndex?,
+        nomination: Nomination?
+    ) -> NominationViewStatus {
+        var status: NominationViewStatus = .undefined
+        switch poolInfo.info.state {
+        case .open:
+            guard let era = era else {
+                break
+            }
+
+            if nomination?.targets.isNotEmpty == true {
+                status = .active(era: era)
+            } else {
+                status = .validatorsNotSelected
+            }
+        case .blocked, .destroying:
+            guard let era = era else {
+                break
+            }
+
+            status = .inactive(era: era)
+        }
+
+        return status
     }
 }

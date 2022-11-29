@@ -91,11 +91,13 @@ final class StakingPoolInfoViewLayout: UIView {
 
     let nameView: TitleValueView = {
         let view = TitleValueView()
+        view.valueImageView.isHidden = true
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.valueLabel.font = .h5Title
         view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
+        view.valueLabel.numberOfLines = 2
         return view
     }()
 
@@ -214,12 +216,12 @@ final class StakingPoolInfoViewLayout: UIView {
 
     func bind(status: NominationViewStatus?) {
         guard let status = status else {
+            statusView.isHidden = true
             return
         }
 
         switch status {
         case .undefined:
-            statusView.isHidden = true
             return
         case let .active(index):
             presentActiveStatus(for: index)
@@ -353,6 +355,9 @@ final class StakingPoolInfoViewLayout: UIView {
         nameView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        nameView.valueImageView.snp.remakeConstraints { _ in
         }
 
         stateView.snp.makeConstraints { make in

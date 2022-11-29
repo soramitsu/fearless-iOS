@@ -3,6 +3,7 @@ import FearlessUtils
 import BigInt
 import IrohaCrypto
 
+// swiftlint:disable function_body_length
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol

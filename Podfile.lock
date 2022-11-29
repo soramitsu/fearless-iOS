@@ -141,7 +141,7 @@ DEPENDENCIES:
   - IrohaCrypto
   - keccak.c
   - Kingfisher
-  - R.swift
+  - R.swift (= 6.1.0)
   - ReachabilitySwift
   - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
@@ -237,6 +237,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 14b502ae57a19a373aa9d1cdb53995aea5aff40a
+PODFILE CHECKSUM: bf68d73cc1b63e19bda4a3eaa9a09fbde082c7b8
 
 COCOAPODS: 1.11.3
