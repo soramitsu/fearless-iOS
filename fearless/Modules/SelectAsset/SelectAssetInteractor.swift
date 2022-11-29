@@ -25,16 +25,22 @@ final class SelectAssetInteractor {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         assetRepository: AnyDataProviderRepository<AssetModel>,
+        chainAssets: [ChainAsset]?,
         operationQueue: OperationQueue
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.assetRepository = assetRepository
+        self.chainAssets = chainAssets
         self.operationQueue = operationQueue
     }
 
     private func fetchChainAssets() {
+        if let chainAssets = self.chainAssets {
+            output?.didReceiveChainAssets(result: .success(chainAssets))
+            return
+        }
         chainAssetFetching.fetch(
             filters: [],
             sortDescriptors: []

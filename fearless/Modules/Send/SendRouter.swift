@@ -82,12 +82,14 @@ final class SendRouter: SendRouterInput {
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
+        chainAssets: [ChainAsset]?,
         output: SelectAssetModuleOutput
     ) {
         guard
             let module = SelectAssetAssembly.configureModule(
                 wallet: wallet,
                 selectedAssetId: selectedAssetId,
+                chainAssets: chainAssets,
                 searchTextsViewModel: .searchAssetPlaceholder,
                 output: output
             )

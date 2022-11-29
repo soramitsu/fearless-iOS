@@ -12,7 +12,6 @@ protocol CreateContactViewOutput: AnyObject {
     func didLoad(view: CreateContactViewInput)
     func didTapBackButton()
     func didTapCreateButton()
-    func didTapSelectNetwork()
     func addressTextDidChanged(_ address: String)
     func nameTextDidChanged(_ name: String)
 }

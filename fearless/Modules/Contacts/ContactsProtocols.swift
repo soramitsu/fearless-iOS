@@ -28,7 +28,6 @@ protocol ContactsRouterInput: PresentDismissable, ErrorPresentable, SheetAlertPr
     func createContact(
         address: String?,
         chain: ChainModel,
-        wallet: MetaAccountModel,
         output: CreateContactModuleOutput,
         view: ControllerBackedProtocol?
     )
