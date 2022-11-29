@@ -1906,7 +1906,6 @@
 		FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */; };
 		FA00489B282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */; };
 		FA0066E32935A3960068FC61 /* QRService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0066E22935A3960068FC61 /* QRService.swift */; };
-		FA0066E72935A8BE0068FC61 /* QRCodeOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0066E62935A8BE0068FC61 /* QRCodeOperationFactory.swift */; };
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
 		FA072C16277B023D00731718 /* QRExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C15277B023D00731718 /* QRExtractionService.swift */; };
 		FA072C1F277B0F6400731718 /* InvoiceScanMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C1E277B0F6400731718 /* InvoiceScanMatcher.swift */; };
@@ -4431,7 +4430,6 @@
 		FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA0066E22935A3960068FC61 /* QRService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
-		FA0066E62935A8BE0068FC61 /* QRCodeOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCodeOperationFactory.swift; sourceTree = "<group>"; };
 		FA072C13277AE2FE00731718 /* QRCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCaptureService.swift; sourceTree = "<group>"; };
 		FA072C15277B023D00731718 /* QRExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRExtractionService.swift; sourceTree = "<group>"; };
 		FA072C1E277B0F6400731718 /* InvoiceScanMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanMatcher.swift; sourceTree = "<group>"; };
@@ -12265,7 +12263,6 @@
 				FA68302529351700002AD926 /* QRCreationOperation.swift */,
 				FAADC1C529265C9600DA9903 /* QRCoderFactory.swift */,
 				FAADC1BF29265A7900DA9903 /* QRScanMatcher.swift */,
-				FA0066E62935A8BE0068FC61 /* QRCodeOperationFactory.swift */,
 			);
 			path = QRCoding;
 			sourceTree = "<group>";
@@ -14580,7 +14577,6 @@
 				84E1CD0C260DCD23001E81B5 /* SwitchAccount+AccountConfirmWireframe.swift in Sources */,
 				AE6F7FDF2685E812002BBC3E /* ValidatorListFilterPresenter.swift in Sources */,
 				8430AAF626023087005B1066 /* NominatorState.swift in Sources */,
-				FA0066E72935A8BE0068FC61 /* QRCodeOperationFactory.swift in Sources */,
 				07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */,
 				C044E792971B542B79B9A88F /* NetworkInfoPresenter.swift in Sources */,
 				0D6C27413F73190438306EC1 /* NetworkInfoInteractor.swift in Sources */,

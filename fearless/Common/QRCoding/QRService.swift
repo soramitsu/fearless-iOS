@@ -1,6 +1,15 @@
 import RobinHood
 import Foundation
-import CommonWallet
+
+protocol QROperationFactoryProtocol: AnyObject {
+    func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation
+}
+
+final class QROperationFactory: QROperationFactoryProtocol {
+    func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation {
+        QRCreationOperation(payload: payload, qrSize: qrSize)
+    }
+}
 
 protocol QRServiceProtocol: AnyObject {
     @discardableResult
@@ -13,13 +22,13 @@ protocol QRServiceProtocol: AnyObject {
 }
 
 final class QRService {
-    let operationFactory: QRCodeOperationFactoryProtocol
+    let operationFactory: QROperationFactoryProtocol
     let operationQueue: OperationQueue
 
     private let encoder: QREncoderProtocol
 
     init(
-        operationFactory: QRCodeOperationFactoryProtocol,
+        operationFactory: QROperationFactoryProtocol,
         encoder: QREncoderProtocol = QREncoder(),
         operationQueue: OperationQueue = OperationQueue()
     ) {
@@ -38,7 +47,7 @@ extension QRService: QRServiceProtocol {
         completionBlock: @escaping (Result<UIImage, Error>?) -> Void
     ) throws -> Operation {
         let payload = try encoder.encode(with: qrType)
-        let operation = operationFactory.createQRCreationOperation(for: payload, qrSize: qrSize)
+        let operation = operationFactory.createCreationOperation(for: payload, qrSize: qrSize)
 
         operation.completionBlock = {
             queue.async {
