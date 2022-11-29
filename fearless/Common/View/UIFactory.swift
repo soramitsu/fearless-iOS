@@ -602,11 +602,13 @@ final class UIFactory: UIFactoryProtocol {
         return indicator
     }
 
-    func createSelectNetworkView() -> DetailsTriangularedView {
+    func createNetworkView(selectable: Bool) -> DetailsTriangularedView {
         let view = createDetailsView(with: .largeIconTitleSubtitle, filled: true)
         view.titleLabel.textColor = R.color.colorStrokeGray()
         view.titleLabel.font = UIFont.h5Title
-        view.actionImage = R.image.iconExpandable()
+        if selectable {
+            view.actionImage = R.image.iconExpandable()
+        }
         return view
     }
 

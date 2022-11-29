@@ -76,9 +76,6 @@ final class CreateContactViewController: UIViewController, ViewHolder {
             action: #selector(createButtonClicked),
             for: .touchUpInside
         )
-
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
-        rootView.selectNetworkView.addGestureRecognizer(tapGesture)
     }
 
     @objc private func backButtonClicked() {
@@ -87,10 +84,6 @@ final class CreateContactViewController: UIViewController, ViewHolder {
 
     @objc private func createButtonClicked() {
         output.didTapCreateButton()
-    }
-
-    @objc private func selectNetworkClicked() {
-        output.didTapSelectNetwork()
     }
 }
 

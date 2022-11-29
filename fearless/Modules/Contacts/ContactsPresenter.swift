@@ -45,7 +45,7 @@ extension ContactsPresenter: ContactsViewOutput {
     }
 
     func didTapCreateButton() {
-        router.createContact(address: nil, chain: chain, wallet: wallet, output: self, view: view)
+        router.createContact(address: nil, chain: chain, output: self, view: view)
     }
 
     func didLoad(view: ContactsViewInput) {
@@ -95,7 +95,6 @@ extension ContactsPresenter: ContactTableCellModelDelegate {
         router.createContact(
             address: address,
             chain: chain,
-            wallet: wallet,
             output: self,
             view: view
         )

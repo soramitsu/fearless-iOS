@@ -90,6 +90,7 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
         from view: SendViewInput?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
+        chainAssets: [ChainAsset]?,
         output: SelectAssetModuleOutput
     )
 }

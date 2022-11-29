@@ -9,7 +9,6 @@ final class CreateContactPresenter {
     private let interactor: CreateContactInteractorInput
     private let viewModelFactory: CreateContactViewModelFactoryProtocol
     private let moduleOutput: CreateContactModuleOutput
-    private let wallet: MetaAccountModel
     private var chain: ChainModel
     private var address: String?
     private var name: String?
@@ -22,7 +21,6 @@ final class CreateContactPresenter {
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: CreateContactViewModelFactoryProtocol,
         moduleOutput: CreateContactModuleOutput,
-        wallet: MetaAccountModel,
         chain: ChainModel,
         address: String?
     ) {
@@ -30,7 +28,6 @@ final class CreateContactPresenter {
         self.router = router
         self.viewModelFactory = viewModelFactory
         self.moduleOutput = moduleOutput
-        self.wallet = wallet
         self.chain = chain
         self.address = address
 
@@ -53,15 +50,6 @@ extension CreateContactPresenter: CreateContactViewOutput {
             moduleOutput.didCreate(contact: contact)
             router.dismiss(view: view)
         }
-    }
-
-    func didTapSelectNetwork() {
-        router.showSelectNetwork(
-            from: view,
-            wallet: wallet,
-            selectedChainId: chain.chainId,
-            delegate: self
-        )
     }
 
     func didLoad(view: CreateContactViewInput) {
@@ -108,16 +96,3 @@ extension CreateContactPresenter: Localizable {
 }
 
 extension CreateContactPresenter: CreateContactModuleInput {}
-
-extension CreateContactPresenter: SelectNetworkDelegate {
-    func chainSelection(
-        view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
-    ) {
-        if let selectedChain = chain {
-            self.chain = selectedChain
-            provideViewModel()
-            view?.updateState(isValid: validate())
-        }
-    }
-}
