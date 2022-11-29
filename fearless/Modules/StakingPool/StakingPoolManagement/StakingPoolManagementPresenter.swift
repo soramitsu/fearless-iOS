@@ -67,7 +67,12 @@ final class StakingPoolManagementPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.buildViewModel(stakeInfo: stakeInfo, era: eraStakersInfo?.activeEra)
+        let viewModel = viewModelFactory.buildViewModel(
+            stakeInfo: stakeInfo,
+            era: eraStakersInfo?.activeEra,
+            stakingPool: stakingPool,
+            wallet: wallet
+        )
         view?.didReceive(viewModel: viewModel)
     }
 

@@ -91,16 +91,23 @@ final class StakingPoolManagementViewLayout: UIView {
     let stakeMoreButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDisabledStyle()
+        button.isHidden = true
         return button
     }()
 
     let unstakeButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDisabledStyle()
+        button.isHidden = true
         return button
     }()
 
     let alertsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.defaultOffset)
+    let actionsStackView: UIStackView = {
+        let stackView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.defaultOffset)
+        stackView.distribution = .fillEqually
+        return stackView
+    }()
 
     lazy var selectValidatorsView: DetailsTriangularedView = {
         createAlertView()
@@ -220,8 +227,7 @@ final class StakingPoolManagementViewLayout: UIView {
 
         addSubview(navigationBar)
         addSubview(contentView)
-        addSubview(stakeMoreButton)
-        addSubview(unstakeButton)
+        addSubview(actionsStackView)
 
         navigationBar.setRightViews([optionsButton])
 
@@ -239,6 +245,9 @@ final class StakingPoolManagementViewLayout: UIView {
         alertsStackView.addArrangedSubview(claimView)
         alertsStackView.addArrangedSubview(redeemView)
 
+        actionsStackView.addArrangedSubview(stakeMoreButton)
+        actionsStackView.addArrangedSubview(unstakeButton)
+
         optionsButton.snp.makeConstraints { make in
             make.size.equalTo(32)
         }
@@ -254,7 +263,7 @@ final class StakingPoolManagementViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.top.equalTo(navigationBar.snp.bottom)
-            make.bottom.equalTo(stakeMoreButton.snp.top).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(actionsStackView.snp.top).offset(UIConstants.bigOffset)
         }
 
         infoBackground.snp.makeConstraints { make in
@@ -267,17 +276,9 @@ final class StakingPoolManagementViewLayout: UIView {
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
         }
 
-        stakeMoreButton.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+        actionsStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
-        }
-
-        unstakeButton.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.leading.equalTo(stakeMoreButton.snp.trailing).offset(UIConstants.bigOffset)
-            make.height.equalTo(UIConstants.actionHeight)
-            make.width.equalTo(stakeMoreButton.snp.width)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
 
