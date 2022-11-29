@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import Kingfisher
+import SnapKit
 
 final class StakingPoolCreateViewLayout: UIView {
     private enum LayoutConstants {
@@ -9,6 +10,8 @@ final class StakingPoolCreateViewLayout: UIView {
         static let expandableIconSize = CGSize(width: 12, height: 6)
         static let expandableViewHeight: CGFloat = 368
     }
+
+    var keyboardAdoptableConstraint: Constraint?
 
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
@@ -248,7 +251,7 @@ final class StakingPoolCreateViewLayout: UIView {
 
         feeView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalTo(safeAreaLayoutGuide).constraint
         }
     }
 

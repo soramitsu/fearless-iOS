@@ -120,6 +120,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return presenter
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,

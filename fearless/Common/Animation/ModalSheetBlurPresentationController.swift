@@ -46,6 +46,7 @@ final class ModalSheetBlurPresentationController: UIPresentationController {
 
         let blur = UIBlurEffect(style: .dark)
         let blurView = UIVisualEffectView(effect: blur)
+        blurView.alpha = 0.975
         blurView.tag = ModalSheetBlurPresentationAppearanceAnimator.UIVisualEffectViewFearlessTag
         blurView.frame = containerView?.bounds ?? .zero
         blurView.addGestureRecognizer(cancellationGesture)
