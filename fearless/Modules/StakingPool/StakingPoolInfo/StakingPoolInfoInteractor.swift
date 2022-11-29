@@ -6,6 +6,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
 
     private weak var output: StakingPoolInfoInteractorOutput?
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -13,6 +14,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let poolId: String
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
@@ -23,6 +25,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         poolId: String,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -32,24 +35,104 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         self.validatorOperationFactory = validatorOperationFactory
         self.poolId = poolId
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
+        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.eraValidatorService = eraValidatorService
     }
 
-    private func prepareRecommendedValidatorList() {
-        let wrapper = validatorOperationFactory.allElectedOperation()
+    private func createValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress,
+        activeEra: EraIndex
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        if nomination.submittedIn >= activeEra {
+            return createActiveValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress
+            )
+        } else {
+            return createSelectedValidatorsWrapper(
+                for: nomination,
+                stashAddress: stashAddress
+            )
+        }
+    }
 
-        wrapper.targetOperation.completionBlock = { [weak self] in
+    private func createActiveValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let activeValidatorsWrapper = validatorOperationFactory.activeValidatorsOperation(
+            for: stashAddress
+        )
+
+        let selectedValidatorsWrapper = validatorOperationFactory.pendingValidatorsOperation(
+            for: nomination.targets
+        )
+
+        let mergeOperation = ClosureOperation<YourValidatorsModel> {
+            let activeValidators = try activeValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+            let selectedValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: activeValidators,
+                pendingValidators: selectedValidators
+            )
+        }
+
+        mergeOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+        mergeOperation.addDependency(activeValidatorsWrapper.targetOperation)
+
+        let dependencies = selectedValidatorsWrapper.allOperations + activeValidatorsWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    private func createSelectedValidatorsWrapper(
+        for nomination: Nomination,
+        stashAddress: AccountAddress
+    ) -> CompoundOperationWrapper<YourValidatorsModel> {
+        let selectedValidatorsWrapper = validatorOperationFactory.allSelectedOperation(
+            by: nomination,
+            nominatorAddress: stashAddress
+        )
+
+        let mapOperation = ClosureOperation<YourValidatorsModel> {
+            let curentValidators = try selectedValidatorsWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            return YourValidatorsModel(
+                currentValidators: curentValidators,
+                pendingValidators: []
+            )
+        }
+
+        mapOperation.addDependency(selectedValidatorsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: selectedValidatorsWrapper.allOperations
+        )
+    }
+
+    private func fetchSelectedValidators(stashAddress: AccountAddress, nomination: Nomination, activeEra: EraIndex) {
+        let operation = createValidatorsWrapper(for: nomination, stashAddress: stashAddress, activeEra: activeEra)
+
+        operation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
+                self?.output?.didReceive(nomination: nomination)
+
                 do {
-                    let validators = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.output?.didReceiveValidators(result: .success(validators))
+                    let result = try operation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceiveValidators(validators: result)
                 } catch {
-                    self?.output?.didReceiveValidators(result: .failure(error))
+                    self?.output?.didReceive(error: error)
                 }
             }
         }
 
-        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+        operationManager.enqueue(operations: operation.allOperations, in: .transient)
     }
 
     private func fetchPoolInfo(poolId: String) {
@@ -100,23 +183,35 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
             self?.output?.didReceive(palletIdResult: result)
         }
 
-        prepareRecommendedValidatorList()
-
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
         fetchPoolInfo(poolId: poolId)
+
         provideEraStakersInfo()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
     }
 
-    func fetchPoolNomination(poolStashAccountId: AccountId) {
+    func fetchPoolNomination(poolStashAccountId: AccountId, activeEra: EraIndex) {
+        guard let address = try? poolStashAccountId.toAddress(using: chainAsset.chain.chainFormat)
+        else {
+            return
+        }
+
         let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
         nominationOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
-                    self?.output?.didReceive(nomination: nomination)
+                    let nomination = try? nominationOperation.targetOperation.extractNoCancellableResultData()
+
+                    if let nomination = nomination {
+                        self?.fetchSelectedValidators(stashAddress: address, nomination: nomination, activeEra: activeEra)
+                    } else {
+                        self?.output?.didReceive(nomination: nomination)
+                        self?.output?.didReceiveValidators(validators: YourValidatorsModel(currentValidators: [], pendingValidators: []))
+                    }
                 } catch {
                     self?.output?.didReceive(error: error)
                 }
@@ -130,5 +225,13 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
 extension StakingPoolInfoInteractor: PriceLocalSubscriptionHandler, PriceLocalStorageSubscriber {
     func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
         output?.didReceivePriceData(result: result)
+    }
+}
+
+extension StakingPoolInfoInteractor:
+    RelaychainStakingLocalStorageSubscriber,
+    RelaychainStakingLocalSubscriptionHandler {
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        output?.didReceive(activeEra: result)
     }
 }

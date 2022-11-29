@@ -31,6 +31,7 @@ class MultiValueView: UIView {
     let stackView: UIStackView = {
         let view = UIStackView()
         view.axis = .vertical
+        view.distribution = .fillEqually
         return view
     }()
 

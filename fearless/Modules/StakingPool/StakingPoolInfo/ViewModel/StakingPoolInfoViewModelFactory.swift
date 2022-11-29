@@ -3,8 +3,7 @@ import UIKit
 
 protocol StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount: AccountId,
-        electedValidators: [ElectedValidatorInfo],
+        validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,
         locale: Locale,
@@ -31,8 +30,7 @@ final class StakingPoolInfoViewModelFactory {
 
 extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtocol {
     func buildViewModel(
-        stashAccount: AccountId,
-        electedValidators: [ElectedValidatorInfo],
+        validators: YourValidatorsModel,
         stakingPool: StakingPool,
         priceData: PriceData?,
         locale: Locale,
@@ -44,20 +42,15 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             precision: Int16(chainAsset.asset.precision)
         ) ?? 0.0
         let stakedAmountViewModel = balanceViewModelFactory.balanceFromPrice(staked, priceData: priceData)
-
-        let selectedValidators = electedValidators.map { validator in
-            validator.toSelected(for: try? stashAccount.toAddress(using: chainAsset.chain.chainFormat))
-        }.filter { $0.isActive }
-
-        let validatorsCountAttributedString = NSMutableAttributedString(string: "\(selectedValidators.count)" + "  ")
+        let validatorsCountAttributedString = NSMutableAttributedString(string: "\(validators.allValidators.count)" + "    ")
 
         let imageAttachment = NSTextAttachment()
-        imageAttachment.image = R.image.dropTriangle()
+        imageAttachment.image = R.image.iconDetails()
         imageAttachment.bounds = CGRect(
             x: 0,
-            y: 3,
-            width: 12,
-            height: 6
+            y: 0,
+            width: 6,
+            height: 10
         )
 
         let imageString = NSAttributedString(attachment: imageAttachment)

@@ -103,8 +103,8 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmModelStateListener 
         }
 
         switch result {
-        case .success:
-            wireframe.complete(from: view)
+        case let .success(result):
+            wireframe.complete(on: view, title: result)
         case .failure:
             wireframe.presentExtrinsicFailed(from: view, locale: view.localizationManager?.selectedLocale)
         }

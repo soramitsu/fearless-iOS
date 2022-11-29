@@ -16,10 +16,11 @@ final class StakingPoolInfoPresenter {
 
     private var priceData: PriceData?
     private var palletId: Data?
-    private var electedValidators: [ElectedValidatorInfo]?
+    private var validators: YourValidatorsModel?
 
     private var stakingPool: StakingPool?
     private var editedRoles: StakingPoolRoles?
+    private var activeEraInfo: ActiveEraInfo?
 
     private var nomination: Nomination?
     private var eraStakersInfo: EraStakersInfo?
@@ -51,8 +52,7 @@ final class StakingPoolInfoPresenter {
 
     private func provideViewModel() {
         guard
-            let stashAccount = fetchPoolAccount(for: .stash),
-            let electedValidators = electedValidators,
+            let validators = validators,
             let stakingPool = stakingPool,
             let editedRoles = editedRoles
         else {
@@ -63,8 +63,7 @@ final class StakingPoolInfoPresenter {
         view?.didStopLoading()
 
         let viewModel = viewModelFactory.buildViewModel(
-            stashAccount: stashAccount,
-            electedValidators: electedValidators,
+            validators: validators,
             stakingPool: stakingPool,
             priceData: priceData,
             locale: selectedLocale,
@@ -118,13 +117,17 @@ final class StakingPoolInfoPresenter {
         return poolAccountId[0 ... 31]
     }
 
-    private func fetchPoolNomination() {
-        guard
-            let poolStashAccountId = fetchPoolAccount(for: .stash) else {
+    private func fetchValidators() {
+        guard let stashAccountId = fetchPoolAccount(for: .stash),
+              let activeEraInfo = activeEraInfo
+        else {
             return
         }
 
-        interactor.fetchPoolNomination(poolStashAccountId: poolStashAccountId)
+        interactor.fetchPoolNomination(
+            poolStashAccountId: stashAccountId,
+            activeEra: activeEraInfo.index
+        )
     }
 }
 
@@ -138,8 +141,9 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
 
         provideViewModel()
         view.didReceive(status: status)
+
         if status == nil {
-            fetchPoolNomination()
+            fetchValidators()
         }
     }
 
@@ -209,13 +213,14 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
 // MARK: - StakingPoolInfoInteractorOutput
 
 extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
-    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>) {
-        switch result {
-        case let .success(electedValidators):
-            self.electedValidators = electedValidators
-            provideViewModel()
+    func didReceive(activeEra: Result<ActiveEraInfo?, Error>) {
+        switch activeEra {
+        case let .success(activeEraInfo):
+            self.activeEraInfo = activeEraInfo
+
+            fetchValidators()
         case let .failure(error):
-            logger?.error(error.localizedDescription)
+            logger?.error("StakingPoolJoinConfigPresenter.didReceive.activeEra.error: \(error)")
         }
     }
 
@@ -235,9 +240,7 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
         case let .success(palletId):
             self.palletId = palletId
             provideViewModel()
-            if status == nil {
-                fetchPoolNomination()
-            }
+            fetchValidators()
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }
@@ -250,20 +253,24 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
             editedRoles = stakingPool.info.roles
         }
 
-        if status == nil {
-            fetchPoolNomination()
-        }
-
+        provideStatus()
         provideViewModel()
+        fetchValidators()
     }
 
     func didReceive(error: Error) {
         logger?.error(error.localizedDescription)
     }
 
+    func didReceiveValidators(validators: YourValidatorsModel) {
+        self.validators = validators
+        provideViewModel()
+    }
+
     func didReceive(nomination: Nomination?) {
         self.nomination = nomination
         provideStatus()
+        provideViewModel()
     }
 
     func didReceive(eraStakersInfo: EraStakersInfo) {
