@@ -5,8 +5,8 @@ protocol QROperationFactoryProtocol: AnyObject {
 }
 
 final class QROperationFactory: QROperationFactoryProtocol {
-    public init() {}
-    public func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation {
+    init() {}
+    func createCreationOperation(for payload: Data, qrSize: CGSize) -> QRCreationOperation {
         QRCreationOperation(payload: payload, qrSize: qrSize)
     }
 }

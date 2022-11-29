@@ -13,13 +13,13 @@ protocol QRServiceProtocol: AnyObject {
 }
 
 final class QRService {
-    let operationFactory: WalletQROperationFactoryProtocol
+    let operationFactory: QROperationFactoryProtocol
     let operationQueue: OperationQueue
 
     private let encoder: QREncoderProtocol
 
-    public init(
-        operationFactory: WalletQROperationFactoryProtocol,
+    init(
+        operationFactory: QROperationFactoryProtocol,
         encoder: QREncoderProtocol = QREncoder(),
         operationQueue: OperationQueue = OperationQueue()
     ) {

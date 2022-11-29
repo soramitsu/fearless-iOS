@@ -8,7 +8,7 @@ enum QRCreationOperationError: Error {
     case bitmapImageCreationFailed
 }
 
-public final class QRCreationOperation: BaseOperation<UIImage> {
+final class QRCreationOperation: BaseOperation<UIImage> {
     let payload: Data
     let qrSize: CGSize
 
@@ -19,7 +19,7 @@ public final class QRCreationOperation: BaseOperation<UIImage> {
         super.init()
     }
 
-    override public func main() {
+    override func main() {
         super.main()
 
         guard let filter = CIFilter(name: "CIQRCodeGenerator") else {
