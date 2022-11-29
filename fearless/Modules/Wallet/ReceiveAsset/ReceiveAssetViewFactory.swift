@@ -1,4 +1,3 @@
-import CommonWallet
 import SoraFoundation
 import SoraUI
 
@@ -13,14 +12,9 @@ struct ReceiveAssetViewFactory {
         }
         let wireframe = ReceiveAssetWireframe()
 
-        let qrEncoder = WalletQREncoder(
-            addressPrefix: chain.addressPrefix,
-            publicKey: chainAccount.publicKey,
-            username: chainAccount.name
-        )
-        let qrService = WalletQRService(
-            operationFactory: WalletQROperationFactory(),
-            encoder: qrEncoder
+        let qrService = QRService(
+            operationFactory: QROperationFactory(),
+            encoder: QREncoder()
         )
         let sharingFactory = AccountShareFactory()
         let presenter = ReceiveAssetPresenter(

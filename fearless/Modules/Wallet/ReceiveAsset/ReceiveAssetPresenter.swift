@@ -1,4 +1,3 @@
-import CommonWallet
 import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
@@ -12,7 +11,7 @@ final class ReceiveAssetPresenter {
     weak var view: ReceiveAssetViewProtocol?
 
     private let wireframe: ReceiveAssetWireframeProtocol
-    private let qrService: WalletQRServiceProtocol
+    private let qrService: QRServiceProtocol
     private let addressFactory = SS58AddressFactory()
     private let sharingFactory: AccountShareFactoryProtocol
 
@@ -28,7 +27,7 @@ final class ReceiveAssetPresenter {
 
     init(
         wireframe: ReceiveAssetWireframe,
-        qrService: WalletQRServiceProtocol,
+        qrService: QRServiceProtocol,
         sharingFactory: AccountShareFactoryProtocol,
         account: MetaAccountModel,
         chain: ChainModel,
@@ -105,20 +104,24 @@ private extension ReceiveAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
 
-        guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
+        guard let account = account.fetch(for: chain.accountRequest()), let address = account.toAddress() else {
             processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
             return
         }
-
-        let receiveInfo = ReceiveInfo(
-            accountId: accountId.toHex(),
-            assetId: asset.id,
-            amount: nil,
-            details: nil
-        )
+        var qrType: QRType = .address(address)
+        if chain.isSora {
+            let addressInfo = SoraQRInfo(
+                prefix: SubstrateQR.prefix,
+                address: address,
+                rawPublicKey: account.publicKey,
+                username: account.name,
+                assetId: asset.currencyId ?? ""
+            )
+            qrType = .addressInfo(addressInfo)
+        }
         do {
             qrOperation = try qrService.generate(
-                from: receiveInfo,
+                with: qrType,
                 qrSize: Constants.qrSize,
                 runIn: .main
             ) { [weak self] operationResult in
