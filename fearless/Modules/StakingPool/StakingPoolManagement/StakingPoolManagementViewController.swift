@@ -84,7 +84,7 @@ final class StakingPoolManagementViewController: UIViewController, ViewHolder, H
 
         let poolInfoTapGesture = UITapGestureRecognizer()
         poolInfoTapGesture.addTarget(self, action: #selector(poolInfoNameTapped))
-        rootView.poolInfoView.valueLabel.addGestureRecognizer(poolInfoTapGesture)
+        rootView.poolInfoView.addGestureRecognizer(poolInfoTapGesture)
     }
 
     // MARK: - Private actions
