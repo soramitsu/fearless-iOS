@@ -53,6 +53,8 @@
 		0761DEB228E1F54D00B90D2C /* StakingPoolCreateViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */; };
 		0761DEB428E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0761DEB328E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift */; };
 		07696A2D28BDC81F00B17040 /* ReaderWriterLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07696A2C28BDC81F00B17040 /* ReaderWriterLock.swift */; };
+		076D9D272935B935002762E3 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D262935B935002762E3 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
+		076D9D292935B947002762E3 /* RecommendedValidatorListPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D282935B947002762E3 /* RecommendedValidatorListPoolStrategy.swift */; };
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
@@ -2536,6 +2538,8 @@
 		0761DEB128E1F54D00B90D2C /* StakingPoolCreateViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModel.swift; sourceTree = "<group>"; };
 		0761DEB328E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateViewModelFactory.swift; sourceTree = "<group>"; };
 		07696A2C28BDC81F00B17040 /* ReaderWriterLock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReaderWriterLock.swift; sourceTree = "<group>"; };
+		076D9D262935B935002762E3 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		076D9D282935B947002762E3 /* RecommendedValidatorListPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolStrategy.swift; sourceTree = "<group>"; };
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
@@ -5244,6 +5248,8 @@
 			isa = PBXGroup;
 			children = (
 				07D05E4F28EF044E00B66C70 /* RecommendedValidatorListPoolViewModelState.swift */,
+				076D9D282935B947002762E3 /* RecommendedValidatorListPoolStrategy.swift */,
+				076D9D262935B935002762E3 /* RecommendedValidatorListPoolViewModelFactory.swift */,
 			);
 			path = Pool;
 			sourceTree = "<group>";
@@ -13399,6 +13405,7 @@
 				84415BCA26E783EB005A3683 /* PayoutValidatorsForNominatorFactory.swift in Sources */,
 				FA37AE432859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift in Sources */,
 				FAA0133128DA12B6000A5230 /* StakingPoolMainViewController.swift in Sources */,
+				076D9D272935B935002762E3 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */,
 				FA93A30C2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift in Sources */,
 				844CB56E26F9CB1500396E13 /* CrowdloanLocalStorageSubscriber.swift in Sources */,
 				0716C84C288802EB004C8CB1 /* SwipableTableViewCell.swift in Sources */,
@@ -14510,6 +14517,7 @@
 				8488ECD7258CDCBC004591CC /* PurchaseCompletionHandler.swift in Sources */,
 				F47BBD562630B9EF0087DA11 /* StakingBalanceInteractor.swift in Sources */,
 				84FAB06B2542F2C700319F74 /* ContactsViewModelFactory.swift in Sources */,
+				076D9D292935B947002762E3 /* RecommendedValidatorListPoolStrategy.swift in Sources */,
 				FA256A51274CEB9800875A53 /* FeePriceViewModel.swift in Sources */,
 				84FAB0782543791A00319F74 /* ContactContext.swift in Sources */,
 				FA2FC81B28B3807D00CC0A42 /* StakingPoolStartViewLayout.swift in Sources */,
