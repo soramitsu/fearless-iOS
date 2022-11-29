@@ -7,6 +7,7 @@ final class SelectAssetAssembly {
     static func configureModule(
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
+        chainAssets: [ChainAsset]?,
         searchTextsViewModel: TextSearchViewModel?,
         output: SelectAssetModuleOutput
     ) -> SelectAssetModuleCreationResult? {
@@ -52,6 +53,7 @@ final class SelectAssetAssembly {
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             assetRepository: AnyDataProviderRepository(assetRepository),
+            chainAssets: chainAssets,
             operationQueue: operationQueue
         )
         let router = SelectAssetRouter()

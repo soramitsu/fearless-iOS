@@ -4,7 +4,6 @@ import SoraFoundation
 final class CreateContactAssembly {
     static func configureModule(
         moduleOutput: CreateContactModuleOutput,
-        wallet: MetaAccountModel,
         chain: ChainModel,
         address: String?
     ) -> CreateContactModuleCreationResult? {
@@ -21,7 +20,6 @@ final class CreateContactAssembly {
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory,
             moduleOutput: moduleOutput,
-            wallet: wallet,
             chain: chain,
             address: address
         )
