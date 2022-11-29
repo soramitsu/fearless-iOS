@@ -21,6 +21,9 @@ final class StakingPoolInfoPresenter {
     private var stakingPool: StakingPool?
     private var editedRoles: StakingPoolRoles?
 
+    private var nomination: Nomination?
+    private var eraStakersInfo: EraStakersInfo?
+
     // MARK: - Constructors
 
     init(
@@ -71,6 +74,21 @@ final class StakingPoolInfoPresenter {
         view?.didReceive(viewModel: viewModel)
     }
 
+    private func provideStatus() {
+        guard let poolInfo = stakingPool
+        else {
+            return
+        }
+
+        let status = viewModelFactory.buildStatus(
+            poolInfo: poolInfo,
+            era: eraStakersInfo?.activeEra,
+            nomination: nomination
+        )
+
+        view?.didReceive(status: status)
+    }
+
     private func fetchPoolAccount(for type: PoolAccount) -> AccountId? {
         guard
             let modPrefix = "modl".data(using: .utf8),
@@ -99,6 +117,15 @@ final class StakingPoolInfoPresenter {
 
         return poolAccountId[0 ... 31]
     }
+
+    private func fetchPoolNomination() {
+        guard
+            let poolStashAccountId = fetchPoolAccount(for: .stash) else {
+            return
+        }
+
+        interactor.fetchPoolNomination(poolStashAccountId: poolStashAccountId)
+    }
 }
 
 // MARK: - StakingPoolInfoViewOutput
@@ -111,6 +138,9 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
 
         provideViewModel()
         view.didReceive(status: status)
+        if status == nil {
+            fetchPoolNomination()
+        }
     }
 
     func willAppear(view: StakingPoolInfoViewInput) {
@@ -205,6 +235,9 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
         case let .success(palletId):
             self.palletId = palletId
             provideViewModel()
+            if status == nil {
+                fetchPoolNomination()
+            }
         case let .failure(error):
             logger?.error(error.localizedDescription)
         }
@@ -217,11 +250,25 @@ extension StakingPoolInfoPresenter: StakingPoolInfoInteractorOutput {
             editedRoles = stakingPool.info.roles
         }
 
+        if status == nil {
+            fetchPoolNomination()
+        }
+
         provideViewModel()
     }
 
     func didReceive(error: Error) {
         logger?.error(error.localizedDescription)
+    }
+
+    func didReceive(nomination: Nomination?) {
+        self.nomination = nomination
+        provideStatus()
+    }
+
+    func didReceive(eraStakersInfo: EraStakersInfo) {
+        self.eraStakersInfo = eraStakersInfo
+        provideStatus()
     }
 }
 
