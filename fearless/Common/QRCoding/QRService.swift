@@ -1,5 +1,6 @@
 import RobinHood
 import Foundation
+import CommonWallet
 
 protocol QRServiceProtocol: AnyObject {
     @discardableResult
@@ -12,13 +13,13 @@ protocol QRServiceProtocol: AnyObject {
 }
 
 final class QRService {
-    let operationFactory: QROperationFactoryProtocol
+    let operationFactory: WalletQROperationFactoryProtocol
     let operationQueue: OperationQueue
 
     private let encoder: QREncoderProtocol
 
     public init(
-        operationFactory: QROperationFactoryProtocol,
+        operationFactory: WalletQROperationFactoryProtocol,
         encoder: QREncoderProtocol = QREncoder(),
         operationQueue: OperationQueue = OperationQueue()
     ) {
