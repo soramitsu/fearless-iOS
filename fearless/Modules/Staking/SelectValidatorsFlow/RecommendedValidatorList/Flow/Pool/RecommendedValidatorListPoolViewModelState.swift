@@ -29,7 +29,16 @@ final class RecommendedValidatorListPoolExistingViewModelState: RecommendedValid
     }
 
     override func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
-        .poolExisting(poolId: poolId, targets: validators, maxTargets: maxTargets, bonding: bonding)
+        guard !validators.isEmpty else {
+            return nil
+        }
+
+        return .poolExisting(
+            poolId: poolId,
+            targets: validators,
+            maxTargets: maxTargets,
+            bonding: bonding
+        )
     }
 }
 
