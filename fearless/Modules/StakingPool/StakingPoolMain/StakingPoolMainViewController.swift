@@ -132,7 +132,9 @@ extension StakingPoolMainViewController: StakingPoolMainViewInput {
 // MARK: - Localizable
 
 extension StakingPoolMainViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension StakingPoolMainViewController: RewardCalculatorViewDelegate {

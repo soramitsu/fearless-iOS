@@ -293,6 +293,9 @@ class StakingRewardCalculatorView: UIView {
 
     private func setupSkeleton() {
         let spaceSize = frame.size
+        guard spaceSize != .zero else {
+            return
+        }
 
         let skeletonView = Skrull(
             size: spaceSize,

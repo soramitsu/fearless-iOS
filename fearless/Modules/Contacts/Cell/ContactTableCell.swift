@@ -7,7 +7,7 @@ protocol ContactTableCellDelegate: AnyObject {
 class ContactTableCell: UITableViewCell {
     enum LayoutConstants {
         static let contactImageViewSize = CGSize(width: 32, height: 32)
-        static let addContactButtonSize = CGSize(width: 73, height: 32)
+        static let addContactButtonSize = CGSize(width: 41, height: 32)
     }
 
     private weak var delegate: ContactTableCellDelegate?
@@ -44,12 +44,15 @@ class ContactTableCell: UITableViewCell {
 
     let addButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDisabledStyle()
         button.isHidden = false
-        button.isUserInteractionEnabled = true
-        button.imageWithTitleView?.title = "ADD"
-        button.imageWithTitleView?.titleFont = .capsTitle
-        button.imageWithTitleView?.iconImage = R.image.iconAddFilled()
+        button.imageWithTitleView?.iconImage = R.image.iconAddContact()
+        button.triangularedView?.shadowOpacity = 0
+        button.triangularedView?.fillColor = R.color.colorBlack1()!
+        button.triangularedView?.highlightedFillColor = R.color.colorBlack1()!
+        button.triangularedView?.strokeColor = .clear
+        button.triangularedView?.highlightedStrokeColor = .clear
+
+        button.contentOpacityWhenDisabled = 1
         return button
     }()
 
