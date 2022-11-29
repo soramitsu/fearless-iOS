@@ -13,13 +13,13 @@ protocol QRServiceProtocol: AnyObject {
 }
 
 final class QRService {
-    let operationFactory: QROperationFactoryProtocol
+    let operationFactory: QRCodeOperationFactoryProtocol
     let operationQueue: OperationQueue
 
     private let encoder: QREncoderProtocol
 
     init(
-        operationFactory: QROperationFactoryProtocol,
+        operationFactory: QRCodeOperationFactoryProtocol,
         encoder: QREncoderProtocol = QREncoder(),
         operationQueue: OperationQueue = OperationQueue()
     ) {
@@ -38,7 +38,7 @@ extension QRService: QRServiceProtocol {
         completionBlock: @escaping (Result<UIImage, Error>?) -> Void
     ) throws -> Operation {
         let payload = try encoder.encode(with: qrType)
-        let operation = operationFactory.createCreationOperation(for: payload, qrSize: qrSize)
+        let operation = operationFactory.createQRCreationOperation(for: payload, qrSize: qrSize)
 
         operation.completionBlock = {
             queue.async {
