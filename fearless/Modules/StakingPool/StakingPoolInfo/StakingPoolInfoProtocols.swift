@@ -31,6 +31,8 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceive(stakingPool: StakingPool?)
     func didReceive(error: Error)
     func didReceive(activeEra: Result<ActiveEraInfo?, Error>)
+    func didReceive(nomination: Nomination?)
+    func didReceive(eraStakersInfo: EraStakersInfo)
 }
 
 protocol StakingPoolInfoRouterInput: PresentDismissable, ApplicationStatusPresentable {

@@ -129,7 +129,8 @@ final class StakingPoolInfoAssembly {
             validatorOperationFactory: validatorOperationFactory,
             poolId: poolId,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            eraValidatorService: eraValidatorService
         )
         let router = StakingPoolInfoRouter()
 

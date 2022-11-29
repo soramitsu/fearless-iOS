@@ -216,12 +216,12 @@ final class StakingPoolInfoViewLayout: UIView {
 
     func bind(status: NominationViewStatus?) {
         guard let status = status else {
+            statusView.isHidden = true
             return
         }
 
         switch status {
         case .undefined:
-            statusView.isHidden = true
             return
         case let .active(index):
             presentActiveStatus(for: index)
