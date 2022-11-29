@@ -21,6 +21,7 @@ protocol StakingPoolInfoViewOutput: AnyObject {
 
 protocol StakingPoolInfoInteractorInput: AnyObject {
     func setup(with output: StakingPoolInfoInteractorOutput)
+    func fetchPoolNomination(poolStashAccountId: AccountId)
 }
 
 protocol StakingPoolInfoInteractorOutput: AnyObject {
@@ -29,6 +30,8 @@ protocol StakingPoolInfoInteractorOutput: AnyObject {
     func didReceive(palletIdResult: Result<Data, Error>)
     func didReceive(stakingPool: StakingPool?)
     func didReceive(error: Error)
+    func didReceive(nomination: Nomination?)
+    func didReceive(eraStakersInfo: EraStakersInfo)
 }
 
 protocol StakingPoolInfoRouterInput: PresentDismissable, ApplicationStatusPresentable {
