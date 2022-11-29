@@ -13,6 +13,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
     private let poolId: String
     private let stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private let eraValidatorService: EraValidatorServiceProtocol
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -21,7 +22,8 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         runtimeService: RuntimeCodingServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         poolId: String,
-        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol
+        stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
+        eraValidatorService: EraValidatorServiceProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
@@ -30,6 +32,7 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
         self.validatorOperationFactory = validatorOperationFactory
         self.poolId = poolId
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
+        self.eraValidatorService = eraValidatorService
     }
 
     private func prepareRecommendedValidatorList() {
@@ -64,6 +67,23 @@ final class StakingPoolInfoInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
     }
+
+    private func provideEraStakersInfo() {
+        let operation = eraValidatorService.fetchInfoOperation()
+
+        operation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try operation.extractNoCancellableResultData()
+                    self?.output?.didReceive(eraStakersInfo: info)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
 }
 
 // MARK: - StakingPoolInfoInteractorInput
@@ -87,6 +107,23 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
         }
 
         fetchPoolInfo(poolId: poolId)
+        provideEraStakersInfo()
+    }
+
+    func fetchPoolNomination(poolStashAccountId: AccountId) {
+        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
+        nominationOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(nomination: nomination)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
     }
 }
 
