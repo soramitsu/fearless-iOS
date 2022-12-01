@@ -900,3 +900,5 @@ and depending on the network state, may not be selected to participate";
 "pool.join.no.validators.message" = "The pool hasn't chosen any validators yet. If you join it you won't get any rewards until validators are selected";
 "history.empty.description" = "You don't have any transactions here";
 "pool.claimable.title" = "Claimable";
+"validators.list.empty.message" = "No validators";
+"custom.validators.empty.message" = "No validators found. Please try to change filters";

@@ -1,12 +1,13 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class CustomValidatorListViewController: UIViewController, ViewHolder, ImportantViewProtocol {
     typealias RootViewType = CustomValidatorListViewLayout
 
     let presenter: CustomValidatorListPresenterProtocol
 
-    private var cellViewModels: [CustomValidatorCellViewModel] = []
+    private var cellViewModels: [CustomValidatorCellViewModel]?
     private var headerViewModel: TitleWithSubtitleViewModel?
     private var selectedValidatorsCount: Int = 0
     private var selectedValidatorsLimit: Int = 0
@@ -173,6 +174,8 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         }
 
         updateProceedButton(title: viewModel.proceedButtonTitle)
+
+        reloadEmptyState(animated: false)
     }
 
     func setFilterAppliedState(to applied: Bool) {
@@ -189,10 +192,18 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
 
 extension CustomValidatorListViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        cellViewModels.count
+        guard let cellViewModels = cellViewModels else {
+            return 0
+        }
+
+        return cellViewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard let cellViewModels = cellViewModels else {
+            return UITableViewCell()
+        }
+
         let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
         cell.delegate = self
 
@@ -207,6 +218,10 @@ extension CustomValidatorListViewController: UITableViewDataSource {
 
 extension CustomValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let cellViewModels = cellViewModels else {
+            return
+        }
+
         tableView.deselectRow(at: indexPath, animated: true)
         let viewModel = cellViewModels[indexPath.row]
 
@@ -218,9 +233,43 @@ extension CustomValidatorListViewController: UITableViewDelegate {
 
 extension CustomValidatorListViewController: CustomValidatorCellDelegate {
     func didTapInfoButton(in cell: CustomValidatorCell) {
+        guard let cellViewModels = cellViewModels else {
+            return
+        }
+
         if let indexPath = rootView.tableView.indexPath(for: cell) {
             let viewModel = cellViewModels[indexPath.row]
             presenter.didSelectValidator(address: viewModel.address)
         }
+    }
+}
+
+extension CustomValidatorListViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension CustomValidatorListViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let _ = cellViewModels else {
+            return nil
+        }
+
+        let errorView = ErrorStateView()
+        errorView.isUserInteractionEnabled = false
+        errorView.errorDescriptionLabel.text = R.string.localizable.customValidatorsEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
+        errorView.locale = selectedLocale
+        errorView.setRetryEnabled(false)
+        return errorView
+    }
+}
+
+extension CustomValidatorListViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let cellViewModels = cellViewModels else {
+            return false
+        }
+
+        return cellViewModels.isEmpty
     }
 }
