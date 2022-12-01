@@ -3,6 +3,7 @@ import UIKit
 final class QRView: UIView {
     private enum LayoutConstants {
         static let cornerRadius: CGFloat = 24
+        static let imageSize = CGSize(width: 77, height: 34)
     }
 
     let qrImageView = UIImageView()
@@ -40,6 +41,7 @@ final class QRView: UIView {
         addSubview(fearlessIcon)
         fearlessIcon.snp.makeConstraints { make in
             make.center.equalToSuperview()
+            make.size.equalTo(LayoutConstants.imageSize)
         }
     }
 }
