@@ -312,7 +312,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             let amountString = (minNominatorBond ?? Decimal.zero).stringWithPointSeparator
-            let amountWithSymbolString = [amountString, asset.id.uppercased()].joined(separator: " ")
+            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
 
             self?.presentable.presentWarningAlert(from: view, config: WarningAlertConfig.inactiveAlertConfig(bondAmount: amountWithSymbolString, with: locale), buttonHandler: {
                 self?.presentable.dismiss(view: view)
@@ -337,6 +337,43 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentMissingPoolName(from: view, locale: locale)
         }, preservesCondition: {
             complite ?? false
+        })
+    }
+
+    func stakingPoolRootCanUnbond(
+        amount: Decimal?,
+        bonded: Decimal?,
+        minimalRootBond: Decimal?,
+        locale: Locale,
+        asset: AssetModel
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view, let minimalRootBond = minimalRootBond else {
+                return
+            }
+
+            let amountString = minimalRootBond.stringWithPointSeparator
+            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
+
+            self?.presentable.presentPoolRootUnbondingTooHigh(
+                minimalBond: amountWithSymbolString,
+                from: view,
+                locale: locale,
+                action: {
+                    if let webPresentable = self?.presentable as? WebPresentable,
+                       let url = URL(string: URLConstants.polkadotJsPlus) {
+                        webPresentable.showWeb(url: url, from: view, style: .automatic)
+                    }
+                }
+            )
+        }, preservesCondition: {
+            if let amount = amount,
+               let bonded = bonded,
+               let minimalRootBond = minimalRootBond {
+                return amount - bonded >= minimalRootBond
+            } else {
+                return false
+            }
         })
     }
 }
