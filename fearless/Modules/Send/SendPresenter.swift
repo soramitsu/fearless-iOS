@@ -547,7 +547,7 @@ private extension SendPresenter {
                 from: view,
                 wallet: wallet,
                 selectedAssetId: nil,
-                chainAssets: nil,
+                chainAssets: chain.chainAssets,
                 output: self
             )
         }
