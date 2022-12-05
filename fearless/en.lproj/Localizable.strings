@@ -906,3 +906,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.root.unbond.too.high.title" = "You can't make a complete unstake";
 "pool.root.unbond.too.high.text" = "You are a pool's owner, and your stake should be at least %@. If you want to destroy your pool and kick out its members, please use Polkadot.js.plus";
 "polkadot.js.plus.action.title" = "Polkadot.js Plus";
+"validators.list.empty.message" = "No validators";
+"custom.validators.empty.message" = "No validators found. Please try to change filters";

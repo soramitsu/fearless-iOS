@@ -65,4 +65,8 @@ class ErrorStateView: UIView {
     func handleRetryAction() {
         delegate?.didRetry(errorView: self)
     }
+
+    public func setRetryEnabled(_ enabled: Bool) {
+        retryButton.isHidden = !enabled
+    }
 }

@@ -71,7 +71,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true && (rootView.poolNameInputView.text?.isNotEmpty == true))
+        let isEnabled = (amountInputViewModel?.isValid == true && (poolNameInputViewModel?.inputHandler.value.isNotEmpty == true))
         rootView.feeView.actionButton.set(enabled: isEnabled)
     }
 
@@ -143,6 +143,7 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
 
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {
         rootView.feeView.bindBalance(viewModel: feeViewModel)
+        updateActionButton()
     }
 }
 
@@ -214,6 +215,8 @@ extension StakingPoolCreateViewController: AnimatedTextFieldDelegate {
         }
 
         output.nameTextFieldInputValueChanged()
+
+        updateActionButton()
 
         return shouldApply
     }
