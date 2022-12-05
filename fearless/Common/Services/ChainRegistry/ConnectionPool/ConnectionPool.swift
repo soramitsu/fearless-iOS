@@ -52,7 +52,8 @@ extension ConnectionPool: ConnectionPoolProtocol {
         }
 
         if ignoredUrl == nil,
-           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection,
+           connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
             return connection
         }
 

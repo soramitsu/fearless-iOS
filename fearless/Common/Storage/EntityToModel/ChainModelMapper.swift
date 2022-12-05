@@ -236,6 +236,7 @@ final class ChainModelMapper {
         context: NSManagedObjectContext
     ) {
         guard let node = model.selectedNode else {
+            entity.selectedNode = nil
             return
         }
         let nodeEntity: CDChainNode
