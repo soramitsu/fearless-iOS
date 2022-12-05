@@ -13,6 +13,8 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
     private(set) var fee: Decimal?
     private let dataValidatingFactory: StakingDataValidatingFactory
     private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private var networkInfo: StakingPoolNetworkInfo?
+    private var stakingPool: StakingPool?
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard
@@ -45,6 +47,22 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
         inputAmount
     }
 
+    private lazy var minimumRootBond: Decimal = {
+        guard let minCreateBond = networkInfo?.minCreateBond else {
+            return .zero
+        }
+
+        return Decimal.fromSubstrateAmount(minCreateBond, precision: Int16(chainAsset.asset.precision)) ?? .zero
+    }()
+
+    private lazy var amountAfterUnbond: Decimal = {
+        guard let inputAmount = inputAmount, let bonded = bonded else {
+            return .zero
+        }
+
+        return bonded - inputAmount
+    }()
+
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -60,14 +78,26 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
     }
 
     func validators(using locale: Locale) -> [DataValidating] {
-        [
+        let userIsRoot = stakingPool?.info.roles.depositor == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+
+        return [
             dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.stateListener?.updateFeeIfNeeded()
             }),
 
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
+
+            userIsRoot
+                ? dataValidatingFactory.stakingPoolRootCanUnbond(
+                    amount: inputAmount,
+                    bonded: bonded,
+                    minimalRootBond: minimumRootBond,
+                    locale: locale,
+                    asset: chainAsset.asset
+                )
+                : SucceedDataValidating()
         ]
     }
 
@@ -146,5 +176,13 @@ extension StakingUnbondSetupPoolViewModelState: StakingUnbondSetupPoolStrategyOu
     func didReceive(stakingDuration: StakingDuration) {
         self.stakingDuration = stakingDuration
         stateListener?.provideBondingDuration()
+    }
+
+    func didReceive(networkInfo: StakingPoolNetworkInfo) {
+        self.networkInfo = networkInfo
+    }
+
+    func didReceive(stakingPool: StakingPool?) {
+        self.stakingPool = stakingPool
     }
 }

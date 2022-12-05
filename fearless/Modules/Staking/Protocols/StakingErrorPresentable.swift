@@ -49,6 +49,12 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyD
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentMissingPoolName(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentPoolRootUnbondingTooHigh(
+        minimalBond: String,
+        from view: ControllerBackedProtocol,
+        locale: Locale?,
+        action: @escaping () -> Void
+    )
 }
 
 extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
@@ -238,5 +244,27 @@ extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPrese
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentPoolRootUnbondingTooHigh(
+        minimalBond: String,
+        from view: ControllerBackedProtocol,
+        locale: Locale?,
+        action: @escaping () -> Void
+    ) {
+        let title = R.string.localizable.poolRootUnbondTooHighTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let message = R.string.localizable.poolRootUnbondTooHighText(
+            minimalBond,
+            preferredLanguages: locale?.rLanguages
+        )
+        let polkadotJsPlusAction = SheetAlertPresentableAction(
+            title: R.string.localizable.polkadotJsPlusActionTitle(preferredLanguages: locale?.rLanguages),
+            handler: action
+        )
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view, actions: [polkadotJsPlusAction])
     }
 }

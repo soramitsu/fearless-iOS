@@ -900,5 +900,8 @@ and depending on the network state, may not be selected to participate";
 "pool.join.no.validators.message" = "The pool hasn't chosen any validators yet. If you join it you won't get any rewards until validators are selected";
 "history.empty.description" = "You don't have any transactions here";
 "pool.claimable.title" = "Claimable";
+"pool.root.unbond.too.high.title" = "You can't make a complete unstake";
+"pool.root.unbond.too.high.text" = "You are a pool's owner, and your stake should be at least %@. If you want to destroy your pool and kick out its members, please use Polkadot.js.plus";
+"polkadot.js.plus.action.title" = "Polkadot.js Plus";
 "validators.list.empty.message" = "No validators";
 "custom.validators.empty.message" = "No validators found. Please try to change filters";
