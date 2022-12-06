@@ -10,12 +10,15 @@ final class StakingPoolCreateConfirmRouter: StakingPoolCreateConfirmRouterInput 
 
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String
+        extrinsicHash: String
     ) {
-        let presenter = view?.controller.navigationController?.presentingViewController
+        guard let view = view else {
+            return
+        }
+        let presenter = view.controller.navigationController?.presentingViewController
 
         if let presenter = presenter as? ControllerBackedProtocol {
-            presentSuccessNotification(title, from: presenter)
+            presentDone(extrinsicHash: extrinsicHash, from: presenter)
         }
     }
 

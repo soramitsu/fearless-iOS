@@ -123,10 +123,8 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
         view?.didStopLoading()
 
         switch extrinsicResult {
-        case .success:
-            let title = R.string.localizable
-                .commonTransactionSubmitted(preferredLanguages: selectedLocale.rLanguages)
-            router.complete(on: view, title: title)
+        case let .success(hash):
+            router.complete(on: view, extrinsicHash: hash)
             view?.didStartLoading()
         case let .failure(error):
             guard let view = view else {

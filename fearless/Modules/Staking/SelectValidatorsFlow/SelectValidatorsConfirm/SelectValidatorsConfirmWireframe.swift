@@ -1,15 +1,13 @@
 import Foundation
 
-final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting {
-    func complete(from view: SelectValidatorsConfirmViewProtocol?) {
-        let languages = view?.localizationManager?.selectedLocale.rLanguages
-        let title = R.string.localizable
-            .stakingSetupSentMessage(preferredLanguages: languages)
-
+final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting, AllDonePresentable {
+    func complete(txHash: String, from view: SelectValidatorsConfirmViewProtocol?) {
         let presenter = view?.controller.navigationController?.presentingViewController
+        let navigationController = view?.controller.navigationController
 
-        presenter?.dismiss(animated: true) {
-            self.presentSuccessNotification(title, from: presenter, completion: nil)
+        navigationController?.dismiss(animated: true)
+        if let presenter = presenter as? ControllerBackedProtocol {
+            presentDone(extrinsicHash: txHash, from: presenter)
         }
     }
 }
