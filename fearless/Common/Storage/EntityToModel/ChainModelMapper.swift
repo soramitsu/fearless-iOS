@@ -10,10 +10,17 @@ final class ChainModelMapper {
 
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
+        var symbol: String?
+
+        if let entitySymbol = entity.symbol {
+            symbol = entitySymbol
+        } else {
+            symbol = entity.id
+        }
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = entity.symbol
+            let symbol = symbol
         else {
             preconditionFailure()
         }
