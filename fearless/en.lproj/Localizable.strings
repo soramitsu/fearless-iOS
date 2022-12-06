@@ -909,3 +909,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "validators.list.empty.message" = "No validators";
 "custom.validators.empty.message" = "No validators found. Please try to change filters";
 "select.suggested.validators.warning" = "Algorithmic validator suggestions do not constitute financial consultation or advice. Staking is a high-risk activity, and algorithmic validator suggestions do not necessarily mitigate this risk. A validator suggested by the algorithm could still leave the pool of candidates. A validator suggested by the algorithm could also change their parameters (e.g.,commission rates, etc.) at any time after having been suggested and/or selected. You could lose rewards for these or other reasons. Only stake tokens and use validator suggestions at your own discretion, after conducting due diligence and carefully considering the risks involved.";
+"pools.limit.has.reached.error.title" = "You cannot create more pulls";
+"pools.limit.has.reached.error.message" = "The limit of pulls in this network has been reached";
