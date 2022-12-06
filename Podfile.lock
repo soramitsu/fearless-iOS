@@ -1,8 +1,9 @@
 PODS:
   - BigInt (5.2.0)
-  - Charts (3.6.0):
-    - Charts/Core (= 3.6.0)
-  - Charts/Core (3.6.0)
+  - Charts (4.1.0):
+    - Charts/Core (= 4.1.0)
+  - Charts/Core (4.1.0):
+    - SwiftAlgorithms (~> 1.0)
   - CocoaLumberjack (3.7.4):
     - CocoaLumberjack/Core (= 3.7.4)
   - CocoaLumberjack/Core (3.7.4)
@@ -16,6 +17,12 @@ PODS:
   - Cuckoo (1.5.2):
     - Cuckoo/Swift (= 1.5.2)
   - Cuckoo/Swift (1.5.2)
+  - DiffableDataSources (0.5.0):
+    - DifferenceKit/AppKitExtension (~> 1.1)
+    - DifferenceKit/UIKitExtension (~> 1.1)
+  - DifferenceKit/Core (1.3.0)
+  - DifferenceKit/UIKitExtension (1.3.0):
+    - DifferenceKit/Core
   - FearlessUtils (0.14.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
@@ -63,7 +70,7 @@ PODS:
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
-  - RobinHood (2.6.1)
+  - RobinHood (2.6.2)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -124,6 +131,7 @@ PODS:
   - Starscream (4.0.4)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
+  - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftLint (0.45.1)
   - SwiftyBeaver (1.9.5)
@@ -131,9 +139,10 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - Charts
+  - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
+  - DiffableDataSources
   - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `8ffd88528e9a398a741059baddec01b7666bcc87`)
   - FireMock
   - IrohaCrypto
@@ -142,6 +151,7 @@ DEPENDENCIES:
   - R.swift
   - ReachabilitySwift
   - RobinHood
+  - RobinHood (~> 2.6.2)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore
@@ -160,6 +170,8 @@ SPEC REPOS:
     - CocoaLumberjack
     - CommonWallet
     - Cuckoo
+    - DiffableDataSources
+    - DifferenceKit
     - FireMock
     - IrohaCrypto
     - keccak.c
@@ -176,6 +188,7 @@ SPEC REPOS:
     - SoraUI
     - Sourcery
     - SVGKit
+    - SwiftAlgorithms
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
@@ -200,10 +213,12 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: b1e3a1f5a1c9ba5394438ca3b91bd8c9076310af
+  Charts: 354f86803d11d9c35de280587fef50d1af063978
   CocoaLumberjack: 543c79c114dadc3b1aba95641d8738b06b05b646
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: df291c2d8462a39a16494a9db4ef112f5ca3bdc0
+  DiffableDataSources: 1ddde2de1978cc02619b2c3bfafab20e68b57279
+  DifferenceKit: ab185c4d7f9cef8af3fcf593e5b387fb81e999ca
   FearlessUtils: 29225af385d297526e802d5218fa111763ff10de
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
@@ -212,7 +227,7 @@ SPEC CHECKSUMS:
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  RobinHood: bd66f17e8aeb64d2a739d4fe07e4725fc87919d5
+  RobinHood: fe6c8892d85185cd5341f4be116eedba4f1a91e8
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
@@ -222,12 +237,13 @@ SPEC CHECKSUMS:
   Sourcery: f3759f803bd0739f74fc92a4341eed0473ce61ac
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
+  SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftLint: 06ac37e4d38c7068e0935bb30cda95f093bec761
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 82f808377fc9d07fbbc506ad9c9521794239398c
+PODFILE CHECKSUM: b853d5f3aa213da3f53ac55d36627746ad8054da
 
 COCOAPODS: 1.11.3
