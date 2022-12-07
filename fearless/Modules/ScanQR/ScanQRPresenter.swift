@@ -77,6 +77,8 @@ final class ScanQRPresenter: NSObject {
             view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
         case .detectorUnavailable, .invalidImage:
             view?.present(message: L10n.InvoiceScan.Error.invalidImage, animated: true)
+        case .plainAddress:
+            break
         }
     }
 
@@ -185,6 +187,14 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
     func handleMatched(addressInfo: AddressQRInfo) {
         router.close(view: view) {
             self.moduleOutput.didFinishWith(address: addressInfo.address)
+        }
+    }
+
+    func handleAddress(_ address: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.router.close(view: self?.view) {
+                self?.moduleOutput.didFinishWith(address: address)
+            }
         }
     }
 }

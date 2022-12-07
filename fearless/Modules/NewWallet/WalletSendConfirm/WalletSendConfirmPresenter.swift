@@ -153,7 +153,10 @@ final class WalletSendConfirmPresenter {
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func didTapScamWarningButton() {
-        let title = R.string.localizable.scamWarningAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        let title = R.string.localizable.scamWarningAlertTitle(
+            chainAsset.asset.symbol.uppercased(),
+            preferredLanguages: selectedLocale.rLanguages
+        )
         let message = R.string.localizable.scamWarningAlertSubtitle(
             chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
