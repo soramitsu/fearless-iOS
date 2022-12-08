@@ -15,6 +15,7 @@ final class SubtitleContentView: UIView {
         let view = UIStackView()
         view.axis = .horizontal
         view.distribution = .fill
+        view.spacing = 4
         return view
     }()
 
