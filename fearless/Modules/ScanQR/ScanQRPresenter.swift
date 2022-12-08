@@ -182,7 +182,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
         logger.error("Unexpected qr service error \(error)")
     }
 
-    func handleMatched(addressInfo: AddressQRInfo) {
+    func handleMatched(addressInfo: QRInfo) {
         router.close(view: view) {
             self.moduleOutput.didFinishWith(address: addressInfo.address)
         }
