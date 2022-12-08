@@ -66,7 +66,7 @@ final class StakingPoolMainPresenter {
     // MARK: - Private methods
 
     private func provideBalanceViewModel() {
-        if let availableValue = accountInfo?.data.available {
+        if let availableValue = accountInfo?.data.stakingAvailable {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
                 precision: Int16(chainAsset.asset.precision)

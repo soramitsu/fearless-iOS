@@ -152,7 +152,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
+            if let availableValue = accountInfo?.data.stakingAvailable {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
                     precision: Int16(chainAsset.asset.precision)

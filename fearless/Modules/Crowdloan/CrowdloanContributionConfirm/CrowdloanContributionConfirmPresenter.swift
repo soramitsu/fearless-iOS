@@ -301,7 +301,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: assetInfo.assetPrecision)
+                Decimal.fromSubstrateAmount($0.data.sendAvailable, precision: assetInfo.assetPrecision)
             } ?? 0.0
 
             provideAssetVewModel()

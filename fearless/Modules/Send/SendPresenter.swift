@@ -237,7 +237,7 @@ extension SendPresenter: SendInteractorOutput {
                 totalBalanceValue = accountInfo?.data.total ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? 0.0
@@ -246,7 +246,7 @@ extension SendPresenter: SendInteractorOutput {
             } else if let utilityAsset = selectedChainAsset {
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(utilityAsset.asset.precision)
                     )
                 } ?? 0

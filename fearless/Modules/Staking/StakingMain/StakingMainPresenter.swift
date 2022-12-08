@@ -497,7 +497,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(accountInfo: AccountInfo?) {
-        if let availableValue = accountInfo?.data.available, let chainAsset = chainAsset {
+        if let availableValue = accountInfo?.data.stakingAvailable, let chainAsset = chainAsset {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
                 precision: Int16(chainAsset.asset.precision)

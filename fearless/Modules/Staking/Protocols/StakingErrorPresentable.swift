@@ -55,6 +55,7 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyD
         locale: Locale?,
         action: @escaping () -> Void
     )
+    func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
@@ -266,5 +267,18 @@ extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPrese
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view, actions: [polkadotJsPlusAction])
+    }
+
+    func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let title = R.string.localizable.poolsLimitHasReachedErrorTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let message = R.string.localizable.poolsLimitHasReachedErrorMessage(
+            preferredLanguages: locale?.rLanguages
+        )
+
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }

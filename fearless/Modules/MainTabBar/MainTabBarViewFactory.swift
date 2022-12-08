@@ -193,7 +193,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     }
 
     static func createProfileController() -> UIViewController? {
-        // TODO: Remove when settings fixed
         let viewController = ProfileViewFactory.createView()?.controller ?? UIViewController()
         let navigationController = FearlessNavigationController(rootViewController: viewController)
 

@@ -318,10 +318,10 @@ extension StakingPoolCreatePresenter: StakingPoolCreateInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            totalAmount = accountInfo?.data.available
+            totalAmount = accountInfo?.data.stakingAvailable
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

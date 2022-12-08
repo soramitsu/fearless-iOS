@@ -11,6 +11,7 @@ final class StakingPoolStartAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
+            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
@@ -44,15 +45,37 @@ final class StakingPoolStartAssembly {
         }
 
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: requestFactory,
+            runtimeService: runtimeService,
+            engine: connection
+        )
 
         let interactor = StakingPoolStartInteractor(
             operationManager: operationManager,
             runtimeService: runtimeService,
             stakingDurationOperationFactory: stakingDurationOperationFactory,
-            rewardService: rewardCalculatorService
+            rewardService: rewardCalculatorService,
+            stakingPoolOperationFactory: stakingPoolOperationFactory
         )
         let router = StakingPoolStartRouter()
         let viewModelFactory = StakingPoolStartViewModelFactory(chainAsset: chainAsset)
+
+        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: assetInfo,
+            selectedMetaAccount: wallet
+        )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: router,
+            balanceFactory: balanceViewModelFactory
+        )
 
         let presenter = StakingPoolStartPresenter(
             interactor: interactor,
@@ -61,13 +84,17 @@ final class StakingPoolStartAssembly {
             viewModelFactory: viewModelFactory,
             wallet: wallet,
             chainAsset: chainAsset,
-            amount: amount
+            amount: amount,
+            logger: Logger.shared,
+            dataValidatingFactory: dataValidatingFactory
         )
 
         let view = StakingPoolStartViewController(
             output: presenter,
             localizationManager: localizationManager
         )
+
+        dataValidatingFactory.view = view
 
         return (view, presenter)
     }
