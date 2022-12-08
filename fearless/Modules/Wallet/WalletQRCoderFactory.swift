@@ -25,7 +25,7 @@ final class WalletQREncoder: WalletQREncoderProtocol {
             type: addressPrefix
         )
 
-        let info = QRInfo(
+        let info = AddressQRInfo(
             address: address,
             rawPublicKey: publicKey,
             username: username

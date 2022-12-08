@@ -197,7 +197,7 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let addressInfo = qrScanMatcher.addressInfo else {
+        guard let addressInfo = qrScanMatcher.qrInfo else {
             logger.warning("Can't find receiver's info for matched code")
             return
         }

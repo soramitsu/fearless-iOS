@@ -133,7 +133,7 @@ final class SoraQRDecoder: QRDecodable {
         let assetId = fields[4]
 
         if address.hasPrefix("0x") {
-            return QRInfo(
+            return SoraQRInfo(
                 address: address,
                 rawPublicKey: publicKey,
                 username: username,
@@ -141,7 +141,7 @@ final class SoraQRDecoder: QRDecodable {
             )
         }
 
-        return QRInfo(
+        return SoraQRInfo(
             prefix: prefix,
             address: address,
             rawPublicKey: publicKey,
