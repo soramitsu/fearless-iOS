@@ -57,7 +57,7 @@ final class CrowdloanListPresenter {
         let balance: BigUInt?
 
         if let accountInfoResult = accountInfoResult {
-            balance = (try? accountInfoResult.get()?.data.available) ?? 0
+            balance = (try? accountInfoResult.get()?.data.sendAvailable) ?? 0
         } else {
             balance = nil
         }

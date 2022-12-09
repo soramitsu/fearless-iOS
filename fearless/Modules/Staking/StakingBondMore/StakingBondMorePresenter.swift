@@ -141,7 +141,7 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
     func provideAsset() {
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             viewModelState.amount,
-            balance: viewModelState.balance,
+            balance: viewModelState.balance ?? .zero,
             priceData: priceData
         )
         DispatchQueue.main.async {

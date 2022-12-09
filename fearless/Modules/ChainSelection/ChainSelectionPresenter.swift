@@ -63,7 +63,7 @@ final class ChainSelectionPresenter {
 
         if let accountInfo = accountInfo {
             maybeBalance = Decimal.fromSubstrateAmount(
-                accountInfo.data.available,
+                accountInfo.data.free,
                 precision: assetInfo.assetPrecision
             )
         } else {

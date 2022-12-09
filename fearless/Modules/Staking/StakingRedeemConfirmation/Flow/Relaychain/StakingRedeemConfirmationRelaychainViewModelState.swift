@@ -78,7 +78,7 @@ extension StakingRedeemConfirmationRelaychainViewModelState: StakingRedeemConfir
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

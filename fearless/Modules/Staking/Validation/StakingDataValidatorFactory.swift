@@ -53,6 +53,12 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
     ) -> DataValidating
 
     func createPoolName(complite: Bool?, locale: Locale) -> DataValidating
+
+    func poolsLimitNotReached(
+        existingPoolsCount: UInt32?,
+        maximumPoolsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -374,6 +380,28 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             } else {
                 return false
             }
+        })
+    }
+
+    func poolsLimitNotReached(
+        existingPoolsCount: UInt32?,
+        maximumPoolsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentMaximumPoolsCountReached(from: view, locale: locale)
+        }, preservesCondition: {
+            guard let existingPoolsCount = existingPoolsCount,
+                  let maximumPoolsCount = maximumPoolsCount
+            else {
+                return false
+            }
+
+            return existingPoolsCount < maximumPoolsCount
         })
     }
 }
