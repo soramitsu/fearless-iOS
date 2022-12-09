@@ -36,7 +36,8 @@ enum WalletTransactionHistoryViewFactory {
             defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
             selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
             filters: transactionHistoryFilters(for: chain),
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            applicationHandler: ApplicationHandler()
         )
         let wireframe = WalletTransactionHistoryWireframe()
 
