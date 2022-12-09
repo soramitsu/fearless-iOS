@@ -110,7 +110,7 @@ final class SheetAlertViewLayout: UIView {
     }
 
     private func setupLayout() {
-        backgroundColor = R.color.colorAlmostBlack()!
+        backgroundColor = R.color.colorBlack()!
         layer.cornerRadius = Constants.cornerRadius
         clipsToBounds = true
 
