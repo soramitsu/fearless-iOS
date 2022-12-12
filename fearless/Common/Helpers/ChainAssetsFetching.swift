@@ -11,7 +11,7 @@ protocol ChainAssetFetchingProtocol {
 }
 
 final class ChainAssetsFetching: ChainAssetFetchingProtocol {
-    enum Filter {
+    enum Filter: Equatable {
         case chainId(ChainModel.Id)
         case hasStaking(Bool)
         case hasCrowdloans(Bool)
