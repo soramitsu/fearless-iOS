@@ -19,6 +19,7 @@ final class CrowdloanListPresenter {
     private var contributionsResult: Result<CrowdloanContributionDict, Error>?
     private var leaseInfoResult: Result<ParachainLeaseInfoDict, Error>?
     private let crowdloanWiki: URL
+    private var leasingOffsetResult: Result<LeasingOffset, Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -84,6 +85,7 @@ final class CrowdloanListPresenter {
         guard
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
+            let leasingOffsetResult = leasingOffsetResult,
             let blockNumber = blockNumber else {
             return nil
         }
@@ -91,11 +93,13 @@ final class CrowdloanListPresenter {
         do {
             let blockDuration = try blockDurationResult.get()
             let leasingPeriod = try leasingPeriodResult.get()
+            let leasingOffset = try leasingOffsetResult.get()
 
             let metadata = CrowdloanMetadata(
                 blockNumber: blockNumber,
                 blockDuration: blockDuration,
-                leasingPeriod: leasingPeriod
+                leasingPeriod: leasingPeriod,
+                leasingOffset: leasingOffset
             )
 
             return .success(metadata)
@@ -292,6 +296,11 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         accountInfoResult = result
         updateChainView()
     }
+
+    func didReceiveLeasingOffset(result: Result<LeasingOffset, Error>) {
+        leasingOffsetResult = result
+        updateListView()
+    }
 }
 
 extension CrowdloanListPresenter: ChainSelectionDelegate {
@@ -308,6 +317,7 @@ extension CrowdloanListPresenter: ChainSelectionDelegate {
         leasingPeriodResult = nil
         contributionsResult = nil
         leaseInfoResult = nil
+        leasingOffsetResult = nil
 
         updateChainView()
         view?.didReceive(listState: .loading)
