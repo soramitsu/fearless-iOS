@@ -14,6 +14,7 @@ typealias SessionIndex = UInt32
 typealias Moment = UInt32
 typealias EraIndex = UInt32
 typealias EraRange = (start: EraIndex, end: EraIndex)
+typealias LeasingOffset = UInt32
 
 extension AccountId {
     static func matchHex(_ value: String) -> AccountId? {
