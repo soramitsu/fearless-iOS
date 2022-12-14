@@ -9,6 +9,7 @@ final class AllDonePresenter {
     private let interactor: AllDoneInteractorInput
 
     private let hashString: String
+    private var closure: (() -> Void)?
 
     // MARK: - Constructors
 
@@ -16,11 +17,13 @@ final class AllDonePresenter {
         hashString: String,
         interactor: AllDoneInteractorInput,
         router: AllDoneRouterInput,
+        closure: (() -> Void)?,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.hashString = hashString
         self.interactor = interactor
         self.router = router
+        self.closure = closure
         self.localizationManager = localizationManager
     }
 
@@ -45,6 +48,7 @@ extension AllDonePresenter: AllDoneViewOutput {
 
 extension AllDonePresenter: AllDoneInteractorOutput {
     func dismiss() {
+        closure?()
         router.dismiss(view: view)
     }
 

@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class AllDoneAssembly {
-    static func configureModule(with hashString: String) -> AllDoneModuleCreationResult? {
+    static func configureModule(with hashString: String, closure: (() -> Void)? = nil) -> AllDoneModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = AllDoneInteractor()
@@ -12,6 +12,7 @@ final class AllDoneAssembly {
             hashString: hashString,
             interactor: interactor,
             router: router,
+            closure: closure,
             localizationManager: localizationManager
         )
 

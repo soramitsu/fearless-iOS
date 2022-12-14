@@ -236,7 +236,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         infoViewsStackView.snp.makeConstraints { make in
             make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
             make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
-            make.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         multiViews.forEach { makeMultiViewConstraints(view: $0) }

@@ -16,6 +16,7 @@ final class StakingPoolCreateConfirmPresenter {
 
     private var priceData: PriceData?
     private var fee: Decimal?
+    private var extrinsicHash: String?
 
     // MARK: - Constructors
 
@@ -124,7 +125,7 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
 
         switch extrinsicResult {
         case let .success(hash):
-            router.complete(on: view, extrinsicHash: hash)
+            extrinsicHash = hash
             view?.didStartLoading()
         case let .failure(error):
             guard let view = view else {
@@ -156,13 +157,24 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
                 rewardDestination: .payout(account: payoutAccount)
             )
 
-            router.proceedToSelectValidatorsStart(
-                from: view,
-                poolId: createData.poolId,
-                state: state,
-                chainAsset: createData.chainAsset,
-                wallet: createData.root
-            )
+            guard let extrinsicHash = extrinsicHash else {
+                return
+            }
+
+            router.complete(on: view, extrinsicHash: extrinsicHash) { [weak self] in
+                guard let strongSelf = self else {
+                    return
+                }
+
+                strongSelf.router.proceedToSelectValidatorsStart(
+                    from: strongSelf.view,
+                    poolId: strongSelf.createData.poolId,
+                    state: state,
+                    chainAsset: strongSelf.createData.chainAsset,
+                    wallet: strongSelf.createData.root
+                )
+            }
+
         case let .failure(error):
             router.present(error: error, from: view, locale: selectedLocale)
         }
