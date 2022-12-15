@@ -276,7 +276,6 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
-            let assetIds = remoteTransactions.compactMap { $0.transfer?.assetId }
             let filteredTransactions = try remoteTransactions.filter { transaction in
                 var assetId: String?
 

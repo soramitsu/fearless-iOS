@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct TokenSymbol {
+struct TokenSymbol: Equatable {
     let symbol: String
 }
 

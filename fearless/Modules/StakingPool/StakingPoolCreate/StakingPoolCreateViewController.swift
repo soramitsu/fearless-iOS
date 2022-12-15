@@ -96,6 +96,11 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
             action: #selector(handleBackButtonTapped),
             for: .touchUpInside
         )
+        rootView.rootAccountView.addTarget(
+            self,
+            action: #selector(handleRootTapped),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private actions
@@ -114,6 +119,10 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
 
     @objc private func handleBackButtonTapped() {
         output.backDidTapped()
+    }
+
+    @objc private func handleRootTapped() {
+        output.rootDidTapped()
     }
 }
 

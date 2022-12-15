@@ -34,8 +34,6 @@ class WalletTransactionHistoryCell: UITableViewCell {
         return label
     }()
 
-    let transactionStatusIconImageView = UIImageView()
-
     let transactionTypeLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
@@ -49,6 +47,12 @@ class WalletTransactionHistoryCell: UITableViewCell {
         label.textColor = R.color.colorAlmostWhite()
         label.textAlignment = .right
         return label
+    }()
+
+    let transactionStatusIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconTxFailed()
+        return imageView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -86,6 +90,8 @@ class WalletTransactionHistoryCell: UITableViewCell {
 
         secondlineStackView.addArrangedSubview(transactionTypeLabel)
         secondlineStackView.addArrangedSubview(transactionTimeLabel)
+
+        firstlineStackView.setCustomSpacing(UIConstants.minimalOffset, after: transactionAmountLabel)
 
         transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)

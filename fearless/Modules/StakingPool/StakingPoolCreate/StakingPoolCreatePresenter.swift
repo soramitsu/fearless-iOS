@@ -35,6 +35,7 @@ final class StakingPoolCreatePresenter {
     private var minCreateBond: Decimal?
     private var nominatorWallet: MetaAccountModel
     private var stateTogglerWallet: MetaAccountModel
+    private var rootWallet: MetaAccountModel
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
     private var existentialDeposit: Decimal?
@@ -63,6 +64,7 @@ final class StakingPoolCreatePresenter {
         self.chainAsset = chainAsset
         nominatorWallet = wallet
         stateTogglerWallet = wallet
+        rootWallet = wallet
 
         let nameInputHandling = InputHandler(predicate: NSPredicate.notEmpty)
         poolNameInputViewModel = InputViewModel(inputHandler: nameInputHandling)
@@ -81,6 +83,7 @@ final class StakingPoolCreatePresenter {
             wallet: wallet,
             nominatorWallet: nominatorWallet,
             stateToggler: stateTogglerWallet,
+            rootWallet: rootWallet,
             lastPoolId: lastPoolId
         )
         view?.didReceiveViewModel(viewModel)
@@ -259,6 +262,14 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
     func nameTextFieldInputValueChanged() {
         refreshFee()
     }
+
+    func rootDidTapped() {
+        router.showWalletManagment(
+            contextTag: StakingPoolCreateContextTag.root.rawValue,
+            from: view,
+            moduleOutput: self
+        )
+    }
 }
 
 // MARK: - StakingPoolCreateInteractorOutput
@@ -375,6 +386,7 @@ extension StakingPoolCreatePresenter: WalletsManagmentModuleOutput {
     private enum StakingPoolCreateContextTag: Int {
         case nominator = 0
         case stateToggler
+        case root
     }
 
     func selectedWallet(_ wallet: MetaAccountModel, for contextTag: Int) {
@@ -387,6 +399,8 @@ extension StakingPoolCreatePresenter: WalletsManagmentModuleOutput {
             nominatorWallet = wallet
         case .stateToggler:
             stateTogglerWallet = wallet
+        case .root:
+            rootWallet = wallet
         }
 
         provideViewModel()

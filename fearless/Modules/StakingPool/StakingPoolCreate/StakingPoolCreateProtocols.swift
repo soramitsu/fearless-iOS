@@ -25,6 +25,7 @@ protocol StakingPoolCreateViewOutput: AnyObject {
     func createDidTapped()
     func backDidTapped()
     func nameTextFieldInputValueChanged()
+    func rootDidTapped()
 }
 
 protocol StakingPoolCreateInteractorInput: AnyObject {
