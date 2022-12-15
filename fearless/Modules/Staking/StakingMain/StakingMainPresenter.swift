@@ -360,7 +360,11 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func selectStory(at index: Int) {
-        wireframe.showStories(from: view, startingFrom: index)
+        guard let chainAsset = chainAsset else {
+            return
+        }
+
+        wireframe.showStories(from: view, startingFrom: index, chainAsset: chainAsset)
     }
 
     func performChangeValidatorsAction() {
@@ -604,6 +608,10 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
         provideMainViewModel()
         provideStakingInfo()
+
+        if let stories = StoriesFactory().createModel(for: newChainAsset.stakingType) {
+            view?.didReceive(stories: stories)
+        }
     }
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {

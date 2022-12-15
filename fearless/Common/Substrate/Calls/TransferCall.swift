@@ -15,7 +15,7 @@ extension TokenSymbol: Codable {
     }
 }
 
-enum CurrencyId {
+enum CurrencyId: Equatable {
     case token(symbol: TokenSymbol?)
     case liquidCrowdloan(liquidCrowdloan: String)
     case foreignAsset(foreignAsset: String)

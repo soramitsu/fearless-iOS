@@ -57,7 +57,11 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func loadTransactions(for pagination: Pagination) {
-        guard let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
+            return
+        }
+
+        guard let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
@@ -90,9 +94,12 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
+        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
+            return
+        }
+
         guard
-            let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
-            case .normal = chainAsset.chainAssetType
+            let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress()
         else {
             handleDataProvider(transactionData: nil)
             return
@@ -285,12 +292,26 @@ final class WalletTransactionHistoryInteractor {
 
     private func setupReloadTimer() {
         reloadTimer = Timer.scheduledTimer(
-            timeInterval: Constants.reloadInterval,
-            target: self,
-            selector: #selector(reload),
-            userInfo: nil,
-            repeats: true
+            withTimeInterval: Constants.reloadInterval,
+            repeats: true,
+            block: { [weak self] _ in
+                guard let strongSelf = self else {
+                    return
+                }
+                let pagination = Pagination(count: strongSelf.transactionsPerPage)
+                strongSelf.dataLoadingState = .filtering(page: pagination, previousPage: nil)
+                strongSelf.loadTransactions(for: pagination)
+            }
         )
+    }
+
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+        guard let chainAsset = chainAsset else { return nil }
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+            return utilityAsset
+        }
+        return chainAsset
     }
 }
 

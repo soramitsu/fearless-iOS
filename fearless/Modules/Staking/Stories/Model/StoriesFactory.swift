@@ -1,14 +1,17 @@
 import Foundation
 import SoraFoundation
 
-protocol StoriesFactoryProtocol {
-    static func createModel() -> LocalizableResource<StoriesModel>
+enum StoriesCase {
+    case relaychain
+    case parachain
 }
 
-final class StoriesFactory {}
+protocol StoriesFactoryProtocol {
+    func createModel(for stakingType: StakingType?) -> LocalizableResource<StoriesModel>?
+}
 
-extension StoriesFactory: StoriesFactoryProtocol {
-    static func createModel() -> LocalizableResource<StoriesModel> {
+final class StoriesFactory {
+    private lazy var relaychainStories: LocalizableResource<StoriesModel> = {
         LocalizableResource { locale in
             let slides1 = [
                 StorySlide(
@@ -80,6 +83,78 @@ extension StoriesFactory: StoriesFactoryProtocol {
             )
 
             return StoriesModel(stories: [story1, story2, story3, story4])
+        }
+    }()
+
+    private lazy var parachainStories: LocalizableResource<StoriesModel> = {
+        LocalizableResource { locale in
+            let slides1 = [
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryCollatorPage1(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/"
+                ),
+
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryCollatorPage2(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/"
+                )
+            ]
+
+            let slides2 = [
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryDelegatorPage1(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
+                ),
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryDelegatorPage2(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
+                )
+            ]
+
+            let slides3 = [
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryRewardsPage1(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
+                ),
+
+                StorySlide(
+                    description: R.string.localizable.parachainStakingStoryRewardsPage2(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
+                )
+            ]
+
+            // swiftlint:enable line_length
+
+            let story1 = Story(
+                icon: "💰",
+                title: R.string.localizable.parachainStakingStoryCollatorTitle(preferredLanguages: locale.rLanguages),
+                slides: slides1
+            )
+            let story2 = Story(
+                icon: "💎",
+                title: R.string.localizable.parachainStakingStoryDelegatorTitle(preferredLanguages: locale.rLanguages),
+                slides: slides2
+            )
+            let story3 = Story(
+                icon: "🎁",
+                title: R.string.localizable.parachainStakingStoryRewardsTitle(preferredLanguages: locale.rLanguages),
+                slides: slides3
+            )
+
+            return StoriesModel(stories: [story1, story2, story3])
+        }
+    }()
+}
+
+extension StoriesFactory: StoriesFactoryProtocol {
+    func createModel(for stakingType: StakingType?) -> LocalizableResource<StoriesModel>? {
+        switch stakingType {
+        case .relayChain:
+            return relaychainStories
+        case .paraChain:
+            return parachainStories
+        case .none:
+            return nil
         }
     }
 }

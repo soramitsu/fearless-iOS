@@ -62,8 +62,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int) {
-        guard let storiesView = StoriesViewFactory.createView(with: index) else {
+    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int, chainAsset: ChainAsset) {
+        guard let storiesView = StoriesViewFactory.createView(with: index, chainAsset: chainAsset) else {
             return
         }
 

@@ -15,10 +15,18 @@ enum WalletTransactionHistoryViewFactory {
         chain: ChainModel,
         selectedAccount: MetaAccountModel
     ) -> WalletTransactionHistoryModule? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
-        let operationFactory = HistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
+        let operationFactory = HistoryOperationFactory(
+            txStorage: AnyDataProviderRepository(txStorage),
+            runtimeService: runtimeService
+        )
 
         let dataProviderFactory = HistoryDataProviderFactory(
             cacheFacade: SubstrateDataStorageFacade.shared,

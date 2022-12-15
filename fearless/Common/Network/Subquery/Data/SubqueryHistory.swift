@@ -35,6 +35,7 @@ struct SubqueryTransfer: Decodable {
         case extrinsicId
         case extrinsicHash
         case success
+        case assetId
     }
 
     let amount: String
@@ -45,6 +46,7 @@ struct SubqueryTransfer: Decodable {
     let extrinsicId: String?
     let extrinsicHash: String?
     let success: Bool
+    let assetId: String?
 }
 
 struct SubqueryRewardOrSlash: Decodable {
@@ -54,6 +56,7 @@ struct SubqueryRewardOrSlash: Decodable {
     let validator: String?
     let stash: String?
     let eventIdx: Int?
+    let assetId: String?
 }
 
 struct SubqueryExtrinsic: Decodable {
@@ -62,6 +65,7 @@ struct SubqueryExtrinsic: Decodable {
     let call: String
     let fee: String
     let success: Bool
+    let assetId: String?
 }
 
 struct SubqueryHistoryElement: Decodable {
