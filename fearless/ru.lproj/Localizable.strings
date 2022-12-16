@@ -841,7 +841,7 @@
 "contacts.contact.name" = "Имя контакта";
 "contacts.contact.address" = "Адрес контакта";
 "contacts.undefined" = "Неизвестный";
-"staking.pool.select.validators.manual" = "Выберите руководство";
+"staking.pool.select.validators.manual" = "Выберите вручную";
 "staking.pool.select.validators.suggested" = "Выбрать предложенный";
 "pool.staking.management.option.nominees" = "Nominees";
 "swipable.cell.button.send" = "Отправить";
@@ -878,7 +878,7 @@
 "polkaswap.min.received" = "Будет получено минимум";
 "polkaswap.liquidity.provider.fee" = "Комиссия поставщика ликвидности";
 "validators.list.empty.message" = "Валидаторы не найдены";
-"custom.validators.empty.message" = "Валидаторы не найдены. Пожалуйста, попробуйте изменить фильтры";
+"custom.validators.empty.message" = "Валидаторы не найдены.\nПожалуйста, попробуйте изменить фильтры";
 "pools.limit.has.reached.error.title" = "Вы не можете создать больше пулов";
 "pools.limit.has.reached.error.message" = "Достигнут лимит пулов в этой сети";
 "staking.nominator.status.idle" = "Неработающий";
@@ -930,4 +930,4 @@
 "parachain.staking.story.rewards.title" = "Rewards?";
 "parachain.staking.story.rewards.page.1" = "Reward pool - a portion of the annual inflation that is set aside for collators and delegators.\nRewards for collators and their delegators are calculated at the start of every round for their work prior to the reward payout delay.\nThe calculated rewards are then paid out on a block-by-block basis. For every block, one collator will be chosen to receive their entire reward payout from the prior round, along with their delegators, until all of the rewards have been paid for that round.";
 "parachain.staking.story.rewards.page.2" = "Delegators get rewards after a reward payout delay. Payout delays are a certain amount of rounds which must pass before staking rewards are distributed automatically to the free balance.\nReward distribution to some delegators may be stopped because of two possible reasons; A collator hasn\'t been chosen by the network for creating blocks, or decided to leave the candidate pool. Another reason is having a stake amount lower than the minimum collator bond.";
-ы
+"alert.pool.created.text" = "Пул создан. Теперь Вам нужно выбрать валидаторов для пула";

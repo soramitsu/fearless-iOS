@@ -2,13 +2,29 @@ import UIKit
 import SoraUI
 
 protocol AllDonePresentable {
-    func presentDone(extrinsicHash: String, from view: ControllerBackedProtocol)
-    func presentDone(extrinsicHash: String, from view: ControllerBackedProtocol, closure: (() -> Void)?)
+    func presentDone(
+        title: String?,
+        description: String?,
+        extrinsicHash: String,
+        from view: ControllerBackedProtocol,
+        closure: (() -> Void)?
+    )
 }
 
 extension AllDonePresentable {
-    func presentDone(extrinsicHash: String, from view: ControllerBackedProtocol, closure: (() -> Void)? = nil) {
-        if let controller = AllDoneAssembly.configureModule(with: extrinsicHash, closure: closure)?.view.controller {
+    func presentDone(
+        title: String? = nil,
+        description: String? = nil,
+        extrinsicHash: String,
+        from view: ControllerBackedProtocol,
+        closure: (() -> Void)? = nil
+    ) {
+        if let controller = AllDoneAssembly.configureModule(
+            title: title,
+            description: description,
+            with: extrinsicHash,
+            closure: closure
+        )?.view.controller {
             controller.modalPresentationStyle = .custom
 
             let factory = ModalSheetBlurPresentationFactory(
@@ -19,9 +35,5 @@ extension AllDonePresentable {
             let presentingViewController = view.controller.presentedViewController ?? view.controller
             presentingViewController.present(controller, animated: true)
         }
-    }
-
-    func presentDone(extrinsicHash: String, from view: ControllerBackedProtocol) {
-        presentDone(extrinsicHash: extrinsicHash, from: view, closure: nil)
     }
 }

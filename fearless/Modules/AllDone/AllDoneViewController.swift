@@ -55,8 +55,8 @@ final class AllDoneViewController: UIViewController, ViewHolder {
 // MARK: - AllDoneViewInput
 
 extension AllDoneViewController: AllDoneViewInput {
-    func didReceive(hashString: String) {
-        rootView.bind(hashString)
+    func didReceive(viewModel: AllDoneViewModel) {
+        rootView.bind(viewModel)
     }
 }
 

@@ -117,7 +117,15 @@ final class StakingPoolMainAssembly {
             logger: logger
         )
 
-        let stakingAccountUpdatingService = PoolStakingAccountUpdatingService(
+        let poolStakingAccountUpdatingService = PoolStakingAccountUpdatingService(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            substrateRepositoryFactory: substrateRepositoryFactory,
+            substrateDataProviderFactory: substrateDataProviderFactory,
+            childSubscriptionFactory: childSubscriptionFactory,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
+        let stakingAccountUpdatingService = StakingAccountUpdatingService(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             substrateRepositoryFactory: substrateRepositoryFactory,
             substrateDataProviderFactory: substrateDataProviderFactory,
@@ -203,11 +211,12 @@ final class StakingPoolMainAssembly {
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             eventCenter: EventCenter.shared,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            stakingAccountUpdatingService: stakingAccountUpdatingService,
+            poolStakingAccountUpdatingService: poolStakingAccountUpdatingService,
             runtimeService: runtimeService,
             accountOperationFactory: accountOperationFactory,
             existentialDepositService: existentialDepositService,
-            validatorOperationFactory: validatorOperationFactory
+            validatorOperationFactory: validatorOperationFactory,
+            stakingAccountUpdatingService: stakingAccountUpdatingService
         )
 
         let router = StakingPoolMainRouter()

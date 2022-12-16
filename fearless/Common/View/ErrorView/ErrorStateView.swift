@@ -8,11 +8,26 @@ protocol ErrorStateViewDelegate: AnyObject {
 class ErrorStateView: UIView {
     weak var delegate: ErrorStateViewDelegate?
 
-    let iconImageView = UIImageView(image: R.image.iconLoadingError())
+    let iconImageView: UIImageView = {
+        let imageView = UIImageView()
+        let image = R.image.iconAttentionRounded()
+        imageView.image = image
+        imageView.tintColor = R.color.colorWhite16()!
+        return imageView
+    }()
+
+    let errorTitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .h3Title
+        label.textColor = R.color.colorWhite()
+        label.textAlignment = .center
+        label.isHidden = true
+        return label
+    }()
 
     let errorDescriptionLabel: UILabel = {
         let label = UILabel()
-        label.font = .p2Paragraph
+        label.font = .p0Paragraph
         label.textColor = R.color.colorLightGray()
         label.textAlignment = .center
         label.numberOfLines = 0
@@ -47,7 +62,7 @@ class ErrorStateView: UIView {
     }
 
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [iconImageView, errorDescriptionLabel, retryButton])
+        let stackView = UIStackView(arrangedSubviews: [iconImageView, errorTitleLabel, errorDescriptionLabel, retryButton])
         stackView.axis = .vertical
         stackView.spacing = 16
         stackView.alignment = .center
@@ -68,5 +83,10 @@ class ErrorStateView: UIView {
 
     public func setRetryEnabled(_ enabled: Bool) {
         retryButton.isHidden = !enabled
+    }
+
+    public func setTitle(_ title: String?) {
+        errorTitleLabel.text = title
+        errorTitleLabel.isHidden = title == nil
     }
 }

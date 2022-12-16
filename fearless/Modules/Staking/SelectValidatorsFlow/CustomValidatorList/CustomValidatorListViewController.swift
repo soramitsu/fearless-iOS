@@ -260,6 +260,7 @@ extension CustomValidatorListViewController: EmptyStateDataSource {
         errorView.errorDescriptionLabel.text = R.string.localizable.customValidatorsEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
         errorView.locale = selectedLocale
         errorView.setRetryEnabled(false)
+        errorView.setTitle(R.string.localizable.nftStubTitle(preferredLanguages: selectedLocale.rLanguages))
         return errorView
     }
 }

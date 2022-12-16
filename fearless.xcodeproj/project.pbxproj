@@ -2208,6 +2208,8 @@
 		FA8ED43D28FD98BE00EBB712 /* YourValidatorListPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43C28FD98BE00EBB712 /* YourValidatorListPoolStrategy.swift */; };
 		FA8ED43F28FD98C800EBB712 /* YourValidatorListPoolViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED43E28FD98C800EBB712 /* YourValidatorListPoolViewModelState.swift */; };
 		FA8ED44128FD98D400EBB712 /* YourValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8ED44028FD98D400EBB712 /* YourValidatorListPoolViewModelFactory.swift */; };
+		FA8EE741294C4DB80052C888 /* AllDoneViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8EE740294C4DB80052C888 /* AllDoneViewModelFactory.swift */; };
+		FA8EE743294C4E3E0052C888 /* AllDoneViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8EE742294C4E3E0052C888 /* AllDoneViewModel.swift */; };
 		FA90865827915D2500F785A7 /* WalletTransactionDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA90865727915D2500F785A7 /* WalletTransactionDetailsViewModel.swift */; };
 		FA90865B27915D8C00F785A7 /* WalletTransactionDetailsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA90865A27915D8C00F785A7 /* WalletTransactionDetailsViewModelFactory.swift */; };
 		FA9278A827C382C600FF7B5B /* MultiassetV2.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA9278A727C382C600FF7B5B /* MultiassetV2.xcmappingmodel */; };
@@ -4742,6 +4744,8 @@
 		FA8ED43C28FD98BE00EBB712 /* YourValidatorListPoolStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListPoolStrategy.swift; sourceTree = "<group>"; };
 		FA8ED43E28FD98C800EBB712 /* YourValidatorListPoolViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListPoolViewModelState.swift; sourceTree = "<group>"; };
 		FA8ED44028FD98D400EBB712 /* YourValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		FA8EE740294C4DB80052C888 /* AllDoneViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDoneViewModelFactory.swift; sourceTree = "<group>"; };
+		FA8EE742294C4E3E0052C888 /* AllDoneViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDoneViewModel.swift; sourceTree = "<group>"; };
 		FA90865727915D2500F785A7 /* WalletTransactionDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewModel.swift; sourceTree = "<group>"; };
 		FA90865A27915D8C00F785A7 /* WalletTransactionDetailsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewModelFactory.swift; sourceTree = "<group>"; };
 		FA9278A727C382C600FF7B5B /* MultiassetV2.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiassetV2.xcmappingmodel; sourceTree = "<group>"; };
@@ -5061,6 +5065,8 @@
 				61A5A7C701EF966BF48D6B9E /* AllDoneViewController.swift */,
 				54776237A20227DFE025E3AC /* AllDoneViewLayout.swift */,
 				262F98DEF54FA9592BE22B94 /* AllDoneAssembly.swift */,
+				FA8EE740294C4DB80052C888 /* AllDoneViewModelFactory.swift */,
+				FA8EE742294C4E3E0052C888 /* AllDoneViewModel.swift */,
 			);
 			path = AllDone;
 			sourceTree = "<group>";
@@ -14166,6 +14172,7 @@
 				FAC0BBE0291D0EB000E6F106 /* SelectAssetViewController.swift in Sources */,
 				F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
+				FA8EE743294C4E3E0052C888 /* AllDoneViewModel.swift in Sources */,
 				FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				8498430326592D29006BBB9F /* CrowdloanStatusSectionView.swift in Sources */,
@@ -15160,6 +15167,7 @@
 				1F6A32CBF7B43390AF412B1A /* NodeSelectionWireframe.swift in Sources */,
 				07089AFC28B783B5001566CA /* SheetAletViewController.swift in Sources */,
 				C3D915637D26E807B85957CF /* NodeSelectionPresenter.swift in Sources */,
+				FA8EE741294C4DB80052C888 /* AllDoneViewModelFactory.swift in Sources */,
 				3F56B7F6B2E4A1FDC496C4E5 /* NodeSelectionInteractor.swift in Sources */,
 				7258EEAE786D51F57ECE1E4F /* NodeSelectionViewController.swift in Sources */,
 				8F0B3FE843167777A1D3771C /* NodeSelectionViewLayout.swift in Sources */,

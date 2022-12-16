@@ -91,7 +91,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         secondlineStackView.addArrangedSubview(transactionTypeLabel)
         secondlineStackView.addArrangedSubview(transactionTimeLabel)
 
-        firstlineStackView.setCustomSpacing(UIConstants.minimalOffset, after: transactionAmountLabel)
+        firstlineStackView.setCustomSpacing(UIConstants.defaultOffset, after: transactionAmountLabel)
 
         transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)

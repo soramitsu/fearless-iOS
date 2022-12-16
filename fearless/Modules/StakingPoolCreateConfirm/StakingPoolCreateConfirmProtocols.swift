@@ -39,8 +39,10 @@ protocol StakingPoolCreateConfirmRouterInput: StakingPoolCreateConfirmRouterDeps
     func complete(
         on view: ControllerBackedProtocol?,
         extrinsicHash: String,
+        text: String,
         closure: (() -> Void)?
     )
+
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
         poolId: UInt32,

@@ -1,7 +1,7 @@
 typealias AllDoneModuleCreationResult = (view: AllDoneViewInput, input: AllDoneModuleInput)
 
 protocol AllDoneViewInput: ControllerBackedProtocol {
-    func didReceive(hashString: String)
+    func didReceive(viewModel: AllDoneViewModel)
 }
 
 protocol AllDoneViewOutput: AnyObject {

@@ -876,7 +876,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.min.received" = "Min received";
 "polkaswap.liquidity.provider.fee" = "Liquidity Provider Fee";
 "validators.list.empty.message" = "No validators found";
-"custom.validators.empty.message" = "No validators found. Please try to change filters";
+"custom.validators.empty.message" = "No validators found.\nPlease try to change filters";
 "pools.limit.has.reached.error.title" = "You cannot create more pulls";
 "pools.limit.has.reached.error.message" = "The limit of pulls in this network has been reached";
 "staking.nominator.status.idle" = "Idle";
@@ -928,3 +928,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.story.rewards.title" = "Rewards?";
 "parachain.staking.story.rewards.page.1" = "Reward pool - a portion of the annual inflation that is set aside for collators and delegators.\nRewards for collators and their delegators are calculated at the start of every round for their work prior to the reward payout delay.\nThe calculated rewards are then paid out on a block-by-block basis. For every block, one collator will be chosen to receive their entire reward payout from the prior round, along with their delegators, until all of the rewards have been paid for that round.";
 "parachain.staking.story.rewards.page.2" = "Delegators get rewards after a reward payout delay. Payout delays are a certain amount of rounds which must pass before staking rewards are distributed automatically to the free balance.\nReward distribution to some delegators may be stopped because of two possible reasons; A collator hasn\'t been chosen by the network for creating blocks, or decided to leave the candidate pool. Another reason is having a stake amount lower than the minimum collator bond.";
+"alert.pool.created.text" = "Your pool has been successfully created. Now you should choose validators for the pool";

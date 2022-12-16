@@ -11,6 +11,7 @@ final class StakingPoolCreateConfirmRouter: StakingPoolCreateConfirmRouterInput 
     func complete(
         on view: ControllerBackedProtocol?,
         extrinsicHash: String,
+        text: String,
         closure: (() -> Void)?
     ) {
         guard let view = view else {
@@ -19,7 +20,7 @@ final class StakingPoolCreateConfirmRouter: StakingPoolCreateConfirmRouterInput 
         let presenter = view.controller.navigationController?.presentingViewController
 
         if let presenter = presenter as? ControllerBackedProtocol {
-            presentDone(extrinsicHash: extrinsicHash, from: presenter, closure: closure)
+            presentDone(description: text, extrinsicHash: extrinsicHash, from: presenter, closure: closure)
         }
     }
 

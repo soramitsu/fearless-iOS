@@ -161,7 +161,11 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
                 return
             }
 
-            router.complete(on: view, extrinsicHash: extrinsicHash) { [weak self] in
+            router.complete(
+                on: view,
+                extrinsicHash: extrinsicHash,
+                text: R.string.localizable.alertPoolCreatedText(preferredLanguages: selectedLocale.rLanguages)
+            ) { [weak self] in
                 guard let strongSelf = self else {
                     return
                 }
