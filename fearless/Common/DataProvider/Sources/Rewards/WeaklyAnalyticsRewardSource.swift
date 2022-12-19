@@ -7,11 +7,11 @@ final class ParachainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
     private let address: AccountAddress
-    private let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let operationFactory: RewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
-        operationFactory: SubqueryRewardOperationFactoryProtocol
+        operationFactory: RewardOperationFactoryProtocol
     ) {
         self.address = address
         self.operationFactory = operationFactory
@@ -63,11 +63,11 @@ final class RelaychainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
     private let address: AccountAddress
-    private let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let operationFactory: RewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
-        operationFactory: SubqueryRewardOperationFactoryProtocol
+        operationFactory: RewardOperationFactoryProtocol
     ) {
         self.address = address
         self.operationFactory = operationFactory

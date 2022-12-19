@@ -1,6 +1,11 @@
 import Foundation
 import RobinHood
 
+enum ExternalApiType: String, Codable {
+    case subquery
+    case subsquid
+}
+
 class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
@@ -11,8 +16,17 @@ class ChainModel: Codable {
     }
 
     struct ExternalApi: Codable, Hashable {
-        let type: String
+        let type: ExternalApiType
         let url: URL
+
+        init?(type: String, url: URL) {
+            guard let externalApiType = ExternalApiType(rawValue: type) else {
+                return nil
+            }
+
+            self.type = externalApiType
+            self.url = url
+        }
     }
 
     struct ExternalApiSet: Codable, Hashable {

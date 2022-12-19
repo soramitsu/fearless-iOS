@@ -10,7 +10,7 @@ final class ParachainCollatorOperationFactory {
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let identityOperationFactory: IdentityOperationFactoryProtocol
-    private let subqueryOperationFactory: SubqueryRewardOperationFactoryProtocol
+    private let rewardOperationFactory: RewardOperationFactoryProtocol
     private let engine: JSONRPCEngine
 
     init(
@@ -20,7 +20,7 @@ final class ParachainCollatorOperationFactory {
         runtimeService: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         identityOperationFactory: IdentityOperationFactoryProtocol,
-        subqueryOperationFactory: SubqueryRewardOperationFactoryProtocol
+        subqueryOperationFactory: RewardOperationFactoryProtocol
     ) {
         self.asset = asset
         self.chain = chain
@@ -28,7 +28,7 @@ final class ParachainCollatorOperationFactory {
         self.runtimeService = runtimeService
         self.engine = engine
         self.identityOperationFactory = identityOperationFactory
-        self.subqueryOperationFactory = subqueryOperationFactory
+        rewardOperationFactory = subqueryOperationFactory
     }
 
     func createStorageKeyOperation(from storagePath: StorageCodingPath) -> ClosureOperation<Data> {
@@ -383,8 +383,8 @@ extension ParachainCollatorOperationFactory {
             accountIdsClosure: accountIdsClosure
         )
 
-        let roundOperation = subqueryOperationFactory.createLastRoundOperation()
-        let aprOperation = subqueryOperationFactory.createAprOperation(
+        let roundOperation = rewardOperationFactory.createLastRoundOperation()
+        let aprOperation = rewardOperationFactory.createAprOperation(
             for: accountIdsClosure,
             dependingOn: roundOperation
         )
@@ -453,8 +453,8 @@ extension ParachainCollatorOperationFactory {
             try selectedCandidatesOperation.targetOperation.extractNoCancellableResultData().first?.value ?? []
         }
 
-        let roundIdOperation = subqueryOperationFactory.createLastRoundOperation()
-        let aprOperation = subqueryOperationFactory.createAprOperation(for: accountIdsClosure, dependingOn: roundIdOperation)
+        let roundIdOperation = rewardOperationFactory.createLastRoundOperation()
+        let aprOperation = rewardOperationFactory.createAprOperation(for: accountIdsClosure, dependingOn: roundIdOperation)
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,

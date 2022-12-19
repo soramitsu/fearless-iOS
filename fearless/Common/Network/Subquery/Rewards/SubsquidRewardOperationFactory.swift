@@ -2,11 +2,11 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-enum SubqueryRewardOperationFactoryError: Error {
+enum SubsquidRewardOperationFactoryError: Error {
     case urlMissing
 }
 
-final class SubqueryRewardOperationFactory {
+final class SubsquidRewardOperationFactory {
     let url: URL?
 
     init(url: URL?) {
@@ -25,29 +25,19 @@ final class SubqueryRewardOperationFactory {
         """
     }
 
-    private func prepareCollatorsAprQuery(collatorIds: [String], roundId: String) -> String {
+    private func prepareCollatorsAprQuery(collatorIds _: [String], roundId _: String) -> String {
         """
-        {
-        collatorRounds(
-        filter:
-        {
-            collatorId: { inInsensitive: \(collatorIds) }
-            apr: { isNull: false, greaterThan: 0 }
-            roundId: { equalTo: "\(roundId)"}
-        }
-        )
-        {
-        nodes {
-            collatorId
-            apr
-            }
+        query {
+          stakers(where: {role_eq: "collator"}) {
+            apr24h
+            stashId
           }
         }
         """
     }
 
     private func prepareDelegatorHistoryRequest(
-        address: String,
+        address _: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
@@ -65,29 +55,21 @@ final class SubqueryRewardOperationFactory {
         }()
 
         return """
-        {
-                    delegators(
-                         filter: {
-                             id: { equalToInsensitive:"\(address)"}
+                    query {
+                      historyElements(where: {staker: {role_eq: "delegator"}}) {
+                        amount
+                        staker {
+                          id
                         }
-                     ) {
-                        nodes {
-                            id
-                          delegatorHistoryElements(orderBy: TIMESTAMP_DESC, filter: { amount: {isNull: false}, \(timestampFilter), type: { equalTo: 0 }}) {
-                              nodes {
-                                id
-                                blockNumber
-                                amount
-                                type
-                                timestamp
-                                delegator {
-                                    id
-                                }
-                              }
-                          }
+                        round {
+                          id
                         }
-                     }
-                }
+                        type
+                        timestamp
+                        blockNumber
+                        id
+                      }
+                    }
         """
     }
 
@@ -132,7 +114,7 @@ final class SubqueryRewardOperationFactory {
     }
 }
 
-extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
+extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
     func createLastRoundOperation() -> BaseOperation<String> {
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
             guard let url = self?.url else {
