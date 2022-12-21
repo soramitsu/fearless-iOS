@@ -219,7 +219,7 @@ extension StakingPoolCreateViewController: AnimatedTextFieldDelegate {
     }
 }
 
-// MARK: -
+// MARK: - KeyboardViewAdoptable
 
 extension StakingPoolCreateViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }

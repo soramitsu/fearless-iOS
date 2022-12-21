@@ -59,6 +59,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.addressCopyableLabel.onСopied = { [weak self] in
             self?.presenter.addressDidCopied()
         }
+        rootView.polkaswapButton.addTarget(self, action: #selector(polkaswapButtonClicked), for: .touchUpInside)
         presenter.setup()
     }
 
@@ -111,6 +112,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     @objc private func selectNetworkButtonClicked() {
         presenter.didTapSelectNetwork()
+    }
+
+    @objc private func polkaswapButtonClicked() {
+        presenter.didTapPolkaswapButton()
     }
 }
 

@@ -15,6 +15,7 @@ final class SelectAssetPresenter {
     private let wallet: MetaAccountModel
     private let searchTextsViewModel: TextSearchViewModel?
     private let output: SelectAssetModuleOutput
+    private let contextTag: Int?
 
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var prices: PriceDataUpdated = ([], false)
@@ -23,7 +24,7 @@ final class SelectAssetPresenter {
     private var chainAssets: [ChainAsset] = []
     private var accountInfosFetched = false
     private var pricesFetched = false
-    private var selectedAsset: AssetModel?
+    private var selectedChainAsset: ChainAsset?
 
     private lazy var factoryOperationQueue: OperationQueue = {
         OperationQueue()
@@ -39,7 +40,8 @@ final class SelectAssetPresenter {
         interactor: SelectAssetInteractorInput,
         router: SelectAssetRouterInput,
         output: SelectAssetModuleOutput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        contextTag: Int?
     ) {
         self.viewModelFactory = viewModelFactory
         self.wallet = wallet
@@ -48,6 +50,7 @@ final class SelectAssetPresenter {
         self.interactor = interactor
         self.router = router
         self.output = output
+        self.contextTag = contextTag
         self.localizationManager = localizationManager
     }
 
@@ -108,12 +111,12 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
                 chainAsset.asset.name == selectedViewModel.symbol
             })
         else {
-            output.assetSelection(didCompleteWith: nil)
+            output.assetSelection(didCompleteWith: nil, contextTag: contextTag)
             router.dismiss(view: view)
             return
         }
-        selectedAsset = selectedChainAsset.asset
-        output.assetSelection(didCompleteWith: selectedChainAsset.asset)
+        self.selectedChainAsset = selectedChainAsset
+//        output.assetSelection(didCompleteWith: selectedChainAsset, contextTag: contextTag)
         router.dismiss(view: view)
     }
 
@@ -138,7 +141,7 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
     }
 
     func willDisappear() {
-        output.assetSelection(didCompleteWith: selectedAsset)
+        output.assetSelection(didCompleteWith: selectedChainAsset, contextTag: contextTag)
     }
 }
 

@@ -78,6 +78,7 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         guard let cell = tableView.dequeueReusableCellWithType(C.self) else {
             return UITableViewCell()
         }
+        cell.delegate = listPresenter
         return cell
     }
 

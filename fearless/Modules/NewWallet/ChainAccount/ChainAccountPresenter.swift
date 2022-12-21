@@ -178,6 +178,13 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             delegate: self
         )
     }
+
+    func didTapPolkaswapButton() {
+        wireframe.showPolkaswap(
+            from: view,
+            chainAsset: chainAsset
+        )
+    }
 }
 
 extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {

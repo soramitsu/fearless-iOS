@@ -89,6 +89,8 @@ protocol UIFactoryProtocol {
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
     func createSearchTextField() -> SearchTextField
+    func createInfoBackground() -> TriangularedView
+    func createMultiView() -> TitleMultiValueView
 }
 
 extension UIFactoryProtocol {
@@ -621,5 +623,29 @@ final class UIFactory: UIFactoryProtocol {
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.shadowOpacity = 0
         return searchTextField
+    }
+
+    func createInfoBackground() -> TriangularedView {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
+        view.shadowOpacity = 0.0
+
+        return view
+    }
+
+    func createMultiView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.borderView.borderType = .none
+        view.titleLabel.font = .p2Paragraph
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h6Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p2Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        return view
     }
 }

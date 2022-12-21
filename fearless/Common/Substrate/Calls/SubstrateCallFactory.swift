@@ -9,118 +9,96 @@ protocol SubstrateCallFactoryProtocol {
         amount: BigUInt,
         chainAsset: ChainAsset
     ) -> RuntimeCall<TransferCall>
-
     func transfer(
         to receiver: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<TransferCall>
-
     func bond(
         amount: BigUInt,
         controller: String,
         rewardDestination: RewardDestination<AccountAddress>
     ) throws -> RuntimeCall<BondCall>
-
     func bondExtra(amount: BigUInt) -> RuntimeCall<BondExtraCall>
-
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall>
-
     func rebond(amount: BigUInt) -> RuntimeCall<RebondCall>
-
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
-
     func poolNominate(
         poolId: UInt32,
         targets: [SelectedValidatorInfo]
     ) throws -> RuntimeCall<PoolNominateCall>
-
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
-
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall>
-
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall>
-
     func setController(_ controller: AccountAddress) throws -> RuntimeCall<SetControllerCall>
-
     func chill() -> RuntimeCall<NoRuntimeArgs>
-
     func contribute(
         to paraId: ParaId,
         amount: BigUInt,
         multiSignature: MultiSignature?
     ) -> RuntimeCall<CrowdloanContributeCall>
-
     func addMemo(
         to paraId: ParaId,
         memo: Data
     ) -> RuntimeCall<CrowdloanAddMemo>
-
     func addRemark(_ data: Data) -> RuntimeCall<AddRemarkCall>
-
     func delegate(
         candidate: AccountId,
         amount: BigUInt,
         candidateDelegationCount: UInt32,
         delegationCount: UInt32
     ) -> RuntimeCall<DelegateCall>
-
     func delegatorBondMore(
         candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<DelegatorBondMoreCall>
-
     func scheduleDelegatorBondLess(
         candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
-
     func scheduleRevokeDelegation(
         candidate: AccountId
     ) -> RuntimeCall<ScheduleRevokeDelegationCall>
-
     func executeDelegationRequest(
         delegator: AccountId,
         collator: AccountId
     ) -> RuntimeCall<ExecuteDelegationRequestCall>
-
     func cancelCandidateBondLess() -> RuntimeCall<NoRuntimeArgs>
-
     func cancelDelegationRequest(candidate: AccountId) -> RuntimeCall<CancelDelegationRequestCall>
-
     func cancelLeaveDelegators() -> RuntimeCall<NoRuntimeArgs>
-
     func candidateBondMore(
         amount: BigUInt
     ) -> RuntimeCall<CandidateBondMoreCall>
-
     func scheduleCandidateBondLess(amount: BigUInt) -> RuntimeCall<ScheduleCandidateBondLessCall>
-
     func joinPool(
         poolId: String,
         amount: BigUInt
     ) -> RuntimeCall<JoinPoolCall>
-
     func createPool(
         amount: BigUInt,
         root: MultiAddress,
         nominator: MultiAddress,
         stateToggler: MultiAddress
     ) -> RuntimeCall<CreatePoolCall>
-
     func setPoolMetadata(
         poolId: String,
         metadata: Data
     ) -> RuntimeCall<SetMetadataCall>
-
     func poolBondMore(amount: BigUInt) -> RuntimeCall<PoolBondMoreCall>
-
     func poolUnbond(accountId: AccountId, amount: BigUInt) -> RuntimeCall<PoolUnbondCall>
-
     func claimPoolRewards() -> RuntimeCall<NoRuntimeArgs>
-
     func poolWithdrawUnbonded(accountId: AccountId, numSlashingSpans: UInt32) -> RuntimeCall<PoolWithdrawUnbondedCall>
-
-    func nominationPoolUpdateRoles(poolId: String, roles: StakingPoolRoles) -> RuntimeCall<NominationPoolsUpdateRolesCall>
+    func nominationPoolUpdateRoles(
+        poolId: String,
+        roles: StakingPoolRoles
+    ) -> RuntimeCall<NominationPoolsUpdateRolesCall>
+    func swap(
+        dexId: String,
+        from asset: String,
+        to targetAsset: String,
+        amountCall: [SwapVariant: SwapAmount],
+        type: [[String?]],
+        filter: Int
+    ) -> RuntimeCall<SwapCall>
 }
 
 // swiftlint:disable type_body_length file_length
@@ -596,6 +574,35 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         )
 
         return RuntimeCall(callCodingPath: .nominationPoolUpdateRoles, args: args)
+    }
+
+    // MARK: - Polkaswap
+
+    func swap(
+        dexId: String,
+        from asset: String,
+        to targetAsset: String,
+        amountCall: [SwapVariant: SwapAmount],
+        type: [[String?]],
+        filter: Int
+    ) -> RuntimeCall<SwapCall> {
+        let filterMode = FilterMode(rawValue: filter) ?? .disabled
+        let args = SwapCall(
+            dexId: dexId,
+            inputAssetId: PolkaswapAssetId(wrappedValue: asset),
+            outputAssetId: PolkaswapAssetId(wrappedValue: targetAsset),
+            amount: amountCall,
+            liquiditySourceType: type,
+            filterMode: FilterModeType(
+                wrappedName: filterMode.code,
+                wrappedValue: UInt(filter)
+            )
+        )
+
+        return RuntimeCall(
+            callCodingPath: .polkaswapSwap,
+            args: args
+        )
     }
 
     // MARK: - Private methods

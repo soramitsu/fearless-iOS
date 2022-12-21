@@ -46,7 +46,7 @@ struct SheetAlertPresentableViewModel {
     }
 }
 
-protocol SheetAlertPresentable {
+protocol SheetAlertPresentable: BaseErrorPresentable, ErrorPresentable {
     func present(
         viewModel: SheetAlertPresentableViewModel,
         from view: ControllerBackedProtocol?

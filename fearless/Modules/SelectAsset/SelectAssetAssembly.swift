@@ -9,7 +9,8 @@ final class SelectAssetAssembly {
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,
         searchTextsViewModel: TextSearchViewModel?,
-        output: SelectAssetModuleOutput
+        output: SelectAssetModuleOutput,
+        contextTag: Int? = 0
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -69,7 +70,8 @@ final class SelectAssetAssembly {
             interactor: interactor,
             router: router,
             output: output,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            contextTag: contextTag
         )
 
         let view = SelectAssetViewController(

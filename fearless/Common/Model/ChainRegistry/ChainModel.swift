@@ -217,6 +217,7 @@ enum ChainOptions: String, Codable {
     case orml
     case tipRequired
     case poolStaking
+    case polkaswap
 
     case unsupported
 

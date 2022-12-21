@@ -5,7 +5,7 @@ protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func bind(viewModel: TextSearchViewModel?)
 }
 
-protocol SelectionListPresenterProtocol: AnyObject {
+protocol SelectionListPresenterProtocol: AnyObject, SelectionItemViewDelegate {
     var numberOfItems: Int { get }
 
     func item(at index: Int) -> SelectableViewModelProtocol

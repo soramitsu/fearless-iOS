@@ -38,6 +38,8 @@ final class SelectAssetInteractor {
 
     private func fetchChainAssets() {
         if let chainAssets = self.chainAssets {
+            subscribeToAccountInfo(for: chainAssets)
+            subscribeToPrice(for: chainAssets)
             output?.didReceiveChainAssets(result: .success(chainAssets))
             return
         }

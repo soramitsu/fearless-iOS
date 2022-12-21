@@ -81,6 +81,13 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
+    let polkaswapButton: VerticalContentButton = {
+        let button = VerticalContentButton()
+        button.setImage(R.image.iconPolkaswap(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        return button
+    }()
+
     let receiveContainer: BorderedContainerView = {
         let container = BorderedContainerView()
         container.borderType = [.left, .right]
@@ -153,6 +160,8 @@ final class ChainAccountViewLayout: UIView {
             addressCopyableLabel.isHidden = true
         }
         buyButton.isEnabled = viewModel.chainAssetModel?.purchaseProviders?.first != nil
+        polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
+        buyButton.isHidden = !polkaswapButton.isHidden
     }
 }
 
@@ -190,6 +199,7 @@ private extension ChainAccountViewLayout {
         actionsContentStackView.addArrangedSubview(sendButton)
         actionsContentStackView.addArrangedSubview(receiveContainer)
         actionsContentStackView.addArrangedSubview(buyButton)
+        actionsContentStackView.addArrangedSubview(polkaswapButton)
 
         receiveContainer.addSubview(receiveButton)
         receiveButton.snp.makeConstraints { make in
@@ -272,5 +282,6 @@ private extension ChainAccountViewLayout {
         sendButton.setTitle(R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages), for: .normal)
         receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
         buyButton.setTitle(R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages), for: .normal)
+        polkaswapButton.setTitle(R.string.localizable.polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages), for: .normal)
     }
 }
