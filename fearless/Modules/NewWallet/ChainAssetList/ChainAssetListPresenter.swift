@@ -53,10 +53,10 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        let additionalDataReceived = displayType != .search && accountInfosFetched && pricesFetched || displayType == .search
         guard
             let chainAssets = chainAssets,
-            accountInfosFetched,
-            pricesFetched
+            additionalDataReceived
         else {
             return
         }

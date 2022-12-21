@@ -13,7 +13,10 @@ final class FWXAxisChartLegendView: UIView {
         super.init(frame: frame)
 
         addSubview(stackView)
-        stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        stackView.snp.makeConstraints {
+            $0.top.leading.trailing.equalToSuperview()
+            $0.bottom.equalToSuperview().offset(UIConstants.defaultOffset)
+        }
     }
 
     @available(*, unavailable)

@@ -52,6 +52,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
     let transactionStatusIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconTxFailed()
+        imageView.contentMode = .scaleAspectFit
         return imageView
     }()
 

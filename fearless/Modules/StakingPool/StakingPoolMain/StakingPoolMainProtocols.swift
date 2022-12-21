@@ -22,6 +22,7 @@ protocol StakingPoolMainViewOutput: AnyObject {
     func selectAmountPercentage(_ percentage: Float)
     func networkInfoViewDidChangeExpansion(isExpanded: Bool)
     func didTapStakeInfoView()
+    func didTapStatusView()
 }
 
 protocol StakingPoolMainInteractorInput: AnyObject {
@@ -83,6 +84,12 @@ protocol StakingPoolMainRouterInput: AnyObject {
         status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
     ) -> StakingPoolManagementModuleInput?
+
+    func showPoolValidators(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol StakingPoolMainModuleInput: AnyObject {}

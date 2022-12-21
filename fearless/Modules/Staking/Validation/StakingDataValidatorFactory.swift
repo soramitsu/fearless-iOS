@@ -376,7 +376,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             if let amount = amount,
                let bonded = bonded,
                let minimalRootBond = minimalRootBond {
-                return amount - bonded >= minimalRootBond
+                return bonded - amount >= minimalRootBond
             } else {
                 return false
             }
