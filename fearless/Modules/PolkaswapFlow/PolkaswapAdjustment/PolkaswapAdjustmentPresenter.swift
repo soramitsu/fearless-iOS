@@ -255,7 +255,8 @@ final class PolkaswapAdjustmentPresenter {
             lpAmount,
             priceData: prices?.first(where: { price in
                 price.priceId == xorChainAsset.asset.priceId
-            })
+            }),
+            isApproximately: true
         ).value(for: selectedLocale)
 
         view?.didReceiveLuquidityProvider(fee: lpViewModel)
@@ -287,7 +288,8 @@ final class PolkaswapAdjustmentPresenter {
         let balanceViewModelFactory = createBalanceViewModelFactory(for: swapToChainAsset)
         let receiveValue = balanceViewModelFactory.balanceFromPrice(
             minMaxValue,
-            priceData: price
+            priceData: price,
+            isApproximately: true
         ).value(for: selectedLocale)
 
         view?.didReceive(receiveValue: receiveValue)
@@ -343,7 +345,8 @@ final class PolkaswapAdjustmentPresenter {
             swapFromFee,
             priceData: prices?.first(where: { price in
                 price.priceId == xorChainAsset.asset.priceId
-            })
+            }),
+            isApproximately: true
         ).value(for: selectedLocale)
         DispatchQueue.main.async {
             self.view?.didReceiveNetworkFee(fee: feeViewModel)

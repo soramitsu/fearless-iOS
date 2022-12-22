@@ -8,11 +8,20 @@ import SoraKeystore
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
+    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool)
         -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol>
     func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
         -> LocalizableResource<AssetBalanceViewModelProtocol>
+}
+
+extension BalanceViewModelFactoryProtocol {
+    func balanceFromPrice(
+        _ amount: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
+        balanceFromPrice(amount, priceData: priceData, isApproximately: false)
+    }
 }
 
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
@@ -63,7 +72,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func balanceFromPrice(
         _ amount: Decimal,
-        priceData: PriceData?
+        priceData: PriceData?,
+        isApproximately: Bool
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
@@ -81,7 +91,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             let targetAmount = rate * amount
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
-            let priceString = priceFormatter.stringFromDecimal(targetAmount) ?? ""
+            var priceString = priceFormatter.stringFromDecimal(targetAmount) ?? ""
+            if isApproximately {
+                priceString.insert("~", at: priceString.startIndex)
+            }
 
             return BalanceViewModel(amount: amountString, price: priceString)
         }
