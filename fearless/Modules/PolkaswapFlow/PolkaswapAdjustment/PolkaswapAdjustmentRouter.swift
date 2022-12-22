@@ -34,7 +34,8 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
             chainAssets: chainAssets,
             searchTextsViewModel: .searchAssetPlaceholder,
             output: output,
-            contextTag: contextTag
+            contextTag: contextTag,
+            isFullSize: true
         ) else {
             return
         }
