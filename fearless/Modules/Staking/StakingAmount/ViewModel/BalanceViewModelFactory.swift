@@ -121,12 +121,12 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         let iconViewModel = targetAssetInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
+            let priceFormatter = localizablePriceFormatter.value(for: locale)
             let priceString: String?
 
             if let priceData = priceData, let rate = Decimal(string: priceData.price) {
                 let targetAmount = rate * amount
 
-                let priceFormatter = localizablePriceFormatter.value(for: locale)
                 priceString = priceFormatter.stringFromDecimal(targetAmount)
             } else {
                 priceString = nil
@@ -134,17 +134,20 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
             let balanceFormatter = localizableBalanceFormatter.value(for: locale)
 
-            let balanceString: String?
-
+            var balanceString: String?
+            var fiatBalance: String?
             if let balance = balance {
                 balanceString = balanceFormatter.stringFromDecimal(balance)
-            } else {
-                balanceString = nil
+
+                if let priceData = priceData, let rate = Decimal(string: priceData.price) {
+                    fiatBalance = priceFormatter.stringFromDecimal(balance * rate)
+                }
             }
 
             return AssetBalanceViewModel(
                 symbol: symbol,
                 balance: balanceString,
+                fiatBalance: fiatBalance,
                 price: priceString,
                 iconViewModel: iconViewModel
             )
