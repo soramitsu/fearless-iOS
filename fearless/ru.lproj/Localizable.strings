@@ -873,7 +873,7 @@
 "application.status.view.hash.copied.title" = "Хеш скопирован";
 "application.status.view.hash.copied.description" = "Хеш удачно скопирован";
 "history.empty.description" = "У вас нет транзакций здесь";
-"pool.claimable.title" = "Можно забрать";
+"pool.claimable.title" = "Заработано";
 "polkaswap.market.stub" = "Рынок:";
 "polkaswap.min.received" = "Будет получено минимум";
 "polkaswap.liquidity.provider.fee" = "Комиссия поставщика ликвидности";

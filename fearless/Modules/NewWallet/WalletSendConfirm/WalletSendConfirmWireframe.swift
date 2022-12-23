@@ -20,17 +20,19 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
     ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
-        view?.controller.navigationController?.dismiss(animated: true, completion: nil)
+        let controller = AllDoneAssembly.configureModule(with: title)?.view.controller
+        controller?.modalPresentationStyle = .custom
 
-        if let presenter = presenter as? ControllerBackedProtocol,
-           let controller = AllDoneAssembly.configureModule(with: title)?.view.controller {
-            controller.modalPresentationStyle = .custom
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+        )
+        controller?.modalTransitioningFactory = factory
 
-            let factory = ModalSheetBlurPresentationFactory(
-                configuration: ModalSheetPresentationConfiguration.fearlessBlur
-            )
-            controller.modalTransitioningFactory = factory
-            presenter.controller.present(controller, animated: true)
+        view?.controller.navigationController?.dismiss(animated: true) {
+            if let presenter = presenter as? ControllerBackedProtocol,
+               let controller = controller {
+                presenter.controller.present(controller, animated: true)
+            }
         }
     }
 }

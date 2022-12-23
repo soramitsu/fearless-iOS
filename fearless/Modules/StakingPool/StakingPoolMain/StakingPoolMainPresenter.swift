@@ -114,7 +114,7 @@ final class StakingPoolMainPresenter {
             stakeInfo: stakeInfo,
             priceData: priceData,
             chainAsset: chainAsset,
-            era: eraStakersInfo?.activeEra,
+            era: era,
             poolInfo: poolInfo,
             nomination: nomination,
             pendingRewards: pendingRewards
@@ -301,7 +301,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideStakeInfoViewModel()
     }
 
-    func didReceive(era: EraIndex) {
+    func didReceive(era: EraIndex?) {
         self.era = era
 
         provideStakeInfoViewModel()

@@ -59,13 +59,8 @@ extension AllDonePresenter: AllDoneViewOutput {
         interactor.setup(with: self)
         provideViewModel()
     }
-}
 
-// MARK: - AllDoneInteractorOutput
-
-extension AllDonePresenter: AllDoneInteractorOutput {
     func dismiss() {
-        closure?()
         router.dismiss(view: view)
     }
 
@@ -73,7 +68,15 @@ extension AllDonePresenter: AllDoneInteractorOutput {
         let copyEvent = HashCopiedEvent(locale: selectedLocale)
         router.presentStatus(with: copyEvent, animated: true)
     }
+
+    func presentationControllerWillDismiss() {
+        closure?()
+    }
 }
+
+// MARK: - AllDoneInteractorOutput
+
+extension AllDonePresenter: AllDoneInteractorOutput {}
 
 // MARK: - Localizable
 

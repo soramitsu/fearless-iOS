@@ -34,6 +34,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -183,6 +184,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         poolStakingAccountUpdatingService.clearSubscription()
         clear(dataProvider: &poolMemberProvider)
         clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
         wallet = newSelectedWallet
 
         if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
@@ -201,6 +203,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         output?.didReceive(wallet: newSelectedWallet)
 
         fetchStakeInfo()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
     }
 
     private func fetchRewardCalculator() {
@@ -447,6 +451,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &poolMemberProvider)
         clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
 
         poolStakingAccountUpdatingService.clearSubscription()
         stakingAccountUpdatingService.clearSubscription()
@@ -477,6 +482,8 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         fetchNetworkInfo()
         fetchStakeInfo()
         provideEraStakersInfo()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
@@ -618,6 +625,15 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
             output?.didReceive(nomination: nomination)
         case let .failure(error):
             output?.didReceiveError(.nominationError(error: error))
+        }
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        switch result {
+        case let .success(eraInfo):
+            output?.didReceive(era: eraInfo?.index)
+        case let .failure(error):
+            output?.didReceiveError(.eraStakersInfoError(error: error))
         }
     }
 }

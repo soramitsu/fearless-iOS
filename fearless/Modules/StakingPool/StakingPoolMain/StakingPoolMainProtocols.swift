@@ -42,7 +42,7 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(stakeInfo: StakingPoolMember?)
-    func didReceive(era: EraIndex)
+    func didReceive(era: EraIndex?)
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
     func didReceive(poolRewards: StakingPoolRewards?)
