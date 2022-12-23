@@ -193,6 +193,15 @@ final class StakingPoolMainAssembly {
             identityOperationFactory: identityOperationFactory
         )
 
+        let chainItemRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+
+        let stakingRemoteSubscriptionService = StakingRemoteSubscriptionService(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            repository: chainItemRepository,
+            operationManager: operationManager,
+            logger: logger
+        )
+
         let interactor = StakingPoolMainInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             selectedWalletSettings: SelectedWalletSettings.shared,
@@ -216,7 +225,8 @@ final class StakingPoolMainAssembly {
             accountOperationFactory: accountOperationFactory,
             existentialDepositService: existentialDepositService,
             validatorOperationFactory: validatorOperationFactory,
-            stakingAccountUpdatingService: stakingAccountUpdatingService
+            stakingAccountUpdatingService: stakingAccountUpdatingService,
+            stakingRemoteSubscriptionService: stakingRemoteSubscriptionService
         )
 
         let router = StakingPoolMainRouter()
