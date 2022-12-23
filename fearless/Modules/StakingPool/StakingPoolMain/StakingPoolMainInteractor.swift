@@ -400,31 +400,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         }
         operationManager.enqueue(operations: pendingRewardsOperation.allOperations, in: .transient)
     }
-
-//    private func clearAccountRemoteSubscription() {
-//        stakingAccountUpdatingService.clearSubscription()
-//    }
-//
-//    private func setupAccountRemoteSubscription() {
-//        guard
-//            let chainAsset = selectedChainAsset,
-//            let accountId = selectedAccount?.accountId,
-//            let chainFormat = selectedChainAsset?.chain.chainFormat,
-//            let stakingType = selectedChainAsset?.stakingType else {
-//            return
-//        }
-//
-//        do {
-//            try stakingAccountUpdatingService.setupSubscription(
-//                for: accountId,
-//                chainAsset: chainAsset,
-//                chainFormat: chainFormat,
-//                stakingType: stakingType
-//            )
-//        } catch {
-//            logger?.error("Could setup staking account subscription")
-//        }
-//    }
 }
 
 // MARK: - StakingPoolMainInteractorInput
