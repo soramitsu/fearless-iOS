@@ -28,13 +28,24 @@ final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
         let fromPrecision = Int16(params.swapFromChainAsset.asset.precision)
 
         guard let fromAssetId = params.swapFromChainAsset.asset.currencyId,
-              let toAssetId = params.swapToChainAsset.asset.currencyId,
-              let desired = params.fromAmount.toSubstrateAmount(precision: fromPrecision)
+              let toAssetId = params.swapToChainAsset.asset.currencyId
         else {
             return nil
         }
 
-        let slip = BigUInt(integerLiteral: UInt64(params.slippadgeTolerance))
+        let desired: BigUInt
+        let slip: BigUInt
+        let precisionFromAsset = Int16(params.swapFromChainAsset.asset.precision)
+        let precisionToAsset = Int16(params.swapToChainAsset.asset.precision)
+        switch params.swapVariant {
+        case .desiredInput:
+            desired = params.fromAmount.toSubstrateAmount(precision: precisionFromAsset) ?? .zero
+            slip = params.minMaxValue.toSubstrateAmount(precision: precisionToAsset) ?? .zero
+        case .desiredOutput:
+            desired = params.toAmount.toSubstrateAmount(precision: precisionToAsset) ?? .zero
+            slip = params.fromAmount.toSubstrateAmount(precision: precisionFromAsset) ?? .zero
+        }
+
         let swapAmount = SwapAmount(
             type: params.swapVariant,
             desired: desired,

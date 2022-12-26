@@ -10,8 +10,8 @@ struct PolkaswapPreviewParams {
     let slippadgeTolerance: Float
     let swapVariant: SwapVariant
     let market: LiquiditySourceType
-    let minMaxReceive: BalanceViewModelProtocol
     let polkaswapDexForRoute: PolkaswapDex
-    let lpFee: BalanceViewModelProtocol
     let networkFee: BalanceViewModelProtocol
+    let detailsViewModel: PolkaswapAdjustmentDetailsViewModel
+    let minMaxValue: Decimal
 }

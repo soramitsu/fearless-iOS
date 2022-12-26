@@ -1,12 +1,12 @@
 import Foundation
-import Rswift
+import UIKit
 
 protocol SelectionItemViewDelegate: AnyObject {
-    func didTapInfoButton(at index: Int)
+    func didTapAdditionalButton(at indexPath: IndexPath)
 }
 
 extension SelectionItemViewDelegate {
-    func didTapInfoButton(at _: Int) {}
+    func didTapAdditionalButton(at _: IndexPath) {}
 }
 
 protocol SelectionItemViewProtocol: AnyObject {

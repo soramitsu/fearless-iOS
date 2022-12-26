@@ -15,7 +15,7 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
 
     let backButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconBack(), for: .normal)
+        button.setImage(R.image.iconClose(), for: .normal)
         button.layer.masksToBounds = true
         button.backgroundColor = R.color.colorWhite8()
         return button
@@ -41,6 +41,11 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
     }()
 
     let slippageToleranceView = SlippageToleranceView()
+    let slippageToleranceWarningLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        return label
+    }()
 
     let slippageToleranceSlider: UISlider = {
         let view = UISlider()
@@ -98,6 +103,7 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
 
     func bind(viewModel: SlippageToleranceViewModel) {
         slippageToleranceView.bind(with: viewModel)
+        slippageToleranceWarningLabel.attributedText = viewModel.labelAttributedString
         slippageToleranceSlider.setValue(viewModel.value, animated: true)
     }
 
@@ -141,9 +147,9 @@ final class PolkaswapTransaktionSettingsViewLayout: UIView {
             make.height.equalTo(Constants.spacerHeight)
         }
 
-        slippageToleranceView.isUserInteractionEnabled = false
         contentStackView.addArrangedSubview(selectMarketView)
         contentStackView.addArrangedSubview(slippageToleranceView)
+        contentStackView.addArrangedSubview(slippageToleranceWarningLabel)
         contentStackView.addArrangedSubview(slippageToleranceSlider)
         contentStackView.addArrangedSubview(slippageToleranceTitle)
         contentStackView.addArrangedSubview(spacer)

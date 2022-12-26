@@ -12,11 +12,10 @@ protocol PolkaswapAdjustmentViewInput: ControllerBackedProtocol {
     func didReceiveSwapTo(viewModel: AssetBalanceViewModelProtocol?)
     func didReceiveSwapFrom(amountInputViewModel: AmountInputViewModelProtocol?)
     func didReceiveSwapTo(amountInputViewModel: AmountInputViewModelProtocol?)
-    func didReceive(receiveValue: BalanceViewModelProtocol?)
-    func didReceiveLuquidityProvider(fee: BalanceViewModelProtocol?)
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?)
     func didUpdating()
     func didReceive(variant: SwapVariant)
+    func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?)
 }
 
 protocol PolkaswapAdjustmentViewOutput: AnyObject {
@@ -81,7 +80,7 @@ protocol PolkaswapAdjustmentRouterInput: PresentDismissable, ErrorPresentable, S
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset]?,
         selectedAssetId: AssetModel.Id?,
-        contextTag: Int,
+        contextTag: Int?,
         output: SelectAssetModuleOutput
     )
     func showConfirmation(

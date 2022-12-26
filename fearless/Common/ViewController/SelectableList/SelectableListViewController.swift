@@ -74,11 +74,13 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         listPresenter.numberOfItems
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCellWithType(C.self) else {
             return UITableViewCell()
         }
         cell.delegate = listPresenter
+        let viewModel = listPresenter.item(at: indexPath.row)
+        cell.bind(viewModel: viewModel)
         return cell
     }
 
@@ -116,5 +118,9 @@ extension SelectableListViewController: SelectionListViewProtocol {
     func didReload() {
         rootView.tableView.reloadData()
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
+    }
+
+    func didReloadCell(at indexPath: IndexPath) {
+        rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }

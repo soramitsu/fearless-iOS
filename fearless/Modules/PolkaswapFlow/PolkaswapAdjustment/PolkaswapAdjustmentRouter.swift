@@ -25,7 +25,7 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset]?,
         selectedAssetId: AssetModel.Id?,
-        contextTag: Int,
+        contextTag: Int?,
         output: SelectAssetModuleOutput
     ) {
         guard let module = SelectAssetAssembly.configureModule(

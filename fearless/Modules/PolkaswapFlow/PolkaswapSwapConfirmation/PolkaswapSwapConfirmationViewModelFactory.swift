@@ -19,16 +19,6 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
         with params: PolkaswapPreviewParams,
         locale: Locale
     ) -> PolkaswapSwapConfirmationViewModel {
-        let fromDisplayName = params.swapFromChainAsset.asset.name
-        let toDisplayName = params.swapToChainAsset.asset.name
-        let fromPerToTitle = [fromDisplayName, toDisplayName].joined(separator: " per ")
-        let toPerFromTitle = [toDisplayName, fromDisplayName].joined(separator: " per ")
-
-        let fromPerToPrice = params.fromAmount / params.toAmount
-        let toPerFromPrice = params.toAmount / params.fromAmount
-
-        let swapRoute = buildSwapRoute(for: params)
-
         let doubleImageViewViewModel = PolkaswapDoubleSymbolViewModel(
             leftViewModel: params.swapFromChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
             rightViewModel: params.swapToChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) }
@@ -39,13 +29,7 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
         let viewModel = PolkaswapSwapConfirmationViewModel(
             amountsText: amountsText,
             doubleImageViewViewModel: doubleImageViewViewModel,
-            fromPerToTitle: fromPerToTitle,
-            toPerFromTitle: toPerFromTitle,
-            fromPerToPrice: fromPerToPrice.toString(locale: locale, digits: .max) ?? "",
-            toPerFromPrice: toPerFromPrice.toString(locale: locale, digits: .max) ?? "",
-            minMaxReceive: params.minMaxReceive,
-            swapRoute: swapRoute,
-            liquitityProviderFee: params.lpFee,
+            adjustmentDetailsViewModel: params.detailsViewModel,
             networkFee: params.networkFee
         )
         return viewModel
@@ -69,27 +53,6 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
 
         let amountsTitle = insertArrow(in: [leftText, rightText])
         return amountsTitle
-    }
-
-    private func buildSwapRoute(
-        for params: PolkaswapPreviewParams
-    ) -> NSMutableAttributedString {
-        let fromCurrencyId = params.swapFromChainAsset.asset.currencyId
-        let toCurrencyId = params.swapToChainAsset.asset.currencyId
-        let dexCurrencyId = params.polkaswapDexForRoute.assetId
-
-        let firstSymbol = params.swapFromChainAsset.asset.name
-        var secondSymbol: String?
-        let thirSymbol = params.swapToChainAsset.asset.name
-
-        if fromCurrencyId != dexCurrencyId, toCurrencyId != dexCurrencyId {
-            secondSymbol = params.polkaswapDexForRoute.name.uppercased()
-        }
-
-        let texts = [firstSymbol, secondSymbol, thirSymbol]
-            .compactMap { $0 }
-
-        return insertArrow(in: texts)
     }
 
     private func insertArrow(in texts: [String]) -> NSMutableAttributedString {

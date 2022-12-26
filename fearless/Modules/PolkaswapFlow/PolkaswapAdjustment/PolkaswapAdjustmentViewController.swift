@@ -115,7 +115,7 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             target: self,
             action: #selector(handleTapNetworkFeeInfo)
         )
-        rootView.minReceivedView.titleLabel
+        rootView.minMaxReceivedView.titleLabel
             .addGestureRecognizer(tapMinReceiveInfo)
         rootView.liquidityProviderFeeView.titleLabel
             .addGestureRecognizer(tapLiquidityProviderFeeInfo)
@@ -131,31 +131,31 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     // MARK: - Private actions
 
-    @objc func handleTapBackButton() {
+    @objc private func handleTapBackButton() {
         output.didTapBackButton()
     }
 
-    @objc func handleTapMarketButton() {
+    @objc private func handleTapMarketButton() {
         output.didTapMarketButton()
     }
 
-    @objc func handleTapSwitchInputsButton() {
+    @objc private func handleTapSwitchInputsButton() {
         output.didTapSwitchInputsButton()
     }
 
-    @objc func handleTapMinReceiveInfo() {
+    @objc private func handleTapMinReceiveInfo() {
         output.didTapMinReceiveInfo()
     }
 
-    @objc func handleTapLiquidityProviderFeeInfo() {
+    @objc private func handleTapLiquidityProviderFeeInfo() {
         output.didTapLiquidityProviderFeeInfo()
     }
 
-    @objc func handleTapNetworkFeeInfo() {
+    @objc private func handleTapNetworkFeeInfo() {
         output.didTapNetworkFeeInfo()
     }
 
-    @objc func handleTapPreviewButton() {
+    @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
     }
 }
@@ -191,18 +191,6 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
         updatePreviewButton()
     }
 
-    func didReceive(receiveValue: BalanceViewModelProtocol?) {
-        rootView.minReceivedView.bindBalance(viewModel: receiveValue)
-        rootView.minReceivedView.isHidden = false
-        updatePreviewButton()
-    }
-
-    func didReceiveLuquidityProvider(fee: BalanceViewModelProtocol?) {
-        rootView.liquidityProviderFeeView.bindBalance(viewModel: fee)
-        rootView.liquidityProviderFeeView.isHidden = false
-        updatePreviewButton()
-    }
-
     func didReceiveNetworkFee(fee: BalanceViewModelProtocol?) {
         rootView.networkFeeView.bindBalance(viewModel: fee)
         rootView.networkFeeView.isHidden = false
@@ -217,6 +205,11 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
 
     func didReceive(variant: SwapVariant) {
         rootView.bind(swapVariant: variant)
+    }
+
+    func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
+        rootView.bindDetails(viewModel: viewModel)
+        updatePreviewButton()
     }
 }
 

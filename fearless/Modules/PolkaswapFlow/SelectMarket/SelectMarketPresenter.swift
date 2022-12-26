@@ -10,7 +10,7 @@ final class SelectMarketPresenter {
     private let interactor: SelectMarketInteractorInput
 
     private let markets: [LiquiditySourceType]
-    private var viewModels: [SelectableTitleListViewModel] = []
+    private var viewModels: [SelectableSubtitleListViewModel] = []
 
     // MARK: - Constructors
 
@@ -32,7 +32,7 @@ final class SelectMarketPresenter {
 
     private func provideViewModel() {
         viewModels = markets.map {
-            SelectableTitleListViewModel(title: $0.name)
+            SelectableSubtitleListViewModel(title: $0.name, subtitle: $0.description)
         }
 
         view?.didReload()
@@ -58,16 +58,9 @@ extension SelectMarketPresenter: SelectMarketViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapInfoButton(at index: Int) {
-        guard let market = markets[safe: index] else {
-            return
-        }
-        router.present(
-            message: market.description,
-            title: market.name,
-            closeAction: nil,
-            from: view
-        )
+    func didTapAdditionalButton(at indexPath: IndexPath) {
+        viewModels[indexPath.row].isExpand.toggle()
+        view?.didReloadCell(at: indexPath)
     }
 
     func didLoad(view: SelectMarketViewInput) {

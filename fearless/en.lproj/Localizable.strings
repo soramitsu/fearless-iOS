@@ -909,6 +909,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.liquidity.provider.fee" = "Liquidity Provider Fee ";
 "polkaswap.network.fee" = "Network fee ";
 "polkaswap.confirmation.route.stub" = "Route";
+"polkaswap.confirmation.price.impact.stub" = "Price impact ";
 "polkaswap.confirmation.swap.stub" = "Swap";
 "polkaswap.settings.reset" = "Reset to default";
 "polkaswap.settings.slippage.stub" = "Your transactions will revert if the price changes unfavorably by more than this percentage";
@@ -922,5 +923,12 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.minimum.received.info" = "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.";
 "polkaswap.liqudity.fee.info" = "A portion of each trade (0.3%) goes to liquidity providers as a protocol incentive.";
 "polkaswap.network.fee.info" = "Network fee is used to ensure SORA system's growth and stable performance.";
+"polkaswap.price.impact.info" = "The difference between the market price and estimated price due to trade size.";
 "polkaswap.maximum.sold.info" = "Your transaction will revert if there is a large, unfavorable price movement before it is confirmed.";
 "polkaswap.market.algorithm.title" = "Market algorithm";
+"polkaswap.market.alert.choose.action" = "Choose asset";
+"polkaswap.market.alert.title" = "Market selection isn't available";
+"polkaswap.market.alert.message" = "You haven't completed the swap adjustments. One or both assets haven't been chosen, so the market selection isn't available.";
+"polkaswap.dex.alert.message" = "Unfortunately there is no such pair, but you can choose another one ";
+"polkaswap.dex.alert.title" = "Token Pair Isn’t Created";
+"polkaswap.quotes.not.available" = "Quotes not available";

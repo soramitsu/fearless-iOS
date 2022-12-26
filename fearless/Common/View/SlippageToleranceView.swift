@@ -57,10 +57,21 @@ final class SlippageToleranceView: UIView {
     func bind(with viewModel: SlippageToleranceViewModel) {
         attensionImageView.isHidden = viewModel.image == nil
         attensionImageView.image = viewModel.image
-        textField.attributedText = viewModel.attributedText
+        textField.text = viewModel.textFieldText
+
+        let highlighted = viewModel.labelAttributedString != nil
+        if highlighted {
+            backgroundView.highlightedStrokeColor = R.color.colorOrange()!
+            titleLabel.textColor = R.color.colorOrange()
+        } else {
+            backgroundView.highlightedStrokeColor = R.color.colorPink()!
+            titleLabel.textColor = R.color.colorStrokeGray()
+        }
+        backgroundView.set(highlighted: highlighted, animated: false)
     }
 
     func set(highlighted: Bool, animated: Bool) {
+        backgroundView.highlightedStrokeColor = R.color.colorPink()!
         backgroundView.set(highlighted: highlighted, animated: animated)
     }
 
@@ -94,6 +105,7 @@ final class SlippageToleranceView: UIView {
 
 struct SlippageToleranceViewModel {
     let value: Float
-    let attributedText: NSAttributedString
+    let textFieldText: String
+    let labelAttributedString: NSAttributedString?
     let image: UIImage?
 }

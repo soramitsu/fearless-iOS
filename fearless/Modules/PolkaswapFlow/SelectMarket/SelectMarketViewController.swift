@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class SelectMarketViewController: SelectableListViewController<SelectionTitleWithInfoButton> {
+final class SelectMarketViewController: SelectableListViewController<ExpandableSubtitleCell> {
     private enum Constants {
         static let cellHeight: CGFloat = 50.0
     }
@@ -39,7 +39,8 @@ final class SelectMarketViewController: SelectableListViewController<SelectionTi
     // MARK: - Private methods
 
     private func setupTableView() {
-        rootView.tableView.rowHeight = Constants.cellHeight
+        rootView.tableView.rowHeight = UITableView.automaticDimension
+        rootView.tableView.estimatedRowHeight = Constants.cellHeight
         rootView.tableView.backgroundColor = .clear
         rootView.tableView.separatorStyle = .none
     }

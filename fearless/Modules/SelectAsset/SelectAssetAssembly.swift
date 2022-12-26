@@ -10,7 +10,7 @@ final class SelectAssetAssembly {
         chainAssets: [ChainAsset]?,
         searchTextsViewModel: TextSearchViewModel?,
         output: SelectAssetModuleOutput,
-        contextTag: Int? = 0,
+        contextTag: Int? = nil,
         isFullSize: Bool = false
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared

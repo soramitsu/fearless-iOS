@@ -65,7 +65,7 @@
 		076D9D3D293E357A002762E3 /* PolkaswapRemoteSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D3C293E357A002762E3 /* PolkaswapRemoteSettings.swift */; };
 		076D9D3F293E367C002762E3 /* PolkaswapDex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D3E293E367C002762E3 /* PolkaswapDex.swift */; };
 		076D9D41293F2A1F002762E3 /* SlippageToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D40293F2A1F002762E3 /* SlippageToleranceView.swift */; };
-		076D9D43294051B3002762E3 /* SelectionTitleWithInfoButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D42294051B3002762E3 /* SelectionTitleWithInfoButton.swift */; };
+		076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D42294051B3002762E3 /* ExpandableSubtitleCell.swift */; };
 		076D9D4529405987002762E3 /* SlippageToleranceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4429405987002762E3 /* SlippageToleranceViewModelFactory.swift */; };
 		076D9D4829417DFA002762E3 /* PolkaswapStorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4729417DFA002762E3 /* PolkaswapStorageKeyFactory.swift */; };
 		076D9D4A29419745002762E3 /* PolkaswapRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4929419745002762E3 /* PolkaswapRemoteSubscriptionService.swift */; };
@@ -2611,7 +2611,7 @@
 		076D9D3C293E357A002762E3 /* PolkaswapRemoteSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapRemoteSettings.swift; sourceTree = "<group>"; };
 		076D9D3E293E367C002762E3 /* PolkaswapDex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapDex.swift; sourceTree = "<group>"; };
 		076D9D40293F2A1F002762E3 /* SlippageToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageToleranceView.swift; sourceTree = "<group>"; };
-		076D9D42294051B3002762E3 /* SelectionTitleWithInfoButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectionTitleWithInfoButton.swift; sourceTree = "<group>"; };
+		076D9D42294051B3002762E3 /* ExpandableSubtitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableSubtitleCell.swift; sourceTree = "<group>"; };
 		076D9D4429405987002762E3 /* SlippageToleranceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageToleranceViewModelFactory.swift; sourceTree = "<group>"; };
 		076D9D4729417DFA002762E3 /* PolkaswapStorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapStorageKeyFactory.swift; sourceTree = "<group>"; };
 		076D9D4929419745002762E3 /* PolkaswapRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapRemoteSubscriptionService.swift; sourceTree = "<group>"; };
@@ -6686,7 +6686,7 @@
 				842876A124AE049A00D91AD8 /* SelectionTitleTableViewCell.xib */,
 				842876A224AE049A00D91AD8 /* SelectionSubtitleTableViewCell.swift */,
 				8406B5AE26FBE7EF00635B61 /* SelectionIconDetailsTableViewCell.swift */,
-				076D9D42294051B3002762E3 /* SelectionTitleWithInfoButton.swift */,
+				076D9D42294051B3002762E3 /* ExpandableSubtitleCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -13364,7 +13364,7 @@
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
 				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
-				076D9D43294051B3002762E3 /* SelectionTitleWithInfoButton.swift in Sources */,
+				076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */,
 				F40966B726B297D6008CD244 /* AnalyticsContainerViewController.swift in Sources */,
 				84FD3DC02541B10B00A234E3 /* TransactionDetailsViewModelFactory.swift in Sources */,
 				FA2FC81928B3807D00CC0A42 /* StakingPoolStartViewController.swift in Sources */,

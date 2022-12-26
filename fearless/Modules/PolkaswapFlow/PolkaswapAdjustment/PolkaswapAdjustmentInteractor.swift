@@ -24,6 +24,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private var dexIds: [UInt32] = [PolkaswapConstnts.xorDexID, PolkaswapConstnts.xstusdDexID]
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
+    private var listeningSubscription: [String] = []
 
     init(
         xorChainAsset: ChainAsset,
@@ -212,6 +213,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         liquiditySourceType: LiquiditySourceType,
         availablePolkaswapDex: [PolkaswapDex]
     ) {
+        listeningSubscription.removeAll()
         unsubscribePool()
 
         subscriptionService.subscribsToPools(
@@ -219,8 +221,15 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
             toAssetId: toAssetId,
             liquiditySourceType: liquiditySourceType,
             availablePolkaswapDex: availablePolkaswapDex
-        ) { [weak self] _ in
-            self?.output?.updateQuotes()
+        ) { [weak self] update in
+            guard let strongSelf = self else {
+                return
+            }
+            let subscription = update.params.subscription
+            if strongSelf.listeningSubscription.contains(subscription) {
+                strongSelf.output?.updateQuotes()
+            }
+            strongSelf.listeningSubscription.append(subscription)
         }
     }
 

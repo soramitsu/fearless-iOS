@@ -50,17 +50,21 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
-    lazy var minReceivedView: TitleMultiValueView = {
-        createMultiView()
-    }()
+    let minMaxReceivedView = UIFactory.default.createMultiView()
+    let swapRouteView = UIFactory.default.createMultiView()
+    let fromPerToPriceView = UIFactory.default.createMultiView()
+    let toPerFromPriceView = UIFactory.default.createMultiView()
+    let liquidityProviderFeeView = UIFactory.default.createMultiView()
+    let networkFeeView = UIFactory.default.createMultiView()
 
-    lazy var liquidityProviderFeeView: TitleMultiValueView = {
-        createMultiView()
-    }()
-
-    lazy var networkFeeView: TitleMultiValueView = {
-        createMultiView()
-    }()
+    private lazy var multiViews = [
+        minMaxReceivedView,
+        swapRouteView,
+        fromPerToPriceView,
+        toPerFromPriceView,
+        liquidityProviderFeeView,
+        networkFeeView
+    ]
 
     let previewButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -102,6 +106,21 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         swapToInputView.bind(viewModel: assetViewModel)
     }
 
+    func bindDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
+        guard let viewModel = viewModel else {
+            multiViews.forEach { $0.isHidden = true }
+            return
+        }
+        minMaxReceivedView.bindBalance(viewModel: viewModel.minMaxReceiveVieModel)
+        swapRouteView.valueTop.text = viewModel.route
+        fromPerToPriceView.titleLabel.text = viewModel.fromPerToTitle
+        fromPerToPriceView.valueTop.text = viewModel.fromPerToValue
+        toPerFromPriceView.titleLabel.text = viewModel.toPerFromTitle
+        toPerFromPriceView.valueTop.text = viewModel.toPerFromValue
+        liquidityProviderFeeView.bindBalance(viewModel: viewModel.liqudityProviderFeeVieModel)
+        multiViews.forEach { $0.isHidden = false }
+    }
+
     func bind(swapVariant: SwapVariant) {
         var text: String
         switch swapVariant {
@@ -112,7 +131,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             text = R.string.localizable
                 .polkaswapMaxReceived(preferredLanguages: locale.rLanguages)
         }
-        setInfoImage(for: minReceivedView.titleLabel, text: text)
+        setInfoImage(for: minMaxReceivedView.titleLabel, text: text)
     }
 
     // MARK: - Private methods
@@ -213,13 +232,12 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         let container = UIFactory.default.createVerticalStackView()
 
-        [minReceivedView, liquidityProviderFeeView, networkFeeView]
-            .forEach {
-                container.addArrangedSubview($0)
-                makeCommonConstraints(for: $0)
-                $0.isHidden = true
-                $0.titleLabel.isUserInteractionEnabled = true
-            }
+        multiViews.forEach {
+            container.addArrangedSubview($0)
+            makeCommonConstraints(for: $0)
+            $0.isHidden = true
+            $0.titleLabel.isUserInteractionEnabled = true
+        }
 
         return container
     }
@@ -241,11 +259,14 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         swapToInputView.locale = locale
         marketButton.locale = locale
 
+        swapRouteView.titleLabel.text = R.string.localizable
+            .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
+
         let texts = [
             R.string.localizable
                 .polkaswapLiquidityProviderFee(preferredLanguages: locale.rLanguages),
             R.string.localizable
-                .polkaswapNetworkFee(preferredLanguages: locale.rLanguages),
+                .polkaswapNetworkFee(preferredLanguages: locale.rLanguages)
         ]
 
         [

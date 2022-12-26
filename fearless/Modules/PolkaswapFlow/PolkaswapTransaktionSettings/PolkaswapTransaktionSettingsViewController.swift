@@ -34,6 +34,10 @@ final class PolkaswapTransaktionSettingsViewController: UIViewController, ViewHo
         super.viewDidLoad()
         output.didLoad(view: self)
         bindActions()
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let accessoryView = UIFactory.default.createSliderAccessoryView(for: self, locale: locale)
+        rootView.slippageToleranceView.textField.inputAccessoryView = accessoryView
     }
 
     // MARK: - Private methods
@@ -123,23 +127,55 @@ extension PolkaswapTransaktionSettingsViewController: Localizable {
 
 extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
     func textField(
-        _: UITextField,
-        shouldChangeCharactersIn _: NSRange,
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        if let float = Float(string) {
+        if string.isEmpty {
+            return true
+        }
+        let oldString = (textField.text ?? "") as NSString
+        let candidate = oldString.replacingCharacters(in: range, with: string)
+        let regex = try? NSRegularExpression(pattern: "^[0-9]{1}([.]{0,1})?([0-9]{0,2})?$", options: [])
+        if regex?.firstMatch(in: candidate, options: [], range: NSRange(location: 0, length: candidate.count)) != nil {
+            NSObject.cancelPreviousPerformRequests(
+                withTarget: self,
+                selector: #selector(didChangeSlider),
+                object: nil
+            )
+            perform(#selector(didChangeSlider), with: nil, afterDelay: 0.7)
+            return true
+        }
+        return false
+    }
+
+    @objc private func didChangeSlider() {
+        if let float = Float(rootView.slippageToleranceView.textField.text.or("")) {
             output.didChangeSlider(value: float)
         }
-
-        return true
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {
         let slippadgeIsFirstResponder = textField == rootView.slippageToleranceView.textField
         rootView.slippageToleranceView.set(highlighted: slippadgeIsFirstResponder, animated: false)
+        if textField == rootView.slippageToleranceView.textField {
+            textField.text = ""
+        }
     }
 
     func textFieldDidEndEditing(_: UITextField) {
         rootView.slippageToleranceView.set(highlighted: false, animated: false)
+    }
+}
+
+// MARK: - AmountInputAccessoryViewDelegate
+
+extension PolkaswapTransaktionSettingsViewController: AmountInputAccessoryViewDelegate {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
+        output.didChangeSlider(value: percentage)
+    }
+
+    func didSelectDone(on _: AmountInputAccessoryView) {
+        rootView.slippageToleranceView.textField.resignFirstResponder()
     }
 }

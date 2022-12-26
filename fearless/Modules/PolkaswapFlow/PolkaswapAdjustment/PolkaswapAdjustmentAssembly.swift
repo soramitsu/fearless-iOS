@@ -76,7 +76,9 @@ final class PolkaswapAdjustmentAssembly {
         )
         let router = PolkaswapAdjustmentRouter()
 
-        let quoteFactory = SwapQuoteAmountsFactory(
+        let viewModelFactory = PolkaswapAdjustmentViewModelFactory(
+            wallet: wallet,
+            xorChainAsset: xorChainAsset,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
         )
 
@@ -85,7 +87,7 @@ final class PolkaswapAdjustmentAssembly {
             wallet: wallet,
             soraChainAsset: xorChainAsset,
             swapFromChainAsset: swapFromChainAsset,
-            quoteFactory: quoteFactory,
+            viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             interactor: interactor,
             router: router,

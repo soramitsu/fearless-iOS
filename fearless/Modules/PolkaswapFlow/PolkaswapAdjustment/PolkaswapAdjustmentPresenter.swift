@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 
+// swiftlint:disable file_length type_body_length
 final class PolkaswapAdjustmentPresenter {
     private enum InputTag: Int {
         case swapFrom = 0
@@ -16,7 +17,7 @@ final class PolkaswapAdjustmentPresenter {
     private let interactor: PolkaswapAdjustmentInteractorInput
 
     private let wallet: MetaAccountModel
-    private let quoteFactory: SwapQuoteConverterProtocol
+    private let viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol
     private let dataValidatingFactory: SendDataValidatingFactory
     private let logger: LoggerProtocol
 
@@ -27,10 +28,9 @@ final class PolkaswapAdjustmentPresenter {
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
     private var marketSourcer: SwapMarketSourcerProtocol?
-    private var bestQuote: SubstrateSwapValues?
     private var polkaswapDexForRoute: PolkaswapDex?
     private var calcalatedAmounts: SwapQuoteAmounts?
-    private var receiveValue: BalanceViewModelProtocol?
+    private var detailsViewModel: PolkaswapAdjustmentDetailsViewModel?
 
     private var slippadgeTolerance: Float = 0.5
     private var selectedLiquiditySourceType: LiquiditySourceType {
@@ -47,7 +47,6 @@ final class PolkaswapAdjustmentPresenter {
     private var networkFee: Decimal?
     private var networkFeeViewModel: BalanceViewModelProtocol?
     private var liquidityProviderFee: Decimal?
-    private var liquidityProviderFeeViewModel: BalanceViewModelProtocol?
 
     private var xorBalance: Decimal?
     private var xorBalanceMinusFee: Decimal {
@@ -60,7 +59,7 @@ final class PolkaswapAdjustmentPresenter {
         wallet: MetaAccountModel,
         soraChainAsset: ChainAsset,
         swapFromChainAsset: ChainAsset,
-        quoteFactory: SwapQuoteConverterProtocol,
+        viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
         logger: LoggerProtocol = Logger.shared,
         interactor: PolkaswapAdjustmentInteractorInput,
@@ -70,7 +69,7 @@ final class PolkaswapAdjustmentPresenter {
         self.wallet = wallet
         xorChainAsset = soraChainAsset
         self.swapFromChainAsset = swapFromChainAsset
-        self.quoteFactory = quoteFactory
+        self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         selectedLiquiditySourceType = LiquiditySourceType.smart
@@ -221,27 +220,25 @@ final class PolkaswapAdjustmentPresenter {
         params: PolkaswapQuoteParams,
         quotes: [SwapValues]
     ) {
-        guard let amounts = quoteFactory.createAmounts(
+        guard let amounts = viewModelFactory.createAmounts(
             xorChainAsset: xorChainAsset,
             fromAsset: swapFromChainAsset?.asset,
             toAsset: swapToChainAsset?.asset,
             params: params,
-            quote: quotes,
-            locale: selectedLocale
+            quote: quotes
         ) else {
             return
         }
 
         fetchSwapFee(amounts: amounts)
         setAndDisplayAmount(amounts: amounts)
-        provideReceiveValue(amounts.toAmount)
-        provideLiqitityProviderFee(lpAmount: amounts.lpAmount)
-
-        bestQuote = amounts.bestQuote
         calcalatedAmounts = amounts
+        liquidityProviderFee = amounts.lpAmount
         polkaswapDexForRoute = polkaswapRemoteSettings?.availableDexIds.first(where: { polkaswapDex in
             polkaswapDex.code == amounts.bestQuote.dexId
         })
+
+        detailsViewModel = provideDetailsViewModel(with: amounts)
 
         guard let params = preparePreviewParams() else {
             return
@@ -249,51 +246,27 @@ final class PolkaswapAdjustmentPresenter {
         confirmationScreenModuleInput?.updateModule(with: params)
     }
 
-    private func provideLiqitityProviderFee(lpAmount: Decimal) {
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
-        let lpViewModel = balanceViewModelFactory.balanceFromPrice(
-            lpAmount,
-            priceData: prices?.first(where: { price in
-                price.priceId == xorChainAsset.asset.priceId
-            }),
-            isApproximately: true
-        ).value(for: selectedLocale)
-
-        view?.didReceiveLuquidityProvider(fee: lpViewModel)
-        liquidityProviderFee = lpAmount
-        liquidityProviderFeeViewModel = lpViewModel
-        provideFromAssetVewModel()
-    }
-
-    private func provideReceiveValue(_ value: Decimal) {
-        guard let swapToChainAsset = swapToChainAsset else {
-            return
+    private func provideDetailsViewModel(
+        with amounts: SwapQuoteAmounts
+    ) -> PolkaswapAdjustmentDetailsViewModel? {
+        guard let swapToChainAsset = swapToChainAsset,
+              let swapFromChainAsset = swapFromChainAsset,
+              let polkaswapRemoteSettings = polkaswapRemoteSettings
+        else {
+            return nil
         }
-
-        var minMaxValue: Decimal
-        var price: PriceData?
-        switch swapVariant {
-        case .desiredInput:
-            minMaxValue = value * Decimal(1 - Double(slippadgeTolerance) / 100.0)
-            price = prices?.first(where: { price in
-                price.priceId == swapToChainAsset.asset.priceId
-            })
-        case .desiredOutput:
-            minMaxValue = value * Decimal(1 + Double(slippadgeTolerance) / 100.0)
-            price = prices?.first(where: { price in
-                price.priceId == swapFromChainAsset?.asset.priceId
-            })
-        }
-
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: swapToChainAsset)
-        let receiveValue = balanceViewModelFactory.balanceFromPrice(
-            minMaxValue,
-            priceData: price,
-            isApproximately: true
-        ).value(for: selectedLocale)
-
-        view?.didReceive(receiveValue: receiveValue)
-        self.receiveValue = receiveValue
+        let detailsViewModel = viewModelFactory.createDetailsViewModel(
+            with: amounts,
+            swapToChainAsset: swapToChainAsset,
+            swapFromChainAsset: swapFromChainAsset,
+            swapVariant: swapVariant,
+            availableDexIds: polkaswapRemoteSettings.availableDexIds,
+            slippadgeTolerance: slippadgeTolerance,
+            prices: prices,
+            locale: selectedLocale
+        )
+        view?.didReceiveDetails(viewModel: detailsViewModel)
+        return detailsViewModel
     }
 
     private func setAndDisplayAmount(amounts: SwapQuoteAmounts) {
@@ -340,7 +313,8 @@ final class PolkaswapAdjustmentPresenter {
         guard let swapFromFee = networkFee else {
             return
         }
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: xorChainAsset)
+        let balanceViewModelFactory = viewModelFactory
+            .createBalanceViewModelFactory(for: xorChainAsset)
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             swapFromFee,
             priceData: prices?.first(where: { price in
@@ -354,19 +328,8 @@ final class PolkaswapAdjustmentPresenter {
         networkFeeViewModel = feeViewModel
     }
 
-    private func createBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactory {
-        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: assetInfo,
-            selectedMetaAccount: wallet
-        )
-        return balanceViewModelFactory
-    }
-
     private func invalidateParams() {
-        bestQuote = nil
         calcalatedAmounts = nil
-        receiveValue = nil
         liquidityProviderFee = nil
         swapFromInputResult = nil
         swapToInputResult = nil
@@ -375,13 +338,13 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
-        guard let amounts = calcalatedAmounts,
-              let swapFromChainAsset = swapFromChainAsset,
+        guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
-              let minMaxReceiveViewModel = receiveValue,
-              let liquidityProviderFeeViewModel = liquidityProviderFeeViewModel,
+              let polkaswapDexForRoute = polkaswapDexForRoute,
               let networkFeeViewModel = networkFeeViewModel,
-              let polkaswapDexForRoute = polkaswapDexForRoute
+              let detailsViewModel = detailsViewModel,
+              let fromAmount = swapFromInputResult?.absoluteValue(from: .zero),
+              let toAmount = swapToInputResult?.absoluteValue(from: .zero)
         else {
             return nil
         }
@@ -391,17 +354,65 @@ final class PolkaswapAdjustmentPresenter {
             soraChinAsset: xorChainAsset,
             swapFromChainAsset: swapFromChainAsset,
             swapToChainAsset: swapToChainAsset,
-            fromAmount: amounts.fromAmount,
-            toAmount: amounts.toAmount,
+            fromAmount: fromAmount,
+            toAmount: toAmount,
             slippadgeTolerance: slippadgeTolerance,
             swapVariant: swapVariant,
             market: selectedLiquiditySourceType,
-            minMaxReceive: minMaxReceiveViewModel,
             polkaswapDexForRoute: polkaswapDexForRoute,
-            lpFee: liquidityProviderFeeViewModel,
-            networkFee: networkFeeViewModel
+            networkFee: networkFeeViewModel,
+            detailsViewModel: detailsViewModel,
+            minMaxValue: detailsViewModel.minMaxReceiveValue
         )
         return params
+    }
+
+    private func showMarketSelectionAlert() {
+        let chooseAssetTitle = R.string.localizable
+            .polkaswapMarketAlertChooseAction(preferredLanguages: selectedLocale.rLanguages)
+        let chooseAssetAction = SheetAlertPresentableAction(
+            title: chooseAssetTitle,
+            button: UIFactory.default.createMainActionButton()
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            var contextTag: Int?
+            var filterChainAsset: ChainAsset?
+            if let swapFromChainAsset = strongSelf.swapFromChainAsset {
+                filterChainAsset = swapFromChainAsset
+                contextTag = InputTag.swapTo.rawValue
+            } else if let swapToChainAsset = strongSelf.swapToChainAsset {
+                contextTag = InputTag.swapFrom.rawValue
+                filterChainAsset = swapToChainAsset
+            }
+            let showChainAssets = strongSelf.xorChainAsset.chain.chainAssets
+                .filter { $0.chainAssetId != filterChainAsset?.chainAssetId }
+            strongSelf.router.showSelectAsset(
+                from: strongSelf.view,
+                wallet: strongSelf.wallet,
+                chainAssets: showChainAssets,
+                selectedAssetId: strongSelf.swapFromChainAsset?.asset.id,
+                contextTag: contextTag,
+                output: strongSelf
+            )
+        }
+        let closeTitle = R.string.localizable
+            .commonCancel(preferredLanguages: selectedLocale.rLanguages)
+
+        let alertTitle = R.string.localizable
+            .polkaswapMarketAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        let alertMessage = R.string.localizable
+            .polkaswapMarketAlertMessage(preferredLanguages: selectedLocale.rLanguages)
+        let viewModel = SheetAlertPresentableViewModel(
+            title: alertTitle,
+            message: alertMessage,
+            actions: [chooseAssetAction],
+            closeAction: closeTitle,
+            dismissCompletion: nil
+        )
+        router.present(
+            viewModel: viewModel,
+            from: view
+        )
     }
 }
 
@@ -421,6 +432,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
     func didTapMarketButton() {
         guard let marketSourcer = marketSourcer else {
+            showMarketSelectionAlert()
             return
         }
         let markets = marketSourcer.getMarketSources()
@@ -434,10 +446,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSelectFromAsset() {
+        let showChainAssets = xorChainAsset.chain.chainAssets
+            .filter { $0.chainAssetId != swapToChainAsset?.chainAssetId }
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            chainAssets: swapFromChainAsset?.chain.chainAssets,
+            chainAssets: showChainAssets,
             selectedAssetId: swapFromChainAsset?.asset.id,
             contextTag: InputTag.swapFrom.rawValue,
             output: self
@@ -445,10 +459,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapSelectToAsset() {
+        let showChainAssets = xorChainAsset.chain.chainAssets
+            .filter { $0.chainAssetId != swapFromChainAsset?.chainAssetId }
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            chainAssets: swapFromChainAsset?.chain.chainAssets,
+            chainAssets: showChainAssets,
             selectedAssetId: swapToChainAsset?.asset.id,
             contextTag: InputTag.swapTo.rawValue,
             output: self
@@ -577,7 +593,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         guard let amounts = calcalatedAmounts else {
             return
         }
-        provideReceiveValue(amounts.toAmount)
+        detailsViewModel = provideDetailsViewModel(with: amounts)
     }
 }
 
@@ -672,11 +688,16 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
             return
         }
 
+        let alertTitle = R.string.localizable
+            .polkaswapDexAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        let alertMessage = R.string.localizable
+            .polkaswapDexAlertMessage(preferredLanguages: selectedLocale.rLanguages)
+
         if availableDexsInfos.isEmpty {
             DispatchQueue.main.async {
                 self.router.present(
-                    message: nil,
-                    title: "Path not availalbe",
+                    message: alertMessage,
+                    title: alertTitle,
                     closeAction: nil,
                     from: self.view
                 )
@@ -696,7 +717,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         provideAmount(params: params, quotes: valuesMap)
         if valuesMap.isEmpty, errors.isNotEmpty {
             invalidateParams()
-            router.present(message: nil, title: "Quotes not available", closeAction: nil, from: view)
+            let title = R.string.localizable
+                .polkaswapQuotesNotAvailable(preferredLanguages: selectedLocale.rLanguages)
+            router.present(message: nil, title: title, closeAction: nil, from: view)
         }
     }
 
@@ -705,7 +728,6 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func updateQuotes() {
-        bestQuote = nil
         calcalatedAmounts = nil
         fetchQuotes()
     }
@@ -726,17 +748,16 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         didCompleteWith chainAsset: ChainAsset?,
         contextTag: Int?
     ) {
+        view?.didUpdating()
         guard let rawValue = contextTag,
-              let input = InputTag(rawValue: rawValue)
+              let input = InputTag(rawValue: rawValue),
+              let chainAsset = chainAsset
         else {
             return
         }
 
         switch input {
         case .swapFrom:
-            guard let chainAsset = chainAsset else {
-                return
-            }
             swapFromChainAsset = chainAsset
             provideFromAssetVewModel()
         case .swapTo:
@@ -780,7 +801,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             guard let calcalatedAmounts = calcalatedAmounts else {
                 return
             }
-            provideReceiveValue(calcalatedAmounts.toAmount)
+            detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
     }
 }

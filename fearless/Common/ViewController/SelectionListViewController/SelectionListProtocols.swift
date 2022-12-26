@@ -3,6 +3,11 @@ import Foundation
 protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func didReload()
     func bind(viewModel: TextSearchViewModel?)
+    func didReloadCell(at indexPath: IndexPath)
+}
+
+extension SelectionListViewProtocol {
+    func didReloadCell(at _: IndexPath) {}
 }
 
 protocol SelectionListPresenterProtocol: AnyObject, SelectionItemViewDelegate {
