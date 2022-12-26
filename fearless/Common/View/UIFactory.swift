@@ -89,6 +89,7 @@ protocol UIFactoryProtocol {
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
     func createSearchTextField() -> SearchTextField
+    func createRoundedButton() -> UIButton
 }
 
 extension UIFactoryProtocol {
@@ -621,5 +622,12 @@ final class UIFactory: UIFactoryProtocol {
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.shadowOpacity = 0
         return searchTextField
+    }
+
+    func createRoundedButton() -> UIButton {
+        let button = UIButton(type: .custom)
+        button.titleLabel?.font = .h6Title
+        button.layer.cornerRadius = 12
+        return button
     }
 }

@@ -36,11 +36,24 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Private methods
+
+    private func configureActions(for status: SoraCardStatus) {
+        switch status {
+        case .success, .failure, .pending:
+            output.didTapCloseButton()
+        case .rejected:
+            output.didTapTryagainButton()
+        }
+    }
 }
 
 // MARK: - VerificationStatusViewInput
 
-extension VerificationStatusViewController: VerificationStatusViewInput {}
+extension VerificationStatusViewController: VerificationStatusViewInput {
+    func didReceive(status: SoraCardStatus) {
+        rootView.bind(status: status)
+    }
+}
 
 // MARK: - Localizable
 
