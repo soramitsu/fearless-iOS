@@ -1,7 +1,6 @@
 import UIKit
 
-final class TermsAndConditionsViewLayout: UIView {
-
+final class KYCOnboardingViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
     }
