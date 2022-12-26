@@ -5,9 +5,11 @@ final class PreparationViewController: UIViewController, ViewHolder {
     typealias RootViewType = PreparationViewLayout
 
     // MARK: Private properties
+
     private let output: PreparationViewOutput
 
     // MARK: - Constructor
+
     init(
         output: PreparationViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class PreparationViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = PreparationViewLayout()
     }
@@ -31,14 +34,16 @@ final class PreparationViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - PreparationViewInput
+
 extension PreparationViewController: PreparationViewInput {}
 
 // MARK: - Localizable
+
 extension PreparationViewController: Localizable {
     func applyLocalization() {}
 }

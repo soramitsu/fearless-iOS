@@ -3,11 +3,13 @@ import SoraFoundation
 
 final class IntroducePresenter {
     // MARK: Private properties
+
     private weak var view: IntroduceViewInput?
     private let router: IntroduceRouterInput
     private let interactor: IntroduceInteractorInput
 
     // MARK: - Constructors
+
     init(
         interactor: IntroduceInteractorInput,
         router: IntroduceRouterInput,
@@ -17,11 +19,12 @@ final class IntroducePresenter {
         self.router = router
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - IntroduceViewOutput
+
 extension IntroducePresenter: IntroduceViewOutput {
     func didLoad(view: IntroduceViewInput) {
         self.view = view
@@ -30,9 +33,11 @@ extension IntroducePresenter: IntroduceViewOutput {
 }
 
 // MARK: - IntroduceInteractorOutput
+
 extension IntroducePresenter: IntroduceInteractorOutput {}
 
 // MARK: - Localizable
+
 extension IntroducePresenter: Localizable {
     func applyLocalization() {}
 }

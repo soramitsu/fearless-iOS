@@ -5,9 +5,11 @@ final class IntroduceViewController: UIViewController, ViewHolder {
     typealias RootViewType = IntroduceViewLayout
 
     // MARK: Private properties
+
     private let output: IntroduceViewOutput
 
     // MARK: - Constructor
+
     init(
         output: IntroduceViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class IntroduceViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = IntroduceViewLayout()
     }
@@ -31,14 +34,16 @@ final class IntroduceViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - IntroduceViewInput
+
 extension IntroduceViewController: IntroduceViewInput {}
 
 // MARK: - Localizable
+
 extension IntroduceViewController: Localizable {
     func applyLocalization() {}
 }

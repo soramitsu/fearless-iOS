@@ -5,9 +5,11 @@ final class TermsAndConditionsViewController: UIViewController, ViewHolder {
     typealias RootViewType = TermsAndConditionsViewLayout
 
     // MARK: Private properties
+
     private let output: TermsAndConditionsViewOutput
 
     // MARK: - Constructor
+
     init(
         output: TermsAndConditionsViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class TermsAndConditionsViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = TermsAndConditionsViewLayout()
     }
@@ -31,14 +34,16 @@ final class TermsAndConditionsViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - TermsAndConditionsViewInput
+
 extension TermsAndConditionsViewController: TermsAndConditionsViewInput {}
 
 // MARK: - Localizable
+
 extension TermsAndConditionsViewController: Localizable {
     func applyLocalization() {}
 }

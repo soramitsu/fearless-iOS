@@ -3,11 +3,13 @@ import SoraFoundation
 
 final class TermsAndConditionsPresenter {
     // MARK: Private properties
+
     private weak var view: TermsAndConditionsViewInput?
     private let router: TermsAndConditionsRouterInput
     private let interactor: TermsAndConditionsInteractorInput
 
     // MARK: - Constructors
+
     init(
         interactor: TermsAndConditionsInteractorInput,
         router: TermsAndConditionsRouterInput,
@@ -17,11 +19,12 @@ final class TermsAndConditionsPresenter {
         self.router = router
         self.localizationManager = localizationManager
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - TermsAndConditionsViewOutput
+
 extension TermsAndConditionsPresenter: TermsAndConditionsViewOutput {
     func didLoad(view: TermsAndConditionsViewInput) {
         self.view = view
@@ -30,9 +33,11 @@ extension TermsAndConditionsPresenter: TermsAndConditionsViewOutput {
 }
 
 // MARK: - TermsAndConditionsInteractorOutput
+
 extension TermsAndConditionsPresenter: TermsAndConditionsInteractorOutput {}
 
 // MARK: - Localizable
+
 extension TermsAndConditionsPresenter: Localizable {
     func applyLocalization() {}
 }

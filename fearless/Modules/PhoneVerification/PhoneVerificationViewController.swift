@@ -5,9 +5,11 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
     typealias RootViewType = PhoneVerificationViewLayout
 
     // MARK: Private properties
+
     private let output: PhoneVerificationViewOutput
 
     // MARK: - Constructor
+
     init(
         output: PhoneVerificationViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = PhoneVerificationViewLayout()
     }
@@ -31,14 +34,16 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - PhoneVerificationViewInput
+
 extension PhoneVerificationViewController: PhoneVerificationViewInput {}
 
 // MARK: - Localizable
+
 extension PhoneVerificationViewController: Localizable {
     func applyLocalization() {}
 }

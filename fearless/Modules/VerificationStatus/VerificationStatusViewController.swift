@@ -5,9 +5,11 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
     typealias RootViewType = VerificationStatusViewLayout
 
     // MARK: Private properties
+
     private let output: VerificationStatusViewOutput
 
     // MARK: - Constructor
+
     init(
         output: VerificationStatusViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = VerificationStatusViewLayout()
     }
@@ -31,14 +34,16 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - VerificationStatusViewInput
+
 extension VerificationStatusViewController: VerificationStatusViewInput {}
 
 // MARK: - Localizable
+
 extension VerificationStatusViewController: Localizable {
     func applyLocalization() {}
 }

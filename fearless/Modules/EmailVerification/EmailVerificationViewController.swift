@@ -5,9 +5,11 @@ final class EmailVerificationViewController: UIViewController, ViewHolder {
     typealias RootViewType = EmailVerificationViewLayout
 
     // MARK: Private properties
+
     private let output: EmailVerificationViewOutput
 
     // MARK: - Constructor
+
     init(
         output: EmailVerificationViewOutput,
         localizationManager: LocalizationManagerProtocol?
@@ -23,6 +25,7 @@ final class EmailVerificationViewController: UIViewController, ViewHolder {
     }
 
     // MARK: - Life cycle
+
     override func loadView() {
         view = EmailVerificationViewLayout()
     }
@@ -31,14 +34,16 @@ final class EmailVerificationViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
     }
-    
+
     // MARK: - Private methods
 }
 
 // MARK: - EmailVerificationViewInput
+
 extension EmailVerificationViewController: EmailVerificationViewInput {}
 
 // MARK: - Localizable
+
 extension EmailVerificationViewController: Localizable {
     func applyLocalization() {}
 }

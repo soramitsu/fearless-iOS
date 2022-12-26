@@ -1,7 +1,6 @@
 import UIKit
 
 final class PreparationViewLayout: UIView {
-
     override init(frame: CGRect) {
         super.init(frame: frame)
     }

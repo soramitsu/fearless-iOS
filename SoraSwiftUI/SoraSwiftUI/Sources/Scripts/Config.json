@@ -1,0 +1,984 @@
+{
+  "Foundation Colors": {
+    "Color": {
+      "White": {
+        "100": {
+          "value": "#FFFFFF",
+          "type": "color",
+          "description": "Plain white color"
+        }
+      },
+      "Black": {
+        "100": {
+          "value": "#000000",
+          "type": "color",
+          "description": "Plain black color"
+        }
+      },
+      "Grey": {
+        "5": {
+          "value": "#FCFCFC",
+          "type": "color"
+        },
+        "10": {
+          "value": "#F9F9F9",
+          "type": "color"
+        },
+        "20": {
+          "value": "#E9E9E9",
+          "type": "color"
+        },
+        "30": {
+          "value": "#CFCFCF",
+          "type": "color"
+        },
+        "40": {
+          "value": "#ABABAB",
+          "type": "color"
+        },
+        "50": {
+          "value": "#808080",
+          "type": "color"
+        },
+        "60": {
+          "value": "#565656",
+          "type": "color"
+        },
+        "70": {
+          "value": "#313131",
+          "type": "color"
+        },
+        "80": {
+          "value": "#171717",
+          "type": "color"
+        },
+        "90": {
+          "value": "#070707",
+          "type": "color"
+        }
+      },
+      "Brown": {
+        "5": {
+          "value": "#F5F2F2",
+          "type": "color"
+        },
+        "10": {
+          "value": "#E8E1E1",
+          "type": "color"
+        },
+        "20": {
+          "value": "#D7CDCD",
+          "type": "color"
+        },
+        "30": {
+          "value": "#C3B3B3",
+          "type": "color"
+        },
+        "40": {
+          "value": "#AA9999",
+          "type": "color"
+        },
+        "50": {
+          "value": "#9D8181",
+          "type": "color"
+        },
+        "60": {
+          "value": "#8A6969",
+          "type": "color"
+        },
+        "70": {
+          "value": "#704E4E",
+          "type": "color"
+        },
+        "80": {
+          "value": "#4E3333",
+          "type": "color"
+        },
+        "90": {
+          "value": "#281818",
+          "type": "color"
+        }
+      },
+      "Red": {
+        "5": {
+          "value": "#FFE8EB",
+          "type": "color"
+        },
+        "10": {
+          "value": "#FFD0D5",
+          "type": "color"
+        },
+        "20": {
+          "value": "#FF9BA6",
+          "type": "color"
+        },
+        "30": {
+          "value": "#FF6B79",
+          "type": "color"
+        },
+        "40": {
+          "value": "#FC4252",
+          "type": "color"
+        },
+        "50": {
+          "value": "#EE2233",
+          "type": "color"
+        },
+        "60": {
+          "value": "#CB0F1F",
+          "type": "color"
+        },
+        "70": {
+          "value": "#A00411",
+          "type": "color"
+        },
+        "80": {
+          "value": "#6F0009",
+          "type": "color"
+        },
+        "90": {
+          "value": "#380005",
+          "type": "color"
+        }
+      },
+      "Green": {
+        "5": {
+          "value": "#D3F6EC",
+          "type": "color"
+        },
+        "10": {
+          "value": "#AAECD9",
+          "type": "color"
+        },
+        "20": {
+          "value": "#7FDEC3",
+          "type": "color"
+        },
+        "30": {
+          "value": "#57CCAB",
+          "type": "color"
+        },
+        "40": {
+          "value": "#33B590",
+          "type": "color"
+        },
+        "50": {
+          "value": "#169974",
+          "type": "color"
+        },
+        "60": {
+          "value": "#007755",
+          "type": "color"
+        },
+        "70": {
+          "value": "#17614C",
+          "type": "color"
+        },
+        "80": {
+          "value": "#20453A",
+          "type": "color"
+        },
+        "90": {
+          "value": "#192320",
+          "type": "color"
+        }
+      },
+      "Yellow": {
+        "5": {
+          "value": "#FFF1D2",
+          "type": "color"
+        },
+        "10": {
+          "value": "#FFE2A4",
+          "type": "color"
+        },
+        "20": {
+          "value": "#FFBB44",
+          "type": "color"
+        },
+        "30": {
+          "value": "#FF9900",
+          "type": "color"
+        },
+        "40": {
+          "value": "#EC8A00",
+          "type": "color"
+        },
+        "50": {
+          "value": "#D57700",
+          "type": "color"
+        },
+        "60": {
+          "value": "#B66000",
+          "type": "color"
+        },
+        "70": {
+          "value": "#914600",
+          "type": "color"
+        },
+        "80": {
+          "value": "#652C00",
+          "type": "color"
+        },
+        "90": {
+          "value": "#331400",
+          "type": "color"
+        }
+      },
+      "Purple": {
+        "5": {
+          "value": "#FAF0FF",
+          "type": "color"
+        },
+        "10": {
+          "value": "#F6E0FF",
+          "type": "color"
+        },
+        "20": {
+          "value": "#EAC8FF",
+          "type": "color"
+        },
+        "30": {
+          "value": "#DAAAFD",
+          "type": "color"
+        },
+        "40": {
+          "value": "#C686F3",
+          "type": "color"
+        },
+        "50": {
+          "value": "#AD61E3",
+          "type": "color"
+        },
+        "60": {
+          "value": "#923ECD",
+          "type": "color"
+        },
+        "70": {
+          "value": "#7522B0",
+          "type": "color"
+        },
+        "80": {
+          "value": "#570D8C",
+          "type": "color"
+        },
+        "90": {
+          "value": "#341B47",
+          "type": "color"
+        }
+      },
+      "Blue": {
+        "5": {
+          "value": "#E6F3FF",
+          "type": "color"
+        },
+        "10": {
+          "value": "#CDE6FF",
+          "type": "color"
+        },
+        "20": {
+          "value": "#98CAFB",
+          "type": "color"
+        },
+        "30": {
+          "value": "#69AEF3",
+          "type": "color"
+        },
+        "40": {
+          "value": "#4394E6",
+          "type": "color"
+        },
+        "50": {
+          "value": "#267DD4",
+          "type": "color"
+        },
+        "60": {
+          "value": "#1166BB",
+          "type": "color"
+        },
+        "70": {
+          "value": "#054D94",
+          "type": "color"
+        },
+        "80": {
+          "value": "#003367",
+          "type": "color"
+        },
+        "90": {
+          "value": "#001A34",
+          "type": "color"
+        }
+      },
+      "Polkaswap": {
+        "5": {
+          "value": "#FFE3F1",
+          "type": "color"
+        },
+        "10": {
+          "value": "#FFC6E3",
+          "type": "color"
+        },
+        "20": {
+          "value": "#FF8DC1",
+          "type": "color"
+        },
+        "30": {
+          "value": "#FF56A0",
+          "type": "color"
+        },
+        "40": {
+          "value": "#FF2782",
+          "type": "color"
+        },
+        "50": {
+          "value": "#FF0066",
+          "type": "color"
+        },
+        "60": {
+          "value": "#D80057",
+          "type": "color"
+        },
+        "70": {
+          "value": "#AA0044",
+          "type": "color"
+        },
+        "80": {
+          "value": "#75012F",
+          "type": "color"
+        },
+        "90": {
+          "value": "#3B0219",
+          "type": "color"
+        }
+      }
+    }
+  },
+  "Day Theme": {
+    "Color": {
+      "Accent": {
+        "Primary": {
+          "value": "$Color.Red.50",
+          "type": "color",
+          "description": "Primary accent maximum emphasis"
+        },
+        "PrimaryContainer": {
+          "value": "$Color.Red.5",
+          "type": "color",
+          "description": "Primary accent lower emphasis"
+        },
+        "Secondary": {
+          "value": "$Color.Brown.90",
+          "type": "color",
+          "description": "Secondary accent maximum emphasis"
+        },
+        "SecondaryContainer": {
+          "value": "$Color.Brown.10",
+          "type": "color",
+          "description": "Secondary accent lower emphasis"
+        },
+        "Tertiary": {
+          "value": "$Color.Brown.50",
+          "type": "color",
+          "description": "Tetriary accent maximum emphasis"
+        },
+        "TertiaryContainer": {
+          "value": "$Color.Brown.10",
+          "type": "color",
+          "description": "Tetriary accent lower emphasis"
+        }
+      },
+      "Bg": {
+        "Page": {
+          "value": "$Color.Brown.5",
+          "type": "color",
+          "description": "Page background"
+        },
+        "Surface": {
+          "value": "$Color.White.100",
+          "type": "color",
+          "description": "Differentiation against BG Primary. Example: Content blocks or card’s color."
+        },
+        "SurfaceVariant": {
+          "value": "$Color.Brown.10",
+          "type": "color",
+          "description": "Differentiation against Surface and Background. Example: Controls, input fields."
+        },
+        "SurfaceInverted": {
+          "value": "$Color.Brown.90",
+          "type": "color",
+          "description": "Inverted surface"
+        }
+      },
+      "Fg": {
+        "Primary": {
+          "value": "$Color.Brown.90",
+          "type": "color",
+          "description": "High emphasis text and icons on Backgrounds"
+        },
+        "Secondary": {
+          "value": "$Color.Brown.50",
+          "type": "color",
+          "description": "Lower emphasis text and icons on Backgrounds"
+        },
+        "Tertiary": {
+          "value": "$Color.Brown.30",
+          "type": "color",
+          "description": "Lowest emphasis text and icons on Backgrounds"
+        },
+        "Inverted": {
+          "value": "$Color.Brown.5",
+          "type": "color",
+          "description": "High emphasis text and icons on Inverted Surface"
+        },
+        "Outline": {
+          "value": "$Color.Brown.5",
+          "type": "color",
+          "description": "Control elements outline, dividers."
+        }
+      },
+      "Status": {
+        "Success": {
+          "value": "$Color.Green.50",
+          "type": "color",
+          "description": "Maximum emphasis accent on success messages"
+        },
+        "SuccessContainer": {
+          "value": "$Color.Green.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on success"
+        },
+        "Warning": {
+          "value": "$Color.Yellow.30",
+          "type": "color",
+          "description": "Maximum emphasis accent on warnings"
+        },
+        "WarningContainer": {
+          "value": "$Color.Yellow.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on Warning"
+        },
+        "Error": {
+          "value": "$Color.Red.60",
+          "type": "color",
+          "description": "Maximum emphasis accent on errors messages"
+        },
+        "ErrorContainer": {
+          "value": "$Color.Red.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on Error"
+        }
+      },
+      "Additional": {
+        "Polkaswap": {
+          "value": "$Color.Polkaswap.50",
+          "type": "color",
+          "description": "Polkaswap accent maximum emphasis"
+        },
+        "PolkaswapContainer": {
+          "value": "$Color.Polkaswap.5",
+          "type": "color",
+          "description": "Polkaswap accent lower emphasis"
+        }
+      }
+    }
+  },
+  "Night Theme": {
+    "Color": {
+      "Accent": {
+        "Primary": {
+          "value": "$Color.Red.40",
+          "type": "color",
+          "description": "Primary accent maximum emphasis"
+        },
+        "PrimaryContainer": {
+          "value": "$Color.Red.5",
+          "type": "color",
+          "description": "Primary accent lower emphasis"
+        },
+        "Secondary": {
+          "value": "$Color.Grey.5",
+          "type": "color",
+          "description": "Secondary accent maximum emphasis"
+        },
+        "SecondaryContainer": {
+          "value": "$Color.Grey.70",
+          "type": "color",
+          "description": "Secondary accent lower emphasis"
+        },
+        "Tertiary": {
+          "value": "$Color.Grey.50",
+          "type": "color",
+          "description": "Tetriary accent maximum emphasis"
+        },
+        "TertiaryContainer": {
+          "value": "$Color.Grey.70",
+          "type": "color",
+          "description": "Tetriary accent lower emphasis"
+        }
+      },
+      "Bg": {
+        "Page": {
+          "value": "$Color.Grey.90",
+          "type": "color",
+          "description": "Page background"
+        },
+        "Surface": {
+          "value": "$Color.Grey.80",
+          "type": "color",
+          "description": "Differentiation against BG Primary. Example: Content blocks or card’s color."
+        },
+        "SurfaceVariant": {
+          "value": "$Color.Grey.70",
+          "type": "color",
+          "description": "Differentiation against Surface and Background. Example: Controls, input fields."
+        },
+        "SurfaceInverted": {
+          "value": "$Color.Grey.5",
+          "type": "color",
+          "description": "Inverted surface"
+        }
+      },
+      "Fg": {
+        "Primary": {
+          "value": "$Color.Grey.5",
+          "type": "color",
+          "description": "High emphasis text and icons on Backgrounds"
+        },
+        "Secondary": {
+          "value": "$Color.Grey.50",
+          "type": "color",
+          "description": "Lower emphasis text and icons on Backgrounds"
+        },
+        "Tertiary": {
+          "value": "$Color.Brown.30",
+          "type": "color",
+          "description": "Lowest emphasis text and icons on Backgrounds"
+        },
+        "Inverted": {
+          "value": "$Color.Grey.90",
+          "type": "color",
+          "description": "High emphasis text and icons on Inverted Surface"
+        },
+        "Outline": {
+          "value": "$Color.Brown.5",
+          "type": "color",
+          "description": "Control elements outline, dividers."
+        }
+      },
+      "Status": {
+        "Success": {
+          "value": "$Color.Green.40",
+          "type": "color",
+          "description": "Maximum emphasis accent on success messages"
+        },
+        "SuccessContainer": {
+          "value": "$Color.Green.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on success"
+        },
+        "Warning": {
+          "value": "$Color.Yellow.30",
+          "type": "color",
+          "description": "Maximum emphasis accent on warnings"
+        },
+        "WarningContainer": {
+          "value": "$Color.Yellow.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on Warning"
+        },
+        "Error": {
+          "value": "$Color.Red.40",
+          "type": "color",
+          "description": "Maximum emphasis accent on errors messages"
+        },
+        "ErrorContainer": {
+          "value": "$Color.Red.5",
+          "type": "color",
+          "description": "Secondary emphasis accent on Error"
+        }
+      },
+      "Additional": {
+        "Polkaswap": {
+          "value": "$Color.Polkaswap.40",
+          "type": "color",
+          "description": "Polkaswap accent maximum emphasis"
+        },
+        "PolkaswapContainer": {
+          "value": "$Color.Polkaswap.5",
+          "type": "color",
+          "description": "Polkaswap accent lower emphasis"
+        }
+      }
+    }
+  },
+  "Typography Mobile": {
+    "Font": {
+      "FontFamily": {
+        "Headline": {
+          "value": "Sora",
+          "type": "fontFamilies"
+        },
+        "Text": {
+          "value": "Inter",
+          "type": "fontFamilies"
+        }
+      },
+      "FontWeight": {
+        "Zero": {
+          "value": "Regular",
+          "type": "fontWeights"
+        },
+        "One": {
+          "value": "Bold",
+          "type": "fontWeights"
+        }
+      },
+      "Display": {
+        "L": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "40",
+            "fontSize": "34",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "M": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "32",
+            "fontSize": "24",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "S": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "24",
+            "fontSize": "18",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        }
+      },
+      "Headline": {
+        "1": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "32",
+            "fontSize": "24",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "2": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "24",
+            "fontSize": "18",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "3": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "24",
+            "fontSize": "15",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "4": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "16",
+            "fontSize": "13",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        }
+      },
+      "Text": {
+        "L": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "20",
+            "fontSize": "18",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "M": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "16",
+            "fontSize": "15",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "S": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "16",
+            "fontSize": "13",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "XS": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "12",
+            "fontSize": "11",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textCase": "0",
+            "textDecoration": "0"
+          },
+          "type": "typography"
+        },
+        "Bold": {
+          "L": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "20",
+              "fontSize": "18",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textCase": "0",
+              "textDecoration": "0"
+            },
+            "type": "typography"
+          },
+          "M": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "16",
+              "fontSize": "15",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textCase": "0",
+              "textDecoration": "0"
+            },
+            "type": "typography"
+          },
+          "S": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "16",
+              "fontSize": "13",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textCase": "0",
+              "textDecoration": "0"
+            },
+            "type": "typography"
+          },
+          "XS": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "12",
+              "fontSize": "11",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textCase": "0",
+              "textDecoration": "0"
+            },
+            "type": "typography"
+          }
+        }
+      },
+      "Paragraph": {
+        "L": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "28",
+            "fontSize": "18",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textDecoration": "none",
+            "textCase": "none"
+          },
+          "type": "typography"
+        },
+        "M": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "24",
+            "fontSize": "15",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textDecoration": "none",
+            "textCase": "none"
+          },
+          "type": "typography"
+        },
+        "S": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "20",
+            "fontSize": "13",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textDecoration": "none",
+            "textCase": "none"
+          },
+          "type": "typography"
+        },
+        "XS": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Text",
+            "fontWeight": "$Font.FontWeight.Zero",
+            "lineHeight": "16",
+            "fontSize": "11",
+            "letterSpacing": "0%",
+            "paragraphSpacing": "0",
+            "textDecoration": "none",
+            "textCase": "none"
+          },
+          "type": "typography"
+        },
+        "Bold": {
+          "L": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "28",
+              "fontSize": "18",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textDecoration": "none",
+              "textCase": "none"
+            },
+            "type": "typography"
+          },
+          "M": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "24",
+              "fontSize": "15",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textDecoration": "none",
+              "textCase": "none"
+            },
+            "type": "typography"
+          },
+          "S": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "20",
+              "fontSize": "13",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textDecoration": "none",
+              "textCase": "none"
+            },
+            "type": "typography"
+          },
+          "XS": {
+            "value": {
+              "fontFamily": "$Font.FontFamily.Text",
+              "fontWeight": "$Font.FontWeight.One",
+              "lineHeight": "16",
+              "fontSize": "11",
+              "letterSpacing": "0%",
+              "paragraphSpacing": "0",
+              "textDecoration": "none",
+              "textCase": "none"
+            },
+            "type": "typography"
+          }
+        }
+      },
+      "Button": {
+        "M": {
+          "value": {
+            "fontFamily": "$Font.FontFamily.Headline",
+            "fontWeight": "$Font.FontWeight.One",
+            "lineHeight": "16",
+            "fontSize": "15",
+            "textCase": "uppercase",
+            "letterSpacing": "0%",
+            "textDecoration": "none",
+            "paragraphSpacing": "0"
+          },
+          "type": "typography"
+        }
+      }
+    }
+  },
+  "Border Radius": {
+    "BorderRadius": {
+      "S": {
+        "value": "16",
+        "type": "borderRadius"
+      },
+      "M": {
+        "value": "24",
+        "type": "borderRadius"
+      },
+      "ML": {
+        "value": "28",
+        "type": "borderRadius"
+      },
+      "L": {
+        "value": "32",
+        "type": "borderRadius"
+      }
+    }
+  }
+}

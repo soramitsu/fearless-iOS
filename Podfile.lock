@@ -87,6 +87,7 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (1.0.0)
   - SoraKeystore (1.0.1)
+  - SoraSwiftUI (0.0.1)
   - SoraUI (1.10.3):
     - SoraUI/AdaptiveDesign (= 1.10.3)
     - SoraUI/Animator (= 1.10.3)
@@ -147,6 +148,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
+  - SoraSwiftUI (from `./SoraSwiftUI`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
@@ -191,6 +193,8 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraSwiftUI:
+    :path: "./SoraSwiftUI"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -226,6 +230,7 @@ SPEC CHECKSUMS:
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
+  SoraSwiftUI: f7fc9f8fe4b2d8937e42ceef28574d5c344b95fb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
@@ -237,6 +242,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: bf68d73cc1b63e19bda4a3eaa9a09fbde082c7b8
+PODFILE CHECKSUM: 5a1f5d34e6d5cf567efb3ee73f7751a8a8851131
 
 COCOAPODS: 1.11.3

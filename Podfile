@@ -1,4 +1,4 @@
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -22,6 +22,7 @@ abstract_target 'fearlessAll' do
   pod 'SVGKit'
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
+  pod 'SoraSwiftUI', :path => './SoraSwiftUI'
 
   target 'fearlessTests' do
     inherit! :search_paths
