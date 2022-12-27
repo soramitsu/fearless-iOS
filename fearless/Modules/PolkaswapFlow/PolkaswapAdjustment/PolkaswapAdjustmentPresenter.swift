@@ -86,7 +86,7 @@ final class PolkaswapAdjustmentPresenter {
             balance = xorBalanceMinusFee
         }
         let inputAmount = swapFromInputResult?
-            .absoluteValue(from: balance ?? .zero) ?? .zero
+            .absoluteValue(from: balance ?? .zero)
         let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
             wallet: wallet,
             for: swapFromChainAsset

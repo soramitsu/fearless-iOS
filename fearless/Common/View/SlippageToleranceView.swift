@@ -97,9 +97,15 @@ final class SlippageToleranceView: UIView {
 
         let vTextStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.minimalOffset)
         hStackView.addArrangedSubview(vTextStackView)
+        vTextStackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         vTextStackView.addArrangedSubview(titleLabel)
         vTextStackView.addArrangedSubview(textField)
+        textField.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
     }
 }
 

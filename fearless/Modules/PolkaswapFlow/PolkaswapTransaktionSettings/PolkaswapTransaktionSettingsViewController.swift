@@ -165,6 +165,10 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
 
     func textFieldDidEndEditing(_: UITextField) {
         rootView.slippageToleranceView.set(highlighted: false, animated: false)
+        if rootView.slippageToleranceView.textField.text?.isEmpty == true {
+            let value = rootView.slippageToleranceSlider.value
+            output.didChangeSlider(value: value)
+        }
     }
 }
 

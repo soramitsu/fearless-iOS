@@ -68,6 +68,7 @@ final class SelectableListViewLayout: UIView {
 
     private func setupLayout() {
         layer.cornerRadius = Constants.cornerRadius
+        layer.maskedCorners = [.layerMinXMinYCorner, .layerMaxXMinYCorner]
         clipsToBounds = true
 
         let navView = UIView()

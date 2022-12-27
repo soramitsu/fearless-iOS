@@ -11,7 +11,7 @@ protocol BalanceViewModelFactoryProtocol {
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool)
         -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol>
-    func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
+    func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: PriceData?)
         -> LocalizableResource<AssetBalanceViewModelProtocol>
 }
 
@@ -121,7 +121,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func createAssetBalanceViewModel(
-        _ amount: Decimal,
+        _ amount: Decimal?,
         balance: Decimal?,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
@@ -138,7 +138,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             let priceString: String?
 
             if let priceData = priceData, let rate = Decimal(string: priceData.price) {
-                let targetAmount = rate * amount
+                let targetAmount = rate * (amount ?? .zero)
 
                 priceString = priceFormatter.stringFromDecimal(targetAmount)
             } else {

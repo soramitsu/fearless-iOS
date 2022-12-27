@@ -178,7 +178,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(previewButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
         previewButton.snp.makeConstraints { make in
