@@ -4,33 +4,40 @@ final class VerificationStatusViewLayout: UIView {
     private enum LayoutConstants {
         static let cardImageSize: CGSize = CGSizeMake(257, 155)
         static let statusIconSize: CGSize = CGSizeMake(80, 80)
+        static let closeButtonSize: CGSize = CGSizeMake(40, 40)
     }
 
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
-        bar.set(.push)
-        bar.backButton.backgroundColor = R.color.colorWhite8()
-        bar.backButton.rounded()
         bar.backgroundColor = R.color.colorBlack()
+        bar.setLeftViews([])
         return bar
+    }()
+
+    let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconClosePinkBold(), for: .normal)
+        return button
     }()
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.spacing = UIConstants.hugeOffset
         return view
     }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h3Title
+        label.font = .h1Title
         label.textColor = R.color.colorWhite()
         return label
     }()
 
     let statusLabel: UILabel = {
         let label = UILabel()
-        label.font = .p2Paragraph
+        label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         return label
@@ -38,14 +45,20 @@ final class VerificationStatusViewLayout: UIView {
 
     let infoLabel: UILabel = {
         let label = UILabel()
-        label.font = .p2Paragraph
+        label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
         label.numberOfLines = 0
         return label
     }()
 
+    let cardImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.soraCardFront()
+        imageView.isHidden = true
+        return imageView
+    }()
+
     let cardImageContainerView = UIView()
-    let cardImageView = UIImageView()
     let statusImageView = UIImageView()
     let actionButton = UIFactory.default.createRoundedButton()
 
@@ -71,6 +84,8 @@ final class VerificationStatusViewLayout: UIView {
         addSubview(contentView)
         addSubview(actionButton)
 
+        navigationBar.setRightViews([closeButton])
+
         contentView.stackView.addArrangedSubview(titleLabel)
         contentView.stackView.addArrangedSubview(statusLabel)
         contentView.stackView.addArrangedSubview(infoLabel)
@@ -88,39 +103,54 @@ final class VerificationStatusViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
         }
 
+        closeButton.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.closeButtonSize)
+        }
+
         actionButton.snp.makeConstraints { make in
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.hugeOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
             make.top.equalTo(contentView.snp.bottom).inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.roundedButtonHeight)
         }
 
         titleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
         }
 
         statusLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
         }
 
         infoLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
+        }
+
+        cardImageContainerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
+            make.top.equalTo(infoLabel.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(actionButton.snp.top).inset(UIConstants.bigOffset)
         }
 
         cardImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.cardImageSize)
+            make.center.equalToSuperview()
         }
 
         statusImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.statusIconSize)
-            make.top.trailing.equalTo(cardImageView).offset(UIConstants.bigOffset)
+            make.trailing.equalTo(cardImageView).offset(UIConstants.bigOffset)
+            make.top.equalTo(cardImageView).inset(-UIConstants.bigOffset)
         }
     }
 
     func bind(status: SoraCardStatus) {
+        cardImageView.isHidden = false
+
         titleLabel.text = status.title(with: locale)
         statusLabel.text = status.description(with: locale)
         statusImageView.image = status.iconImage
-        actionButton.setTitle(status.buttonTitle(with: locale), for: .normal)
+        actionButton.setTitle(status.buttonTitle(with: locale).uppercased(), for: .normal)
 
         switch status {
         case .rejected:

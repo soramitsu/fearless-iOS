@@ -37,21 +37,35 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
         interactor.setup(with: self)
 
         interactor.getKYCStatus()
+
+        view.didStartLoading()
     }
 
-    func didTapCloseButton() {}
+    func didTapCloseButton() {
+        router.dismiss(view: view)
+    }
 
     func didTapTryagainButton() {}
+
+    func didTapRefresh() {
+        view?.didStartLoading()
+        interactor.getKYCStatus()
+    }
 }
 
 // MARK: - VerificationStatusInteractorOutput
 
 extension VerificationStatusPresenter: VerificationStatusInteractorOutput {
     func didReceive(error: Error) {
+        view?.didStopLoading()
+
         logger.error(error.localizedDescription)
+        view?.didReceive(error: error)
     }
 
     func didReceive(status: SCVerificationStatus) {
+        view?.didStopLoading()
+
         let statusViewModel = viewModelFactory.buildStatusViewModel(from: status)
         view?.didReceive(status: statusViewModel)
     }

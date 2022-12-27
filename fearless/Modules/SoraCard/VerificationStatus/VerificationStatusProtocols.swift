@@ -1,13 +1,15 @@
 typealias VerificationStatusModuleCreationResult = (view: VerificationStatusViewInput, input: VerificationStatusModuleInput)
 
-protocol VerificationStatusViewInput: ControllerBackedProtocol {
+protocol VerificationStatusViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(status: SoraCardStatus)
+    func didReceive(error: Error?)
 }
 
 protocol VerificationStatusViewOutput: AnyObject {
     func didLoad(view: VerificationStatusViewInput)
     func didTapCloseButton()
     func didTapTryagainButton()
+    func didTapRefresh()
 }
 
 protocol VerificationStatusInteractorInput: AnyObject {
@@ -20,7 +22,7 @@ protocol VerificationStatusInteractorOutput: AnyObject {
     func didReceive(status: SCVerificationStatus)
 }
 
-protocol VerificationStatusRouterInput: AnyObject {}
+protocol VerificationStatusRouterInput: PresentDismissable {}
 
 protocol VerificationStatusModuleInput: AnyObject {}
 

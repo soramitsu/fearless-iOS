@@ -39,6 +39,7 @@ struct UIConstants {
     static let statusViewHeight: CGFloat = 51.0
     static let validatorCellHeight: CGFloat = 77.0
     static let infoButtonSize: CGFloat = 14.0
+    static let roundedButtonHeight: CGFloat = 56.0
 }
 
 enum AccountViewMode {

@@ -25,19 +25,28 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
         self.output = output
     }
 
-    func getKYCStatus() async {
-        do {
-            try await service.refreshAccessToken()
-        } catch {
-            output?.didReceive(error: error)
-            return
-        }
-        let response = await service.kycStatus()
-        switch response {
-        case let .failure(error):
-            output?.didReceive(error: error)
-        case let .success(status):
-            output?.didReceive(status: status.verificationStatus)
+    func getKYCStatus() {
+        Task {
+            do {
+                try await service.refreshAccessToken()
+            } catch {
+                DispatchQueue.main.async { [weak self] in
+                    self?.output?.didReceive(error: error)
+                }
+                return
+            }
+
+            let response = await service.kycStatus()
+            switch response {
+            case let .failure(error):
+                DispatchQueue.main.async { [weak self] in
+                    self?.output?.didReceive(error: error)
+                }
+            case let .success(status):
+                DispatchQueue.main.async { [weak self] in
+                    self?.output?.didReceive(status: status.verificationStatus)
+                }
+            }
         }
     }
 }
