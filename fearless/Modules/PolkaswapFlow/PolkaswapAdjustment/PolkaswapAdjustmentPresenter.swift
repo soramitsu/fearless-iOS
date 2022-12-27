@@ -343,8 +343,8 @@ final class PolkaswapAdjustmentPresenter {
               let polkaswapDexForRoute = polkaswapDexForRoute,
               let networkFeeViewModel = networkFeeViewModel,
               let detailsViewModel = detailsViewModel,
-              let fromAmount = swapFromInputResult?.absoluteValue(from: .zero),
-              let toAmount = swapToInputResult?.absoluteValue(from: .zero)
+              let fromAmount = swapFromInputResult?.absoluteValue(from: swapFromBalance ?? .zero),
+              let toAmount = swapToInputResult?.absoluteValue(from: swapToBalance ?? .zero)
         else {
             return nil
         }
@@ -509,6 +509,11 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         let toInput = swapToInputResult
         swapToInputResult = fromInput
         swapFromInputResult = toInput
+
+        let fromBalance = swapFromBalance
+        let toBalance = swapToBalance
+        swapToBalance = fromBalance
+        swapFromBalance = toBalance
 
         provideFromAssetVewModel()
         provideToAssetVewModel()
