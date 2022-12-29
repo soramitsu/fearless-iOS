@@ -77,7 +77,7 @@ final class ChainRegistryFactory {
             dataFetchFactory: dataFetchOperationFactory,
             repository: AnyDataProviderRepository(chainRepository),
             eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.runtimeBuildingQueue,
+            operationQueue: OperationManagerFacade.syncQueue,
             logger: Logger.shared
         )
 
@@ -91,17 +91,39 @@ final class ChainRegistryFactory {
             filesOperationFactory: filesOperationFactory,
             dataOperationFactory: dataFetchOperationFactory,
             eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.runtimeBuildingQueue
+            operationQueue: OperationManagerFacade.syncQueue
+        )
+
+        let chainsTypesSuncService = ChainsTypesSyncService(
+            url: ApplicationConfig.shared.chainsTypesURL,
+            filesOperationFactory: filesOperationFactory,
+            dataOperationFactory: dataFetchOperationFactory,
+            eventCenter: EventCenter.shared,
+            operationQueue: OperationManagerFacade.syncQueue,
+            logger: Logger.shared
+        )
+
+        let snapshotHotBootBuilder = SnapshotHotBootBuilder(
+            runtimeProviderPool: runtimeProviderPool,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            filesOperationFactory: filesOperationFactory,
+            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            dataOperationFactory: DataOperationFactory(),
+            operationQueue: OperationManagerFacade.runtimeBuildingQueue,
+            logger: Logger.shared
         )
 
         return ChainRegistry(
+            snapshotHotBootBuilder: snapshotHotBootBuilder,
             runtimeProviderPool: runtimeProviderPool,
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
             commonTypesSyncService: commonTypesSyncService,
+            chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
+            networkIssuesCenter: NetworkIssuesCenter.shared,
             logger: Logger.shared,
             eventCenter: EventCenter.shared
         )

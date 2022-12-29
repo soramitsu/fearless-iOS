@@ -21,7 +21,7 @@ final class AccountExportPasswordViewController: UIViewController, ImportantView
 
     var presenter: AccountExportPasswordPresenterProtocol!
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     private var passwordInputViewModel: InputViewModelProtocol?
     private var passwordConfirmViewModel: InputViewModelProtocol?

@@ -1,6 +1,8 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import RobinHood
+import FearlessUtils
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -10,32 +12,18 @@ final class ServiceCoordinator {
     let walletSettings: SelectedWalletSettings
     let accountInfoService: AccountInfoUpdatingServiceProtocol
     let githubPhishingService: ApplicationServiceProtocol
+    let scamSyncService: ScamSyncServiceProtocol
 
     init(
         walletSettings: SelectedWalletSettings,
         accountInfoService: AccountInfoUpdatingServiceProtocol,
-        githubPhishingService: ApplicationServiceProtocol
+        githubPhishingService: ApplicationServiceProtocol,
+        scamSyncService: ScamSyncServiceProtocol
     ) {
         self.walletSettings = walletSettings
         self.accountInfoService = accountInfoService
         self.githubPhishingService = githubPhishingService
-    }
-
-    private func setup(chainRegistry: ChainRegistryProtocol) {
-        chainRegistry.syncUp()
-
-        let semaphore = DispatchSemaphore(value: 0)
-
-        chainRegistry.chainsSubscribe(
-            self,
-            runningInQueue: DispatchQueue.global()
-        ) { changes in
-            if !changes.isEmpty {
-                semaphore.signal()
-            }
-        }
-
-        semaphore.wait()
+        self.scamSyncService = scamSyncService
     }
 }
 
@@ -63,10 +51,12 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 
     func setup() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        setup(chainRegistry: chainRegistry)
+        chainRegistry.subscribeToChians()
+        chainRegistry.syncUp()
 
         githubPhishingService.setup()
         accountInfoService.setup()
+        scamSyncService.syncUp()
     }
 
     func throttle() {
@@ -78,6 +68,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 extension ServiceCoordinator {
     static func createDefault(with selectedMetaAccount: MetaAccountModel) -> ServiceCoordinatorProtocol {
         let githubPhishingAPIService = GitHubPhishingServiceFactory.createService()
+        let scamSyncService = ScamSyncServiceFactory.createService()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
@@ -102,7 +93,8 @@ extension ServiceCoordinator {
         return ServiceCoordinator(
             walletSettings: walletSettings,
             accountInfoService: accountInfoService,
-            githubPhishingService: githubPhishingAPIService
+            githubPhishingService: githubPhishingAPIService,
+            scamSyncService: scamSyncService
         )
     }
 }

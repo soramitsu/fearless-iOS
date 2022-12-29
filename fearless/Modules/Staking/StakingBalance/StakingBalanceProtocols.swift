@@ -20,7 +20,7 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(priceResult: Result<PriceData?, Error>)
 }
 
-protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingBalanceWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showBondMore(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
@@ -39,7 +39,7 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     )
 
     func showRebondSetup(

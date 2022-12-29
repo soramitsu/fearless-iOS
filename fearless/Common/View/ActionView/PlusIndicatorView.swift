@@ -18,7 +18,7 @@ final class PlusIndicatorView: ActionControlIndicatorView {
         }
     }
 
-    var strokeColor: UIColor = .white {
+    var strokeColor: UIColor = R.color.colorWhite()! {
         didSet {
             verticalView.backgroundColor = strokeColor
             horizontalView.backgroundColor = strokeColor

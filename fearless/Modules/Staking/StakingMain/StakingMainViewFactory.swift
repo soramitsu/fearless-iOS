@@ -6,7 +6,7 @@ import RobinHood
 
 // swiftlint:disable function_body_length
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
-    static func createView() -> StakingMainViewProtocol? {
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol? {
         guard let selectedAccount = SelectedWalletSettings.shared.value else {
             return nil
         }
@@ -90,7 +90,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
             selectedMetaAccount: selectedAccount,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            moduleOutput: moduleOutput
         )
 
         view.presenter = presenter
@@ -218,7 +219,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             throw ChainRegistryError.connectionUnavailable
         }

@@ -7,6 +7,7 @@ import SoraFoundation
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
+    private let chainRegistry: ChainRegistryProtocol
     private let settings: SelectedWalletSettings
     private let applicationConfig: ApplicationConfigProtocol
     private let eventCenter: EventCenterProtocol
@@ -14,12 +15,14 @@ final class RootInteractor {
     private let logger: LoggerProtocol?
 
     init(
+        chainRegistry: ChainRegistryProtocol,
         settings: SelectedWalletSettings,
         applicationConfig: ApplicationConfigProtocol,
         eventCenter: EventCenterProtocol,
         migrators: [Migrating],
         logger: LoggerProtocol? = nil
     ) {
+        self.chainRegistry = chainRegistry
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
@@ -63,8 +66,10 @@ extension RootInteractor: RootInteractorInputProtocol {
             switch result {
             case let .success(maybeMetaAccount):
                 if let metaAccount = maybeMetaAccount {
+                    self.chainRegistry.performHotBoot()
                     self.logger?.debug("Selected account: \(metaAccount.metaId)")
                 } else {
+                    self.chainRegistry.performColdBoot()
                     self.logger?.debug("No selected account")
                 }
             case let .failure(error):

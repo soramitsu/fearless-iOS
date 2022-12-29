@@ -136,13 +136,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
 
         let storageOperationFactory = StorageRequestFactory(
@@ -165,7 +158,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
@@ -239,6 +232,38 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .pool:
+            let viewModelState = StakingRedeemPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingRedeemPoolViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingRedeemPoolStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                eventCenter: EventCenter.shared,
+                slashesOperationFactory: slashesOperationFactory,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            )
             return StakingRedeemDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,

@@ -1,6 +1,6 @@
 import Foundation
 
-protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, PresentDismissable {
+protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, AnyDismissable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
 
     func presentMissingController(
@@ -48,9 +48,17 @@ protocol StakingErrorPresentable: BaseErrorPresentable, WarningPresentable, Pres
 
     func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentMissingMinNominatorBond(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentMissingPoolName(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentPoolRootUnbondingTooHigh(
+        minimalBond: String,
+        from view: ControllerBackedProtocol,
+        locale: Locale?,
+        action: @escaping () -> Void
+    )
+    func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
-extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
+extension StakingErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable.stakingSetupAmountTooLow(value)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
@@ -221,6 +229,54 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         let title = R.string.localizable.stakingMaxNominatorsReachedTitle(
             preferredLanguages: locale?.rLanguages
         )
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentMissingPoolName(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let title = R.string.localizable.stakingPoolCreateMissingNameTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let message = R.string.localizable.stakingPoolCreateMissingNameDescription(
+            preferredLanguages: locale?.rLanguages
+        )
+
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentPoolRootUnbondingTooHigh(
+        minimalBond: String,
+        from view: ControllerBackedProtocol,
+        locale: Locale?,
+        action: @escaping () -> Void
+    ) {
+        let title = R.string.localizable.poolRootUnbondTooHighTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let message = R.string.localizable.poolRootUnbondTooHighText(
+            minimalBond,
+            preferredLanguages: locale?.rLanguages
+        )
+        let polkadotJsPlusAction = SheetAlertPresentableAction(
+            title: R.string.localizable.polkadotJsPlusActionTitle(preferredLanguages: locale?.rLanguages),
+            handler: action
+        )
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view, actions: [polkadotJsPlusAction])
+    }
+
+    func presentMaximumPoolsCountReached(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let title = R.string.localizable.poolsLimitHasReachedErrorTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let message = R.string.localizable.poolsLimitHasReachedErrorMessage(
+            preferredLanguages: locale?.rLanguages
+        )
+
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)

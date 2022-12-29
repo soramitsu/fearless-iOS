@@ -19,7 +19,7 @@ class NodeSelectionTableCell: UITableViewCell {
     let selectedIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.listCheckmarkIcon()
-        imageView.tintColor = .white
+        imageView.tintColor = R.color.colorWhite()
         return imageView
     }()
 

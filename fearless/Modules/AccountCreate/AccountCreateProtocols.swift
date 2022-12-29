@@ -33,7 +33,7 @@ protocol AccountCreateInteractorOutputProtocol: AnyObject {
     func didReceiveMnemonicGeneration(error: Error)
 }
 
-protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AccountCreateWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func confirm(
         from view: AccountCreateViewProtocol?,
         flow: AccountConfirmFlow

@@ -39,6 +39,7 @@ class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorIn
         }
 
         strategy.setup()
+        strategy.subscribeToBalance()
     }
 
     func submitNomination(closure: ExtrinsicBuilderClosure?) {

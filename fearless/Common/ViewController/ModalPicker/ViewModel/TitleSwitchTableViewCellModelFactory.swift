@@ -6,10 +6,22 @@ protocol TitleSwitchTableViewCellModelFactoryProtocol {
         locale: Locale?,
         delegate: TitleSwitchTableViewCellModelDelegate?
     ) -> [TitleSwitchTableViewCellModel]
+
+    func createSortings(
+        options: [PoolSortOption],
+        selectedOption: PoolSortOption,
+        locale: Locale?
+    ) -> [SortPickerTableViewCellModel]
 }
 
 enum FilterOption: String, Codable {
     case hideZeroBalance
+    case hiddenSectionOpen
+}
+
+enum PoolSortOption: Equatable {
+    case totalStake(assetSymbol: String)
+    case numberOfMembers
 }
 
 final class TitleSwitchTableViewCellModelFactory: TitleSwitchTableViewCellModelFactoryProtocol {
@@ -20,7 +32,7 @@ final class TitleSwitchTableViewCellModelFactory: TitleSwitchTableViewCellModelF
         locale: Locale?,
         delegate: TitleSwitchTableViewCellModelDelegate?
     ) -> [TitleSwitchTableViewCellModel] {
-        enabledFilters.map { option -> TitleSwitchTableViewCellModel in
+        enabledFilters.compactMap { option -> TitleSwitchTableViewCellModel? in
             switch option {
             case .hideZeroBalance:
                 let model = TitleSwitchTableViewCellModel(
@@ -30,6 +42,34 @@ final class TitleSwitchTableViewCellModelFactory: TitleSwitchTableViewCellModelF
                     filterOption: option
                 )
                 model.delegate = delegate
+                return model
+            case .hiddenSectionOpen:
+                return nil
+            }
+        }
+    }
+
+    func createSortings(
+        options: [PoolSortOption],
+        selectedOption: PoolSortOption,
+        locale: Locale?
+    ) -> [SortPickerTableViewCellModel] {
+        options.compactMap { option in
+            switch option {
+            case .numberOfMembers:
+                let model = SortPickerTableViewCellModel(
+                    title: R.string.localizable.stakingPoolSortPoolMembers(preferredLanguages: locale?.rLanguages),
+                    switchIsOn: selectedOption == option,
+                    sortOption: option
+                )
+                return model
+
+            case let .totalStake(assetSymbol):
+                let model = SortPickerTableViewCellModel(
+                    title: R.string.localizable.stakingValidatorTotalStakeToken(assetSymbol, preferredLanguages: locale?.rLanguages),
+                    switchIsOn: selectedOption == option,
+                    sortOption: option
+                )
                 return model
             }
         }

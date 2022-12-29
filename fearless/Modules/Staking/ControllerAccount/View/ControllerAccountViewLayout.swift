@@ -16,11 +16,21 @@ final class ControllerAccountViewLayout: UIView {
         return label
     }()
 
-    let stashAccountView = UIFactory.default.createAccountView()
+    let stashAccountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView()
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
 
     let stashHintView = UIFactory.default.createHintView()
 
-    let controllerAccountView = UIFactory.default.createAccountView()
+    let controllerAccountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView()
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
 
     let controllerHintView = UIFactory.default.createHintView()
 
@@ -34,7 +44,7 @@ final class ControllerAccountViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

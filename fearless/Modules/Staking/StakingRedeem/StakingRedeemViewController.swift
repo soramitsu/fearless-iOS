@@ -13,6 +13,7 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
     private var confirmationViewModel: StakingRedeemViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var hintsViewModel: LocalizableResource<[TitleIconViewModel]>?
 
     init(
         presenter: StakingRedeemPresenterProtocol,
@@ -44,8 +45,6 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
-
         rootView.locale = selectedLocale
 
         applyAssetViewModel()
@@ -84,8 +83,15 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
         guard let confirmViewModel = confirmationViewModel else {
             return
         }
-
+        title = confirmViewModel.title.value(for: selectedLocale)
         rootView.bind(confirmationViewModel: confirmViewModel)
+    }
+
+    private func applyHints() {
+        guard let viewModel = hintsViewModel else {
+            return
+        }
+        rootView.bind(hintViewModels: viewModel.value(for: selectedLocale))
     }
 
     @objc private func actionConfirm() {
@@ -111,6 +117,11 @@ extension StakingRedeemViewController: StakingRedeemViewProtocol {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFeeViewModel()
+    }
+
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>) {
+        hintsViewModel = viewModel
+        applyHints()
     }
 }
 

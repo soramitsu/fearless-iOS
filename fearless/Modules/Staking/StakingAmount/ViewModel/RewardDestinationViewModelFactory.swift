@@ -45,7 +45,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(account.address)
 
-        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username)
+        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username, address: account.address)
 
         guard let model = model else {
             return createEmptyReturnViewModel(from: type)
@@ -66,7 +66,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let icon = try? iconGenerator.generateFromAddress(address)
 
-        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: title)
+        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: title, address: address)
 
         guard let model = model else {
             return createEmptyReturnViewModel(from: type)

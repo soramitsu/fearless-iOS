@@ -69,7 +69,8 @@ extension AccountData {
     var total: BigUInt { free + reserved }
     var frozen: BigUInt { reserved + locked }
     var locked: BigUInt { max(miscFrozen, feeFrozen) }
-    var available: BigUInt { free - locked }
+    var stakingAvailable: BigUInt { free - feeFrozen }
+    var sendAvailable: BigUInt { free - locked }
 }
 
 enum EquilibriumAccountInfo: Codable, Equatable {

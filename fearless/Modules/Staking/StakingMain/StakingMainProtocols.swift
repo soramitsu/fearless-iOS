@@ -9,6 +9,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
     func didReceive(stakingEstimationViewModel: StakingEstimationViewModel)
+    func didReceive(stories: LocalizableResource<StoriesModel>)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
@@ -87,7 +88,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
-protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(
         from view: StakingMainViewProtocol?,
         amount: Decimal?,
@@ -113,7 +114,8 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showStories(
         from view: ControllerBackedProtocol?,
-        startingFrom index: Int
+        startingFrom index: Int,
+        chainAsset: ChainAsset
     )
 
     func showRewardDetails(
@@ -147,9 +149,8 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showNominatorValidators(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 
     func showRewardDestination(
@@ -179,7 +180,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     )
 
     func showAnalytics(
@@ -205,5 +206,9 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingMainViewProtocol?
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol?
+}
+
+protocol StakingMainModuleOutput: AnyObject {
+    func didSwitchStakingType(_ type: AssetSelectionStakingType)
 }

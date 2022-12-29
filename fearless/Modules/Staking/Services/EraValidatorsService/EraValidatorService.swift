@@ -176,7 +176,10 @@ extension EraValidatorService: EraValidatorServiceProtocol {
             var fetchedInfo: EraStakersInfo?
 
             let semaphore = DispatchSemaphore(value: 0)
-            let queue = DispatchQueue(label: "jp.co.soramitsu.fearless.fetchInfo.\(self.chainId)", qos: .userInitiated)
+            let queue = DispatchQueue(
+                label: "jp.co.soramitsu.fearless.fetchInfo.\(self.chainId)",
+                qos: .userInteractive
+            )
 
             self.syncQueue.async {
                 self.fetchInfoFactory(runCompletionIn: queue) { [weak semaphore] info in

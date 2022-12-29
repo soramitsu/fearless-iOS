@@ -4,8 +4,8 @@ import SoraFoundation
 import RobinHood
 import FearlessUtils
 
+// swiftlint:disable type_body_length function_body_length
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {
-    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: SelectValidatorsConfirmFlow,
         chainAsset: ChainAsset,
@@ -72,6 +72,18 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let iconGenerator = UniversalIconGenerator(chain: chain)
 
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
+        )
+
+        let stakingPoolOperationFactory = StakingPoolOperationFactory(
+            chainAsset: chainAsset,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection
+        )
+
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmRelaychainInitiatedViewModelState(
@@ -82,6 +94,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmRelaychainInitiatedStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 balanceAccountId: accountResponse.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
@@ -95,10 +108,15 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainInitiatedViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
-            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return SelectValidatorsConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         case let .relaychainExisting(targets, maxTargets, bonding):
             let viewModelState = SelectValidatorsConfirmRelaychainExistingViewModelState(
                 targets: targets,
@@ -118,14 +136,20 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 operationManager: OperationManagerFacade.sharedManager,
                 signer: signer,
                 chainAsset: chainAsset,
-                output: viewModelState
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter
             )
             let viewModelFactory = SelectValidatorsConfirmRelaychainExistingViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: iconGenerator
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
             )
 
-            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return SelectValidatorsConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         case let .parachain(target, maxTargets, bonding):
             let subqueryOperationFactory = SubqueryRewardOperationFactory(
                 url: chainAsset.chain.externalApi?.staking?.url
@@ -149,6 +173,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 wallet: wallet, dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 collatorAccountId: target.owner,
                 balanceAccountId: accountResponse.accountId,
                 runtimeService: runtimeService,
@@ -163,9 +188,86 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             )
             let viewModelFactory = SelectValidatorsConfirmParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                iconGenerator: UniversalIconGenerator(chain: chain)
+                iconGenerator: UniversalIconGenerator(chain: chain),
+                chainAsset: chainAsset
             )
-            return SelectValidatorsConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return SelectValidatorsConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(poolId, targets, maxTargets, bonding):
+            let viewModelState = SelectValidatorsConfirmPoolInitiatedViewModelState(
+                poolId: poolId,
+                targets: targets,
+                maxTargets: maxTargets,
+                initiatedBonding: bonding,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = SelectValidatorsConfirmPoolInitiatedStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                balanceAccountId: accountResponse.accountId,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                extrinsicService: extrinsicService,
+                runtimeService: runtimeService,
+                durationOperationFactory: StakingDurationOperationFactory(),
+                operationManager: OperationManagerFacade.sharedManager,
+                signer: signer,
+                chainAsset: chainAsset,
+                output: viewModelState,
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                poolId: poolId
+            )
+            let viewModelFactory = SelectValidatorsConfirmPoolInitiatedViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
+            )
+
+            return SelectValidatorsConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(poolId, targets, maxTargets, bonding):
+            let viewModelState = SelectValidatorsConfirmPoolExistingViewModelState(
+                poolId: poolId,
+                targets: targets,
+                maxTargets: maxTargets,
+                existingBonding: bonding,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                operationManager: OperationManagerFacade.sharedManager, dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = SelectValidatorsConfirmPoolExistingStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                balanceAccountId: accountResponse.accountId,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
+                extrinsicService: extrinsicService,
+                runtimeService: runtimeService,
+                durationOperationFactory: StakingDurationOperationFactory(),
+                operationManager: OperationManagerFacade.sharedManager,
+                signer: signer,
+                chainAsset: chainAsset,
+                output: viewModelState,
+                stakingPoolOperationFactory: stakingPoolOperationFactory,
+                poolId: poolId
+            )
+            let viewModelFactory = SelectValidatorsConfirmPoolExistingViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: iconGenerator,
+                chainAsset: chainAsset
+            )
+
+            return SelectValidatorsConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 
@@ -182,6 +284,10 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
         case .parachain:
             wireframe = SelectValidatorsConfirmWireframe()
+        case .poolInitiated:
+            wireframe = SelectValidatorsConfirmWireframe()
+        case .poolExisting:
+            wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
         }
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
@@ -196,8 +302,19 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             balanceFactory: errorBalanceViewModelFactory
         )
 
-        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet, dataValidatingFactory: dataValidatingFactory),
-              let interactor = createInteractor(wallet: wallet, chainAsset: chainAsset, strategy: container.strategy) else {
+        guard
+            let container = createContainer(
+                flow: flow,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            ),
+            let interactor = createInteractor(
+                wallet: wallet,
+                chainAsset: chainAsset,
+                strategy: container.strategy
+            )
+        else {
             return nil
         }
 
@@ -235,31 +352,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             return nil
         }
 
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        let chain = chainAsset.chain
-
-        let storageFacade = SubstrateDataStorageFacade.shared
-
-        guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
-            return nil
-        }
-
-        let logger = Logger.shared
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 

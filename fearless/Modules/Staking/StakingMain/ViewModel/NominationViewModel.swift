@@ -5,6 +5,7 @@ enum NominationViewStatus {
     case active(era: EraIndex)
     case inactive(era: EraIndex)
     case waiting(eraCountdown: EraCountdown?, nominationEra: EraIndex)
+    case validatorsNotSelected
 }
 
 protocol NominationViewModelProtocol {
@@ -14,6 +15,9 @@ protocol NominationViewModelProtocol {
     var totalRewardPrice: String { get }
     var status: NominationViewStatus { get }
     var hasPrice: Bool { get }
+    var redeemableViewModel: StakingUnitInfoViewModel? { get }
+    var unstakingViewModel: StakingUnitInfoViewModel? { get }
+    var rewardViewTitle: String { get }
 }
 
 struct NominationViewModel: NominationViewModelProtocol {
@@ -23,4 +27,7 @@ struct NominationViewModel: NominationViewModelProtocol {
     let totalRewardPrice: String
     let status: NominationViewStatus
     let hasPrice: Bool
+    var redeemableViewModel: StakingUnitInfoViewModel?
+    var unstakingViewModel: StakingUnitInfoViewModel?
+    var rewardViewTitle: String
 }

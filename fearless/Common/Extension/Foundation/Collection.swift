@@ -5,4 +5,9 @@ extension Collection {
     subscript(safe index: Index) -> Element? {
         indices.contains(index) ? self[index] : nil
     }
+
+    /// A Boolean value indicating whether the collection is not empty.
+    var isNotEmpty: Bool {
+        !isEmpty
+    }
 }

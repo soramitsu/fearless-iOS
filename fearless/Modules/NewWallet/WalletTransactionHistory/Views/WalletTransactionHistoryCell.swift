@@ -22,7 +22,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.lineBreakMode = .byTruncatingMiddle
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -30,11 +30,9 @@ class WalletTransactionHistoryCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textAlignment = .right
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
-
-    let transactionStatusIconImageView = UIImageView()
 
     let transactionTypeLabel: UILabel = {
         let label = UILabel()
@@ -49,6 +47,13 @@ class WalletTransactionHistoryCell: UITableViewCell {
         label.textColor = R.color.colorAlmostWhite()
         label.textAlignment = .right
         return label
+    }()
+
+    let transactionStatusIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconTxFailed()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -86,6 +91,8 @@ class WalletTransactionHistoryCell: UITableViewCell {
 
         secondlineStackView.addArrangedSubview(transactionTypeLabel)
         secondlineStackView.addArrangedSubview(transactionTimeLabel)
+
+        firstlineStackView.setCustomSpacing(UIConstants.defaultOffset, after: transactionAmountLabel)
 
         transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
@@ -128,7 +135,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         case .commited:
             transactionAmountLabel.textColor = viewModel.incoming ? R.color.colorGreen() : R.color.colorWhite()
         case .pending, .rejected:
-            transactionAmountLabel.textColor = R.color.colorWhiteTransparent()
+            transactionAmountLabel.textColor = R.color.colorWhite16()
         }
     }
 }

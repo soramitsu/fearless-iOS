@@ -3,6 +3,7 @@ import RobinHood
 
 protocol WalletLocalSubscriptionFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }
+    var processingQueue: DispatchQueue? { get }
 
     func getAccountProvider(
         for accountId: AccountId,
@@ -12,14 +13,34 @@ protocol WalletLocalSubscriptionFactoryProtocol {
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
-final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
-    WalletLocalSubscriptionFactoryProtocol {
+final class WalletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol {
+    static let processingQueue = DispatchQueue(
+        label: "co.jp.WalletLocalSubscriptionFactory.processingQueue.\(UUID().uuidString)"
+    )
+
     static let shared = WalletLocalSubscriptionFactory(
-        chainRegistry: ChainRegistryFacade.sharedRegistry,
-        storageFacade: SubstrateDataStorageFacade.shared,
         operationManager: OperationManagerFacade.sharedManager,
+        processingQueue: WalletLocalSubscriptionFactory.processingQueue,
+        chainRegistry: ChainRegistryFacade.sharedRegistry,
         logger: Logger.shared
     )
+
+    let operationManager: OperationManagerProtocol
+    let processingQueue: DispatchQueue?
+    private let chainRegistry: ChainRegistryProtocol
+    private let logger: Logger
+
+    init(
+        operationManager: OperationManagerProtocol,
+        processingQueue: DispatchQueue? = nil,
+        chainRegistry: ChainRegistryProtocol,
+        logger: Logger
+    ) {
+        self.operationManager = operationManager
+        self.processingQueue = processingQueue
+        self.chainRegistry = chainRegistry
+        self.logger = logger
+    }
 
     func getAccountProvider(
         for accountId: AccountId,
@@ -52,7 +73,8 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(mapper),
-            predicate: { $0.identifier == key }
+            predicate: { $0.identifier == key },
+            processingQueue: processingQueue
         )
 
         observable.start { error in
@@ -65,7 +87,8 @@ final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
             source: AnyStreamableSource(source),
             repository: AnyDataProviderRepository(storage),
             observable: AnyDataProviderRepositoryObservable(observable),
-            operationManager: operationManager
+            operationManager: operationManager,
+            serialQueue: processingQueue
         )
     }
 }

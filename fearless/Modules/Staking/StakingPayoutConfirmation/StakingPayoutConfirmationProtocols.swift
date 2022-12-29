@@ -3,46 +3,37 @@ import SoraFoundation
 protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceive(singleViewModel: StakingPayoutConfirmationViewModel?)
 }
 
 protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
     func setup()
     func proceed()
     func presentAccountOptions(for viewModel: AccountInfoViewModel)
+    func didTapBackButton()
 }
 
 protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func setup()
-    func submitPayout()
-    func estimateFee()
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
+    func submitPayout(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
-    func didRecieve(account: ChainAccountResponse, rewardAmount: Decimal)
-
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveRewardDestination(result: Result<RewardDestination<DisplayAddress>?, Error>)
-
-    func didReceiveFee(result: Result<Decimal, Error>)
-
-    func didStartPayout()
-    func didCompletePayout(txHashes: [String])
-    func didFailPayout(error: Error)
 }
 
-protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,
+protocol StakingPayoutConfirmationWireframeProtocol: SheetAlertPresentable,
     ErrorPresentable,
     StakingErrorPresentable,
-    AddressOptionsPresentable {
+    AddressOptionsPresentable, AnyDismissable {
     func complete(from view: StakingPayoutConfirmationViewProtocol?)
 }
 
 protocol StakingPayoutConfirmationViewFactoryProtocol: AnyObject {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        payouts: [PayoutInfo]
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingPayoutConfirmationFlow
     ) -> StakingPayoutConfirmationViewProtocol?
 }

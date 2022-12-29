@@ -23,3 +23,23 @@ extension Optional where Wrapped == Bool {
         or(true)
     }
 }
+
+// MARK: - isNullOrEmpty
+
+protocol StringType {
+    var isEmpty: Bool { get }
+}
+
+extension String: StringType {}
+
+extension Optional where Wrapped: StringType {
+    var isNullOrEmpty: Bool {
+        self?.isEmpty ?? true
+    }
+}
+
+extension Optional where Wrapped: Collection {
+    var isNullOrEmpty: Bool {
+        self?.isEmpty ?? true
+    }
+}

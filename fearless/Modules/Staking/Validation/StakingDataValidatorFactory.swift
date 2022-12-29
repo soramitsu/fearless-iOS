@@ -51,6 +51,14 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         minNominatorBond: Decimal?,
         locale: Locale
     ) -> DataValidating
+
+    func createPoolName(complite: Bool?, locale: Locale) -> DataValidating
+
+    func poolsLimitNotReached(
+        existingPoolsCount: UInt32?,
+        maximumPoolsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -310,7 +318,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             let amountString = (minNominatorBond ?? Decimal.zero).stringWithPointSeparator
-            let amountWithSymbolString = [amountString, asset.id.uppercased()].joined(separator: " ")
+            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
 
             self?.presentable.presentWarningAlert(from: view, config: WarningAlertConfig.inactiveAlertConfig(bondAmount: amountWithSymbolString, with: locale), buttonHandler: {
                 self?.presentable.dismiss(view: view)
@@ -323,6 +331,77 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             } else {
                 return false
             }
+        })
+    }
+
+    func createPoolName(complite: Bool?, locale: Locale) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentMissingPoolName(from: view, locale: locale)
+        }, preservesCondition: {
+            complite ?? false
+        })
+    }
+
+    func stakingPoolRootCanUnbond(
+        amount: Decimal?,
+        bonded: Decimal?,
+        minimalRootBond: Decimal?,
+        locale: Locale,
+        asset: AssetModel
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view, let minimalRootBond = minimalRootBond else {
+                return
+            }
+
+            let amountString = minimalRootBond.stringWithPointSeparator
+            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
+
+            self?.presentable.presentPoolRootUnbondingTooHigh(
+                minimalBond: amountWithSymbolString,
+                from: view,
+                locale: locale,
+                action: {
+                    if let webPresentable = self?.presentable as? WebPresentable,
+                       let url = URL(string: URLConstants.polkadotJsPlus) {
+                        webPresentable.showWeb(url: url, from: view, style: .automatic)
+                    }
+                }
+            )
+        }, preservesCondition: {
+            if let amount = amount,
+               let bonded = bonded,
+               let minimalRootBond = minimalRootBond {
+                return bonded - amount >= minimalRootBond
+            } else {
+                return false
+            }
+        })
+    }
+
+    func poolsLimitNotReached(
+        existingPoolsCount: UInt32?,
+        maximumPoolsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentMaximumPoolsCountReached(from: view, locale: locale)
+        }, preservesCondition: {
+            guard let existingPoolsCount = existingPoolsCount,
+                  let maximumPoolsCount = maximumPoolsCount
+            else {
+                return false
+            }
+
+            return existingPoolsCount < maximumPoolsCount
         })
     }
 }

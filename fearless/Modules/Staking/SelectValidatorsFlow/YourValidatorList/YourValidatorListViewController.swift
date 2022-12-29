@@ -65,32 +65,30 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupNavigationItem()
+        setupActions()
         setupTableView()
         setupLocalization()
         updateChangeButtonState()
 
-        presenter.setup()
+        presenter.didLoad(view: self)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        presenter.willAppear(view: self)
     }
 
     private func setupLocalization() {
         title = R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: selectedLocale.rLanguages)
-
-        navigationItem.rightBarButtonItem?.title = R.string.localizable
-            .commonChange(preferredLanguages: selectedLocale.rLanguages)
     }
 
-    private func setupNavigationItem() {
-        let resetItem = UIBarButtonItem(
-            title: "",
-            style: .plain,
-            target: self,
-            action: #selector(actionChange)
+    private func setupActions() {
+        rootView.changeValidatorsButton.addTarget(
+            self,
+            action: #selector(actionChange),
+            for: .touchUpInside
         )
-
-        resetItem.setupDefaultTitleStyle(with: UIFont.p0Paragraph)
-
-        navigationItem.rightBarButtonItem = resetItem
     }
 
     private func setupTableView() {
@@ -109,8 +107,6 @@ final class YourValidatorListViewController: UIViewController, ViewHolder {
         rootView.tableView.registerHeaderFooterView(
             withClass: YourValidatorListWarningSectionView.self
         )
-
-        rootView.tableView.rowHeight = 48
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
@@ -397,6 +393,11 @@ extension YourValidatorListViewController: YourValidatorListViewProtocol {
         rootView.tableView.reloadData()
         reloadEmptyState(animated: true)
         updateChangeButtonState()
+
+        if case let .validatorList(viewModel) = state {
+            rootView.emptyView.isHidden = viewModel.sections.map { $0.validators }.reduce([], +).count > 0
+            rootView.changeValidatorsButton.isHidden = !viewModel.userCanSelectValidators
+        }
     }
 }
 
@@ -405,5 +406,7 @@ extension YourValidatorListViewController {
         if isViewLoaded {
             setupLocalization()
         }
+
+        rootView.locale = selectedLocale
     }
 }

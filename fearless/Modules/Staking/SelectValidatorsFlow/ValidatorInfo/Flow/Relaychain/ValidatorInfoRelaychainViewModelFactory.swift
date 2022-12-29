@@ -43,7 +43,7 @@ final class ValidatorInfoRelaychainViewModelFactory {
 
         let icon = try? iconGenerator.generateFromAddress(validatorInfo.address)
             .imageWithFillColor(
-                .white,
+                R.color.colorWhite()!,
                 size: UIConstants.normalAddressIconSize,
                 contentScale: UIScreen.main.scale
             )

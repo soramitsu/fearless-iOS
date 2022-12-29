@@ -3,6 +3,7 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
+// swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {
     let asset: AssetModel
     let chain: ChainModel
@@ -43,6 +44,11 @@ final class RelaychainValidatorOperationFactory {
         let keyParams: () throws -> [String] = {
             let activeEra = try activeEraClosure()
             let duration = try slashDefer.extractNoCancellableResultData()
+
+            guard activeEra > duration else {
+                return []
+            }
+
             let startEra = max(activeEra - duration, 0)
             return (startEra ... activeEra).map { String($0) }
         }
@@ -410,9 +416,42 @@ final class RelaychainValidatorOperationFactory {
             }
         }
     }
+
+    func createNominatorsOperation(
+        for accountId: AccountId
+    ) -> CompoundOperationWrapper<Nomination?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let nominatorsWrapper: CompoundOperationWrapper<[StorageResponse<Nomination>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: { [accountId] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .nominators
+            )
+
+        nominatorsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        let operation = ClosureOperation<Nomination?> {
+            let nominators = try nominatorsWrapper.targetOperation.extractNoCancellableResultData()
+
+            return nominators.compactMap { $0.value }.first
+        }
+
+        operation.addDependency(nominatorsWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: operation,
+            dependencies: [runtimeOperation] + nominatorsWrapper.allOperations
+        )
+    }
 }
 
 extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol {
+    func nomination(accountId: AccountId) -> CompoundOperationWrapper<Nomination?> {
+        createNominatorsOperation(for: accountId)
+    }
+
     // swiftlint:disable function_body_length
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
@@ -537,7 +576,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
                     myNomination: statuses[index],
-                    hasSlashes: slashes[accountId] != nil
+                    hasSlashes: slashes[accountId] == true
                 )
             }
         }

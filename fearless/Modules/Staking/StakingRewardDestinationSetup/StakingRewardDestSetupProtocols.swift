@@ -36,7 +36,7 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
-protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,
+protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AccountSelectionPresentable {
     func proceed(
         view: StakingRewardDestSetupViewProtocol?,

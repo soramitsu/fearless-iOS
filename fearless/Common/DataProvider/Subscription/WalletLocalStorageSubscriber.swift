@@ -48,7 +48,7 @@ extension WalletLocalStorageSubscriber {
 
         accountInfoProvider.addObserver(
             self,
-            deliverOn: .main,
+            deliverOn: walletLocalSubscriptionFactory.processingQueue ?? .global(),
             executing: updateClosure,
             failing: failureClosure,
             options: options
@@ -85,7 +85,8 @@ extension WalletLocalStorageSubscriber {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .soraAsset:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
         case .equilibrium:
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
@@ -122,26 +123,24 @@ extension WalletLocalStorageSubscriber {
         decodingOperation.addDependency(codingFactoryOperation)
 
         decodingOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                guard let result = decodingOperation.result else {
-                    return
-                }
+            guard let result = decodingOperation.result else {
+                return
+            }
 
-                switch result {
-                case let .success(ormlAccountInfo):
-                    let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
-                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                        result: .success(accountInfo),
-                        accountId: accountId,
-                        chainAsset: chainAsset
-                    )
-                case let .failure(error):
-                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                        result: .failure(error),
-                        accountId: accountId,
-                        chainAsset: chainAsset
-                    )
-                }
+            switch result {
+            case let .success(ormlAccountInfo):
+                let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .success(accountInfo),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
+            case let .failure(error):
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .failure(error),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
             }
         }
 
@@ -181,16 +180,14 @@ extension WalletLocalStorageSubscriber {
         decodingOperation.addDependency(codingFactoryOperation)
 
         decodingOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                guard let result = decodingOperation.result else {
-                    return
-                }
-                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                    result: result,
-                    accountId: accountId,
-                    chainAsset: chainAsset
-                )
+            guard let result = decodingOperation.result else {
+                return
             }
+            self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                result: result,
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
         }
 
         walletLocalSubscriptionFactory.operationManager.enqueue(
@@ -229,26 +226,24 @@ extension WalletLocalStorageSubscriber {
         decodingOperation.addDependency(codingFactoryOperation)
 
         decodingOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                guard let result = decodingOperation.result else {
-                    return
-                }
+            guard let result = decodingOperation.result else {
+                return
+            }
 
-                switch result {
-                case let .success(equilibriumAccountInfo):
-                    let accountInfo = AccountInfo(equilibriumAccountInfo: equilibriumAccountInfo)
-                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                        result: .success(accountInfo),
-                        accountId: accountId,
-                        chainAsset: chainAsset
-                    )
-                case let .failure(error):
-                    self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                        result: .failure(error),
-                        accountId: accountId,
-                        chainAsset: chainAsset
-                    )
-                }
+            switch result {
+            case let .success(equilibriumAccountInfo):
+                let accountInfo = AccountInfo(equilibriumAccountInfo: equilibriumAccountInfo)
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .success(accountInfo),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
+            case let .failure(error):
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .failure(error),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
             }
         }
 

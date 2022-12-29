@@ -6,6 +6,7 @@ protocol StakingRedeemViewProtocol: ControllerBackedProtocol, Localizable, Loada
     func didReceiveConfirmation(viewModel: StakingRedeemViewModel)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>)
 }
 
 protocol StakingRedeemPresenterProtocol: AnyObject {
@@ -24,7 +25,7 @@ protocol StakingRedeemInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingRedeemWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRedeemWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable {
     func complete(from view: StakingRedeemViewProtocol?)
 }

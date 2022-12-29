@@ -1,14 +1,32 @@
 import Foundation
 
 final class SelectCurrencyRouter: SelectCurrencyRouterInput {
-    func proceed(from view: SelectCurrencyViewInput?) {
-        guard let navigationController = view?.controller.navigationController else {
-            return
-        }
+    private let viewIsModal: Bool
 
-        MainTransitionHelper.transitToMainTabBarController(
-            closing: navigationController,
-            animated: true
-        )
+    init(viewIsModal: Bool) {
+        self.viewIsModal = viewIsModal
+    }
+
+    func proceed(from view: SelectCurrencyViewInput?) {
+        if viewIsModal {
+            view?.controller.dismiss(animated: true)
+        } else {
+            guard let navigationController = view?.controller.navigationController else {
+                return
+            }
+
+            MainTransitionHelper.transitToMainTabBarController(
+                closing: navigationController,
+                animated: true
+            )
+        }
+    }
+
+    func back(from view: SelectCurrencyViewInput?) {
+        if viewIsModal {
+            view?.controller.dismiss(animated: true)
+        } else {
+            view?.controller.navigationController?.popViewController(animated: true)
+        }
     }
 }

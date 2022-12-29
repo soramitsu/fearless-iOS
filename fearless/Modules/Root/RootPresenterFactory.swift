@@ -16,7 +16,6 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let languageMigrator = SelectedLanguageMigrator(
             localizationManager: LocalizationManager.shared
         )
-        let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
 
         let dbMigrator = UserStorageMigrator(
             targetVersion: UserStorageParams.modelVersion,
@@ -33,10 +32,11 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         )
 
         let interactor = RootInteractor(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
             settings: SelectedWalletSettings.shared,
             applicationConfig: ApplicationConfig.shared,
             eventCenter: EventCenter.shared,
-            migrators: [languageMigrator, networkConnectionsMigrator, dbMigrator],
+            migrators: [languageMigrator, dbMigrator],
             logger: Logger.shared
         )
 

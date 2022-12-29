@@ -7,126 +7,52 @@ import SoraKeystore
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
     var chainAsset: ChainAsset
+    var availableChainAssets: [ChainAsset] = []
 
-    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let selectedMetaAccount: MetaAccountModel
-    private let runtimeService: RuntimeCodingServiceProtocol
+    private var wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
-    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let connection: JSONRPCEngine
     private let eventCenter: EventCenterProtocol
-    private let transactionSubscription: StorageSubscriptionContainer?
     private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
-    private let settingsManager: SettingsManager
-    private let existentialDepositService: ExistentialDepositServiceProtocol
-
-    var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private let chainAssetFetching: ChainAssetFetchingProtocol
 
     init(
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        storageRequestFactory: StorageRequestFactoryProtocol,
-        connection: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
         eventCenter: EventCenterProtocol,
-        transactionSubscription: StorageSubscriptionContainer?,
         repository: AnyDataProviderRepository<MetaAccountModel>,
         availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
-        settingsManager: SettingsManager,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        chainAssetFetching: ChainAssetFetchingProtocol
     ) {
-        self.selectedMetaAccount = selectedMetaAccount
+        self.wallet = wallet
         self.chainAsset = chainAsset
-        self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.connection = connection
-        self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.eventCenter = eventCenter
-        self.transactionSubscription = transactionSubscription
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
-        self.settingsManager = settingsManager
-        self.existentialDepositService = existentialDepositService
+        self.chainAssetFetching = chainAssetFetching
     }
 
-    private func subscribeToAccountInfo() {
-        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
-        } else {
-            presenter?.didReceiveAccountInfo(
-                result: .failure(ChainAccountFetchingError.accountNotExists),
-                for: chainAsset.chain.chainId
-            )
-        }
-    }
-
-    private func fetchBalanceLocks() {
-        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let balanceLocksOperation = createBalanceLocksFetchOperation(accountId)
-            balanceLocksOperation.targetOperation.completionBlock = { [weak self] in
-                DispatchQueue.main.async {
-                    do {
-                        let balanceLocks = try balanceLocksOperation.targetOperation.extractNoCancellableResultData()
-                        self?.presenter?.didReceiveBalanceLocks(result: .success(balanceLocks))
-                    } catch {
-                        self?.presenter?.didReceiveBalanceLocks(result: .failure(error))
-                    }
-                }
+    private func getAvailableChainAssets() {
+        chainAssetFetching.fetch(
+            filters: [.assetName(chainAsset.asset.name)],
+            sortDescriptors: []
+        ) { [weak self] result in
+            switch result {
+            case let .success(availableChainAssets):
+                self?.availableChainAssets = availableChainAssets
+            default:
+                self?.availableChainAssets = []
             }
-            operationManager.enqueue(
-                operations: balanceLocksOperation.allOperations,
-                in: .transient
-            )
         }
-    }
-
-    private func createBalanceLocksFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<BalanceLocks?> {
-        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<BalanceLocks>]> = storageRequestFactory.queryItems(
-            engine: connection,
-            keyParams: { [accountId] },
-            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
-            storagePath: .balanceLocks
-        )
-
-        let mapOperation = ClosureOperation<BalanceLocks?> {
-            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
-        }
-
-        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
-
-        let dependencies = [coderFactoryOperation] + wrapper.allOperations
-
-        dependencies.forEach { mapOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
-    }
-
-    private func provideSelectedCurrency() {
-        presenter?.didReceive(currency: selectedMetaAccount.selectedCurrency)
     }
 }
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
-
-        subscribeToAccountInfo()
-        fetchMinimalBalance()
-        fetchBalanceLocks()
-        provideSelectedCurrency()
-
-        if let priceId = chainAsset.asset.priceId {
-            _ = subscribeToPrice(for: priceId)
-        }
+        getAvailableChainAssets()
     }
 
     func getAvailableExportOptions(for address: String) {
@@ -145,7 +71,7 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
                 let accountId = response.isChainAccount ? response.accountId : nil
                 let options = self.availableExportOptionsProvider
                     .getAvailableExportOptions(
-                        for: self.selectedMetaAccount,
+                        for: self.wallet,
                         accountId: accountId,
                         isEthereum: response.isEthereumBased
                     )
@@ -155,35 +81,16 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
             }
         }
     }
-}
 
-extension ChainAccountInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
-        presenter?.didReceivePriceData(result: result, for: priceId)
-    }
-}
-
-extension ChainAccountInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
-        accountId _: AccountId,
-        chainAsset: ChainAsset
-    ) {
-        presenter?.didReceiveAccountInfo(result: result, for: chainAsset.chain.chainId)
-    }
-}
-
-extension ChainAccountInteractor: RuntimeConstantFetching {
-    func fetchMinimalBalance() {
-        existentialDepositService.fetchExistentialDeposit(
-            chainAsset: chainAsset
-        ) { [weak self] result in
-            self?.presenter?.didReceiveMinimumBalance(result: result)
+    func update(chain: ChainModel) {
+        if let newChainAsset = availableChainAssets.first(where: { $0.chain.chainId == chain.chainId }) {
+            chainAsset = newChainAsset
+            presenter?.didUpdate(chainAsset: chainAsset)
+        } else {
+            assertionFailure("Unable to select this chain")
         }
     }
 }
-
-extension ChainAccountInteractor: AnyProviderAutoCleaning {}
 
 extension ChainAccountInteractor: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
@@ -193,15 +100,6 @@ extension ChainAccountInteractor: EventVisitorProtocol {
         }) {
             chainAsset = ChainAsset(chain: updated, asset: chainAsset.asset)
         }
-    }
-
-    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
-        accountInfoSubscriptionAdapter.reset()
-        subscribeToAccountInfo()
-    }
-
-    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
-        presenter?.didReceive(currency: event.account.selectedCurrency)
     }
 }
 

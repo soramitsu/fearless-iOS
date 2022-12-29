@@ -440,6 +440,7 @@ extension AccountImportViewController: AnimatedTextFieldDelegate {
 
         if !shouldApply, textField.text != currentViewModel.inputHandler.value {
             textField.text = currentViewModel.inputHandler.value
+            updateNextButton()
         }
 
         return shouldApply
@@ -481,7 +482,7 @@ extension AccountImportViewController: UITextViewDelegate {
 }
 
 extension AccountImportViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.nextButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

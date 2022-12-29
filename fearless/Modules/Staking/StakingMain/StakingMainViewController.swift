@@ -3,6 +3,7 @@ import FearlessUtils
 import SoraFoundation
 import SoraUI
 import CommonWallet
+import SnapKit
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
@@ -15,6 +16,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             bottom: UIConstants.bigOffset,
             right: 0
         )
+        static let keyboardAnimateDuration: TimeInterval = 0.3
     }
 
     var presenter: StakingMainPresenterProtocol?
@@ -34,7 +36,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }()
 
     private var networkInfoContainerView: UIView!
-    private var networkInfoView: NetworkInfoView!
+    private var networkInfoView: NetworkInfoView?
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
     private lazy var analyticsContainerView = UIView()
@@ -42,7 +44,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private lazy var analyticsView = RewardAnalyticsWidgetView()
     private lazy var actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -55,7 +57,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return tableView
     }()
 
-    private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
+    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relayChain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
@@ -65,7 +67,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var uiFactory: UIFactoryProtocol?
     var amountFormatterFactory: AssetBalanceFormatterFactoryProtocol?
 
-    var keyboardHandler: KeyboardHandler?
+    var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: - UIViewController
 
@@ -80,7 +82,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupTableView()
         setupActionButton()
         setupLocalization()
-        presenter?.setup()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -94,12 +95,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        networkInfoView.didAppearSkeleton()
+        networkInfoView?.didAppearSkeleton()
         analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
             skeletonState.didAppearSkeleton()
         }
+
+        presenter?.setup()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -107,7 +110,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         clearKeyboardHandler()
 
-        networkInfoView.didDisappearSkeleton()
+        networkInfoView?.didDisappearSkeleton()
         analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
@@ -118,7 +121,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        networkInfoView.didUpdateSkeletonLayout()
+        networkInfoView?.didUpdateSkeletonLayout()
         analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
@@ -159,7 +162,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNetworkInfoView() {
-        guard let networkInfoView = R.nib.networkInfoView(owner: self) else { return }
+        let networkInfoView = NetworkInfoView()
+        networkInfoView.descriptionLabel.isHidden = true
 
         self.networkInfoView = networkInfoView
 
@@ -205,13 +209,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func configureStoriesView() {
-        networkInfoView.collectionView.backgroundView = nil
-        networkInfoView.collectionView.backgroundColor = UIColor.clear
+        networkInfoView?.collectionView.backgroundView = nil
+        networkInfoView?.collectionView.backgroundColor = UIColor.clear
 
-        networkInfoView.collectionView.dataSource = self
-        networkInfoView.collectionView.delegate = self
+        networkInfoView?.collectionView.dataSource = self
+        networkInfoView?.collectionView.delegate = self
 
-        networkInfoView.collectionView.register(
+        networkInfoView?.collectionView.register(
             UINib(resource: R.nib.storiesPreviewCollectionItem),
             forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier
         )
@@ -276,7 +280,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
-        actionButton.isHidden = false
+        changeActionButtonVisibility(true)
+
         if let rewardView = stateView as? RewardEstimationView {
             return rewardView
         }
@@ -390,6 +395,16 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         analyticsContainerView.isHidden = viewModel == nil
         analyticsView.bind(viewModel: viewModel)
     }
+
+    private func changeActionButtonVisibility(_ isVisible: Bool) {
+        var insets = scrollView.contentInset
+        let bottomInset: CGFloat = isVisible ? 84 : 0
+        let currentInset = insets.bottom
+        insets.bottom = max(currentInset, bottomInset)
+
+        scrollView.contentInset = insets
+        actionButton.isHidden = !isVisible
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -402,7 +417,7 @@ extension StakingMainViewController: Localizable {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
 
-        networkInfoView.locale = locale
+        networkInfoView?.locale = locale
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
@@ -443,7 +458,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard networkInfoView != nil else {
             return
         }
-        networkInfoView.bind(viewModel: viewModel)
+        networkInfoView?.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModel) {
@@ -458,7 +473,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         iconButton.imageWithTitleView?.iconImage = R.image.iconFearlessRounded()
         iconButton.invalidateLayout()
 
-        networkInfoView.bind(chainName: viewModel.chainName)
+        networkInfoView?.bind(chainName: viewModel.chainName)
         assetSelectionView.title = viewModel.assetName
         assetSelectionView.subtitle = viewModel.balanceViewModel?.value(for: selectedLocale)
 
@@ -476,7 +491,8 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard viewIfLoaded != nil else {
             return
         }
-        actionButton.isHidden = true
+
+        changeActionButtonVisibility(false)
         if case .delegations = viewModel {
             tableView.isHidden = false
         } else {
@@ -507,11 +523,16 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func expandNetworkInfoView(_ isExpanded: Bool) {
-        networkInfoView.setExpanded(isExpanded, animated: false)
+        networkInfoView?.setExpanded(isExpanded, animated: false)
     }
 
     @objc func actionAssetSelection() {
         presenter?.performAssetSelection()
+    }
+
+    func didReceive(stories: LocalizableResource<StoriesModel>) {
+        storiesModel = stories
+        networkInfoView?.collectionView.reloadData()
     }
 }
 
@@ -525,7 +546,11 @@ extension StakingMainViewController: NetworkInfoViewDelegate {
     }
 }
 
-extension StakingMainViewController: KeyboardAdoptable {
+extension StakingMainViewController: KeyboardViewAdoptable {
+    var target: Constraint? { nil }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat { 0 }
+
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         let localKeyboardFrame = view.convert(frame, from: nil)
         let bottomInset = view.bounds.height - localKeyboardFrame.minY
@@ -540,8 +565,28 @@ extension StakingMainViewController: KeyboardAdoptable {
                 firstResponderView.frame,
                 from: firstResponderView.superview
             )
+            let updatedFrame = CGRect(
+                origin: CGPoint(
+                    x: fieldFrame.origin.x,
+                    y: fieldFrame.origin.y + UIConstants.actionHeight + UIConstants.bigOffset
+                ),
+                size: fieldFrame.size
+            )
 
-            scrollView.scrollRectToVisible(fieldFrame, animated: true)
+            scrollView.scrollRectToVisible(updatedFrame, animated: true)
+
+            actionButton.snp.updateConstraints { make in
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
+                    .inset(updatedFrame.height + UIConstants.bigOffset)
+            }
+        } else {
+            actionButton.snp.updateConstraints { make in
+                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            }
+        }
+
+        UIView.animate(withDuration: Constants.keyboardAnimateDuration) {
+            self.view.layoutIfNeeded()
         }
     }
 }
@@ -550,13 +595,21 @@ extension StakingMainViewController: KeyboardAdoptable {
 
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        storiesModel.value(for: selectedLocale).stories.count
+        guard let storiesModel = storiesModel else {
+            return 0
+        }
+
+        return storiesModel.value(for: selectedLocale).stories.count
     }
 
     func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
+        guard let storiesModel = storiesModel else {
+            return UICollectionViewCell()
+        }
+
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
             for: indexPath

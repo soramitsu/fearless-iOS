@@ -4,14 +4,14 @@ import SoraFoundation
 
 final class NetworkFeeFooterView: UIView {
     private let contentStackView = UIFactory.default.createVerticalStackView(spacing: 8)
+    private let tipView = NetworkFeeView()
 
-    let tipView = NetworkFeeView()
     var networkFeeView: NetworkFeeView?
     var durationView: TitleValueView?
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -31,8 +31,6 @@ final class NetworkFeeFooterView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-
-        backgroundColor = R.color.colorAlmostBlack()
         applyLocalization()
         setupLayout()
     }
@@ -42,6 +40,7 @@ final class NetworkFeeFooterView: UIView {
             let balanceView = NetworkFeeView()
             contentStackView.insertArranged(view: balanceView, before: actionButton)
             networkFeeView = balanceView
+            networkFeeView?.locale = locale
             networkFeeView?.snp.makeConstraints { make in
                 make.height.equalTo(UIConstants.actionHeight)
             }

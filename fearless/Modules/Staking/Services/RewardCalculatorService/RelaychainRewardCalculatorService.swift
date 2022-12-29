@@ -102,15 +102,15 @@ final class RewardCalculatorService {
         mapOperation.addDependency(durationWrapper.targetOperation)
         mapOperation.addDependency(eraOperation)
 
-        mapOperation.completionBlock = {
+        mapOperation.completionBlock = { [weak self] in
             dispatchInQueueWhenPossible(request.queue) {
                 switch mapOperation.result {
                 case let .success(calculator):
                     request.resultClosure(calculator)
                 case let .failure(error):
-                    self.logger?.error("Era stakers info fetch error: \(error)")
+                    self?.logger?.error("Era stakers info fetch error: \(error)")
                 case .none:
-                    self.logger?.warning("Era stakers info fetch cancelled")
+                    self?.logger?.warning("Era stakers info fetch cancelled")
                 }
             }
         }

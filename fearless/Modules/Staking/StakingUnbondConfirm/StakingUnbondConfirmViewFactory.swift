@@ -46,6 +46,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         presenter.view = view
         interactor.presenter = presenter
 
+        dataValidatingFactory.view = view
+
         return view
     }
 
@@ -91,6 +93,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -118,7 +121,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -127,17 +129,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -146,7 +139,7 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             mapper: AnyCoreDataMapper(mapper)
         )
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
@@ -219,7 +212,43 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
             )
 
-            return StakingUnbondConfirmDependencyContainer(viewModelState: viewModelState, strategy: strategy, viewModelFactory: viewModelFactory)
+            return StakingUnbondConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .pool(amount):
+            let viewModelState = StakingUnbondConfirmPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                inputAmount: amount
+            )
+            let viewModelFactory = StakingUnbondConfirmPoolViewModelFactory(
+                asset: chainAsset.asset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingUnbondConfirmPoolStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                feeProxy: feeProxy,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                keystore: keystore,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                eventCenter: EventCenter.shared,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            )
+
+            return StakingUnbondConfirmDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

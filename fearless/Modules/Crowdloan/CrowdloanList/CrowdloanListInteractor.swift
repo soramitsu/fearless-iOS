@@ -14,6 +14,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let settings: CrowdloanChainSettings
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
+    let eventCenter: EventCenterProtocol
 
     private var blockNumberSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
@@ -38,7 +39,8 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.crowdloanOperationFactory = crowdloanOperationFactory
@@ -50,6 +52,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.settings = settings
         self.operationManager = operationManager
         self.logger = logger
+        self.eventCenter = eventCenter
     }
 
     private func provideContributions(
@@ -206,6 +209,14 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         ) { [weak self] (result: Result<LeasingPeriod, Error>) in
             self?.presenter.didReceiveLeasingPeriod(result: result)
         }
+
+        fetchConstant(
+            for: .leaseOffset,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<LeasingOffset, Error>) in
+            self?.presenter.didReceiveLeasingOffset(result: result)
+        }
     }
 }
 
@@ -342,5 +353,15 @@ extension CrowdloanListInteractor {
         }
 
         operationManager.enqueue(operations: crowdloanWrapper.allOperations, in: .transient)
+    }
+}
+
+extension CrowdloanListInteractor: EventVisitorProtocol {
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        guard let updatedChain = event.newOrUpdatedChains.first(where: { $0.chainId == settings.value?.chainId }) else {
+            return
+        }
+
+        refresh(with: updatedChain)
     }
 }

@@ -35,10 +35,16 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
             in: .userDomainMask
         ).first?.appendingPathComponent("CoreData")
 
+        let options = [
+            NSMigratePersistentStoresAutomaticallyOption: true,
+            NSInferMappingModelAutomaticallyOption: true
+        ]
+
         let persistentSettings = CoreDataPersistentSettings(
             databaseDirectory: baseURL!,
             databaseName: databaseName,
-            incompatibleModelStrategy: .removeStore
+            incompatibleModelStrategy: .ignore,
+            options: options
         )
 
         let configuration = CoreDataServiceConfiguration(

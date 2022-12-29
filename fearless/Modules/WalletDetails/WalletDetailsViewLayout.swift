@@ -11,7 +11,7 @@ final class WalletDetailsViewLayout: UIView {
     var subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.isHidden = true
         return label
     }()
@@ -42,7 +42,7 @@ final class WalletDetailsViewLayout: UIView {
 
     let exportButton: TriangularedButton = {
         let button = UIFactory.default.createMainActionButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.isHidden = true
         return button
     }()

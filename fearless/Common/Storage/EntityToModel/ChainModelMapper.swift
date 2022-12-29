@@ -10,10 +10,17 @@ final class ChainModelMapper {
 
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
+        var symbol: String?
+
+        if let entitySymbol = entity.symbol {
+            symbol = entitySymbol
+        } else {
+            symbol = entity.id
+        }
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = entity.symbol
+            let symbol = symbol
         else {
             preconditionFailure()
         }
@@ -54,7 +61,8 @@ final class ChainModelMapper {
             purchaseProviders: purchaseProviders,
             type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
-            chain: parentChain
+            chain: parentChain,
+            isUtility: entity.isUtility
         )
     }
 
@@ -97,6 +105,8 @@ final class ChainModelMapper {
             assetEntity.purchaseProviders = purchaseProviders
             assetEntity.staking = asset.staking?.rawValue
             assetEntity.type = asset.type.rawValue
+            assetEntity.isUtility = asset.isUtility
+
             updateEntityAsset(
                 for: assetEntity,
                 from: asset,
@@ -233,6 +243,7 @@ final class ChainModelMapper {
         context: NSManagedObjectContext
     ) {
         guard let node = model.selectedNode else {
+            entity.selectedNode = nil
             return
         }
         let nodeEntity: CDChainNode

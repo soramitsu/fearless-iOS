@@ -1,13 +1,22 @@
 import Foundation
+import RobinHood
 
 typealias ChainAssetKey = String
 
-struct ChainAsset: Equatable, Hashable {
+struct ChainAsset: Equatable, Hashable, Identifiable {
     let chain: ChainModel
     let asset: AssetModel
 
     var chainAssetType: ChainAssetType {
         chain.assets.first(where: { $0.assetId == asset.id })?.type ?? .normal
+    }
+
+    var isUtility: Bool {
+        chain.assets.first(where: { $0.assetId == asset.id })?.isUtility ?? false
+    }
+
+    var identifier: String {
+        chain.identifier + asset.identifier
     }
 
     var currencyId: CurrencyId? {
@@ -28,9 +37,7 @@ struct ChainAsset: Equatable, Hashable {
             }
             return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
         case .liquidCrowdloan:
-            guard
-                let currencyId = asset.currencyId
-            else {
+            guard let currencyId = asset.currencyId else {
                 return nil
             }
             return CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
@@ -45,6 +52,11 @@ struct ChainAsset: Equatable, Hashable {
             return CurrencyId.stable(symbol: tokenSymbol)
         case .equilibrium:
             return CurrencyId.equilibrium(id: asset.symbol)
+        case .soraAsset:
+            guard let currencyId = asset.currencyId else {
+                return nil
+            }
+            return CurrencyId.soraAsset(id: currencyId)
         }
     }
 
@@ -53,7 +65,7 @@ struct ChainAsset: Equatable, Hashable {
     }
 }
 
-struct ChainAssetId: Equatable, Codable {
+struct ChainAssetId: Equatable, Codable, Hashable {
     let chainId: ChainModel.Id
     let assetId: AssetModel.Id
 }
@@ -82,13 +94,23 @@ extension ChainAsset {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .soraAsset:
             storagePath = StorageCodingPath.tokens
         case .equilibrium:
             storagePath = StorageCodingPath.eqBalances
         }
 
         return storagePath
+    }
+
+    var debugName: String {
+        "\(chain.name)-\(asset.name)"
+    }
+
+    var hasStaking: Bool {
+        let model: ChainAssetModel? = chain.assets.first { $0.asset.id == asset.id }
+        return model?.staking != nil
     }
 }
 
@@ -103,4 +125,5 @@ enum ChainAssetType: String, Codable {
     case vsToken
     case stable
     case equilibrium
+    case soraAsset
 }

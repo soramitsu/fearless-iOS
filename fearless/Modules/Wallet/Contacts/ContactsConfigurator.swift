@@ -43,16 +43,16 @@ final class ContactsConfigurator {
 
     private lazy var contactCellStyle: ContactCellStyleProtocol = {
         let iconStyle = WalletNameIconStyle(
-            background: .white,
+            background: R.color.colorWhite()!,
             title: WalletTextStyle(font: UIFont.p1Paragraph, color: .black),
             radius: 12.0
         )
         return ContactCellStyle(
-            title: WalletTextStyle(font: UIFont.p1Paragraph, color: .white),
+            title: WalletTextStyle(font: UIFont.p1Paragraph, color: R.color.colorWhite()!),
             nameIcon: iconStyle,
             accessoryIcon: R.image.iconSmallArrow(),
             lineBreakMode: .byTruncatingMiddle,
-            selectionColor: R.color.colorAccent()!.withAlphaComponent(0.3)
+            selectionColor: R.color.colorPink()!.withAlphaComponent(0.3)
         )
     }()
 

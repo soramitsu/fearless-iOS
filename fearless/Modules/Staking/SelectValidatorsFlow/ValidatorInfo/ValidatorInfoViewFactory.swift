@@ -146,6 +146,91 @@ final class ValidatorInfoViewFactory {
                 strategy: strategy,
                 viewModelFactory: viewModelFactory
             )
+        case let .pool(validatorInfo, address):
+            let storageRequestFactory = StorageRequestFactory(
+                remoteFactory: StorageKeyFactory(),
+                operationManager: OperationManagerFacade.sharedManager
+            )
+
+            let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+            guard
+                let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+                let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+                return nil
+            }
+
+            let serviceFactory = StakingServiceFactory(
+                chainRegisty: chainRegistry,
+                storageFacade: SubstrateDataStorageFacade.shared,
+                eventCenter: EventCenter.shared,
+                operationManager: OperationManagerFacade.sharedManager
+            )
+
+            guard
+                let eraValidatorService = try? serviceFactory.createEraValidatorService(
+                    for: chainAsset.chain
+                ) else {
+                return nil
+            }
+
+            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
+
+            let collatorOperationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageRequestFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+                subqueryOperationFactory: subqueryRewardOperationFactory
+            )
+
+            guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+                for: chainAsset,
+                assetPrecision: Int16(chainAsset.asset.precision),
+                validatorService: eraValidatorService,
+                collatorOperationFactory: collatorOperationFactory
+            ) else {
+                return nil
+            }
+
+            eraValidatorService.setup()
+            rewardService.setup()
+
+            let validatorOperationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageRequestFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+            )
+
+            let viewModelState = ValidatorInfoPoolViewModelState()
+            let strategy = ValidatorInfoPoolStrategy(
+                validatorInfo: validatorInfo,
+                accountAddress: address,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                validatorOperationFactory: validatorOperationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
+            let viewModelFactory = ValidatorInfoPoolViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
+            )
+
+            return ValidatorInfoDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
         }
     }
 }

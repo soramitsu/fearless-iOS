@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
+    var balance: Decimal?
     var amount: Decimal? { 0.0 }
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let targets: [SelectedValidatorInfo]
@@ -59,18 +60,26 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     }
 
     func validators(using locale: Locale) -> [DataValidating] {
-        [dataValidatingFactory.canNominate(
-            amount: existingBonding.amount,
-            minimalBalance: minimalBalance,
-            minNominatorBond: minNominatorBond,
-            locale: locale
-        ),
-        dataValidatingFactory.maxNominatorsCountNotApplied(
-            counterForNominators: counterForNominators,
-            maxNominatorsCount: maxNominatorsCount,
-            hasExistingNomination: false,
-            locale: locale
-        )]
+        [
+            dataValidatingFactory.canNominate(
+                amount: existingBonding.amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minNominatorBond,
+                locale: locale
+            ),
+            dataValidatingFactory.maxNominatorsCountNotApplied(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                hasExistingNomination: false,
+                locale: locale
+            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            )
+        ]
     }
 
     func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
@@ -97,7 +106,9 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
             }
 
             let displayAddress = DisplayAddress(
-                address: strongSelf.wallet.fetch(for: strongSelf.chainAsset.chain.accountRequest())?.toAddress() ?? payoutAddress,
+                address: strongSelf.wallet.fetch(
+                    for: strongSelf.chainAsset.chain.accountRequest()
+                )?.toAddress() ?? payoutAddress,
                 username: strongSelf.wallet.name
             )
 
@@ -148,17 +159,17 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
-        mapOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 guard let strongSelf = self else {
                     return
                 }
                 do {
-                    self?.confirmationModel = try mapOperation.extractNoCancellableResultData()
+                    strongSelf.confirmationModel = try mapOperation.extractNoCancellableResultData()
 
-                    self?.stateListener?.provideConfirmationState(viewModelState: strongSelf)
+                    strongSelf.stateListener?.provideConfirmationState(viewModelState: strongSelf)
                 } catch {
-                    self?.stateListener?.didReceiveError(error: error)
+                    strongSelf.stateListener?.didReceiveError(error: error)
                 }
             }
         }
@@ -236,5 +247,21 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidat
 
     func didReceive(feeError: Error) {
         stateListener?.didReceiveError(error: feeError)
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.stakingAvailable {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                balance = 0.0
+            }
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
     }
 }

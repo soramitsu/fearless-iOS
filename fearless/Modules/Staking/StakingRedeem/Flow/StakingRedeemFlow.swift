@@ -9,6 +9,7 @@ enum StakingRedeemFlow {
         delegation: ParachainStakingDelegation,
         readyForRevoke: BigUInt
     )
+    case pool
 }
 
 protocol StakingRedeemModelStateListener: AnyObject {
@@ -46,6 +47,8 @@ protocol StakingRedeemViewModelFactoryProtocol {
         viewModelState: StakingRedeemViewModelState,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol>?
+
+    func buildHints() -> LocalizableResource<[TitleIconViewModel]>
 }
 
 protocol StakingRedeemStrategy {

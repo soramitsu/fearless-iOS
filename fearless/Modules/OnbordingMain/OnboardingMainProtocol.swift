@@ -10,7 +10,7 @@ protocol OnboardingMainPresenterProtocol: AnyObject {
     func activatePrivacy()
 }
 
-protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, AlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {
+protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, SheetAlertPresentable, WarningPresentable, PresentDismissable, AppUpdatePresentable {
     func showSignup(from view: OnboardingMainViewProtocol?)
     func showAccountRestore(from view: OnboardingMainViewProtocol?)
     func showKeystoreImport(from view: OnboardingMainViewProtocol?)

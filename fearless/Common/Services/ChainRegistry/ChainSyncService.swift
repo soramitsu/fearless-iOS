@@ -6,7 +6,13 @@ protocol ChainSyncServiceProtocol {
     func syncUp()
 }
 
+enum ChainSyncServiceError: Error {
+    case missingLocalFile
+}
+
 final class ChainSyncService {
+    static let fetchLocalData = false
+
     struct SyncChanges {
         let newOrUpdatedItems: [ChainModel]
         let removedItems: [ChainModel]
@@ -65,98 +71,179 @@ final class ChainSyncService {
     }
 
     private func executeSync() {
-        guard let chainsUrl = chainsUrl, let assetsUrl = assetsUrl else {
-            assertionFailure()
-            return
+        if Self.fetchLocalData {
+            do {
+                let localData = try fetchLocalData()
+                decode(chainsData: localData.chainsData, assetsData: localData.assetsData)
+            } catch {
+                complete(result: .failure(error))
+            }
+        } else {
+            guard let chainsUrl = chainsUrl, let assetsUrl = assetsUrl else {
+                assertionFailure()
+                return
+            }
+            fetchRemoteData(chainsUrl: chainsUrl, assetsUrl: assetsUrl)
         }
+    }
 
-        let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
-        let remoteFetchOperation = dataFetchFactory.fetchData(from: chainsUrl)
+    private func decode(chainsData: Data, assetsData: Data) {
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-        let processingOperation: BaseOperation<SyncChanges> = ClosureOperation {
-            let assetsRemoteData = try remoteFetchAssetsOperation.extractNoCancellableResultData()
-            let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsRemoteData)
-            let remoteData = try remoteFetchOperation.extractNoCancellableResultData()
-            let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: remoteData)
 
-            remoteChains.forEach { chain in
-                chain.assets.forEach { chainAsset in
-                    chainAsset.chain = chain
-                    if let asset = assetsList.first(where: { asset in
-                        chainAsset.assetId == asset.id
-                    }) {
-                        chainAsset.asset = asset
-                    }
-                }
-            }
-
-            remoteChains.forEach {
-                $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
-            }
-
-            let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
-                mapping[item.chainId] = item
-            }
-
+        let processingOperation: BaseOperation<(
+            remoteChains: [ChainModel],
+            assetsList: [AssetModel],
+            localChains: [ChainModel]
+        )> = ClosureOperation {
+            let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: chainsData)
+            let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsData)
             let localChains = try localFetchOperation.extractNoCancellableResultData()
-            let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
-                mapping[item.chainId] = item
-            }
 
-            let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
-                if let localItem = localMapping[remoteItem.chainId] {
-                    return localItem != remoteItem ? remoteItem : nil
-                } else {
-                    return remoteItem
-                }
-            }
-
-            let removed = localChains.compactMap { localItem in
-                remoteMapping[localItem.chainId] == nil ? localItem : nil
-            }
-
-            return SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
+            return (
+                remoteChains: remoteChains,
+                assetsList: assetsList,
+                localChains: localChains
+            )
         }
 
-        processingOperation.addDependency(remoteFetchAssetsOperation)
-        processingOperation.addDependency(remoteFetchOperation)
+        processingOperation.completionBlock = { [weak self] in
+            guard let result = processingOperation.result else {
+                self?.complete(result: .failure(BaseOperationError.parentOperationCancelled))
+                return
+            }
+
+            switch result {
+            case let .success((remoteChains, assetsList, localChains)):
+                self?.syncChanges(
+                    remoteChains: remoteChains,
+                    assetsList: assetsList,
+                    localChains: localChains
+                )
+            case let .failure(error):
+                self?.complete(result: .failure(error))
+            }
+        }
+
         processingOperation.addDependency(localFetchOperation)
-
-        let localSaveOperation = repository.saveOperation({
-            let changes = try processingOperation.extractNoCancellableResultData()
-            return changes.newOrUpdatedItems
-        }, {
-            let changes = try processingOperation.extractNoCancellableResultData()
-            return changes.removedItems.map(\.identifier)
-        })
-
-        localSaveOperation.addDependency(processingOperation)
-
-        let mapOperation: BaseOperation<SyncChanges> = ClosureOperation {
-            _ = try localSaveOperation.extractNoCancellableResultData()
-
-            return try processingOperation.extractNoCancellableResultData()
-        }
-
-        mapOperation.addDependency(localSaveOperation)
-
-        mapOperation.completionBlock = { [weak self] in
-            DispatchQueue.global(qos: .userInitiated).async {
-                self?.complete(result: mapOperation.result)
-            }
-        }
-
         operationQueue.addOperations(
             [
-                remoteFetchAssetsOperation,
-                remoteFetchOperation,
                 localFetchOperation,
-                processingOperation,
-                localSaveOperation,
-                mapOperation
+                processingOperation
             ],
             waitUntilFinished: false
         )
+    }
+
+    private func syncChanges(
+        remoteChains: [ChainModel],
+        assetsList: [AssetModel],
+        localChains: [ChainModel]
+    ) {
+        remoteChains.forEach { chain in
+            chain.assets.forEach { chainAsset in
+                chainAsset.chain = chain
+                if let asset = assetsList.first(where: { asset in
+                    chainAsset.assetId == asset.id
+                }) {
+                    chainAsset.asset = asset
+                }
+            }
+        }
+
+        remoteChains.forEach {
+            $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
+        }
+
+        let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+            mapping[item.chainId] = item
+        }
+
+        let localMapping = localChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
+            mapping[item.chainId] = item
+        }
+
+        let newOrUpdated: [ChainModel] = remoteChains.compactMap { remoteItem in
+            if let localItem = localMapping[remoteItem.chainId] {
+                return localItem != remoteItem ? remoteItem : nil
+            } else {
+                return remoteItem
+            }
+        }
+
+        let removed = localChains.compactMap { localItem in
+            remoteMapping[localItem.chainId] == nil ? localItem : nil
+        }
+
+        let syncChanges = SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
+        handle(syncChanges: syncChanges)
+    }
+
+    private func handle(syncChanges: SyncChanges) {
+        let localSaveOperation = repository.saveOperation({
+            syncChanges.newOrUpdatedItems
+        }, {
+            syncChanges.removedItems.map { $0.identifier }
+        })
+
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.complete(result: .success(syncChanges))
+        }
+
+        operationQueue.addOperation(localSaveOperation)
+    }
+
+    private func fetchRemoteData(
+        chainsUrl: URL,
+        assetsUrl: URL
+    ) {
+        let remoteFetchChainsOperation = dataFetchFactory.fetchData(from: chainsUrl)
+        let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
+
+        let mergeOperation: BaseOperation<(chainsData: Data, assetsData: Data)> = ClosureOperation {
+            let remoteAssetsData = try remoteFetchAssetsOperation.extractNoCancellableResultData()
+            let remoteChainsData = try remoteFetchChainsOperation.extractNoCancellableResultData()
+
+            return (chainsData: remoteChainsData, assetsData: remoteAssetsData)
+        }
+
+        mergeOperation.completionBlock = { [weak self] in
+            guard let result = mergeOperation.result else {
+                return
+            }
+
+            switch result {
+            case let .success((chainsData, assetsData)):
+                self?.decode(chainsData: chainsData, assetsData: assetsData)
+            case let .failure(error):
+                self?.complete(result: .failure(error))
+            }
+        }
+
+        mergeOperation.addDependency(remoteFetchChainsOperation)
+        mergeOperation.addDependency(remoteFetchAssetsOperation)
+
+        operationQueue.addOperations(
+            [
+                mergeOperation,
+                remoteFetchChainsOperation,
+                remoteFetchAssetsOperation
+            ],
+            waitUntilFinished: false
+        )
+    }
+
+    private func fetchLocalData() throws -> (chainsData: Data, assetsData: Data) {
+        guard
+            let chainsUrl = Bundle.main.url(forResource: "chains", withExtension: "json"),
+            let assetsUrl = Bundle.main.url(forResource: "assets", withExtension: "json")
+        else {
+            throw ChainSyncServiceError.missingLocalFile
+        }
+
+        let chainsData = try Data(contentsOf: chainsUrl)
+        let assetsData = try Data(contentsOf: assetsUrl)
+
+        return (chainsData: chainsData, assetsData: assetsData)
     }
 
     private func complete(result: Result<SyncChanges, Error>?) {

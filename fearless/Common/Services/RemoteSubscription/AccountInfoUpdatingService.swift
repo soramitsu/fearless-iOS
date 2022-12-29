@@ -17,7 +17,6 @@ final class AccountInfoUpdatingService {
     private let logger: LoggerProtocol?
     private let eventCenter: EventCenterProtocol
     private var chains: [ChainModel.Id: ChainModel] = [:]
-    private var chainIdsWithCodersReady: [ChainModel.Id] = []
 
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
@@ -63,7 +62,7 @@ final class AccountInfoUpdatingService {
         for change in changes {
             switch change {
             case let .insert(newItem):
-                if chainIdsWithCodersReady.contains(newItem.chainId) {
+                if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
                     newItem.chainAssets.forEach {
                         addSubscriptionIfNeeded(for: $0)
                     }
@@ -168,13 +167,16 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
         }
     }
 
-    func processRuntimeCoderReady(event: RuntimeCoderCreated) {
-        chainIdsWithCodersReady.append(event.chainId)
-
-        let chain = chains[event.chainId]
-
-        chain?.chainAssets.forEach {
-            addSubscriptionIfNeeded(for: $0)
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        event.newOrUpdatedChains.forEach { chain in
+            chain.chainAssets.forEach {
+                guard let accountId = selectedMetaAccount.fetch(for: $0.chain.accountRequest())?.accountId else {
+                    return
+                }
+                let key = $0.uniqueKey(accountId: accountId)
+                removeSubscription(for: key)
+                addSubscriptionIfNeeded(for: $0)
+            }
         }
     }
 }

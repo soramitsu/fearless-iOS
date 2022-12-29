@@ -16,13 +16,11 @@ protocol EventVisitorProtocol: AnyObject {
     func processChainSyncDidComplete(event: ChainSyncDidComplete)
     func processChainSyncDidFail(event: ChainSyncDidFail)
     func processChainsUpdated(event: ChainsUpdatedEvent)
+    func processChainReconnecting(event: ChainReconnectingEvent)
 
     func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted)
-    func processRuntimeChainTypesSyncCompleted(event: RuntimeChainTypesSyncCompleted)
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
-
-    func processRuntimeCoderReady(event: RuntimeCoderCreated)
-    func processRuntimeCoderCreationFailed(event: RuntimeCoderCreationFailed)
 
     func processUserInactive(event: UserInactiveEvent)
 
@@ -46,13 +44,11 @@ extension EventVisitorProtocol {
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {}
     func processChainSyncDidFail(event _: ChainSyncDidFail) {}
     func processChainsUpdated(event _: ChainsUpdatedEvent) {}
+    func processChainReconnecting(event _: ChainReconnectingEvent) {}
 
     func processRuntimeCommonTypesSyncCompleted(event _: RuntimeCommonTypesSyncCompleted) {}
-    func processRuntimeChainTypesSyncCompleted(event _: RuntimeChainTypesSyncCompleted) {}
+    func processRuntimeChainsTypesSyncCompleted(event _: RuntimeChainsTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
-
-    func processRuntimeCoderReady(event _: RuntimeCoderCreated) {}
-    func processRuntimeCoderCreationFailed(event _: RuntimeCoderCreationFailed) {}
 
     func processUserInactive(event _: UserInactiveEvent) {}
 

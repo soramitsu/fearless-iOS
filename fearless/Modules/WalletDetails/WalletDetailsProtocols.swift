@@ -30,7 +30,7 @@ protocol WalletDetailsInteractorOutputProtocol: AnyObject {
 }
 
 protocol WalletDetailsWireframeProtocol: ErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     ModalAlertPresenting,
     AuthorizationPresentable {
     func close(_ view: WalletDetailsViewProtocol)

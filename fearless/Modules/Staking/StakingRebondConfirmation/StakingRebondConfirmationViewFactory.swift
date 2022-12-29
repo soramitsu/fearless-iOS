@@ -123,13 +123,6 @@ struct StakingRebondConfirmationViewFactory {
             logger: Logger.shared
         )
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let keystore = Keychain()
         let feeProxy = ExtrinsicFeeProxy()
         let facade = UserDataStorageFacade.shared
@@ -148,7 +141,7 @@ struct StakingRebondConfirmationViewFactory {
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 

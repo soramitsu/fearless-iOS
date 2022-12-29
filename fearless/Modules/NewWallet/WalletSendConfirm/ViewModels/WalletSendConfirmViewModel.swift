@@ -1,11 +1,16 @@
 import Foundation
 
 struct WalletSendConfirmViewModel {
+    let amountAttributedString: NSAttributedString
     let amountString: String
-    let senderAccountViewModel: AccountViewModel?
-    let receiverAccountViewModel: AccountViewModel?
-    let assetBalanceViewModel: AssetBalanceViewModelProtocol?
+    let senderNameString: String
+    let senderAddressString: String
+    let receiverAddressString: String
+    let priceString: String
+    let feeAmountString: String
+    let feePriceString: String
     let tipRequired: Bool
-    let tipViewModel: BalanceViewModelProtocol?
-    let feeViewModel: BalanceViewModelProtocol?
+    let tipAmountString: String
+    let tipPriceString: String
+    let showWarning: Bool
 }

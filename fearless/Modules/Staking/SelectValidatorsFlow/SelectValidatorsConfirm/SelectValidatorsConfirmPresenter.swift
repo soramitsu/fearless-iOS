@@ -123,17 +123,11 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        let customValidators: [DataValidating] = viewModelState.validators(using: locale) ?? []
+        let customValidators: [DataValidating] = viewModelState.validators(using: locale)
         let commonValidators: [DataValidating] = [
             dataValidatingFactory.has(fee: viewModelState.fee, locale: locale) { [weak self] in
                 self?.feeParametersUpdated()
-            },
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: viewModelState.fee,
-                spendingAmount: viewModelState.amount,
-                locale: locale
-            )
+            }
         ]
 
         DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
@@ -158,7 +152,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            if let availableValue = accountInfo?.data.available {
+            if let availableValue = accountInfo?.data.stakingAvailable {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
                     precision: Int16(chainAsset.asset.precision)
@@ -214,7 +208,12 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
     }
 
     func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState) {
-        guard let viewModel = viewModelFactory.buildAssetBalanceViewModel(viewModelState: viewModelState, priceData: priceData, balance: balance) else {
+        guard
+            let viewModel = viewModelFactory.buildAssetBalanceViewModel(
+                viewModelState: viewModelState,
+                priceData: priceData,
+                balance: balance
+            ) else {
             return
         }
 
@@ -230,7 +229,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
 
         view?.didStopLoading()
 
-        wireframe.complete(from: view)
+        wireframe.complete(txHash: txHash, from: view)
     }
 
     func didFailNomination(error: Error) {

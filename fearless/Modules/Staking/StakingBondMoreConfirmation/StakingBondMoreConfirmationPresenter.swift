@@ -40,6 +40,10 @@ final class StakingBondMoreConfirmationPresenter {
 }
 
 extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
         viewModelState.setStateListener(self)
 
@@ -118,26 +122,32 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
     }
 
     func provideAssetViewModel() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+        let assetViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             viewModelState.amount,
             balance: viewModelState.balance,
             priceData: priceData
         )
 
-        view?.didReceiveAsset(viewModel: viewModel)
+        view?.didReceiveAsset(viewModel: assetViewModel)
     }
 
     func provideConfirmationViewModel() {
+        let locale = view?.selectedLocale ?? Locale.current
+
         do {
             guard let viewModel = try confirmViewModelFactory.createViewModel(
                 account: wallet,
                 amount: viewModelState.amount,
-                state: viewModelState
+                state: viewModelState,
+                locale: locale,
+                priceData: priceData
             ) else {
                 return
             }
 
-            view?.didReceiveConfirmation(viewModel: viewModel)
+            DispatchQueue.main.async {
+                self.view?.didReceiveConfirmation(viewModel: viewModel)
+            }
         } catch {
             logger?.error("Did receive view model factory error: \(error)")
         }
@@ -148,6 +158,9 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModel
             return
         }
 
-        interactor.estimateFee(builderClosure: viewModelState.builderClosure, reuseIdentifier: viewModelState.feeReuseIdentifier)
+        interactor.estimateFee(
+            builderClosure: viewModelState.builderClosure,
+            reuseIdentifier: viewModelState.feeReuseIdentifier
+        )
     }
 }

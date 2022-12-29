@@ -11,7 +11,12 @@ class PriceProviderFactory {
 
     private var providers: [AssetModel.PriceId: WeakWrapper] = [:]
 
-    let storageFacade: StorageFacadeProtocol
+    private let storageFacade: StorageFacadeProtocol
+    private lazy var executionQueue: OperationQueue = {
+        let queue = OperationQueue()
+        queue.qualityOfService = .userInitiated
+        return queue
+    }()
 
     init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
@@ -62,12 +67,13 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
 
         let source = CoingeckoPricesSource(pricesIds: pricesIds)
 
-        let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
+        let trigger: DataProviderEventTrigger = [.onAddObserver]
         let provider = SingleValueProvider(
             targetIdentifier: identifier,
             source: AnySingleValueProviderSource(source),
             repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger
+            updateTrigger: trigger,
+            executionQueue: executionQueue
         )
 
         return AnySingleValueProvider(provider)

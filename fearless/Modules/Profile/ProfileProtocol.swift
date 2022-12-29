@@ -23,10 +23,11 @@ protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceiveUserDataProvider(error: Error)
     func didRecieve(selectedCurrency: Currency)
+    func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     WebPresentable,
     ModalAlertPresenting,
     AddressOptionsPresentable {
@@ -35,7 +36,6 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         metaAccount: MetaAccountModel
     )
     func showAccountSelection(from view: ProfileViewProtocol?)
-    func showConnectionSelection(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)

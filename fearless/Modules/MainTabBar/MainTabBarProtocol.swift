@@ -7,11 +7,11 @@ protocol MainTabBarViewProtocol: ControllerBackedProtocol {
 }
 
 protocol MainTabBarPresenterProtocol: AnyObject {
-    func setup()
+    func didLoad(view: MainTabBarViewProtocol)
 }
 
 protocol MainTabBarInteractorInputProtocol: AnyObject {
-    func setup()
+    func setup(with output: MainTabBarInteractorOutputProtocol)
 }
 
 protocol MainTabBarInteractorOutputProtocol: AnyObject {
@@ -22,14 +22,12 @@ protocol MainTabBarInteractorOutputProtocol: AnyObject {
     func handleLongInactivity()
 }
 
-protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
+protocol MainTabBarWireframeProtocol: SheetAlertPresentable, AuthorizationAccessible, WarningPresentable, AppUpdatePresentable, PresentDismissable {
     func showNewWalletView(on view: MainTabBarViewProtocol?)
-
     func showNewCrowdloan(on view: MainTabBarViewProtocol?) -> UIViewController?
-
     func presentAccountImport(on view: MainTabBarViewProtocol?)
-
     func logout(from _: MainTabBarViewProtocol?)
+    func replaceStaking(on view: MainTabBarViewProtocol?, type: AssetSelectionStakingType, moduleOutput: StakingMainModuleOutput?)
 }
 
 protocol MainTabBarViewFactoryProtocol: AnyObject {

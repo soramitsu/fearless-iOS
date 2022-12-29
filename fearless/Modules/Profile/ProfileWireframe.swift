@@ -36,17 +36,6 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         )
     }
 
-    func showConnectionSelection(from view: ProfileViewProtocol?) {
-        guard let networkManagement = NetworkManagementViewFactory.createView() else {
-            return
-        }
-
-        if let navigationController = view?.controller.navigationController {
-            networkManagement.controller.hidesBottomBarWhenPushed = true
-            navigationController.pushViewController(networkManagement.controller, animated: true)
-        }
-    }
-
     func showLanguageSelection(from view: ProfileViewProtocol?) {
         guard let languageSelection = LanguageSelectionViewFactory.createView() else {
             return
@@ -97,7 +86,8 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         with wallet: MetaAccountModel
     ) {
         guard let controller = SelectCurrencyAssembly.configureModule(
-            with: wallet
+            with: wallet,
+            isModal: false
         )?.view.controller else { return }
         controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(controller, animated: true)

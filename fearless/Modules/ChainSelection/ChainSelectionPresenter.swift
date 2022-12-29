@@ -63,7 +63,7 @@ final class ChainSelectionPresenter {
 
         if let accountInfo = accountInfo {
             maybeBalance = Decimal.fromSubstrateAmount(
-                accountInfo.data.available,
+                accountInfo.data.free,
                 precision: assetInfo.assetPrecision
             )
         } else {
@@ -91,7 +91,8 @@ final class ChainSelectionPresenter {
                 title: title,
                 subtitle: balance,
                 icon: icon,
-                isSelected: isSelected
+                isSelected: isSelected,
+                identifier: chain.chainId
             )
         }
 
@@ -100,12 +101,15 @@ final class ChainSelectionPresenter {
                 title: R.string.localizable.chainSelectionAllNetworks(preferredLanguages: selectedLocale.rLanguages),
                 subtitle: nil,
                 icon: nil,
-                isSelected: selectedChainId == nil
+                isSelected: selectedChainId == nil,
+                identifier: nil
             )
             viewModels.insert(allNetworksViewModel, at: 0)
         }
 
-        view?.didReload()
+        DispatchQueue.main.async {
+            self.view?.didReload()
+        }
     }
 }
 

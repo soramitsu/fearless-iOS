@@ -62,8 +62,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int) {
-        guard let storiesView = StoriesViewFactory.createView(with: index) else {
+    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int, chainAsset: ChainAsset) {
+        guard let storiesView = StoriesViewFactory.createView(with: index, chainAsset: chainAsset) else {
             return
         }
 
@@ -146,14 +146,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showNominatorValidators(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         guard let validatorsView = YourValidatorListViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .relaychain
         ) else {
             return
         }
@@ -241,9 +240,9 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        flow: StakingRedeemFlow
+        flow: StakingRedeemConfirmationFlow
     ) {
-        guard let redeemView = StakingRedeemViewFactory.createView(
+        guard let redeemView = StakingRedeemConfirmationViewFactory.createView(
             chainAsset: chainAsset,
             wallet: wallet,
             flow: flow,
@@ -303,9 +302,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value,
               let selectionView = AssetSelectionViewFactory.createView(
                   delegate: delegate,
-                  selectedChain: selectedChainAsset,
+                  type: .normal(chainAsset: selectedChainAsset),
                   selectedMetaAccount: selectedMetaAccount,
-                  assetFilter: stakingFilter
+                  assetFilter: stakingFilter,
+                  assetSelectionType: .staking
               ) else {
             return
         }

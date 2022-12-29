@@ -129,7 +129,9 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil
+                hasPrice: commonData.price != nil,
+                rewardViewTitle: R.string.localizable
+                    .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
             )
         }
     }
@@ -328,7 +330,7 @@ final class StakingStateViewModelFactory {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let balance = convertAmount(
-            commonData.accountInfo?.data.available,
+            commonData.accountInfo?.data.stakingAvailable,
             for: chainAsset,
             defaultValue: 0.0
         )

@@ -11,7 +11,13 @@ final class StakingRewardDestConfirmViewLayout: UIView {
         return view
     }()
 
-    let senderAccountView: DetailsTriangularedView = UIFactory.default.createAccountView()
+    let senderAccountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView()
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
+
     let typeView: TitleValueView = {
         let view = UIFactory.default.createTitleValueView()
         view.borderView.borderType = .none
@@ -95,7 +101,7 @@ final class StakingRewardDestConfirmViewLayout: UIView {
             typeView.valueLabel.text = R.string.localizable
                 .stakingRestakeTitle(preferredLanguages: locale.rLanguages)
 
-        case let .payout(icon, title):
+        case let .payout(icon, title, _):
             typeView.valueLabel.text = R.string.localizable
                 .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
             insertPayoutViewIfNeeded()

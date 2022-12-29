@@ -1,5 +1,6 @@
 import Foundation
 
+// swiftlint:disable: type_name
 final class CustomValidatorListRelaychainViewModelState: CustomValidatorListViewModelState {
     var stateListener: CustomValidatorListModelStateListener?
 
@@ -38,12 +39,20 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
         filteredValidatorList = composeFilteredValidatorList(filter: filter)
     }
 
-    func validatorInfoFlow(validatorIndex: Int) -> ValidatorInfoFlow? {
-        .relaychain(validatorInfo: filteredValidatorList[validatorIndex], address: nil)
+    func validatorInfoFlow(address: String) -> ValidatorInfoFlow? {
+        guard let validator = filteredValidatorList.first(where: { $0.address == address }) else {
+            return nil
+        }
+
+        return .relaychain(validatorInfo: validator, address: nil)
     }
 
     func validatorSearchFlow() -> ValidatorSearchFlow? {
-        .relaychain(validatorList: fullValidatorList, selectedValidatorList: selectedValidatorList.items, delegate: self)
+        .relaychain(
+            validatorList: fullValidatorList,
+            selectedValidatorList: selectedValidatorList.items,
+            delegate: self
+        )
     }
 
     func validatorListFilterFlow() -> ValidatorListFilterFlow? {
@@ -70,6 +79,20 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
                 maxTargets: maxTargets,
                 state: bonding
             )
+        case let .poolExisting(_, _, _, poolId, maxTargets, bonding):
+            return .poolExisting(
+                validatorList: selectedValidatorList.items,
+                poolId: poolId,
+                maxTargets: maxTargets,
+                state: bonding
+            )
+        case let .poolInitiated(_, _, _, poolId, maxTargets, bonding):
+            return .poolInitiated(
+                validatorList: selectedValidatorList.items,
+                poolId: poolId,
+                maxTargets: maxTargets,
+                state: bonding
+            )
         }
     }
 
@@ -83,10 +106,12 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
-    func changeValidatorSelection(at index: Int) {
-        guard var viewModel = viewModel else { return }
-
-        let changedValidator = filteredValidatorList[index]
+    func changeValidatorSelection(address: String) {
+        guard var viewModel = viewModel,
+              let changedValidator = filteredValidatorList.first(where: { $0.address == address })
+        else {
+            return
+        }
 
         guard !changedValidator.blocked else {
             stateListener?.didReceiveError(error: CustomValidatorListFlowError.validatorBlocked)
@@ -101,7 +126,9 @@ final class CustomValidatorListRelaychainViewModelState: CustomValidatorListView
             viewModel.selectedValidatorsCount += 1
         }
 
-        viewModel.cellViewModels[index].isSelected.toggle()
+        if var cellViewModel = viewModel.cellViewModels.first(where: { $0.address == address }) {
+            cellViewModel.isSelected.toggle()
+        }
         viewModel.selectedValidatorsCount = selectedValidatorList.count
         self.viewModel = viewModel
 
@@ -120,8 +147,8 @@ extension CustomValidatorListRelaychainViewModelState: CustomValidatorListUserIn
     }
 
     func remove(validator: SelectedValidatorInfo) {
-        if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
-            changeValidatorSelection(at: displayedIndex)
+        if let displayedValidator = filteredValidatorList.first(where: { $0.address == validator.address }) {
+            changeValidatorSelection(address: displayedValidator.address)
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
             selectedValidatorList.remove(at: selectedIndex)
 

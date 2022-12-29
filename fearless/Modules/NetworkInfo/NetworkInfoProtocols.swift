@@ -28,7 +28,7 @@ protocol NetworkInfoInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error, for url: URL)
 }
 
-protocol NetworkInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting {
+protocol NetworkInfoWireframeProtocol: SheetAlertPresentable, ErrorPresentable, ModalAlertPresenting {
     func close(view: NetworkInfoViewProtocol?)
 }
 

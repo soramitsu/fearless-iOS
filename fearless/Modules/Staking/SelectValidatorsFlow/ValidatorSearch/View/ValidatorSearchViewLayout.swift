@@ -22,9 +22,9 @@ final class ValidatorSearchViewLayout: UIView {
 
     let searchField: UITextField = {
         let view = UITextField()
-        view.tintColor = .white
+        view.tintColor = R.color.colorWhite()
         view.font = .p1Paragraph
-        view.textColor = .white
+        view.textColor = R.color.colorWhite()
         view.clearButtonMode = .whileEditing
         return view
     }()
@@ -32,8 +32,7 @@ final class ValidatorSearchViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
-        tableView.separatorColor = R.color.colorDarkGray()
+        tableView.backgroundColor = R.color.colorBlack19()
         return tableView
     }()
 
@@ -46,6 +45,7 @@ final class ValidatorSearchViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)

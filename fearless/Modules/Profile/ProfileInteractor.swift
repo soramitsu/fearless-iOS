@@ -16,7 +16,9 @@ final class ProfileInteractor {
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
     private let selectedMetaAccount: MetaAccountModel
+    private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
 
+    private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
     }()
@@ -28,13 +30,15 @@ final class ProfileInteractor {
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
-        selectedMetaAccount: MetaAccountModel
+        selectedMetaAccount: MetaAccountModel,
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
         self.repository = repository
         self.operationQueue = operationQueue
         self.selectedMetaAccount = selectedMetaAccount
+        self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
     }
 
     // MARK: - Private methods
@@ -45,16 +49,7 @@ final class ProfileInteractor {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            // TODO: Apply total account value logic instead
-            let genericAddress = try wallet.substrateAccountId.toAddress(
-                using: ChainFormat.substrate(42)
-            )
-
-            let userSettings = UserSettings(
-                userName: wallet.name,
-                details: ""
-            )
-
+            self.wallet = wallet
             presenter?.didReceive(wallet: wallet)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
@@ -64,6 +59,13 @@ final class ProfileInteractor {
     private func provideSelectedCurrency() {
         guard let currentCurrency = currentCurrency else { return }
         presenter?.didRecieve(selectedCurrency: currentCurrency)
+    }
+
+    private func fetchBalances() {
+        walletBalanceSubscriptionAdapter.subscribeWalletsBalances(
+            deliverOn: .main,
+            handler: self
+        )
     }
 }
 
@@ -75,9 +77,13 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
         provideUserSettings()
         provideSelectedCurrency()
+        fetchBalances()
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
+        guard self.wallet?.identifier == wallet.identifier else {
+            return
+        }
         selectedWalletSettings.save(value: wallet)
         DispatchQueue.main.async { [weak self] in
             self?.presenter?.didReceive(wallet: wallet)
@@ -109,5 +115,11 @@ extension ProfileInteractor: EventVisitorProtocol {
 
     func processWalletNameChanged(event: WalletNameChanged) {
         updateWallet(event.wallet)
+    }
+}
+
+extension ProfileInteractor: WalletBalanceSubscriptionHandler {
+    func handle(result: WalletBalancesResult) {
+        presenter?.didReceiveWalletBalances(result)
     }
 }

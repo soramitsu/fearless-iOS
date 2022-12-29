@@ -6,32 +6,27 @@ import SoraKeystore
 
 struct WalletSendConfirmViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
         amount: Decimal,
         tip: Decimal?,
-        transferFinishBlock: WalletTransferFinishBlock?
+        scamInfo: ScamInfo?
     ) -> WalletSendConfirmViewProtocol? {
         guard let interactor = createInteractor(
-            chain: chain,
-            asset: asset,
+            wallet: wallet,
+            chainAsset: chainAsset,
             receiverAddress: receiverAddress
-        ),
-            let selectedMetaAccount = SelectedWalletSettings.shared.value else {
+        ) else {
             return nil
         }
 
         let wireframe = WalletSendConfirmWireframe()
 
         let accountViewModelFactory = AccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
-        let assetInfo = asset.displayInfo(with: chain.icon)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: assetInfo,
-            selectedMetaAccount: selectedMetaAccount
-        )
+        let assetInfo = chainAsset.asset.displayInfo(with: chainAsset.chain.icon)
 
-        let dataValidatingFactory = WalletDataValidatingFactory(presentable: wireframe)
+        let dataValidatingFactory = SendDataValidatingFactory(presentable: wireframe)
 
         let viewModelFactory = WalletSendConfirmViewModelFactory(
             amountFormatterFactory: AssetBalanceFormatterFactory(),
@@ -41,18 +36,16 @@ struct WalletSendConfirmViewFactory {
         let presenter = WalletSendConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            balanceViewModelFactory: balanceViewModelFactory,
             accountViewModelFactory: accountViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             walletSendConfirmViewModelFactory: viewModelFactory,
             logger: Logger.shared,
-            asset: asset,
-            selectedAccount: selectedMetaAccount,
-            chain: chain,
+            chainAsset: chainAsset,
+            wallet: wallet,
             receiverAddress: receiverAddress,
             amount: amount,
             tip: tip,
-            transferFinishBlock: transferFinishBlock
+            scamInfo: scamInfo
         )
 
         let view = WalletSendConfirmViewController(
@@ -68,8 +61,8 @@ struct WalletSendConfirmViewFactory {
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
         receiverAddress: String
     ) -> WalletSendConfirmInteractor? {
         guard let selectedMetaAccount = SelectedWalletSettings.shared.value else {
@@ -78,21 +71,20 @@ struct WalletSendConfirmViewFactory {
 
         let operationManager = OperationManagerFacade.sharedManager
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -100,19 +92,11 @@ struct WalletSendConfirmViewFactory {
         )
 
         let feeProxy = ExtrinsicFeeProxy()
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
-        guard let accountResponse = selectedMetaAccount.fetch(for: chain.accountRequest()) else {
+        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -122,28 +106,23 @@ struct WalletSendConfirmViewFactory {
             metaId: selectedMetaAccount.metaId,
             accountResponse: accountResponse
         )
-
-        let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager,
-            engine: connection
+        let dependencyContainer = SendDepencyContainer(
+            wallet: wallet,
+            operationManager: operationManager
         )
-
         return WalletSendConfirmInteractor(
             selectedMetaAccount: selectedMetaAccount,
             chainAsset: chainAsset,
             receiverAddress: receiverAddress,
-            runtimeService: runtimeService,
             feeProxy: feeProxy,
-            extrinsicService: extrinsicService,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
             signingWrapper: signingWrapper,
-            existentialDepositService: existentialDepositService
+            dependencyContainer: dependencyContainer
         )
     }
 }

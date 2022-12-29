@@ -13,6 +13,7 @@ protocol StakingUnbondConfirmPresenterProtocol: AnyObject {
     func setup()
     func confirm()
     func selectAccount()
+    func didTapBackButton()
 }
 
 protocol StakingUnbondConfirmInteractorInputProtocol: AnyObject {
@@ -25,9 +26,12 @@ protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol StakingUnbondConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
-    StakingErrorPresentable, AddressOptionsPresentable {
-    func complete(from view: StakingUnbondConfirmViewProtocol?)
+protocol StakingUnbondConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
+    StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
+    func complete(
+        on view: ControllerBackedProtocol?,
+        title: String
+    )
 }
 
 protocol StakingUnbondConfirmViewFactoryProtocol {

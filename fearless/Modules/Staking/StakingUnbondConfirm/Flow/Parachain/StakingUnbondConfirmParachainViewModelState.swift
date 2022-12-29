@@ -40,6 +40,10 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         }
     }
 
+    var builderClosureOld: ExtrinsicBuilderClosure? {
+        nil
+    }
+
     var reuseIdentifier: String? {
         guard
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
@@ -117,7 +121,7 @@ extension StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmParac
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

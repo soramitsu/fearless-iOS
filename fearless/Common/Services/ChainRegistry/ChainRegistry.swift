@@ -1,89 +1,77 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 protocol ChainRegistryProtocol: AnyObject {
     var availableChainIds: Set<ChainModel.Id>? { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
-
     func chainsSubscribe(
         _ target: AnyObject,
         runningInQueue: DispatchQueue,
         updateClosure: @escaping ([DataProviderChange<ChainModel>]) -> Void
     )
-
     func chainsUnsubscribe(_ target: AnyObject)
-
     func syncUp()
+    func performHotBoot()
+    func performColdBoot()
+    func subscribeToChians()
 }
 
 final class ChainRegistry {
-    let runtimeProviderPool: RuntimeProviderPoolProtocol
-    let connectionPool: ConnectionPoolProtocol
-    let chainSyncService: ChainSyncServiceProtocol
-    let runtimeSyncService: RuntimeSyncServiceProtocol
-    let commonTypesSyncService: CommonTypesSyncServiceProtocol
-    let chainProvider: StreamableProvider<ChainModel>
-    let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
-    let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
-    let logger: LoggerProtocol?
-    let eventCenter: EventCenterProtocol
+    private let snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol
+    private let runtimeProviderPool: RuntimeProviderPoolProtocol
+    private let connectionPool: ConnectionPoolProtocol
+    private let chainSyncService: ChainSyncServiceProtocol
+    private let runtimeSyncService: RuntimeSyncServiceProtocol
+    private let commonTypesSyncService: CommonTypesSyncServiceProtocol
+    private let chainsTypesSyncService: ChainsTypesSyncServiceProtocol
+    private let chainProvider: StreamableProvider<ChainModel>
+    private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
+    private let processingQueue = DispatchQueue(label: "jp.co.soramitsu.chain.registry")
+    private let logger: LoggerProtocol?
+    private let eventCenter: EventCenterProtocol
+    private let networkIssuesCenter: NetworkIssuesCenterProtocol
 
     private var chains: [ChainModel] = []
+    private var chainsTypesMap: [String: Data]?
 
     private(set) var runtimeVersionSubscriptions: [ChainModel.Id: SpecVersionSubscriptionProtocol] = [:]
 
     private let mutex = NSLock()
+    private lazy var readLock = ReaderWriterLock()
 
     init(
+        snapshotHotBootBuilder: SnapshotHotBootBuilderProtocol,
         runtimeProviderPool: RuntimeProviderPoolProtocol,
         connectionPool: ConnectionPoolProtocol,
         chainSyncService: ChainSyncServiceProtocol,
         runtimeSyncService: RuntimeSyncServiceProtocol,
         commonTypesSyncService: CommonTypesSyncServiceProtocol,
+        chainsTypesSyncService: ChainsTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
+        networkIssuesCenter: NetworkIssuesCenterProtocol,
         logger: LoggerProtocol? = nil,
         eventCenter: EventCenterProtocol
     ) {
+        self.snapshotHotBootBuilder = snapshotHotBootBuilder
         self.runtimeProviderPool = runtimeProviderPool
         self.connectionPool = connectionPool
         self.chainSyncService = chainSyncService
         self.runtimeSyncService = runtimeSyncService
         self.commonTypesSyncService = commonTypesSyncService
+        self.chainsTypesSyncService = chainsTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
+        self.networkIssuesCenter = networkIssuesCenter
         self.logger = logger
         self.eventCenter = eventCenter
+        self.eventCenter.add(observer: self, dispatchIn: .global())
 
         connectionPool.setDelegate(self)
-
-        subscribeToChains()
-    }
-
-    private func subscribeToChains() {
-        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
-            self?.handle(changes: changes)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.logger?.error("Unexpected error chains listener setup: \(error)")
-        }
-
-        let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false,
-            refreshWhenEmpty: false
-        )
-
-        chainProvider.addObserver(
-            self,
-            deliverOn: DispatchQueue.global(qos: .userInitiated),
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
@@ -102,10 +90,10 @@ final class ChainRegistry {
                 switch change {
                 case let .insert(newChain):
                     let connection = try connectionPool.setupConnection(for: newChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: newChain)
+                    let chainTypes = chainsTypesMap?[newChain.chainId]
 
+                    runtimeProviderPool.setupRuntimeProvider(for: newChain, chainTypes: chainTypes)
                     runtimeSyncService.register(chain: newChain, with: connection)
-
                     setupRuntimeVersionSubscription(for: newChain, connection: connection)
 
                     chains.append(newChain)
@@ -113,7 +101,9 @@ final class ChainRegistry {
                     clearRuntimeSubscription(for: updatedChain.chainId)
 
                     let connection = try connectionPool.setupConnection(for: updatedChain)
-                    _ = runtimeProviderPool.setupRuntimeProvider(for: updatedChain)
+                    let chainTypes = chainsTypesMap?[updatedChain.chainId]
+
+                    runtimeProviderPool.setupRuntimeProvider(for: updatedChain, chainTypes: chainTypes)
                     setupRuntimeVersionSubscription(for: updatedChain, connection: connection)
 
                     chains = chains.filter { $0.chainId != updatedChain.chainId }
@@ -155,8 +145,11 @@ final class ChainRegistry {
     private func syncUpServices() {
         chainSyncService.syncUp()
         commonTypesSyncService.syncUp()
+        chainsTypesSyncService.syncUp()
     }
 }
+
+// MARK: - ChainRegistryProtocol
 
 extension ChainRegistry: ChainRegistryProtocol {
     var availableChainIds: Set<ChainModel.Id>? {
@@ -169,14 +162,50 @@ extension ChainRegistry: ChainRegistryProtocol {
         return Set(runtimeVersionSubscriptions.keys)
     }
 
-    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        mutex.lock()
+    func performColdBoot() {
+        subscribeToChians()
+        syncUpServices()
+    }
 
-        defer {
-            mutex.unlock()
+    func performHotBoot() {
+        guard chains.isEmpty else { return }
+        snapshotHotBootBuilder.startHotBoot()
+    }
+
+    func subscribeToChians() {
+        let updateClosure: ([DataProviderChange<ChainModel>]) -> Void = { [weak self] changes in
+            self?.handle(changes: changes)
         }
 
-        return connectionPool.getConnection(for: chainId)
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.logger?.error("Unexpected error chains listener setup: \(error)")
+        }
+
+        let options = StreamableProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false,
+            refreshWhenEmpty: false
+        )
+
+        chainProvider.addObserver(
+            self,
+            deliverOn: DispatchQueue.global(qos: .userInitiated),
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
+        readLock.concurrentlyRead { connectionPool.getConnection(for: chainId) }
+    }
+
+    func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
+        if let connection = readLock.concurrentlyRead({ connectionPool.getConnection(for: chainModel.chainId) }) {
+            return connection
+        } else {
+            return try? connectionPool.setupConnection(for: chainModel)
+        }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
@@ -228,27 +257,50 @@ extension ChainRegistry: ChainRegistryProtocol {
     }
 }
 
+// MARK: - ConnectionPoolDelegate
+
 extension ChainRegistry: ConnectionPoolDelegate {
-    func connectionNeedsReconnect(url: URL) {
+    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State) {
         let failedChain = chains.first { chain in
             chain.nodes.first { node in
                 node.url == url
             } != nil
         }
 
-        guard let failedChain = failedChain, failedChain.selectedNode == nil else {
+        guard let failedChain = failedChain else { return }
+
+        switch state {
+        case let .waitingReconnection(attempt: attempt):
+            if attempt > 1 {
+                connectionNeedsReconnect(for: failedChain, previusUrl: url, state: state)
+            }
+        default:
+            break
+        }
+    }
+
+    func connectionNeedsReconnect(for chain: ChainModel, previusUrl: URL, state: WebSocketEngine.State) {
+        guard chain.selectedNode == nil else {
             return
         }
 
-        let node = failedChain.selectedNode ?? failedChain.nodes.first(where: { $0.url != url })
+        do {
+            _ = try connectionPool.setupConnection(for: chain, ignoredUrl: previusUrl)
 
-        if let newUrl = node?.url {
-            if let connection = getConnection(for: failedChain.chainId) {
-                connection.reconnect(url: newUrl)
-
-                let event = ChainsUpdatedEvent(updatedChains: [failedChain])
-                eventCenter.notify(with: event)
-            }
+            let event = ChainsUpdatedEvent(updatedChains: [chain])
+            eventCenter.notify(with: event)
+        } catch {
+            logger?.error("\(chain.name) error: \(error.localizedDescription)")
+            let reconnectedEvent = ChainReconnectingEvent(chain: chain, state: state)
+            eventCenter.notify(with: reconnectedEvent)
         }
+    }
+}
+
+// MARK: - EventVisitorProtocol
+
+extension ChainRegistry: EventVisitorProtocol {
+    func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted) {
+        chainsTypesMap = event.versioningMap
     }
 }

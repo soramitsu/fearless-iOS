@@ -16,35 +16,28 @@ enum RuntimeSyncServiceError: Error {
 }
 
 final class RuntimeSyncService {
-    struct SyncInfo {
-        let typesURL: URL?
-        let connection: JSONRPCEngine
-    }
-
     struct SyncResult {
         let chainId: ChainModel.Id
-        let typesSyncResult: Result<String, Error>?
-        let metadataSyncResult: Result<Void, Error>?
+        let metadataSyncResult: Result<RuntimeMetadataItem?, Error>?
         let runtimeVersion: RuntimeVersion?
     }
 
     struct RetryAttempt {
         let chainId: ChainModel.Id
-        let shouldSyncTypes: Bool
         let runtimeVersion: RuntimeVersion?
         let attempt: Int
     }
 
-    let repository: AnyDataProviderRepository<RuntimeMetadataItem>
-    let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
-    let dataOperationFactory: DataOperationFactoryProtocol
-    let eventCenter: EventCenterProtocol
-    let retryStrategy: ReconnectionStrategyProtocol
-    let operationQueue: OperationQueue
-    let dataHasher: StorageHasher
-    let logger: LoggerProtocol?
+    private let repository: AnyDataProviderRepository<RuntimeMetadataItem>
+    private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
+    private let dataOperationFactory: DataOperationFactoryProtocol
+    private let eventCenter: EventCenterProtocol
+    private let retryStrategy: ReconnectionStrategyProtocol
+    private let operationQueue: OperationQueue
+    private let dataHasher: StorageHasher
+    private let logger: LoggerProtocol?
 
-    private(set) var knownChains: [ChainModel.Id: SyncInfo] = [:]
+    private(set) var knownChains: [ChainModel.Id: ChainConnection] = [:]
     private(set) var syncingChains: [ChainModel.Id: CompoundOperationWrapper<SyncResult>] = [:]
     private(set) var retryAttempts: [ChainModel.Id: RetryAttempt] = [:]
     private var mutex = NSLock()
@@ -56,7 +49,7 @@ final class RuntimeSyncService {
         dataOperationFactory: DataOperationFactoryProtocol,
         eventCenter: EventCenterProtocol,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
-        maxConcurrentSyncRequests: Int = 8,
+        maxConcurrentSyncRequests: Int = 16,
         dataHasher: StorageHasher = .twox256,
         logger: LoggerProtocol? = nil
     ) {
@@ -76,36 +69,29 @@ final class RuntimeSyncService {
 
     private func performSync(
         for chainId: ChainModel.Id,
-        shouldSyncTypes: Bool,
         newVersion: RuntimeVersion? = nil
     ) {
-        guard let syncInfo = knownChains[chainId] else {
+        guard let connection = knownChains[chainId] else {
             return
         }
-
-        let chainTypesSyncWrapper = shouldSyncTypes ? syncInfo.typesURL.map {
-            createChainTypesSyncOperation(chainId, hasher: dataHasher, url: $0)
-        } : nil
 
         let metadataSyncWrapper = newVersion.map {
             createMetadataSyncOperation(
                 for: chainId,
                 runtimeVersion: $0,
-                connection: syncInfo.connection
+                connection: connection
             )
         }
 
-        if chainTypesSyncWrapper == nil, metadataSyncWrapper == nil {
+        if metadataSyncWrapper == nil {
             return
         }
 
-        let dependencies = (chainTypesSyncWrapper?.allOperations ?? []) +
-            (metadataSyncWrapper?.allOperations ?? [])
+        let dependencies = (metadataSyncWrapper?.allOperations ?? [])
 
         let processingOperation = ClosureOperation<SyncResult> {
             SyncResult(
                 chainId: chainId,
-                typesSyncResult: chainTypesSyncWrapper?.targetOperation.result,
                 metadataSyncResult: metadataSyncWrapper?.targetOperation.result,
                 runtimeVersion: newVersion
             )
@@ -123,7 +109,6 @@ final class RuntimeSyncService {
                 } catch {
                     let result = SyncResult(
                         chainId: chainId,
-                        typesSyncResult: .failure(error),
                         metadataSyncResult: .failure(error),
                         runtimeVersion: newVersion
                     )
@@ -158,14 +143,6 @@ final class RuntimeSyncService {
     }
 
     private func addRetryRequestIfNeeded(for result: SyncResult) {
-        let shouldSyncTypes: Bool
-
-        if case .failure = result.typesSyncResult {
-            shouldSyncTypes = true
-        } else {
-            shouldSyncTypes = false
-        }
-
         let runtimeSyncVersion: RuntimeVersion?
 
         if let version = result.runtimeVersion, case .failure = result.metadataSyncResult {
@@ -174,12 +151,11 @@ final class RuntimeSyncService {
             runtimeSyncVersion = nil
         }
 
-        if shouldSyncTypes || (runtimeSyncVersion != nil) {
+        if runtimeSyncVersion != nil {
             let nextAttempt = retryAttempts[result.chainId].map { $0.attempt + 1 } ?? 1
 
             let retryAttempt = RetryAttempt(
                 chainId: result.chainId,
-                shouldSyncTypes: shouldSyncTypes,
                 runtimeVersion: runtimeSyncVersion,
                 attempt: nextAttempt
             )
@@ -209,57 +185,26 @@ final class RuntimeSyncService {
     }
 
     private func notifyCompletion(for result: SyncResult) {
-        logger?.debug("Did complete sync \(result)")
-
-        if case let .success(fileHash) = result.typesSyncResult {
-            logger?.debug("Did sync chain type: \(result.chainId)")
-
-            let event = RuntimeChainTypesSyncCompleted(chainId: result.chainId, fileHash: fileHash)
-            eventCenter.notify(with: event)
-        }
-
-        if case .success = result.metadataSyncResult, let version = result.runtimeVersion {
+        if
+            case .success = result.metadataSyncResult,
+            let version = result.runtimeVersion,
+            let metadata = try? result.metadataSyncResult?.get() {
             logger?.debug("Did sync metadata: \(result.chainId)")
 
-            let event = RuntimeMetadataSyncCompleted(chainId: result.chainId, version: version)
+            let event = RuntimeMetadataSyncCompleted(
+                chainId: result.chainId,
+                version: version,
+                metadata: metadata
+            )
             eventCenter.notify(with: event)
         }
-    }
-
-    private func createChainTypesSyncOperation(
-        _ chainId: ChainModel.Id,
-        hasher: StorageHasher,
-        url: URL
-    ) -> CompoundOperationWrapper<String> {
-        let remoteFileOperation = dataOperationFactory.fetchData(from: url)
-
-        let fileSaveWrapper = filesOperationFactory.saveChainTypesOperation(for: chainId) {
-            try remoteFileOperation.extractNoCancellableResultData()
-        }
-
-        fileSaveWrapper.addDependency(operations: [remoteFileOperation])
-
-        let mapOperation = ClosureOperation<String> {
-            _ = try fileSaveWrapper.targetOperation.extractNoCancellableResultData()
-            let data = try remoteFileOperation.extractNoCancellableResultData()
-
-            return try hasher.hash(data: data).toHex()
-        }
-
-        mapOperation.addDependency(fileSaveWrapper.targetOperation)
-        mapOperation.addDependency(remoteFileOperation)
-
-        return CompoundOperationWrapper(
-            targetOperation: mapOperation,
-            dependencies: [remoteFileOperation] + fileSaveWrapper.allOperations
-        )
     }
 
     private func createMetadataSyncOperation(
         for chainId: ChainModel.Id,
         runtimeVersion: RuntimeVersion,
         connection: JSONRPCEngine
-    ) -> CompoundOperationWrapper<Void> {
+    ) -> CompoundOperationWrapper<RuntimeMetadataItem?> {
         let localMetadataOperation = repository.fetchOperation(
             by: chainId,
             options: RepositoryFetchOptions()
@@ -284,39 +229,49 @@ final class RuntimeSyncService {
 
         remoteMetadaOperation.addDependency(localMetadataOperation)
 
-        let saveMetadataOperation = repository.saveOperation({
+        let buildRuntimeMetadataOperation = ClosureOperation<RuntimeMetadataItem> {
             let hexMetadata = try remoteMetadaOperation.extractNoCancellableResultData()
             let rawMetadata = try Data(hexString: hexMetadata)
             let metadataItem = RuntimeMetadataItem(
                 chain: chainId,
                 version: runtimeVersion.specVersion,
                 txVersion: runtimeVersion.transactionVersion,
-                metadata: rawMetadata,
-                resolver: nil
+                metadata: rawMetadata
             )
 
+            return metadataItem
+        }
+
+        let saveMetadataOperation = repository.saveOperation({
+            let metadataItem = try buildRuntimeMetadataOperation.extractNoCancellableResultData()
             return [metadataItem]
         }, { [] })
 
-        saveMetadataOperation.addDependency(remoteMetadaOperation)
-
-        let filterOperation = ClosureOperation<Void> {
+        let filterOperation = ClosureOperation<RuntimeMetadataItem?> {
             do {
-                _ = try saveMetadataOperation.extractNoCancellableResultData()
+                let metadataItem = try buildRuntimeMetadataOperation.extractNoCancellableResultData()
+                return metadataItem
             } catch let error as RuntimeSyncServiceError where error == .skipMetadataUnchanged {
-                return
+                return nil
             }
         }
 
-        filterOperation.addDependency(saveMetadataOperation)
+        buildRuntimeMetadataOperation.addDependency(remoteMetadaOperation)
+        saveMetadataOperation.addDependency(buildRuntimeMetadataOperation)
+        filterOperation.addDependency(buildRuntimeMetadataOperation)
 
         return CompoundOperationWrapper(
             targetOperation: filterOperation,
-            dependencies: [localMetadataOperation, remoteMetadaOperation, saveMetadataOperation]
+            dependencies: [
+                localMetadataOperation,
+                remoteMetadaOperation,
+                buildRuntimeMetadataOperation,
+                saveMetadataOperation
+            ]
         )
     }
 
-    func clearOperations(for chainId: ChainModel.Id) {
+    private func clearOperations(for chainId: ChainModel.Id) {
         if let existingOperation = syncingChains[chainId] {
             syncingChains[chainId] = nil
             existingOperation.cancel()
@@ -339,7 +294,6 @@ extension RuntimeSyncService: SchedulerDelegate {
         for requestKeyValue in retryAttempts where syncingChains[requestKeyValue.key] == nil {
             performSync(
                 for: requestKeyValue.key,
-                shouldSyncTypes: requestKeyValue.value.shouldSyncTypes,
                 newVersion: requestKeyValue.value.runtimeVersion
             )
         }
@@ -354,15 +308,15 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
             mutex.unlock()
         }
 
-        guard let syncInfo = knownChains[chain.chainId] else {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
+        guard let knownConnection = knownChains[chain.chainId] else {
+            knownChains[chain.chainId] = connection
             return
         }
 
-        if syncInfo.typesURL != chain.types?.url {
-            knownChains[chain.chainId] = SyncInfo(typesURL: chain.types?.url, connection: connection)
+        if knownConnection.url != connection.url {
+            knownChains[chain.chainId] = connection
 
-            performSync(for: chain.chainId, shouldSyncTypes: true)
+            performSync(for: chain.chainId)
         }
     }
 
@@ -386,7 +340,7 @@ extension RuntimeSyncService: RuntimeSyncServiceProtocol {
 
         clearOperations(for: chainId)
 
-        performSync(for: chainId, shouldSyncTypes: true, newVersion: version)
+        performSync(for: chainId, newVersion: version)
     }
 
     func hasChain(with chainId: ChainModel.Id) -> Bool {

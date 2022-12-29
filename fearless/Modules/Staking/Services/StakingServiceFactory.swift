@@ -11,7 +11,7 @@ protocol StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol
 }
 
@@ -66,7 +66,7 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol {
         guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             throw ChainRegistryError.runtimeMetadaUnavailable
@@ -86,6 +86,10 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 logger: logger
             )
         case .paraChain:
+            guard let collatorOperationFactory = collatorOperationFactory else {
+                throw StakingServiceFactoryError.stakingUnavailable
+            }
+
             return ParachainRewardCalculatorService(
                 chainAsset: chainAsset,
                 assetPrecision: assetPrecision,

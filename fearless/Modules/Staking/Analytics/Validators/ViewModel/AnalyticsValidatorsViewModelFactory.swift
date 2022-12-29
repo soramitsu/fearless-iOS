@@ -3,6 +3,7 @@ import FearlessUtils
 import BigInt
 import IrohaCrypto
 
+// swiftlint:disable function_body_length
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
@@ -202,7 +203,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private func createChartCenterText(
         firstLine: String,
-        firstLineColor: UIColor = R.color.colorAccent()!,
+        firstLineColor: UIColor = R.color.colorPink()!,
         secondLine: String,
         thirdLine: String
     ) -> NSAttributedString {

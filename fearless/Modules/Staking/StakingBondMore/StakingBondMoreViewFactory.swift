@@ -76,6 +76,7 @@ struct StakingBondMoreViewFactory {
         return interactor
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
@@ -93,11 +94,6 @@ struct StakingBondMoreViewFactory {
 
         let operationManager = OperationManagerFacade.sharedManager
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
-        )
-
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
             chainFormat: chainAsset.chain.chainFormat,
@@ -110,19 +106,12 @@ struct StakingBondMoreViewFactory {
         let feeProxy = ExtrinsicFeeProxy()
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let facade = UserDataStorageFacade.shared
@@ -136,7 +125,7 @@ struct StakingBondMoreViewFactory {
         )
 
         let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
             selectedMetaAccount: wallet
         )
 
@@ -160,10 +149,13 @@ struct StakingBondMoreViewFactory {
                 runtimeService: runtimeService,
                 operationManager: operationManager
             )
+            let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,
                 strategy: strategy,
-                viewModelFactory: nil
+                viewModelFactory: viewModelFactory
             )
         case let .parachain(candidate):
             let viewModelState = StakingBondMoreParachainViewModelState(
@@ -184,7 +176,36 @@ struct StakingBondMoreViewFactory {
                 operationManager: operationManager
             )
 
-            let viewModelFactory = StakingBondMoreParachainViewModelFactory(accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)))
+            let viewModelFactory = StakingBondMoreParachainViewModelFactory(
+                accountViewModelFactory:
+                AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
+
+            return StakingBondMoreDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .pool:
+            let viewModelState = StakingBondMorePoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingBondMorePoolStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                output: viewModelState,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                connection: connection,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager
+            )
+            let viewModelFactory = StakingBondMorePoolViewModelFactory(
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
+            )
 
             return StakingBondMoreDependencyContainer(
                 viewModelState: viewModelState,

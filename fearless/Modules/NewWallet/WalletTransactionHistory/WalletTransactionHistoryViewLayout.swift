@@ -1,16 +1,32 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class WalletTransactionHistoryViewLayout: UIView {
     enum Constants {
         static let buttonSize: CGFloat = 40
         static let stripeSize = CGSize(width: 35, height: 2)
         static let stripeTopOffset: CGFloat = 2
+        static let separatorHeight: CGFloat = 1
     }
 
-    let backgroundView = TriangularedBlurView()
+    let backgroundImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.backgroundImage()
+        imageView.alpha = 0
+        return imageView
+    }()
 
-    let stripeIconImageView: UIImageView = {
+    private let containerView = UIView()
+    private let backgroundView: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorWhite4()!
+        view.highlightedFillColor = R.color.colorWhite4()!
+        view.shadowOpacity = 0
+        return view
+    }()
+
+    private let stripeIconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconStripe()
         return imageView
@@ -39,7 +55,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     let headerView = UIView()
 
-    let headerStackView: UIStackView = {
+    private let headerStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 8
@@ -54,6 +70,12 @@ final class WalletTransactionHistoryViewLayout: UIView {
 
     let panIndicatorView = RoundedView()
 
+    private let separatorView: UIView = {
+        let view = UIView()
+        view.backgroundColor = R.color.colorWhite8()
+        return view
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -65,22 +87,35 @@ final class WalletTransactionHistoryViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func setupLayout() {
-        addSubview(backgroundView)
-        addSubview(headerView)
-        addSubview(contentView)
-        addSubview(tableView)
-        addSubview(stripeIconImageView)
+    private func setupLayout() {
+        addSubview(backgroundImageView)
+        backgroundImageView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+
+        addSubview(containerView)
+        containerView.addSubview(backgroundView)
+        containerView.addSubview(headerView)
+        containerView.addSubview(contentView)
+        containerView.addSubview(tableView)
+        containerView.addSubview(stripeIconImageView)
 
         headerView.addSubview(headerStackView)
+        headerView.addSubview(separatorView)
 
         headerStackView.addArrangedSubview(closeButton)
         headerStackView.addArrangedSubview(titleLabel)
         headerStackView.addArrangedSubview(filterButton)
 
+        containerView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.trailing.equalToSuperview()
+        }
+
         headerStackView.snp.makeConstraints { make in
-            make.leading.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.trailing.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.bottom.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         stripeIconImageView.snp.makeConstraints { make in
@@ -90,20 +125,26 @@ final class WalletTransactionHistoryViewLayout: UIView {
         }
 
         backgroundView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+            make.edges.equalToSuperview().offset(UIConstants.horizontalInset)
         }
 
         headerView.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview()
         }
 
         contentView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview()
             make.top.equalTo(headerView.snp.bottom)
         }
 
         tableView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview()
             make.top.equalTo(headerView.snp.bottom)
         }
 
@@ -114,19 +155,37 @@ final class WalletTransactionHistoryViewLayout: UIView {
         filterButton.snp.makeConstraints { make in
             make.size.equalTo(Constants.buttonSize)
         }
+
+        separatorView.snp.makeConstraints { make in
+            make.height.equalTo(Constants.separatorHeight)
+            make.leading.trailing.equalTo(headerStackView)
+            make.bottom.equalToSuperview()
+        }
     }
 
     func setHeaderHeight(_ height: CGFloat) {
         headerView.snp.remakeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview()
             make.height.equalTo(height)
         }
     }
 
     func setHeaderTopOffset(_ offset: CGFloat) {
         headerView.snp.remakeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalToSuperview().offset(offset)
+        }
+    }
+
+    func update(tableViewOffset: CGFloat) {
+        backgroundView.snp.remakeConstraints { make in
+            make.leading.equalToSuperview().offset(tableViewOffset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().offset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
     }
 }

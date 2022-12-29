@@ -1,6 +1,10 @@
 import Foundation
 import FearlessUtils
 
+enum ConnectionPoolError: Error {
+    case onlyOneNode
+}
+
 protocol ConnectionPoolProtocol {
     func setupConnection(for chain: ChainModel) throws -> ChainConnection
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection
@@ -9,16 +13,18 @@ protocol ConnectionPoolProtocol {
 }
 
 protocol ConnectionPoolDelegate: AnyObject {
-    func connectionNeedsReconnect(url: URL)
+    func webSocketDidChangeState(url: URL, state: WebSocketEngine.State)
 }
 
-class ConnectionPool {
-    let connectionFactory: ConnectionFactoryProtocol
-    weak var delegate: ConnectionPoolDelegate?
+final class ConnectionPool {
+    private let connectionFactory: ConnectionFactoryProtocol
+    private weak var delegate: ConnectionPoolDelegate?
 
-    private var mutex = NSLock()
+    private let mutex = NSLock()
+    private lazy var readLock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
+    private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
         connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
@@ -39,16 +45,27 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        let node = chain.selectedNode ?? chain.nodes.first(where: { $0.url != ignoredUrl })
-
-        guard let url = node?.url else {
-            throw JSONRPCEngineError.unknownError
-        }
-
         mutex.lock()
 
         defer {
             mutex.unlock()
+        }
+
+        if ignoredUrl == nil,
+           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection,
+           connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
+            return connection
+        }
+
+        var chainFaledUrls = failedUrls[chain.chainId].or([])
+        let node = chain.selectedNode ?? chain.nodes.first(where: {
+            ($0.url != ignoredUrl) && !chainFaledUrls.contains($0.url)
+        })
+        chainFaledUrls.insert(ignoredUrl)
+        failedUrls[chain.chainId] = chainFaledUrls
+
+        guard let url = node?.url else {
+            throw ConnectionPoolError.onlyOneNode
         }
 
         clearUnusedConnections()
@@ -56,12 +73,17 @@ extension ConnectionPool: ConnectionPoolProtocol {
         if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
             if connection.url == url {
                 return connection
-            } else {
-                connectionsByChainIds[chain.chainId] = nil
+            } else if ignoredUrl != nil {
+                connection.reconnect(url: url)
+                return connection
             }
         }
 
-        let connection = connectionFactory.createConnection(for: url, delegate: self)
+        let connection = connectionFactory.createConnection(
+            connectionName: chain.name,
+            for: url,
+            delegate: self
+        )
         let wrapper = WeakWrapper(target: connection)
 
         connectionsByChainIds[chain.chainId] = wrapper
@@ -70,32 +92,20 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        return connectionsByChainIds[chainId]?.target as? ChainConnection
+        readLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
     }
 }
 
 extension ConnectionPool: WebSocketEngineDelegate {
-    func webSocketDidChangeState(engine: WebSocketEngine, from _: WebSocketEngine.State, to newState: WebSocketEngine.State) {
+    func webSocketDidChangeState(
+        engine: WebSocketEngine,
+        from _: WebSocketEngine.State,
+        to newState: WebSocketEngine.State
+    ) {
         guard let previousUrl = engine.url else {
             return
         }
 
-        switch newState {
-        case let .connecting(attempt):
-            if attempt > 1 {
-                // temporary disable autobalance , maybe this causing crashes
-//                delegate?.connectionNeedsReconnect(url: previousUrl)
-            }
-        case .connected:
-            break
-        default:
-            break
-        }
+        delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
     }
 }

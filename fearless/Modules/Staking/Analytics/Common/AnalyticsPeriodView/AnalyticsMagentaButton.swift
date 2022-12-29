@@ -30,12 +30,12 @@ final class AnalyticsMagentaButton<T: AnalyticsMagentaButtonModel>: RoundedButto
         roundedBackgroundView?.cornerRadius = 30
         roundedBackgroundView?.shadowOpacity = 0.0
         roundedBackgroundView?.fillColor = .clear
-        roundedBackgroundView?.highlightedFillColor = R.color.colorAccent()!
+        roundedBackgroundView?.highlightedFillColor = R.color.colorPink()!
 
         contentInsets = UIEdgeInsets(top: 5.5, left: 12, bottom: 5.5, right: 12)
 
         imageWithTitleView?.titleColor = R.color.colorTransparentText()
-        imageWithTitleView?.highlightedTitleColor = .white
+        imageWithTitleView?.highlightedTitleColor = R.color.colorWhite()
         imageWithTitleView?.titleFont = .capsTitle
     }
 }

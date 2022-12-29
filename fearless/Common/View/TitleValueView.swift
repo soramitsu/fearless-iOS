@@ -2,6 +2,10 @@ import UIKit
 import SoraUI
 
 final class TitleValueView: UIView {
+    private enum Constants {
+        static let valueImageViewSize = CGSize(width: 6, height: 12)
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -13,8 +17,11 @@ final class TitleValueView: UIView {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = UIFont.p1Paragraph
+        label.textAlignment = .right
         return label
     }()
+
+    let valueImageView = UIImageView()
 
     let borderView: BorderedContainerView = {
         let view = BorderedContainerView()
@@ -25,15 +32,41 @@ final class TitleValueView: UIView {
         return view
     }()
 
+    let activityIndicator: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.hidesWhenStopped = true
+        view.style = .white
+        return view
+    }()
+
+    var equalsLabelsWidth: Bool = false {
+        didSet {
+            if equalsLabelsWidth {
+                valueLabel.snp.makeConstraints { make in
+                    make.width.equalTo(titleLabel.snp.width)
+                }
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
-
         setupLayout()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func bind(viewModel: String?) {
+        if viewModel != nil {
+            activityIndicator.stopAnimating()
+        } else {
+            activityIndicator.startAnimating()
+        }
+
+        valueLabel.text = viewModel
     }
 
     private func setupLayout() {
@@ -44,13 +77,26 @@ final class TitleValueView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+            make.leading.top.bottom.equalToSuperview()
         }
 
-        addSubview(valueLabel)
-        valueLabel.snp.makeConstraints { make in
-            make.trailing.centerY.equalToSuperview()
+        let valueStackView = UIFactory.default.createHorizontalStackView(spacing: 5)
+        valueStackView.addArrangedSubview(valueLabel)
+        valueStackView.addArrangedSubview(valueImageView)
+        addSubview(valueStackView)
+        valueStackView.snp.makeConstraints { make in
+            make.trailing.top.bottom.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+        }
+
+        valueImageView.snp.makeConstraints { make in
+            make.size.equalTo(Constants.valueImageViewSize)
+        }
+
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(valueStackView.snp.trailing)
         }
     }
 }

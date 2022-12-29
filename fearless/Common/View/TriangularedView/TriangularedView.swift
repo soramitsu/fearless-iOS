@@ -45,25 +45,40 @@ open class TriangularedView: ShadowShapeView {
         if cornerCut.contains(.topLeft) {
             bezierPath.move(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
         } else {
-            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
+            bezierPath.move(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY),
+                controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.minY)
+            )
         }
 
-        bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY))
+        bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.minY))
+        bezierPath.addQuadCurve(
+            to: CGPoint(x: layerBounds.maxX, y: layerBounds.minY + sideLength),
+            controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.minY)
+        )
 
         if cornerCut.contains(.bottomRight) {
             bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - sideLength))
             bezierPath.addLine(to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.maxY))
         } else {
-            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY - sideLength))
+            bezierPath.addQuadCurve(
+                to: CGPoint(x: layerBounds.maxX - sideLength, y: layerBounds.maxY),
+                controlPoint: CGPoint(x: layerBounds.maxX, y: layerBounds.maxY)
+            )
         }
 
-        bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY))
-
+        bezierPath.addLine(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.maxY))
+        bezierPath.addQuadCurve(
+            to: CGPoint(x: layerBounds.minX, y: layerBounds.maxY - sideLength),
+            controlPoint: CGPoint(x: layerBounds.minX, y: layerBounds.maxY)
+        )
         if cornerCut.contains(.topLeft) {
             bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
             bezierPath.addLine(to: CGPoint(x: layerBounds.minX + sideLength, y: layerBounds.minY))
         } else {
-            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY))
+            bezierPath.addLine(to: CGPoint(x: layerBounds.minX, y: layerBounds.minY + sideLength))
         }
 
         return bezierPath

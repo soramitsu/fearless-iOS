@@ -21,7 +21,7 @@ protocol SelectedValidatorListPresenterProtocol: AnyObject {
     func dismiss()
 }
 
-protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol SelectedValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func present(
         flow: ValidatorInfoFlow,
         chainAsset: ChainAsset,

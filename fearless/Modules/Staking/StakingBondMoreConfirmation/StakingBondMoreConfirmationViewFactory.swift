@@ -69,14 +69,21 @@ struct StakingBondMoreConfirmViewFactory {
         switch flow {
         case .relaychain:
             confirmationViewModelFactory = StakingBondMoreConfirmRelaychainViewModelFactory(
-                asset: chainAsset.asset,
-                chain: chainAsset.chain,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                chainAsset: chainAsset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
             )
         case .parachain:
             confirmationViewModelFactory = StakingBondMoreConfirmParachainViewModelFactory(
                 chainAsset: chainAsset,
-                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
+            )
+        case .pool:
+            confirmationViewModelFactory = StakingBondMoreConfirmPoolViewModelFactory(
+                chainAsset: chainAsset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
             )
         }
 
@@ -110,6 +117,7 @@ struct StakingBondMoreConfirmViewFactory {
         )
     }
 
+    // swiftlint:disable function_body_length
     private static func createContainer(
         flow: StakingBondMoreConfirmationFlow,
         chainAsset: ChainAsset,
@@ -148,9 +156,8 @@ struct StakingBondMoreConfirmViewFactory {
             logger: Logger.shared
         )
         let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
             operationManager: operationManager,
+            chainRegistry: chainRegistry,
             logger: logger
         )
 
@@ -214,6 +221,34 @@ struct StakingBondMoreConfirmViewFactory {
             )
 
             let strategy = StakingBondMoreConfirmationParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                connection: connection,
+                keystore: keystore,
+                signingWrapper: signingWrapper,
+                output: viewModelState,
+                eventCenter: EventCenter.shared,
+                logger: Logger.shared
+            )
+
+            return StakingBondMoreConfirmationDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy
+            )
+        case let .pool(amount):
+            let viewModelState = StakingBondMoreConfirmationPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                amount: amount,
+                dataValidatingFactory: dataValidatingFactory
+            )
+
+            let strategy = StakingBondMoreConfirmationPoolStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
                 chainAsset: chainAsset,
                 wallet: wallet,

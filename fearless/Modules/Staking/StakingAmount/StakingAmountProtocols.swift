@@ -40,7 +40,7 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(calculatorError: Error)
 }
 
-protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,
+protocol StakingAmountWireframeProtocol: SheetAlertPresentable, ErrorPresentable, WebPresentable,
     StakingErrorPresentable, AddressOptionsPresentable {
     func presentAccountSelection(
         _ accounts: [ChainAccountResponse],

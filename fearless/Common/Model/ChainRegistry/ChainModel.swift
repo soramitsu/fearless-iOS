@@ -91,6 +91,10 @@ class ChainModel: Codable {
         name.lowercased() == "westend"
     }
 
+    var isSora: Bool {
+        name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
+    }
+
     var hasStakingRewardHistory: Bool {
         isPolkadotOrKusama || isWestend
     }
@@ -193,9 +197,9 @@ extension ChainModel: Hashable {
             && lhs.icon == rhs.icon
             && lhs.name == rhs.name
             && lhs.addressPrefix == rhs.addressPrefix
-            && lhs.selectedNode == rhs.selectedNode
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
+            && lhs.selectedNode == rhs.selectedNode
     }
 
     func hash(into hasher: inout Hasher) {
@@ -213,6 +217,7 @@ enum ChainOptions: String, Codable {
     case crowdloans
     case orml
     case tipRequired
+    case poolStaking
 
     case unsupported
 

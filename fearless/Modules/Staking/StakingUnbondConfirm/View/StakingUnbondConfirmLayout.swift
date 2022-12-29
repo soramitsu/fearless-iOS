@@ -5,31 +5,92 @@ final class StakingUnbondConfirmLayout: UIView {
         static let spacingBetweenHints: CGFloat = 9
     }
 
-    let stackView: UIStackView = {
-        let view = UIStackView()
-        view.isLayoutMarginsRelativeArrangement = true
-        view.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
-        view.axis = .vertical
-        view.alignment = .center
-        view.distribution = .fill
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.set(.push)
+        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
+    let contentView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.spacing = UIConstants.bigOffset
+        view.stackView.alignment = .fill
         return view
     }()
 
-    lazy var collatorView: DetailsTriangularedView = {
-        let view = UIFactory.default.createAccountView(for: .options, filled: true)
-        view.isHidden = true
+    let stakeAmountView = StakeAmountView()
+
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    let infoBackground: TriangularedView = {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
+        view.shadowOpacity = 0.0
+
         return view
     }()
 
-    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
-
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
-        view.isUserInteractionEnabled = false
+    let collatorView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
         return view
     }()
 
-    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
+    let accountView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
+    let amountView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
+    let feeView: TitleMultiValueView = {
+        let view = TitleMultiValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
+    let infoStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
 
     private(set) var hintViews: [UIView] = []
 
@@ -44,7 +105,7 @@ final class StakingUnbondConfirmLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = R.color.colorBlack19()!
 
         setupLayout()
 
@@ -58,34 +119,24 @@ final class StakingUnbondConfirmLayout: UIView {
 
     func bind(confirmationViewModel: StakingUnbondConfirmViewModel) {
         if let senderName = confirmationViewModel.senderName {
-            accountView.subtitleLabel?.lineBreakMode = .byTruncatingTail
-            accountView.subtitle = senderName
-        } else {
-            accountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
-            accountView.subtitle = confirmationViewModel.senderAddress
+            accountView.valueTop.lineBreakMode = .byTruncatingTail
+            accountView.valueTop.text = senderName
         }
+
+        accountView.valueBottom.text = confirmationViewModel.senderAddress
 
         if let collatorName = confirmationViewModel.collatorName {
             collatorView.isHidden = false
-            collatorView.subtitle = collatorName
-            let iconSize = 2.0 * collatorView.iconRadius
-            collatorView.iconImage = confirmationViewModel.collatorIcon?.imageWithFillColor(
-                R.color.colorWhite() ?? .white,
-                size: CGSize(width: iconSize, height: iconSize),
-                contentScale: UIScreen.main.scale
-            )
+            collatorView.valueTop.text = collatorName
         } else {
             collatorView.isHidden = true
         }
 
-        let iconSize = 2.0 * accountView.iconRadius
-        accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
-            R.color.colorWhite() ?? .white,
-            size: CGSize(width: iconSize, height: iconSize),
-            contentScale: UIScreen.main.scale
-        )
+        if let stakedViewModel = confirmationViewModel.stakeAmountViewModel?.value(for: locale) {
+            stakeAmountView.bind(viewModel: stakedViewModel)
+        }
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.valueTop.text = confirmationViewModel.amountString.value(for: locale)
 
         apply(hints: confirmationViewModel.hints.value(for: locale))
 
@@ -93,25 +144,12 @@ final class StakingUnbondConfirmLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
+        feeView.bind(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = assetViewModel.symbol.uppercased()
-
+        amountView.valueBottom.text = assetViewModel.price
         setNeedsLayout()
     }
 
@@ -128,65 +166,90 @@ final class StakingUnbondConfirmLayout: UIView {
 
         for (index, view) in hintViews.enumerated() {
             if index > 0 {
-                stackView.insertArranged(view: view, after: hintViews[index - 1])
+                contentView.stackView.insertArranged(view: view, after: hintViews[index - 1])
             } else {
-                stackView.insertArranged(view: view, after: amountView)
+                contentView.stackView.insertArranged(view: view, after: infoBackground)
             }
 
             view.snp.makeConstraints { make in
                 make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             }
 
-            stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)
+            contentView.stackView.setCustomSpacing(Constants.spacingBetweenHints, after: view)
         }
     }
 
     private func applyLocalization() {
-        accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
+        accountView.titleLabel.text = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
-        collatorView.title = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
+        collatorView.titleLabel.text = R.string.localizable.parachainStakingCollator(preferredLanguages: locale.rLanguages)
 
-        amountView.title = R.string.localizable
+        amountView.titleLabel.text = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         networkFeeFooterView.locale = locale
 
+        feeView.titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
+
+        navigationBar.setTitle(R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages))
+
         setNeedsLayout()
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
+    }
+
     private func setupLayout() {
-        addSubview(stackView)
-        stackView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
+        addSubview(navigationBar)
+        addSubview(contentView)
+
+        contentView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        stackView.addArrangedSubview(collatorView)
-        collatorView.snp.makeConstraints { make in
-            make.width.equalTo(stackView)
-            make.height.equalTo(UIConstants.actionHeight)
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
         }
-        stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
 
-        stackView.addArrangedSubview(accountView)
+        contentView.stackView.addArrangedSubview(stakeAmountView)
+        contentView.stackView.addArrangedSubview(infoBackground)
+
+        infoBackground.addSubview(infoStackView)
+        infoStackView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.accessoryItemsSpacing)
+            make.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
+            make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        infoStackView.addArrangedSubview(collatorView)
+        infoStackView.addArrangedSubview(accountView)
+        infoStackView.addArrangedSubview(amountView)
+        infoStackView.addArrangedSubview(feeView)
+
         accountView.snp.makeConstraints { make in
-            make.width.equalTo(stackView)
-            make.height.equalTo(UIConstants.actionHeight)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
-        stackView.setCustomSpacing(UIConstants.bigOffset, after: accountView)
-        stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
-            make.width.equalTo(stackView)
-            make.height.equalTo(UIConstants.amountViewHeight)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
         }
 
-        stackView.setCustomSpacing(UIConstants.bigOffset, after: amountView)
+        feeView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
 
         addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
+            make.top.equalTo(contentView.snp.bottom)
         }
     }
 }

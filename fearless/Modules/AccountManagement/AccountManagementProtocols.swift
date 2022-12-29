@@ -39,7 +39,7 @@ protocol AccountManagementInteractorOutputProtocol: EventVisitorProtocol {
     func didReceive(error: Error)
 }
 
-protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AccountManagementWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func showAccountDetails(
         from view: AccountManagementViewProtocol?,
         metaAccount: MetaAccountModel

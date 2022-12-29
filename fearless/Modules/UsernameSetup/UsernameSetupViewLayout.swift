@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class UsernameSetupViewLayout: UIView {
     private enum Constants {
@@ -72,9 +73,11 @@ final class UsernameSetupViewLayout: UIView {
 
     let nextButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
+
+    var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -136,7 +139,7 @@ private extension UsernameSetupViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
-            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
         }
     }
 
