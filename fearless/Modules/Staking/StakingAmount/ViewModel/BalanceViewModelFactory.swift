@@ -103,7 +103,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func createBalanceInputViewModel(
         _ amount: Decimal?
     ) -> LocalizableResource<AmountInputViewModelProtocol> {
-        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAssetInfo)
+        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAssetInfo, maximumFractionDigits: 6)
         let symbol = targetAssetInfo.symbol
 
         let currentLimit = limit

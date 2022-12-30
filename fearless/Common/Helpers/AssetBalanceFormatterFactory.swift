@@ -6,6 +6,11 @@ protocol AssetBalanceFormatterFactoryProtocol {
         for info: AssetBalanceDisplayInfo
     ) -> LocalizableResource<NumberFormatter>
 
+    func createInputFormatter(
+        for info: AssetBalanceDisplayInfo,
+        maximumFractionDigits: Int
+    ) -> LocalizableResource<NumberFormatter>
+
     func createDisplayFormatter(
         for info: AssetBalanceDisplayInfo
     ) -> LocalizableResource<LocalizableDecimalFormatting>
@@ -105,6 +110,15 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
     ) -> LocalizableResource<NumberFormatter> {
         let formatter = NumberFormatter.amount
         formatter.maximumFractionDigits = Int(info.assetPrecision)
+        return formatter.localizableResource()
+    }
+
+    func createInputFormatter(
+        for _: AssetBalanceDisplayInfo,
+        maximumFractionDigits: Int
+    ) -> LocalizableResource<NumberFormatter> {
+        let formatter = NumberFormatter.amount
+        formatter.maximumFractionDigits = maximumFractionDigits
         return formatter.localizableResource()
     }
 

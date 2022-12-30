@@ -228,11 +228,22 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable,
-            .soraAsset:
-            return ormlAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+            .stable:
+            return ormlAssetTransfer(
+                to: receiver,
+                amount: amount,
+                currencyId: chainAsset.currencyId,
+                path: .ormlAssetTransfer
+            )
         case .equilibrium:
             return equilibriumAssetTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
+        case .soraAsset:
+            return ormlAssetTransfer(
+                to: receiver,
+                amount: amount,
+                currencyId: chainAsset.currencyId,
+                path: .soraAssetTransfer
+            )
         }
     }
 
@@ -589,8 +600,8 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let filterMode = FilterMode(rawValue: filter) ?? .disabled
         let args = SwapCall(
             dexId: dexId,
-            inputAssetId: PolkaswapAssetId(wrappedValue: asset),
-            outputAssetId: PolkaswapAssetId(wrappedValue: targetAsset),
+            inputAssetId: SoraAssetId(wrappedValue: asset),
+            outputAssetId: SoraAssetId(wrappedValue: targetAsset),
             amount: amountCall,
             liquiditySourceType: type,
             filterMode: FilterModeType(
@@ -624,10 +635,10 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private func ormlAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: CurrencyId?,
+        path: SubstrateCallPath
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
-        let path: SubstrateCallPath = .ormlAssetTransfer
         return RuntimeCall(
             moduleName: path.moduleName,
             callName: path.callName,

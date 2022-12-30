@@ -37,6 +37,7 @@
         <attribute name="typesOverrideCommon" optional="YES" attributeType="Boolean" usesScalarValueType="NO"/>
         <relationship name="assets" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDChainAsset" inverseName="chain" inverseEntity="CDChainAsset"/>
         <relationship name="customNodes" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainNode"/>
+        <relationship name="explorers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="CDExternalApi" inverseName="chain" inverseEntity="CDExternalApi"/>
         <relationship name="nodes" optional="YES" toMany="YES" minCount="1" deletionRule="Cascade" destinationEntity="CDChainNode" inverseName="chain" inverseEntity="CDChainNode"/>
         <relationship name="selectedNode" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChainNode"/>
         <uniquenessConstraints>
@@ -81,6 +82,12 @@
         <attribute name="peerName" optional="YES" attributeType="String"/>
         <attribute name="targetAddress" optional="YES" attributeType="String"/>
         <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CDExternalApi" representedClassName="CDExternalApi" syncable="YES" codeGenerationType="class">
+        <attribute name="type" optional="YES" attributeType="String"/>
+        <attribute name="types" optional="YES" attributeType="Transformable"/>
+        <attribute name="url" optional="YES" attributeType="String"/>
+        <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="explorers" inverseEntity="CDChain"/>
     </entity>
     <entity name="CDPhishingItem" representedClassName="CDPhishingItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>

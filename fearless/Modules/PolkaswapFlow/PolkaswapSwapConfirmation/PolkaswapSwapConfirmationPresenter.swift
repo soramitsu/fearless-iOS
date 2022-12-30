@@ -63,7 +63,7 @@ extension PolkaswapSwapConfirmationPresenter: PolkaswapSwapConfirmationInteracto
 
         switch extrinsicResult {
         case let .success(hash):
-            router.complete(on: view, title: hash)
+            router.complete(on: view, title: hash, chainAsset: params.soraChinAsset)
         case let .failure(error):
             guard let view = view else {
                 return

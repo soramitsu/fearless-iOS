@@ -65,8 +65,8 @@ class SwapAmount: Codable {
 
 struct SwapCall: Codable {
     let dexId: String
-    var inputAssetId: PolkaswapAssetId
-    var outputAssetId: PolkaswapAssetId
+    var inputAssetId: SoraAssetId
+    var outputAssetId: SoraAssetId
 
     var amount: [SwapVariant: SwapAmount]
     let liquiditySourceType: [[String?]] // TBD liquiditySourceType.codable
@@ -115,7 +115,7 @@ struct FilterModeType: Codable {
     }
 }
 
-struct PolkaswapAssetId: Codable {
+struct SoraAssetId: Codable {
     @ArrayCodable var value: String
 
     init(wrappedValue: String) {

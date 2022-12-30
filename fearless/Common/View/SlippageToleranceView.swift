@@ -87,7 +87,8 @@ final class SlippageToleranceView: UIView {
         hStackView.alignment = .center
         backgroundView.addSubview(hStackView)
         hStackView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.top.bottom.equalToSuperview()
         }
 
         hStackView.addArrangedSubview(attensionImageView)

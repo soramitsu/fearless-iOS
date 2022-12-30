@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import IrohaCrypto
+import FearlessUtils
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?

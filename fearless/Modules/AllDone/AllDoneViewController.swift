@@ -43,12 +43,22 @@ final class AllDoneViewController: UIViewController, ViewHolder {
         rootView.copyOnTap = { [weak self] in
             self?.output.didCopyTapped()
         }
+        rootView.subscanButton.addTarget(self, action: #selector(handleSubscanTapped), for: .touchUpInside)
+        rootView.shareButton.addTarget(self, action: #selector(handleShareTapped), for: .touchUpInside)
     }
 
     // MARK: - Private actions
 
     @objc private func dismissSelf() {
         output.dismiss()
+    }
+
+    @objc private func handleSubscanTapped() {
+        output.subscanButtonDidTapped()
+    }
+
+    @objc private func handleShareTapped() {
+        output.shareButtonDidTapped()
     }
 }
 
@@ -57,6 +67,10 @@ final class AllDoneViewController: UIViewController, ViewHolder {
 extension AllDoneViewController: AllDoneViewInput {
     func didReceive(hashString: String) {
         rootView.bind(hashString)
+    }
+
+    func didReceive(explorer: ChainModel.ExternalApiExplorer?) {
+        rootView.subscanButton.isHidden = explorer == nil
     }
 }
 

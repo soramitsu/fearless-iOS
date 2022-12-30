@@ -96,6 +96,7 @@ protocol UIFactoryProtocol {
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
+    func createDisabledButton() -> TriangularedButton
 }
 
 extension UIFactoryProtocol {
@@ -145,6 +146,12 @@ final class UIFactory: UIFactoryProtocol {
     func createDestructiveButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyDestructiveStyle()
+        return button
+    }
+
+    func createDisabledButton() -> TriangularedButton {
+        let button = TriangularedButton()
+        button.applyDisabledStyle()
         return button
     }
 
