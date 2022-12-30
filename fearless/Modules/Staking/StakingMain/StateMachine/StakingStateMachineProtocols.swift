@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 
 protocol StakingStateVisitorProtocol {
-    func visit(state: InitialStakingState)
+    func visit(state: InitialRelaychainStakingState)
     func visit(state: NoStashState)
     func visit(state: StashState)
     func visit(state: PendingBondedState)
@@ -11,6 +11,7 @@ protocol StakingStateVisitorProtocol {
     func visit(state: NominatorState)
     func visit(state: PendingValidatorState)
     func visit(state: ValidatorState)
+    func visit(state: ParachainState)
 }
 
 protocol StakingStateProtocol {
@@ -36,6 +37,12 @@ protocol StakingStateProtocol {
     func process(maxNominatorsCount: UInt32?)
     func process(eraCountdown: EraCountdown)
     func process(subqueryRewards: ([SubqueryRewardItemData]?, AnalyticsPeriod))
+    func process(delegationInfos: [ParachainStakingDelegationInfo]?)
+    func process(scheduledRequests: [AccountAddress: [ParachainStakingScheduledRequest]]?)
+    func process(bottomDelegations: [AccountAddress: ParachainStakingDelegations]?)
+    func process(topDelegations: [AccountAddress: ParachainStakingDelegations]?)
+    func process(roundInfo: ParachainStakingRoundInfo?)
+    func process(currentBlock: UInt32?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

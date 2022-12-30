@@ -8,8 +8,7 @@ final class WalletTransactionHistoryInteractor {
     let dataProviderFactory: HistoryDataProviderFactoryProtocol
     let logger: LoggerProtocol?
     var defaultFilter: WalletHistoryRequest
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     private(set) var selectedFilter: WalletHistoryRequest
     var filters: [FilterSet]
@@ -33,8 +32,6 @@ final class WalletTransactionHistoryInteractor {
         filters: [FilterSet],
         eventCenter: EventCenterProtocol
     ) {
-        self.chain = chain
-        self.asset = asset
         self.selectedAccount = selectedAccount
         self.dataProviderFactory = dataProviderFactory
         self.historyService = historyService
@@ -44,19 +41,22 @@ final class WalletTransactionHistoryInteractor {
         self.transactionsPerPage = transactionsPerPage
         self.filters = filters
         self.eventCenter = eventCenter
+        chainAsset = ChainAsset(chain: chain, asset: asset)
     }
 
     private func loadTransactions(for pagination: Pagination) {
-        guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+        guard let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
-        let filterValues: [WalletTransactionHistoryFilter] = filters.compactMap { $0.items as? [WalletTransactionHistoryFilter] }.reduce([], +)
+        let filterValues: [WalletTransactionHistoryFilter] = filters.compactMap {
+            $0.items as? [WalletTransactionHistoryFilter]
+        }.reduce([], +)
 
         historyService.fetchTransactionHistory(
             for: address,
-            asset: asset,
-            chain: chain,
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
             filters: filterValues,
             pagination: pagination,
             runCompletionIn: .main
@@ -78,14 +78,18 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
-        guard let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() else {
+        guard
+            let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
+            case .normal = chainAsset.chainAssetType
+        else {
+            handleDataProvider(transactionData: nil)
             return
         }
 
         dataProvider = try? dataProviderFactory.createDataProvider(
             for: address,
-            asset: asset,
-            chain: chain,
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
             targetIdentifier: "wallet.transaction.history.\(address)",
             using: .main
         )

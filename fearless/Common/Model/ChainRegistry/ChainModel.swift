@@ -79,8 +79,8 @@ class ChainModel: Codable {
         options?.contains(.testnet) ?? false
     }
 
-    var isOrml: Bool {
-        options?.contains(.orml) ?? false
+    var isTipRequired: Bool {
+        options?.contains(.tipRequired) ?? false
     }
 
     var isPolkadotOrKusama: Bool {
@@ -89,6 +89,10 @@ class ChainModel: Codable {
 
     var isWestend: Bool {
         name.lowercased() == "westend"
+    }
+
+    var isSora: Bool {
+        name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
     }
 
     var hasStakingRewardHistory: Bool {
@@ -115,25 +119,11 @@ class ChainModel: Codable {
         }
     }
 
-    var tokenSymbol: TokenSymbol? {
-        guard isOrml else {
-            return nil
-        }
-
-        guard let assetName = assets.first?.assetId else {
-            return nil
-        }
-
-        return TokenSymbol(rawValue: assetName)
-    }
-
-    var currencyId: CurrencyId? {
-        CurrencyId.token(symbol: tokenSymbol)
-    }
-
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
+        case .moonbeam: return 4
+        case .moonriver, .moonbaseAlpha: return 12
         case .polkadot: return 1
         case .kusama, .westend, .rococo: return 4
         default: return 1 // We have staking only for above chains
@@ -142,6 +132,22 @@ class ChainModel: Codable {
 
     var emptyURL: URL {
         URL(string: "")!
+    }
+
+    var accountIdLenght: Int {
+        isEthereumBased ? EthereumConstants.accountIdLength : SubstrateConstants.accountIdLength
+    }
+
+    var chainAssets: [ChainAsset] {
+        assets.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
+    }
+
+    func utilityChainAssets() -> [ChainAsset] {
+        assets.filter { $0.isUtility }.map {
+            ChainAsset(chain: self, asset: $0.asset)
+        }
     }
 
     func replacingSelectedNode(_ node: ChainNodeModel?) -> ChainModel {
@@ -191,7 +197,6 @@ extension ChainModel: Hashable {
             && lhs.icon == rhs.icon
             && lhs.name == rhs.name
             && lhs.addressPrefix == rhs.addressPrefix
-            && lhs.selectedNode == rhs.selectedNode
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
     }
@@ -210,18 +215,32 @@ enum ChainOptions: String, Codable {
     case testnet
     case crowdloans
     case orml
+    case tipRequired
+    case poolStaking
+
+    case unsupported
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.singleValueContainer()
+        let rawValue = try container.decode(String.self)
+        if let options = ChainOptions(rawValue: rawValue) {
+            self = options
+        } else {
+            self = .unsupported
+        }
+    }
 }
 
 extension ChainModel {
     func polkascanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://polkascan.io/\(name)/account/\(address)")
+        URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
     }
 
     func subscanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://\(name).subscan.io/account/\(address)")
+        URL(string: "https://\(name.lowercased()).subscan.io/account/\(address)")
     }
 
     func subscanExtrinsicUrl(_ extrinsicHash: String) -> URL? {
-        URL(string: "https://\(name).subscan.io/extrinsic/\(extrinsicHash)")
+        URL(string: "https://\(name.lowercased()).subscan.io/extrinsic/\(extrinsicHash)")
     }
 }

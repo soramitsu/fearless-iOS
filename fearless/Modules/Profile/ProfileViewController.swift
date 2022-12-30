@@ -211,7 +211,14 @@ extension ProfileViewController: UITableViewDelegate {
             if indexPath.row == 1 {
                 presenter.activateAccountDetails()
             } else if indexPath.row >= 2 {
-                presenter.activateOption(at: UInt(indexPath.row) - 2)
+                guard
+                    case let .loaded(viewModel) = state,
+                    let option = viewModel.profileOptionViewModel[indexPath.row - 2].option
+                else {
+                    return
+                }
+
+                presenter.activateOption(option)
             }
         }
         if indexPath.section == 1 {

@@ -3,14 +3,18 @@ import SoraKeystore
 import RobinHood
 import FearlessUtils
 
+// swiftlint:disable function_body_length
 struct ValidatorSearchViewFactory {
-    private static func createInteractor(
-        asset: AssetModel,
-        chain: ChainModel,
-        settings _: SettingsManagerProtocol
-    ) -> ValidatorSearchInteractor? {
+    private static func createContainer(
+        flow: ValidatorSearchFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) -> ValidatorSearchDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
@@ -19,55 +23,132 @@ struct ValidatorSearchViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let validatorOperationFactory = ValidatorOperationFactory(
-            asset: asset,
-            chain: chain,
-            eraValidatorService: EraValidatorFacade.sharedService,
-            rewardService: RewardCalculatorFacade.sharedService,
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: chainRegistry,
+            storageFacade: SubstrateDataStorageFacade.shared,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard
+            let eraValidatorService = try? serviceFactory.createEraValidatorService(
+                for: chainAsset.chain
+            ) else {
+            return nil
+        }
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardService = try? serviceFactory.createRewardCalculatorService(
+            for: chainAsset,
+            assetPrecision: Int16(chainAsset.asset.precision),
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        eraValidatorService.setup()
+        rewardService.setup()
+
+        let validatorOperationFactory = RelaychainValidatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            eraValidatorService: eraValidatorService,
+            rewardService: rewardService,
             storageRequestFactory: storageRequestFactory,
             runtimeService: RuntimeRegistryFacade.sharedService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        return ValidatorSearchInteractor(
-            validatorOperationFactory: validatorOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
         )
+
+        switch flow {
+        case let .relaychain(validatorList, selectedValidatorList, delegate):
+            let viewModelState = ValidatorSearchRelaychainViewModelState(
+                fullValidatorList: validatorList,
+                selectedValidatorList: selectedValidatorList,
+                delegate: delegate
+            )
+            let strategy = ValidatorSearchRelaychainStrategy(
+                validatorOperationFactory: validatorOperationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
+            let viewModelFactory = ValidatorSearchRelaychainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory
+            )
+            return ValidatorSearchDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(validatorList, selectedValidatorList, delegate):
+            let viewModelState = ValidatorSearchParachainViewModelState(
+                fullValidatorList: validatorList,
+                selectedValidatorList: selectedValidatorList,
+                delegate: delegate
+            )
+            let strategy = ValidatorSearchParachainStrategy(
+                validatorOperationFactory: validatorOperationFactory,
+                operationManager: OperationManagerFacade.sharedManager,
+                output: viewModelState
+            )
+            let viewModelFactory = ValidatorSearchParachainViewModelFactory(
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain),
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset
+            )
+            return ValidatorSearchDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }
 
 extension ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        with validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?,
+        chainAsset: ChainAsset,
+        flow: ValidatorSearchFlow,
         wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol? {
-        guard let interactor = createInteractor(asset: asset, chain: chain, settings: SettingsManager.shared) else {
+        guard let container = createContainer(flow: flow, chainAsset: chainAsset, wallet: wallet) else {
             return nil
         }
 
+        let interactor = ValidatorSearchInteractor(strategy: container.strategy)
         let wireframe = ValidatorSearchWireframe()
-
-        let viewModelFactory = ValidatorSearchViewModelFactory()
 
         let presenter = ValidatorSearchPresenter(
             wireframe: wireframe,
             interactor: interactor,
-            viewModelFactory: viewModelFactory,
-            fullValidatorList: validatorList,
-            selectedValidatorList: selectedValidatorList,
+            viewModelFactory: container.viewModelFactory,
+            viewModelState: container.viewModelState,
             localizationManager: LocalizationManager.shared,
             logger: Logger.shared,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             wallet: wallet
         )
 
-        presenter.delegate = delegate
         interactor.presenter = presenter
 
         let view = ValidatorSearchViewController(

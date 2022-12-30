@@ -4,58 +4,55 @@ protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, Load
     func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>)
 }
 
-protocol StakingBalanceViewModelFactoryProtocol {
-    func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>
-}
-
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
+    func handleRefresh()
     func handleAction(_ action: StakingBalanceAction)
     func handleUnbondingMoreAction()
 }
 
 protocol StakingBalanceInteractorInputProtocol: AnyObject {
     func setup()
+    func refresh()
 }
 
 protocol StakingBalanceInteractorOutputProtocol: AnyObject {
-    func didReceive(ledgerResult: Result<StakingLedger?, Error>)
-    func didReceive(activeEraResult: Result<EraIndex?, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
-    func didReceive(stashItemResult: Result<StashItem?, Error>)
-    func didReceive(controllerResult: Result<ChainAccountResponse?, Error>)
-    func didReceive(stashResult: Result<ChainAccountResponse?, Error>)
-    func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
 }
 
-protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingBalanceWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     )
 
     func showUnbond(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondSetupFlow
     )
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemConfirmationFlow
     )
 
-    func showRebond(
+    func showRebondSetup(
         from view: ControllerBackedProtocol?,
-        option: StakingRebondOption,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+
+    func showRebondConfirm(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     )
 
     func cancel(from view: ControllerBackedProtocol?)

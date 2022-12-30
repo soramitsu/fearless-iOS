@@ -46,5 +46,10 @@ extension PinSetupPresenter: PinSetupInteractorOutputProtocol {
         }
     }
 
-    func didChangeState(from _: PinSetupInteractor.PinSetupState) {}
+    func didChangeState(to state: PinSetupInteractor.PinSetupState) {
+        guard case .submitedPincode = state else {
+            return
+        }
+        view?.didStartLoading()
+    }
 }

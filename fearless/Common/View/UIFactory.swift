@@ -1,13 +1,14 @@
 import UIKit
 import SoraUI
 
+// swiftlint:disable file_length type_body_length function_body_length
 struct UIConstants {
     static let minimalOffset: CGFloat = 4.0
     static let defaultOffset: CGFloat = 8.0
     static let bigOffset: CGFloat = 16.0
     static let hugeOffset: CGFloat = 24.0
     static let actionBottomInset: CGFloat = 16.0
-    static let actionHeight: CGFloat = 52.0
+    static let actionHeight: CGFloat = 48.0
     static let mainAccessoryActionsSpacing: CGFloat = 16.0
     static let horizontalInset: CGFloat = 16.0
     static let verticalInset: CGFloat = 16.0
@@ -29,11 +30,21 @@ struct UIConstants {
     static let networkFeeViewDefaultHeight: CGFloat = 132
     static let referralBonusButtonHeight: CGFloat = 30
     static let amountViewHeight: CGFloat = 72
+    static let swipeTableActionButtonWidth: CGFloat = 88
+    static let iconSize: CGFloat = 24
+    static let standardButtonSize = CGSize(width: 36, height: 36)
+    static let indicatorSize = CGSize(width: 35.0, height: 2.0)
+    static let amountViewV2Height: CGFloat = 92
+    static let offset12: CGFloat = 12
+    static let statusViewHeight: CGFloat = 51.0
+    static let validatorCellHeight: CGFloat = 77.0
+    static let infoButtonSize: CGFloat = 14.0
 }
 
 enum AccountViewMode {
     case options
     case selection
+    case none
 }
 
 protocol UIFactoryProtocol {
@@ -41,6 +52,7 @@ protocol UIFactoryProtocol {
     func createHorizontalStackView(spacing: CGFloat) -> UIStackView
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
+    func createDestructiveButton() -> TriangularedButton
     func createDetailsView(
         with layout: DetailsTriangularedView.Layout,
         filled: Bool
@@ -56,39 +68,27 @@ protocol UIFactoryProtocol {
         target: Any?,
         spacing: CGFloat
     ) -> UIToolbar
-
     func createCommonInputView() -> CommonInputView
     func createAmountInputView(filled: Bool) -> AmountInputView
-
     func createAmountAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
-
     func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView
     func createIdentityView(isSingleTitle: Bool) -> DetailsTriangularedView
-
     func createNetworkFeeView() -> NetworkFeeView
-
-    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
-
+    func createNetworkFeeFooterView() -> NetworkFeeFooterView
     func createTitleValueView() -> TitleValueView
-
     func createIconTitleValueView(iconPosition: IconTitleValueView.IconPosition) -> IconTitleValueView
-
     func createTitleValueSelectionView() -> TitleValueSelectionView
-
     func createHintView() -> HintView
-
     func createLearnMoreView() -> LearnMoreView
-
     func createRewardSelectionView() -> RewardSelectionView
-
     func createInfoIndicatingView() -> ImageWithTitleView
-
-    func createChainAssetSelectionView() -> DetailsTriangularedView
-
+    func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout) -> DetailsTriangularedView
     func createWalletReferralBonusButton() -> GradientButton
+    func createIndicatorView() -> RoundedView
+    func createSearchTextField() -> SearchTextField
 }
 
 extension UIFactoryProtocol {
@@ -122,13 +122,22 @@ final class UIFactory: UIFactoryProtocol {
 
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+        button.applyEnabledStyle()
         return button
     }
 
     func createAccessoryButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyAccessoryStyle()
+        return button
+    }
+
+    func createDestructiveButton() -> TriangularedButton {
+        let button = TriangularedButton()
+        button.applyDestructiveStyle()
         return button
     }
 
@@ -139,25 +148,27 @@ final class UIFactory: UIFactoryProtocol {
         let view = DetailsTriangularedView()
         view.layout = layout
 
-        if !filled {
+        if filled {
+            view.fillColor = R.color.colorSemiBlack()!
+            view.highlightedFillColor = R.color.colorSemiBlack()!
+            view.strokeColor = R.color.colorWhite8()!
+            view.highlightedStrokeColor = R.color.colorWhite8()!
+            view.borderWidth = 0.5
+        } else {
             view.fillColor = .clear
             view.highlightedFillColor = .clear
-            view.strokeColor = R.color.colorStrokeGray()!
-            view.highlightedStrokeColor = R.color.colorStrokeGray()!
-            view.borderWidth = 1.0
-        } else {
-            view.fillColor = R.color.colorDarkGray()!
-            view.highlightedFillColor = R.color.colorDarkGray()!
-            view.strokeColor = .clear
-            view.highlightedStrokeColor = .clear
-            view.borderWidth = 0.0
+            view.strokeColor = R.color.colorWhite8()!
+            view.highlightedStrokeColor = R.color.colorWhite8()!
+            view.borderWidth = 0.5
         }
 
         switch layout {
-        case .largeIconTitleSubtitle, .singleTitle:
+        case .largeIconTitleSubtitle, .singleTitle, .largeIconTitleInfoSubtitle:
             view.iconRadius = UIConstants.triangularedIconLargeRadius
-        case .smallIconTitleSubtitle:
+        case .smallIconTitleSubtitle, .smallIconTitleButton, .smallIconTitleSubtitleButton:
             view.iconRadius = UIConstants.triangularedIconSmallRadius
+        case .withoutIcon:
+            view.iconView.removeFromSuperview()
         }
 
         view.titleLabel.textColor = R.color.colorLightGray()!
@@ -302,28 +313,29 @@ final class UIFactory: UIFactoryProtocol {
         let amountInputView = AmountInputView()
 
         if !filled {
-            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite()!
-            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite()!
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorPink()!
+            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorPink()!
             amountInputView.triangularedBackgroundView?.strokeWidth = 1.0
-            amountInputView.triangularedBackgroundView?.fillColor = .clear
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = .clear
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
         } else {
             amountInputView.triangularedBackgroundView?.strokeWidth = 0.0
-            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
-            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorSemiBlack()!
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite8()!
         }
 
-        amountInputView.titleLabel.textColor = R.color.colorLightGray()
-        amountInputView.titleLabel.font = .p2Paragraph
-        amountInputView.priceLabel.textColor = R.color.colorLightGray()
-        amountInputView.priceLabel.font = .p2Paragraph
+        amountInputView.titleLabel.textColor = R.color.colorWhite()
+        amountInputView.titleLabel.font = .h5Title
+        amountInputView.priceLabel.textColor = R.color.colorGray()
+        amountInputView.priceLabel.font = .p1Paragraph
         amountInputView.symbolLabel.textColor = R.color.colorWhite()
-        amountInputView.symbolLabel.font = .h4Title
-        amountInputView.balanceLabel.textColor = R.color.colorLightGray()
-        amountInputView.balanceLabel.font = .p2Paragraph
-        amountInputView.textField.font = .h4Title
+        amountInputView.symbolLabel.font = .h3Title
+        amountInputView.balanceLabel.textColor = R.color.colorGray()
+        amountInputView.balanceLabel.font = .p1Paragraph
+        amountInputView.textField.font = .h2Title
         amountInputView.textField.textColor = R.color.colorWhite()
-        amountInputView.textField.tintColor = R.color.colorWhite()
+        amountInputView.textField.tintColor = R.color.colorPink()
         amountInputView.verticalSpacing = 2.0
         amountInputView.iconRadius = 12.0
         amountInputView.contentInsets = UIEdgeInsets(
@@ -337,7 +349,7 @@ final class UIFactory: UIFactoryProtocol {
             string: "0",
             attributes: [
                 .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
-                .font: UIFont.h4Title
+                .font: UIFont.h2Title
             ]
         )
 
@@ -425,7 +437,9 @@ final class UIFactory: UIFactoryProtocol {
         case .options:
             view.actionImage = R.image.iconMore()
         case .selection:
-            view.actionImage = R.image.iconSmallArrowDown()
+            view.actionImage = R.image.iconExpandable()
+        case .none:
+            view.actionView.image = nil
         }
 
         view.highlightedFillColor = R.color.colorHighlightedPink()!
@@ -471,13 +485,17 @@ final class UIFactory: UIFactoryProtocol {
         NetworkFeeView()
     }
 
-    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
-        NetworkFeeConfirmView(
-            frame: CGRect(
-                x: 0.0, y: 0.0,
-                width: 0.0, height: UIConstants.networkFeeViewDefaultHeight
-            )
-        )
+    func createNetworkFeeFooterView() -> NetworkFeeFooterView {
+        NetworkFeeFooterView()
+    }
+
+    func createCleanNetworkFeeFooterView() -> NetworkFeeFooterView {
+        let view = NetworkFeeFooterView()
+        view.networkFeeView?.titleLabel.font = .p2Paragraph
+        view.networkFeeView?.titleLabel.textColor = R.color.colorStrokeGray()
+        view.networkFeeView?.borderType = .none
+        view.durationView?.borderView.isHidden = true
+        return view
     }
 
     func createTitleValueView() -> TitleValueView {
@@ -514,7 +532,7 @@ final class UIFactory: UIFactoryProtocol {
         view.fillColor = .clear
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorGray()!
-        view.highlightedStrokeColor = R.color.colorAccent()!
+        view.highlightedStrokeColor = R.color.colorPink()!
         view.titleColor = R.color.colorWhite()!
         view.amountTitleColor = R.color.colorWhite()!
         view.priceColor = R.color.colorLightGray()!
@@ -541,9 +559,9 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createChainAssetSelectionView() -> DetailsTriangularedView {
+    func createChainAssetSelectionView(layout: DetailsTriangularedView.Layout = .largeIconTitleSubtitle) -> DetailsTriangularedView {
         let view = DetailsTriangularedView()
-        view.layout = .largeIconTitleSubtitle
+        view.layout = layout
         view.fillColor = .clear
         view.highlightedFillColor = R.color.colorCellSelection()!
         view.titleLabel.textColor = R.color.colorWhite()
@@ -558,10 +576,50 @@ final class UIFactory: UIFactoryProtocol {
 
     func createWalletReferralBonusButton() -> GradientButton {
         let button = GradientButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         button.applyDisabledStyle()
         button.gradientBackgroundView?.cornerRadius = UIConstants.referralBonusButtonHeight / 2
 
         return button
+    }
+
+    func createChainOptionsView() -> UIStackView {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.distribution = .fillProportionally
+        stackView.alignment = .fill
+        stackView.spacing = UIConstants.defaultOffset
+        return stackView
+    }
+
+    func createIndicatorView() -> RoundedView {
+        let indicator = RoundedView()
+        indicator.roundingCorners = .allCorners
+        indicator.cornerRadius = UIConstants.indicatorSize.height / 2.0
+        indicator.fillColor = R.color.colorLightGray()!
+        indicator.highlightedFillColor = R.color.colorLightGray()!
+        indicator.shadowOpacity = 0.0
+        return indicator
+    }
+
+    func createNetworkView(selectable: Bool) -> DetailsTriangularedView {
+        let view = createDetailsView(with: .largeIconTitleSubtitle, filled: true)
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.titleLabel.font = UIFont.h5Title
+        if selectable {
+            view.actionImage = R.image.iconExpandable()
+        }
+        return view
+    }
+
+    func createSearchTextField() -> SearchTextField {
+        let searchTextField = SearchTextField()
+        searchTextField.triangularedView?.cornerCut = [.bottomRight, .topLeft]
+        searchTextField.triangularedView?.strokeWidth = UIConstants.separatorHeight
+        searchTextField.triangularedView?.strokeColor = R.color.colorStrokeGray() ?? .lightGray
+        searchTextField.triangularedView?.fillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
+        searchTextField.triangularedView?.shadowOpacity = 0
+        return searchTextField
     }
 }

@@ -7,155 +7,95 @@ final class StakingBondMorePresenter {
     let wireframe: StakingBondMoreWireframeProtocol
     weak var view: StakingBondMoreViewProtocol?
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let viewModelFactory: StakingBondMoreViewModelFactoryProtocol?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let logger: LoggerProtocol?
-
-    var amount: Decimal = 0
-    private let asset: AssetModel
-    private let chain: ChainModel
-    private let selectedAccount: MetaAccountModel
+    let viewModelState: StakingBondMoreViewModelState
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
     private var priceData: PriceData?
-    private var balance: Decimal?
-    private var fee: Decimal?
-    private var stashItem: StashItem?
-    private var stashAccount: ChainAccountResponse?
+    private let networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
         wireframe: StakingBondMoreWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        viewModelFactory: StakingBondMoreViewModelFactoryProtocol?,
+        viewModelState: StakingBondMoreViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel,
+        networkFeeViewModelFactory: NetworkFeeViewModelFactoryProtocol,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.viewModelFactory = viewModelFactory
+        self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.networkFeeViewModelFactory = networkFeeViewModelFactory
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
     }
 
     private func estimateFee() {
-        guard fee == nil else {
+        guard viewModelState.fee == nil else {
             return
         }
 
-        interactor.estimateFee()
-    }
-
-    private func provideAmountInputViewModel() {
-        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(amount)
-        view?.didReceiveInput(viewModel: viewModel)
-    }
-
-    private func provideFee() {
-        if let fee = fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceiveFee(viewModel: viewModel)
-        } else {
-            view?.didReceiveFee(viewModel: nil)
-        }
-    }
-
-    private func provideAsset() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            amount,
-            balance: balance,
-            priceData: priceData
+        interactor.estimateFee(
+            reuseIdentifier: viewModelState.feeReuseIdentifier,
+            builderClosure: viewModelState.builderClosure
         )
-        view?.didReceiveAsset(viewModel: viewModel)
     }
 }
 
 extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideAmountInputViewModel()
+        provideHintsViewModel()
+        provideFee()
 
         interactor.setup()
+
+        estimateFee()
     }
 
     func handleContinueAction() {
+        guard let flow = viewModelState.bondMoreConfirmationFlow else {
+            return
+        }
+
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.interactor.estimateFee()
-            }),
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: amount,
-                locale: locale
-            ),
-
-            dataValidatingFactory.has(
-                stash: stashAccount,
-                for: stashItem?.stash ?? "",
-                locale: locale
-            )
-
-        ]).runValidation { [weak self] in
+        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.wireframe.showConfirmation(
                 from: strongSelf.view,
-                amount: strongSelf.amount,
-                chain: strongSelf.chain,
-                asset: strongSelf.asset,
-                selectedAccount: strongSelf.selectedAccount
+                flow: flow,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet
             )
         }
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
-
-        provideAsset()
-        estimateFee()
+        viewModelState.updateAmount(newValue)
     }
 
     func selectAmountPercentage(_ percentage: Float) {
-        if let balance = balance, let fee = fee {
-            let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
-
-            if newAmount > 0 {
-                amount = newAmount
-
-                provideAmountInputViewModel()
-                provideAsset()
-            } else if let view = view {
-                wireframe.presentAmountTooHigh(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
-            }
-        }
+        viewModelState.selectAmountPercentage(percentage)
     }
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let accountInfo = accountInfo {
-                balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                balance = nil
-            }
-
-            provideAsset()
-        case let .failure(error):
-            logger?.error("Did receive account info error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -167,37 +107,83 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
             logger?.error("Did receive price data error: \(error)")
         }
     }
+}
 
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
-        switch result {
-        case let .success(dispatchInfo):
-            if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
-            } else {
-                fee = nil
-            }
+extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
+    func didReceiveError(error: Error) {
+        logger?.error("Did receive account info error: \(error)")
+    }
 
-            provideFee()
-        case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
+    func feeParametersDidChanged(viewModelState: StakingBondMoreViewModelState) {
+        interactor.estimateFee(
+            reuseIdentifier: viewModelState.feeReuseIdentifier,
+            builderClosure: viewModelState.builderClosure
+        )
+    }
+
+    func provideAmountInputViewModel() {
+        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.amount)
+        view?.didReceiveInput(viewModel: viewModel)
+    }
+
+    func provideFee() {
+        if let fee = viewModelState.fee {
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let viewModel = networkFeeViewModelFactory.createViewModel(
+                from: balanceViewModel
+            )
+            view?.didReceiveFee(viewModel: viewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
         }
     }
 
-    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(stashAccount):
-            self.stashAccount = stashAccount
-        case let .failure(error):
-            logger?.error("Did receive stash account error: \(error)")
+    func provideAsset() {
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+            viewModelState.amount,
+            balance: viewModelState.balance,
+            priceData: priceData
+        )
+        DispatchQueue.main.async {
+            self.view?.didReceiveAsset(viewModel: viewModel)
         }
     }
 
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-        case let .failure(error):
-            logger?.error("Did receive stash item error: \(error)")
+    func didReceiveInsufficientlyFundsError() {
+        if let view = view {
+            wireframe.presentAmountTooHigh(
+                from: view,
+                locale: view.localizationManager?.selectedLocale
+            )
         }
+    }
+
+    func provideAccountViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory?.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveAccount(viewModel: viewModel)
+        }
+    }
+
+    func provideCollatorViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory?.buildCollatorViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        ) {
+            view?.didReceiveCollator(viewModel: viewModel)
+        }
+    }
+
+    func provideHintsViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = viewModelFactory?.buildHintViewModel(
+            viewModelState: viewModelState,
+            locale: locale
+        )
+        view?.didReceiveHints(viewModel: viewModel)
     }
 }

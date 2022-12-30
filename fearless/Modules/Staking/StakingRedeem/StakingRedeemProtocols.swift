@@ -6,6 +6,7 @@ protocol StakingRedeemViewProtocol: ControllerBackedProtocol, Localizable, Loada
     func didReceiveConfirmation(viewModel: StakingRedeemViewModel)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>)
 }
 
 protocol StakingRedeemPresenterProtocol: AnyObject {
@@ -16,32 +17,24 @@ protocol StakingRedeemPresenterProtocol: AnyObject {
 
 protocol StakingRedeemInteractorInputProtocol: AnyObject {
     func setup()
-    func submitForStash(_ stashAddress: AccountAddress)
-    func estimateFeeForStash(_ stashAddress: AccountAddress)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
+    func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingRedeemInteractorOutputProtocol: AnyObject {
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
-
-    func didSubmitRedeeming(result: Result<String, Error>)
 }
 
-protocol StakingRedeemWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRedeemWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable {
     func complete(from view: StakingRedeemViewProtocol?)
 }
 
 protocol StakingRedeemViewFactoryProtocol: AnyObject {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow,
+        redeemCompletion: (() -> Void)?
     ) -> StakingRedeemViewProtocol?
 }

@@ -45,6 +45,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
         let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexString: $0) }
+        let assetFilterOptions = entity.assetFilterOptions as? [String]
 
         return DataProviderModel(
             metaId: entity.metaId!,
@@ -57,9 +58,11 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
             assetIdsEnabled: entity.assetIdsEnabled as? [String],
+            assetFilterOptions: assetFilterOptions?.compactMap { FilterOption(rawValue: $0) } ?? [],
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
-            selectedCurrency: selectedCurrency ?? Currency.defaultCurrency()
+            selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
+            chainIdForFilter: entity.chainIdForFilter
         )
     }
 
@@ -68,6 +71,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         from model: DataProviderModel,
         using context: NSManagedObjectContext
     ) throws {
+        let assetFilterOptions = model.assetFilterOptions.map(\.rawValue) as? NSArray ?? []
         entity.metaId = model.metaId
         entity.name = model.name
         entity.substrateAccountId = model.substrateAccountId.toHex()
@@ -79,6 +83,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray
+        entity.assetFilterOptions = assetFilterOptions
+        entity.chainIdForFilter = model.chainIdForFilter
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {

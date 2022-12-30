@@ -15,14 +15,14 @@ final class StakingAccountResolver: WebSocketSubscribing {
         let ledger: StakingLedger?
     }
 
-    let accountId: AccountId
-    let chainId: ChainModel.Id
-    let chainFormat: ChainFormat
-    let chainRegistry: ChainRegistryProtocol
-    let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
-    let operationQueue: OperationQueue
-    let repository: AnyDataProviderRepository<StashItem>
-    let logger: LoggerProtocol?
+    private let accountId: AccountId
+    private let chainAsset: ChainAsset
+    private let chainFormat: ChainFormat
+    private let chainRegistry: ChainRegistryProtocol
+    private let childSubscriptionFactory: ChildSubscriptionFactoryProtocol
+    private let operationQueue: OperationQueue
+    private let repository: AnyDataProviderRepository<StashItem>
+    private let logger: LoggerProtocol?
 
     private let mutex = NSLock()
 
@@ -30,7 +30,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
     init(
         accountId: AccountId,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         chainFormat: ChainFormat,
         chainRegistry: ChainRegistryProtocol,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
@@ -39,7 +39,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
         logger: LoggerProtocol? = nil
     ) {
         self.accountId = accountId
-        self.chainId = chainId
+        self.chainAsset = chainAsset
         self.chainFormat = chainFormat
         self.chainRegistry = chainRegistry
         self.childSubscriptionFactory = childSubscriptionFactory
@@ -56,7 +56,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
     private func resolveKeysAndSubscribe() {
         do {
-            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.runtimeMetadaUnavailable
             }
 
@@ -71,10 +71,9 @@ final class StakingAccountResolver: WebSocketSubscribing {
             )
 
             let localKeyFactory = LocalStorageKeyFactory()
-            let controllerLocalKey = try localKeyFactory.createFromStoragePath(
+            let controllerLocalKey = try LocalStorageKeyFactory().createFromStoragePath(
                 .controller,
-                accountId: accountId,
-                chainId: chainId
+                chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
             )
 
             let ledgerOperation = MapKeyEncodingOperation(
@@ -85,8 +84,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
             let ledgerLocalKey = try localKeyFactory.createFromStoragePath(
                 .stakingLedger,
-                accountId: accountId,
-                chainId: chainId
+                chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
             )
 
             [controllerOperation, ledgerOperation].forEach { operation in
@@ -139,7 +137,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
             return
         }
 
-        chainRegistry.getConnection(for: chainId)?.cancelForIdentifier(subscription.subscriptionId)
+        chainRegistry.getConnection(for: chainAsset.chain.chainId)?.cancelForIdentifier(subscription.subscriptionId)
         self.subscription = nil
     }
 
@@ -154,7 +152,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
         }
 
         do {
-            guard let connection = chainRegistry.getConnection(for: chainId) else {
+            guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
                 throw ChainRegistryError.connectionUnavailable
             }
 
@@ -238,7 +236,7 @@ extension StakingAccountResolver {
         from updateData: StorageUpdateData,
         subscription: Subscription
     ) -> CompoundOperationWrapper<DecodedChanges> {
-        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
         }
 

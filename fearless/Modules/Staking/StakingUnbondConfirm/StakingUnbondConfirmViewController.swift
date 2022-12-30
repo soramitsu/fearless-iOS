@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol {
+final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, ImportantViewProtocol, HiddableBarWhenPushed {
     typealias RootViewType = StakingUnbondConfirmLayout
 
     let presenter: StakingUnbondConfirmPresenterProtocol
@@ -13,6 +13,7 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
     private var confirmationViewModel: StakingUnbondConfirmViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var bondingDurationViewModel: LocalizableResource<TitleWithSubtitleViewModel>?
 
     init(
         presenter: StakingUnbondConfirmPresenterProtocol,
@@ -54,15 +55,15 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
     }
 
     private func configureActions() {
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(actionConfirm),
             for: .touchUpInside
         )
 
-        rootView.accountView.addTarget(
+        rootView.navigationBar.backButton.addTarget(
             self,
-            action: #selector(actionSelectAccount),
+            action: #selector(backButtonClicked),
             for: .touchUpInside
         )
     }
@@ -80,6 +81,14 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
         rootView.bind(feeViewModel: viewModel)
     }
 
+    private func applyBondingDuration() {
+        guard let viewModel = bondingDurationViewModel else {
+            return
+        }
+
+        rootView.networkFeeFooterView.bindDuration(viewModel: viewModel)
+    }
+
     private func applyConfirmationViewModel() {
         guard let confirmViewModel = confirmationViewModel else {
             return
@@ -94,6 +103,10 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder, Im
 
     @objc private func actionSelectAccount() {
         presenter.selectAccount()
+    }
+
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
     }
 }
 
@@ -111,6 +124,11 @@ extension StakingUnbondConfirmViewController: StakingUnbondConfirmViewProtocol {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFeeViewModel()
+    }
+
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>) {
+        bondingDurationViewModel = duration
+        applyBondingDuration()
     }
 }
 

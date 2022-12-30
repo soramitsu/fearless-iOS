@@ -2,20 +2,33 @@ import UIKit
 import SnapKit
 
 final class StakingUnbondSetupLayout: UIView {
+    enum Constants {
+        static let hintsSpacing: CGFloat = 9
+    }
+
+    let navigationBar: BaseNavigationBar = {
+        let bar = BaseNavigationBar()
+        bar.set(.push)
+        bar.backButton.backgroundColor = UIColor(red: 1, green: 1, blue: 1, alpha: 0.08)
+        bar.backButton.layer.cornerRadius = bar.backButton.frame.size.height / 2
+        bar.backgroundColor = R.color.colorBlack19()
+        return bar
+    }()
+
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
 
-    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
+    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
+    let collatorView: DetailsTriangularedView = UIFactory.default.createAccountView(for: .options, filled: true)
 
-    let networkFeeView = UIFactory.default.createNetworkFeeView()
+    let amountInputView = AmountInputViewV2(type: .available)
 
-    let durationView = UIFactory.default.createTitleValueView()
-
-    let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
+    let networkFeeFooterView = UIFactory().createCleanNetworkFeeFooterView()
+    private(set) var hintViews: [UIView] = []
 
     var locale = Locale.current {
         didSet {
@@ -28,7 +41,7 @@ final class StakingUnbondSetupLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        backgroundColor = R.color.colorBlack()!
+        backgroundColor = R.color.colorBlack19()!
 
         setupLayout()
         applyLocalization()
@@ -39,50 +52,87 @@ final class StakingUnbondSetupLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(feeViewModel: NetworkFeeFooterViewModelProtocol?) {
+        networkFeeFooterView.actionTitle = feeViewModel?.actionTitle
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel?.balanceViewModel.value(for: locale))
+        setNeedsLayout()
+    }
+
+    func bind(hintViewModels: [TitleIconViewModel]) {
+        hintViews.forEach { $0.removeFromSuperview() }
+
+        hintViews = hintViewModels.map { hint in
+            let view = IconDetailsView()
+            view.iconWidth = UIConstants.iconSize
+            view.detailsLabel.text = hint.title
+            view.imageView.image = hint.icon
+            return view
+        }
+
+        for (index, view) in hintViews.enumerated() {
+            if index > 0 {
+                contentView.stackView.insertArranged(view: view, after: hintViews[index - 1])
+            } else {
+                contentView.stackView.insertArranged(view: view, after: amountInputView)
+            }
+
+            view.snp.makeConstraints { make in
+                make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            }
+
+            contentView.stackView.setCustomSpacing(Constants.hintsSpacing, after: view)
+        }
+    }
+
     private func applyLocalization() {
-        networkFeeView.locale = locale
+        networkFeeFooterView.locale = locale
 
-        durationView.titleLabel.text = R.string.localizable
-            .stakingUnbondingPeriod_v190(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
+    }
 
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+    override func layoutSubviews() {
+        super.layoutSubviews()
 
-        actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
+        navigationBar.backButton.layer.cornerRadius = navigationBar.backButton.frame.size.height / 2
     }
 
     private func setupLayout() {
+        addSubview(navigationBar)
         addSubview(contentView)
-        contentView.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide)
-            make.bottom.leading.trailing.equalToSuperview()
+
+        contentView.stackView.addArrangedSubview(collatorView)
+
+        collatorView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.actionHeight)
         }
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: collatorView)
 
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
+        contentView.stackView.setCustomSpacing(UIConstants.bigOffset, after: amountInputView)
 
-        contentView.stackView.addArrangedSubview(networkFeeView)
-        networkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-        }
-
-        contentView.stackView.addArrangedSubview(durationView)
-        durationView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
-        }
-
-        addSubview(actionButton)
-        actionButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            make.height.equalTo(UIConstants.actionHeight)
         }
+
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.top.equalTo(navigationBar.snp.bottom)
+            make.bottom.equalTo(networkFeeFooterView.snp.top).inset(UIConstants.bigOffset)
+        }
+
+        accountView.isHidden = true
+        collatorView.isHidden = true
     }
 }

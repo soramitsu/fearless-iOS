@@ -10,6 +10,7 @@ protocol ProfileOptionViewModelProtocol {
     var title: String { get }
     var accessoryTitle: String? { get }
     var accessoryType: ProfileOptionAccessoryType { get }
+    var option: ProfileOption? { get }
 }
 
 struct ProfileOptionViewModel: ProfileOptionViewModelProtocol {
@@ -17,4 +18,5 @@ struct ProfileOptionViewModel: ProfileOptionViewModelProtocol {
     let icon: UIImage?
     let accessoryTitle: String?
     let accessoryType: ProfileOptionAccessoryType
+    let option: ProfileOption?
 }

@@ -1,6 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import FearlessUtils
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -27,7 +28,8 @@ struct StakingRewardDestSetupViewFactory {
         )
 
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let changeRewardDestViewModelFactory = ChangeRewardDestinationViewModelFactory(
@@ -65,11 +67,12 @@ struct StakingRewardDestSetupViewFactory {
         selectedAccount: MetaAccountModel
     ) throws -> StakingRewardDestSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
+        else {
             return nil
         }
 
@@ -80,43 +83,17 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: operationManager
         )
 
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
         let feeProxy = ExtrinsicFeeProxy()
-
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
         )
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let keystore = Keychain()
-        let signingWrapper = SigningWrapper(
-            keystore: keystore,
-            metaId: selectedAccount.metaId,
-            accountResponse: accountResponse
-        )
 
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -128,7 +105,8 @@ struct StakingRewardDestSetupViewFactory {
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()
@@ -145,13 +123,29 @@ struct StakingRewardDestSetupViewFactory {
         }
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: settings.chain.chainId
+            for: settings.chain
+        )
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: settings.chain.chainId,
+            for: ChainAsset(chain: settings.chain, asset: settings.asset),
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
         )
 
         return StakingRewardDestSetupInteractor(
@@ -159,7 +153,7 @@ struct StakingRewardDestSetupViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             substrateProviderFactory: substrateProviderFactory,
@@ -167,8 +161,7 @@ struct StakingRewardDestSetupViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            asset: asset,
-            chain: chain,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             connection: connection
         )

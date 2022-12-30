@@ -6,7 +6,7 @@ final class StakingRewardPayoutsInteractor {
     weak var presenter: StakingRewardPayoutsInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let payoutService: PayoutRewardsServiceProtocol
     private let asset: AssetModel
     private let chain: ChainModel
@@ -28,7 +28,7 @@ final class StakingRewardPayoutsInteractor {
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         payoutService: PayoutRewardsServiceProtocol,
         asset: AssetModel,
         chain: ChainModel,
@@ -121,7 +121,7 @@ extension StakingRewardPayoutsInteractor: PriceLocalStorageSubscriber, PriceLoca
     }
 }
 
-extension StakingRewardPayoutsInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRewardPayoutsInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
         switch result {
         case .success:

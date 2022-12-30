@@ -23,7 +23,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         signingWrapper: SigningWrapperProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.signingWrapper = signingWrapper
         self.bonusService = bonusService
@@ -42,7 +43,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
     }
 

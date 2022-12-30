@@ -13,13 +13,13 @@ final class StakingRebondConfirmationLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -54,36 +54,24 @@ final class StakingRebondConfirmationLayout: UIView {
         }
 
         let iconSize = 2.0 * accountView.iconRadius
-        accountView.iconImage = confirmationViewModel.senderIcon.imageWithFillColor(
+        accountView.iconImage = confirmationViewModel.senderIcon?.imageWithFillColor(
             R.color.colorWhite()!,
             size: CGSize(width: iconSize, height: iconSize),
             contentScale: UIScreen.main.scale
         )
 
-        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+        amountView.inputFieldText = confirmationViewModel.amount.value(for: locale)
 
         setNeedsLayout()
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        amountView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingUnbondingFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = assetViewModel.symbol.uppercased()
+        amountView.bind(viewModel: assetViewModel)
 
         setNeedsLayout()
     }
@@ -91,10 +79,9 @@ final class StakingRebondConfirmationLayout: UIView {
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
-        amountView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountView.locale = locale
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
 
         setNeedsLayout()
     }
@@ -116,12 +103,12 @@ final class StakingRebondConfirmationLayout: UIView {
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }

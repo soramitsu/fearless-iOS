@@ -3,7 +3,6 @@ import RobinHood
 
 protocol SubstrateDataProviderFactoryProtocol {
     func createStashItemProvider(for address: String) -> StreamableProvider<StashItem>
-    func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem>
     func createStorageProvider(for key: String) -> StreamableProvider<ChainStorageItem>
 }
 
@@ -49,33 +48,6 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
         return StreamableProvider<StashItem>(
             source: AnyStreamableSource(EmptyStreamableSource()),
             repository: AnyDataProviderRepository(repository),
-            observable: AnyDataProviderRepositoryObservable(observable),
-            operationManager: operationManager
-        )
-    }
-
-    func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem> {
-        let identifier = chain.genesisHash
-
-        let filter = NSPredicate.filterRuntimeMetadataItemsBy(identifier: identifier)
-        let storage: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            facade.createRepository(filter: filter)
-        let source = EmptyStreamableSource<RuntimeMetadataItem>()
-        let observable = CoreDataContextObservable(
-            service: facade.databaseService,
-            mapper: AnyCoreDataMapper(storage.dataMapper),
-            predicate: { $0.identifier == identifier }
-        )
-
-        observable.start { error in
-            if let error = error {
-                self.logger?.error("Can't start storage observing: \(error)")
-            }
-        }
-
-        return StreamableProvider(
-            source: AnyStreamableSource(source),
-            repository: AnyDataProviderRepository(storage),
             observable: AnyDataProviderRepositoryObservable(observable),
             operationManager: operationManager
         )

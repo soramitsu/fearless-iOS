@@ -3,6 +3,18 @@ import XCTest
 import BigInt
 import Cuckoo
 import SoraFoundation
+import RobinHood
+
+class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
+    func subscribe(chain: ChainModel,
+                   accountId: AccountId,
+                   handler: AccountInfoSubscriptionAdapterHandler?) {
+    }
+    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
+    }
+    func reset() {
+    }
+}
 
 class AssetSelectionTests: XCTestCase {
     func testSuccessfullSelection() {
@@ -15,7 +27,7 @@ class AssetSelectionTests: XCTestCase {
             ChainModelGenerator.generateChain(
                 generatingAssets: assetsPerChain,
                 addressPrefix: UInt16(index),
-                hasStaking: true
+                staking: .relayChain
             )
         }
 
@@ -36,12 +48,10 @@ class AssetSelectionTests: XCTestCase {
             balance: BigUInt(1e+18)
         )
 
-        let interactor = ChainSelectionInteractor(
-            selectedMetaAccount: selectedAccount,
-            repository: repository,
-            walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-            operationQueue: operationQueue
-        )
+        let interactor = ChainSelectionInteractor(selectedMetaAccount: selectedAccount,
+                                                  repository: AnyDataProviderRepository(repository),
+                                                  accountInfoSubscriptionAdapter: MockAccountInfoSubscriptionAdapter(),
+                                                  operationQueue: operationQueue)
 
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
@@ -53,7 +63,7 @@ class AssetSelectionTests: XCTestCase {
         let presenter = AssetSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            assetFilter: { (_, asset) in asset.staking != nil },
+            assetFilter: { asset in asset.staking != nil },
             selectedChainAssetId: selectedChainAssetId,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             localizationManager: LocalizationManager.shared
@@ -80,7 +90,7 @@ class AssetSelectionTests: XCTestCase {
         stub(wireframe) { stub in
             stub.complete(on: any(), selecting: any()).then { (_, chainAsset) in
                 XCTAssertEqual(chains.first, chainAsset.chain)
-                XCTAssertNotNil(chainAsset.asset.staking)
+                XCTAssertNotNil(selectedAsset.staking)
                 completionExpectation.fulfill()
             }
         }

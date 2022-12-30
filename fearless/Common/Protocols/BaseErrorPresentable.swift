@@ -11,14 +11,20 @@ protocol BaseErrorPresentable {
         action: @escaping () -> Void,
         locale: Locale?
     )
+    func presentExistentialDepositError(
+        from view: ControllerBackedProtocol,
+        locale: Locale?
+    )
 }
 
-extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
+extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
             .commonNotEnoughBalanceMessage(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable
+            .stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable
+            .commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
@@ -67,6 +73,18 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
         )
     }
 
+    func presentExistentialDepositError(
+        from view: ControllerBackedProtocol,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonExistentialWarningTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .commonExistentialWarningMessage(preferredLanguages: locale?.rLanguages)
+
+        presentError(for: title, message: message, view: view, locale: locale)
+    }
+
     func presentWarning(
         for title: String,
         message: String,
@@ -76,14 +94,14 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
     ) {
         let proceedTitle = R.string.localizable
             .commonProceed(preferredLanguages: locale?.rLanguages)
-        let proceedAction = AlertPresentableAction(title: proceedTitle) {
+        let proceedAction = SheetAlertPresentableAction(title: proceedTitle) {
             action()
         }
 
         let closeTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [proceedAction],
@@ -92,7 +110,28 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
 
         present(
             viewModel: viewModel,
-            style: .alert,
+            from: view
+        )
+    }
+
+    func presentError(
+        for title: String,
+        message: String,
+        view: ControllerBackedProtocol,
+        locale: Locale?
+    ) {
+        let closeTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [],
+            closeAction: closeTitle
+        )
+
+        present(
+            viewModel: viewModel,
             from: view
         )
     }

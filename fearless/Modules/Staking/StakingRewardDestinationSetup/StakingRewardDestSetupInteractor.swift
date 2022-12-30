@@ -7,7 +7,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
 
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
 
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
@@ -17,8 +17,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
-    let asset: AssetModel
-    let chain: ChainModel
+    let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
 
@@ -38,15 +37,14 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     init(
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         calculatorService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         connection: JSONRPCEngine
     ) {
@@ -58,8 +56,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.feeProxy = feeProxy
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
         self.connection = connection
@@ -68,8 +65,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private func provideRewardCalculator() {
         let operation = calculatorService.fetchCalculatorOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let engine = try operation.extractNoCancellableResultData()
                     self?.presenter.didReceiveCalculator(result: .success(engine))
@@ -92,7 +89,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
 
         extrinsicService = ExtrinsicService(
             accountId: accountItem.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountItem.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -130,11 +127,11 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
     func setup() {
         calculatorService.setup()
 
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
@@ -145,7 +142,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
 
     func fetchPayoutAccounts() {
         fetchChainAccounts(
-            chain: chain,
+            chain: chainAsset.chain,
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
@@ -155,7 +152,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
 }
 
 extension StakingRewardDestSetupInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset _: ChainAsset) {
         presenter.didReceiveAccountInfo(result: result)
     }
 }
@@ -166,7 +163,7 @@ extension StakingRewardDestSetupInteractor: PriceLocalStorageSubscriber, PriceLo
     }
 }
 
-extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             stashItem = try result.get()
@@ -178,23 +175,31 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
 
             presenter.didReceiveStashItem(result: result)
 
-            if let stashItem = stashItem,
-               let stashAccountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix),
-               let controllerAccountId = try? addressFactory.accountId(fromAddress: stashItem.controller, type: chain.addressPrefix) {
-                ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainId: chain.chainId)
-
-                payeeProvider = subscribePayee(for: stashAccountId, chainId: chain.chainId)
-
-                nominationProvider = subscribeNomination(for: stashAccountId, chainId: chain.chainId)
-
-                accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: controllerAccountId, handler: self)
+            if
+                let stashItem = stashItem,
+                let stashAccountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.stash,
+                    type: chainAsset.chain.addressPrefix
+                ),
+                let controllerAccountId = try? addressFactory.accountId(
+                    fromAddress: stashItem.controller,
+                    type: chainAsset.chain.addressPrefix
+                ) {
+                ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainAsset: chainAsset)
+                payeeProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)
+                nominationProvider = subscribeNomination(for: stashAccountId, chainAsset: chainAsset)
+                accountInfoSubscriptionAdapter.subscribe(
+                    chainAsset: chainAsset,
+                    accountId: controllerAccountId,
+                    handler: self
+                )
 
                 if let rewardDestination = rewardDestination {
                     estimateFee(rewardDestination: rewardDestination)
                 }
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.stash,
                     from: accountRepository,
                     operationManager: operationManager
@@ -207,7 +212,7 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
                 }
 
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: stashItem.controller,
                     from: accountRepository,
                     operationManager: operationManager
@@ -252,14 +257,18 @@ extension StakingRewardDestSetupInteractor: StakingLocalStorageSubscriber, Staki
                 return
             }
 
-            let rewardDestination = try RewardDestination(payee: payee, stashItem: stashItem, chainFormat: chain.chainFormat)
+            let rewardDestination = try RewardDestination(
+                payee: payee,
+                stashItem: stashItem,
+                chainFormat: chainAsset.chain.chainFormat
+            )
 
             switch rewardDestination {
             case .restake:
                 presenter.didReceiveRewardDestinationAccount(result: .success(.restake))
             case let .payout(account):
                 fetchChainAccount(
-                    chain: chain,
+                    chain: chainAsset.chain,
                     address: account,
                     from: accountRepository,
                     operationManager: operationManager

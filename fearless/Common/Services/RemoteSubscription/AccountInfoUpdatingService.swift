@@ -12,12 +12,13 @@ final class AccountInfoUpdatingService {
     }
 
     private(set) var selectedMetaAccount: MetaAccountModel
-    let chainRegistry: ChainRegistryProtocol
-    let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
-    let logger: LoggerProtocol?
-    let eventCenter: EventCenterProtocol
+    private let chainRegistry: ChainRegistryProtocol
+    private let remoteSubscriptionService: WalletRemoteSubscriptionServiceProtocol
+    private let logger: LoggerProtocol?
+    private let eventCenter: EventCenterProtocol
+    private var chains: [ChainModel.Id: ChainModel] = [:]
 
-    private var subscribedChains: [ChainModel.Id: SubscriptionInfo] = [:]
+    private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
     private let mutex = NSLock()
 
@@ -46,8 +47,8 @@ final class AccountInfoUpdatingService {
             mutex.unlock()
         }
 
-        for chainId in subscribedChains.keys {
-            removeSubscription(for: chainId)
+        for chainAssetKey in subscribedChains.keys {
+            removeSubscription(for: chainAssetKey)
         }
     }
 
@@ -61,7 +62,13 @@ final class AccountInfoUpdatingService {
         for change in changes {
             switch change {
             case let .insert(newItem):
-                addSubscriptionIfNeeded(for: newItem)
+                if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
+                    newItem.chainAssets.forEach {
+                        addSubscriptionIfNeeded(for: $0)
+                    }
+                } else {
+                    chains[newItem.chainId] = newItem
+                }
             case .update:
                 break
             case let .delete(deletedIdentifier):
@@ -70,43 +77,42 @@ final class AccountInfoUpdatingService {
         }
     }
 
-    private func addSubscriptionIfNeeded(for chain: ChainModel) {
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
-            logger?.error("Couldn't create account for chain \(chain.chainId)")
+    private func addSubscriptionIfNeeded(for chainAsset: ChainAsset) {
+        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
             return
         }
 
-        guard subscribedChains[chain.chainId] == nil else {
+        guard subscribedChains[chainAsset.uniqueKey(accountId: accountId)] == nil else {
             return
         }
 
         let maybeSubscriptionId = remoteSubscriptionService.attachToAccountInfo(
             of: accountId,
-            chain: chain,
+            chainAsset: chainAsset,
             queue: nil,
             closure: nil
         )
 
         if let subsciptionId = maybeSubscriptionId {
-            subscribedChains[chain.chainId] = SubscriptionInfo(
+            subscribedChains[chainAsset.uniqueKey(accountId: accountId)] = SubscriptionInfo(
                 subscriptionId: subsciptionId,
                 accountId: accountId
             )
         }
     }
 
-    private func removeSubscription(for chainId: ChainModel.Id) {
-        guard let subscriptionInfo = subscribedChains[chainId] else {
-            logger?.error("Expected to remove subscription but not found for \(chainId)")
+    private func removeSubscription(for key: ChainAssetKey) {
+        guard let subscriptionInfo = subscribedChains[key] else {
+            logger?.error("Expected to remove subscription but not found for \(key)")
             return
         }
 
-        subscribedChains[chainId] = nil
+        subscribedChains[key] = nil
 
         remoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
-            accountId: subscriptionInfo.accountId,
-            chainId: chainId,
+            chainAssetKey: key,
             queue: nil,
             closure: nil
         )
@@ -115,7 +121,7 @@ final class AccountInfoUpdatingService {
     private func subscribeToChains() {
         chainRegistry.chainsSubscribe(
             self,
-            runningInQueue: .global(qos: .userInitiated)
+            runningInQueue: .global()
         ) { [weak self] changes in
             self?.handle(changes: changes)
         }
@@ -150,8 +156,14 @@ extension AccountInfoUpdatingService: AccountInfoUpdatingServiceProtocol {
 extension AccountInfoUpdatingService: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         event.updatedChains.forEach { chain in
-            removeSubscription(for: chain.chainId)
-            addSubscriptionIfNeeded(for: chain)
+            chain.chainAssets.forEach {
+                guard let accountId = selectedMetaAccount.fetch(for: $0.chain.accountRequest())?.accountId else {
+                    return
+                }
+                let key = $0.uniqueKey(accountId: accountId)
+                removeSubscription(for: key)
+                addSubscriptionIfNeeded(for: $0)
+            }
         }
     }
 }

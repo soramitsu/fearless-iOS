@@ -41,7 +41,7 @@ protocol AccountFetching {
         chain: ChainModel,
         address: String,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
-    )
+    ) -> Bool
 }
 
 extension AccountFetching {
@@ -104,16 +104,17 @@ extension AccountFetching {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
+    @discardableResult
     func fetchChainAccountFor(
         meta: MetaAccountModel,
         chain: ChainModel,
         address: String,
         closure: @escaping (Result<ChainAccountResponse?, Error>) -> Void
-    ) {
+    ) -> Bool {
         let nativeChainAccount = meta.fetch(for: chain.accountRequest())
         if let nativeAddress = nativeChainAccount?.toAddress(), nativeAddress == address {
             closure(.success(nativeChainAccount))
-            return
+            return true
         }
 
         for chainAccount in meta.chainAccounts {
@@ -128,14 +129,15 @@ extension AccountFetching {
                     cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                     addressPrefix: chain.addressPrefix,
                     isEthereumBased: chainAccount.ethereumBased,
-                    isChainAccount: true
+                    isChainAccount: true,
+                    walletId: meta.metaId
                 )
                 closure(.success(account))
-                return
+                return true
             }
         }
         closure(.failure(ChainAccountFetchingError.accountNotExists))
-        return
+        return false
     }
 
     func fetchChainAccount(
@@ -155,7 +157,16 @@ extension AccountFetching {
                     }
 
                     for meta in accounts {
-                        fetchChainAccountFor(meta: meta, chain: chain, address: address, closure: closure)
+                        let found = fetchChainAccountFor(
+                            meta: meta,
+                            chain: chain,
+                            address: address,
+                            closure: closure
+                        )
+
+                        if found {
+                            return
+                        }
                     }
                 } else {
                     closure(.failure(BaseOperationError.parentOperationCancelled))
@@ -197,7 +208,8 @@ extension AccountFetching {
                                 cryptoType: CryptoType(rawValue: meta.substrateCryptoType) ?? .sr25519,
                                 addressPrefix: chain.addressPrefix,
                                 isEthereumBased: false,
-                                isChainAccount: true
+                                isChainAccount: true,
+                                walletId: meta.metaId
                             ))
                         }
                     }

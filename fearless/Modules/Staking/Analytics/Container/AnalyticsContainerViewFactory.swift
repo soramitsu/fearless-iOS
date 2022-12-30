@@ -18,22 +18,25 @@ struct AnalyticsContainerViewMode: OptionSet {
 enum AnalyticsContainerViewFactory {
     static func createView(
         mode: AnalyticsContainerViewMode,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: AnalyticsRewardsFlow
     ) -> AnalyticsContainerViewProtocol {
         let rewardsModule = AnalyticsRewardsViewFactory.createView(
+            flow: flow,
             accountIsNominator: mode.contains(.accountIsNominator),
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet
         )
-        let stakeModule = AnalyticsStakeViewFactory.createView(with: selectedAccount)
-        let validatorsModule = mode.contains(.includeValidatorsTab)
+        let stakeModule = flow == .relaychain ? AnalyticsStakeViewFactory.createView(
+            with: wallet,
+            chainAsset: chainAsset
+        ) : nil
+        let validatorsModule = (mode.contains(.includeValidatorsTab) && flow == .relaychain)
             ? AnalyticsValidatorsViewFactory.createView(
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: wallet
             )
             : nil
         let modules = [rewardsModule, stakeModule, validatorsModule].compactMap { $0 }

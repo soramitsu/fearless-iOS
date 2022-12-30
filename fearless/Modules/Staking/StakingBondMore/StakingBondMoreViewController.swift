@@ -2,14 +2,14 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 
-final class StakingBondMoreViewController: UIViewController, ViewHolder {
+final class StakingBondMoreViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingBondMoreViewLayout
 
     let presenter: StakingBondMorePresenterProtocol
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
-    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var feeViewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -40,10 +40,15 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         setupActionButton()
         applyLocalization()
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func setupAmountInputView() {
-        rootView.amountInputView.textField.keyboardType = .decimalPad
         rootView.amountInputView.textField.delegate = self
 
         let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
@@ -51,7 +56,11 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func setupActionButton() {
-        rootView.actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+        rootView.networkFeeFooterView.actionButton.addTarget(
+            self,
+            action: #selector(handleActionButton),
+            for: .touchUpInside
+        )
     }
 
     @objc
@@ -59,34 +68,38 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         presenter.handleContinueAction()
     }
 
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
+    }
+
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyAsset() {
         if let viewModel = assetViewModel?.value(for: selectedLocale) {
-            rootView.amountInputView.balanceText = R.string.localizable
-                .commonAvailableFormat(
-                    viewModel.balance ?? "",
-                    preferredLanguages: selectedLocale.rLanguages
-                )
-            rootView.amountInputView.priceText = viewModel.price
-            rootView.amountInputView.symbol = viewModel.symbol
-
-            viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountInputView.iconView, animated: true)
+            rootView.amountInputView.bind(viewModel: viewModel)
         }
     }
 
     private func applyFee() {
-        if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.networkFeeView.bind(viewModel: fee)
-        }
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    func didReceiveHints(viewModel: LocalizableResource<String>?) {
+        if let viewModel = viewModel {
+            rootView.hintView.detailsLabel.text = viewModel.value(for: selectedLocale)
+            rootView.hintView.isHidden = false
+        } else {
+            rootView.hintView.isHidden = true
+        }
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFee()
 
@@ -105,18 +118,44 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 
         amountInputViewModel = concreteViewModel
 
-        rootView.amountInputView.fieldText = concreteViewModel.displayAmount
+        rootView.amountInputView.inputFieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
 
         updateActionButton()
+    }
+
+    func didReceiveAccount(viewModel: AccountViewModel) {
+        rootView.accountView.isHidden = false
+        rootView.accountView.title = viewModel.title
+        rootView.accountView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.accountView.iconRadius
+
+        rootView.accountView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+    }
+
+    func didReceiveCollator(viewModel: AccountViewModel) {
+        rootView.collatorView.isHidden = false
+        rootView.collatorView.title = viewModel.title
+        rootView.collatorView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.collatorView.iconRadius
+
+        rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite() ?? R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
     }
 }
 
 extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable
-                .stakingBondMore_v190(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
     }
@@ -136,7 +175,7 @@ extension StakingBondMoreViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingBondMoreViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

@@ -37,22 +37,23 @@ class PhishingCheckExecutor: WalletCommandProtocol {
             options: RepositoryFetchOptions()
         )
 
-        fetchOperation.completionBlock = {
+        fetchOperation.completionBlock = { [weak self] in
+            guard let strongSelf = self else { return }
             DispatchQueue.main.async {
                 if let result = try? fetchOperation.extractResultData() {
                     guard result != nil else {
-                        self.nextActionBlock()
+                        strongSelf.nextActionBlock()
                         return
                     }
 
                     let alertController = UIAlertController.phishingWarningAlert(
-                        onConfirm: self.nextActionBlock,
-                        onCancel: self.cancelActionBlock,
-                        locale: self.locale,
-                        displayName: self.displayName
+                        onConfirm: strongSelf.nextActionBlock,
+                        onCancel: strongSelf.cancelActionBlock,
+                        locale: strongSelf.locale,
+                        displayName: strongSelf.displayName
                     )
 
-                    let presentationCommand = self.commandFactory?.preparePresentationCommand(for: alertController)
+                    let presentationCommand = strongSelf.commandFactory?.preparePresentationCommand(for: alertController)
                     presentationCommand?.presentationStyle = .modal(inNavigation: false)
 
                     try? presentationCommand?.execute()

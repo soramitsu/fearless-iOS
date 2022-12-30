@@ -25,16 +25,13 @@ extension PayoutRewardsService {
                 storagePath: .activeEra
             )
 
-        let historyDepthWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
-            storageRequestFactory.queryItems(
-                engine: engine,
-                keys: { [try keyFactory.historyDepth()] },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .historyDepth
-            )
+        let historyDepthOperation: PrimitiveConstantOperation<UInt32> = createConstOperation(
+            dependingOn: codingFactoryOperation,
+            path: .historyDepth
+        )
 
         let dependecies = currentEraWrapper.allOperations + activeEraWrapper.allOperations
-            + historyDepthWrapper.allOperations
+            + [historyDepthOperation]
         dependecies.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<ChainHistoryRange> {
@@ -42,12 +39,12 @@ extension PayoutRewardsService {
                 let currentEra = try currentEraWrapper.targetOperation.extractNoCancellableResultData()
                 .first?.value?.value,
                 let activeEra = try activeEraWrapper.targetOperation.extractNoCancellableResultData()
-                .first?.value?.index,
-                let historyDepth = try historyDepthWrapper.targetOperation.extractNoCancellableResultData()
-                .first?.value?.value
+                .first?.value?.index
             else {
                 throw PayoutRewardsServiceError.unknown
             }
+
+            let historyDepth = try historyDepthOperation.extractNoCancellableResultData()
 
             return ChainHistoryRange(
                 currentEra: currentEra,

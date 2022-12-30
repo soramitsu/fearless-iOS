@@ -3,9 +3,9 @@ import FearlessUtils
 import BigInt
 import IrohaCrypto
 
+// swiftlint:disable function_body_length
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
-
+    private let iconGenerator: IconGenerating
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let chain: ChainModel
     private let asset: AssetModel
@@ -14,11 +14,13 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         chain: ChainModel,
-        asset: AssetModel
+        asset: AssetModel,
+        iconGenerator: IconGenerating
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.chain = chain
         self.asset = asset
+        self.iconGenerator = iconGenerator
     }
 
     func createViewModel(
@@ -201,7 +203,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
     private func createChartCenterText(
         firstLine: String,
-        firstLineColor: UIColor = R.color.colorAccent()!,
+        firstLineColor: UIColor = R.color.colorPink()!,
         secondLine: String,
         thirdLine: String
     ) -> NSAttributedString {

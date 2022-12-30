@@ -1,6 +1,6 @@
 import Foundation
 
-struct AccountIdentity: Equatable {
+struct AccountIdentity: Equatable, Decodable {
     let name: String
     let parentAddress: AccountAddress?
     let parentName: String?

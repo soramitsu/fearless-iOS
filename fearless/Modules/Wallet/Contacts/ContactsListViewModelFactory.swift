@@ -1,9 +1,10 @@
 import Foundation
 import CommonWallet
+import FearlessUtils
 
 final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     private var itemViewModelFactory =
-        ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared)
+        ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared, iconGenerator: PolkadotIconGenerator())
 
     func createContactViewModelListFromItems(
         _ items: [SearchData],

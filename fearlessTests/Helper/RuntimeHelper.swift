@@ -1,5 +1,7 @@
 import Foundation
 import FearlessUtils
+import BigInt
+@testable import fearless
 
 enum RuntimeHelperError: Error {
     case invalidCatalogBaseName
@@ -78,28 +80,23 @@ final class RuntimeHelper {
     }
 
     static let dummyRuntimeMetadata: RuntimeMetadata = {
-        RuntimeMetadata(metaReserved: 1,
-                        runtimeMetadataVersion: 1,
-                        modules: [
-                            ModuleMetadata(name: "A",
-                                           storage: StorageMetadata(prefix: "_A", entries: []),
-                                           calls: [
-                                            FunctionMetadata(name: "B",
-                                                             arguments: [
-                                                                FunctionArgumentMetadata(name: "arg1", type: "bool"),
-                                                                FunctionArgumentMetadata(name: "arg2", type: "u8")
-                                                             ], documentation: [])
-                                           ],
-                                           events: [
-                                            EventMetadata(name: "A",
-                                                          arguments: ["bool", "u8"],
-                                                          documentation: [])
-                                           ],
-                                           constants: [],
-                                           errors: [],
-                                           index: 1)
-                        ],
-                        extrinsic: ExtrinsicMetadata(version: 1,
-                                                     signedExtensions: []))
+        return RuntimeMetadata.v14(
+            types: [],
+            modules: [RuntimeMetadataV14.ModuleMetadata(
+                name: "A",
+                storage: nil,
+                callsIndex: nil,
+                eventsIndex: nil,
+                constants: [],
+                errorsIndex: nil,
+                index: 1
+            )],
+            extrinsic: RuntimeMetadataV14.ExtrinsicMetadata(
+                type: 0,
+                version: 1,
+                signedExtensions: []
+            ),
+            resolver: nil
+        )
     }()
 }

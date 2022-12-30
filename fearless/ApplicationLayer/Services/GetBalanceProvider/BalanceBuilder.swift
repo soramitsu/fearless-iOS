@@ -7,13 +7,13 @@ protocol BalanceBuilderProtocol {
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
         prices: [PriceData],
-        currency: Currency,
+        metaAccount: MetaAccountModel,
         completion: @escaping (String?) -> Void
     )
     func buildBalance(
         for accounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
-        accountsInfos: [String: [ChainModel.Id: AccountInfo]],
+        accountsInfos: [ChainAssetKey: AccountInfo],
         prices: [PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     )
@@ -34,16 +34,20 @@ final class BalanceBuilder: BalanceBuilderProtocol {
         chains: [ChainModel],
         accountInfos: [ChainModel.Id: AccountInfo],
         prices: [PriceData],
-        currency: Currency,
+        metaAccount: MetaAccountModel,
         completion: @escaping (String?) -> Void
     ) {
-        let balanceTokenFormatterValue = tokenFormatter(for: currency)
+        let balanceTokenFormatterValue = tokenFormatter(for: metaAccount.selectedCurrency)
 
-        let totalWalletBalance: Decimal = chains.compactMap { chainModel in
-            let accountInfo = accountInfos[chainModel.chainId]
+        let chainAsset = chains.map(\.chainAssets).reduce([], +)
+        let totalWalletBalance: Decimal = chainAsset.compactMap { chainAsset in
+            guard let accountId = metaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return .zero
+            }
+            let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)]
 
             return getBalance(
-                for: chainModel,
+                for: chainAsset,
                 accountInfo: accountInfo,
                 prices: prices
             )
@@ -57,7 +61,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     func buildBalance(
         for managetMetaAccounts: [ManagedMetaAccountModel],
         chains: [ChainModel],
-        accountsInfos: [String: [ChainModel.Id: AccountInfo]],
+        accountsInfos: [ChainAssetKey: AccountInfo],
         prices: [PriceData],
         completion: @escaping ([ManagedMetaAccountModel]) -> Void
     ) {
@@ -65,16 +69,16 @@ final class BalanceBuilder: BalanceBuilderProtocol {
             let metaAccount = managetMetaAccount.info
             let balanceTokenFormatterValue = tokenFormatter(for: metaAccount.selectedCurrency)
 
-            let totalWalletBalance: Decimal = chains.compactMap { chainModel in
+            let chainsAssets = chains.map(\.chainAssets).reduce([], +)
+            let totalWalletBalance: Decimal = chainsAssets.map { chainAsset in
 
-                guard let accountId = metaAccount.fetch(for: chainModel.accountRequest())?.accountId else {
+                guard let accountId = metaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                     return .zero
                 }
-                let key = accountId.toHex() + chainModel.chainId
-                let accountInfo = accountsInfos[key]?[chainModel.chainId]
+                let accountInfo = accountsInfos[chainAsset.uniqueKey(accountId: accountId)]
 
                 return getBalance(
-                    for: chainModel,
+                    for: chainAsset,
                     accountInfo: accountInfo,
                     prices: prices
                 )
@@ -102,27 +106,23 @@ final class BalanceBuilder: BalanceBuilderProtocol {
     }
 
     private func getBalance(
-        for chainModel: ChainModel,
+        for chainAsset: ChainAsset,
         accountInfo: AccountInfo?,
         prices: [PriceData]
     ) -> Decimal {
-        chainModel.assets.compactMap { asset in
-            let chainAsset = ChainAsset(chain: chainModel, asset: asset.asset)
+        let balanceDecimal = getBalance(
+            for: chainAsset,
+            accountInfo: accountInfo
+        )
 
-            let balanceDecimal = getBalance(
-                for: chainAsset,
-                accountInfo: accountInfo
-            )
+        guard let priceId = chainAsset.asset.priceId,
+              let priceData = prices.first(where: { $0.priceId == priceId }),
+              let priceDecimal = Decimal(string: priceData.price)
+        else {
+            return .zero
+        }
 
-            guard let priceId = asset.asset.priceId,
-                  let priceData = prices.first(where: { $0.priceId == priceId }),
-                  let priceDecimal = Decimal(string: priceData.price)
-            else {
-                return nil
-            }
-
-            return priceDecimal * balanceDecimal
-        }.reduce(0, +)
+        return priceDecimal * balanceDecimal
     }
 
     private func getBalance(

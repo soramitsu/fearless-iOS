@@ -15,7 +15,7 @@ class SwitchTableViewCell: UITableViewCell {
 
     let switchView: UISwitch = {
         let switchView = UISwitch()
-        switchView.onTintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 
@@ -68,6 +68,11 @@ class SwitchTableViewCell: UITableViewCell {
 }
 
 final class TitleSubtitleSwitchTableViewCell: SwitchTableViewCell {
+    private enum LayoutConstants {
+        static let switcherWidth: CGFloat = 36
+        static let switcherHeight: CGFloat = 21
+    }
+
     let subtitleLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -81,12 +86,23 @@ final class TitleSubtitleSwitchTableViewCell: SwitchTableViewCell {
         return stackView
     }()
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        switchView.set(width: LayoutConstants.switcherWidth, height: LayoutConstants.switcherHeight)
+    }
+
     override fileprivate func setupLayout() {
+        titleLabel.font = .h5Title
+        titleLabel.textColor = R.color.colorLightGray()
+
         contentView.addSubview(switchView)
         switchView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
         }
+
+        switchView.set(width: LayoutConstants.switcherWidth, height: LayoutConstants.switcherHeight)
 
         contentView.addSubview(stackView)
         stackView.snp.makeConstraints { make in

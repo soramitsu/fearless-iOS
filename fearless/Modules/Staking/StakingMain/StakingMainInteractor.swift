@@ -5,10 +5,14 @@ import FearlessUtils
 import SoraFoundation
 
 final class StakingMainInteractor: RuntimeConstantFetching {
-    weak var presenter: StakingMainInteractorOutputProtocol!
+    weak var presenter: StakingMainInteractorOutputProtocol?
 
-    var stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol {
-        sharedState.stakingLocalSubscriptionFactory
+    var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol {
+        sharedState.relaychainStakingLocalSubscriptionFactory
+    }
+
+    var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol {
+        sharedState.parachainStakingLocalSubscriptionFactory
     }
 
     var stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
@@ -28,11 +32,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let accountProviderFactory: AccountProviderFactoryProtocol
     let eventCenter: EventCenterProtocol
     let operationManager: OperationManagerProtocol
-    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
+    var eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol?
     let applicationHandler: ApplicationHandlerProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
+
     let logger: LoggerProtocol?
+    var collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
@@ -53,6 +59,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
     var rewardAnalyticsProvider: AnySingleValueProvider<[SubqueryRewardItemData]>?
+    var delegatorStateProvider: AnyDataProvider<DecodedParachainDelegatorState>?
+    var collatorIds: [AccountId]?
 
     init(
         selectedWalletSettings: SelectedWalletSettings,
@@ -66,11 +74,11 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         accountProviderFactory: AccountProviderFactoryProtocol,
         eventCenter: EventCenterProtocol,
         operationManager: OperationManagerProtocol,
-        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        collatorOperationFactory: ParachainCollatorOperationFactory
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.sharedState = sharedState
@@ -83,11 +91,11 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.accountProviderFactory = accountProviderFactory
         self.eventCenter = eventCenter
         self.operationManager = operationManager
-        self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.commonSettings = commonSettings
         self.logger = logger
+        self.collatorOperationFactory = collatorOperationFactory
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 
@@ -112,19 +120,49 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func updateSharedState() {
-        guard let chainAsset = selectedChainAsset else {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let chainAsset = selectedChainAsset,
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+        else {
             return
         }
 
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
+
+        let subqueryOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: subqueryOperationFactory
+        )
+
+        self.collatorOperationFactory = collatorOperationFactory
+
         do {
             let eraValidatorService = try stakingServiceFactory.createEraValidatorService(
-                for: chainAsset.chain.chainId
+                for: chainAsset.chain
             )
 
             let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
-                for: chainAsset.chain.chainId,
+                for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
-                validatorService: eraValidatorService
+                validatorService: eraValidatorService,
+                collatorOperationFactory: collatorOperationFactory
             )
 
             sharedState.eraValidatorService.throttle()
@@ -146,7 +184,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 for: chainSubscriptionId,
                 chainId: chainId,
                 queue: nil,
-                closure: nil
+                closure: nil,
+                stakingType: selectedChainAsset?.stakingType
             )
 
             self.chainSubscriptionId = nil
@@ -161,7 +200,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         chainSubscriptionId = stakingRemoteSubscriptionService.attachToGlobalData(
             for: chainId,
             queue: nil,
-            closure: nil
+            closure: nil,
+            stakingType: selectedChainAsset?.stakingType
         )
     }
 
@@ -171,17 +211,19 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     func setupAccountRemoteSubscription() {
         guard
-            let chainId = selectedChainAsset?.chain.chainId,
+            let chainAsset = selectedChainAsset,
             let accountId = selectedAccount?.accountId,
-            let chainFormat = selectedChainAsset?.chain.chainFormat else {
+            let chainFormat = selectedChainAsset?.chain.chainFormat,
+            let stakingType = selectedChainAsset?.stakingType else {
             return
         }
 
         do {
             try stakingAccountUpdatingService.setupSubscription(
                 for: accountId,
-                chainId: chainId,
-                chainFormat: chainFormat
+                chainAsset: chainAsset,
+                chainFormat: chainFormat,
+                stakingType: stakingType
             )
         } catch {
             logger?.error("Could setup staking account subscription")
@@ -193,16 +235,20 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        presenter.didReceive(selectedAddress: address)
+        presenter?.didReceive(selectedAddress: address)
     }
 
     func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
+        guard selectedChainAsset?.stakingType == .relayChain else {
+            return
+        }
+
         fetchConstant(
             for: .maxNominatorRewardedPerValidator,
             runtimeCodingService: runtimeService,
             operationManager: operationManager
         ) { [weak self] result in
-            self?.presenter.didReceiveMaxNominatorsPerValidator(result: result)
+            self?.presenter?.didReceiveMaxNominatorsPerValidator(result: result)
         }
     }
 
@@ -211,19 +257,19 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             return
         }
 
-        presenter.didReceive(newChainAsset: chainAsset)
+        presenter?.didReceive(newChainAsset: chainAsset)
     }
 
     func provideRewardCalculator(from calculatorService: RewardCalculatorServiceProtocol) {
         let operation = calculatorService.fetchCalculatorOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let engine = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(calculator: engine)
+                    self?.presenter?.didReceive(calculator: engine)
                 } catch {
-                    self?.presenter.didReceive(calculatorError: error)
+                    self?.presenter?.didReceive(calculatorError: error)
                 }
             }
         }
@@ -234,14 +280,14 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     func provideEraStakersInfo(from eraValidatorService: EraValidatorServiceProtocol) {
         let operation = eraValidatorService.fetchInfoOperation()
 
-        operation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let info = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraStakersInfo: info)
+                    self?.presenter?.didReceive(eraStakersInfo: info)
                     self?.fetchEraCompletionTime()
                 } catch {
-                    self?.presenter.didReceive(calculatorError: error)
+                    self?.presenter?.didReceive(calculatorError: error)
                 }
             }
         }
@@ -250,12 +296,12 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideNetworkStakingInfo() {
-        guard let chainId = selectedChainAsset?.chain.chainId else {
+        guard let chainId = selectedChainAsset?.chain.chainId, let eraInfoOperationFactory = eraInfoOperationFactory else {
             return
         }
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            presenter.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
+            presenter?.didReceive(networkStakingInfoError: ChainRegistryError.runtimeMetadaUnavailable)
             return
         }
 
@@ -264,13 +310,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             runtimeService: runtimeService
         )
 
-        wrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async { [weak self] in
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
                 do {
                     let info = try wrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(networkStakingInfo: info)
+                    self?.presenter?.didReceive(networkStakingInfo: info)
                 } catch {
-                    self?.presenter.didReceive(networkStakingInfoError: error)
+                    self?.presenter?.didReceive(networkStakingInfoError: error)
                 }
             }
         }
@@ -284,12 +330,12 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
-            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
+            presenter?.didReceive(eraCountdownResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
             return
         }
 
         guard let connection = chainRegistry.getConnection(for: chainId) else {
-            presenter.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
+            presenter?.didReceive(eraCountdownResult: .failure(ChainRegistryError.connectionUnavailable))
             return
         }
 
@@ -302,12 +348,54 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async {
                 do {
                     let result = try operationWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(eraCountdownResult: .success(result))
+                    self?.presenter?.didReceive(eraCountdownResult: .success(result))
                 } catch {
-                    self?.presenter.didReceive(eraCountdownResult: .failure(error))
+                    self?.presenter?.didReceive(eraCountdownResult: .failure(error))
                 }
             }
         }
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
+
+//    Parachain
+
+    func handleDelegatorState(
+        delegatorState: ParachainStakingDelegatorState?,
+        chainAsset _: ChainAsset
+    ) {
+        if let state = delegatorState {
+            fetchCollatorsDelegations(accountIds: state.delegations.map(\.owner))
+
+            let idsOperation: BaseOperation<[AccountId]> = ClosureOperation { state.delegations.map(\.owner) }
+            let idsWrapper = CompoundOperationWrapper(targetOperation: idsOperation)
+
+            let collatorInfosOperation = collatorOperationFactory.candidateInfos(for: idsWrapper)
+            collatorInfosOperation.targetOperation.completionBlock = { [weak self] in
+
+                DispatchQueue.main.async {
+                    do {
+                        let collators = try collatorInfosOperation.targetOperation.extractNoCancellableResultData() ?? []
+
+                        self?.collatorIds = collators.map(\.owner)
+
+                        let delegationInfos: [ParachainStakingDelegationInfo] = state.delegations.compactMap { delegation in
+                            guard let collator = collators.first(where: { $0.owner == delegation.owner }) else {
+                                return nil
+                            }
+                            return ParachainStakingDelegationInfo(
+                                delegation: delegation,
+                                collator: collator
+                            )
+                        }
+                        self?.presenter?.didReceive(delegationInfos: delegationInfos)
+                    } catch {
+                        self?.logger?.error("handleDelegatorState.error: \(error)")
+                    }
+                }
+            }
+            operationManager.enqueue(operations: collatorInfosOperation.allOperations, in: .transient)
+        } else {
+            presenter?.didReceive(delegationInfos: nil)
+        }
     }
 }

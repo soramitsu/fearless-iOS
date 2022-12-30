@@ -12,7 +12,7 @@ final class ControllerAccountConfirmationLayout: UIView {
 
     let controllerAccountView = UIFactory.default.createAccountView()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory.default.createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory.default.createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -57,13 +57,13 @@ final class ControllerAccountConfirmationLayout: UIView {
             make.height.equalTo(52.0)
         }
 
-        addSubview(networkFeeConfirmView)
-        networkFeeConfirmView.snp.makeConstraints { make in
+        addSubview(networkFeeFooterView)
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }
 
     private func applyLocalization() {
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
     }
 }

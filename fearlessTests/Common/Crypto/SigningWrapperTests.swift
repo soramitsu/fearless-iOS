@@ -6,7 +6,8 @@ import SoraKeystore
 class SigningWrapperTests: XCTestCase {
     static let name: String = "myname"
     static let message: String = "this is a message"
-    static let seed: String = "18691a833f2c7f8c8738519ad04ac8e1ce16fc160c738ce36708defbd841e23c"
+    static let substrateSeed: String = "18691a833f2c7f8c8738519ad04ac8e1ce16fc160c738ce36708defbd841e23c"
+    static let ethereumSeed: String = "0xe0fa453f7646c45cbeecac10d4f48eb90868ec15d91cf0a46d9cf974f7862edf"
 
     private static var testSettings: SelectedWalletSettings = {
         SelectedWalletSettings(
@@ -32,12 +33,12 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromSeed(
-            Self.seed,
-            cryptoType: .sr25519,
-            keychain: keychain,
-            settings: settings
-        )
+        try AccountCreationHelper.createMetaAccountFromSeed(substrateSeed: Self.substrateSeed,
+                                                            ethereumSeed: nil,
+                                                            cryptoType: .sr25519,
+                                                            keychain: keychain,
+                                                            settings: settings)
+
 
         try performSr25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -46,12 +47,12 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromKeystore(
-            Constants.validSrKeystoreName,
-            password: Constants.validSrKeystorePassword,
-            keychain: keychain,
-            settings: settings
-        )
+        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validSrKeystoreName,
+                                                                ethereumFilename: nil,
+                                                                substratePassword: Constants.validSrKeystorePassword,
+                                                                ethereumPassword: nil,
+                                                                keychain: keychain,
+                                                                settings: settings)
 
         try performSr25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -72,13 +73,12 @@ class SigningWrapperTests: XCTestCase {
     func testEd25519CreationFromSeedAndSigning() throws {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
-
-        try AccountCreationHelper.createMetaAccountFromSeed(
-            Self.seed,
-            cryptoType: .ed25519,
-            keychain: keychain,
-            settings: settings
-        )
+        
+        try AccountCreationHelper.createMetaAccountFromSeed(substrateSeed: Self.substrateSeed,
+                                                            ethereumSeed: nil,
+                                                            cryptoType: .ed25519,
+                                                            keychain: keychain,
+                                                            settings: settings)
 
         try performEd25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -87,12 +87,12 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromKeystore(
-            Constants.validEd25519KeystoreName,
-            password: Constants.validEd25519KeystorePassword,
-            keychain: keychain,
-            settings: settings
-        )
+        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validEd25519KeystoreName,
+                                                                ethereumFilename: nil,
+                                                                substratePassword: Constants.validEd25519KeystorePassword,
+                                                                ethereumPassword: nil,
+                                                                keychain: keychain,
+                                                                settings: settings)
 
         try performEd25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -102,7 +102,7 @@ class SigningWrapperTests: XCTestCase {
         let settings = Self.testSettings
 
         try AccountCreationHelper.createMetaAccountFromMnemonic(
-            cryptoType: .substrateEcdsa,
+            cryptoType: .ecdsa,
             keychain: keychain,
             settings: settings
         )
@@ -115,12 +115,11 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromSeed(
-            Self.seed,
-            cryptoType: .substrateEcdsa,
-            keychain: keychain,
-            settings: settings
-        )
+        try AccountCreationHelper.createMetaAccountFromSeed(substrateSeed: Self.substrateSeed,
+                                                            ethereumSeed: Self.ethereumSeed,
+                                                            cryptoType: .ecdsa,
+                                                            keychain: keychain,
+                                                            settings: settings)
 
         try performSubstrateEcdsaSigningTest(keychain: keychain, settings: settings)
         try performEthereumEcdsaSigningTest(keychain: keychain, settings: settings)
@@ -130,12 +129,12 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromKeystore(
-            Constants.validEcdsaKeystoreName,
-            password: Constants.validEcdsaKeystorePassword,
-            keychain: keychain,
-            settings: settings
-        )
+        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validEcdsaKeystoreName,
+                                                                ethereumFilename: Constants.validEthereumKeystoreName,
+                                                                substratePassword: Constants.validEcdsaKeystorePassword,
+                                                                ethereumPassword: Constants.validEthereumKeystorePassword,
+                                                                keychain: keychain,
+                                                                settings: settings)
 
         try performSubstrateEcdsaSigningTest(keychain: keychain, settings: settings)
         try performEthereumEcdsaSigningTest(keychain: keychain, settings: settings)
@@ -213,7 +212,7 @@ class SigningWrapperTests: XCTestCase {
             metaId: metaAccount.metaId,
             accountId: nil,
             isEthereumBased: false,
-            cryptoType: .substrateEcdsa,
+            cryptoType: .ecdsa,
             publicKeyData: publicKeyData
         )
 
@@ -241,7 +240,7 @@ class SigningWrapperTests: XCTestCase {
             metaId: metaAccount.metaId,
             accountId: nil,
             isEthereumBased: true,
-            cryptoType: .ethereumEcdsa,
+            cryptoType: .ecdsa,
             publicKeyData: publicKeyData
         )
 

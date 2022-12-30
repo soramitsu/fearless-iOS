@@ -14,13 +14,35 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
         let wireframe = StakingAmountWireframe()
 
+        let errorBalanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: selectedAccount
+        )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: errorBalanceViewModelFactory
+        )
+
+        guard let dependencyContainer = createContainer(
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            dataValidatingFactory: dataValidatingFactory,
+            wallet: selectedAccount,
+            amount: amount
+        ) else {
+            return nil
+        }
+
         guard let presenter = createPresenter(
             view: view,
             wireframe: wireframe,
             amount: amount,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            viewModelState: dependencyContainer.viewModelState,
+            viewModelFactory: dependencyContainer.viewModelFactory
         ) else {
             return nil
         }
@@ -28,7 +50,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         guard let interactor = createInteractor(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            strategy: dependencyContainer.strategy
         ) else {
             return nil
         }
@@ -36,6 +59,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         view.uiFactory = UIFactory()
         view.localizationManager = LocalizationManager.shared
 
+        dataValidatingFactory.view = view
         presenter.interactor = interactor
         interactor.presenter = presenter
         view.presenter = presenter
@@ -49,7 +73,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        viewModelState: StakingAmountViewModelState?,
+        viewModelFactory: StakingAmountViewModelFactoryProtocol?
     ) -> StakingAmountPresenter? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
@@ -69,7 +95,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let presenter = StakingAmountPresenter(
@@ -81,7 +108,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             applicationConfig: ApplicationConfig.shared,
-            logger: Logger.shared
+            logger: Logger.shared,
+            viewModelState: viewModelState,
+            viewModelFactory: viewModelFactory
         )
 
         presenter.view = view
@@ -91,11 +120,23 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return presenter
     }
 
-    private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
-    ) -> StakingAmountInteractor? {
+    // swiftlint:disable function_body_length
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        wallet: MetaAccountModel,
+        amount: Decimal?
+    ) -> StakingAmountDependencyContainer? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
+            return nil
+        }
+
+        let flow: StakingAmountFlow = chainAsset.chain.isEthereumBased ? .parachain : .relaychain
+        let operationManager = OperationManagerFacade.sharedManager
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
         let serviceFactory = StakingServiceFactory(
@@ -106,58 +147,182 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
-            for: chain.chainId
+            for: chainAsset.chain
         ) else {
             return nil
         }
 
-        guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
-            for: chain.chainId,
-            assetPrecision: Int16(asset.precision),
-            validatorService: eraValidatorService
-        ) else {
-            return nil
-        }
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
+        )
 
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
-            return nil
-        }
-
-        let operationManager = OperationManagerFacade.sharedManager
+        let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+        )
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
+        switch flow {
+        case .relaychain:
+            let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
+
+            let viewModelState = StakingAmountRelaychainViewModelState(
+                dataValidatingFactory: dataValidatingFactory,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                amount: amount
+            )
+
+            let strategy = StakingAmountRelaychainStrategy(
+                chainAsset: chainAsset,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                stakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
+                extrinsicService: extrinsicService,
+                output: viewModelState,
+                eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
+                eraValidatorService: eraValidatorService,
+                existentialDepositService: existentialDepositService
+            )
+
+            let viewModelFactory = StakingAmountRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                rewardDestViewModelFactory: rewardDestViewModelFactory
+            )
+
+            return StakingAmountDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .parachain:
+            let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
+                chainRegistry: chainRegistry,
+                storageFacade: substrateStorageFacade,
+                operationManager: operationManager,
+                logger: Logger.shared
+            )
+
+            let viewModelState = StakingAmountParachainViewModelState(
+                dataValidatingFactory: dataValidatingFactory,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                amount: amount
+            )
+
+            let strategy = StakingAmountParachainStrategy(
+                chainAsset: chainAsset,
+                stakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory,
+                output: viewModelState,
+                extrinsicService: extrinsicService,
+                eraInfoOperationFactory: ParachainStakingInfoOperationFactory(),
+                eraValidatorService: eraValidatorService,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                existentialDepositService: existentialDepositService
+            )
+
+            let viewModelFactory = StakingAmountParachainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                rewardDestViewModelFactory: rewardDestViewModelFactory,
+                accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)), wallet: wallet
+            )
+
+            return StakingAmountDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
+    }
+
+    private static func createInteractor(
+        chain: ChainModel,
+        asset: AssetModel,
+        selectedAccount: MetaAccountModel,
+        strategy: StakingAmountStrategy?
+    ) -> StakingAmountInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return nil
+        }
+
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+
+        let serviceFactory = StakingServiceFactory(
+            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            storageFacade: substrateStorageFacade,
+            eventCenter: EventCenter.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
+            for: chain
+        ) else {
+            return nil
+        }
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: asset,
+            chain: chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
+        guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
+            for: ChainAsset(chain: chain, asset: asset),
+            assetPrecision: Int16(asset.precision),
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
+        ) else {
+            return nil
+        }
+
+        guard
+            let connection = chainRegistry.getConnection(for: chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
+        else {
+            return nil
+        }
+
+        let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
         let facade = UserDataStorageFacade.shared
-
         let mapper = MetaAccountMapper()
 
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
@@ -168,21 +333,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         return StakingAmountInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
-            extrinsicService: extrinsicService,
             rewardService: rewardCalculatorService,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
+            chainAsset: chainAsset,
+            wallet: selectedAccount,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
-            eraValidatorService: eraValidatorService
+            strategy: strategy
         )
     }
 }

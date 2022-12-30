@@ -9,16 +9,13 @@ final class StakingRebondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView = AmountInputViewV2()
 
     let networkFeeView = NetworkFeeView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 
@@ -45,8 +42,7 @@ final class StakingRebondSetupLayout: UIView {
     private func applyLocalization() {
         networkFeeView.locale = locale
 
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        amountInputView.locale = locale
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
@@ -62,7 +58,7 @@ final class StakingRebondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: amountInputView)

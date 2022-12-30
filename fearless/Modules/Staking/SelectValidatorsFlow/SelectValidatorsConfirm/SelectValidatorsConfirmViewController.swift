@@ -46,13 +46,7 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
     }
 
     private func configure() {
-        rootView.mainAccountView.addTarget(
-            self,
-            action: #selector(actionOnWalletAccount),
-            for: .touchUpInside
-        )
-
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(proceed),
             for: .touchUpInside
@@ -64,15 +58,15 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
         title = R.string.localizable.commonConfirmTitle(preferredLanguages: languages)
 
-        rootView.mainAccountView.title = R.string.localizable.stakingStashTitle(
+        rootView.mainAccountView.titleLabel.text = R.string.localizable.stakingStashTitle(
             preferredLanguages: languages
         )
 
-        rootView.networkFeeConfirmView.actionButton.imageWithTitleView?.title =
+        rootView.networkFeeFooterView.actionButton.imageWithTitleView?.title =
             R.string.localizable.commonConfirm(preferredLanguages: languages)
-        rootView.networkFeeConfirmView.actionButton.invalidateLayout()
+        rootView.networkFeeFooterView.actionButton.invalidateLayout()
 
-        rootView.amountView.title = R.string.localizable
+        rootView.amountView.titleLabel.text = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
 
         rootView.validatorsView.titleLabel.text = R.string.localizable.stakingSelectedValidatorsTitle(
@@ -83,17 +77,22 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             preferredLanguages: languages
         )
 
-        rootView.networkFeeConfirmView.locale = selectedLocale
+        rootView.poolView.titleLabel.text = R.string.localizable.poolStakingSelectedPool(
+            preferredLanguages: languages
+        )
+
+        rootView.networkFeeFooterView.locale = selectedLocale
+
+        rootView.selectedCollatorTitle.text = R.string.localizable.stakingSelectedCollator(preferredLanguages: languages)
 
         applyConfirmationViewModel()
         applyHints()
-        applyBalanceView()
         applyFeeViewModel()
     }
 
     private func updateActionButton() {
         let isEnabled = (assetViewModel != nil)
-        rootView.networkFeeConfirmView.actionButton.set(enabled: isEnabled)
+        rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
     }
 
     private func applyConfirmationViewModel() {
@@ -101,49 +100,51 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
             return
         }
 
-        rootView.amountView.fieldText = viewModel.amount
+        rootView.amountView.isHidden = viewModel.amount == nil
+        rootView.rewardDestinationView.isHidden = viewModel.rewardDestination == nil
+        rootView.payoutAccountView?.isHidden = viewModel.rewardDestination == nil
+        rootView.poolView.isHidden = viewModel.poolName == nil
 
-        rootView.mainAccountView.iconImage = viewModel.senderIcon
-            .imageWithFillColor(
-                R.color.colorWhite()!,
-                size: UIConstants.smallAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
-
-        rootView.mainAccountView.subtitle = viewModel.senderName
+        if let stakedViewModel = viewModel.stakeAmountViewModel?.value(for: selectedLocale) {
+            rootView.stakeAmountView.bind(viewModel: stakedViewModel)
+        }
+        rootView.amountView.valueTop.text = viewModel.amount?.amount
+        rootView.amountView.valueBottom.text = viewModel.amount?.price
+        rootView.mainAccountView.valueTop.text = viewModel.senderName
+        rootView.mainAccountView.valueBottom.text = viewModel.senderAddress
 
         switch viewModel.rewardDestination {
         case .restake:
-            rootView.rewardDestinationView.valueLabel.text = R.string.localizable
+            rootView.rewardDestinationView.valueTop.text = R.string.localizable
                 .stakingRestakeTitle(preferredLanguages: selectedLocale.rLanguages)
             rootView.removePayoutAccountIfNeeded()
-        case let .payout(icon, title):
-            rootView.rewardDestinationView.valueLabel.text = R.string.localizable
+        case let .payout(icon, title, address):
+            rootView.rewardDestinationView.valueTop.text = R.string.localizable
                 .stakingPayoutTitle(preferredLanguages: selectedLocale.rLanguages)
             rootView.addPayoutAccountIfNeeded()
-
-            rootView.payoutAccountView?.addTarget(
-                self,
-                action: #selector(actionOnPayoutAccount),
-                for: .touchUpInside
-            )
-
-            rootView.payoutAccountView?.title = R.string.localizable.stakingRewardPayoutAccount(
+            rootView.payoutAccountView?.titleLabel.text = R.string.localizable.stakingRewardPayoutAccount(
                 preferredLanguages: selectedLocale.rLanguages
             )
-
-            rootView.payoutAccountView?.iconImage = icon.imageWithFillColor(
-                R.color.colorWhite()!,
-                size: UIConstants.smallAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
-            rootView.payoutAccountView?.subtitle = title
+            rootView.payoutAccountView?.valueTop.text = title
+            rootView.payoutAccountView?.valueBottom.text = address
+        case .none:
+            rootView.rewardDestinationView.isHidden = true
+            rootView.payoutAccountView?.isHidden = true
         }
 
-        rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
-            quantityFormatter.string(from: NSNumber(value: viewModel.validatorsCount)) ?? "",
-            quantityFormatter.string(from: NSNumber(value: viewModel.maxValidatorCount)) ?? ""
-        )
+        if let validatorsCount = viewModel.validatorsCount, let maxValidatorCount = viewModel.maxValidatorCount {
+            rootView.validatorsView.valueLabel.text = R.string.localizable.stakingValidatorInfoNominators(
+                quantityFormatter.string(from: NSNumber(value: validatorsCount)) ?? "",
+                quantityFormatter.string(from: NSNumber(value: maxValidatorCount)) ?? ""
+            )
+        } else {
+            rootView.validatorsView.isHidden = true
+        }
+
+        rootView.selectedCollatorView.isHidden = viewModel.selectedCollatorViewModel == nil
+        rootView.selectedCollatorView.titleLabel.text = viewModel.selectedCollatorViewModel?.name
+        rootView.selectedCollatorView.valueTop.text = viewModel.selectedCollatorViewModel?.address
+        rootView.poolView.valueTop.text = viewModel.poolName
     }
 
     private func applyHints() {
@@ -154,26 +155,9 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
         rootView.setHints(hints)
     }
 
-    private func applyBalanceView() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        guard let viewModel = assetViewModel?.value(for: locale) else {
-            return
-        }
-
-        rootView.amountView.balanceText = R.string.localizable
-            .commonAvailableFormat(
-                viewModel.balance ?? "",
-                preferredLanguages: locale.rLanguages
-            )
-        rootView.amountView.priceText = viewModel.price
-
-        viewModel.iconViewModel?.loadAmountInputIcon(on: rootView.amountView.iconView, animated: true)
-        rootView.amountView.symbol = viewModel.symbol
-    }
-
     private func applyFeeViewModel() {
         let viewModel = feeViewModel?.value(for: selectedLocale)
-        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
+        rootView.networkFeeFooterView.bindBalance(viewModel: viewModel)
     }
 
     // MARK: Action
@@ -184,6 +168,10 @@ final class SelectValidatorsConfirmViewController: UIViewController, ViewHolder,
 
     @objc private func actionOnWalletAccount() {
         presenter.selectWalletAccount()
+    }
+
+    @objc private func actionOnCollatorAccount() {
+        presenter.selectCollatorAccount()
     }
 
     @objc private func proceed() {
@@ -204,7 +192,6 @@ extension SelectValidatorsConfirmViewController: SelectValidatorsConfirmViewProt
 
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         self.assetViewModel = assetViewModel
-        applyBalanceView()
         updateActionButton()
     }
 

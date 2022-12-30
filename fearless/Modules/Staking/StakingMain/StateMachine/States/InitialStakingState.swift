@@ -1,6 +1,6 @@
 import Foundation
 
-final class InitialStakingState: BaseStakingState {
+final class InitialRelaychainStakingState: BaseStakingState {
     override func accept(visitor: StakingStateVisitorProtocol) {
         visitor.visit(state: self)
     }

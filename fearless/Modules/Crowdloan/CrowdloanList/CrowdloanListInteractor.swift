@@ -14,6 +14,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let settings: CrowdloanChainSettings
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
+    let eventCenter: EventCenterProtocol
 
     private var blockNumberSubscriptionId: UUID?
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
@@ -38,7 +39,8 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         jsonDataProviderFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        eventCenter: EventCenterProtocol
     ) {
         self.selectedMetaAccount = selectedMetaAccount
         self.crowdloanOperationFactory = crowdloanOperationFactory
@@ -50,6 +52,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.settings = settings
         self.operationManager = operationManager
         self.logger = logger
+        self.eventCenter = eventCenter
     }
 
     private func provideContributions(
@@ -179,8 +182,8 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         )
     }
 
-    private func subscribeToAccountInfo(for accountId: AccountId, chain: ChainModel) {
-        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+    private func subscribeToAccountInfo(for chain: ChainModel) {
+        accountInfoSubscriptionAdapter.subscribe(chainsAssets: chain.chainAssets, handler: self)
     }
 
     private func provideConstants(for chain: ChainModel) {
@@ -213,9 +216,9 @@ extension CrowdloanListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
-        if let chain = settings.value, chain.chainId == chainId {
+        if let chain = settings.value, chain.chainId == chainAsset.chain.chainId {
             logger?.debug("Did receive balance for accountId: \(accountId.toHex()))")
             presenter.didReceiveAccountInfo(result: result)
         }
@@ -223,10 +226,10 @@ extension CrowdloanListInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension CrowdloanListInteractor {
-    func setup(with accountId: AccountId, chain: ChainModel) {
+    func setup(with _: AccountId, chain: ChainModel) {
         presenter.didReceiveSelectedChain(result: .success(chain))
 
-        subscribeToAccountInfo(for: accountId, chain: chain)
+        subscribeToAccountInfo(for: chain)
 
         provideCrowdloans(for: chain)
 
@@ -342,5 +345,15 @@ extension CrowdloanListInteractor {
         }
 
         operationManager.enqueue(operations: crowdloanWrapper.allOperations, in: .transient)
+    }
+}
+
+extension CrowdloanListInteractor: EventVisitorProtocol {
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        guard let updatedChain = event.newOrUpdatedChains.first(where: { $0.chainId == settings.value?.chainId }) else {
+            return
+        }
+
+        refresh(with: updatedChain)
     }
 }

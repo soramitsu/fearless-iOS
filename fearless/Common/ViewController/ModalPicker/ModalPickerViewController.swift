@@ -31,6 +31,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     var selectionCallback: ModalPickerSelectionCallback?
     var localizedTitle: LocalizableResource<String>?
+
     var icon: UIImage?
     var actionType: ModalPickerViewAction = .none
 
@@ -40,11 +41,13 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var headerHeight: CGFloat = 40.0
     var cellIdentifier: String = "modalPickerCellId"
     var selectedIndex: Int = 0
+    var headerBorderType: BorderType = .bottom
 
     var hasCloseItem: Bool = false
     var allowsSelection: Bool = true
     var showSelection: Bool = true
     var presenterCanDrag: Bool = true
+    var hideWhenDidSelected: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
     var separatorStyle: UITableViewCell.SeparatorStyle = .none
@@ -97,6 +100,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
             centerHeader()
             configureCloseItem()
         }
+
+        headerBackgroundView.borderType = headerBorderType
     }
 
     private func setupLocalization() {
@@ -164,7 +169,9 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         selectedIndex = indexPath.row
 
-        presenter?.hide(view: self, animated: true)
+        if hideWhenDidSelected {
+            presenter?.hide(view: self, animated: true)
+        }
         delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
 
         selectionCallback?(indexPath.row)

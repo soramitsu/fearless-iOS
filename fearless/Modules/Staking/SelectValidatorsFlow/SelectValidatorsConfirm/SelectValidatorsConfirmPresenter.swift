@@ -7,85 +7,31 @@ final class SelectValidatorsConfirmPresenter {
     let wireframe: SelectValidatorsConfirmWireframeProtocol
     let interactor: SelectValidatorsConfirmInteractorInputProtocol
 
-    private var balance: Decimal?
-    private var priceData: PriceData?
-    private var fee: Decimal?
-    private var minimalBalance: Decimal?
-    private var minNominatorBond: Decimal?
-    private var counterForNominators: UInt32?
-    private var maxNominatorsCount: UInt32?
-    private var stakingDuration: StakingDuration?
+    private(set) var priceData: PriceData?
+    private(set) var balance: Decimal?
 
-    var state: SelectValidatorsConfirmationModel?
     let logger: LoggerProtocol?
-    let confirmationViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let viewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol
+    let viewModelState: SelectValidatorsConfirmViewModelState
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let asset: AssetModel
-    let chain: ChainModel
+    let chainAsset: ChainAsset
 
     init(
         interactor: SelectValidatorsConfirmInteractorInputProtocol,
         wireframe: SelectValidatorsConfirmWireframeProtocol,
-        confirmationViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        viewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol,
+        viewModelState: SelectValidatorsConfirmViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.confirmationViewModelFactory = confirmationViewModelFactory
-        self.balanceViewModelFactory = balanceViewModelFactory
+        self.viewModelFactory = viewModelFactory
+        self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
-        self.asset = asset
-        self.chain = chain
-    }
-
-    private func provideConfirmationState() {
-        guard let state = state else {
-            return
-        }
-
-        do {
-            let viewModel = try confirmationViewModelFactory.createViewModel(from: state, asset: asset)
-            view?.didReceive(confirmationViewModel: viewModel)
-        } catch {
-            logger?.error("Did receive error: \(error)")
-        }
-    }
-
-    private func provideHints() {
-        guard let duration = stakingDuration else {
-            return
-        }
-
-        let viewModel = confirmationViewModelFactory.createHints(from: duration)
-        view?.didReceive(hintsViewModel: viewModel)
-    }
-
-    private func provideFee() {
-        if let fee = fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceive(feeViewModel: viewModel)
-        } else {
-            view?.didReceive(feeViewModel: nil)
-        }
-    }
-
-    private func provideAsset() {
-        guard let state = state else {
-            return
-        }
-
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            state.amount,
-            balance: balance,
-            priceData: priceData
-        )
-        view?.didReceive(assetViewModel: viewModel)
+        self.chainAsset = chainAsset
     }
 
     private func handle(error: Error) {
@@ -116,14 +62,15 @@ final class SelectValidatorsConfirmPresenter {
 
 extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProtocol {
     func setup() {
-        provideFee()
+        viewModelState.setStateListener(self)
+        provideFee(viewModelState: viewModelState)
 
         interactor.setup()
-        interactor.estimateFee()
+        interactor.estimateFee(closure: viewModelState.createExtrinsicBuilderClosure())
     }
 
     func selectWalletAccount() {
-        guard let state = state else {
+        guard let walletAddress = viewModelState.walletAccountAddress else {
             return
         }
 
@@ -132,93 +79,71 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProt
 
             wireframe.presentAccountOptions(
                 from: view,
-                address: state.wallet.address,
-                chain: chain,
+                address: walletAddress,
+                chain: chainAsset.chain,
                 locale: locale
             )
         }
     }
 
     func selectPayoutAccount() {
-        guard let state = state else {
+        guard let address = viewModelState.payoutAccountAddress else {
             return
         }
 
-        if case let .payout(account) = state.rewardDestination,
-           let view = view {
+        if let view = view {
             let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
             wireframe.presentAccountOptions(
                 from: view,
-                address: account.address,
-                chain: chain,
+                address: address,
+                chain: chainAsset.chain,
+                locale: locale
+            )
+        }
+    }
+
+    func selectCollatorAccount() {
+        guard let address = viewModelState.collatorAddress else {
+            return
+        }
+
+        if let view = view {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+            wireframe.presentAccountOptions(
+                from: view,
+                address: address,
+                chain: chainAsset.chain,
                 locale: locale
             )
         }
     }
 
     func proceed() {
-        guard let state = state else {
-            return
-        }
-
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        let spendingAmount: Decimal = !state.hasExistingBond ? state.amount : 0.0
-
-        let validators: [DataValidating] = [
-            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
-                self?.interactor.estimateFee()
-            },
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: spendingAmount,
-                locale: locale
-            ),
-
-            dataValidatingFactory.maxNominatorsCountNotApplied(
-                counterForNominators: counterForNominators,
-                maxNominatorsCount: maxNominatorsCount,
-                hasExistingNomination: state.hasExistingNomination,
-                locale: locale
-            ),
-
-            dataValidatingFactory.canNominate(
-                amount: state.amount,
-                minimalBalance: minimalBalance,
-                minNominatorBond: minNominatorBond,
-                locale: locale
-            )
+        let customValidators: [DataValidating] = viewModelState.validators(using: locale)
+        let commonValidators: [DataValidating] = [
+            dataValidatingFactory.has(fee: viewModelState.fee, locale: locale) { [weak self] in
+                self?.feeParametersUpdated()
+            }
         ]
 
-        DataValidationRunner(validators: validators).runValidation { [weak self] in
-            self?.interactor.submitNomination()
+        DataValidationRunner(validators: customValidators + commonValidators).runValidation { [weak self] in
+            self?.interactor.submitNomination(closure: self?.viewModelState.createExtrinsicBuilderClosure())
         }
     }
 }
 
 extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOutputProtocol {
-    func didReceiveModel(result: Result<SelectValidatorsConfirmationModel, Error>) {
-        switch result {
-        case let .success(model):
-            state = model
-
-            provideAsset()
-            provideConfirmationState()
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
     func didReceivePrice(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
             self.priceData = priceData
 
-            provideAsset()
-            provideFee()
+            provideAsset(viewModelState: viewModelState)
+            provideFee(viewModelState: viewModelState)
         case let .failure(error):
             handle(error: error)
         }
@@ -230,55 +155,69 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
             if let availableValue = accountInfo?.data.available {
                 balance = Decimal.fromSubstrateAmount(
                     availableValue,
-                    precision: Int16(asset.precision)
+                    precision: Int16(chainAsset.asset.precision)
                 )
             } else {
                 balance = 0.0
             }
 
-            provideAsset()
+            provideAsset(viewModelState: viewModelState)
         case let .failure(error):
-            handle(error: error)
+            didReceiveError(error: error)
         }
     }
+}
 
-    func didReceiveMinBond(result: Result<BigUInt?, Error>) {
-        switch result {
-        case let .success(minBond):
-            minNominatorBond = minBond.map {
-                Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision))
-            } ?? nil
-        case let .failure(error):
-            handle(error: error)
-        }
+extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateListener {
+    func feeParametersUpdated() {
+        interactor.estimateFee(closure: viewModelState.createExtrinsicBuilderClosure())
     }
 
-    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>) {
-        switch result {
-        case let .success(maxNominatorsCount):
-            self.maxNominatorsCount = maxNominatorsCount
-        case let .failure(error):
-            handle(error: error)
-        }
+    func didReceiveError(error: Error) {
+        handle(error: error)
     }
 
-    func didReceiveCounterForNominators(result: Result<UInt32?, Error>) {
-        switch result {
-        case let .success(counterForNominators):
-            self.counterForNominators = counterForNominators
-        case let .failure(error):
-            handle(error: error)
+    func provideConfirmationState(viewModelState: SelectValidatorsConfirmViewModelState) {
+        guard let viewModel = try? viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            asset: chainAsset.asset
+        ) else {
+            return
         }
+
+        view?.didReceive(confirmationViewModel: viewModel)
+
+        provideAsset(viewModelState: viewModelState)
     }
 
-    func didReceiveStakingDuration(result: Result<StakingDuration, Error>) {
-        switch result {
-        case let .success(duration):
-            stakingDuration = duration
-            provideHints()
-        case let .failure(error):
-            handle(error: error)
+    func provideHints(viewModelState: SelectValidatorsConfirmViewModelState) {
+        guard let viewModel = viewModelFactory.buildHintsViewModel(viewModelState: viewModelState) else {
+            return
         }
+
+        view?.didReceive(hintsViewModel: viewModel)
+    }
+
+    func provideFee(viewModelState: SelectValidatorsConfirmViewModelState) {
+        guard let viewModel = viewModelFactory.buildFeeViewModel(viewModelState: viewModelState, priceData: priceData) else {
+            view?.didReceive(feeViewModel: nil)
+            return
+        }
+
+        view?.didReceive(feeViewModel: viewModel)
+    }
+
+    func provideAsset(viewModelState: SelectValidatorsConfirmViewModelState) {
+        guard
+            let viewModel = viewModelFactory.buildAssetBalanceViewModel(
+                viewModelState: viewModelState,
+                priceData: priceData,
+                balance: balance
+            ) else {
+            return
+        }
+
+        view?.didReceive(assetViewModel: viewModel)
     }
 
     func didStartNomination() {
@@ -297,20 +236,5 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOut
         view?.didStopLoading()
 
         handle(error: error)
-    }
-
-    func didReceive(paymentInfo: RuntimeDispatchInfo) {
-        if let feeValue = BigUInt(paymentInfo.fee),
-           let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision)) {
-            self.fee = fee
-        } else {
-            fee = nil
-        }
-
-        provideFee()
-    }
-
-    func didReceive(feeError: Error) {
-        handle(error: feeError)
     }
 }

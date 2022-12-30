@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import SnapKit
 
 final class UsernameSetupViewController: UIViewController, ViewHolder {
     enum Constants {
@@ -159,7 +160,7 @@ extension UsernameSetupViewController: Localizable {
 }
 
 extension UsernameSetupViewController: KeyboardViewAdoptable {
-    var target: UIView? { rootView.nextButton }
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
 
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 

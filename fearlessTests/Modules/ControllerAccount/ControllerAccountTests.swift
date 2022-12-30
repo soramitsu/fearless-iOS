@@ -15,14 +15,20 @@ class ControllerAccountTests: XCTestCase {
         let view = MockControllerAccountViewProtocol()
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
-        let presenter = ControllerAccountPresenter(
-            wireframe: wireframe,
-            interactor: interactor,
-            viewModelFactory: viewModelFactory,
-            applicationConfig: ApplicationConfig.shared,
-            chain: .westend,
-            dataValidatingFactory: dataValidatingFactory
-        )
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
+                                                      addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
+        let asset = ChainModelGenerator.generateAssetWithId("test")
+        let selectedAccount = AccountGenerator.generateMetaAccount()
+        let presenter = ControllerAccountPresenter(wireframe: wireframe,
+                                                   interactor: interactor,
+                                                   viewModelFactory: viewModelFactory,
+                                                   applicationConfig: ApplicationConfig.shared,
+                                                   chain: chain,
+                                                   asset: asset,
+                                                   selectedAccount: selectedAccount,
+                                                   dataValidatingFactory: dataValidatingFactory,
+                                                   logger: Logger.shared)
+
         presenter.view = view
         dataValidatingFactory.view = view
 
@@ -35,9 +41,14 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).showConfirmation(from: any(), controllerAccountItem: any()).then { _ in
+            when(stub).showConfirmation(from: any(),
+                                        controllerAccountItem: any(),
+                                        asset: any(), chain: any(),
+                                        selectedAccount: any()).then { _ in
                 showConfirmationExpectation.fulfill()
             }
+            
+            when(stub).present(viewModel: any(), style: any(), from: any()).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
             when(stub).createViewModel(stashItem: any(), stashAccountItem: any(), chosenAccountItem: any())
@@ -58,8 +69,15 @@ class ControllerAccountTests: XCTestCase {
         let stashItem = StashItem(stash: stashAddress, controller: controllerAddress)
         presenter.didReceiveStashItem(result: .success(stashItem))
 
-        let accountItem = AccountItem(address: controllerAddress, cryptoType: .ecdsa, username: "usename", publicKeyData: Data())
-        presenter.didReceiveControllerAccount(result: .success(accountItem))
+        let chainAccountItem = ChainAccountResponse(chainId: chain.chainId,
+                                                    accountId: selectedAccount.substrateAccountId,
+                                                    publicKey: selectedAccount.substratePublicKey,
+                                                    name: "test",
+                                                    cryptoType: .ecdsa,
+                                                    addressPrefix: 0,
+                                                    isEthereumBased: false,
+                                                    isChainAccount: false)
+        presenter.didReceiveControllerAccount(result: .success(chainAccountItem))
 
         let controllerAccountInfo = AccountInfo(
             nonce: 0,

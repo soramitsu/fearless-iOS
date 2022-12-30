@@ -47,8 +47,8 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private lazy var chainModels: [ChainModel] = []
     private lazy var prices: [PriceData] = []
 
-    private lazy var accountInfos: [ChainModel.Id: AccountInfo] = [:]
-    private lazy var accountsInfoForAccountId: [String: [ChainModel.Id: AccountInfo]] = [:]
+    private lazy var accountInfos: [ChainAssetKey: AccountInfo] = [:]
+    private lazy var accountInfosAdapters: [String: AccountInfoSubscriptionAdapter] = [:]
 
     private let balanceForModel: GetBalanceModelType
     private var metaAccount: MetaAccountModel?
@@ -120,7 +120,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
     private func buildBalance(for metaAccount: MetaAccountModel) {
         guard
             !chainModels.isEmpty,
-            !accountsInfoForAccountId.isEmpty,
+            !accountInfos.isEmpty,
             !prices.isEmpty
         else {
             return
@@ -130,7 +130,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
             chains: chainModels,
             accountInfos: accountInfos,
             prices: prices,
-            currency: metaAccount.selectedCurrency
+            metaAccount: metaAccount
         ) { [weak self] totalBalanceString in
             self?.metaAccountBalanceHandler?.handleMetaAccountBalance(
                 metaAccount: metaAccount,
@@ -150,7 +150,7 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
         balanceBuilder.buildBalance(
             for: managedMetaAccounts,
             chains: chainModels,
-            accountsInfos: accountsInfoForAccountId,
+            accountsInfos: accountInfos,
             prices: prices
         ) { [weak self] managedMetaAccounts in
             self?.managedMetaAccountsBalanceHandler?.handleManagedMetaAccountsBalance(
@@ -238,7 +238,9 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: metaAccountModel
             )
-            accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+            accountInfosAdapters[metaAccountModel.identifier] = accountInfoSubscriptionAdapter
+            let chainsAssets = chains.map(\.chainAssets).reduce([], +)
+            accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainsAssets, handler: self)
 
         case .managedMetaAccounts:
             guard let managedMetaAccounts = managedMetaAccounts else {
@@ -249,7 +251,9 @@ final class GetBalanceProvider: GetBalanceProviderProtocol {
                     walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                     selectedMetaAccount: managedMetaAccount.info
                 )
-                accountInfoSubscriptionAdapter.subscribe(chains: chains, handler: self)
+                accountInfosAdapters[managedMetaAccount.identifier] = accountInfoSubscriptionAdapter
+                let chainsAssets = chains.map(\.chainAssets).reduce([], +)
+                accountInfoSubscriptionAdapter.subscribe(chainsAssets: chainsAssets, handler: self)
             }
         }
     }
@@ -259,25 +263,23 @@ extension GetBalanceProvider: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
         switch result {
         case let .success(accountInfo):
             switch balanceForModel {
             case .metaAccount:
-                accountInfos[chainId] = accountInfo
+                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             case .managedMetaAccounts:
                 guard let accountInfo = accountInfo else {
                     return
                 }
 
-                let key = accountId.toHex() + chainId
-                accountsInfoForAccountId[key] = [chainId: accountInfo]
-                print("accountsInfoForAccountId: ", accountsInfoForAccountId.map(\.key))
+                accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             }
             provideBalance()
-        case let .failure(error):
-            print("GetBalanceProvider:handleAccountInfo:error", error)
+        case .failure:
+            handleFailure()
         }
     }
 }

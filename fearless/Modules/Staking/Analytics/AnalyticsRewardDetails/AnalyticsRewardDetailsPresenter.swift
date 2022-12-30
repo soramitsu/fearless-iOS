@@ -7,20 +7,20 @@ final class AnalyticsRewardDetailsPresenter {
     private let interactor: AnalyticsRewardDetailsInteractorInputProtocol
     private let viewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol
     private let rewardModel: AnalyticsRewardDetailsModel
-    private let chain: Chain
+    private let chainAsset: ChainAsset
 
     init(
         rewardModel: AnalyticsRewardDetailsModel,
         interactor: AnalyticsRewardDetailsInteractorInputProtocol,
         wireframe: AnalyticsRewardDetailsWireframeProtocol,
         viewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol,
-        chain: Chain
+        chainAsset: ChainAsset
     ) {
         self.rewardModel = rewardModel
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.chain = chain
+        self.chainAsset = chainAsset
     }
 
     private func copyEventId() {
@@ -32,35 +32,35 @@ final class AnalyticsRewardDetailsPresenter {
         wireframe.presentSuccessNotification(title, from: view)
     }
 
-    private func createPolkascanAction(locale: Locale) -> AlertPresentableAction? {
-        guard let url = chain.polkascanEventURL(rewardModel.eventId) else { return nil }
+    private func createPolkascanAction(locale: Locale) -> SheetAlertPresentableAction? {
+        guard let url = chainAsset.chain.polkascanAddressURL(rewardModel.eventId) else { return nil }
         let polkascanTitle = R.string.localizable
             .transactionDetailsViewPolkascan(preferredLanguages: locale.rLanguages)
 
-        return AlertPresentableAction(title: polkascanTitle) { [weak self] in
+        return SheetAlertPresentableAction(title: polkascanTitle) { [weak self] in
             if let view = self?.view {
                 self?.wireframe.showWeb(url: url, from: view, style: .automatic)
             }
         }
     }
 
-    private func createSubscanAction(locale: Locale) -> AlertPresentableAction? {
+    private func createSubscanAction(locale: Locale) -> SheetAlertPresentableAction? {
         let blockNumber = String(rewardModel.eventId.prefix(while: { $0 != "-" }))
-        guard let url = chain.subscanBlockURL(blockNumber) else { return nil }
+        guard let url = chainAsset.chain.subscanAddressURL(blockNumber) else { return nil }
 
         let subscanTitle = R.string.localizable
             .transactionDetailsViewSubscan(preferredLanguages: locale.rLanguages)
-        return AlertPresentableAction(title: subscanTitle) { [weak self] in
+        return SheetAlertPresentableAction(title: subscanTitle) { [weak self] in
             if let view = self?.view {
                 self?.wireframe.showWeb(url: url, from: view, style: .automatic)
             }
         }
     }
 
-    private func createCopyAction(locale _: Locale) -> AlertPresentableAction {
+    private func createCopyAction(locale _: Locale) -> SheetAlertPresentableAction {
         let copyTitle = R.string.localizable
             .commonCopyId()
-        return AlertPresentableAction(title: copyTitle) { [weak self] in
+        return SheetAlertPresentableAction(title: copyTitle) { [weak self] in
             self?.copyEventId()
         }
     }
@@ -80,7 +80,7 @@ extension AnalyticsRewardDetailsPresenter: AnalyticsRewardDetailsPresenterProtoc
             createSubscanAction(locale: locale)
         ].compactMap { $0 }
 
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.commonChooseAction(preferredLanguages: locale.rLanguages),
             message: nil,
             actions: actions,
@@ -89,7 +89,6 @@ extension AnalyticsRewardDetailsPresenter: AnalyticsRewardDetailsPresenterProtoc
 
         wireframe.present(
             viewModel: viewModel,
-            style: .actionSheet,
             from: view
         )
     }

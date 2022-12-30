@@ -9,149 +9,84 @@ final class StakingUnbondSetupPresenter {
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-
+    let viewModelFactory: StakingUnbondSetupViewModelFactoryProtocol
+    let viewModelState: StakingUnbondSetupViewModelState
     let logger: LoggerProtocol?
-    let chain: ChainModel
-    let asset: AssetModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
-    private var bonded: Decimal?
-    private var balance: Decimal?
-    private var inputAmount: Decimal?
-    private var bondingDuration: UInt32?
-    private var minimalBalance: Decimal?
     private var priceData: PriceData?
-    private var fee: Decimal?
-    private var controller: ChainAccountResponse?
-    private var stashItem: StashItem?
 
     init(
         interactor: StakingUnbondSetupInteractorInputProtocol,
         wireframe: StakingUnbondSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        viewModelFactory: StakingUnbondSetupViewModelFactoryProtocol,
+        viewModelState: StakingUnbondSetupViewModelState,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.viewModelFactory = viewModelFactory
+        self.viewModelState = viewModelState
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
-    }
-
-    private func provideInputViewModel() {
-        let inputView = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
-        view?.didReceiveInput(viewModel: inputView)
-    }
-
-    private func provideFeeViewModel() {
-        if let fee = fee {
-            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceiveFee(viewModel: feeViewModel)
-        } else {
-            view?.didReceiveFee(viewModel: nil)
-        }
-    }
-
-    private func provideAssetViewModel() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            inputAmount ?? 0.0,
-            balance: bonded,
-            priceData: priceData
-        )
-
-        view?.didReceiveAsset(viewModel: viewModel)
-    }
-
-    private func provideBondingDuration() {
-        let daysCount = bondingDuration.map { UInt32($0) / chain.erasPerDay }
-        let bondingDuration: LocalizableResource<String> = LocalizableResource { locale in
-            guard let daysCount = daysCount else {
-                return ""
-            }
-
-            return R.string.localizable.commonDaysFormat(
-                format: Int(daysCount),
-                preferredLanguages: locale.rLanguages
-            )
-        }
-
-        view?.didReceiveBonding(duration: bondingDuration)
     }
 }
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideInputViewModel()
         provideFeeViewModel()
         provideBondingDuration()
         provideAssetViewModel()
+        provideTitle()
+        provideAccountViewModel()
+        provideCollatorViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
+
+        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
     }
 
     func selectAmountPercentage(_ percentage: Float) {
-        if let bonded = bonded {
-            inputAmount = bonded * Decimal(Double(percentage))
-            provideInputViewModel()
-            provideAssetViewModel()
-        }
+        viewModelState.selectAmountPercentage(percentage)
     }
 
     func updateAmount(_ amount: Decimal) {
-        inputAmount = amount
-        provideAssetViewModel()
-
-        if fee == nil {
-            interactor.estimateFee()
-        }
+        viewModelState.updateAmount(amount)
     }
 
     func proceed() {
+        guard let flow = viewModelState.confirmationFlow else {
+            return
+        }
+
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-        DataValidationRunner(validators: [
-            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
-
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.interactor.estimateFee()
-            }),
-
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.has(
-                controller: controller,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            ),
-
-            dataValidatingFactory.stashIsNotKilledAfterUnbonding(
-                amount: inputAmount,
-                bonded: bonded,
-                minimumAmount: minimalBalance,
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            guard let self = self else {
+        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
                 return
             }
 
-            if let amount = self.inputAmount {
-                self.wireframe.proceed(
-                    view: self.view,
-                    amount: amount,
-                    chain: self.chain,
-                    asset: self.asset,
-                    selectedAccount: self.selectedAccount
-                )
-            } else {
-                self.logger?.warning("Missing amount after validation")
-            }
+            strongSelf.wireframe.proceed(
+                view: strongSelf.view,
+                flow: flow,
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet
+            )
         }
     }
 
@@ -161,40 +96,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 }
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let accountInfo = accountInfo {
-                balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                balance = nil
-            }
-        case let .failure(error):
-            logger?.error("Account Info subscription error: \(error)")
-        }
-    }
-
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
-        switch result {
-        case let .success(stakingLedger):
-            if let stakingLedger = stakingLedger {
-                bonded = Decimal.fromSubstrateAmount(
-                    stakingLedger.active,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                bonded = nil
-            }
-
-            provideAssetViewModel()
-        case let .failure(error):
-            logger?.error("Staking ledger subscription error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -205,59 +106,73 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             logger?.error("Price data subscription error: \(error)")
         }
     }
+}
 
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
-        switch result {
-        case let .success(dispatchInfo):
-            if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
-            }
+extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
+    func provideInputViewModel() {
+        let inputView = balanceViewModelFactory.createBalanceInputViewModel(viewModelState.inputAmount)
+        view?.didReceiveInput(viewModel: inputView)
+    }
 
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
+    func provideFeeViewModel() {
+        if let fee = viewModelState.fee {
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            let feeViewModel = viewModelFactory.buildNetworkFeeViewModel(from: balanceViewModel)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
         }
     }
 
-    func didReceiveBondingDuration(result: Result<UInt32, Error>) {
-        switch result {
-        case let .success(bondingDuration):
-            self.bondingDuration = bondingDuration
-            provideBondingDuration()
-        case let .failure(error):
-            logger?.error("Boding duration fetching error: \(error)")
+    func provideAssetViewModel() {
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+            viewModelState.amount ?? 0,
+            balance: viewModelState.bonded,
+            priceData: priceData
+        )
+
+        view?.didReceiveAsset(viewModel: viewModel)
+    }
+
+    func provideBondingDuration() {
+        guard let bondingDurationViewModel = viewModelFactory.buildBondingDurationViewModel(viewModelState: viewModelState) else {
+            return
+        }
+
+        view?.didReceiveBonding(duration: bondingDurationViewModel)
+    }
+
+    func provideTitle() {
+        view?.didReceiveTitle(viewModel: viewModelFactory.buildTitleViewModel())
+    }
+
+    func updateFeeIfNeeded() {
+        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
+    }
+
+    func didReceiveError(error: Error) {
+        logger?.error("StakingUnbondSetupPresenter didReceiveError: \(error)")
+    }
+
+    func provideAccountViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory.buildAccountViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveAccount(viewModel: viewModel)
         }
     }
 
-    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
-        switch result {
-        case let .success(minimalBalance):
-            self.minimalBalance = Decimal.fromSubstrateAmount(
-                minimalBalance,
-                precision: Int16(asset.precision)
-            )
-        case let .failure(error):
-            logger?.error("Minimal balance fetching error: \(error)")
+    func provideCollatorViewModel() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let viewModel = viewModelFactory.buildCollatorViewModel(viewModelState: viewModelState, locale: locale) {
+            view?.didReceiveCollator(viewModel: viewModel)
         }
     }
 
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
-        case let .failure(error):
-            logger?.error("Did receive controller account error: \(error)")
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-        case let .failure(error):
-            logger?.error("Did receive stash item error: \(error)")
-        }
+    func provideHintsViewModel() {
+        let viewModel = viewModelFactory.buildHints()
+        view?.didReceiveHints(viewModel: viewModel)
     }
 }

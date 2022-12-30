@@ -10,13 +10,20 @@ struct WalletTransactionHistoryModule {
 }
 
 enum WalletTransactionHistoryViewFactory {
-    static func createView(asset: AssetModel, chain: ChainModel, selectedAccount: MetaAccountModel) -> WalletTransactionHistoryModule? {
+    static func createView(
+        asset: AssetModel,
+        chain: ChainModel,
+        selectedAccount: MetaAccountModel
+    ) -> WalletTransactionHistoryModule? {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         let operationFactory = HistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
 
-        let dataProviderFactory = HistoryDataProviderFactory(cacheFacade: SubstrateDataStorageFacade.shared, operationFactory: operationFactory)
+        let dataProviderFactory = HistoryDataProviderFactory(
+            cacheFacade: SubstrateDataStorageFacade.shared,
+            operationFactory: operationFactory
+        )
         let service = HistoryService(operationFactory: operationFactory, operationQueue: OperationQueue())
 
         let interactor = WalletTransactionHistoryInteractor(
@@ -62,14 +69,18 @@ enum WalletTransactionHistoryViewFactory {
     }
 
     static func transactionHistoryFilters(for chain: ChainModel) -> [FilterSet] {
-        var filters: [WalletTransactionHistoryFilter] = [WalletTransactionHistoryFilter(type: .transfer, selected: true),
-                                                         WalletTransactionHistoryFilter(type: .other, selected: true)]
+        var filters: [WalletTransactionHistoryFilter] = [
+            WalletTransactionHistoryFilter(type: .transfer, selected: true),
+            WalletTransactionHistoryFilter(type: .other, selected: true)
+        ]
         if chain.hasStakingRewardHistory {
             filters.insert(WalletTransactionHistoryFilter(type: .reward, selected: true), at: 1)
         }
 
         return [FilterSet(
-            title: R.string.localizable.walletFiltersHeader(preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages),
+            title: R.string.localizable.walletFiltersHeader(
+                preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
+            ),
             items: filters
         )]
     }

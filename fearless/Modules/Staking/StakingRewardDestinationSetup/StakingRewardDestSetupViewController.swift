@@ -98,7 +98,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
 
             updateAccountView()
 
-        case let .payout(icon, title):
+        case let .payout(icon, title, _):
             rootView.restakeOptionView.isSelected = false
             rootView.payoutOptionView.isSelected = true
 
@@ -133,8 +133,8 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, 
         }
     }
 
-    private func applyPayoutAddress(_ icon: DrawableIcon, title: String) {
-        let icon = icon.imageWithFillColor(
+    private func applyPayoutAddress(_ icon: DrawableIcon?, title: String) {
+        let icon = icon?.imageWithFillColor(
             R.color.colorWhite()!,
             size: UIConstants.smallAddressIconSize,
             contentScale: UIScreen.main.scale

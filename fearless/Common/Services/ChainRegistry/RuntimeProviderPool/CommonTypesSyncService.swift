@@ -70,7 +70,10 @@ class CommonTypesSyncService {
 
                     let remoteHash = try dataHasher.hash(data: data)
 
-                    self?.handleCompletion(with: remoteHash)
+                    self?.handleCompletion(
+                        with: remoteHash,
+                        data: data
+                    )
                 } catch {
                     self?.handleFailure(with: error)
                 }
@@ -83,7 +86,10 @@ class CommonTypesSyncService {
         )
     }
 
-    private func handleCompletion(with remoteHash: Data) {
+    private func handleCompletion(
+        with remoteHash: Data,
+        data: Data
+    ) {
         mutex.lock()
 
         defer {
@@ -93,7 +99,10 @@ class CommonTypesSyncService {
         isSyncing = false
         retryAttempt = 0
 
-        let event = RuntimeCommonTypesSyncCompleted(fileHash: remoteHash.toHex())
+        let event = RuntimeCommonTypesSyncCompleted(
+            fileHash: remoteHash.toHex(),
+            data: data
+        )
         eventCenter.notify(with: event)
     }
 

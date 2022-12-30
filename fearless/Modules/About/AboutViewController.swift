@@ -39,6 +39,7 @@ final class AboutViewController: UIViewController, AdaptiveDesignable, ViewHolde
         super.viewDidLoad()
         configureTableView()
         presenter.didLoad(view: self)
+        navigationController?.navigationBar.backgroundColor = .clear
     }
 
     override func loadView() {

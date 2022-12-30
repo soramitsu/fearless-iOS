@@ -40,10 +40,10 @@ class RemoteSubscriptionService {
         }
     }
 
-    let chainRegistry: ChainRegistryProtocol
-    let repository: AnyDataProviderRepository<ChainStorageItem>
-    let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol
+    private let chainRegistry: ChainRegistryProtocol
+    private let repository: AnyDataProviderRepository<ChainStorageItem>
+    private let operationManager: OperationManagerProtocol
+    private let logger: LoggerProtocol
 
     private var activeSubscriptions: [String: Active] = [:]
     private var pendingSubscriptions: [String: Pending] = [:]
@@ -99,6 +99,15 @@ class RemoteSubscriptionService {
         }
 
         let wrapper = subscriptionOperation(using: requests, chainId: chainId, cacheKey: cacheKey)
+
+        wrapper.targetOperation.completionBlock = { [weak self] in
+            switch wrapper.targetOperation.result {
+            case let .failure(error):
+                self?.logger.error("\(error)")
+            default:
+                break
+            }
+        }
 
         let pending = Pending(
             subscriptionIds: [subscriptionId],
@@ -175,11 +184,14 @@ class RemoteSubscriptionService {
             return wrapper
         }
 
-        let containerOperation = ClosureOperation<StorageSubscriptionContainer> {
+        let containerOperation = ClosureOperation<StorageSubscriptionContainer> { [weak self] in
+            guard let strongSelf = self else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
             let remoteKeys = try keyEncodingWrappers.map { try $0.targetOperation.extractNoCancellableResultData() }
             let localKeys = requests.map(\.localKey)
 
-            let container = try self.createContainer(
+            let container = try strongSelf.createContainer(
                 for: chainId,
                 remoteKeys: remoteKeys,
                 localKeys: localKeys

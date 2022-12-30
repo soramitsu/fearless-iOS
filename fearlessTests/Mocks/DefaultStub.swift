@@ -54,28 +54,28 @@ extension MockCrowdloanRemoteSubscriptionServiceProtocol {
     }
 }
 
-extension MockRuntimeProviderProtocol {
-    func applyDefault(for chainId: ChainModel.Id) -> MockRuntimeProviderProtocol {
-        let codingFactory = try! RuntimeCodingServiceStub.createWestendCodingFactory(
-            specVersion: 9010,
-            txVersion: 5
-        )
-
-        stub(self) { stub in
-            stub.fetchCoderFactoryOperation().then {
-                BaseOperation.createWithResult(codingFactory)
-            }
-
-            stub.chainId.get.thenReturn(chainId)
-
-            stub.cleanup().thenDoNothing()
-            stub.setup().thenDoNothing()
-            stub.replaceTypesUsage(any()).thenDoNothing()
-        }
-
-        return self
-    }
-}
+//extension MockRuntimeProviderProtocol {
+//    func applyDefault(for chainId: ChainModel.Id) -> MockRuntimeProviderProtocol {
+//        let codingFactory = try! RuntimeCodingServiceStub.createWestendCodingFactory(
+//            specVersion: 9010,
+//            txVersion: 5
+//        )
+//
+//        stub(self) { stub in
+//            stub.fetchCoderFactoryOperation().then {
+//                BaseOperation.createWithResult(codingFactory)
+//            }
+//
+//            stub.chainId.get.thenReturn(chainId)
+//
+//            stub.cleanup().thenDoNothing()
+//            stub.setup().thenDoNothing()
+//            stub.replaceTypesUsage(any()).thenDoNothing()
+//        }
+//
+//        return self
+//    }
+//}
 
 extension MockStakingRemoteSubscriptionServiceProtocol {
     func applyDefault() -> MockStakingRemoteSubscriptionServiceProtocol {

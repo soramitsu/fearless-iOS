@@ -8,61 +8,63 @@ final class AnalyticsRewardsPresenter {
     let interactor: AnalyticsRewardsInteractorInputProtocol
     let accountIsNominator: Bool
     private let logger: LoggerProtocol?
-    private let viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol
-    private var rewardsData: [SubqueryRewardItemData]?
+    private let viewModelFactory: AnalyticsRewardsFlowViewModelFactoryProtocol
+    private let viewModelState: AnalyticsRewardsViewModelState
     private var selectedPeriod = AnalyticsPeriod.default
     private var priceData: PriceData?
-    private var stashItem: StashItem?
     private var selectedChartIndex: Int?
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
 
     init(
         interactor: AnalyticsRewardsInteractorInputProtocol,
         wireframe: AnalyticsRewardsWireframeProtocol,
-        viewModelFactory: AnalyticsRewardsViewModelFactoryProtocol,
+        viewModelFactory: AnalyticsRewardsFlowViewModelFactoryProtocol,
+        viewModelState: AnalyticsRewardsViewModelState,
         localizationManager: LocalizationManagerProtocol?,
         accountIsNominator: Bool,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.viewModelState = viewModelState
         self.logger = logger
         self.accountIsNominator = accountIsNominator
-        self.asset = asset
-        self.chain = chain
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
     private func updateView() {
-        guard let rewardsData = rewardsData else { return }
-        let viewModel = viewModelFactory.createViewModel(
-            from: rewardsData,
+        guard let viewModel = viewModelFactory.createViewModel(
+            viewModelState: viewModelState,
             priceData: priceData,
             period: selectedPeriod,
-            selectedChartIndex: selectedChartIndex
-        )
-        let localizedViewModel = viewModel.value(for: selectedLocale)
-        view?.reload(viewState: .loaded(localizedViewModel))
+            selectedChartIndex: selectedChartIndex,
+            locale: selectedLocale
+        ) else {
+            return
+        }
+
+        view?.reload(viewState: .loaded(viewModel))
     }
 }
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         view?.reload(viewState: .loading)
         interactor.setup()
     }
 
     func reload() {
         view?.reload(viewState: .loading)
-        if let stash = stashItem?.stash {
-            interactor.fetchRewards(stashAddress: stash)
+        if let stash = viewModelState.historyAddress {
+            interactor.fetchRewards(address: stash)
         }
     }
 
@@ -73,26 +75,36 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsPresenterProtocol {
     }
 
     func handleReward(_ rewardModel: AnalyticsRewardDetailsModel) {
-        wireframe.showRewardDetails(rewardModel, from: view, wallet: selectedAccount)
+        wireframe.showRewardDetails(
+            rewardModel,
+            from: view,
+            wallet: wallet,
+            chainAsset: chainAsset
+        )
     }
 
     func handlePendingRewardsAction() {
-        guard let stashItem = stashItem else { return }
+        guard viewModelState.hasPendingRewards,
+              let historyAddress = viewModelState.historyAddress
+        else {
+            return
+        }
+
         if accountIsNominator {
             wireframe.showRewardPayoutsForNominator(
                 from: view,
-                stashAddress: stashItem.stash,
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount
+                stashAddress: historyAddress,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: wallet
             )
         } else {
             wireframe.showRewardPayoutsForValidator(
                 from: view,
-                stashAddress: stashItem.stash,
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount
+                stashAddress: historyAddress,
+                chain: chainAsset.chain,
+                asset: chainAsset.asset,
+                selectedAccount: wallet
             )
         }
     }
@@ -117,20 +129,6 @@ extension AnalyticsRewardsPresenter: Localizable {
 }
 
 extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
-    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData]?, Error>) {
-        switch rewardItemData {
-        case let .success(data):
-            rewardsData = data
-            updateView()
-        case let .failure(error):
-            let errorText = R.string.localizable.commonErrorNoDataRetrieved(
-                preferredLanguages: selectedLocale.rLanguages
-            )
-            view?.reload(viewState: .error(errorText))
-            logger?.error("Did receive rewards error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -140,16 +138,14 @@ extension AnalyticsRewardsPresenter: AnalyticsRewardsInteractorOutputProtocol {
             logger?.error("Did receive price error: \(error)")
         }
     }
+}
 
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-            if let stash = stashItem?.stash {
-                interactor.fetchRewards(stashAddress: stash)
-            }
-        case let .failure(error):
-            logger?.error("Did receive stash item error: \(error)")
-        }
+extension AnalyticsRewardsPresenter: AnalyticsRewardsModelStateListener {
+    func provideError(_ error: Error) {
+        logger?.error("AnalyticsRewardsPresenter: Did receive error: \(error)")
+    }
+
+    func provideRewardsViewModel() {
+        updateView()
     }
 }

@@ -21,7 +21,7 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
 
     private lazy var searchActivityIndicator: UIActivityIndicatorView = {
         let activityIndicator = UIActivityIndicatorView(style: .white)
-        activityIndicator.color = .white
+        activityIndicator.color = R.color.colorWhite()
         return activityIndicator
     }()
 
@@ -78,6 +78,8 @@ final class ValidatorSearchViewController: UIViewController, ViewHolder, Importa
         rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
+        rootView.tableView.rowHeight = UIConstants.validatorCellHeight
+        rootView.tableView.separatorStyle = .none
     }
 
     private func setupNavigationBar() {
@@ -157,18 +159,6 @@ extension ValidatorSearchViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.changeValidatorSelection(at: indexPath.row)
-    }
-
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        guard viewModel?.headerViewModel != nil else { return 0 }
-        return 26.0
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        guard let headerViewModel = viewModel?.headerViewModel else { return nil }
-        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        headerView.bind(viewModel: headerViewModel)
-        return headerView
     }
 }
 

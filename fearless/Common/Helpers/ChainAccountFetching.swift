@@ -16,6 +16,7 @@ struct ChainAccountResponse: Equatable {
     let addressPrefix: UInt16
     let isEthereumBased: Bool
     let isChainAccount: Bool
+    let walletId: String
 }
 
 enum ChainAccountFetchingError: Error {
@@ -68,7 +69,8 @@ extension MetaAccountModel {
                 cryptoType: cryptoType,
                 addressPrefix: request.addressPrefix,
                 isEthereumBased: request.isEthereumBased,
-                isChainAccount: true
+                isChainAccount: true,
+                walletId: metaId
             )
         }
 
@@ -85,7 +87,8 @@ extension MetaAccountModel {
                 cryptoType: .ecdsa,
                 addressPrefix: request.addressPrefix,
                 isEthereumBased: request.isEthereumBased,
-                isChainAccount: false
+                isChainAccount: false,
+                walletId: metaId
             )
         }
 
@@ -101,7 +104,8 @@ extension MetaAccountModel {
             cryptoType: cryptoType,
             addressPrefix: request.addressPrefix,
             isEthereumBased: false,
-            isChainAccount: false
+            isChainAccount: false,
+            walletId: metaId
         )
     }
 }

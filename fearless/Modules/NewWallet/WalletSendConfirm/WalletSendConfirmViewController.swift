@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class WalletSendConfirmViewController: UIViewController, ViewHolder {
+final class WalletSendConfirmViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = WalletSendConfirmViewLayout
 
     let presenter: WalletSendConfirmPresenterProtocol
@@ -30,12 +30,8 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
         presenter.setup()
 
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
-
-        rootView.feeView.actionButton.addTarget(
-            self,
-            action: #selector(continueButtonClicked),
-            for: .touchUpInside
-        )
+        rootView.receiverWarningButton.addTarget(self, action: #selector(handleScamWarningTapped), for: .touchUpInside)
+        rootView.confirmButton.addTarget(self, action: #selector(continueButtonClicked), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -43,25 +39,13 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
     }
 
     private func applyState(_ state: WalletSendConfirmViewState) {
+        self.state = state
+
         switch state {
         case .loading:
             break
-        case let .loaded(walletSendConfirmViewModel):
-            if let senderAccountViewModel = walletSendConfirmViewModel.senderAccountViewModel {
-                rootView.bind(senderAccountViewModel: senderAccountViewModel)
-            }
-
-            if let receiverAccountViewModel = walletSendConfirmViewModel.receiverAccountViewModel {
-                rootView.bind(receiverAccountViewModel: receiverAccountViewModel)
-            }
-
-            if let assetBalanceViewModel = walletSendConfirmViewModel.assetBalanceViewModel {
-                rootView.bind(assetViewModel: assetBalanceViewModel)
-            }
-
-            rootView.bind(feeViewModel: walletSendConfirmViewModel.feeViewModel)
-
-            rootView.amountView.fieldText = walletSendConfirmViewModel.amountString
+        case let .loaded(model):
+            rootView.bind(confirmViewModel: model)
         }
     }
 
@@ -72,17 +56,15 @@ final class WalletSendConfirmViewController: UIViewController, ViewHolder {
     @objc private func backButtonClicked() {
         presenter.didTapBackButton()
     }
+
+    @objc private func handleScamWarningTapped() {
+        presenter.didTapScamWarningButton()
+    }
 }
 
 extension WalletSendConfirmViewController: WalletSendConfirmViewProtocol {
     func didReceive(state: WalletSendConfirmViewState) {
-        self.state = state
-
         applyState(state)
-    }
-
-    func didReceive(title: String) {
-        rootView.navigationTitleLabel.text = title
     }
 }
 

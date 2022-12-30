@@ -16,7 +16,7 @@ protocol CrowdloanErrorPresentable: BaseErrorPresentable {
     func presentCrowdloanPrivateNotSupported(from view: ControllerBackedProtocol, locale: Locale?)
 }
 
-extension CrowdloanErrorPresentable where Self: AlertPresentable & ErrorPresentable {
+extension CrowdloanErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentMinimalBalanceContributionError(
         _ value: String,
         from view: ControllerBackedProtocol,

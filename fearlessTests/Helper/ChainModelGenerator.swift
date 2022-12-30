@@ -5,19 +5,11 @@ enum ChainModelGenerator {
     static func generate(
         count: Int,
         withTypes: Bool = true,
-        hasStaking: Bool = false,
+        staking: StakingType? = nil,
         hasCrowdloans: Bool = false
     ) -> [ChainModel] {
         (0..<count).map { index in
             let chainId = Data.random(of: 32)!.toHex()
-
-            let asset = AssetModel(
-                id: "",
-                chainId: chainId,
-                precision: 12,
-                icon: nil,
-                priceId: nil
-            )
 
             let node = ChainNodeModel(
                 url: URL(string: "wss://node.io/\(chainId)")!,
@@ -38,22 +30,30 @@ enum ChainModelGenerator {
 
             let externalApi: ChainModel.ExternalApiSet? = generateExternaApis(
                 for: chainId,
-                hasStaking: hasStaking,
+                staking: staking,
                 hasCrowdloans: hasCrowdloans
             )
 
-            return ChainModel(
-                chainId: chainId,
-                parentId: nil,
-                name: String(chainId.reversed()),
-                assets: [],
-                nodes: [node],
-                addressPrefix: UInt16(index),
-                types: types,
-                icon: URL(string: "https://github.com")!,
-                options: options.isEmpty ? nil : options,
-                externalApi: externalApi
-            )
+            let chain = ChainModel(
+                            chainId: chainId,
+                            parentId: nil,
+                            name: String(chainId.reversed()),
+                            assets: [],
+                            nodes: [node],
+                            addressPrefix: UInt16(index),
+                            types: types,
+                            icon: URL(string: "https://github.com")!,
+                            options: options.isEmpty ? nil : options,
+                            externalApi: externalApi,
+                            customNodes: nil,
+                            iosMinAppVersion: nil,
+                            unused: false
+                        )
+            let asset = generateAssetWithId("", assetPresicion: 12, chainId: chainId)
+            let chainAsset = generateChainAsset(asset, chain: chain, staking: staking)
+            let chainAssets = Set(arrayLiteral: chainAsset)
+            chain.assets = chainAssets
+            return chain
         }
     }
 
@@ -61,18 +61,10 @@ enum ChainModelGenerator {
         generatingAssets count: Int,
         addressPrefix: UInt16,
         assetPresicion: UInt16 = (9...18).randomElement()!,
-        hasStaking: Bool = false,
+        staking: StakingType? = nil,
         hasCrowdloans: Bool = false
     ) -> ChainModel {
         let chainId = Data.random(of: 32)!.toHex()
-
-        let assets = (0..<count).map { index in
-            generateAssetWithId(
-                AssetModel.Id(index),
-                assetPresicion: assetPresicion,
-                hasStaking: hasStaking
-            )
-        }
 
         let urlString = "node\(Data.random(of: 32)!.toHex()).io"
 
@@ -90,11 +82,11 @@ enum ChainModelGenerator {
 
         let externalApi: ChainModel.ExternalApiSet? = generateExternaApis(
             for: chainId,
-            hasStaking: hasStaking,
+            staking: staking,
             hasCrowdloans: hasCrowdloans
         )
 
-        return ChainModel(
+        let chain = ChainModel(
             chainId: chainId,
             parentId: nil,
             name: UUID().uuidString,
@@ -104,27 +96,49 @@ enum ChainModelGenerator {
             types: nil,
             icon: Constants.dummyURL,
             options: options.isEmpty ? nil : options,
-            externalApi: externalApi
+            externalApi: externalApi,
+            customNodes: nil,
+            iosMinAppVersion: nil,
+            unused: false
         )
+        let chainAssetsArray: [ChainAssetModel] = (0..<count).map { index in
+            let asset = generateAssetWithId(
+                AssetModel.Id(index),
+                assetPresicion: assetPresicion
+            )
+            return generateChainAsset(asset, chain: chain, staking: staking)
+        }
+        let chainAssets = Set(chainAssetsArray)
+        chain.assets = chainAssets
+        return chain
+    }
+    
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: StakingType? = nil) -> ChainAssetModel {
+        ChainAssetModel(assetId: asset.id,
+                        staking: staking,
+                        purchaseProviders: nil,
+                        asset: asset,
+                        chain: chain)
     }
 
     static func generateAssetWithId(
         _ identifier: AssetModel.Id,
         assetPresicion: UInt16 = (9...18).randomElement()!,
-        hasStaking: Bool = false
+        chainId: String = ""
     ) -> AssetModel {
         AssetModel(
-            id: "",
-            chainId: "",
+            id: identifier,
+            chainId: chainId,
             precision: 12,
             icon: nil,
-            priceId: nil
+            priceId: nil,
+            price: nil
         )
     }
 
     private static func generateExternaApis(
         for chainId: ChainModel.Id,
-        hasStaking: Bool,
+        staking: StakingType?,
         hasCrowdloans: Bool
     ) -> ChainModel.ExternalApiSet? {
         let crowdloanApi: ChainModel.ExternalApi?
@@ -140,7 +154,7 @@ enum ChainModelGenerator {
 
         let stakingApi: ChainModel.ExternalApi?
 
-        if hasStaking {
+        if staking != nil {
             stakingApi = ChainModel.ExternalApi(
                 type: "test",
                 url: URL(string: "https://staking.io/\(chainId)-\(UUID().uuidString).json")!

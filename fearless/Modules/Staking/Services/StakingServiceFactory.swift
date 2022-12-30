@@ -1,12 +1,17 @@
 import Foundation
 import RobinHood
 
+enum StakingServiceFactoryError: Error {
+    case stakingUnavailable
+}
+
 protocol StakingServiceFactoryProtocol {
-    func createEraValidatorService(for chainId: ChainModel.Id) throws -> EraValidatorServiceProtocol
+    func createEraValidatorService(for chain: ChainModel) throws -> EraValidatorServiceProtocol
     func createRewardCalculatorService(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         assetPrecision: Int16,
-        validatorService: EraValidatorServiceProtocol
+        validatorService: EraValidatorServiceProtocol,
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol
 }
 
@@ -36,17 +41,17 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         self.logger = logger
     }
 
-    func createEraValidatorService(for chainId: ChainModel.Id) throws -> EraValidatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainId) else {
+    func createEraValidatorService(for chain: ChainModel) throws -> EraValidatorServiceProtocol {
+        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chain.chainId) else {
             throw ChainRegistryError.runtimeMetadaUnavailable
         }
 
-        guard let connection = chainRegisty.getConnection(for: chainId) else {
+        guard let connection = chainRegisty.getConnection(for: chain.chainId) else {
             throw ChainRegistryError.connectionUnavailable
         }
 
         return EraValidatorService(
-            chainId: chainId,
+            chain: chain,
             storageFacade: storageFacade,
             runtimeCodingService: runtimeService,
             connection: connection,
@@ -58,24 +63,44 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
     }
 
     func createRewardCalculatorService(
-        for chainId: ChainModel.Id,
+        for chainAsset: ChainAsset,
         assetPrecision: Int16,
-        validatorService: EraValidatorServiceProtocol
+        validatorService: EraValidatorServiceProtocol,
+        collatorOperationFactory: ParachainCollatorOperationFactory?
     ) throws -> RewardCalculatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainId) else {
+        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             throw ChainRegistryError.runtimeMetadaUnavailable
         }
 
-        return RewardCalculatorService(
-            chainId: chainId,
-            assetPrecision: assetPrecision,
-            eraValidatorsService: validatorService,
-            operationManager: operationManager,
-            providerFactory: substrateDataProviderFactory,
-            runtimeCodingService: runtimeService,
-            stakingDurationFactory: StakingDurationOperationFactory(),
-            storageFacade: storageFacade,
-            logger: logger
-        )
+        switch chainAsset.stakingType {
+        case .relayChain:
+            return RewardCalculatorService(
+                chainAsset: chainAsset,
+                assetPrecision: assetPrecision,
+                eraValidatorsService: validatorService,
+                operationManager: operationManager,
+                providerFactory: substrateDataProviderFactory,
+                runtimeCodingService: runtimeService,
+                stakingDurationFactory: StakingDurationOperationFactory(),
+                storageFacade: storageFacade,
+                logger: logger
+            )
+        case .paraChain:
+            guard let collatorOperationFactory = collatorOperationFactory else {
+                throw StakingServiceFactoryError.stakingUnavailable
+            }
+
+            return ParachainRewardCalculatorService(
+                chainAsset: chainAsset,
+                assetPrecision: assetPrecision,
+                operationManager: operationManager,
+                providerFactory: substrateDataProviderFactory,
+                runtimeCodingService: runtimeService,
+                storageFacade: storageFacade,
+                collatorOperationFactory: collatorOperationFactory
+            )
+        case .none:
+            throw StakingServiceFactoryError.stakingUnavailable
+        }
     }
 }

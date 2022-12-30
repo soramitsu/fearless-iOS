@@ -31,14 +31,14 @@ protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
-protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRebondSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func proceed(
         view: StakingRebondSetupViewProtocol?,
         amount: Decimal,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     )
     func close(view: StakingRebondSetupViewProtocol?)
 }

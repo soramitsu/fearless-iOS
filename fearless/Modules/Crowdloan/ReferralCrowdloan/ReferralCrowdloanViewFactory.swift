@@ -98,7 +98,8 @@ struct ReferralCrowdloanViewFactory {
         let assetInfo = asset.asset.displayInfo(with: chain.icon)
         let viewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
-            chainDateCalculator: ChainDateCalculator()
+            chainDateCalculator: ChainDateCalculator(),
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let localizationManager = LocalizationManager.shared

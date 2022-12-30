@@ -6,28 +6,37 @@ import FearlessUtils
 
 struct StakingRebondConfirmationViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        variant: SelectedRebondVariant
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     )
         -> StakingRebondConfirmationViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, selectedAccount: selectedAccount) else {
-            return nil
-        }
-
         let wireframe = StakingRebondConfirmationWireframe()
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+        guard let container = createContainer(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            dataValidatingFactory: dataValidatingFactory
+        ) else {
+            return nil
+        }
+
+        guard let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            container: container
+        ) else {
+            return nil
+        }
 
         let presenter = createPresenter(
-            chain: chain,
-            asset: asset,
-            variant: variant,
+            chainAsset: chainAsset,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory,
-            selectedMetaAccount: selectedAccount
+            container: container
         )
 
         let view = StakingRebondConfirmationViewController(
@@ -44,47 +53,52 @@ struct StakingRebondConfirmationViewFactory {
 
     // swiftlint:disable function_parameter_count
     private static func createPresenter(
-        chain: ChainModel,
-        asset: AssetModel,
-        variant: SelectedRebondVariant,
+        chainAsset: ChainAsset,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        selectedMetaAccount: MetaAccountModel
+        container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationPresenter {
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
-        )
-
-        let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)
-
-        return StakingRebondConfirmationPresenter(
-            variant: variant,
+        StakingRebondConfirmationPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            confirmViewModelFactory: confirmationViewModelFactory,
-            balanceViewModelFactory: balanceViewModelFactory,
+            confirmViewModelFactory: container.viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
+            viewModelState: container.viewModelState,
             logger: Logger.shared
         )
     }
 
     // swiftlint:disable function_body_length
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        container: StakingRebondConfirmationDependencyContainer
     ) -> StakingRebondConfirmationInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingRebondConfirmationInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        )
+    }
+
+    private static func createContainer(
+        flow: StakingRebondConfirmationFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    ) -> StakingRebondConfirmationDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -92,7 +106,7 @@ struct StakingRebondConfirmationViewFactory {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -102,19 +116,11 @@ struct StakingRebondConfirmationViewFactory {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let keystore = Keychain()
@@ -122,29 +128,97 @@ struct StakingRebondConfirmationViewFactory {
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
+        )
+
         let accountRepository: CoreDataRepository<MetaAccountModel, CDMetaAccount> = facade.createRepository(
             filter: nil,
             sortDescriptors: [],
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingRebondConfirmationInteractor(
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            runtimeService: runtimeService,
-            operationManager: operationManager,
-            keystore: keystore,
-            connection: connection,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
         )
+
+        let signingWrapper = SigningWrapper(
+            keystore: keystore,
+            metaId: accountResponse.walletId,
+            accountResponse: accountResponse
+        )
+
+        switch flow {
+        case let .relaychain(variant):
+            let viewModelState = StakingRebondConfirmationRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                logger: logger,
+                variant: variant,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingRebondConfirmationRelaychainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingRebondConfirmationRelaychainStrategy(
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                keystore: keystore,
+                connection: connection,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                output: viewModelState
+            )
+
+            return StakingRebondConfirmationDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(delegationInfo, request):
+            let viewModelState = StakingRebondConfirmationParachainViewModelState(
+                delegation: delegationInfo,
+                request: request,
+                wallet: wallet,
+                chainAsset: chainAsset,
+                dataValidatingFactory: dataValidatingFactory,
+                logger: logger
+            )
+            let viewModelFactory = StakingRebondConfirmationParachainViewModelFactory(
+                balanceViewModelFactory: balanceViewModelFactory,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingRebondConfirmationParachainStrategy(
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                operationManager: operationManager,
+                keystore: keystore,
+                connection: connection,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                output: viewModelState,
+                signingWrapper: signingWrapper
+            )
+            return StakingRebondConfirmationDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }

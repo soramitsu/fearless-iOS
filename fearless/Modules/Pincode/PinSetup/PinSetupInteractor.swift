@@ -33,7 +33,9 @@ class PinSetupInteractor {
     private(set) var state: PinSetupState = .waitingPincode {
         didSet(oldValue) {
             if oldValue != state {
-                presenter?.didChangeState(from: oldValue)
+                DispatchQueue.main.async {
+                    self.presenter?.didChangeState(to: self.state)
+                }
             }
         }
     }
@@ -78,15 +80,17 @@ class PinSetupInteractor {
             currentPincode,
             for: KeystoreTag.pincode.rawValue,
             completionQueue: DispatchQueue.main
-        ) { _ -> Void in
-            self.completeSetup()
+        ) { [weak self] _ -> Void in
+            self?.completeSetup()
         }
     }
 
     private func completeSetup() {
-        state = .submitedPincode
-        pincode = nil
-        presenter?.didSavePin()
+        DispatchQueue.global(qos: .utility).async {
+            self.state = .submitedPincode
+            self.pincode = nil
+            self.presenter?.didSavePin()
+        }
     }
 }
 

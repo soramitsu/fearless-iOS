@@ -2,9 +2,13 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SoraUI
 
 final class SelectCurrencyAssembly {
-    static func configureModule(with wallet: MetaAccountModel) -> SelectCurrencyModuleCreationResult? {
+    static func configureModule(
+        with wallet: MetaAccountModel,
+        isModal: Bool
+    ) -> SelectCurrencyModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
         let eventCenter = EventCenter.shared
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
@@ -17,7 +21,7 @@ final class SelectCurrencyAssembly {
             eventCenter: eventCenter,
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
-        let router = SelectCurrencyRouter()
+        let router = SelectCurrencyRouter(viewIsModal: isModal)
 
         let presenter = SelectCurrencyPresenter(
             interactor: interactor,
@@ -27,9 +31,19 @@ final class SelectCurrencyAssembly {
         )
 
         let view = SelectCurrencyViewController(
+            isModal: isModal,
             output: presenter,
             localizationManager: localizationManager
         )
+
+        if isModal {
+            view.modalPresentationStyle = .custom
+
+            let factory = ModalSheetBlurPresentationFactory(
+                configuration: ModalSheetPresentationConfiguration.fearlessBlur
+            )
+            view.modalTransitioningFactory = factory
+        }
 
         return (view, presenter)
     }

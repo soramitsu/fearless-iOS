@@ -84,7 +84,7 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
             ).uppercased()
 
             rootView.applyAppBonusButton.isEnabled = true
-            rootView.applyAppBonusButton.applyDefaultStyle()
+            rootView.applyAppBonusButton.applyEnabledStyle()
         } else {
             rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApplied(
                 preferredLanguages: selectedLocale.rLanguages

@@ -31,7 +31,7 @@ final class WarningAlertViewLayout: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.textAlignment = .left
         return label
     }()
@@ -52,7 +52,7 @@ final class WarningAlertViewLayout: UIView {
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

@@ -3,43 +3,46 @@ import SoraKeystore
 import SoraFoundation
 
 struct AnalyticsStakeViewFactory {
-    static func createView(with wallet: MetaAccountModel) -> AnalyticsStakeViewProtocol? {
-        let settings = SettingsManager.shared
+    static func createView(
+        with wallet: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) -> AnalyticsStakeViewProtocol? {
         let operationManager = OperationManagerFacade.sharedManager
-
-        let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-        let addressType = settings.selectedConnection.type
-        let chain = addressType.chain
         guard
-            let accountAddress = settings.selectedAccount?.address,
-            let assetId = WalletAssetId(rawValue: asset.identifier)
+            let accountAddress = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
         else {
             return nil
         }
 
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
         )
+
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
+            chainRegistry: chainRegistry,
+            storageFacade: substrateStorageFacade,
+            operationManager: operationManager,
+            logger: Logger.shared
+        )
+
         let interactor = AnalyticsStakeInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
+            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             operationManager: operationManager,
             selectedAccountAddress: accountAddress,
-            assetId: assetId,
-            chain: chain
+            chainAsset: chainAsset
         )
         let wireframe = AnalyticsStakeWireframe()
 
-        let targetAssetInfo = AssetBalanceDisplayInfo.forCurrency(wallet.selectedCurrency)
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: targetAssetInfo,
-            selectedMetaAccount: wallet
-        )
         let viewModelFactory = AnalyticsStakeViewModelFactory(
-            assetInfo: targetAssetInfo,
+            assetInfo: chainAsset.asset.displayInfo,
             balanceViewModelFactory: balanceViewModelFactory,
             calendar: Calendar(identifier: .gregorian)
         )
@@ -48,7 +51,8 @@ struct AnalyticsStakeViewFactory {
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
-            wallet: wallet
+            wallet: wallet,
+            chainAsset: chainAsset
         )
 
         let view = AnalyticsStakeViewController(presenter: presenter, localizationManager: LocalizationManager.shared)

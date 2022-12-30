@@ -38,16 +38,18 @@ final class CrowdloansViewModelFactory {
 
     let amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
 
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating?
 
     private lazy var dateFormatter = {
         CompoundDateFormatterBuilder()
     }()
 
     init(
-        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        iconGenerator: IconGenerating?
     ) {
         self.amountFormatterFactory = amountFormatterFactory
+        self.iconGenerator = iconGenerator
     }
 
     private func createCommonContent(
@@ -98,7 +100,7 @@ final class CrowdloansViewModelFactory {
             if let urlString = displayInfo?.icon, let url = URL(string: urlString) {
                 return RemoteImageViewModel(url: url)
             } else {
-                let icon = try? iconGenerator.generateFromAddress(depositorAddress).imageWithFillColor(
+                let icon = try? iconGenerator?.generateFromAddress(depositorAddress).imageWithFillColor(
                     R.color.colorWhite()!,
                     size: UIConstants.normalAddressIconSize,
                     contentScale: UIScreen.main.scale

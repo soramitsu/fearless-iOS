@@ -1,14 +1,16 @@
+import Foundation
+
 final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showBondMore(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingBondMoreFlow
     ) {
         guard let bondMoreView = StakingBondMoreViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else { return }
         let navigationController = ImportantFlowViewFactory.createNavigation(from: bondMoreView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
@@ -16,14 +18,14 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
 
     func showUnbond(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondSetupFlow
     ) {
         guard let unbondView = StakingUnbondSetupViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }
@@ -35,14 +37,21 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
 
     func showRedeem(
         from view: ControllerBackedProtocol?,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemConfirmationFlow
     ) {
-        guard let redeemView = StakingRedeemViewFactory.createView(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
+        var redeemCompletion: (() -> Void)?
+        if case .parachain = flow {
+            redeemCompletion = {
+                view?.controller.navigationController?.popViewController(animated: true)
+            }
+        }
+        guard let redeemView = StakingRedeemConfirmationViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            redeemCompletion: redeemCompletion
         ) else {
             return
         }
@@ -52,37 +61,33 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRebond(
+    func showRebondSetup(from view: ControllerBackedProtocol?, chainAsset: ChainAsset, wallet: MetaAccountModel) {
+        let rebondView: ControllerBackedProtocol? = StakingRebondSetupViewFactory.createView(
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
+            selectedAccount: wallet
+        )
+
+        guard let controller = rebondView?.controller else {
+            return
+        }
+
+        let navigationController = ImportantFlowViewFactory.createNavigation(from: controller)
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showRebondConfirm(
         from view: ControllerBackedProtocol?,
-        option: StakingRebondOption,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRebondConfirmationFlow
     ) {
-        let rebondView: ControllerBackedProtocol? = {
-            switch option {
-            case .all:
-                return StakingRebondConfirmationViewFactory.createView(
-                    chain: chain,
-                    asset: asset,
-                    selectedAccount: selectedAccount,
-                    variant: .all
-                )
-            case .last:
-                return StakingRebondConfirmationViewFactory.createView(
-                    chain: chain,
-                    asset: asset,
-                    selectedAccount: selectedAccount,
-                    variant: .last
-                )
-            case .customAmount:
-                return StakingRebondSetupViewFactory.createView(
-                    chain: chain,
-                    asset: asset,
-                    selectedAccount: selectedAccount
-                )
-            }
-        }()
+        let rebondView: ControllerBackedProtocol? = StakingRebondConfirmationViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
+        )
 
         guard let controller = rebondView?.controller else {
             return

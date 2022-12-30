@@ -26,7 +26,8 @@ protocol BaseDataValidatingFactoryProtocol: AnyObject {
         totalAmount: BigUInt?,
         minimumBalance: BigUInt?,
         locale: Locale,
-        chain: ChainModel
+        chainAsset: ChainAsset,
+        canProceedIfViolated: Bool
     ) -> DataValidating
 }
 
@@ -97,11 +98,16 @@ extension BaseDataValidatingFactoryProtocol {
         totalAmount: BigUInt?,
         minimumBalance: BigUInt?,
         locale: Locale,
-        chain: ChainModel
+        chainAsset: ChainAsset,
+        canProceedIfViolated: Bool = true
     ) -> DataValidating {
         WarningConditionViolation(onWarning: { [weak self] delegate in
             guard let view = self?.view else {
                 return
+            }
+
+            if !canProceedIfViolated {
+                self?.basePresentable.presentExistentialDepositError(from: view, locale: locale)
             }
 
             self?.basePresentable.presentExistentialDepositWarning(
@@ -117,7 +123,7 @@ extension BaseDataValidatingFactoryProtocol {
                 return true
             }
 
-            if chain.isOrml {
+            if case .ormlChain = chainAsset.chainAssetType {
                 return true
             }
 

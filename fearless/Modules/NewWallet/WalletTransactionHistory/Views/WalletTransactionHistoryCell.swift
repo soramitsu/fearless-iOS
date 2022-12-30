@@ -22,7 +22,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.lineBreakMode = .byTruncatingMiddle
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -30,7 +30,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textAlignment = .right
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -128,7 +128,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
         case .commited:
             transactionAmountLabel.textColor = viewModel.incoming ? R.color.colorGreen() : R.color.colorWhite()
         case .pending, .rejected:
-            transactionAmountLabel.textColor = R.color.colorWhiteTransparent()
+            transactionAmountLabel.textColor = R.color.colorWhite16()
         }
     }
 }

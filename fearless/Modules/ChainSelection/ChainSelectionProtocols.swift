@@ -10,13 +10,13 @@ protocol ChainSelectionInteractorInputProtocol: AnyObject {
 
 protocol ChainSelectionInteractorOutputProtocol: AnyObject {
     func didReceiveChains(result: Result<[ChainModel], Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAssetKey: ChainAssetKey)
 }
 
-protocol ChainSelectionWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func complete(on view: ChainSelectionViewProtocol, selecting chain: ChainModel)
+protocol ChainSelectionWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
+    func complete(on view: ChainSelectionViewProtocol, selecting chain: ChainModel?)
 }
 
 protocol ChainSelectionDelegate: AnyObject {
-    func chainSelection(view: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel)
+    func chainSelection(view: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?)
 }

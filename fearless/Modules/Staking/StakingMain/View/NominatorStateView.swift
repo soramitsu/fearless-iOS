@@ -32,23 +32,41 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .stakingYourStake(preferredLanguages: locale.rLanguages)
         stakeTitleLabel.text = R.string.localizable
             .stakingMainStakeBalanceStaked(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable
             .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
+        redeemableView.titleLabel.text = R.string.localizable.walletBalanceRedeemable(
+            preferredLanguages: locale.rLanguages
+        )
+        unstakingView.titleLabel.text = R.string.localizable.walletBalanceUnbonding_v190(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     private func applyViewModel() {
         guard let viewModel = localizableViewModel?.value(for: locale) else {
+            titleLabel.text = R.string.localizable
+                .stakingYourStake(preferredLanguages: locale.rLanguages)
             return
         }
 
-        stakeAmountView.valueTop.text = viewModel.totalStakedAmount
-        stakeAmountView.valueBottom.text = viewModel.totalStakedPrice
-        rewardAmountView.valueTop.text = viewModel.totalRewardAmount
-        rewardAmountView.valueBottom.text = viewModel.totalRewardPrice
+        titleLabel.text = R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages)
+        stakeAmountView.valueLabel.text = viewModel.totalStakedAmount
+        stakeAmountView.subtitleLabel.text = viewModel.totalStakedPrice
+        rewardAmountView.valueLabel.text = viewModel.totalRewardAmount
+        rewardAmountView.subtitleLabel.text = viewModel.totalRewardPrice
+
+        redeemableView.valueLabel.text = viewModel.redeemableViewModel?.value
+        redeemableView.subtitleLabel.text = viewModel.redeemableViewModel?.subtitle
+
+        unstakingView.valueLabel.text = viewModel.unstakingViewModel?.value
+        unstakingView.subtitleLabel.text = viewModel.unstakingViewModel?.subtitle
+
+        rewardTitleLabel.text = viewModel.rewardViewTitle
+
+        redeemableView.isHidden = viewModel.redeemableViewModel == nil
+        unstakingView.isHidden = viewModel.unstakingViewModel == nil
 
         if case .undefined = viewModel.status {
             toggleStatus(false)
@@ -69,15 +87,17 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         switch viewModel.status {
         case .undefined:
             skeletonOptions.insert(.status)
-        case let .active(era):
-            presentActiveStatus(for: era)
-        case let .inactive(era):
-            presentInactiveStatus(for: era)
+        case let .active(index):
+            presentActiveStatus(for: index)
+        case let .inactive(index):
+            presentInactiveStatus(for: index)
         case let .waiting(eraCountdown, nominationEra):
             let remainingTime: TimeInterval? = eraCountdown.map { countdown in
                 countdown.timeIntervalTillStart(targetEra: nominationEra + 1)
             }
             presentWaitingStatus(remainingTime: remainingTime)
+        case .validatorsNotSelected:
+            presentValidatorsAreNotSelectedStatus()
         }
 
         if !skeletonOptions.isEmpty, viewModel.hasPrice {
@@ -92,7 +112,7 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         statusButton.isUserInteractionEnabled = shouldShow
     }
 
-    private func presentActiveStatus(for era: UInt32) {
+    private func presentActiveStatus(for era: EraIndex) {
         statusView.titleView.indicatorColor = R.color.colorGreen()!
         statusView.titleView.titleLabel.textColor = R.color.colorGreen()!
 
@@ -108,8 +128,10 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
 
         statusView.titleView.titleLabel.text = R.string.localizable
             .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
-        statusView.valueView.detailsLabel.text = R.string.localizable
-            .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
+        statusView.valueView.detailsLabel.text = R.string.localizable.stakingEraTitle(
+            "\(era)",
+            preferredLanguages: locale.rLanguages
+        ).uppercased()
     }
 
     private func presentWaitingStatus(remainingTime: TimeInterval?) {
@@ -124,6 +146,14 @@ class NominatorStateView: StakingStateView, LocalizableViewProtocol {
         } else {
             statusView.valueView.detailsLabel.text = ""
         }
+    }
+
+    private func presentValidatorsAreNotSelectedStatus() {
+        statusView.titleView.indicatorColor = R.color.colorOrange() ?? .orange
+        statusView.titleView.titleLabel.textColor = R.color.colorOrange()
+
+        statusView.titleView.titleLabel.text = R.string.localizable
+            .stakingSetValidatorsMessage(preferredLanguages: locale.rLanguages).uppercased()
     }
 }
 

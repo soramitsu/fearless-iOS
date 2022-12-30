@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class RootPresenter {
-    var view: RootViewProtocol?
+    var view: ControllerBackedProtocol?
     var window: UIWindow!
     var wireframe: RootWireframeProtocol!
     var interactor: RootInteractorInputProtocol!

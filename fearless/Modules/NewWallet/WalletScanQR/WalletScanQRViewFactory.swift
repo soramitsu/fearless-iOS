@@ -4,26 +4,27 @@ import SoraFoundation
 
 struct WalletScanQRViewFactory {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         moduleOutput: WalletScanQRModuleOutput?
     ) -> WalletScanQRViewProtocol? {
-        guard let account = selectedAccount.fetch(for: chain.accountRequest()), let address = account.toAddress() else {
+        guard let account = wallet.fetch(for: chainAsset.chain.accountRequest()),
+              let address = account.toAddress() else {
             return nil
         }
 
         let interactor = WalletScanQRInteractor()
         let wireframe = WalletScanQRWireframe()
 
-        let chainFormat: ChainFormat = chain.isEthereumBased ? .ethereum : .substrate(chain.addressPrefix)
+        let chainFormat: ChainFormat =
+            chainAsset.chain.isEthereumBased ? .ethereum : .substrate(chainAsset.chain.addressPrefix)
         let localSearchEngine = InvoiceScanLocalSearchEngine(chainFormat: chainFormat)
 
         let qrCoderFactory = WalletQRCoderFactory(
-            addressPrefix: chain.addressPrefix,
+            addressPrefix: chainAsset.chain.addressPrefix,
             publicKey: account.publicKey,
             username: account.name,
-            asset: asset
+            asset: chainAsset.asset
         )
 
         let accountStorage: CoreDataRepository<MetaAccountModel, CDMetaAccount> =
@@ -54,7 +55,7 @@ struct WalletScanQRViewFactory {
             qrScanServiceFactory: QRCaptureServiceFactory(),
             qrCoderFactory: qrCoderFactory,
             localizationManager: LocalizationManager.shared,
-            chain: chain,
+            chain: chainAsset.chain,
             moduleOutput: moduleOutput,
             qrExtractionService: QRExtractionService(processingQueue: .global())
         )

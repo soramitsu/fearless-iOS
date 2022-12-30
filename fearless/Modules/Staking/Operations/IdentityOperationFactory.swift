@@ -46,33 +46,31 @@ final class IdentityOperationFactory {
         chain: ChainModel
     ) -> BaseOperation<[AccountAddress: AccountIdentity]> {
         ClosureOperation<[AccountAddress: AccountIdentity]> {
-            let addressFactory = SS58AddressFactory()
-
             let superIdentities = try superOperation.extractNoCancellableResultData()
             let identities = try identityOperation.extractNoCancellableResultData()
                 .reduce(into: [AccountAddress: Identity]()) { result, item in
                     if let value = item.value {
-                        let address = try addressFactory
-                            .addressFromAccountId(
-                                data: item.key.getAccountIdFromKey(),
-                                addressPrefix: chain.addressPrefix
-                            )
+                        let address = try AddressFactory.address(
+                            for: item.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght),
+                            chainFormat: chain.chainFormat
+                        )
+
                         result[address] = value
                     }
                 }
 
             return try superIdentities.reduce(into: [String: AccountIdentity]()) { result, item in
-                let address = try addressFactory
-                    .addressFromAccountId(
-                        data: item.key.getAccountIdFromKey(),
-                        addressPrefix: chain.addressPrefix
+                let address = try AddressFactory
+                    .address(
+                        for: item.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght),
+                        chainFormat: chain.chainFormat
                     )
 
                 if let value = item.value {
-                    let parentAddress = try addressFactory
-                        .addressFromAccountId(
-                            data: value.parentAccountId,
-                            addressPrefix: chain.addressPrefix
+                    let parentAddress = try AddressFactory
+                        .address(
+                            for: value.parentAccountId,
+                            chainFormat: chain.chainFormat
                         )
 
                     if let parentIdentity = identities[parentAddress] {
@@ -112,7 +110,7 @@ final class IdentityOperationFactory {
                 if let value = response.value {
                     return value.parentAccountId
                 } else {
-                    return response.key.getAccountIdFromKey()
+                    return response.key.getAccountIdFromKey(accountIdLenght: chain.accountIdLenght)
                 }
             }
         }

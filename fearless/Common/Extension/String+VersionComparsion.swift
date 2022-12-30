@@ -13,15 +13,33 @@ extension String {
 
         let comparableComponentsCount = min(currentVersionComponents.count, minimalVersionComponents.count)
 
-        for index in 0 ... comparableComponentsCount - 1 {
-            let currentVersionComponent = currentVersionComponents[index]
-            let minimalVersionComponent = minimalVersionComponents[index]
-
-            if currentVersionComponent < minimalVersionComponent {
+        var componentIndex = 0
+        func validateComponent(currentVersion: Int, minimalVersion: Int) -> Bool {
+            if currentVersion < minimalVersion {
                 return true
+            } else if currentVersion > minimalVersion {
+                return false
+            } else {
+                componentIndex += 1
+                guard componentIndex < comparableComponentsCount,
+                      let currentComponent = Int(currentVersionComponents[componentIndex]),
+                      let minimalComponent = Int(minimalVersionComponents[componentIndex]) else {
+                    return false
+                }
+                return validateComponent(
+                    currentVersion: currentComponent,
+                    minimalVersion: minimalComponent
+                )
             }
         }
-
-        return false
+        guard componentIndex < comparableComponentsCount,
+              let currentComponent = Int(currentVersionComponents[componentIndex]),
+              let minimalComponent = Int(minimalVersionComponents[componentIndex]) else {
+            return false
+        }
+        return validateComponent(
+            currentVersion: currentComponent,
+            minimalVersion: minimalComponent
+        )
     }
 }

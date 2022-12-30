@@ -6,153 +6,78 @@ final class StakingBondMoreConfirmationPresenter {
     let wireframe: StakingBondMoreConfirmationWireframeProtocol
     let interactor: StakingBondMoreConfirmationInteractorInputProtocol
 
-    let inputAmount: Decimal
     let confirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let viewModelState: StakingBondMoreConfirmationViewModelState
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let logger: LoggerProtocol?
+    let wallet: MetaAccountModel
 
-    var stashAccount: ChainAccountResponse?
-
-    private var balance: Decimal?
     private var priceData: PriceData?
-    private var fee: Decimal?
-    private var selectedAccount: MetaAccountModel
-    private var stashItem: StashItem?
 
     init(
         interactor: StakingBondMoreConfirmationInteractorInputProtocol,
         wireframe: StakingBondMoreConfirmationWireframeProtocol,
-        inputAmount: Decimal,
         confirmViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        viewModelState: StakingBondMoreConfirmationViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.inputAmount = inputAmount
         self.confirmViewModelFactory = confirmViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.logger = logger
-    }
-
-    private func provideFeeViewModel() {
-        if let fee = fee {
-            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceiveFee(viewModel: feeViewModel)
-        } else {
-            view?.didReceiveFee(viewModel: nil)
-        }
-    }
-
-    private func provideAssetViewModel() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            inputAmount,
-            balance: balance,
-            priceData: priceData
-        )
-
-        view?.didReceiveAsset(viewModel: viewModel)
-    }
-
-    private func provideConfirmationViewModel() {
-        do {
-            let viewModel = try confirmViewModelFactory.createViewModel(
-                account: selectedAccount,
-                amount: inputAmount
-            )
-
-            view?.didReceiveConfirmation(viewModel: viewModel)
-        } catch {
-            logger?.error("Did receive view model factory error: \(error)")
-        }
-    }
-
-    func refreshFeeIfNeeded() {
-        guard fee == nil else {
-            return
-        }
-
-        interactor.estimateFee(for: inputAmount)
     }
 }
 
 extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPresenterProtocol {
+    func didTapBackButton() {
+        wireframe.dismiss(view: view)
+    }
+
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideConfirmationViewModel()
         provideAssetViewModel()
         provideFeeViewModel()
 
         interactor.setup()
+
+        refreshFeeIfNeeded()
     }
 
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-        DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFeeAndAmount(
-                balance: balance,
-                fee: fee,
-                spendingAmount: inputAmount,
-                locale: locale
-            ),
-            dataValidatingFactory.has(
-                stash: stashAccount,
-                for: stashItem?.stash ?? "",
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            guard let strongSelf = self else {
+        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self, let builderClosure = strongSelf.viewModelState.builderClosure else {
                 return
             }
 
             strongSelf.view?.didStartLoading()
 
-            strongSelf.interactor.submit(for: strongSelf.inputAmount)
+            strongSelf.interactor.submit(builderClosure: builderClosure)
         }
     }
 
     func selectAccount() {
-        guard let view = view, let address = stashItem?.controller else { return }
+        guard let view = view, let address = viewModelState.accountAddress else { return }
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
-        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: locale)
+        wireframe.presentAccountOptions(from: view, address: address, chain: chainAsset.chain, locale: locale)
     }
 }
 
 extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutputProtocol {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let accountInfo = accountInfo {
-                balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                balance = nil
-            }
-
-            provideAssetViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Did receive account info error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -163,43 +88,6 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive price data error: \(error)")
-        }
-    }
-
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
-        switch result {
-        case let .success(dispatchInfo):
-            if let feeValue = BigUInt(dispatchInfo.fee) {
-                fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(asset.precision))
-            } else {
-                fee = nil
-            }
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
-        }
-    }
-
-    func didReceiveStash(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(stashAccount):
-            self.stashAccount = stashAccount
-
-            provideConfirmationViewModel()
-
-            refreshFeeIfNeeded()
-        case let .failure(error):
-            logger?.error("Did receive stash account error: \(error)")
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-        case let .failure(error):
-            logger?.error("Did receive stash item error: \(error)")
         }
     }
 
@@ -216,5 +104,63 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         case .failure:
             wireframe.presentExtrinsicFailed(from: view, locale: view.localizationManager?.selectedLocale)
         }
+    }
+}
+
+extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationModelStateListener {
+    func didReceiveError(error: Error) {
+        logger?.error("StakingBondMoreConfirmationPresenter didReceiveError: \(error)")
+    }
+
+    func provideFeeViewModel() {
+        if let fee = viewModelState.fee {
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
+    }
+
+    func provideAssetViewModel() {
+        let assetViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+            viewModelState.amount,
+            balance: viewModelState.balance,
+            priceData: priceData
+        )
+
+        view?.didReceiveAsset(viewModel: assetViewModel)
+    }
+
+    func provideConfirmationViewModel() {
+        let locale = view?.selectedLocale ?? Locale.current
+
+        do {
+            guard let viewModel = try confirmViewModelFactory.createViewModel(
+                account: wallet,
+                amount: viewModelState.amount,
+                state: viewModelState,
+                locale: locale,
+                priceData: priceData
+            ) else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                self.view?.didReceiveConfirmation(viewModel: viewModel)
+            }
+        } catch {
+            logger?.error("Did receive view model factory error: \(error)")
+        }
+    }
+
+    func refreshFeeIfNeeded() {
+        guard viewModelState.fee == nil else {
+            return
+        }
+
+        interactor.estimateFee(
+            builderClosure: viewModelState.builderClosure,
+            reuseIdentifier: viewModelState.feeReuseIdentifier
+        )
     }
 }

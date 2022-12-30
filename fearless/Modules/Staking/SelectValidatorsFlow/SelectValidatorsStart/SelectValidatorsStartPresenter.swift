@@ -3,16 +3,13 @@ import RobinHood
 
 final class SelectValidatorsStartPresenter {
     weak var view: SelectValidatorsStartViewProtocol?
-    let wireframe: SelectValidatorsStartWireframeProtocol
-    let interactor: SelectValidatorsStartInteractorInputProtocol
-
-    let initialTargets: [SelectedValidatorInfo]?
-    let existingStashAddress: AccountAddress?
-    let logger: LoggerProtocol?
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
-
+    private let wireframe: SelectValidatorsStartWireframeProtocol
+    private let interactor: SelectValidatorsStartInteractorInputProtocol
+    private let logger: LoggerProtocol?
+    private let chainAsset: ChainAsset
+    private let wallet: MetaAccountModel
+    private let viewModelState: SelectValidatorsStartViewModelState
+    private let viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
     private var electedValidators: [AccountAddress: ElectedValidatorInfo]?
     private var recommendedValidators: [ElectedValidatorInfo]?
     private var selectedValidators: SharedList<SelectedValidatorInfo>?
@@ -21,54 +18,19 @@ final class SelectValidatorsStartPresenter {
     init(
         interactor: SelectValidatorsStartInteractorInputProtocol,
         wireframe: SelectValidatorsStartWireframeProtocol,
-        existingStashAddress: AccountAddress?,
-        initialTargets: [SelectedValidatorInfo]?,
         logger: LoggerProtocol? = nil,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        viewModelState: SelectValidatorsStartViewModelState,
+        viewModelFactory: SelectValidatorsStartViewModelFactoryProtocol
     ) {
-        self.chain = chain
-        self.selectedAccount = selectedAccount
-        self.asset = asset
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.interactor = interactor
         self.wireframe = wireframe
-        self.existingStashAddress = existingStashAddress
-        self.initialTargets = initialTargets
         self.logger = logger
-    }
-
-    private func updateSelectedValidatorsIfNeeded() {
-        guard
-            let electedValidators = electedValidators,
-            let maxNominations = maxNominations,
-            selectedValidators == nil else {
-            return
-        }
-
-        let selectedValidatorList = initialTargets?.map { target in
-            electedValidators[target.address]?.toSelected(for: existingStashAddress) ?? target
-        }
-        .sorted { $0.stakeReturn > $1.stakeReturn }
-        .prefix(maxNominations) ?? []
-
-        selectedValidators = SharedList(items: selectedValidatorList)
-    }
-
-    private func updateRecommendedValidators() {
-        guard
-            let electedValidators = electedValidators,
-            let maxNominations = maxNominations else {
-            return
-        }
-
-        let resultLimit = min(electedValidators.count, maxNominations)
-        let recomendedValidators = RecommendationsComposer(
-            resultSize: resultLimit,
-            clusterSizeLimit: StakingConstants.targetsClusterLimit
-        ).compose(from: Array(electedValidators.values))
-
-        recommendedValidators = recomendedValidators
+        self.viewModelState = viewModelState
+        self.viewModelFactory = viewModelFactory
     }
 
     private func updateView() {
@@ -80,7 +42,8 @@ final class SelectValidatorsStartPresenter {
 
         let viewModel = SelectValidatorsStartViewModel(
             selectedCount: selectedValidators.count,
-            totalCount: maxNominations
+            totalCount: maxNominations,
+            recommendedValidatorListLoaded: !(recommendedValidators?.isEmpty ?? true)
         )
 
         view?.didReceive(viewModel: viewModel)
@@ -103,6 +66,16 @@ final class SelectValidatorsStartPresenter {
 extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol {
     func setup() {
         interactor.setup()
+
+        viewModelState.setStateListener(self)
+
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let textsViewModel = viewModelFactory.buildTextsViewModel(locale: locale) {
+            view?.didReceive(textsViewModel: textsViewModel)
+        }
+
+        view?.didStartLoading()
     }
 
     func updateOnAppearance() {
@@ -110,78 +83,50 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
     }
 
     func selectRecommendedValidators() {
-        guard
-            let recommendedValidators = recommendedValidators,
-            let maxNominations = maxNominations else {
-            return
+        do {
+            guard let recommendedValidatorListFlow = try viewModelState.recommendedValidatorListFlow() else {
+                return
+            }
+
+            wireframe.proceedToRecommendedList(
+                from: view,
+                flow: recommendedValidatorListFlow,
+                wallet: wallet,
+                chainAsset: chainAsset
+            )
+        } catch {
+            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+            wireframe.present(error: error, from: view, locale: locale)
         }
-
-        let recommendedValidatorList = recommendedValidators.map { $0.toSelected(for: existingStashAddress) }
-
-        wireframe.proceedToRecommendedList(
-            from: view,
-            validatorList: recommendedValidatorList,
-            maxTargets: maxNominations,
-            selectedAccount: selectedAccount,
-            chain: chain,
-            asset: asset
-        )
     }
 
     func selectCustomValidators() {
-        guard
-            let electedValidators = electedValidators,
-            let maxNominations = maxNominations,
-            let selectedValidators = selectedValidators else {
+        guard let flow = viewModelState.customValidatorListFlow else {
             return
         }
 
-        let electedValidatorList = electedValidators.values.map { $0.toSelected(for: existingStashAddress) }
-        let recommendedValidatorList = recommendedValidators?.map {
-            $0.toSelected(for: existingStashAddress)
-        } ?? []
-
         wireframe.proceedToCustomList(
             from: view,
-            validatorList: electedValidatorList,
-            recommendedValidatorList: recommendedValidatorList,
-            selectedValidatorList: selectedValidators,
-            maxTargets: maxNominations,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 }
 
-extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputProtocol {
-    func didReceiveValidators(result: Result<[ElectedValidatorInfo], Error>) {
-        switch result {
-        case let .success(validators):
-            electedValidators = validators.reduce(
-                into: [AccountAddress: ElectedValidatorInfo]()
-            ) { dict, validator in
-                dict[validator.address] = validator
-            }
-
-            updateRecommendedValidators()
-            updateSelectedValidatorsIfNeeded()
-            updateView()
-        case let .failure(error):
-            handle(error: error)
-        }
+extension SelectValidatorsStartPresenter: SelectValidatorsStartModelStateListener {
+    func didReceiveError(error: Error) {
+        handle(error: error)
     }
 
-    func didReceiveMaxNominations(result: Result<Int, Error>) {
-        switch result {
-        case let .success(maxNominations):
-            self.maxNominations = maxNominations
+    func modelStateDidChanged(viewModelState: SelectValidatorsStartViewModelState) {
+        let viewModel = viewModelFactory.buildViewModel(viewModelState: viewModelState)
+        view?.didReceive(viewModel: viewModel)
 
-            updateRecommendedValidators()
-            updateSelectedValidatorsIfNeeded()
-            updateView()
-        case let .failure(error):
-            handle(error: error)
+        if viewModel != nil {
+            view?.didStopLoading()
         }
     }
 }
+
+extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputProtocol {}

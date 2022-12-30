@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import CommonWallet
 
-final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
+final class StakingUnbondSetupViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = StakingUnbondSetupLayout
 
     let presenter: StakingUnbondSetupPresenterProtocol
@@ -26,8 +26,9 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
-    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
-    private var bondingDurationViewModel: LocalizableResource<String>?
+    private var bondingDurationViewModel: LocalizableResource<TitleWithSubtitleViewModel>?
+    private var feeViewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?
+    private var hintsViewModel: LocalizableResource<[TitleIconViewModel]>?
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -41,17 +42,20 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupNavigationItem()
         setupAmountInputView()
         setupLocalization()
         updateActionButton()
 
         presenter.setup()
+
+        rootView.navigationBar.backButton.addTarget(
+            self,
+            action: #selector(backButtonClicked),
+            for: .touchUpInside
+        )
     }
 
     private func setupLocalization() {
-        title = R.string.localizable.stakingUnbond_v190(preferredLanguages: selectedLocale.rLanguages)
-
         rootView.locale = selectedLocale
 
         setupBalanceAccessoryView()
@@ -64,7 +68,11 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     private func setupAmountInputView() {
         rootView.amountInputView.textField.delegate = self
 
-        rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
+        rootView.networkFeeFooterView.actionButton.addTarget(
+            self,
+            action: #selector(actionProceed),
+            for: .touchUpInside
+        )
     }
 
     private func setupBalanceAccessoryView() {
@@ -73,49 +81,32 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
-    private func setupNavigationItem() {
-        let closeBarItem = UIBarButtonItem(
-            image: R.image.iconClose(),
-            style: .plain,
-            target: self,
-            action: #selector(actionClose)
-        )
-
-        navigationItem.leftBarButtonItem = closeBarItem
-    }
-
     private func applyAssetViewModel() {
         guard let viewModel = assetViewModel?.value(for: selectedLocale) else {
             return
         }
 
-        let amountView = rootView.amountInputView
-        amountView.priceText = viewModel.price
-
-        if let balance = viewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
-                balance,
-                preferredLanguages: selectedLocale.rLanguages
-            )
-        } else {
-            amountView.balanceText = nil
-        }
-
-        viewModel.iconViewModel?.loadAmountInputIcon(on: amountView.iconView, animated: true)
-        amountView.symbol = viewModel.symbol.uppercased()
+        rootView.amountInputView.bind(viewModel: viewModel)
     }
 
     private func applyFeeViewModel() {
-        let viewModel = feeViewModel?.value(for: selectedLocale)
-        rootView.networkFeeView.bind(viewModel: viewModel)
+        let fee = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: fee)
     }
 
     private func applyBondingDuration() {
-        guard let details = bondingDurationViewModel?.value(for: selectedLocale) else {
+        guard let viewModel = bondingDurationViewModel else {
             return
         }
 
-        rootView.durationView.valueLabel.text = details
+        rootView.networkFeeFooterView.bindDuration(viewModel: viewModel)
+    }
+
+    private func applyHints() {
+        guard let viewModel = hintsViewModel else {
+            return
+        }
+        rootView.bind(hintViewModels: viewModel.value(for: selectedLocale))
     }
 
     @objc private func actionClose() {
@@ -128,19 +119,51 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         presenter.proceed()
     }
 
+    @objc private func backButtonClicked() {
+        presenter.didTapBackButton()
+    }
+
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.actionButton.set(enabled: isEnabled)
+        rootView.networkFeeFooterView.actionButton.set(enabled: isEnabled)
     }
 }
 
 extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
+    func didReceiveAccount(viewModel: AccountViewModel) {
+        rootView.accountView.isHidden = false
+        rootView.accountView.title = viewModel.title
+        rootView.accountView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.accountView.iconRadius
+
+        rootView.accountView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+    }
+
+    func didReceiveCollator(viewModel: AccountViewModel) {
+        rootView.collatorView.isHidden = false
+        rootView.collatorView.title = viewModel.title
+        rootView.collatorView.subtitle = viewModel.name
+
+        let iconSize = 2.0 * rootView.collatorView.iconRadius
+
+        rootView.collatorView.iconImage = viewModel.icon?.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+    }
+
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel
         applyAssetViewModel()
     }
 
-    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFeeViewModel()
     }
@@ -151,14 +174,23 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
         amountInputViewModel = viewModel.value(for: selectedLocale)
         amountInputViewModel?.observable.add(observer: self)
 
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
     }
 
-    func didReceiveBonding(duration: LocalizableResource<String>) {
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>) {
         bondingDurationViewModel = duration
         applyBondingDuration()
+    }
+
+    func didReceiveTitle(viewModel: LocalizableResource<String>) {
+        rootView.navigationBar.setTitle(viewModel.value(for: selectedLocale))
+    }
+
+    func didReceiveHints(viewModel: LocalizableResource<[TitleIconViewModel]>) {
+        hintsViewModel = viewModel
+        applyHints()
     }
 }
 
@@ -184,7 +216,7 @@ extension StakingUnbondSetupViewController: AmountInputAccessoryViewDelegate {
 
 extension StakingUnbondSetupViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
-        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+        rootView.amountInputView.inputFieldText = amountInputViewModel?.displayAmount
 
         updateActionButton()
 

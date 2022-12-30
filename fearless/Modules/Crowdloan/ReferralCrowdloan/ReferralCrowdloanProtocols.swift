@@ -18,6 +18,6 @@ protocol ReferralCrowdloanPresenterProtocol: AnyObject {
     func presentLearnMore()
 }
 
-protocol ReferralCrowdloanWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable {
+protocol ReferralCrowdloanWireframeProtocol: WebPresentable, SheetAlertPresentable, ErrorPresentable {
     func complete(on view: ReferralCrowdloanViewProtocol?)
 }

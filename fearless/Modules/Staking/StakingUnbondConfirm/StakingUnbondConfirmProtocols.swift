@@ -6,45 +6,38 @@ protocol StakingUnbondConfirmViewProtocol: ControllerBackedProtocol, Localizable
     func didReceiveConfirmation(viewModel: StakingUnbondConfirmViewModel)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
 }
 
 protocol StakingUnbondConfirmPresenterProtocol: AnyObject {
     func setup()
     func confirm()
     func selectAccount()
+    func didTapBackButton()
 }
 
 protocol StakingUnbondConfirmInteractorInputProtocol: AnyObject {
     func setup()
-    func submit(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)
-    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
+    func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
-    func didReceiveMinBonded(result: Result<BigUInt?, Error>)
-    func didReceiveNomination(result: Result<Nomination?, Error>)
-
-    func didSubmitUnbonding(result: Result<String, Error>)
 }
 
-protocol StakingUnbondConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
-    StakingErrorPresentable, AddressOptionsPresentable {
-    func complete(from view: StakingUnbondConfirmViewProtocol?)
+protocol StakingUnbondConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
+    StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
+    func complete(
+        on view: ControllerBackedProtocol?,
+        title: String
+    )
 }
 
 protocol StakingUnbondConfirmViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel,
-        amount: Decimal
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingUnbondConfirmFlow
     ) -> StakingUnbondConfirmViewProtocol?
 }

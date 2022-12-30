@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 protocol LoadableViewProtocol: AnyObject {
-    var loadableContentView: UIView! { get }
+    var loadableContentView: UIView { get }
     var shouldDisableInteractionWhenLoading: Bool { get }
 
     func didStartLoading()
@@ -15,7 +15,7 @@ enum LoadableViewProtocolConstants {
 }
 
 extension LoadableViewProtocol where Self: UIViewController {
-    var loadableContentView: UIView! {
+    var loadableContentView: UIView {
         view
     }
 
@@ -37,9 +37,10 @@ extension LoadableViewProtocol where Self: UIViewController {
         newIndicator.frame = loadableContentView.bounds
         newIndicator.autoresizingMask = UIView.AutoresizingMask.flexibleWidth.union(.flexibleHeight)
         newIndicator.alpha = 0.0
+        newIndicator.isUserInteractionEnabled = false
         loadableContentView.addSubview(newIndicator)
 
-        loadableContentView.isUserInteractionEnabled = shouldDisableInteractionWhenLoading
+        loadableContentView.isUserInteractionEnabled = !shouldDisableInteractionWhenLoading
 
         newIndicator.startAnimating()
 

@@ -295,7 +295,10 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 }
 
 extension CrowdloanListPresenter: ChainSelectionDelegate {
-    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel) {
+    func chainSelection(view _: ChainSelectionViewProtocol, didCompleteWith chain: ChainModel?) {
+        guard let chain = chain else {
+            return
+        }
         selectedChainResult = .success(chain)
         accountInfoResult = nil
         crowdloansResult = nil

@@ -6,113 +6,70 @@ final class CustomValidatorListPresenter {
 
     let wireframe: CustomValidatorListWireframeProtocol
     let interactor: CustomValidatorListInteractorInputProtocol
-    let viewModelFactory: CustomValidatorListViewModelFactory
-    let selectedValidatorList: SharedList<SelectedValidatorInfo>
-    let maxTargets: Int
     let logger: LoggerProtocol?
-    let asset: AssetModel
-    let chain: ChainModel
-    let selectedAccount: MetaAccountModel
+    let chainAsset: ChainAsset
+    let wallet: MetaAccountModel
 
-    private let recommendedValidatorList: [SelectedValidatorInfo]
-    private var fullValidatorList: [SelectedValidatorInfo]
+    let viewModelState: CustomValidatorListViewModelState
+    let viewModelFactory: CustomValidatorListViewModelFactoryProtocol
 
-    private var filteredValidatorList: [SelectedValidatorInfo] = []
-    private var viewModel: CustomValidatorListViewModel?
-    private var filter = CustomValidatorListFilter.recommendedFilter()
     private var priceData: PriceData?
+    private var searchText: String?
 
     init(
         interactor: CustomValidatorListInteractorInputProtocol,
         wireframe: CustomValidatorListWireframeProtocol,
-        viewModelFactory: CustomValidatorListViewModelFactory,
+        viewModelFactory: CustomValidatorListViewModelFactoryProtocol,
+        viewModelState: CustomValidatorListViewModelState,
         localizationManager: LocalizationManagerProtocol,
-        fullValidatorList: [SelectedValidatorInfo],
-        recommendedValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: SharedList<SelectedValidatorInfo>,
-        maxTargets: Int,
         logger: LoggerProtocol? = nil,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.fullValidatorList = fullValidatorList
-        self.recommendedValidatorList = recommendedValidatorList
-        self.selectedValidatorList = selectedValidatorList
-        self.maxTargets = maxTargets
+        self.viewModelState = viewModelState
         self.logger = logger
-        self.chain = chain
-        self.asset = asset
-        self.selectedAccount = selectedAccount
+        self.chainAsset = chainAsset
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
     // MARK: - Private functions
 
-    private func composeFilteredValidatorList() -> [SelectedValidatorInfo] {
-        let composer = CustomValidatorListComposer(filter: filter)
-        return composer.compose(from: fullValidatorList)
-    }
-
-    private func updateFilteredValidatorsList() {
-        filteredValidatorList = composeFilteredValidatorList()
-    }
-
-    private func provideValidatorListViewModel() {
-        let viewModel = viewModelFactory.createViewModel(
-            from: filteredValidatorList,
-            selectedValidatorList: selectedValidatorList.items,
-            totalValidatorsCount: fullValidatorList.count,
-            filter: filter,
-            priceData: priceData,
-            locale: selectedLocale
-        )
-
-        self.viewModel = viewModel
-        view?.reload(viewModel)
-    }
-
     private func provideFilterButtonViewModel() {
-        let emptyFilter = CustomValidatorListFilter.defaultFilter()
-        let appliedState = filter != emptyFilter
-
-        view?.setFilterAppliedState(to: appliedState)
+        view?.setFilterAppliedState(to: viewModelState.filterApplied)
     }
 
-    private func provideViewModels() {
-        updateFilteredValidatorsList()
-
-        provideValidatorListViewModel()
+    private func provideViewModels(viewModelState: CustomValidatorListViewModelState) {
         provideFilterButtonViewModel()
+
+        if let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData,
+            locale: selectedLocale,
+            searchText: searchText
+        ) {
+            self.viewModelState.updateViewModel(viewModel)
+            view?.reload(viewModel)
+        }
     }
 
     private func performDeselect() {
-        guard var viewModel = viewModel else { return }
+        viewModelState.performDeselect()
+    }
 
-        let changedModels: [CustomValidatorCellViewModel] = viewModel.cellViewModels.map {
-            var newItem = $0
-            newItem.isSelected = false
-            return newItem
-        }
-
-        let indices = viewModel.cellViewModels
-            .enumerated()
-            .filter {
-                $1.isSelected
-            }.map { index, _ in
-                index
-            }
-
-        selectedValidatorList.set([])
-
-        viewModel.cellViewModels = changedModels
-        viewModel.selectedValidatorsCount = 0
-        self.viewModel = viewModel
-
-        view?.reload(viewModel, at: indices)
+    private func handleValidatorBlockedError() {
+        wireframe.present(
+            message: R.string.localizable
+                .stakingCustomBlockedWarning(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable
+                .commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable
+                .commonClose(preferredLanguages: selectedLocale.rLanguages),
+            from: view
+        )
     }
 }
 
@@ -120,26 +77,22 @@ final class CustomValidatorListPresenter {
 
 extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func setup() {
-        provideViewModels()
+        viewModelState.setStateListener(self)
+
+        provideViewModels(viewModelState: viewModelState)
         interactor.setup()
     }
 
     // MARK: - Header actions
 
     func fillWithRecommended() {
-        let recommendedToFill = recommendedValidatorList
-            .filter { !selectedValidatorList.contains($0) }
-            .prefix(maxTargets - selectedValidatorList.count)
-
-        guard !recommendedToFill.isEmpty else { return }
-
-        selectedValidatorList.append(contentsOf: recommendedToFill)
-        provideViewModels()
+        viewModelState.fillWithRecommended()
     }
 
     func clearFilter() {
-        filter = CustomValidatorListFilter.defaultFilter()
-        provideViewModels()
+        viewModelState.clearFilter()
+
+        provideViewModels(viewModelState: viewModelState)
     }
 
     func deselectAll() {
@@ -152,85 +105,68 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         )
     }
 
+    func changeIdentityFilterValue() {
+        viewModelState.changeIdentityFilterValue()
+    }
+
+    func changeMinBondFilterValue() {
+        viewModelState.changeMinBondFilterValue()
+    }
+
     // MARK: - Cell actions
 
-    func changeValidatorSelection(at index: Int) {
-        guard var viewModel = viewModel else { return }
-
-        let changedValidator = filteredValidatorList[index]
-
-        guard !changedValidator.blocked else {
-            wireframe.present(
-                message: R.string.localizable
-                    .stakingCustomBlockedWarning(preferredLanguages: selectedLocale.rLanguages),
-                title: R.string.localizable
-                    .commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                closeAction: R.string.localizable
-                    .commonClose(preferredLanguages: selectedLocale.rLanguages),
-                from: view
-            )
-            return
-        }
-
-        if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
-            selectedValidatorList.remove(at: selectedIndex)
-            viewModel.selectedValidatorsCount -= 1
-        } else {
-            selectedValidatorList.append(changedValidator)
-            viewModel.selectedValidatorsCount += 1
-        }
-
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
-        viewModel.selectedValidatorsCount = selectedValidatorList.count
-        self.viewModel = viewModel
-
-        view?.reload(viewModel, at: [index])
+    func changeValidatorSelection(address: String) {
+        viewModelState.changeValidatorSelection(address: address)
     }
 
     // MARK: - Presenting actions
 
-    func didSelectValidator(at index: Int) {
-        let selectedValidator = filteredValidatorList[index]
+    func didSelectValidator(address: String) {
+        guard let flow = viewModelState.validatorInfoFlow(address: address) else {
+            return
+        }
+
         wireframe.present(
-            asset: asset,
-            chain: chain,
-            validatorInfo: selectedValidator,
-            from: view,
-            wallet: selectedAccount
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            from: view
         )
     }
 
     func presentFilter() {
+        guard let flow = viewModelState.validatorListFilterFlow() else {
+            return
+        }
+
         wireframe.presentFilters(
             from: view,
-            filter: filter,
+            flow: flow,
             delegate: self,
-            asset: asset
+            asset: chainAsset.asset
         )
     }
 
     func presentSearch() {
+        guard let flow = viewModelState.validatorSearchFlow() else {
+            return
+        }
+
         wireframe.presentSearch(
             from: view,
-            fullValidatorList: fullValidatorList,
-            selectedValidatorList: selectedValidatorList.items,
-            delegate: self,
-            chain: chain,
-            asset: asset,
-            wallet: selectedAccount
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 
     func proceed() {
-        wireframe.proceed(
-            from: view,
-            validatorList: selectedValidatorList.items,
-            maxTargets: maxTargets,
-            delegate: self,
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount
-        )
+        viewModelState.proceed()
+    }
+
+    func searchTextDidChange(_ text: String?) {
+        searchText = text
+        provideViewModels(viewModelState: viewModelState)
     }
 }
 
@@ -241,8 +177,8 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
         switch result {
         case let .success(priceData):
             self.priceData = priceData
-            provideValidatorListViewModel()
 
+            provideViewModels(viewModelState: viewModelState)
         case let .failure(error):
             logger?.error("Price data subscription error: \(error)")
         }
@@ -253,31 +189,20 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
 
 extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
     func didRemove(_ validator: SelectedValidatorInfo) {
-        if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
-            changeValidatorSelection(at: displayedIndex)
-        } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
-            selectedValidatorList.remove(at: selectedIndex)
-            provideViewModels()
-        }
+        viewModelState.remove(validator: validator)
+    }
+
+    func didRemove(validatorAddress: AccountAddress) {
+        viewModelState.remove(validatorAddress: validatorAddress)
     }
 }
 
 // MARK: - ValidatorListFilterDelegate
 
 extension CustomValidatorListPresenter: ValidatorListFilterDelegate {
-    func didUpdate(_ filter: CustomValidatorListFilter) {
-        self.filter = filter
-        provideViewModels()
-    }
-}
-
-// MARK: - ValidatorSearchDelegate
-
-extension CustomValidatorListPresenter: ValidatorSearchDelegate {
-    func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo]) {
-        self.selectedValidatorList.set(selectedValidatorList)
-
-        provideViewModels()
+    func didUpdate(with flow: ValidatorListFilterFlow) {
+        viewModelState.updateFilter(with: flow)
+        provideViewModels(viewModelState: viewModelState)
     }
 }
 
@@ -286,7 +211,47 @@ extension CustomValidatorListPresenter: ValidatorSearchDelegate {
 extension CustomValidatorListPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
-            provideViewModels()
+            provideViewModels(viewModelState: viewModelState)
         }
+    }
+}
+
+extension CustomValidatorListPresenter: CustomValidatorListModelStateListener {
+    func didReceiveError(error: CustomValidatorListFlowError) {
+        switch error {
+        case .validatorBlocked:
+            handleValidatorBlockedError()
+        }
+    }
+
+    func modelStateDidChanged(viewModelState: CustomValidatorListViewModelState) {
+        provideViewModels(viewModelState: viewModelState)
+    }
+
+    func showSelectedList() {
+        guard let flow = viewModelState.selectedValidatorListFlow() else {
+            return
+        }
+
+        wireframe.proceed(
+            from: view,
+            flow: flow,
+            delegate: self,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
+    func showConfirmation() {
+        guard let flow = viewModelState.selectValidatorsConfirmFlow() else {
+            return
+        }
+
+        wireframe.confirm(
+            from: view,
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }

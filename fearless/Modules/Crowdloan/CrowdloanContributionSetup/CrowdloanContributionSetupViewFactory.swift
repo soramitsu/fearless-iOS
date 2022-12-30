@@ -32,7 +32,8 @@ struct CrowdloanContributionSetupViewFactory {
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
             assetInfo: assetInfo,
-            chainDateCalculator: ChainDateCalculator()
+            chainDateCalculator: ChainDateCalculator(),
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let dataValidatingFactory = CrowdloanDataValidatingFactory(
@@ -97,19 +98,18 @@ struct CrowdloanContributionSetupViewFactory {
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: SubstrateDataStorageFacade.shared,
-            operationManager: operationManager,
-            logger: Logger.shared
-        )
-
         let priceLocalSubscriptionFactory = PriceProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
         )
 
         let jsonLocalSubscriptionFactory = JsonDataProviderFactory(
             storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
         )
 
         return CrowdloanContributionSetupInteractor(
@@ -121,12 +121,13 @@ struct CrowdloanContributionSetupViewFactory {
             extrinsicService: extrinsicService,
             crowdloanLocalSubscriptionFactory: state.crowdloanLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedMetaAccount
             ),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            existentialDepositService: existentialDepositService
         )
     }
 }

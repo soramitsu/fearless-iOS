@@ -75,17 +75,17 @@ final class SubqueryRewardSource {
     }
 
     private func fetch() {
-        let remoteOperation = operationFactory.createOperation(address: address)
+        let remoteOperation = operationFactory.createHistoryOperation(address: address)
 
-        remoteOperation.completionBlock = {
+        remoteOperation.completionBlock = { [weak self] in
             DispatchQueue.global(qos: .userInitiated).async {
-                self.mutex.lock()
+                self?.mutex.lock()
 
                 defer {
-                    self.mutex.unlock()
+                    self?.mutex.unlock()
                 }
 
-                self.processOperations(remoteOperation: remoteOperation)
+                self?.processOperations(remoteOperation: remoteOperation)
             }
         }
 

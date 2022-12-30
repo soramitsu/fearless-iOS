@@ -4,78 +4,68 @@ import SoraKeystore
 import SoraFoundation
 
 final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryProtocol {
-    static func createInitiatedBondingView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: InitiatedBonding
+    static func createView(
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        flow: SelectValidatorsStartFlow
     ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = InitBondingSelectValidatorsStartWireframe(state: state)
-        return createView(
-            selectedAccount: selectedAccount,
-            chain: chain,
-            asset: asset,
-            wireframe: wireframe,
-            existingStashAddress: nil,
-            selectedValidators: nil
+        guard let container = createContainer(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
+        ) else {
+            return nil
+        }
+
+        let wireframe = SelectValidatorsStartWireframe()
+        let interactor = SelectValidatorsStartInteractor(
+            strategy: container.strategy
         )
+
+        let presenter = SelectValidatorsStartPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            logger: Logger.shared,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            viewModelState: container.viewModelState,
+            viewModelFactory: container.viewModelFactory
+        )
+
+        let view = SelectValidatorsStartViewController(
+            presenter: presenter,
+            phase: flow.phase,
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.view = view
+        interactor.presenter = presenter
+
+        view.localizationManager = LocalizationManager.shared
+
+        return view
     }
 
-    static func createChangeTargetsView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: ExistingBonding
-    ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
-        return createView(
-            selectedAccount: selectedAccount,
-            chain: chain,
-            asset: asset,
-            wireframe: wireframe,
-            existingStashAddress: state.stashAddress,
-            selectedValidators: state.selectedTargets
-        )
-    }
-
-    static func createChangeYourValidatorsView(
-        selectedAccount: MetaAccountModel,
-        asset: AssetModel,
-        chain: ChainModel,
-        state: ExistingBonding
-    ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
-        return createView(
-            selectedAccount: selectedAccount,
-            chain: chain,
-            asset: asset,
-            wireframe: wireframe,
-            existingStashAddress: state.stashAddress,
-            selectedValidators: state.selectedTargets
-        )
-    }
-
-    private static func createView(
-        selectedAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
-        wireframe: SelectValidatorsStartWireframeProtocol,
-        existingStashAddress: AccountAddress?,
-        selectedValidators: [SelectedValidatorInfo]?
-    ) -> SelectValidatorsStartViewProtocol? {
+    // swiftlint:disable function_body_length
+    private static func createContainer(
+        flow: SelectValidatorsStartFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) -> SelectValidatorsStartDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
 
         let stakingSettings = StakingAssetSettings(
             storageFacade: substrateStorageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: wallet
         )
 
         stakingSettings.setup()
@@ -90,15 +80,34 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         guard
             let settings = stakingSettings.value,
             let eraValidatorService = try? serviceFactory.createEraValidatorService(
-                for: settings.chain.chainId
+                for: settings.chain
             ) else {
             return nil
         }
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
+            url: chainAsset.chain.externalApi?.staking?.url
+        )
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
-            for: settings.chain.chainId,
+            for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         ) else {
             return nil
         }
@@ -113,45 +122,165 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let operationFactory = ValidatorOperationFactory(
-            asset: asset,
-            chain: chain,
-            eraValidatorService: eraValidatorService,
-            rewardService: rewardService,
-            storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
-        )
+        switch flow {
+        case let .relaychainExisting(bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
 
-        let interactor = SelectValidatorsStartInteractor(
-            runtimeService: runtimeService,
-            operationFactory: operationFactory,
-            operationManager: operationManager
-        )
+            let viewModelState = SelectValidatorsStartRelaychainExistingViewModelState(
+                bonding: bonding,
+                initialTargets: bonding.selectedTargets,
+                existingStashAddress: bonding.stashAddress
+            )
 
-        let presenter = SelectValidatorsStartPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            existingStashAddress: existingStashAddress,
-            initialTargets: selectedValidators,
-            logger: Logger.shared,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
-        )
+            let strategy = SelectValidatorsStartRelaychainStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
 
-        let view = SelectValidatorsStartViewController(
-            presenter: presenter,
-            phase: selectedValidators == nil ? .setup : .update,
-            localizationManager: LocalizationManager.shared
-        )
+            let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .relaychainInitiated(bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
 
-        presenter.view = view
-        interactor.presenter = presenter
+            let viewModelState = SelectValidatorsStartRelaychainInitiatedViewModelState(
+                bonding: bonding,
+                initialTargets: nil,
+                existingStashAddress: nil
+            )
 
-        view.localizationManager = LocalizationManager.shared
+            let strategy = SelectValidatorsStartRelaychainStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
 
-        return view
+            let viewModelFactory = SelectValidatorsStartRelaychainViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolInitiated(poolId, bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartPoolInitiatedViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                initialTargets: nil,
+                existingStashAddress: nil
+            )
+
+            let strategy = SelectValidatorsStartPoolStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartPoolInitiatedViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(bonding):
+            let subqueryOperationFactory = SubqueryRewardOperationFactory(
+                url: chainAsset.chain.externalApi?.staking?.url
+            )
+
+            let operationFactory = ParachainCollatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory,
+                subqueryOperationFactory: subqueryOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)
+
+            let strategy = SelectValidatorsStartParachainStrategy(
+                wallet: wallet,
+                chainAsset: chainAsset,
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartParachainViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .poolExisting(poolId, bonding):
+            let operationFactory = RelaychainValidatorOperationFactory(
+                asset: chainAsset.asset,
+                chain: chainAsset.chain,
+                eraValidatorService: eraValidatorService,
+                rewardService: rewardService,
+                storageRequestFactory: storageOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                identityOperationFactory: identityOperationFactory
+            )
+
+            let viewModelState = SelectValidatorsStartPoolExistingViewModelState(
+                poolId: poolId,
+                bonding: bonding,
+                initialTargets: bonding.selectedTargets,
+                existingStashAddress: bonding.stashAddress
+            )
+
+            let strategy = SelectValidatorsStartPoolStrategy(
+                operationFactory: operationFactory,
+                operationManager: operationManager,
+                runtimeService: runtimeService,
+                output: viewModelState
+            )
+
+            let viewModelFactory = SelectValidatorsStartPoolExistingViewModelFactory()
+            return SelectValidatorsStartDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }

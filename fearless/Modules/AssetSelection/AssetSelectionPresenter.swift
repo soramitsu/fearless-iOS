@@ -5,14 +5,16 @@ final class AssetSelectionPresenter {
     weak var view: ChainSelectionViewProtocol?
     let wireframe: AssetSelectionWireframeProtocol
     let interactor: ChainSelectionInteractorInputProtocol
-    let selectedChainAssetId: ChainAssetId?
+    let selectedChainAsset: ChainAsset?
     let assetFilter: AssetSelectionFilter
     let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    let selectedMetaAccount: MetaAccountModel
+    let type: AssetSelectionStakingType
 
     private var assets: [(ChainModel.Id, AssetModel)] = []
     private var chains: [ChainModel.Id: ChainModel] = [:]
 
-    private var accountInfoResults: [ChainModel.Id: Result<AccountInfo?, Error>] = [:]
+    private var accountInfoResults: [ChainAssetKey: Result<AccountInfo?, Error>] = [:]
 
     private var viewModels: [SelectableIconDetailsListViewModel] = []
 
@@ -20,26 +22,30 @@ final class AssetSelectionPresenter {
         interactor: ChainSelectionInteractorInputProtocol,
         wireframe: AssetSelectionWireframeProtocol,
         assetFilter: @escaping AssetSelectionFilter,
-        selectedChainAssetId: ChainAssetId?,
+        type: AssetSelectionStakingType,
+        selectedMetaAccount: MetaAccountModel,
         assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.assetFilter = assetFilter
-        self.selectedChainAssetId = selectedChainAssetId
+        selectedChainAsset = type.chainAsset
+        self.selectedMetaAccount = selectedMetaAccount
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.type = type
         self.localizationManager = localizationManager
     }
 
-    private func extractBalance(for chain: ChainModel, asset: AssetModel) -> String? {
+    private func extractBalance(for chainAsset: ChainAsset) -> String? {
         guard
-            let accountInfoResult = accountInfoResults[chain.chainId],
+            let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+            let accountInfoResult = accountInfoResults[chainAsset.uniqueKey(accountId: accountId)],
             case let .success(accountInfo) = accountInfoResult else {
             return nil
         }
 
-        let assetInfo = asset.displayInfo
+        let assetInfo = chainAsset.asset.displayInfo
 
         let maybeBalance: Decimal?
 
@@ -72,19 +78,22 @@ final class AssetSelectionPresenter {
 
             let icon = (asset.icon ?? chain.icon).map { RemoteImageViewModel(url: $0) }
             let title = chain.name
-            let isSelected = selectedChainAssetId?.assetId == asset.id &&
-                selectedChainAssetId?.chainId == chain.chainId
-            let balance = extractBalance(for: chain, asset: asset) ?? ""
+            let isSelected = selectedChainAsset?.asset.id == asset.id &&
+                selectedChainAsset?.chain.chainId == chain.chainId
+            let balance = extractBalance(for: ChainAsset(chain: chain, asset: asset)) ?? ""
 
             return SelectableIconDetailsListViewModel(
                 title: title,
                 subtitle: balance,
                 icon: icon,
-                isSelected: isSelected
+                isSelected: isSelected,
+                identifier: chain.chainId
             )
         }
 
-        view?.didReload()
+        DispatchQueue.main.async {
+            self.view?.didReload()
+        }
     }
 }
 
@@ -105,7 +114,7 @@ extension AssetSelectionPresenter: ChainSelectionPresenterProtocol {
             return
         }
 
-        wireframe.complete(on: view, selecting: ChainAsset(chain: chain, asset: asset))
+        wireframe.complete(on: view, selecting: ChainAsset(chain: chain, asset: asset), context: nil)
     }
 
     func setup() {
@@ -123,7 +132,7 @@ extension AssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
 
             assets = chains.reduce(into: []) { result, item in
                 let assets: [(ChainModel.Id, AssetModel)] = item.assets.compactMap { asset in
-                    if assetFilter(asset) {
+                    if assetFilter(asset), selectedMetaAccount.fetch(for: item.accountRequest()) != nil {
                         return (item.chainId, asset.asset)
                     } else {
                         return nil
@@ -139,8 +148,8 @@ extension AssetSelectionPresenter: ChainSelectionInteractorOutputProtocol {
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainId: ChainModel.Id) {
-        accountInfoResults[chainId] = result
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAssetKey: ChainAssetKey) {
+        accountInfoResults[chainAssetKey] = result
         updateView()
     }
 }

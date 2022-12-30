@@ -20,7 +20,7 @@ final class AccountImportJsonFactory {
             networkTypeConfirmed = true
         } else {
             if let chainType = info.chainType {
-                chain = SNAddressType(rawValue: UInt8(chainType))?.chain
+                chain = SNAddressType(rawValue: UInt16(chainType))?.chain
             } else {
                 chain = nil
             }

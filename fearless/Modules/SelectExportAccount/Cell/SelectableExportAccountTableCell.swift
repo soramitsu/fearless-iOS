@@ -28,8 +28,8 @@ final class SelectableExportAccountTableCell: UITableViewCell {
         let view = TriangularedView()
         view.fillColor = R.color.colorBlack()!
         view.strokeWidth = 1.0
-        view.strokeColor = R.color.colorAccent()!
-        view.highlightedStrokeColor = R.color.colorAccent()!
+        view.strokeColor = R.color.colorPink()!
+        view.highlightedStrokeColor = R.color.colorPink()!
         return view
     }()
 
@@ -105,6 +105,8 @@ final class SelectableExportAccountTableCell: UITableViewCell {
     // MARK: - Private methods
 
     private func setupLayout() {
+        backgroundColor = R.color.colorBlack()!
+
         contentView.addSubview(backgroundTriangularedView)
         backgroundTriangularedView.snp.makeConstraints { make in
             make.edges.equalTo(Constants.edges)

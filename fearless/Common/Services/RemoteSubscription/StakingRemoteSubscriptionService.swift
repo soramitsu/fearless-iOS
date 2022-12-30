@@ -5,32 +5,45 @@ protocol StakingRemoteSubscriptionServiceProtocol {
     func attachToGlobalData(
         for chainId: ChainModel.Id,
         queue: DispatchQueue?,
-        closure: RemoteSubscriptionClosure?
+        closure: RemoteSubscriptionClosure?,
+        stakingType: StakingType?
     ) -> UUID?
 
     func detachFromGlobalData(
         for subscriptionId: UUID,
         chainId: ChainModel.Id,
         queue: DispatchQueue?,
-        closure: RemoteSubscriptionClosure?
+        closure: RemoteSubscriptionClosure?,
+        stakingType: StakingType?
     )
 }
 
 final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
     StakingRemoteSubscriptionServiceProtocol {
-    private static let globalDataStoragePaths: [StorageCodingPath] = [
-        .activeEra,
-        .currentEra,
-        .totalIssuance,
-        .historyDepth,
-        .minNominatorBond,
-        .maxNominatorsCount,
-        .counterForNominators
-    ]
+    private static func globalDataStoragePaths(stakingType: StakingType?) -> [StorageCodingPath] {
+        switch stakingType {
+        case .relayChain:
+            return [
+                .activeEra,
+                .currentEra,
+                .totalIssuance,
+                .minNominatorBond,
+                .maxNominatorsCount,
+                .counterForNominators
+            ]
+        case .paraChain:
+            return [.totalIssuance]
+        case .none:
+            return []
+        }
+    }
 
-    private static func globalDataParamsCacheKey(for chainId: ChainModel.Id) throws -> String {
+    private static func globalDataParamsCacheKey(
+        for chainId: ChainModel.Id,
+        stakingType: StakingType?
+    ) throws -> String {
         let storageKeyFactory = StorageKeyFactory()
-        let cacheKeyData = try globalDataStoragePaths.reduce(Data()) { result, storagePath in
+        let cacheKeyData = try globalDataStoragePaths(stakingType: stakingType).reduce(Data()) { result, storagePath in
             let storageKeyData = try storageKeyFactory.createStorageKey(
                 moduleName: storagePath.moduleName,
                 storageName: storagePath.itemName
@@ -39,27 +52,30 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
             return result + storageKeyData
         }
 
-        return try LocalStorageKeyFactory().createKey(from: cacheKeyData, chainId: chainId)
+        return try LocalStorageKeyFactory().createKey(from: cacheKeyData, key: chainId)
     }
 
+//    add parachain case
     func attachToGlobalData(
         for chainId: ChainModel.Id,
         queue: DispatchQueue?,
-        closure: RemoteSubscriptionClosure?
+        closure: RemoteSubscriptionClosure?,
+        stakingType: StakingType?
     ) -> UUID? {
         do {
             let localKeyFactory = LocalStorageKeyFactory()
 
-            let localKeys = try Self.globalDataStoragePaths.map { storagePath in
+            //   RelaychainKeys + ParachainKeys - All ParachainStakingKeys
+            let localKeys = try Self.globalDataStoragePaths(stakingType: stakingType).map { storagePath in
                 try localKeyFactory.createFromStoragePath(
                     storagePath,
                     chainId: chainId
                 )
             }
 
-            let cacheKey = try Self.globalDataParamsCacheKey(for: chainId)
+            let cacheKey = try Self.globalDataParamsCacheKey(for: chainId, stakingType: stakingType)
 
-            let requests = zip(Self.globalDataStoragePaths, localKeys).map {
+            let requests = zip(Self.globalDataStoragePaths(stakingType: stakingType), localKeys).map {
                 UnkeyedSubscriptionRequest(storagePath: $0.0, localKey: $0.1)
             }
 
@@ -80,10 +96,11 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
         for subscriptionId: UUID,
         chainId: ChainModel.Id,
         queue: DispatchQueue?,
-        closure: RemoteSubscriptionClosure?
+        closure: RemoteSubscriptionClosure?,
+        stakingType: StakingType?
     ) {
         do {
-            let cacheKey = try Self.globalDataParamsCacheKey(for: chainId)
+            let cacheKey = try Self.globalDataParamsCacheKey(for: chainId, stakingType: stakingType)
 
             detachFromSubscription(
                 cacheKey,

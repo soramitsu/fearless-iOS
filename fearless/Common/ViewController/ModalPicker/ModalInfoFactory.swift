@@ -9,8 +9,8 @@ struct ModalInfoFactory {
     static let footerHeight: CGFloat = 0.0
 
     static func createRewardDetails(
-        for maxReward: Decimal,
-        avgReward: Decimal
+        for maxReward: (title: String, amount: Decimal),
+        avgReward: (title: String, amount: Decimal)
     ) -> UIViewController {
         let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
@@ -30,15 +30,15 @@ struct ModalInfoFactory {
         let formatter = NumberFormatter.percent.localizableResource()
 
         let maxViewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
-            let title = R.string.localizable.stakingRewardInfoMax(preferredLanguages: locale.rLanguages)
-            let details = formatter.value(for: locale).stringFromDecimal(maxReward) ?? ""
+            let title = maxReward.title
+            let details = formatter.value(for: locale).stringFromDecimal(maxReward.amount) ?? ""
 
             return TitleWithSubtitleViewModel(title: title, subtitle: details)
         }
 
         let avgViewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
-            let title = R.string.localizable.stakingRewardInfoAvg(preferredLanguages: locale.rLanguages)
-            let details = formatter.value(for: locale).stringFromDecimal(avgReward) ?? ""
+            let title = avgReward.title
+            let details = formatter.value(for: locale).stringFromDecimal(avgReward.amount) ?? ""
 
             return TitleWithSubtitleViewModel(title: title, subtitle: details)
         }

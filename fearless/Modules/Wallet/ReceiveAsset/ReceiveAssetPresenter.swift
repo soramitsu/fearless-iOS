@@ -1,4 +1,3 @@
-import CommonWallet
 import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
@@ -6,13 +5,13 @@ import FearlessUtils
 
 final class ReceiveAssetPresenter {
     enum Constants {
-        static let qrSize = CGSize(width: 280, height: 280)
+        static let qrSize = CGSize(width: 240, height: 240)
     }
 
     weak var view: ReceiveAssetViewProtocol?
 
     private let wireframe: ReceiveAssetWireframeProtocol
-    private let qrService: WalletQRServiceProtocol
+    private let qrService: QRServiceProtocol
     private let addressFactory = SS58AddressFactory()
     private let sharingFactory: AccountShareFactoryProtocol
 
@@ -28,7 +27,7 @@ final class ReceiveAssetPresenter {
 
     init(
         wireframe: ReceiveAssetWireframe,
-        qrService: WalletQRServiceProtocol,
+        qrService: QRServiceProtocol,
         sharingFactory: AccountShareFactoryProtocol,
         account: MetaAccountModel,
         chain: ChainModel,
@@ -65,7 +64,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         let sources = sharingFactory.createSources(
             accountAddress: address,
             qrImage: qrImage,
-            assetSymbol: asset.id,
+            assetSymbol: asset.name,
             chainName: chain.name,
             locale: selectedLocale
         )
@@ -73,7 +72,7 @@ extension ReceiveAssetPresenter: ReceiveAssetPresenterProtocol {
         wireframe.share(sources: sources, from: view, with: nil)
     }
 
-    func didTapCloseButton() {
+    func close() {
         if let view = self.view {
             wireframe.close(view)
         }
@@ -105,20 +104,24 @@ private extension ReceiveAssetPresenter {
     private func generateQR() {
         cancelQRGeneration()
 
-        guard let accountId = account.fetch(for: chain.accountRequest())?.accountId else {
+        guard let account = account.fetch(for: chain.accountRequest()), let address = account.toAddress() else {
             processOperation(result: .failure(ChainAccountFetchingError.accountNotExists))
             return
         }
-
-        let receiveInfo = ReceiveInfo(
-            accountId: accountId.toHex(),
-            assetId: asset.id,
-            amount: nil,
-            details: nil
-        )
+        var qrType: QRType = .address(address)
+        if chain.isSora {
+            let addressInfo = SoraQRInfo(
+                prefix: SubstrateQR.prefix,
+                address: address,
+                rawPublicKey: account.publicKey,
+                username: account.name,
+                assetId: asset.currencyId ?? ""
+            )
+            qrType = .addressInfo(addressInfo)
+        }
         do {
             qrOperation = try qrService.generate(
-                from: receiveInfo,
+                with: qrType,
                 qrSize: Constants.qrSize,
                 runIn: .main
             ) { [weak self] operationResult in
@@ -153,10 +156,9 @@ private extension ReceiveAssetPresenter {
         }
 
         view?.didReceive(viewModel: ReceiveAssetViewModel(
-            asset: asset.id,
+            asset: asset.name,
             accountName: account.name,
-            address: address,
-            iconGenerator: PolkadotIconGenerator()
+            address: address
         ))
     }
 }

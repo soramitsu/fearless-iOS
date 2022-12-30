@@ -10,34 +10,29 @@ class AccountExportPasswordTests: XCTestCase {
         // given
 
         let facade = UserDataStorageTestFacade()
-
-        let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
 
-        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
-                                                            keychain: keychain,
-                                                            settings: settings)
-
-        let givenAccount = settings.selectedAccount!
-
         let accountsRepository = AccountRepositoryFactory.createRepository(for: facade)
-        let operation = accountsRepository.saveOperation({ [givenAccount]}, { [] })
-
-        OperationQueue().addOperations([operation], waitUntilFinished: true)
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
 
         let view = MockAccountExportPasswordViewProtocol()
         let wireframe = MockAccountExportPasswordWireframeProtocol()
 
-        let presenter = AccountExportPasswordPresenter(address: givenAccount.address,
-                                                       localizationManager: LocalizationManager.shared)
+        let presenter = AccountExportPasswordPresenter(
+            flow: .single(chain: ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: UInt16(0)), address: AddressTestConstants.kusamaAddress),
+            localizationManager: LocalizationManager.shared)
 
         presenter.view = view
         presenter.wireframe = wireframe
 
         let exportWrapper = KeystoreExportWrapper(keystore: keychain)
         let interactor = AccountExportPasswordInteractor(exportJsonWrapper: exportWrapper,
-                                                         repository: AnyDataProviderRepository(accountsRepository),
-                                                         operationManager: OperationManagerFacade.sharedManager)
+                                                         accountRepository: AnyDataProviderRepository(accountsRepository),
+                                                         operationManager: OperationManagerFacade.sharedManager,
+                                                         extrinsicOperationFactory: ExtrinsicOperationFactoryStub(),
+                                                         chainRepository: AnyDataProviderRepository(chainRepository))
         presenter.interactor = interactor
         interactor.presenter = presenter
 
@@ -61,6 +56,9 @@ class AccountExportPasswordTests: XCTestCase {
         stub(wireframe) { stub in
             when(stub).showJSONExport(any(), from: any()).then { _ in
                 expectation.fulfill()
+            }
+            when(stub).present(message: any(), title: any(), closeAction: any(), from: any()).then { _ in
+                XCTFail()
             }
         }
 

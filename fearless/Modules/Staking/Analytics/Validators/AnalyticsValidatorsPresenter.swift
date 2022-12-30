@@ -76,10 +76,9 @@ extension AnalyticsValidatorsPresenter: AnalyticsValidatorsPresenterProtocol {
 
     func handleValidatorInfoAction(validatorAddress: AccountAddress) {
         wireframe.showValidatorInfo(
-            chain: chain,
-            asset: asset,
-            selectedAccount: selectedAccount,
-            address: validatorAddress,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
+            wallet: selectedAccount,
+            flow: .relaychain(validatorInfo: nil, address: validatorAddress),
             view: view
         )
     }

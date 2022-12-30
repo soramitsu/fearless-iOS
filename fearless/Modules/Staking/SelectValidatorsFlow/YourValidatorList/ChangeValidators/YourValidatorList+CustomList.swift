@@ -1,28 +1,17 @@
 extension YourValidatorList {
     final class CustomListWireframe: CustomValidatorListWireframe {
-        private let state: ExistingBonding
-
-        init(state: ExistingBonding) {
-            self.state = state
-        }
-
         override func proceed(
             from view: ControllerBackedProtocol?,
-            validatorList: [SelectedValidatorInfo],
-            maxTargets: Int,
+            flow: SelectedValidatorListFlow,
             delegate: SelectedValidatorListDelegate,
-            chain: ChainModel,
-            asset: AssetModel,
-            selectedAccount: MetaAccountModel
+            chainAsset: ChainAsset,
+            wallet: MetaAccountModel
         ) {
-            guard let nextView = SelectedValidatorListViewFactory.createChangeYourValidatorsView(
-                for: validatorList,
-                maxTargets: maxTargets,
-                chain: chain,
-                asset: asset,
-                selectedAccount: selectedAccount,
-                delegate: delegate,
-                with: state
+            guard let nextView = SelectedValidatorListViewFactory.createView(
+                flow: flow,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                delegate: delegate
             )
             else { return }
 

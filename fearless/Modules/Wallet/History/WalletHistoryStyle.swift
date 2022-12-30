@@ -7,7 +7,7 @@ extension HistoryViewStyle {
         let cornerRadius: CGFloat = 10.0
         let titleStyle = WalletTextStyle(
             font: .p0Paragraph,
-            color: .white
+            color: R.color.colorWhite()!
         )
 
         return HistoryViewStyle(
@@ -17,7 +17,7 @@ extension HistoryViewStyle {
             titleStyle: titleStyle,
             filterIcon: R.image.iconFilter(),
             closeIcon: R.image.iconClose(),
-            panIndicatorStyle: UIColor.white,
+            panIndicatorStyle: R.color.colorWhite()!,
             shouldInsertFullscreenShadow: false,
             shadow: nil,
             separatorStyle: nil,

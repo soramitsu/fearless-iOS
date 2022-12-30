@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let defaultContentHeight: CGFloat = 450
+        static let defaultContentHeight: CGFloat = 270
     }
 
     typealias RootViewType = ChainAccountViewLayout
@@ -11,6 +11,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     let presenter: ChainAccountPresenterProtocol
 
     private var state: ChainAccountViewState = .loading
+    private let balanceInfoViewController: UIViewController
 
     var observable = ViewModelObserverContainer<ContainableObserver>()
 
@@ -22,8 +23,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     init(
         presenter: ChainAccountPresenterProtocol,
+        balanceInfoViewController: UIViewController,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.balanceInfoViewController = balanceInfoViewController
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -40,8 +43,9 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     override func viewDidLoad() {
         super.viewDidLoad()
+        setupEmbededBalanceView()
 
-        rootView.navigationBar.backButton.addTarget(
+        rootView.backButton.addTarget(
             self,
             action: #selector(backButtonClicked),
             for: .touchUpInside
@@ -51,9 +55,27 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
         rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
-        rootView.balanceView.lockedView.button
-            .addTarget(self, action: #selector(lockedInfoButtonClicked), for: .touchUpInside)
+        rootView.selectNetworkButton.addTarget(self, action: #selector(selectNetworkButtonClicked), for: .touchUpInside)
+        rootView.addressCopyableLabel.onСopied = { [weak self] in
+            self?.presenter.addressDidCopied()
+        }
         presenter.setup()
+    }
+
+    private func setupEmbededBalanceView() {
+        addChild(balanceInfoViewController)
+
+        guard let view = balanceInfoViewController.view else {
+            return
+        }
+        rootView.walletBalanceViewContainer.addSubview(view)
+        view.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.height.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
+        controller.didMove(toParent: self)
     }
 
     private func applyState() {
@@ -61,9 +83,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         case .loading:
             break
         case let .loaded(viewModel):
-            rootView.balanceView.bind(to: viewModel.accountBalanceViewModel)
-            rootView.assetInfoView.bind(to: viewModel.assetInfoViewModel)
-            rootView.buyButton.isEnabled = viewModel.chainAsset?.purchaseProviders?.first != nil
+            rootView.bind(viewModel: viewModel)
         case .error:
             break
         }
@@ -85,12 +105,12 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         presenter.didTapBuyButton()
     }
 
-    @objc private func lockedInfoButtonClicked() {
-        presenter.didTapInfoButton()
-    }
-
     @objc private func optionsButtonClicked() {
         presenter.didTapOptionsButton()
+    }
+
+    @objc private func selectNetworkButtonClicked() {
+        presenter.didTapSelectNetwork()
     }
 }
 

@@ -77,4 +77,20 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
             presenter.reload()
         }
     }
+
+    func replaceStaking(
+        on view: MainTabBarViewProtocol?,
+        type: AssetSelectionStakingType,
+        moduleOutput: StakingMainModuleOutput?
+    ) {
+        guard let view = view else {
+            return
+        }
+
+        MainTabBarViewFactory.reloadStakingView(
+            on: view,
+            stakingType: type,
+            moduleOutput: moduleOutput
+        )
+    }
 }

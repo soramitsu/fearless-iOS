@@ -3,7 +3,7 @@ import Foundation
 import RobinHood
 import BigInt
 
-final class StakingLocalSubscriptionFactoryStub: StakingLocalSubscriptionFactoryProtocol {
+final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscriptionFactoryProtocol {
     let minNominatorBond: BigUInt?
     let counterForNominators: UInt32?
     let maxNominatorsCount: UInt32?

@@ -3,7 +3,11 @@ import UIKit
 final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     func close(_ view: WalletDetailsViewProtocol) {
         if view.controller.presentingViewController != nil {
-            view.controller.navigationController?.dismiss(animated: true)
+            if let navigationController = view.controller.navigationController {
+                navigationController.dismiss(animated: true)
+            } else {
+                view.controller.dismiss(animated: true)
+            }
         } else {
             view.controller.navigationController?.popViewController(animated: true)
         }
@@ -26,7 +30,7 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             return
         }
 
-        view?.controller.navigationController?.present(actionsView, animated: true)
+        view?.controller.present(actionsView, animated: true)
     }
 
     func showExport(
@@ -81,11 +85,13 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
             return
         }
 
-        view?.controller.navigationController?.present(actionsView, animated: true)
+        view?.controller.present(actionsView, animated: true)
     }
 
     func showCreate(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(flow: .chain(model: uniqueChainModel))?.controller else {
+        guard let controller = UsernameSetupViewFactory.createViewForOnboarding(
+            flow: .chain(model: uniqueChainModel)
+        )?.controller else {
             return
         }
 
@@ -93,7 +99,9 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
     }
 
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?) {
-        guard let importController = AccountImportViewFactory.createViewForOnboarding(.chain(model: uniqueChainModel))?.controller else {
+        guard let importController = AccountImportViewFactory.createViewForOnboarding(
+            .chain(model: uniqueChainModel)
+        )?.controller else {
             return
         }
 
@@ -110,28 +118,28 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let actions: [AlertPresentableAction] = options.map { option in
+        let actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .create:
                 let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
                 let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
         }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -140,7 +148,6 @@ final class WalletDetailsWireframe: WalletDetailsWireframeProtocol {
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }
@@ -156,11 +163,11 @@ private extension WalletDetailsWireframe {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let actions: [AlertPresentableAction] = options.map { option in
+        let actions: [SheetAlertPresentableAction] = options.map { option in
             switch option {
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -173,7 +180,7 @@ private extension WalletDetailsWireframe {
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -186,7 +193,7 @@ private extension WalletDetailsWireframe {
                 }
             case .seed:
                 let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
-                return AlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title) { [weak self] in
                     self?.authorize(
                         animated: true,
                         cancellable: true,
@@ -201,7 +208,7 @@ private extension WalletDetailsWireframe {
         }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: actions,
@@ -210,7 +217,6 @@ private extension WalletDetailsWireframe {
 
         present(
             viewModel: alertViewModel,
-            style: .actionSheet,
             from: view
         )
     }

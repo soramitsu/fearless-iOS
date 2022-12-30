@@ -2,22 +2,42 @@ import Foundation
 
 class SelectValidatorsStartWireframe: SelectValidatorsStartWireframeProtocol {
     func proceedToCustomList(
-        from _: ControllerBackedProtocol?,
-        validatorList _: [SelectedValidatorInfo],
-        recommendedValidatorList _: [SelectedValidatorInfo],
-        selectedValidatorList _: SharedList<SelectedValidatorInfo>,
-        maxTargets _: Int,
-        asset _: AssetModel,
-        chain _: ChainModel,
-        selectedAccount _: MetaAccountModel
-    ) {}
+        from view: ControllerBackedProtocol?,
+        flow: CustomValidatorListFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let nextView = CustomValidatorListViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            nextView.controller,
+            animated: true
+        )
+    }
 
     func proceedToRecommendedList(
-        from _: SelectValidatorsStartViewProtocol?,
-        validatorList _: [SelectedValidatorInfo],
-        maxTargets _: Int,
-        selectedAccount _: MetaAccountModel,
-        chain _: ChainModel,
-        asset _: AssetModel
-    ) {}
+        from view: SelectValidatorsStartViewProtocol?,
+        flow: RecommendedValidatorListFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) {
+        guard let nextView = RecommendedValidatorListViewFactory.createView(
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            nextView.controller,
+            animated: true
+        )
+    }
 }

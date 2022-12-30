@@ -11,6 +11,7 @@ enum YourValidatorListViewState {
 struct YourValidatorListViewModel {
     let allValidatorWithoutRewards: Bool
     let sections: [YourValidatorListSection]
+    let userCanSelectValidators: Bool
 }
 
 struct YourValidatorListSection {
@@ -27,10 +28,10 @@ enum YourValidatorListSectionStatus {
 
 struct YourValidatorViewModel {
     let address: AccountAddress
-    let icon: DrawableIcon
     let name: String?
     let amount: String?
-    let apy: String?
+    let apy: NSAttributedString?
+    let staked: String?
     let shouldHaveWarning: Bool
     let shouldHaveError: Bool
 }

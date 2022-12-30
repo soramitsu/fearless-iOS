@@ -22,14 +22,14 @@ final class CheckPincodeViewLayout: UIView {
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

@@ -4,7 +4,7 @@ class FilterSectionHeaderView: UIView {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h4Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 

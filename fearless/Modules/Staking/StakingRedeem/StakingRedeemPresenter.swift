@@ -8,184 +8,70 @@ final class StakingRedeemPresenter {
 
     let confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let viewModelState: StakingRedeemViewModelState
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    let chainAsset: ChainAsset
     let logger: LoggerProtocol?
 
-    private var stakingLedger: StakingLedger?
-    private var activeEra: UInt32?
-    private var balance: Decimal?
-    private var minimalBalance: BigUInt?
     private var priceData: PriceData?
-    private var fee: Decimal?
-    private var controller: ChainAccountResponse?
-    private var stashItem: StashItem?
-
-    private func provideFeeViewModel() {
-        if let fee = fee {
-            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            view?.didReceiveFee(viewModel: feeViewModel)
-        } else {
-            view?.didReceiveFee(viewModel: nil)
-        }
-    }
-
-    private func provideAssetViewModel() {
-        guard
-            let era = activeEra,
-            let redeemable = stakingLedger?.redeemable(inEra: era),
-            let redeemableDecimal = Decimal.fromSubstrateAmount(
-                redeemable,
-                precision: Int16(asset.precision)
-            ) else {
-            return
-        }
-
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            redeemableDecimal,
-            balance: redeemableDecimal,
-            priceData: priceData
-        )
-
-        view?.didReceiveAsset(viewModel: viewModel)
-    }
-
-    private func provideConfirmationViewModel() {
-        guard let controller = controller,
-              let era = activeEra,
-              let redeemable = stakingLedger?.redeemable(inEra: era),
-              let redeemableDecimal = Decimal.fromSubstrateAmount(
-                  redeemable,
-                  precision: Int16(asset.precision)
-              ) else {
-            return
-        }
-
-        do {
-            let viewModel = try confirmViewModelFactory.createRedeemViewModel(
-                controllerItem: controller,
-                amount: redeemableDecimal
-            )
-
-            view?.didReceiveConfirmation(viewModel: viewModel)
-        } catch {
-            logger?.error("Did receive view model factory error: \(error)")
-        }
-    }
-
-    func refreshFeeIfNeeded() {
-        guard
-            fee == nil,
-            controller != nil,
-            stakingLedger != nil,
-            minimalBalance != nil,
-            let stashItem = stashItem else {
-            return
-        }
-
-        interactor.estimateFeeForStash(stashItem.stash)
-    }
 
     init(
         interactor: StakingRedeemInteractorInputProtocol,
         wireframe: StakingRedeemWireframeProtocol,
         confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        viewModelState: StakingRedeemViewModelState,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.confirmViewModelFactory = confirmViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.viewModelState = viewModelState
         self.dataValidatingFactory = dataValidatingFactory
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
         self.logger = logger
     }
 }
 
 extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideConfirmationViewModel()
         provideAssetViewModel()
         provideFeeViewModel()
+        provideHintsViewModel()
 
         interactor.setup()
+
+        refreshFeeIfNeeded()
     }
 
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-        DataValidationRunner(validators: [
-            dataValidatingFactory.hasRedeemable(
-                stakingLedger: stakingLedger,
-                in: activeEra,
-                locale: locale
-            ),
-
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.refreshFeeIfNeeded()
-            }),
-
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.has(
-                controller: controller,
-                for: stashItem?.controller ?? "",
-                locale: locale
-            )
-        ]).runValidation { [weak self] in
-            guard let strongSelf = self, let stashItem = self?.stashItem else {
+        DataValidationRunner(validators: viewModelState.validators(using: locale)).runValidation { [weak self] in
+            guard let strongSelf = self else {
                 return
             }
 
             strongSelf.view?.didStartLoading()
 
-            strongSelf.interactor.submitForStash(stashItem.stash)
+            strongSelf.interactor.submit(builderClosure: strongSelf.viewModelState.builderClosure)
         }
     }
 
     func selectAccount() {
-        guard let view = view, let address = stashItem?.controller else { return }
+        guard let view = view, let address = viewModelState.address else { return }
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
-        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: locale)
+        wireframe.presentAccountOptions(from: view, address: address, chain: chainAsset.chain, locale: locale)
     }
 }
 
 extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
-        switch result {
-        case let .success(accountInfo):
-            if let accountInfo = accountInfo {
-                balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
-                    precision: Int16(asset.precision)
-                )
-            } else {
-                balance = nil
-            }
-        case let .failure(error):
-            logger?.error("Account Info subscription error: \(error)")
-        }
-    }
-
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
-        switch result {
-        case let .success(stakingLedger):
-            self.stakingLedger = stakingLedger
-
-            provideConfirmationViewModel()
-            provideAssetViewModel()
-            refreshFeeIfNeeded()
-        case let .failure(error):
-            logger?.error("Staking ledger subscription error: \(error)")
-        }
-    }
-
     func didReceivePriceData(result: Result<PriceData?, Error>) {
         switch result {
         case let .success(priceData):
@@ -196,66 +82,6 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Price data subscription error: \(error)")
-        }
-    }
-
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
-        switch result {
-        case let .success(dispatchInfo):
-            if let fee = BigUInt(dispatchInfo.fee) {
-                self.fee = Decimal.fromSubstrateAmount(fee, precision: Int16(asset.precision))
-            }
-
-            provideFeeViewModel()
-        case let .failure(error):
-            logger?.error("Did receive fee error: \(error)")
-        }
-    }
-
-    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
-        switch result {
-        case let .success(minimalBalance):
-            self.minimalBalance = minimalBalance
-
-            provideAssetViewModel()
-            refreshFeeIfNeeded()
-        case let .failure(error):
-            logger?.error("Minimal balance fetching error: \(error)")
-        }
-    }
-
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>) {
-        switch result {
-        case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
-
-            provideConfirmationViewModel()
-            refreshFeeIfNeeded()
-        case let .failure(error):
-            logger?.error("Did receive controller account error: \(error)")
-        }
-    }
-
-    func didReceiveStashItem(result: Result<StashItem?, Error>) {
-        switch result {
-        case let .success(stashItem):
-            self.stashItem = stashItem
-        case let .failure(error):
-            logger?.error("Did receive stash item error: \(error)")
-        }
-    }
-
-    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>) {
-        switch result {
-        case let .success(eraInfo):
-            activeEra = eraInfo?.index
-
-            provideAssetViewModel()
-            provideConfirmationViewModel()
-        case let .failure(error):
-            logger?.error("Did receive active era error: \(error)")
         }
     }
 
@@ -272,5 +98,51 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
         case .failure:
             wireframe.presentExtrinsicFailed(from: view, locale: view.localizationManager?.selectedLocale)
         }
+    }
+}
+
+extension StakingRedeemPresenter: StakingRedeemModelStateListener {
+    func didReceiveError(error: Error) {
+        logger?.error("StakingRedeemPresenter didReceiveError: \(error)")
+    }
+
+    func provideFeeViewModel() {
+        if let fee = viewModelState.fee {
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
+    }
+
+    func provideAssetViewModel() {
+        guard let viewModel = confirmViewModelFactory.buildAssetViewModel(
+            viewModelState: viewModelState,
+            priceData: priceData
+        ) else {
+            return
+        }
+
+        view?.didReceiveAsset(viewModel: viewModel)
+    }
+
+    func provideConfirmationViewModel() {
+        guard let viewModel = confirmViewModelFactory.buildViewModel(viewModelState: viewModelState) else {
+            return
+        }
+
+        view?.didReceiveConfirmation(viewModel: viewModel)
+    }
+
+    func provideHintsViewModel() {
+        let viewModel = confirmViewModelFactory.buildHints()
+        view?.didReceiveHints(viewModel: viewModel)
+    }
+
+    func refreshFeeIfNeeded() {
+        interactor.estimateFee(
+            builderClosure: viewModelState.builderClosure,
+            reuseIdentifier: viewModelState.reuseIdentifier
+        )
     }
 }

@@ -5,7 +5,7 @@ import FearlessUtils
 import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {
-    var presenter: StakingAmountPresenterProtocol!
+    var presenter: StakingAmountPresenterProtocol?
 
     @IBOutlet private var inputContainerView: UIView!
     @IBOutlet private var stackView: UIStackView!
@@ -17,6 +17,11 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     @IBOutlet private var learnMoreView: DetailsTriangularedView!
     @IBOutlet private var actionButton: TriangularedButton!
 
+    @IBOutlet var yourRewardDestinationContainer: UIView!
+    @IBOutlet var yourRewardDestinationLabel: UILabel!
+    @IBOutlet var rewardDestinationView: RewardSelectionView!
+    @IBOutlet var rewardAccountView: DetailsTriangularedView!
+
     private lazy var networkFeeView = uiFactory.createNetworkFeeView()
 
     private var accountContainerView: UIView?
@@ -24,6 +29,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
     var uiFactory: UIFactoryProtocol!
 
+    private var yourRewardDestinationViewModel: LocalizableResource<YourRewardDestinationViewModel>?
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
@@ -35,9 +41,10 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         setupInitBalanceView()
         setupInitNetworkFee()
         setupLocalization()
+        setupYourRewardDestinationView()
         updateActionButton()
 
-        presenter.setup()
+        presenter?.setup()
     }
 
     private func setupNavigationItem() {
@@ -52,7 +59,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     }
 
     @objc private func actionClose() {
-        presenter.close()
+        presenter?.close()
     }
 
     // MARK: Private
@@ -170,6 +177,29 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         networkFeeView.bind(viewModel: nil)
     }
 
+    func setupYourRewardDestinationView() {
+        rewardAccountView.fillColor = R.color.colorDarkGray()!
+        rewardAccountView.highlightedFillColor = R.color.colorHighlightedPink()!
+        rewardAccountView.strokeColor = .clear
+        rewardAccountView.highlightedStrokeColor = .clear
+        rewardAccountView.borderWidth = 1.0
+        rewardAccountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        rewardAccountView.actionImage = R.image.iconMore()
+        rewardAccountView.titleLabel.textColor = R.color.colorLightGray()!
+        rewardAccountView.titleLabel.font = UIFont.p2Paragraph
+        rewardAccountView.subtitleLabel?.textColor = R.color.colorWhite()!
+        rewardAccountView.subtitleLabel?.font = UIFont.p1Paragraph
+        rewardAccountView.contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
+        rewardAccountView.iconRadius = UIConstants.triangularedIconSmallRadius
+
+        rewardDestinationView.fillColor = R.color.colorDarkGray()!
+        rewardDestinationView.highlightedFillColor = R.color.colorDarkGray()!
+        rewardDestinationView.strokeColor = R.color.colorWhite()!
+        rewardDestinationView.highlightedStrokeColor = R.color.colorWhite()!
+        rewardDestinationView.borderWidth = 0.0
+        rewardDestinationView.isSelected = true
+    }
+
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let languages = locale.rLanguages
@@ -228,7 +258,11 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     }
 
     private func applyRewardDestinationViewModel() {
-        guard let rewardDestViewModel = rewardDestinationViewModel else { return }
+        chooseRewardView.isHidden = rewardDestinationViewModel == nil
+
+        guard let rewardDestViewModel = rewardDestinationViewModel else {
+            return
+        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let viewModel = rewardDestViewModel.value(for: locale)
@@ -272,7 +306,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
             payoutView.isSelected = false
 
             updateAccountView()
-        case let .payout(icon, title):
+        case let .payout(icon, title, _):
             restakeView.isSelected = false
             payoutView.isSelected = true
 
@@ -281,8 +315,25 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
         }
     }
 
-    private func applyPayoutAddress(_ icon: DrawableIcon, title: String) {
-        let icon = icon.imageWithFillColor(
+    private func applyYourRewardDestinationViewModel(_ viewModel: LocalizableResource<YourRewardDestinationViewModel>?) {
+        yourRewardDestinationContainer.isHidden = yourRewardDestinationViewModel == nil
+
+        guard let localizableViewModel = viewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        rewardDestinationView.amountTitle = localizableViewModel.payoutAmount
+        rewardDestinationView.incomeTitle = localizableViewModel.payoutPercentage
+        rewardDestinationView.priceTitle = localizableViewModel.payoutPrice
+
+        rewardAccountView.iconImage = R.image.iconFearlessRounded()
+        rewardAccountView.subtitle = localizableViewModel.accountViewModel.name
+        rewardAccountView.title = localizableViewModel.accountViewModel.title
+        rewardAccountView.actionImage = nil
+    }
+
+    private func applyPayoutAddress(_ icon: DrawableIcon?, title: String) {
+        let icon = icon?.imageWithFillColor(
             R.color.colorWhite()!,
             size: UIConstants.smallAddressIconSize,
             contentScale: UIScreen.main.scale
@@ -294,30 +345,50 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
     @IBAction private func actionRestake() {
         if !restakeView.isSelected {
-            presenter.selectRestakeDestination()
+            presenter?.selectRestakeDestination()
         }
     }
 
     @IBAction private func actionPayout() {
         if !payoutView.isSelected {
-            presenter.selectPayoutDestination()
+            presenter?.selectPayoutDestination()
         }
     }
 
     @IBAction private func actionLearnPayout() {
-        presenter.selectLearnMore()
+        presenter?.selectLearnMore()
     }
 
     @IBAction private func actionProceed() {
-        presenter.proceed()
+        presenter?.proceed()
     }
 
     @objc private func actionSelectPayoutAccount() {
-        presenter.selectPayoutAccount()
+        presenter?.selectPayoutAccount()
     }
 }
 
 extension StakingAmountViewController: StakingAmountViewProtocol {
+    func didReceive(viewModel: StakingAmountMainViewModel) {
+        chooseRewardView.isHidden = viewModel.rewardDestinationViewModel == nil
+
+        if let assetViewModel = viewModel.assetViewModel {
+            didReceiveAsset(viewModel: assetViewModel)
+        }
+
+        if let rewardDestinationViewModel = viewModel.rewardDestinationViewModel {
+            didReceiveRewardDestination(viewModel: rewardDestinationViewModel)
+        }
+
+        if let feeViewModel = viewModel.feeViewModel {
+            didReceiveFee(viewModel: feeViewModel)
+        }
+
+        if let inputViewModel = viewModel.inputViewModel {
+            didReceiveInput(viewModel: inputViewModel)
+        }
+    }
+
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel
         applyAsset()
@@ -326,6 +397,11 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>) {
         rewardDestinationViewModel = viewModel
         applyRewardDestinationViewModel()
+    }
+
+    func didReceiveYourRewardDestination(viewModel: LocalizableResource<YourRewardDestinationViewModel>) {
+        yourRewardDestinationViewModel = viewModel
+        applyYourRewardDestinationViewModel(viewModel)
     }
 
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
@@ -354,7 +430,7 @@ extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 
-        presenter.selectAmountPercentage(percentage)
+        presenter?.selectAmountPercentage(percentage)
     }
 
     func didSelectDone(on _: AmountInputAccessoryView) {
@@ -369,7 +445,7 @@ extension StakingAmountViewController: AmountInputViewModelObserver {
         updateActionButton()
 
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
-        presenter.updateAmount(amount)
+        presenter?.updateAmount(amount)
     }
 }
 

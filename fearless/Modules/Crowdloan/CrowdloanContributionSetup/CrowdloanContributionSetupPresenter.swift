@@ -247,7 +247,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 totalAmount: totalBalanceValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale,
-                chain: chainAsset.chain
+                chainAsset: chainAsset
             )
 
         ]).runValidation { [weak self] in

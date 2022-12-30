@@ -35,13 +35,11 @@ final class WalletQREncoder: WalletQREncoderProtocol {
 }
 
 final class WalletQRDecoder: WalletQRDecoderProtocol {
-    private let substrateDecoder: AddressQRDecoder
     private let qrDecoders: [QRDecodable]
     private let asset: AssetModel
     private let addressPrefix: UInt16
 
     init(addressPrefix: UInt16, asset: AssetModel) {
-        substrateDecoder = AddressQRDecoder(chainType: addressPrefix)
         qrDecoders = [
             AddressQRDecoder(chainType: addressPrefix),
             CexQRDecoder()
@@ -67,7 +65,7 @@ final class WalletQRDecoder: WalletQRDecoderProtocol {
 
         return ReceiveInfo(
             accountId: accountId.toHex(includePrefix: info.address.hasPrefix("0x")),
-            assetId: asset.identifier,
+            assetId: asset.id,
             amount: nil,
             details: nil
         )

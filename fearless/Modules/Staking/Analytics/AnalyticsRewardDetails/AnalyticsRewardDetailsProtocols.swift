@@ -13,7 +13,7 @@ protocol AnalyticsRewardDetailsInteractorInputProtocol: AnyObject {}
 
 protocol AnalyticsRewardDetailsInteractorOutputProtocol: AnyObject {}
 
-protocol AnalyticsRewardDetailsWireframeProtocol: ModalAlertPresenting, AlertPresentable, WebPresentable {}
+protocol AnalyticsRewardDetailsWireframeProtocol: ModalAlertPresenting, SheetAlertPresentable, WebPresentable {}
 
 protocol AnalyticsRewardDetailsViewModelFactoryProtocol: AnyObject {
     func createViweModel(

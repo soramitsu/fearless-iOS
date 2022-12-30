@@ -7,7 +7,7 @@ enum ShimmeredLabelStateType {
     case attributed(NSAttributedString?)
 }
 
-enum ShimmeredLabelState {
+enum ShimmeredLabelState: Hashable {
     case stopShimmering
     case normal(String?)
     case normalAttributed(NSAttributedString?)

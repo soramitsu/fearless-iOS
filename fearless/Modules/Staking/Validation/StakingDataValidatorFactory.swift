@@ -51,6 +51,8 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         minNominatorBond: Decimal?,
         locale: Locale
     ) -> DataValidating
+
+    func createPoolName(complite: Bool?, locale: Locale) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -323,6 +325,18 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             } else {
                 return false
             }
+        })
+    }
+
+    func createPoolName(complite: Bool?, locale: Locale) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentMissingPoolName(from: view, locale: locale)
+        }, preservesCondition: {
+            complite ?? false
         })
     }
 }

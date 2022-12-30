@@ -9,7 +9,8 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
         from wallet: MetaAccountModel,
         locale: Locale,
         language: Language,
-        currency: Currency
+        currency: Currency,
+        balance: WalletBalanceInfo?
     ) -> ProfileViewModelProtocol
 }
 
@@ -28,6 +29,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private let iconGenerator: IconGenerating
     private let biometry: BiometryAuthProtocol
     private let settings: SettingsManagerProtocol
+    private lazy var assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
 
     // MARK: - Constructors
 
@@ -47,9 +49,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         from wallet: MetaAccountModel,
         locale: Locale,
         language: Language,
-        currency: Currency
+        currency: Currency,
+        balance: WalletBalanceInfo?
     ) -> ProfileViewModelProtocol {
-        let profileUserViewModel = createUserViewModel(from: wallet, locale: locale)
+        let profileUserViewModel = createUserViewModel(
+            from: wallet,
+            balance: balance,
+            locale: locale
+        )
         let profileOptionViewModel = createOptionViewModels(
             language: language,
             currency: currency,
@@ -66,15 +73,29 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     // MARK: - Private methods
 
+    private func tokenFormatter(for currency: Currency, locale: Locale) -> TokenFormatter {
+        let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
+        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo)
+        let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
+        return balanceTokenFormatterValue
+    }
+
     private func createUserViewModel(
         from wallet: MetaAccountModel,
-        locale _: Locale
+        balance: WalletBalanceInfo?,
+        locale: Locale
     ) -> ProfileUserViewModelProtocol {
         let icon = try? iconGenerator.generateFromAddress("")
 
+        var details: String = ""
+        if let balance = balance {
+            let formatter = tokenFormatter(for: balance.currency, locale: locale)
+            details = formatter.stringFromDecimal(balance.totalFiatValue) ?? ""
+        }
+
         return ProfileUserViewModel(
             name: wallet.name,
-            details: "",
+            details: details,
             icon: icon
         )
     }
@@ -95,7 +116,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .about:
                 return createAboutViewModel(for: locale)
             case .biometry:
-                return createBiometryViewModel(for: locale)
+                return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
             }
@@ -111,12 +132,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLogout()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: nil
         )
         return viewModel
     }
 
-    private func createBiometryViewModel(for _: Locale) -> ProfileOptionViewModel? {
+    private func createBiometryViewModel() -> ProfileOptionViewModel? {
         let title: String
         switch biometry.availableBiometryType {
         case .none:
@@ -131,7 +153,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: biometry.availableBiometryType.accessoryIconSettings,
             accessoryTitle: nil,
-            accessoryType: .switcher(settings.biometryEnabled ?? false)
+            accessoryType: .switcher(settings.biometryEnabled ?? false),
+            option: .biometry
         )
         return viewModel
     }
@@ -143,22 +166,9 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWallet()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .accountList
         )
-        return viewModel
-    }
-
-    private func createConnectionListViewModel(for locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .profileNetworkTitle(preferredLanguages: locale.rLanguages)
-
-        let viewModel = ProfileOptionViewModel(
-            title: title,
-            icon: R.image.iconProfileNetworks()!,
-            accessoryTitle: nil,
-            accessoryType: .arrow
-        )
-
         return viewModel
     }
 
@@ -169,7 +179,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsPin()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .changePincode
         )
     }
 
@@ -181,7 +192,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsLanguage()!,
             accessoryTitle: subtitle,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .language
         )
 
         return viewModel
@@ -194,7 +206,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .about
         )
     }
 
@@ -206,7 +219,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconCurrency()!,
             accessoryTitle: subtitle,
-            accessoryType: .arrow
+            accessoryType: .arrow,
+            option: .currency
         )
 
         return viewModel

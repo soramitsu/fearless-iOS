@@ -6,7 +6,11 @@ import RobinHood
 
 // swiftlint:disable function_body_length
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
-    static func createView() -> StakingMainViewProtocol? {
+    static func createView(moduleOutput: StakingMainModuleOutput?) -> StakingMainViewProtocol? {
+        guard let selectedAccount = SelectedWalletSettings.shared.value else {
+            return nil
+        }
+
         let settings = SettingsManager.shared
 
         let storageFacade = SubstrateDataStorageFacade.shared
@@ -14,7 +18,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let stakingSettings = StakingAssetSettings(
             storageFacade: storageFacade,
             settings: SettingsManager.shared,
-            operationQueue: OperationManagerFacade.sharedDefaultQueue
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            wallet: selectedAccount
         )
 
         stakingSettings.setup()
@@ -24,8 +29,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             let sharedState = try? createSharedState(
                 with: chainAsset,
                 stakingSettings: stakingSettings
-            ),
-            let selectedAccount = SelectedWalletSettings.shared.value else {
+            ) else {
             return nil
         }
 
@@ -33,13 +37,20 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let view = StakingMainViewController(nib: R.nib.stakingMainViewController)
         view.localizationManager = LocalizationManager.shared
-        view.iconGenerator = PolkadotIconGenerator()
+        view.iconGenerator = UniversalIconGenerator(chain: chainAsset.chain)
         view.uiFactory = UIFactory()
         view.amountFormatterFactory = AssetBalanceFormatterFactory()
 
         // MARK: - Interactor
 
-        let interactor = createInteractor(state: sharedState, settings: settings, selectedAccount: selectedAccount)
+        guard let interactor = createInteractor(
+            state: sharedState,
+            settings: settings,
+            selectedAccount: selectedAccount,
+            chainAsset: chainAsset
+        ) else {
+            return nil
+        }
 
         // MARK: - Router
 
@@ -79,7 +90,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             dataValidatingFactory: dataValidatingFactory,
             logger: logger,
             selectedMetaAccount: selectedAccount,
-            eventCenter: eventCenter
+            eventCenter: eventCenter,
+            moduleOutput: moduleOutput
         )
 
         view.presenter = presenter
@@ -96,8 +108,17 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     private static func createInteractor(
         state: StakingSharedState,
         settings: SettingsManagerProtocol,
-        selectedAccount: MetaAccountModel
-    ) -> StakingMainInteractor {
+        selectedAccount: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) -> StakingMainInteractor? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return nil
+        }
+
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
@@ -157,6 +178,17 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
+        )
+
         return StakingMainInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
             sharedState: state,
@@ -172,11 +204,11 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             accountProviderFactory: accountProviderFactory,
             eventCenter: EventCenter.shared,
             operationManager: operationManager,
-            eraInfoOperationFactory: NetworkStakingInfoOperationFactory(),
             applicationHandler: ApplicationHandler(),
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
-            logger: logger
+            logger: logger,
+            collatorOperationFactory: collatorOperationFactory
         )
     }
 
@@ -184,32 +216,64 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         with chainAsset: ChainAsset,
         stakingSettings: StakingAssetSettings
     ) throws -> StakingSharedState {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+
+        guard
+            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+
         let storageFacade = SubstrateDataStorageFacade.shared
         let serviceFactory = StakingServiceFactory(
-            chainRegisty: ChainRegistryFacade.sharedRegistry,
+            chainRegisty: chainRegistry,
             storageFacade: storageFacade,
             eventCenter: EventCenter.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
 
         let eraValidatorService = try serviceFactory.createEraValidatorService(
-            for: chainAsset.chain.chainId
+            for: chainAsset.chain
+        )
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            subqueryOperationFactory: subqueryRewardOperationFactory
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
-            for: chainAsset.chain.chainId,
+            for: chainAsset,
             assetPrecision: chainAsset.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService
+            validatorService: eraValidatorService,
+            collatorOperationFactory: collatorOperationFactory
         )
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: ChainRegistryFacade.sharedRegistry,
             storageFacade: storageFacade,
             operationManager: OperationManagerFacade.sharedManager,
             logger: Logger.shared
         )
 
-        let stakingAnalyticsLocalSubscriptionFactory = StakingAnalyticsLocalSubscriptionFactory(
+        let parachainStakingLocalSubscriptionFactory = ParachainStakingLocalSubscriptionFactory(
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            storageFacade: storageFacade,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
+        let stakingAnalyticsLocalSubscriptionFactory = ParachainAnalyticsLocalSubscriptionFactory(
             storageFacade: storageFacade
         )
 
@@ -217,8 +281,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             settings: stakingSettings,
             eraValidatorService: eraValidatorService,
             rewardCalculationService: rewardCalculatorService,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory
+            relaychainStakingLocalSubscriptionFactory: relaychainStakingLocalSubscriptionFactory,
+            stakingAnalyticsLocalSubscriptionFactory: stakingAnalyticsLocalSubscriptionFactory,
+            parachainStakingLocalSubscriptionFactory: parachainStakingLocalSubscriptionFactory
         )
     }
 }

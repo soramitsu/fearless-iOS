@@ -6,7 +6,7 @@ final class StakingStateMachine {
     weak var delegate: StakingStateMachineDelegate?
 
     init() {
-        let state = InitialStakingState(stateMachine: nil, commonData: StakingStateCommonData.empty)
+        let state = InitialRelaychainStakingState(stateMachine: nil, commonData: StakingStateCommonData.empty)
 
         self.state = state
 

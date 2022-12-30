@@ -8,15 +8,14 @@ final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let engine: JSONRPCEngine
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     private lazy var callFactory = SubstrateCallFactory()
     private lazy var addressFactory = SS58AddressFactory()
@@ -28,7 +27,7 @@ final class ControllerAccountInteractor {
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         operationManager: OperationManagerProtocol,
@@ -36,8 +35,7 @@ final class ControllerAccountInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -50,19 +48,18 @@ final class ControllerAccountInteractor {
         self.extrinsicService = extrinsicService
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
-        self.chain = chain
-        self.asset = asset
+        self.chainAsset = chainAsset
     }
 }
 
 extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
     func setup() {
-        if let address = selectedAccount.fetch(for: chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
         }
 
         fetchChainAccounts(
-            chain: chain,
+            chain: chainAsset.chain,
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
@@ -90,7 +87,7 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         do {
             let accountId = try addressFactory.accountId(
                 fromAddress: controllerAddress,
-                addressPrefix: chain.addressPrefix
+                addressPrefix: chainAsset.chain.addressPrefix
             )
 
             let accountInfoOperation = createAccountInfoFetchOperation(accountId)
@@ -114,7 +111,7 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         do {
             let accountId = try addressFactory.accountId(
                 fromAddress: controllerAddress,
-                addressPrefix: chain.addressPrefix
+                addressPrefix: chainAsset.chain.addressPrefix
             )
 
             let ledgerOperataion = createLedgerFetchOperation(accountId)
@@ -188,15 +185,23 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     private func handle(stashItem: StashItem) {
         let addressFactory = SS58AddressFactory()
 
-        if let accountId = try? addressFactory.accountId(fromAddress: stashItem.stash, type: chain.addressPrefix) {
+        if let accountId = try? addressFactory.accountId(
+            fromAddress: stashItem.stash,
+            type: chainAsset.chain.addressPrefix
+        ) {
             accountInfoSubscriptionAdapter.subscribe(
-                chain: chain,
+                chainAsset: chainAsset,
                 accountId: accountId,
                 handler: self
             )
         }
 
-        fetchChainAccount(chain: chain, address: stashItem.stash, from: accountRepository, operationManager: operationManager) { [weak self] result in
+        fetchChainAccount(
+            chain: chainAsset.chain,
+            address: stashItem.stash,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
             switch result {
             case let .success(accountItem):
                 if let accountItem = accountItem {
@@ -209,7 +214,12 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
             }
         }
 
-        fetchChainAccount(chain: chain, address: stashItem.controller, from: accountRepository, operationManager: operationManager) { [weak self] result in
+        fetchChainAccount(
+            chain: chainAsset.chain,
+            address: stashItem.controller,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
             if case let .success(account) = result, let account = account {
                 self?.estimateFee(for: account)
             }
@@ -221,7 +231,7 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     private func handleAccount(_ account: ChainAccountResponse) {
         extrinsicService = ExtrinsicService(
             accountId: account.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: account.cryptoType,
             runtimeRegistry: runtimeService,
             engine: engine,
@@ -233,11 +243,11 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 }
 
 extension ControllerAccountInteractor: AccountInfoSubscriptionAdapterHandler {
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainId _: ChainModel.Id) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
         let addressFactory = SS58AddressFactory()
         guard let address = try? addressFactory.address(
             fromAccountId: accountId,
-            type: chain.addressPrefix
+            type: chainAsset.chain.addressPrefix
         ) else {
             return
         }
@@ -246,7 +256,7 @@ extension ControllerAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     }
 }
 
-extension ControllerAccountInteractor: StakingLocalStorageSubscriber, StakingLocalSubscriptionHandler {
+extension ControllerAccountInteractor: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler {
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
         presenter.didReceiveStakingLedger(result: result)
     }

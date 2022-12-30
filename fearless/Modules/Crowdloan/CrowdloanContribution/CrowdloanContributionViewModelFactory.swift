@@ -52,16 +52,18 @@ final class CrowdloanContributionViewModelFactory {
         let percentageProgress: String
     }
 
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
         assetInfo: AssetBalanceDisplayInfo,
         chainDateCalculator: ChainDateCalculatorProtocol,
-        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory()
+        amountFormatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
+        iconGenerator: IconGenerating
     ) {
         self.assetInfo = assetInfo
         self.amountFormatterFactory = amountFormatterFactory
         self.chainDateCalculator = chainDateCalculator
+        self.iconGenerator = iconGenerator
     }
 
     private func createDisplayLeasingPeriod(

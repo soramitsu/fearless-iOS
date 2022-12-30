@@ -5,7 +5,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
     typealias RootViewType = SelectedValidatorListViewLayout
 
     let presenter: SelectedValidatorListPresenterProtocol
-    let selectedValidatorsLimit: Int
 
     private var viewModel: SelectedValidatorListViewModel?
 
@@ -13,11 +12,9 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
     init(
         presenter: SelectedValidatorListPresenterProtocol,
-        selectedValidatorsLimit: Int,
         localizationManager: LocalizationManagerProtocol? = nil
     ) {
         self.presenter = presenter
-        self.selectedValidatorsLimit = selectedValidatorsLimit
 
         super.init(nibName: nil, bundle: nil)
 
@@ -50,8 +47,9 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
     private func setupTable() {
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
-        rootView.tableView.registerClassForCell(SelectedValidatorCell.self)
-        rootView.tableView.registerHeaderFooterView(withClass: SelectedValidatorListHeaderView.self)
+        rootView.tableView.registerClassForCell(CustomValidatorCell.self)
+        rootView.tableView.separatorStyle = .none
+        rootView.tableView.rowHeight = UIConstants.validatorCellHeight
     }
 
     private func setupNavigationBar() {
@@ -90,6 +88,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
     private func updateProceedButton() {
         let cellViewModels = viewModel?.cellViewModels ?? []
+        let selectedValidatorsLimit = viewModel?.selectedValidatorsLimit ?? 0
 
         let buttonTitle: String
         let isEnabled: Bool
@@ -112,18 +111,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder, I
 
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
         rootView.proceedButton.set(enabled: isEnabled)
-    }
-
-    private func updateHeaderView() {
-        guard let viewModel = viewModel,
-              let headerView = rootView.tableView
-              .headerView(forSection: 0) as? SelectedValidatorListHeaderView
-        else { return }
-
-        headerView.bind(
-            viewModel: viewModel.headerViewModel,
-            shouldAlert: viewModel.limitIsExceeded
-        )
     }
 
     private func presentValidatorInfo(at index: Int) {
@@ -156,7 +143,6 @@ extension SelectedValidatorListViewController: Localizable {
 
             updateEditButton()
             updateProceedButton()
-            updateHeaderView()
         }
     }
 }
@@ -184,7 +170,6 @@ extension SelectedValidatorListViewController: SelectedValidatorListViewProtocol
             presenter.dismiss()
         }
 
-        updateHeaderView()
         updateProceedButton()
     }
 }
@@ -201,7 +186,7 @@ extension SelectedValidatorListViewController: UITableViewDataSource {
             return UITableViewCell()
         }
 
-        let cell = tableView.dequeueReusableCellWithType(SelectedValidatorCell.self)!
+        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self, forIndexPath: indexPath)
 
         let cellViewModel = viewModel.cellViewModels[indexPath.row]
         cell.bind(viewModel: cellViewModel)
@@ -224,17 +209,5 @@ extension SelectedValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.didSelectValidator(at: indexPath.row)
-    }
-
-    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        guard let viewModel = viewModel else { return nil }
-
-        let headerView: SelectedValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        headerView.bind(
-            viewModel: viewModel.headerViewModel,
-            shouldAlert: viewModel.limitIsExceeded
-        )
-
-        return headerView
     }
 }

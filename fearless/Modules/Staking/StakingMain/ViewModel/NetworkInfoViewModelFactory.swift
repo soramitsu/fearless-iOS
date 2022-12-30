@@ -74,9 +74,13 @@ final class NetworkInfoViewModelFactory {
         chainAsset: ChainAsset,
         priceData: PriceData?,
         selectedMetaAccount: MetaAccountModel
-    ) -> LocalizableResource<BalanceViewModelProtocol> {
-        createStakeViewModel(
-            stake: networkStakingInfo.totalStake,
+    ) -> LocalizableResource<BalanceViewModelProtocol>? {
+        guard let totalStake = networkStakingInfo.relaychainInfo?.totalStake else {
+            return nil
+        }
+
+        return createStakeViewModel(
+            stake: totalStake,
             chainAsset: chainAsset,
             priceData: priceData,
             selectedMetaAccount: selectedMetaAccount
@@ -100,24 +104,38 @@ final class NetworkInfoViewModelFactory {
 
     private func createActiveNominatorsViewModel(
         with networkStakingInfo: NetworkStakingInfo
-    ) -> LocalizableResource<String> {
-        LocalizableResource { locale in
+    ) -> LocalizableResource<String>? {
+        guard let activeNominatorsCount = networkStakingInfo.relaychainInfo?.activeNominatorsCount else {
+            return nil
+        }
+
+        return LocalizableResource { locale -> String in
             let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
             return quantityFormatter
-                .string(from: networkStakingInfo.activeNominatorsCount as NSNumber) ?? ""
+                .string(from: activeNominatorsCount as NSNumber) ?? ""
         }
     }
 
     private func createLockUpPeriodViewModel(
-        with networkStakingInfo: NetworkStakingInfo
-    ) -> LocalizableResource<String> {
-        let eraPerDay = networkStakingInfo.stakingDuration.era.intervalsInDay
-        let lockUpPeriodInDays = eraPerDay > 0 ? Int(networkStakingInfo.lockUpPeriod) / eraPerDay : 0
+        with networkStakingInfo: NetworkStakingInfo,
+        constantErasPerDay: UInt32
+    ) -> LocalizableResource<String>? {
+        var erasPerDay: UInt32
+
+        switch networkStakingInfo {
+        case let .relaychain(_, relaychainInfo):
+            erasPerDay = UInt32(relaychainInfo.stakingDuration.era.intervalsInDay)
+        case .parachain:
+            erasPerDay = constantErasPerDay
+        }
+
+        let lockUpPeriod = networkStakingInfo.baseInfo.lockUpPeriod
+        let lockUpPeriodInDays = erasPerDay > 0 ? lockUpPeriod / erasPerDay : 0
 
         return LocalizableResource { locale in
             R.string.localizable.commonDaysFormat(
-                format: lockUpPeriodInDays,
+                format: Int(lockUpPeriodInDays),
                 preferredLanguages: locale.rLanguages
             )
         }
@@ -173,14 +191,17 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
 
         let nominatorsCount = createActiveNominatorsViewModel(with: networkStakingInfo)
 
-        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: networkStakingInfo)
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(
+            with: networkStakingInfo,
+            constantErasPerDay: chainAsset.chain.erasPerDay
+        )
 
         return LocalizableResource { locale in
             NetworkStakingInfoViewModel(
-                totalStake: localizedTotalStake.value(for: locale),
+                totalStake: localizedTotalStake?.value(for: locale),
                 minimalStake: localizedMinimalStake.value(for: locale),
-                activeNominators: nominatorsCount.value(for: locale),
-                lockUpPeriod: localizedLockUpPeriod.value(for: locale)
+                activeNominators: nominatorsCount?.value(for: locale),
+                lockUpPeriod: localizedLockUpPeriod?.value(for: locale)
             )
         }
     }

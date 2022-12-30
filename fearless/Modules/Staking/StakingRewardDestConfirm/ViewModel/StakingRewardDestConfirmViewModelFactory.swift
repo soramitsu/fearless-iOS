@@ -10,7 +10,11 @@ protocol StakingRewardDestConfirmVMFactoryProtocol {
 }
 
 final class StakingRewardDestConfirmVMFactory: StakingRewardDestConfirmVMFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
+    }
 
     func createViewModel(
         from stashItem: StashItem,
@@ -27,7 +31,11 @@ final class StakingRewardDestConfirmVMFactory: StakingRewardDestConfirmVMFactory
         case let .payout(account):
             let payoutIcon = try iconGenerator.generateFromAddress(account.toDisplayAddress().address)
 
-            rewardDestViewModel = .payout(icon: payoutIcon, title: try account.toDisplayAddress().username)
+            rewardDestViewModel = .payout(
+                icon: payoutIcon,
+                title: try account.toDisplayAddress().username,
+                address: try account.toDisplayAddress().address
+            )
         }
 
         return StakingRewardDestConfirmViewModel(

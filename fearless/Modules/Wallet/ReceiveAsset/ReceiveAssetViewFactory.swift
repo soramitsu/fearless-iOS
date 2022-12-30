@@ -1,5 +1,5 @@
-import CommonWallet
 import SoraFoundation
+import SoraUI
 
 struct ReceiveAssetViewFactory {
     static func createView(
@@ -12,14 +12,9 @@ struct ReceiveAssetViewFactory {
         }
         let wireframe = ReceiveAssetWireframe()
 
-        let qrEncoder = WalletQREncoder(
-            addressPrefix: chain.addressPrefix,
-            publicKey: chainAccount.publicKey,
-            username: chainAccount.name
-        )
-        let qrService = WalletQRService(
-            operationFactory: WalletQROperationFactory(),
-            encoder: qrEncoder
+        let qrService = QRService(
+            operationFactory: QROperationFactory(),
+            encoder: QREncoder()
         )
         let sharingFactory = AccountShareFactory()
         let presenter = ReceiveAssetPresenter(
@@ -33,6 +28,12 @@ struct ReceiveAssetViewFactory {
         )
 
         let view = ReceiveAssetViewController(presenter: presenter)
+        view.modalPresentationStyle = .custom
+
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+        )
+        view.modalTransitioningFactory = factory
         presenter.view = view
 
         return view

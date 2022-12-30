@@ -3,6 +3,7 @@ import SoraFoundation
 import Rswift
 import FearlessUtils
 
+// swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
     case sourceType
     case cryptoType
@@ -135,7 +136,7 @@ private extension AccountImportPresenter {
         _ value: String = "",
         preferredData: PreferredData? = nil
     ) {
-        guard let selectedSourceType = selectedSourceType, let metadata = metadata else {
+        guard let selectedSourceType = selectedSourceType else {
             return
         }
 
@@ -471,27 +472,29 @@ private extension AccountImportPresenter {
     }
 
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
-        let showAction = AlertPresentableAction(
-            title: R.string.localizable.commonYes(),
+        let showAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
             handler: showHandler
         )
-        let closeAction = AlertPresentableAction(
+        let closeAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonNo(preferredLanguages: selectedLocale.rLanguages),
             handler: closeHandler
         )
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: selectedLocale.rLanguages),
             message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: selectedLocale.rLanguages),
             actions: [showAction, closeAction],
             closeAction: nil
         )
-        wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
+        wireframe.present(viewModel: alertViewModel, from: view)
     }
 
     func createAccount(data: AccountImportRequestData) {
         switch flow {
         case let .chain(model):
-            let derivationPath = model.chain.isEthereumBased ? data.ethereumDerivationPath : data.substrateDerivationPath
+            let derivationPath = model.chain.isEthereumBased
+                ? data.ethereumDerivationPath
+                : data.substrateDerivationPath
             let data = UniqueChainImportRequestData(
                 selectedSourceType: data.selectedSourceType,
                 source: data.source,
@@ -696,14 +699,14 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
         let pasteTitle = R.string.localizable
             .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale?.rLanguages)
-        let pasteAction = AlertPresentableAction(title: pasteTitle) { [weak self] in
+        let pasteAction = SheetAlertPresentableAction(title: pasteTitle) { [weak self] in
             if let json = UIPasteboard.general.string {
                 self?.interactor.deriveMetadataFromKeystore(json)
             }
         }
         let selectFileTitle = R.string.localizable
             .accountImportRecoverySelectFile(preferredLanguages: locale?.rLanguages)
-        let selectFileAction = AlertPresentableAction(title: selectFileTitle) { [weak self] in
+        let selectFileAction = SheetAlertPresentableAction(title: selectFileTitle) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.wireframe.presentSelectFilePicker(
                 from: strongSelf.view,
@@ -714,14 +717,14 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
         let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(
+        let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: nil,
             actions: [pasteAction, selectFileAction],
             closeAction: closeTitle
         )
 
-        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
+        wireframe.present(viewModel: viewModel, from: view)
     }
 
     func validateSubstrateDerivationPath() {
@@ -772,10 +775,19 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     }
 
     func resolveEmptyDerivationPath(data: AccountImportRequestData) {
-        let message = R.string.localizable.importEmptyDerivationMessage(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        let replaceActionTitle = R.string.localizable.importEmptyDerivationConfirm(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        let cancelActionTitle = R.string.localizable.importEmptyDerivationCancel(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
-        let replaceAction = AlertPresentableAction(title: replaceActionTitle) { [weak self] in
+        let message = R.string.localizable
+            .importEmptyDerivationMessage(
+                preferredLanguages: localizationManager?.selectedLocale.rLanguages
+            )
+        let replaceActionTitle = R.string.localizable
+            .importEmptyDerivationConfirm(
+                preferredLanguages: localizationManager?.selectedLocale.rLanguages
+            )
+        let cancelActionTitle = R.string.localizable
+            .importEmptyDerivationCancel(
+                preferredLanguages: localizationManager?.selectedLocale.rLanguages
+            )
+        let replaceAction = SheetAlertPresentableAction(title: replaceActionTitle) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
             let updatedData = AccountImportRequestData(
                 selectedSourceType: data.selectedSourceType,
@@ -788,19 +800,21 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             )
             self?.createAccount(data: updatedData)
         }
-        let cancelAction = AlertPresentableAction(title: cancelActionTitle, style: .cancel) { [weak self] in
+        let cancelAction = SheetAlertPresentableAction(
+            title: cancelActionTitle,
+            button: UIFactory.default.createAccessoryButton()
+        ) { [weak self] in
             self?.view?.didValidateEthereumDerivationPath(.valid)
             self?.createAccount(data: data)
         }
-        let alertViewModel = AlertPresentableViewModel(
-            title: nil,
+        let alertViewModel = SheetAlertPresentableViewModel(
+            title: "",
             message: message,
             actions: [replaceAction, cancelAction],
             closeAction: nil
         )
         wireframe.present(
             viewModel: alertViewModel,
-            style: .alert,
             from: view
         )
     }
@@ -974,10 +988,10 @@ extension AccountImportPresenter: UIDocumentPickerDelegate {
         let message = R.string.localizable
             .accountImportInvalidKeystore(preferredLanguages: locale.rLanguages)
 
-        let action = AlertPresentableAction(
+        let action = SheetAlertPresentableAction(
             title: R.string.localizable.commonOk(preferredLanguages: locale.rLanguages)
         )
-        let alertViewModel = AlertPresentableViewModel(
+        let alertViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
             actions: [action],
@@ -985,7 +999,6 @@ extension AccountImportPresenter: UIDocumentPickerDelegate {
         )
         wireframe.present(
             viewModel: alertViewModel,
-            style: .alert,
             from: view
         )
     }

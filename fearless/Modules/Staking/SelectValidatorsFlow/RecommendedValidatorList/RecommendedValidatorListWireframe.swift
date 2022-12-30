@@ -2,26 +2,35 @@ import Foundation
 
 class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtocol {
     func proceed(
-        from _: RecommendedValidatorListViewProtocol?,
-        targets _: [SelectedValidatorInfo],
-        maxTargets _: Int,
-        selectedAccount _: MetaAccountModel,
-        asset _: AssetModel,
-        chain _: ChainModel
-    ) {}
+        from view: RecommendedValidatorListViewProtocol?,
+        flow: SelectValidatorsConfirmFlow,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset
+    ) {
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createView(
+            chainAsset: chainAsset,
+            flow: flow,
+            wallet: wallet
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            confirmView.controller,
+            animated: true
+        )
+    }
 
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: SelectedValidatorInfo,
-        from view: RecommendedValidatorListViewProtocol?,
-        wallet: MetaAccountModel
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: RecommendedValidatorListViewProtocol?
     ) {
         guard let validatorInfoView = ValidatorInfoViewFactory.createView(
-            asset: asset,
-            chain: chain,
-            validatorInfo: validatorInfo,
-            wallet: wallet
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow
         ) else {
             return
         }

@@ -7,14 +7,83 @@ struct AssetModel: Equatable, Codable, Hashable {
     typealias PriceId = String
 
     let id: String
+    let symbol: String
     let chainId: String
     let precision: UInt16
     let icon: URL?
     let priceId: PriceId?
     let price: Decimal?
+    let fiatDayChange: Decimal?
+    let transfersEnabled: Bool
+    let currencyId: String?
+    let displayName: String?
+    let existentialDeposit: String?
 
     var name: String {
-        id.uppercased()
+        displayName?.uppercased() ?? symbol.uppercased()
+    }
+
+    init(
+        id: String,
+        symbol: String,
+        chainId: String,
+        precision: UInt16,
+        icon: URL?,
+        priceId: AssetModel.PriceId?,
+        price: Decimal?,
+        fiatDayChange: Decimal?,
+        transfersEnabled: Bool,
+        currencyId: String?,
+        displayName: String?,
+        existentialDeposit: String?
+    ) {
+        self.id = id
+        self.symbol = symbol
+        self.chainId = chainId
+        self.precision = precision
+        self.icon = icon
+        self.priceId = priceId
+        self.price = price
+        self.fiatDayChange = fiatDayChange
+        self.transfersEnabled = transfersEnabled
+        self.currencyId = currencyId
+        self.displayName = displayName
+        self.existentialDeposit = existentialDeposit
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        id = try container.decode(String.self, forKey: .id)
+        symbol = try container.decode(String.self, forKey: .symbol)
+        chainId = try container.decode(String.self, forKey: .chainId)
+        precision = try container.decode(UInt16.self, forKey: .precision)
+        icon = try? container.decode(URL?.self, forKey: .icon)
+        priceId = try? container.decode(String?.self, forKey: .priceId)
+        transfersEnabled = (try? container.decode(Bool?.self, forKey: .transfersEnabled)) ?? true
+        currencyId = try? container.decode(String?.self, forKey: .currencyId)
+        displayName = try? container.decode(String?.self, forKey: .displayName)
+        existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
+
+        price = nil
+        fiatDayChange = nil
+    }
+
+    func replacingPrice(_ priceData: PriceData) -> AssetModel {
+        AssetModel(
+            id: id,
+            symbol: symbol,
+            chainId: chainId,
+            precision: precision,
+            icon: icon,
+            priceId: priceId,
+            price: Decimal(string: priceData.price),
+            fiatDayChange: priceData.fiatDayChange,
+            transfersEnabled: transfersEnabled,
+            currencyId: currencyId,
+            displayName: displayName,
+            existentialDeposit: existentialDeposit
+        )
     }
 
     static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
@@ -22,18 +91,11 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.chainId == rhs.chainId &&
             lhs.precision == rhs.precision &&
             lhs.icon == rhs.icon &&
-            lhs.priceId == rhs.priceId
-    }
-
-    func replacingPrice(_ newPrice: Decimal?) -> AssetModel {
-        AssetModel(
-            id: id,
-            chainId: chainId,
-            precision: precision,
-            icon: icon,
-            priceId: priceId,
-            price: newPrice
-        )
+            lhs.priceId == rhs.priceId &&
+            lhs.symbol == rhs.symbol &&
+            lhs.transfersEnabled == rhs.transfersEnabled &&
+            lhs.currencyId == rhs.currencyId &&
+            lhs.displayName == rhs.displayName
     }
 }
 

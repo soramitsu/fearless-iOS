@@ -1,19 +1,22 @@
 import SoraFoundation
 
-protocol ValidatorSearchWireframeProtocol: AlertPresentable {
+protocol ValidatorSearchWireframeProtocol: SheetAlertPresentable {
     func present(
-        _ validatorInfo: ValidatorInfoProtocol,
-        asset: AssetModel,
-        chain: ChainModel,
-        from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        flow: ValidatorInfoFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        from view: ControllerBackedProtocol?
     )
 
     func close(_ view: ControllerBackedProtocol?)
 }
 
-protocol ValidatorSearchDelegate: AnyObject {
+protocol ValidatorSearchRelaychainDelegate: AnyObject {
     func validatorSearchDidUpdate(selectedValidatorList: [SelectedValidatorInfo])
+}
+
+protocol ValidatorSearchParachainDelegate: AnyObject {
+    func validatorSearchDidUpdate(selectedValidatorList: [ParachainStakingCandidateInfo])
 }
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
@@ -27,9 +30,7 @@ protocol ValidatorSearchInteractorInputProtocol {
     func performValidatorSearch(accountId: AccountId)
 }
 
-protocol ValidatorSearchInteractorOutputProtocol: AnyObject {
-    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>)
-}
+protocol ValidatorSearchInteractorOutputProtocol: AnyObject {}
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
@@ -41,19 +42,8 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 
 protocol ValidatorSearchViewFactoryProtocol {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        with fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?,
+        chainAsset: ChainAsset,
+        flow: ValidatorSearchFlow,
         wallet: MetaAccountModel
     ) -> ValidatorSearchViewProtocol?
-}
-
-protocol ValidatorSearchViewModelFactoryProtocol {
-    func createViewModel(
-        from displayValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        locale: Locale
-    ) -> ValidatorSearchViewModel
 }

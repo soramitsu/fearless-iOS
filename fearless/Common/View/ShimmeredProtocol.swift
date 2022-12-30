@@ -19,6 +19,7 @@ protocol ShimmeredProtocol: UIView {
 
 extension ShimmeredProtocol {
     func startShimmeringAnimation() {
+        layoutIfNeeded()
         let gradientLayer = CAGradientLayer()
         gradientLayer.colors = [
             Constants.colorSkeletonStart,

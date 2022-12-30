@@ -43,7 +43,7 @@ final class StakingRewardDestConfirmViewController: UIViewController, ViewHolder
 
     private func configure() {
         rootView.senderAccountView.addTarget(self, action: #selector(actionSenderAccount), for: .touchUpInside)
-        rootView.networkFeeConfirmView.actionButton.addTarget(
+        rootView.networkFeeFooterView.actionButton.addTarget(
             self,
             action: #selector(actionConfirm),
             for: .touchUpInside

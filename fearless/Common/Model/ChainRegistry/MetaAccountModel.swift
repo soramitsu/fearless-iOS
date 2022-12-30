@@ -1,8 +1,10 @@
 import Foundation
 import RobinHood
 
+typealias MetaAccountId = String
+
 struct MetaAccountModel: Equatable, Codable {
-    let metaId: String
+    let metaId: MetaAccountId
     let name: String
     let substrateAccountId: Data
     let substrateCryptoType: UInt8
@@ -12,9 +14,11 @@ struct MetaAccountModel: Equatable, Codable {
     let chainAccounts: Set<ChainAccountModel>
     let assetKeysOrder: [String]?
     let assetIdsEnabled: [String]?
+    let assetFilterOptions: [FilterOption]
     let canExportEthereumMnemonic: Bool
     let unusedChainIds: [String]?
     let selectedCurrency: Currency
+    let chainIdForFilter: ChainModel.Id?
 }
 
 extension MetaAccountModel {
@@ -46,9 +50,11 @@ extension MetaAccountModel {
             chainAccounts: newChainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -64,9 +70,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -82,9 +90,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -100,9 +110,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -118,9 +130,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: newAssetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -136,9 +150,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: newAssetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -154,9 +170,11 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: newUnusedChainIds,
-            selectedCurrency: selectedCurrency
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
         )
     }
 
@@ -172,9 +190,51 @@ extension MetaAccountModel {
             chainAccounts: chainAccounts,
             assetKeysOrder: assetKeysOrder,
             assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
-            selectedCurrency: currency
+            selectedCurrency: currency,
+            chainIdForFilter: chainIdForFilter
+        )
+    }
+
+    func replacingAssetsFilterOptions(_ options: [FilterOption]) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: options,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter
+        )
+    }
+
+    func replacingChainIdForFilter(_ chainId: ChainModel.Id?) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetIdsEnabled: assetIdsEnabled,
+            assetFilterOptions: assetFilterOptions,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainId
         )
     }
 }

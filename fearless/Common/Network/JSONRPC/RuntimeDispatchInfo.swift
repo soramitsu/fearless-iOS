@@ -1,13 +1,28 @@
 import Foundation
+import BigInt
+
+struct FeeDetails: Codable {
+    let baseFee: BigUInt
+    let lenFee: BigUInt
+    let adjustedWeightFee: BigUInt
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        let baseFeeHex = try container.decode(String.self, forKey: .baseFee)
+        let lenFeeHex = try container.decode(String.self, forKey: .lenFee)
+        let adjustedWeightFeeHex = try container.decode(String.self, forKey: .adjustedWeightFee)
+
+        baseFee = BigUInt.fromHexString(baseFeeHex) ?? BigUInt.zero
+        lenFee = BigUInt.fromHexString(lenFeeHex) ?? BigUInt.zero
+        adjustedWeightFee = BigUInt.fromHexString(adjustedWeightFeeHex) ?? BigUInt.zero
+    }
+}
 
 struct RuntimeDispatchInfo: Codable {
-    enum CodingKeys: String, CodingKey {
-        case dispatchClass = "class"
-        case fee = "partialFee"
-        case weight
-    }
+    let inclusionFee: FeeDetails
 
-    let dispatchClass: String
-    let fee: String
-    let weight: UInt64
+    var fee: String {
+        "\(inclusionFee.baseFee + inclusionFee.lenFee + inclusionFee.adjustedWeightFee)"
+    }
 }

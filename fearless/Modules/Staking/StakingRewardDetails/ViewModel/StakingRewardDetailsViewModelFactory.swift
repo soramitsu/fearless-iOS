@@ -128,7 +128,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         else { return nil }
         return try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
-                .white,
+                R.color.colorWhite()!,
                 size: UIConstants.smallAddressIconSize,
                 contentScale: UIScreen.main.scale
             )

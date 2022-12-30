@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import CommonWallet
 import IrohaCrypto
+import BigInt
 
 struct SubqueryPageInfo: Decodable {
     let startCursor: String?
@@ -81,6 +82,19 @@ struct SubqueryHistoryElement: Decodable {
     let transfer: SubqueryTransfer?
 }
 
+struct SubqueryCollatorDataResponse: Decodable {
+    struct HistoryElements: Decodable {
+        let nodes: [SubqueryCollatorData]
+    }
+
+    let collatorRounds: HistoryElements
+}
+
+struct SubqueryCollatorData: Decodable, Equatable {
+    let collatorId: String
+    let apr: Double
+}
+
 struct SubqueryHistoryData: Decodable {
     struct HistoryElements: Decodable {
         let pageInfo: SubqueryPageInfo
@@ -127,5 +141,96 @@ extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
             asset: asset,
             addressFactory: addressFactory
         )
+    }
+}
+
+struct SubqueryDelegatorHistoryData: Decodable {
+    struct HistoryElements: Decodable {
+        let nodes: [SubqueryDelegatorHistoryElement]
+
+        init(json: [String: Any]) throws {
+            guard let nodesArray = json["nodes"] as? [[String: Any]] else {
+                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+            }
+
+            let nodes = try nodesArray.compactMap { nodeJson in
+                try SubqueryDelegatorHistoryElement(json: nodeJson)
+            }
+
+            self.nodes = nodes
+        }
+    }
+
+    let delegators: HistoryElements
+
+    init(json: [String: Any]) throws {
+        guard let delegatorsDict = json["delegators"] as? [String: Any] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        delegators = try SubqueryDelegatorHistoryData.HistoryElements(json: delegatorsDict)
+    }
+}
+
+struct SubqueryDelegatorHistoryElement: Decodable {
+    let id: String?
+    let delegatorHistoryElements: SubqueryDelegatorHistoryNodes
+
+    init(json: [String: Any]) throws {
+        id = json["id"] as? String
+
+        guard let elementsDict = json["delegatorHistoryElements"] as? [String: Any] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        delegatorHistoryElements = try SubqueryDelegatorHistoryNodes(json: elementsDict)
+    }
+}
+
+struct SubqueryDelegatorHistoryNodes: Decodable {
+    let nodes: [SubqueryDelegatorHistoryItem]
+
+    init(json: [String: Any]) throws {
+        guard let nodesArray = json["nodes"] as? [[String: Any]] else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        let nodes = try nodesArray.compactMap { nodeJson in
+            try SubqueryDelegatorHistoryItem(json: nodeJson)
+        }
+
+        self.nodes = nodes
+    }
+}
+
+struct SubqueryDelegatorHistoryItem: Decodable {
+    let id: String
+    let type: SubqueryDelegationAction
+    let timestamp: String
+    let blockNumber: Int
+    let amount: BigUInt
+
+    init(json: [String: Any]) throws {
+        if let amount = json["amount"] as? UInt64 {
+            self.amount = BigUInt(integerLiteral: amount)
+        } else if let amount = json["amount"] as? Decimal {
+            let amountString = amount.toString(locale: nil, digits: 0)
+            self.amount = BigUInt(stringLiteral: amountString ?? "0")
+        } else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        guard let id = json["id"] as? String,
+              let type = json["type"] as? Int,
+              let timestamp = json["timestamp"] as? String,
+              let blockNumber = json["blockNumber"] as? Int
+        else {
+            throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        }
+
+        self.id = id
+        self.type = SubqueryDelegationAction(rawValue: type) ?? .unknown
+        self.timestamp = timestamp
+        self.blockNumber = blockNumber
     }
 }

@@ -6,25 +6,35 @@ import FearlessUtils
 
 final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     static func createView(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow,
+        redeemCompletion: (() -> Void)?
     ) -> StakingRedeemViewProtocol? {
-        guard let interactor = createInteractor(chain: chain, asset: asset, selectedAccount: selectedAccount) else {
-            return nil
-        }
-
-        let wireframe = StakingRedeemWireframe()
+        let wireframe = StakingRedeemWireframe(redeemCompletion: redeemCompletion)
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
+        guard let container = createContainer(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: flow,
+            dataValidatingFactory: dataValidatingFactory
+        ), let interactor = createInteractor(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            container: container
+        ) else {
+            return nil
+        }
+
         let presenter = createPresenter(
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory,
-            selectedMetaAccount: selectedAccount
+            wallet: wallet,
+            container: container
         )
 
         let view = StakingRedeemViewController(
@@ -40,44 +50,61 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     }
 
     private static func createPresenter(
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         interactor: StakingRedeemInteractorInputProtocol,
         wireframe: StakingRedeemWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        selectedMetaAccount: MetaAccountModel
+        wallet: MetaAccountModel,
+        container: StakingRedeemDependencyContainer
     ) -> StakingRedeemPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
-            targetAssetInfo: asset.displayInfo,
+            targetAssetInfo: chainAsset.asset.displayInfo,
             limit: StakingConstants.maxAmount,
-            selectedMetaAccount: selectedMetaAccount
+            selectedMetaAccount: wallet
         )
-
-        let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)
 
         return StakingRedeemPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            confirmViewModelFactory: confirmationViewModelFactory,
+            confirmViewModelFactory: container.viewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            viewModelState: container.viewModelState,
             dataValidatingFactory: dataValidatingFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             logger: Logger.shared
         )
     }
 
     private static func createInteractor(
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        container: StakingRedeemDependencyContainer
     ) -> StakingRedeemInteractor? {
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
+        return StakingRedeemInteractor(
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            strategy: container.strategy
+        )
+    }
+
+    // swiftlint:disable function_body_length
+    private static func createContainer(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: StakingRedeemFlow,
+        dataValidatingFactory: StakingDataValidatingFactory
+    ) -> StakingRedeemDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId),
-            let accountResponse = selectedAccount.fetch(for: chain.accountRequest()) else {
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let accountResponse = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
         }
 
@@ -85,29 +112,28 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
+            chainFormat: chainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
 
+        let signingWrapper = SigningWrapper(
+            keystore: Keychain(),
+            metaId: wallet.metaId,
+            accountResponse: accountResponse
+        )
+
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let feeProxy = ExtrinsicFeeProxy()
@@ -131,24 +157,118 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        return StakingRedeemInteractor(
-            accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                selectedMetaAccount: selectedAccount
-            ),
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount,
-            extrinsicService: extrinsicService,
-            feeProxy: feeProxy,
-            slashesOperationFactory: slashesOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            operationManager: operationManager,
-            keystore: Keychain(),
-            accountRepository: AnyDataProviderRepository(accountRepository)
+        let accountInfoSubscriptionAdapter = AccountInfoSubscriptionAdapter(
+            walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
+            selectedMetaAccount: wallet
         )
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: chainAsset.asset.displayInfo,
+            limit: StakingConstants.maxAmount,
+            selectedMetaAccount: wallet
+        )
+
+        switch flow {
+        case .relaychain:
+            let viewModelState = StakingRedeemRelaychainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let strategy = StakingRedeemRelaychainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                feeProxy: feeProxy,
+                slashesOperationFactory: slashesOperationFactory,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                accountRepository: AnyDataProviderRepository(accountRepository)
+            )
+            let viewModelFactory = StakingRedeemRelaychainViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case let .parachain(collator, delegation, readyForRevoke):
+            let viewModelState = StakingRedeemParachainViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory,
+                delegation: delegation,
+                collator: collator,
+                readyForRevoke: readyForRevoke
+            )
+
+            let strategy = StakingRedeemParachainStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                eventCenter: EventCenter.shared
+            )
+
+            let viewModelFactory = StakingRedeemParachainViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        case .pool:
+            let viewModelState = StakingRedeemPoolViewModelState(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                dataValidatingFactory: dataValidatingFactory
+            )
+            let viewModelFactory = StakingRedeemPoolViewModelFactory(
+                asset: chainAsset.asset,
+                balanceViewModelFactory: balanceViewModelFactory,
+                iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
+            )
+            let strategy = StakingRedeemPoolStrategy(
+                output: viewModelState,
+                accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
+                chainAsset: chainAsset,
+                wallet: wallet,
+                extrinsicService: extrinsicService,
+                signingWrapper: signingWrapper,
+                feeProxy: feeProxy,
+                runtimeService: runtimeService,
+                engine: connection,
+                operationManager: operationManager,
+                keystore: Keychain(),
+                eventCenter: EventCenter.shared,
+                slashesOperationFactory: slashesOperationFactory,
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+            )
+            return StakingRedeemDependencyContainer(
+                viewModelState: viewModelState,
+                strategy: strategy,
+                viewModelFactory: viewModelFactory
+            )
+        }
     }
 }

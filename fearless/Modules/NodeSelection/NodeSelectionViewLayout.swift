@@ -11,7 +11,7 @@ final class NodeSelectionViewLayout: UIView {
     let navigationTitleLabel: UILabel = {
         let label = UILabel()
         label.font = .h3Title
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         return label
     }()
 
@@ -30,20 +30,20 @@ final class NodeSelectionViewLayout: UIView {
 
     let switchTitle: UILabel = {
         let label = UILabel()
-        label.textColor = .white
+        label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
         return label
     }()
 
     let switchView: UISwitch = {
         let switchView = UISwitch()
-        switchView.onTintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorPink()
         return switchView
     }()
 
     let addNodeButton: TriangularedButton = {
         let button = TriangularedButton()
-        button.applyDefaultStyle()
+        button.applyEnabledStyle()
         return button
     }()
 

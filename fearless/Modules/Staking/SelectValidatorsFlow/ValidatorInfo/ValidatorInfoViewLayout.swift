@@ -102,6 +102,11 @@ final class ValidatorInfoViewLayout: UIView {
             statusView.titleLabel.text = R.string.localizable.stakingValidatorStatusUnelected(
                 preferredLanguages: locale.rLanguages
             )
+        case .electedParachain:
+            statusView.indicatorColor = R.color.colorGreen()!
+            statusView.titleLabel.text = R.string.localizable.stakingNominatorStatusActive(
+                preferredLanguages: locale.rLanguages
+            )
         }
 
         let statusContentView = GenericTitleValueView(titleView: titleLabel, valueView: statusView)
@@ -123,6 +128,26 @@ final class ValidatorInfoViewLayout: UIView {
             return addHintView(for: text, icon: R.image.iconErrorFilled())
         } else {
             return rowView
+        }
+    }
+
+    @discardableResult
+    func addDelegationsView(_ exposure: ValidatorInfoViewModel.ParachainExposure, locale: Locale) -> UIView {
+        let nominatorsView = addTitleValueView(
+            for: R.string.localizable.parachainStakingDelegatorsTitle(preferredLanguages: locale.rLanguages),
+            value: exposure.delegations
+        )
+
+        if exposure.oversubscribed {
+            nominatorsView.borderView.borderType = .none
+
+            let hintTitle: String = R.string.localizable.stakingCollatorOtherOversubscribedMessage(
+                preferredLanguages: locale.rLanguages
+            )
+
+            return addHintView(for: hintTitle, icon: R.image.iconWarning())
+        } else {
+            return nominatorsView
         }
     }
 
@@ -180,7 +205,7 @@ final class ValidatorInfoViewLayout: UIView {
 
     @discardableResult
     func addTotalStakeView(
-        _ exposure: ValidatorInfoViewModel.Exposure,
+        _ totalStake: BalanceViewModelProtocol,
         locale: Locale
     ) -> UIControl {
         let titleView = factory.createInfoIndicatingView()
@@ -191,8 +216,8 @@ final class ValidatorInfoViewLayout: UIView {
         let rowContentView = GenericTitleValueView<ImageWithTitleView, MultiValueView>(titleView: titleView)
 
         rowContentView.valueView.bind(
-            topValue: exposure.totalStake.amount,
-            bottomValue: exposure.totalStake.price
+            topValue: totalStake.amount,
+            bottomValue: totalStake.price
         )
 
         let rowView = RowView(contentView: rowContentView, preferredHeight: 48.0)
@@ -201,6 +226,10 @@ final class ValidatorInfoViewLayout: UIView {
         rowView.snp.makeConstraints { make in
             make.width.equalTo(self)
         }
+
+        rowContentView.valueView.setContentHuggingPriority(.defaultLow, for: .horizontal)
+        rowContentView.titleView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        rowContentView.valueView.setContentCompressionResistancePriority(.required, for: .horizontal)
 
         return rowView
     }

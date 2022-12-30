@@ -16,23 +16,15 @@ protocol StakingRebondConfirmationPresenterProtocol: AnyObject {
 
 protocol StakingRebondConfirmationInteractorInputProtocol: AnyObject {
     func setup()
-    func submit(for amount: Decimal)
-    func estimateFee(for amount: Decimal)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String?)
+    func submit(builderClosure: ExtrinsicBuilderClosure?)
 }
 
 protocol StakingRebondConfirmationInteractorOutputProtocol: AnyObject {
-    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveController(result: Result<ChainAccountResponse?, Error>)
-    func didReceiveStashItem(result: Result<StashItem?, Error>)
-    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
-
-    func didSubmitRebonding(result: Result<String, Error>)
 }
 
-protocol StakingRebondConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRebondConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable, AddressOptionsPresentable {
     func complete(from view: StakingRebondConfirmationViewProtocol?)
 }

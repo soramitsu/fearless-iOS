@@ -27,17 +27,9 @@ protocol ValidatorInfoProtocol {
 
 protocol ValidatorInfoViewFactoryProtocol: AnyObject {
     static func createView(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol,
-        wallet: MetaAccountModel
-    ) -> ValidatorInfoViewProtocol?
-
-    static func createView(
-        address: AccountAddress,
-        asset: AssetModel,
-        chain: ChainModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: ValidatorInfoFlow
     ) -> ValidatorInfoViewProtocol?
 }
 
@@ -56,8 +48,6 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 
 protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
-    func didStartLoadingValidatorInfo()
-    func didReceiveValidatorInfo(result: Result<ValidatorInfoProtocol?, Error>)
 }
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
@@ -73,7 +63,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
     EmailPresentable,
-    AlertPresentable,
+    SheetAlertPresentable,
     AddressOptionsPresentable,
     ErrorPresentable {
     func showStakingAmounts(

@@ -11,24 +11,14 @@ protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func fillWithRecommended()
     func clearFilter()
     func deselectAll()
-
-    func changeValidatorSelection(at index: Int)
-
-    func didSelectValidator(at index: Int)
+    func changeValidatorSelection(address: String)
+    func didSelectValidator(address: String)
     func presentFilter()
     func presentSearch()
+    func changeIdentityFilterValue()
+    func changeMinBondFilterValue()
     func proceed()
-}
-
-protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
-    func createViewModel(
-        from validatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> CustomValidatorListViewModel
+    func searchTextDidChange(_ text: String?)
 }
 
 protocol CustomValidatorListInteractorInputProtocol: AnyObject {
@@ -39,40 +29,41 @@ protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol CustomValidatorListWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
-        asset: AssetModel,
-        chain: ChainModel,
-        validatorInfo: ValidatorInfoProtocol,
-        from view: ControllerBackedProtocol?,
-        wallet: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        flow: ValidatorInfoFlow,
+        from view: ControllerBackedProtocol?
     )
 
     func presentFilters(
         from view: ControllerBackedProtocol?,
-        filter: CustomValidatorListFilter,
+        flow: ValidatorListFilterFlow,
         delegate: ValidatorListFilterDelegate?,
         asset: AssetModel
     )
 
     func presentSearch(
         from view: ControllerBackedProtocol?,
-        fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
-        delegate: ValidatorSearchDelegate?,
-        chain: ChainModel,
-        asset: AssetModel,
+        flow: ValidatorSearchFlow,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
 
     func proceed(
         from view: ControllerBackedProtocol?,
-        validatorList: [SelectedValidatorInfo],
-        maxTargets: Int,
+        flow: SelectedValidatorListFlow,
         delegate: SelectedValidatorListDelegate,
-        chain: ChainModel,
-        asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+
+    func confirm(
+        from view: ControllerBackedProtocol?,
+        flow: SelectValidatorsConfirmFlow,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

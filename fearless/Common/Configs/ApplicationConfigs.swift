@@ -33,7 +33,9 @@ protocol ApplicationConfigProtocol {
     var chainListURL: URL? { get }
     var assetListURL: URL? { get }
     var commonTypesURL: URL? { get }
+    var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
+    var scamListCsvURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -167,11 +169,19 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var assetListURL: URL? {
-        GitHubUrl.url(suffix: "chains/assets.json")
+        #if F_DEV
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
+        #else
+            GitHubUrl.url(suffix: "chains/assets.json")
+        #endif
     }
 
     var commonTypesURL: URL? {
         GitHubUrl.url(suffix: "type_registry/default.json")
+    }
+
+    var chainsTypesURL: URL? {
+        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
@@ -185,6 +195,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var fiatsURL: URL? {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
     }
+
+    var poolStakingAboutURL: URL? {
+        URL(string: "https://wiki.polkadot.network/docs/learn-nomination-pools")
+    }
+
+    var scamListCsvURL: URL? {
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+    }
 }
 
 private enum GitHubUrl {
@@ -192,7 +210,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/v2"
+    private static let defaultBranch = "ios/v3-jsonupd"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

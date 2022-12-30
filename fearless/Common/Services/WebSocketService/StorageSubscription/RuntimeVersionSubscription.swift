@@ -101,29 +101,30 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
         }
         saveOperation.addDependency(metaOperation)
 
-        saveOperation.completionBlock = {
+        saveOperation.completionBlock = { [weak self] in
+            guard let strongSelf = self else { return }
             do {
                 _ = try saveOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                self.logger.debug("Did save runtime metadata:")
-                self.logger.debug("spec version: \(runtimeVersion.specVersion)")
-                self.logger.debug("transaction version: \(runtimeVersion.transactionVersion)")
+                strongSelf.logger.debug("Did save runtime metadata:")
+                strongSelf.logger.debug("spec version: \(runtimeVersion.specVersion)")
+                strongSelf.logger.debug("transaction version: \(runtimeVersion.transactionVersion)")
 
                 switch breakingUpgradeState {
                 case let .applyTemporarySolution(_, breakingUpgrade):
-                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: true)
+                    breakingUpgrade.temporarySolutionApplied(for: strongSelf.chain, value: true)
                 case let .overrideTemporarySolution(breakingUpgrade):
-                    breakingUpgrade.temporarySolutionApplied(for: self.chain, value: false)
+                    breakingUpgrade.temporarySolutionApplied(for: strongSelf.chain, value: false)
                 default:
                     break
                 }
             } catch {
                 if let internalError = error as? RuntimeVersionSubscriptionError,
                    internalError == RuntimeVersionSubscriptionError.skipUnchangedVersion {
-                    self.logger
+                    strongSelf.logger
                         .debug("No need to update metadata for version \(runtimeVersion.specVersion)")
                 } else {
-                    self.logger.error("Did recieve error: \(error)")
+                    strongSelf.logger.error("Did recieve error: \(error)")
                 }
             }
         }
@@ -279,7 +280,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                     return nil
                 }
 
-                return RuntimeMetadata.v1(modules: modules, extrinsic: moduleExtrinsic)
+                return try? RuntimeMetadata.v1(modules: modules, extrinsic: moduleExtrinsic)
             }
 
             if let overriden = overridenRuntime() {

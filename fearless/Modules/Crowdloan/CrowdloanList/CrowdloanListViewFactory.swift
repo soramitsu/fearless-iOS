@@ -21,8 +21,14 @@ struct CrowdloanListViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
+        var iconGenerator: IconGenerating?
+        if let chain = sharedState.settings.value {
+            iconGenerator = UniversalIconGenerator(chain: chain)
+        }
+
         let viewModelFactory = CrowdloansViewModelFactory(
-            amountFormatterFactory: AssetBalanceFormatterFactory()
+            amountFormatterFactory: AssetBalanceFormatterFactory(),
+            iconGenerator: iconGenerator
         )
 
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
@@ -89,7 +95,8 @@ struct CrowdloanListViewFactory {
             ),
             jsonDataProviderFactory: JsonDataProviderFactory.shared,
             operationManager: operationManager,
-            logger: logger
+            logger: logger,
+            eventCenter: EventCenter.shared
         )
     }
 }

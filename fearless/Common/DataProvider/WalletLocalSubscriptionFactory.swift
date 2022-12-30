@@ -2,63 +2,93 @@ import Foundation
 import RobinHood
 
 protocol WalletLocalSubscriptionFactoryProtocol {
+    var operationManager: OperationManagerProtocol { get }
+    var processingQueue: DispatchQueue? { get }
+
     func getAccountProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedAccountInfo>
+        chainAsset: ChainAsset
+    ) throws -> StreamableProvider<ChainStorageItem>
 
-    func getOrmlAccountProvider(
-        for accountId: AccountId,
-        chain: ChainModel
-    ) throws -> AnyDataProvider<DecodedOrmlAccountInfo>
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
 
-final class WalletLocalSubscriptionFactory: SubstrateLocalSubscriptionFactory,
-    WalletLocalSubscriptionFactoryProtocol {
+final class WalletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol {
+    static let processingQueue = DispatchQueue(
+        label: "co.jp.WalletLocalSubscriptionFactory.processingQueue.\(UUID().uuidString)"
+    )
+
     static let shared = WalletLocalSubscriptionFactory(
-        chainRegistry: ChainRegistryFacade.sharedRegistry,
-        storageFacade: SubstrateDataStorageFacade.shared,
         operationManager: OperationManagerFacade.sharedManager,
+        processingQueue: WalletLocalSubscriptionFactory.processingQueue,
+        chainRegistry: ChainRegistryFacade.sharedRegistry,
         logger: Logger.shared
     )
 
-    func getAccountProvider(
-        for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedAccountInfo> {
-        let codingPath = StorageCodingPath.account
+    let operationManager: OperationManagerProtocol
+    let processingQueue: DispatchQueue?
+    private let chainRegistry: ChainRegistryProtocol
+    private let logger: Logger
 
-        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-            codingPath,
-            accountId: accountId,
-            chainId: chainId
-        )
-
-        return try getDataProvider(
-            for: localKey,
-            chainId: chainId,
-            storageCodingPath: codingPath,
-            shouldUseFallback: false
-        )
+    init(
+        operationManager: OperationManagerProtocol,
+        processingQueue: DispatchQueue? = nil,
+        chainRegistry: ChainRegistryProtocol,
+        logger: Logger
+    ) {
+        self.operationManager = operationManager
+        self.processingQueue = processingQueue
+        self.chainRegistry = chainRegistry
+        self.logger = logger
     }
 
-    func getOrmlAccountProvider(
+    func getAccountProvider(
         for accountId: AccountId,
-        chain: ChainModel
-    ) throws -> AnyDataProvider<DecodedOrmlAccountInfo> {
-        let codingPath = StorageCodingPath.tokens
+        chainAsset: ChainAsset
+    ) throws -> StreamableProvider<ChainStorageItem> {
+        let codingPath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
             codingPath,
-            accountId: accountId,
-            chainId: chain.chainId
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
         )
 
-        return try getDataProvider(
-            for: localKey,
-            chainId: chain.chainId,
-            storageCodingPath: codingPath,
-            shouldUseFallback: false
+        return getProvider(for: localKey)
+    }
+
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+        chainRegistry.getRuntimeProvider(for: chainId)
+    }
+
+    private func getProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
+        let facade = SubstrateDataStorageFacade.shared
+
+        let mapper: CodableCoreDataMapper<ChainStorageItem, CDChainStorageItem> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDChainStorageItem.identifier))
+
+        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            facade.createRepository(filter: filter)
+        let source = EmptyStreamableSource<ChainStorageItem>()
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(mapper),
+            predicate: { $0.identifier == key },
+            processingQueue: processingQueue
+        )
+
+        observable.start { error in
+            if let error = error {
+                self.logger.error("Can't start storage observing: \(error)")
+            }
+        }
+
+        return StreamableProvider(
+            source: AnyStreamableSource(source),
+            repository: AnyDataProviderRepository(storage),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager,
+            serialQueue: processingQueue
         )
     }
 }

@@ -5,24 +5,30 @@ class ValidatorInfoInteractorBase: ValidatorInfoInteractorInputProtocol {
 
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let asset: AssetModel
+    private let strategy: ValidatorInfoStrategy
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        asset: AssetModel
+        asset: AssetModel,
+        strategy: ValidatorInfoStrategy
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.asset = asset
+        self.strategy = strategy
     }
 
     func setup() {
+        strategy.setup()
+
         if let priceId = asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
     }
 
     func reload() {
+        strategy.reload()
         priceProvider?.refresh()
     }
 }

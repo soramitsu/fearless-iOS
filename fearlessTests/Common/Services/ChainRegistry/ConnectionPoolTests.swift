@@ -11,7 +11,7 @@ class ConnectionPoolTests: XCTestCase {
             let connectionFactory = MockConnectionFactoryProtocol()
 
             stub(connectionFactory) { stub in
-                stub.createConnection(for: any()).then { _ in
+                stub.createConnection(for: any(), delegate: any()).then { _ in
                     MockConnection()
                 }
             }
@@ -29,7 +29,7 @@ class ConnectionPoolTests: XCTestCase {
 
             // then
 
-            let actualChainIds = Set(connectionPool.connections.keys)
+            let actualChainIds = Set(connectionPool.connectionsByChainIds.keys)
             let expectedChainIds = Set(chainModels.map { $0.chainId })
 
             XCTAssertEqual(expectedChainIds, actualChainIds)
@@ -49,13 +49,14 @@ class ConnectionPoolTests: XCTestCase {
                 let mockConnection = MockConnection()
                 stub(mockConnection.autobalancing) { stub in
                     stub.set(ranking: any()).thenDoNothing()
+                    stub.url.get.then { URL(string: "https://github.com") }
                 }
 
                 return mockConnection
             }
 
             stub(connectionFactory) { stub in
-                stub.createConnection(for: any()).then { _ in
+                stub.createConnection(for: any(), delegate: any()).then { _ in
                     setupConnection()
                 }
             }
@@ -88,7 +89,7 @@ class ConnectionPoolTests: XCTestCase {
 
             // then
 
-            let actualChainIds = Set(connectionPool.connections.keys)
+            let actualChainIds = Set(connectionPool.connectionsByChainIds.keys)
             let expectedChainIds = Set(chainModels.map { $0.chainId })
 
             XCTAssertEqual(expectedChainIds, actualChainIds)

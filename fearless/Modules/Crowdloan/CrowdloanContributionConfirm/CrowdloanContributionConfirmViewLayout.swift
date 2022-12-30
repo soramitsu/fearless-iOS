@@ -10,8 +10,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: true)
+    let amountInputView: AmountInputViewV2 = {
+        let view = AmountInputViewV2()
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -24,7 +24,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     let leasingPeriodView = TitleMultiValueView()
 
-    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+    let networkFeeFooterView: NetworkFeeFooterView = UIFactory().createNetworkFeeFooterView()
 
     var locale = Locale.current {
         didSet {
@@ -49,30 +49,11 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
-        self.assetViewModel?.iconViewModel?.cancel(on: amountInputView.iconView)
-        amountInputView.iconView.image = nil
-
-        self.assetViewModel = assetViewModel
-
-        amountInputView.priceText = assetViewModel.price
-
-        if let balance = assetViewModel.balance {
-            amountInputView.balanceText = R.string.localizable.commonAvailableFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
-        } else {
-            amountInputView.balanceText = nil
-        }
-
-        assetViewModel.iconViewModel?.loadAmountInputIcon(on: amountInputView.iconView, animated: true)
-
-        let symbol = assetViewModel.symbol.uppercased()
-        amountInputView.symbol = symbol
+        amountInputView.bind(viewModel: assetViewModel)
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
     }
 
     func bind(estimatedReward: String?) {
@@ -103,7 +84,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         accountView.iconImage = icon
         accountView.subtitle = confirmationViewModel.senderName
 
-        amountInputView.fieldText = confirmationViewModel.inputAmount
+        amountInputView.inputFieldText = confirmationViewModel.inputAmount
 
         leasingPeriodView.valueTop.text = confirmationViewModel.leasingPeriod
         leasingPeriodView.valueBottom.text = confirmationViewModel.leasingCompletionDate
@@ -112,14 +93,12 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     private func applyLocalization() {
         accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
-        networkFeeConfirmView.locale = locale
+        networkFeeFooterView.locale = locale
+        amountInputView.locale = locale
 
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
             preferredLanguages: locale.rLanguages
         )
-
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
 
         estimatedRewardView?.titleLabel.text = R.string.localizable.crowdloanReward(
             preferredLanguages: locale.rLanguages
@@ -146,7 +125,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
@@ -157,9 +136,9 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        addSubview(networkFeeConfirmView)
+        addSubview(networkFeeFooterView)
 
-        networkFeeConfirmView.snp.makeConstraints { make in
+        networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
     }
@@ -220,7 +199,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
         let view = TitleValueView()
         view.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
-        view.valueLabel.textColor = R.color.colorAccent()
+        view.valueLabel.textColor = R.color.colorPink()
 
         contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
         view.snp.makeConstraints { make in

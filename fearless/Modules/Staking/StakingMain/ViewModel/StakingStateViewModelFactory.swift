@@ -129,7 +129,9 @@ final class StakingStateViewModelFactory {
                 totalRewardAmount: rewardViewModel?.amount ?? "",
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
-                hasPrice: commonData.price != nil
+                hasPrice: commonData.price != nil,
+                rewardViewTitle: R.string.localizable
+                    .stakingTotalRewards_v190(preferredLanguages: locale.rLanguages)
             )
         }
     }
@@ -173,6 +175,92 @@ final class StakingStateViewModelFactory {
         }
     }
 
+    private func createDelegationViewModels(
+        state: ParachainState,
+        chainAsset: ChainAsset,
+        countdownInterval: TimeInterval?
+    ) -> [DelegationInfoCellModel]? {
+        let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+        let models: [DelegationInfoCellModel]? = state.delegationInfos?.compactMap { delegationInfo in
+            let collator = delegationInfo.collator
+            let delegation = delegationInfo.delegation
+
+            let resource: LocalizableResource<DelegationViewModelProtocol> = LocalizableResource { locale in
+                var status: DelegationViewStatus
+                switch collator.metadata?.status {
+                case .active:
+                    status = .active(round: state.round?.current ?? 0)
+                case .idle:
+                    status = .idle(countdown: countdownInterval)
+                case .leaving:
+                    status = .leaving(countdown: countdownInterval)
+                case .none:
+                    status = .undefined
+                }
+
+                if let bottomDelegations = state.bottomDelegations,
+                   let collatorBottomDelegations = bottomDelegations[collator.address] {
+                    if collatorBottomDelegations.delegations.contains(where: { $0 == delegation }) {
+                        status = .lowStake
+                    }
+                }
+
+                if let accountId = try? state.commonData.address?.toAccountId(using: chainAsset.chain.chainFormat),
+                   let round = state.round,
+                   let requests = state.requests {
+                    if requests.contains(where: { requestsByCollatorAddress in
+                        let ownOutdatedRequests = requestsByCollatorAddress.value
+                            .filter { $0.delegator == accountId }
+                            .filter { $0.whenExecutable <= round.current }
+                        let amount: BigUInt = ownOutdatedRequests.compactMap { ownRequest in
+                            var amount = BigUInt.zero
+                            if case let .revoke(revokeAmount) = ownRequest.action {
+                                amount += revokeAmount
+                            }
+
+                            if case let .decrease(decreaseAmount) = ownRequest.action {
+                                amount += decreaseAmount
+                            }
+
+                            return amount
+                        }.reduce(BigUInt.zero, +)
+
+                        if amount > BigUInt.zero {
+                            return collator.address == requestsByCollatorAddress.key
+                        }
+                        return false
+                    }) {
+                        status = .readyToUnlock
+                    }
+                }
+
+                let amount = Decimal.fromSubstrateAmount(
+                    delegation.amount,
+                    precision: Int16(chainAsset.asset.precision)
+                ) ?? Decimal.zero
+                let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
+
+                return DelegationViewModel(
+                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
+                    totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
+                        amount,
+                        priceData: state.commonData.price
+                    ).value(for: locale).price ?? "",
+                    apr: apyFormatter.string(from: (collator.subqueryData?.apr ?? 0.0) as NSNumber) ?? "",
+                    status: status,
+                    hasPrice: true,
+                    name: collator.identity?.name,
+                    nextRoundInterval: countdownInterval
+                )
+            }
+            return DelegationInfoCellModel(
+                contentViewModel: resource,
+                delegationInfo: delegationInfo
+            )
+        }
+        return models
+    }
+
     private func createAnalyticsViewModel(
         commonData: StakingStateCommonData,
         chainAsset: ChainAsset
@@ -187,7 +275,8 @@ final class StakingStateViewModelFactory {
             from: rewards,
             priceData: commonData.price,
             period: rewardsForPeriod.1,
-            selectedChartIndex: nil
+            selectedChartIndex: nil,
+            hasPendingRewards: chainAsset.stakingType == .relayChain
         )
         return LocalizableResource { locale in
             RewardAnalyticsWidgetViewModel(
@@ -208,9 +297,9 @@ final class StakingStateViewModelFactory {
 
         let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
-        let monthlyReturn = calculator.calculateMaxReturn(isCompound: true, period: .month)
+        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month)
 
-        let yearlyReturn = calculator.calculateMaxReturn(isCompound: true, period: .year)
+        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year)
 
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: (amount ?? 0.0) * monthlyReturn,
@@ -270,7 +359,7 @@ final class StakingStateViewModelFactory {
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
-    func visit(state: InitialStakingState) {
+    func visit(state: InitialRelaychainStakingState) {
         logger?.debug("Initial state")
 
         guard let chainAsset = state.commonData.chainAsset else {
@@ -452,6 +541,54 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             chainAsset: chainAsset
         )
         lastViewModel = .validator(viewModel: viewModel, alerts: alerts, analyticsViewModel: analyticsViewModel)
+    }
+
+    func visit(state: ParachainState) {
+        logger?.debug("Parachain state")
+
+        guard let chainAsset = state.commonData.chainAsset else {
+            lastViewModel = .undefined
+            return
+        }
+
+        updateCacheForChainAsset(chainAsset)
+
+        var countdownInterval: TimeInterval?
+        let erasPerDay = chainAsset.chain.erasPerDay
+        if let round = state.round, let currentBlock = state.currentBlock {
+            let roundDurationInSeconds: TimeInterval = 24.0 / Double(erasPerDay) * 3600.0
+            let blockDurationInSeconds: TimeInterval = roundDurationInSeconds / Double(round.length)
+            let countdown: TimeInterval = Double((round.first + round.length) - currentBlock) * blockDurationInSeconds
+            countdownInterval = countdown
+        }
+
+        let delegationViewModels = createDelegationViewModels(
+            state: state,
+            chainAsset: chainAsset,
+            countdownInterval: countdownInterval
+        )
+
+        let analyticsViewModel = createAnalyticsViewModel(
+            commonData: state.commonData,
+            chainAsset: chainAsset
+        )
+
+        let alerts = stakingAlertParachainState(state)
+        do {
+            let rewardViewModel = try createEstimationViewModel(
+                for: chainAsset,
+                commonData: state.commonData,
+                amount: state.rewardEstimationAmount
+            )
+            lastViewModel = .delegations(
+                rewardViewModel: rewardViewModel,
+                delegationViewModels: delegationViewModels,
+                alerts: alerts,
+                analyticsViewModel: analyticsViewModel
+            )
+        } catch {
+            lastViewModel = .undefined
+        }
     }
 }
 

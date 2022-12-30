@@ -71,6 +71,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         settings _: SettingsManagerProtocol
     ) -> StakingRebondSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -91,21 +92,13 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let feeProxy = ExtrinsicFeeProxy()
@@ -123,15 +116,14 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         return StakingRebondSetupInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             runtimeCodingService: runtimeService,
             operationManager: operationManager,
             feeProxy: feeProxy,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount,
             connection: connection,
             extrinsicService: extrinsicService,

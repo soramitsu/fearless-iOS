@@ -25,7 +25,7 @@ protocol CrowdloanContributionSetupInteractorInputProtocol: CrowdloanContributio
 
 protocol CrowdloanContributionSetupInteractorOutputProtocol: CrowdloanContributionInteractorOutputProtocol {}
 
-protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol CrowdloanContributionSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     CrowdloanErrorPresentable, WebPresentable {
     func showConfirmation(
         from view: CrowdloanContributionSetupViewProtocol?,

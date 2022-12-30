@@ -39,6 +39,11 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
             action: #selector(handleUnbondingMoreButton),
             for: .touchUpInside
         )
+        rootView.refreshControl.addTarget(
+            self,
+            action: #selector(handleRefreshControlAction),
+            for: .valueChanged
+        )
 
         setupNavigationBarStyle()
         presenter.setup()
@@ -51,6 +56,12 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
         let navBarHeight = navigationBar.bounds.height
         let blurHeight = statusBarHeight + navBarHeight
         rootView.navBarBlurViewHeightConstraint.update(offset: blurHeight)
+    }
+
+    @objc
+    private func handleRefreshControlAction() {
+        presenter.handleRefresh()
+        rootView.refreshControl.endRefreshing()
     }
 
     @objc
@@ -70,6 +81,9 @@ extension StakingBalanceViewController: Localizable {
 extension StakingBalanceViewController: StakingBalanceViewProtocol {
     func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
+        if let title = localizedViewModel.title {
+            self.title = title
+        }
 
         rootView.balanceWidget.bind(viewModel: localizedViewModel.widgetViewModel)
         rootView.actionsWidget.bind(viewModel: localizedViewModel.actionsViewModel)

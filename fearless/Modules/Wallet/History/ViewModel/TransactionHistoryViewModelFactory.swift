@@ -13,19 +13,20 @@ final class TransactionHistoryViewModelFactory {
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
     let chain: Chain
-
-    let iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
 
     init(
         amountFormatterFactory: NumberFormatterFactoryProtocol,
         dateFormatter: LocalizableResource<DateFormatter>,
         assets: [WalletAsset],
-        chain: Chain
+        chain: Chain,
+        iconGenerator: IconGenerating
     ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.dateFormatter = dateFormatter
         self.assets = assets
         self.chain = chain
+        self.iconGenerator = iconGenerator
     }
 
     private func createTransferItemFromData(

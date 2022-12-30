@@ -3,7 +3,7 @@ import RobinHood
 import CoreData
 
 enum UserStorageParams {
-    static let modelVersion: UserStorageVersion = .version5
+    static let modelVersion: UserStorageVersion = .version7
     static let modelDirectory: String = "UserDataModel.momd"
     static let databaseName = "UserDataModel.sqlite"
 

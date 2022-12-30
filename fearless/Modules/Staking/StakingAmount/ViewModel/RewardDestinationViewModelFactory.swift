@@ -15,11 +15,15 @@ protocol RewardDestinationViewModelFactoryProtocol {
 }
 
 final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactoryProtocol {
-    private lazy var iconGenerator = PolkadotIconGenerator()
+    private var iconGenerator: IconGenerating
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+    init(
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
+    ) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
     }
 
     func createRestake(
@@ -41,7 +45,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(account.address)
 
-        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username)
+        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username, address: account.address)
 
         guard let model = model else {
             return createEmptyReturnViewModel(from: type)
@@ -60,9 +64,9 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         address: AccountAddress,
         title: String
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol> {
-        let icon = try iconGenerator.generateFromAddress(address)
+        let icon = try? iconGenerator.generateFromAddress(address)
 
-        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: title)
+        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: title, address: address)
 
         guard let model = model else {
             return createEmptyReturnViewModel(from: type)

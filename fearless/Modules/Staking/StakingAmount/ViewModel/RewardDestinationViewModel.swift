@@ -3,7 +3,7 @@ import FearlessUtils
 
 enum RewardDestinationTypeViewModel {
     case restake
-    case payout(icon: DrawableIcon, title: String)
+    case payout(icon: DrawableIcon?, title: String, address: String)
 }
 
 protocol DestinationReturnViewModelProtocol {

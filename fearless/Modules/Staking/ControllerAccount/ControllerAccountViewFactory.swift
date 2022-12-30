@@ -25,7 +25,7 @@ struct ControllerAccountViewFactory {
 
         let viewModelFactory = ControllerAccountViewModelFactory(
             currentAccountItem: account,
-            iconGenerator: PolkadotIconGenerator()
+            iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
@@ -58,6 +58,7 @@ struct ControllerAccountViewFactory {
         selectedAccount: MetaAccountModel
     ) -> ControllerAccountInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         guard
             let connection = chainRegistry.getConnection(for: chain.chainId),
@@ -78,20 +79,12 @@ struct ControllerAccountViewFactory {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
-        let stakingLocalSubscriptionFactory = StakingLocalSubscriptionFactory(
+        let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
             logger: Logger.shared
-        )
-
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactory(
-            chainRegistry: chainRegistry,
-            storageFacade: substrateStorageFacade,
-            operationManager: operationManager,
-            logger: logger
         )
 
         let feeProxy = ExtrinsicFeeProxy()
@@ -113,7 +106,7 @@ struct ControllerAccountViewFactory {
 
         return ControllerAccountInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
-                walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
+                walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
                 selectedMetaAccount: selectedAccount
             ),
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -124,8 +117,7 @@ struct ControllerAccountViewFactory {
             extrinsicService: extrinsicService,
             storageRequestFactory: storageRequestFactory,
             engine: connection,
-            chain: chain,
-            asset: asset,
+            chainAsset: chainAsset,
             selectedAccount: selectedAccount
         )
     }

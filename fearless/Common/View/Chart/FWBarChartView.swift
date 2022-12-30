@@ -35,7 +35,7 @@ final class FWBarChartView: BarChartView {
 
         delegate = self
         backgroundColor = .clear
-        chartDescription?.enabled = false
+        chartDescription.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
@@ -51,14 +51,16 @@ final class FWBarChartView: BarChartView {
         xAxis.labelPosition = .bottom
         xAxis.valueFormatter = xAxisEmptyFormatter
 
+        extraTopOffset = 4
+
         leftAxis.spaceTop = 0
-        leftAxis.yOffset = 4
+        leftAxis.yOffset = 0
         leftAxis.forceLabelsEnabled = true
         leftAxis.drawGridLinesEnabled = false
         leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = yAxisFormatter
         leftAxis.labelFont = .systemFont(ofSize: 9, weight: .semibold)
-        leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
+        leftAxis.labelTextColor = R.color.colorWhite()!.withAlphaComponent(0.64)
         leftAxis.axisMinimum = 0
 
         rightAxis.enabled = false
@@ -103,8 +105,12 @@ final class FWBarChartView: BarChartView {
         let yPosition = CGFloat(1.0 - percent) * chartHeightWihoutXLegend
         let avgLabelSize = averageAmountLabel.intrinsicContentSize
         let avgLabelHeight = avgLabelSize.height
+        var avgLabelYPosition: CGFloat = yPosition - avgLabelHeight / 2
+        if percent < 0.1 || percent > 0.9 {
+            avgLabelYPosition = yPosition - avgLabelHeight
+        }
         averageAmountLabel.frame = CGRect(
-            origin: CGPoint(x: 0, y: yPosition - avgLabelHeight / 2),
+            origin: CGPoint(x: 0, y: avgLabelYPosition),
             size: CGSize(width: avgLabelSize.width, height: avgLabelHeight)
         )
         averageAmountLabel.isHidden = false
@@ -151,17 +157,17 @@ extension FWBarChartView: FWChartViewProtocol {
         setNeedsLayout()
 
         let set = BarChartDataSet(entries: dataEntries)
-        set.highlightColor = R.color.colorAccent()!
+        set.highlightColor = R.color.colorPink()!
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
         set.colors = data.amounts.map { chartData in
             if chartData.selected {
-                return R.color.colorAccent()!
+                return R.color.colorPink()!
             } else {
                 if chartDataContainsSelectedBar {
                     return R.color.colorAlmostBlack()!
                 } else {
-                    return chartData.filled ? R.color.colorAccent()! : R.color.colorGray()!
+                    return chartData.filled ? R.color.colorPink()! : R.color.colorGray()!
                 }
             }
         }

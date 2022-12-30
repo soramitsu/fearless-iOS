@@ -2,55 +2,86 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-enum TokenSymbol: String {
-    enum CodingKeys: String, CodingKey {
-        case dot
-        case interbtc
-        case intr
-        case ksm
-        case kbtc
-        case kint
-    }
-
-    case dot
-    case interbtc
-    case intr
-    case ksm
-    case kbtc
-    case kint
+struct TokenSymbol {
+    let symbol: String
 }
 
 extension TokenSymbol: Codable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.unkeyedContainer()
 
-        try container.encode(rawValue.uppercased())
+        try container.encode(symbol.uppercased())
         try container.encodeNil()
     }
 }
 
 enum CurrencyId {
     case token(symbol: TokenSymbol?)
+    case liquidCrowdloan(liquidCrowdloan: String)
+    case foreignAsset(foreignAsset: String)
+    case stableAssetPoolToken(stableAssetPoolToken: String)
+    case vToken(symbol: TokenSymbol?)
+    case vsToken(symbol: TokenSymbol?)
+    case stable(symbol: TokenSymbol?)
+    case equilibrium(id: String)
+    case soraAsset(id: String)
+
+    enum CodingKeys: String, CodingKey {
+        case code
+    }
 }
 
-extension CurrencyId: Codable {
+extension CurrencyId: Encodable {
     public func encode(to encoder: Encoder) throws {
-        var container = encoder.unkeyedContainer()
-
         switch self {
         case let .token(symbol):
+            var container = encoder.unkeyedContainer()
             try container.encode("Token")
             try container.encode(symbol)
+        case let .liquidCrowdloan(liquidCrowdloan):
+            var container = encoder.unkeyedContainer()
+            try container.encode("LiquidCrowdloan")
+            try container.encode(liquidCrowdloan)
+        case let .foreignAsset(foreignAsset):
+            var container = encoder.unkeyedContainer()
+            try container.encode("ForeignAsset")
+            try container.encode(foreignAsset)
+        case let .stableAssetPoolToken(stableAssetPoolToken):
+            var container = encoder.unkeyedContainer()
+            try container.encode("StableAssetPoolToken")
+            try container.encode(stableAssetPoolToken)
+        case let .vToken(symbol):
+            var container = encoder.unkeyedContainer()
+            try container.encode("VToken")
+            try container.encode(symbol)
+        case let .vsToken(symbol):
+            var container = encoder.unkeyedContainer()
+            try container.encode("VSToken")
+            try container.encode(symbol)
+        case let .stable(symbol):
+            var container = encoder.unkeyedContainer()
+            try container.encode("Stable")
+            try container.encode(symbol)
+        case let .equilibrium(id):
+            var container = encoder.singleValueContainer()
+            try container.encode(id)
+        case let .soraAsset(id):
+            var container = encoder.container(keyedBy: CodingKeys.self)
+            let assetId32 = try Data(hexString: id)
+            try container.encode(assetId32, forKey: .code)
         }
     }
 }
 
+// swiftlint:disable identifier_name
 struct TransferCall: Codable {
     enum CodingKeys: String, CodingKey {
         case dest
         case value
         case amount
         case currencyId = "currency_id"
+        case equilibrium = "asset"
+        case to
     }
 
     var dest: MultiAddress
@@ -74,15 +105,20 @@ struct TransferCall: Codable {
 
     public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-
-        try container.encode(dest, forKey: .dest)
-
         let isOrml = currencyId != nil
 
         if isOrml {
-            try container.encode(currencyId, forKey: .currencyId)
-            try container.encode(String(value), forKey: .amount)
+            if case .equilibrium = currencyId {
+                try container.encode(currencyId, forKey: .equilibrium)
+                try container.encode(dest, forKey: .to)
+                try container.encode(String(value), forKey: .value)
+            } else {
+                try container.encode(dest, forKey: .dest)
+                try container.encode(currencyId, forKey: .currencyId)
+                try container.encode(String(value), forKey: .amount)
+            }
         } else {
+            try container.encode(dest, forKey: .dest)
             try container.encode(String(value), forKey: .value)
         }
     }

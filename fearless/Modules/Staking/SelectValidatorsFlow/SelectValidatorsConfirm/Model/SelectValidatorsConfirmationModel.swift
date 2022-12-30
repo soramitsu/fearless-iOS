@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 
-struct SelectValidatorsConfirmationModel {
+struct SelectValidatorsConfirmRelaychainModel {
     let wallet: DisplayAddress
     let amount: Decimal
     let rewardDestination: RewardDestination<DisplayAddress>
@@ -9,4 +9,11 @@ struct SelectValidatorsConfirmationModel {
     let maxTargets: Int
     let hasExistingBond: Bool
     let hasExistingNomination: Bool
+}
+
+struct SelectValidatorsConfirmParachainModel {
+    let wallet: DisplayAddress
+    let amount: Decimal
+    let target: ParachainStakingCandidateInfo
+    let maxTargets: Int
 }

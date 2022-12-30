@@ -13,7 +13,7 @@ final class FWLineChartView: LineChartView {
 
         delegate = self
         backgroundColor = .clear
-        chartDescription?.enabled = false
+        chartDescription.enabled = false
 
         autoScaleMinMaxEnabled = true
         doubleTapToZoomEnabled = false
@@ -35,7 +35,7 @@ final class FWLineChartView: LineChartView {
         leftAxis.drawAxisLineEnabled = false
         leftAxis.valueFormatter = yAxisFormatter
         leftAxis.labelFont = .systemFont(ofSize: 8, weight: .semibold)
-        leftAxis.labelTextColor = UIColor.white.withAlphaComponent(0.64)
+        leftAxis.labelTextColor = R.color.colorWhite()!.withAlphaComponent(0.64)
 
         rightAxis.enabled = false
         drawBordersEnabled = false
@@ -97,15 +97,15 @@ extension FWLineChartView: FWChartViewProtocol {
         }
     }
 
-    func createDataSet(dataEntries: [ChartDataEntry]) -> IChartDataSet {
+    func createDataSet(dataEntries: [ChartDataEntry]) -> ChartDataSet {
         let dataSet = LineChartDataSet(entries: dataEntries)
         dataSet.mode = .horizontalBezier
         dataSet.drawIconsEnabled = false
         dataSet.drawValuesEnabled = false
         dataSet.drawCirclesEnabled = false
-        dataSet.colors = [R.color.colorAccent()!]
+        dataSet.colors = [R.color.colorPink()!]
         let gradientColors = [
-            R.color.colorAccent()!.withAlphaComponent(0.48).cgColor,
+            R.color.colorPink()!.withAlphaComponent(0.48).cgColor,
             R.color.colorAnalyticsGradient()!.cgColor
         ] as CFArray
         let colorLocations: [CGFloat] = [1.0, 0.0]
@@ -114,7 +114,7 @@ extension FWLineChartView: FWChartViewProtocol {
             colors: gradientColors,
             locations: colorLocations
         )!
-        dataSet.fill = Fill(linearGradient: linearGradient, angle: 90)
+        dataSet.fill = LinearGradientFill(gradient: linearGradient, angle: 90)
         dataSet.fillAlpha = 1.0
         dataSet.drawFilledEnabled = true
         dataSet.highlightColor = R.color.colorGreen()!

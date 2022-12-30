@@ -24,6 +24,15 @@ enum AddressFactory {
     static func accountId(from address: AccountAddress, chain: ChainModel) throws -> AccountId {
         try address.toAccountId(using: chainFormat(of: chain))
     }
+
+    static func randomAccountId(for chain: ChainModel) -> AccountId {
+        switch chainFormat(of: chain) {
+        case .ethereum:
+            return Data(count: EthereumConstants.accountIdLength)
+        case .substrate:
+            return Data(count: SubstrateConstants.accountIdLength)
+        }
+    }
 }
 
 extension AccountId {

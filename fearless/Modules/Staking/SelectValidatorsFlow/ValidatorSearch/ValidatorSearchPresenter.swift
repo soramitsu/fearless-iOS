@@ -3,22 +3,16 @@ import IrohaCrypto
 
 final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?
-    weak var delegate: ValidatorSearchDelegate?
 
-    private let wireframe: ValidatorSearchWireframeProtocol
-    private let interactor: ValidatorSearchInteractorInputProtocol
-    private let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
-    private let logger: LoggerProtocol?
-    private let asset: AssetModel
-    private let chain: ChainModel
+    let wireframe: ValidatorSearchWireframeProtocol
+    let interactor: ValidatorSearchInteractorInputProtocol
+    let viewModelFactory: ValidatorSearchViewModelFactoryProtocol
+    var viewModelState: ValidatorSearchViewModelState
+    let logger: LoggerProtocol?
+    let chainAsset: ChainAsset
+
     private let wallet: MetaAccountModel
 
-    private var fullValidatorList: [SelectedValidatorInfo]
-    private var selectedValidatorList: [SelectedValidatorInfo]
-    private var referenceValidatorList: [SelectedValidatorInfo]
-    private var filteredValidatorList: [SelectedValidatorInfo] = []
-    private var viewModel: ValidatorSearchViewModel?
-    private var searchString: String = ""
     private var isSearching: Bool = false
 
     private lazy var addressFactory = SS58AddressFactory()
@@ -27,23 +21,18 @@ final class ValidatorSearchPresenter {
         wireframe: ValidatorSearchWireframeProtocol,
         interactor: ValidatorSearchInteractorInputProtocol,
         viewModelFactory: ValidatorSearchViewModelFactoryProtocol,
-        fullValidatorList: [SelectedValidatorInfo],
-        selectedValidatorList: [SelectedValidatorInfo],
+        viewModelState: ValidatorSearchViewModelState,
         localizationManager: LocalizationManager,
         logger: LoggerProtocol? = nil,
-        asset: AssetModel,
-        chain: ChainModel,
+        chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.fullValidatorList = fullValidatorList
-        self.selectedValidatorList = selectedValidatorList
-        referenceValidatorList = selectedValidatorList
+        self.viewModelState = viewModelState
         self.logger = logger
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.wallet = wallet
         self.localizationManager = localizationManager
     }
@@ -51,112 +40,62 @@ final class ValidatorSearchPresenter {
     // MARK: - Private functions
 
     private func provideViewModels() {
-        guard !searchString.isEmpty else {
-            filteredValidatorList = []
-            viewModel = nil
+        guard !viewModelState.searchString.isEmpty else {
+            viewModelState.reset()
             view?.didReset()
             return
         }
 
-        let viewModel = viewModelFactory.createViewModel(
-            from: filteredValidatorList,
-            selectedValidatorList: selectedValidatorList,
+        guard let viewModel = viewModelFactory.buildViewModel(
+            viewModelState: viewModelState,
             locale: selectedLocale
-        )
+        ) else {
+            viewModelState.updateViewModel(nil)
+            view?.didReset()
+            return
+        }
 
-        self.viewModel = viewModel
+        viewModelState.updateViewModel(viewModel)
         view?.didReload(viewModel)
     }
 
     private func performFullAddressSearch(by address: AccountAddress, accountId: AccountId) {
-        filteredValidatorList = []
-
-        let searchResult = fullValidatorList.first {
-            $0.address == address
-        }
-
-        guard let validator = searchResult else {
-            isSearching = true
-            view?.didStartSearch()
-            interactor.performValidatorSearch(accountId: accountId)
-            return
-        }
-
-        filteredValidatorList.append(validator)
-
-        provideViewModels()
+        viewModelState.performFullAddressSearch(by: address, accountId: accountId)
     }
 
     private func performSearch() {
-        guard !searchString.isEmpty else {
+        guard !viewModelState.searchString.isEmpty else {
             provideViewModels()
             return
         }
 
-        if let accountId = try? addressFactory.accountId(from: searchString) {
-            performFullAddressSearch(by: searchString, accountId: accountId)
+        if let accountId = try? addressFactory.accountId(from: viewModelState.searchString) {
+            performFullAddressSearch(by: viewModelState.searchString, accountId: accountId)
             return
         }
 
-        let nameSearchString = searchString.lowercased()
-
-        filteredValidatorList = fullValidatorList.filter {
-            ($0.identity?.displayName.lowercased()
-                .contains(nameSearchString) ?? false) ||
-                $0.address.hasPrefix(searchString)
-        }.sorted(by: {
-            $0.stakeReturn > $1.stakeReturn
-        })
-
-        provideViewModels()
+        isSearching = true
+        viewModelState.performSearch()
     }
 }
 
 extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     func setup() {
+        viewModelState.setStateListener(self)
+
         provideViewModels()
     }
 
     // MARK: - Cell actions
 
     func changeValidatorSelection(at index: Int) {
-        guard var viewModel = viewModel else { return }
-
-        let changedValidator = filteredValidatorList[index]
-
-        guard !changedValidator.blocked else {
-            wireframe.present(
-                message: R.string.localizable
-                    .stakingCustomBlockedWarning(preferredLanguages: selectedLocale.rLanguages),
-                title: R.string.localizable
-                    .commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                closeAction: R.string.localizable
-                    .commonClose(preferredLanguages: selectedLocale.rLanguages),
-                from: view
-            )
-            return
-        }
-
-        if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
-            selectedValidatorList.remove(at: selectedIndex)
-        } else {
-            selectedValidatorList.append(changedValidator)
-        }
-
-        let differsFromInitial = referenceValidatorList != selectedValidatorList
-
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
-        viewModel.differsFromInitial = differsFromInitial
-
-        self.viewModel = viewModel
-
-        view?.didReload(viewModel)
+        viewModelState.changeValidatorSelection(at: index)
     }
 
     // MARK: - Search actions
 
     func search(for textEntry: String) {
-        searchString = textEntry
+        viewModelState.searchString = textEntry
 
         if isSearching {
             view?.didStopSearch()
@@ -169,53 +108,63 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     // MARK: - Presenting actions
 
     func didSelectValidator(at index: Int) {
-        let selectedValidator = filteredValidatorList[index]
+        guard let flow = viewModelState.validatorInfoFlow(index: index) else {
+            return
+        }
+
         wireframe.present(
-            selectedValidator,
-            asset: asset,
-            chain: chain,
-            from: view,
-            wallet: wallet
+            flow: flow,
+            chainAsset: chainAsset,
+            wallet: wallet,
+            from: view
         )
     }
 
     func applyChanges() {
-        delegate?.validatorSearchDidUpdate(selectedValidatorList: selectedValidatorList)
+        viewModelState.applyChanges()
 
         wireframe.close(view)
     }
 }
 
-extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {
-    func didReceiveValidatorInfo(result: Result<SelectedValidatorInfo?, Error>) {
-        view?.didStopSearch()
-
-        guard isSearching == true else { return }
-        isSearching = false
-
-        if case let .failure(error) = result {
-            logger?.error("Did receive validator info error: \(error)")
-            return
-        }
-
-        guard case let .success(validator) = result,
-              let validatorInfo = validator
-        else {
-            filteredValidatorList = []
-            provideViewModels()
-            return
-        }
-
-        fullValidatorList.append(validatorInfo)
-        filteredValidatorList = [validatorInfo]
-        provideViewModels()
-    }
-}
+extension ValidatorSearchPresenter: ValidatorSearchInteractorOutputProtocol {}
 
 extension ValidatorSearchPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             performSearch()
         }
+    }
+}
+
+extension ValidatorSearchPresenter: ValidatorSearchModelStateListener {
+    func viewModelChanged(_ viewModel: ValidatorSearchViewModel) {
+        view?.didReload(viewModel)
+    }
+
+    func modelStateDidChanged(viewModelState _: ValidatorSearchViewModelState) {
+        guard isSearching == true else { return }
+        isSearching = false
+
+        provideViewModels()
+    }
+
+    func didStartLoading() {
+        view?.didStartSearch()
+    }
+
+    func didStopLoading() {
+        view?.didStopSearch()
+    }
+
+    func didReceiveError(error _: Error) {
+        viewModelState.updateViewModel(nil)
+        view?.didReset()
+    }
+
+    func didNotFoundLocalValidator(accountId: AccountId) {
+        isSearching = true
+        view?.didStartSearch()
+        interactor.performValidatorSearch(accountId: accountId)
     }
 }

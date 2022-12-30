@@ -5,26 +5,67 @@ protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     )
 }
 
 protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
-    func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?)
-    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?)
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    )
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    )
 
     func reset()
 }
 
-class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
+extension AccountInfoSubscriptionAdapterProtocol {
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue? = .main
+    ) {
+        subscribe(chainAsset: chainAsset, accountId: accountId, handler: handler, deliveryOn: queue)
+    }
+
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue? = .main
+    ) {
+        subscribe(chainsAssets: chainsAssets, handler: handler, deliveryOn: queue)
+    }
+}
+
+final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
+    // MARK: - handler
+
     private weak var handler: AccountInfoSubscriptionAdapterHandler?
+
+    // MARK: - WalletLocalStorageSubscriber
+
     internal var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol
-    private var subscriptions: [AccountInfoSubscriptionProviderWrapper.Subscription] = []
+
+    // MARK: - Private properties
+
+    private var subscriptions: [StreamableProvider<ChainStorageItem>] = []
     private var selectedMetaAccount: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
     }()
+
+    private var deliveryQueue: DispatchQueue?
+    private let lock = ReaderWriterLock()
+
+    // MARK: - Constructor
 
     init(
         walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol,
@@ -34,37 +75,44 @@ class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
         self.selectedMetaAccount = selectedMetaAccount
     }
 
+    // MARK: - Public methods
+
     func reset() {
         subscriptions.forEach { subscription in
-            switch subscription {
-            case let .usual(provider):
-                provider.removeObserver(wrapper)
-            case let .orml(provider):
-                provider.removeObserver(wrapper)
-            }
+            subscription.removeObserver(wrapper)
         }
 
         subscriptions.removeAll()
     }
 
-    func subscribe(chain: ChainModel, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?) {
+    func subscribe(
+        chainAsset: ChainAsset,
+        accountId: AccountId,
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    ) {
         reset()
-
         self.handler = handler
-        if let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
+        deliveryQueue = queue
+
+        if let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
             subscriptions.append(subscription)
         }
     }
 
-    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
+    func subscribe(
+        chainsAssets: [ChainAsset],
+        handler: AccountInfoSubscriptionAdapterHandler?,
+        deliveryOn queue: DispatchQueue?
+    ) {
         reset()
-
         self.handler = handler
+        deliveryQueue = queue
 
-        chains.forEach { chain in
-            if let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId,
-               let subscription = wrapper.subscribeAccountProvider(for: accountId, chain: chain) {
-                subscriptions.append(subscription)
+        chainsAssets.forEach { chainAsset in
+            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+               let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
+                lock.exclusivelyWrite { [unowned self] in self.subscriptions.append(subscription) }
             }
         }
     }
@@ -76,12 +124,14 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId: AccountId,
-        chainId: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
-        handler?.handleAccountInfo(
-            result: result,
-            accountId: accountId,
-            chainId: chainId
-        )
+        deliveryQueue?.async {
+            self.handler?.handleAccountInfo(
+                result: result,
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
+        }
     }
 }

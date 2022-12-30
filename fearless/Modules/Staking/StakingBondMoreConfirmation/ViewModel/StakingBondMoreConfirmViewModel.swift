@@ -3,8 +3,10 @@ import FearlessUtils
 import SoraFoundation
 
 struct StakingBondMoreConfirmViewModel {
-    let senderAddress: AccountAddress
-    let senderIcon: DrawableIcon
-    let senderName: String?
-    let amount: LocalizableResource<String>
+    let accountViewModel: TitleMultiValueViewModel?
+    let amountViewModel: TitleMultiValueViewModel?
+    let collatorViewModel: TitleMultiValueViewModel?
+    let senderIcon: DrawableIcon?
+    let amount: LocalizableResource<StakeAmountViewModel>?
+    let collatorIcon: DrawableIcon?
 }

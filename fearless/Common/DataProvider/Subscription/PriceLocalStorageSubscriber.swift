@@ -15,7 +15,7 @@ extension PriceLocalStorageSubscriber {
         let priceProvider = priceLocalSubscriptionFactory.getPriceProvider(for: priceId)
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            let finalValue = changes.reduceToLastChange()
+            guard let finalValue = changes.reduceToLastChange() else { return }
             self?.priceLocalSubscriptionHandler.handlePrice(result: .success(finalValue), priceId: priceId)
         }
 

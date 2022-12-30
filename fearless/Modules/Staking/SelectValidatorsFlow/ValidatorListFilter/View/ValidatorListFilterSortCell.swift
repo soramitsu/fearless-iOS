@@ -3,15 +3,14 @@ import UIKit
 final class ValidatorListFilterSortCell: UITableViewCell {
     let selectionImageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.tintColor = R.color.colorWhite()
-        imageView.image = R.image.listCheckmarkIcon()
+        imageView.image = R.image.iconListSelectionOn()
         return imageView
     }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
+        label.font = .h5Title
+        label.textColor = R.color.colorLightGray()
         label.lineBreakMode = .byTruncatingTail
         label.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         return label
@@ -30,30 +29,21 @@ final class ValidatorListFilterSortCell: UITableViewCell {
     }
 
     private func configure() {
-        backgroundColor = .clear
-        separatorInset = .init(
-            top: 0,
-            left: UIConstants.horizontalInset,
-            bottom: 0,
-            right: UIConstants.horizontalInset
-        )
-
-        selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = R.color.colorHighlightedAccent()!
+        backgroundColor = R.color.colorBlack19()
     }
 
     private func setupLayout() {
         contentView.addSubview(selectionImageView)
         selectionImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(16)
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
             make.size.equalTo(24)
         }
 
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(selectionImageView.snp.trailing).offset(16)
-            make.trailing.equalToSuperview().inset(16)
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.greaterThanOrEqualTo(selectionImageView.snp.trailing).offset(UIConstants.bigOffset)
             make.centerY.equalToSuperview()
         }
     }

@@ -4,21 +4,24 @@ final class StakingSharedState {
     let settings: StakingAssetSettings
     private(set) var eraValidatorService: EraValidatorServiceProtocol
     private(set) var rewardCalculationService: RewardCalculatorServiceProtocol
-    let stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol
+    let relaychainStakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+    let parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     let stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol
 
     init(
         settings: StakingAssetSettings,
         eraValidatorService: EraValidatorServiceProtocol,
         rewardCalculationService: RewardCalculatorServiceProtocol,
-        stakingLocalSubscriptionFactory: StakingLocalSubscriptionFactoryProtocol,
-        stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol
+        relaychainStakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        stakingAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol,
+        parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     ) {
         self.settings = settings
         self.eraValidatorService = eraValidatorService
         self.rewardCalculationService = rewardCalculationService
-        self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.relaychainStakingLocalSubscriptionFactory = relaychainStakingLocalSubscriptionFactory
         self.stakingAnalyticsLocalSubscriptionFactory = stakingAnalyticsLocalSubscriptionFactory
+        self.parachainStakingLocalSubscriptionFactory = parachainStakingLocalSubscriptionFactory
     }
 
     func replaceEraValidatorService(_ newService: EraValidatorServiceProtocol) {

@@ -56,7 +56,7 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
-    var runtimeSnapshot: RuntimeSnapshot? {
+    var snapshot: RuntimeSnapshot? {
         chainRuntimeProvider?.snapshot
     }
 

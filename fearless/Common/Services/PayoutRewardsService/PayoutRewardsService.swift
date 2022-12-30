@@ -40,6 +40,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.logger = logger
     }
 
+    // swiftlint:disable function_body_length
     func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
             let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
@@ -178,5 +179,22 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         } catch {
             return CompoundOperationWrapper.createWithError(error)
         }
+    }
+
+    func createConstOperation<T>(
+        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: ConstantCodingPath
+    ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
+        let operation = PrimitiveConstantOperation<T>(path: path)
+
+        operation.configurationBlock = {
+            do {
+                operation.codingFactory = try runtime.extractNoCancellableResultData()
+            } catch {
+                operation.result = .failure(error)
+            }
+        }
+
+        return operation
     }
 }

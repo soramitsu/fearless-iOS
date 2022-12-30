@@ -5,81 +5,99 @@ import IrohaCrypto
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
-    let selectedMetaAccount: MetaAccountModel
-    let chain: ChainModel
-    let asset: AssetModel
-    let runtimeService: RuntimeCodingServiceProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
-    let extrinsicService: ExtrinsicServiceProtocol
-    let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    let operationManager: OperationManagerProtocol
-    let receiverAddress: String
-    let signingWrapper: SigningWrapperProtocol
+
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+    private let selectedMetaAccount: MetaAccountModel
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let operationManager: OperationManagerProtocol
+    private let receiverAddress: String
+    private let signingWrapper: SigningWrapperProtocol
+    private let chainAsset: ChainAsset
+
+    let dependencyContainer: SendDepencyContainer
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
     private(set) lazy var callFactory = SubstrateCallFactory()
 
     init(
         selectedMetaAccount: MetaAccountModel,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         receiverAddress: String,
-        runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        extrinsicService: ExtrinsicServiceProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        dependencyContainer: SendDepencyContainer
     ) {
         self.selectedMetaAccount = selectedMetaAccount
-        self.chain = chain
-        self.asset = asset
-        self.runtimeService = runtimeService
+        self.chainAsset = chainAsset
         self.feeProxy = feeProxy
-        self.extrinsicService = extrinsicService
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.receiverAddress = receiverAddress
         self.operationManager = operationManager
         self.signingWrapper = signingWrapper
+        self.dependencyContainer = dependencyContainer
     }
 
     private func provideConstants() {
+        guard let utilityAsset = getUtilityAsset(for: chainAsset),
+              let dependencies = dependencyContainer.prepareDepencies(chainAsset: utilityAsset) else {
+            return
+        }
         fetchConstant(
             for: .babeBlockTime,
-            runtimeCodingService: runtimeService,
+            runtimeCodingService: dependencies.runtimeService,
             operationManager: operationManager
         ) { [weak self] (result: Result<BlockTime, Error>) in
             self?.presenter?.didReceiveBlockDuration(result: result)
         }
-
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
+        dependencies.existentialDepositService.fetchExistentialDeposit(
+            chainAsset: utilityAsset
+        ) { [weak self] result in
             self?.presenter?.didReceiveMinimumBalance(result: result)
         }
     }
 
     private func subscribeToAccountInfo() {
-        guard let accountId = selectedMetaAccount.fetch(for: chain.accountRequest())?.accountId else {
-            presenter?.didReceiveAccountInfo(result: .failure(ChainAccountFetchingError.accountNotExists))
+        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            presenter?.didReceiveAccountInfo(
+                result: .failure(ChainAccountFetchingError.accountNotExists),
+                for: chainAsset
+            )
             return
         }
 
-        accountInfoSubscriptionAdapter.subscribe(chain: chain, accountId: accountId, handler: self)
+        accountInfoSubscriptionAdapter.subscribe(
+            chainAsset: chainAsset,
+            accountId: accountId,
+            handler: self
+        )
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = getUtilityAsset(for: chainAsset) {
+            accountInfoSubscriptionAdapter.subscribe(
+                chainAsset: utilityAsset,
+                accountId: accountId,
+                handler: self
+            )
+        }
     }
 
     private func subscribeToPrice() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         } else {
-            presenter?.didReceivePriceData(result: .success(nil))
+            presenter?.didReceivePriceData(result: .success(nil), for: nil)
+        }
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = getUtilityAsset(for: chainAsset),
+           let priceId = utilityAsset.asset.priceId {
+            utilityPriceProvider = subscribeToPrice(for: priceId)
         }
     }
 
@@ -94,29 +112,49 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 }
 
 extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol {
-    func estimateFee(for amount: BigUInt) {
-        guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
+    func estimateFee(for amount: BigUInt, tip: BigUInt?) {
+        guard let accountId = try? AddressFactory.accountId(
+            from: receiverAddress,
+            chain: chainAsset.chain
+        ),
+            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount, currencyId: chain.currencyId, chain: chain)
-        let identifier = String(amount)
-
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
-            let nextBuilder = try builder.adding(call: call)
+        let call = callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
+        var identifier = String(amount)
+        if let tip = tip {
+            identifier += "_\(String(tip))"
+        }
+        feeProxy.estimateFee(using: dependencies.extrinsicService, reuseIdentifier: identifier) { builder in
+            var nextBuilder = try builder.adding(call: call)
+            if let tip = tip {
+                nextBuilder = builder.with(tip: tip)
+            }
             return nextBuilder
         }
     }
 
-    func submitExtrinsic(for transferAmount: BigUInt, receiverAddress: String) {
-        guard let accountId = try? AddressFactory.accountId(from: receiverAddress, chain: chain) else { return }
+    func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String) {
+        guard let accountId = try? AddressFactory.accountId(
+            from: receiverAddress,
+            chain: chainAsset.chain
+        ),
+            let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: transferAmount, currencyId: chain.currencyId, chain: chain)
+        let call = callFactory.transfer(
+            to: accountId,
+            amount: transferAmount,
+            chainAsset: chainAsset
+        )
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
-            let nextBuilder = try builder.adding(call: call)
+            var nextBuilder = try builder.adding(call: call)
+            if let tip = tip {
+                nextBuilder = builder.with(tip: tip)
+            }
             return nextBuilder
         }
 
-        extrinsicService.submit(
+        dependencies.extrinsicService.submit(
             builderClosure,
             signer: signingWrapper,
             runningIn: .main,
@@ -125,21 +163,30 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
             }
         )
     }
+
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+        guard let chainAsset = chainAsset else { return nil }
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = chainAsset.chain.utilityAssets().first {
+            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset.asset)
+        }
+        return chainAsset
+    }
 }
 
 extension WalletSendConfirmInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
         result: Result<AccountInfo?, Error>,
         accountId _: AccountId,
-        chainId _: ChainModel.Id
+        chainAsset: ChainAsset
     ) {
-        presenter?.didReceiveAccountInfo(result: result)
+        presenter?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
 }
 
 extension WalletSendConfirmInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
-        presenter?.didReceivePriceData(result: result)
+    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        presenter?.didReceivePriceData(result: result, for: priceId)
     }
 }
 
