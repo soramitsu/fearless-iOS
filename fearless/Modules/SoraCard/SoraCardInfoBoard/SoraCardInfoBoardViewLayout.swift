@@ -12,8 +12,10 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }()
 
     let statusButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .custom)
         button.backgroundColor = R.color.colorBlack19()
+        button.titleLabel?.font = .capsTitle
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return button
     }()
 
@@ -50,7 +52,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }
 
     func bind(state: SoraCardState) {
-        statusButton.setTitle(state.title(for: locale), for: .normal)
+        statusButton.setTitle(state.title(for: locale).uppercased(), for: .normal)
         statusButton.setNeedsLayout()
         statusButton.layoutIfNeeded()
     }
