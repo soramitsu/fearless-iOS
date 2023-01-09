@@ -32,7 +32,8 @@ final class SelectMarketPresenter {
 
     private func provideViewModel() {
         viewModels = markets.map {
-            SelectableSubtitleListViewModel(title: $0.name, subtitle: $0.description)
+            let description = $0.description(for: selectedLocale)
+            return SelectableSubtitleListViewModel(title: $0.name, subtitle: description)
         }
 
         view?.didReload()
@@ -60,7 +61,7 @@ extension SelectMarketPresenter: SelectMarketViewOutput {
 
     func didTapAdditionalButton(at indexPath: IndexPath) {
         viewModels[indexPath.row].isExpand.toggle()
-        view?.didReloadCell(at: indexPath)
+        view?.reloadCell(at: indexPath)
     }
 
     func didLoad(view: SelectMarketViewInput) {

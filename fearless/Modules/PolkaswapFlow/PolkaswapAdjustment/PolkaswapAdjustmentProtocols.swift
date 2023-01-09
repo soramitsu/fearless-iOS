@@ -51,7 +51,7 @@ protocol PolkaswapAdjustmentInteractorInput: AnyObject {
         toAssetId: String,
         swapVariant: SwapVariant,
         swapAmount: SwapAmount,
-        filter: FilterMode,
+        filter: PolkaswapLiquidityFilterMode,
         liquiditySourceType: LiquiditySourceType
     )
 }

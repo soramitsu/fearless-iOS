@@ -70,7 +70,7 @@ struct SwapCall: Codable {
 
     var amount: [SwapVariant: SwapAmount]
     let liquiditySourceType: [[String?]] // TBD liquiditySourceType.codable
-    let filterMode: FilterModeType
+    let filterMode: PolkaswapCallFilterModeType
 
     enum CodingKeys: String, CodingKey {
         case dexId
@@ -82,7 +82,7 @@ struct SwapCall: Codable {
     }
 }
 
-struct FilterModeType: Codable {
+struct PolkaswapCallFilterModeType: Codable {
     var name: String
     var value: UInt?
 

@@ -72,7 +72,7 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         params: PolkaswapQuoteParams,
         quote: [SwapValues]
     ) -> SwapQuoteAmounts? {
-        let subsctrateSwapValues: [SubstrateSwapValues] = quote.compactMap { quote -> SubstrateSwapValues? in
+        let substrateSwapValues: [SubstrateSwapValues] = quote.compactMap { quote -> SubstrateSwapValues? in
             guard let toAmountBig = BigUInt(quote.amount),
                   let feeBig = BigUInt(quote.fee)
             else {
@@ -85,7 +85,7 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
                 rewards: quote.rewards
             )
         }
-        guard let bestQuote = subsctrateSwapValues.sorted(by: {
+        guard let bestQuote = substrateSwapValues.sorted(by: {
             $0.amount > $1.amount
         }).first else {
             return nil

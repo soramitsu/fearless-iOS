@@ -9,6 +9,11 @@ final class PolkaswapAdjustmentPresenter {
         case swapTo
     }
 
+    private enum Constants {
+        static let slippadgeTolerance: Float = 0.5
+        static let quotesRequestDelay: CGFloat = 0.8
+    }
+
     // MARK: Private properties
 
     private weak var view: PolkaswapAdjustmentViewInput?
@@ -27,12 +32,13 @@ final class PolkaswapAdjustmentPresenter {
     private var swapFromChainAsset: ChainAsset?
     private var swapToChainAsset: ChainAsset?
     private var prices: [PriceData]?
-    private var marketSourcer: SwapMarketSourcerProtocol?
+    private var marketSource: SwapMarketSourceProtocol?
     private var polkaswapDexForRoute: PolkaswapDex?
     private var calcalatedAmounts: SwapQuoteAmounts?
     private var detailsViewModel: PolkaswapAdjustmentDetailsViewModel?
+    private var quotesWorkItem: DispatchWorkItem?
 
-    private var slippadgeTolerance: Float = 0.5
+    private var slippadgeTolerance: Float = Constants.slippadgeTolerance
     private var selectedLiquiditySourceType: LiquiditySourceType {
         didSet {
             view?.didReceive(market: selectedLiquiditySourceType)
@@ -153,11 +159,12 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func fetchQuotes() {
+        quotesWorkItem?.cancel()
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let swapFromAssetId = swapFromChainAsset.asset.currencyId,
               let swapToAssetId = swapToChainAsset.asset.currencyId,
-              let marketSourcer = marketSourcer
+              let marketSourcer = marketSource
         else {
             return
         }
@@ -185,7 +192,7 @@ final class PolkaswapAdjustmentPresenter {
             amount = String(bigUIntValue)
         }
 
-        let liquiditySources = marketSourcer.getServerMarketSources()
+        let liquiditySources = marketSourcer.getRemoteMarketSources()
 
         let quoteParams = PolkaswapQuoteParams(
             fromAssetId: swapFromAssetId,
@@ -196,8 +203,12 @@ final class PolkaswapAdjustmentPresenter {
             filterMode: selectedLiquiditySourceType.filterMode
         )
 
-        interactor.fetchQuotes(with: quoteParams)
-        view?.didUpdating()
+        let task = DispatchWorkItem { [weak self] in
+            self?.interactor.fetchQuotes(with: quoteParams)
+            self?.view?.didUpdating()
+        }
+        quotesWorkItem = task
+        DispatchQueue.global().asyncAfter(deadline: .now() + Constants.quotesRequestDelay, execute: task)
     }
 
     private func subscribeToPoolUpdates() {
@@ -335,6 +346,7 @@ final class PolkaswapAdjustmentPresenter {
         swapToInputResult = nil
         provideFromAssetVewModel()
         provideToAssetVewModel()
+        view?.didReceiveDetails(viewModel: nil)
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
@@ -431,7 +443,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
     }
 
     func didTapMarketButton() {
-        guard let marketSourcer = marketSourcer else {
+        guard let marketSourcer = marketSource else {
             showMarketSelectionAlert()
             return
         }
@@ -606,7 +618,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
 extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     func didReceive(error: Error) {
-        print("PolkaswapAdjustmentPresenter", error)
+        logger.error("\(error)")
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {
@@ -687,7 +699,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
 
         guard fromAssetId == swapFromChainAsset?.asset.currencyId,
               toAssetId == swapToChainAsset?.asset.currencyId,
-              let marketSourcer = marketSourcer,
+              let marketSourcer = marketSource,
               let dexInfo = availableDexsInfos.first
         else {
             return
@@ -718,6 +730,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
     }
 
     func didReceiveSwapValues(_ valuesMap: [SwapValues], params: PolkaswapQuoteParams, errors: [Error]) {
+        guard params.fromAssetId == swapFromChainAsset?.asset.currencyId,
+              params.toAssetId == swapToChainAsset?.asset.currencyId
+        else {
+            return
+        }
+
         errors.forEach { logger.error("\($0)") }
         provideAmount(params: params, quotes: valuesMap)
         if valuesMap.isEmpty, errors.isNotEmpty {
@@ -756,7 +774,8 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
         view?.didUpdating()
         guard let rawValue = contextTag,
               let input = InputTag(rawValue: rawValue),
-              let chainAsset = chainAsset
+              let chainAsset = chainAsset,
+              let polkaswapRemoteSettings = polkaswapRemoteSettings
         else {
             return
         }
@@ -770,10 +789,10 @@ extension PolkaswapAdjustmentPresenter: SelectAssetModuleOutput {
             provideToAssetVewModel()
         }
 
-        marketSourcer = SwapMarketSourcer(
+        marketSource = SwapMarketSource(
             fromAssetId: swapFromChainAsset?.asset.currencyId,
             toAssetId: swapToChainAsset?.asset.currencyId,
-            forceSmartIds: polkaswapRemoteSettings?.forceSmartIds ?? []
+            remoteSettings: polkaswapRemoteSettings
         )
         interactor.didReceive(swapFromChainAsset, swapToChainAsset)
         subscribeToPoolUpdates()

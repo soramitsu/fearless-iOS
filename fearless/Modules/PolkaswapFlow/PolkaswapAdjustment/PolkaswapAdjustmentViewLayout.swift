@@ -177,7 +177,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
@@ -187,16 +187,16 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             make.height.equalTo(UIConstants.actionHeight)
         }
 
-        let switchIntutsView = createSwitchInputsView()
-        contentView.stackView.addArrangedSubview(switchIntutsView)
-        switchIntutsView.snp.makeConstraints { make in
+        let switchInputsView = createSwitchInputsView()
+        contentView.stackView.addArrangedSubview(switchInputsView)
+        switchInputsView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
         }
 
         let feesView = createFeesView()
         contentView.stackView.addArrangedSubview(feesView)
         feesView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
     }
 
@@ -207,12 +207,14 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         container.addSubview(switchSwapButton)
 
         swapFromInputView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
+            make.top.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         swapToInputView.snp.makeConstraints { make in
             make.top.equalTo(swapFromInputView.snp.bottom).offset(UIConstants.defaultOffset)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview()
         }
 
         switchSwapButton.snp.makeConstraints { make in

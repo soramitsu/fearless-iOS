@@ -182,7 +182,8 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     func didTapPolkaswapButton() {
         wireframe.showPolkaswap(
             from: view,
-            chainAsset: chainAsset
+            chainAsset: chainAsset,
+            wallet: wallet
         )
     }
 }

@@ -1,11 +1,3 @@
-//
-//  PolkaswapSettingMapper.swift
-//  fearless
-//
-//  Created by Soramitsu on 19.12.2022.
-//  Copyright © 2022 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import RobinHood
 import CoreData
@@ -28,7 +20,8 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
                   LiquiditySourceType(rawValue: $0)
               }),
               let forceSmartIds = entity.forceSmartIds,
-              let availableDexIdsSet = entity.availableDexIds
+              let availableDexIdsSet = entity.availableDexIds,
+              let xstusdId = entity.xstusdId
         else {
             throw PolkaswapSettingMapperError.requiredFieldsMissing
         }
@@ -53,7 +46,8 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
             version: version,
             availableDexIds: availableDexIds,
             availableSources: availableSources,
-            forceSmartIds: forceSmartIds
+            forceSmartIds: forceSmartIds,
+            xstusdId: xstusdId
         )
     }
 
@@ -65,6 +59,7 @@ extension PolkaswapSettingMapper: CoreDataMapperProtocol {
         entity.version = model.version
         entity.availableSources = model.availableSources.map { $0.rawValue }
         entity.forceSmartIds = model.forceSmartIds
+        entity.xstusdId = model.xstusdId
 
         let availableDexIds = model.availableDexIds.map {
             let entity = CDPolkaswapDex(context: context)

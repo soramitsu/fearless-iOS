@@ -101,7 +101,8 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     )
     func showPolkaswap(
         from view: ChainAccountViewProtocol?,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     )
 }
 

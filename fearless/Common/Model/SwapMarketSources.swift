@@ -1,24 +1,24 @@
 import Foundation
 
-protocol SwapMarketSourcerProtocol {
-    init?(fromAssetId: String?, toAssetId: String?, forceSmartIds: [String])
+protocol SwapMarketSourceProtocol {
+    init?(fromAssetId: String?, toAssetId: String?, remoteSettings: PolkaswapRemoteSettings)
     func getMarketSources() -> [LiquiditySourceType]
     func getMarketSource(at index: Int) -> LiquiditySourceType?
     func isEmpty() -> Bool
     func isLoaded() -> Bool
     func didLoad(_ serverMarketSources: [LiquiditySourceType])
-    func getServerMarketSources() -> [String]
+    func getRemoteMarketSources() -> [String]
     func index(of marketSource: LiquiditySourceType) -> Int?
     func contains(_ marketSource: LiquiditySourceType) -> Bool
 }
 
-final class SwapMarketSourcer: SwapMarketSourcerProtocol {
+final class SwapMarketSource: SwapMarketSourceProtocol {
     private var marketSources: [LiquiditySourceType]?
     private var fromAssetId: String
     private var toAssetId: String
-    private let forceSmartIds: [String]
+    private let remoteSettings: PolkaswapRemoteSettings
 
-    required init?(fromAssetId: String?, toAssetId: String?, forceSmartIds: [String]) {
+    required init?(fromAssetId: String?, toAssetId: String?, remoteSettings: PolkaswapRemoteSettings) {
         guard let fromAssetId = fromAssetId,
               let toAssetId = toAssetId
         else {
@@ -26,7 +26,7 @@ final class SwapMarketSourcer: SwapMarketSourcerProtocol {
         }
         self.fromAssetId = fromAssetId
         self.toAssetId = toAssetId
-        self.forceSmartIds = forceSmartIds
+        self.remoteSettings = remoteSettings
     }
 
     func getMarketSources() -> [LiquiditySourceType] {
@@ -34,14 +34,11 @@ final class SwapMarketSourcer: SwapMarketSourcerProtocol {
     }
 
     func getMarketSource(at index: Int) -> LiquiditySourceType? {
-        guard let marketSources = marketSources, index < marketSources.count else {
-            return nil
-        }
-        return marketSources[index]
+        marketSources?[safe: index]
     }
 
     func isEmpty() -> Bool {
-        marketSources?.isEmpty ?? true
+        marketSources.or([]).isEmpty
     }
 
     func isLoaded() -> Bool {
@@ -54,40 +51,55 @@ final class SwapMarketSourcer: SwapMarketSourcerProtocol {
         addSmartIfNotEmpty()
     }
 
-    func setMarketSources(_ marketSources: [LiquiditySourceType]) {
+    func getRemoteMarketSources() -> [String] {
+        let filteredMarketSources = marketSources?.filter { shouldSendToServer($0) } ?? []
+        return filteredMarketSources.map { $0.rawValue }
+    }
+
+    func index(of marketSource: LiquiditySourceType) -> Int? {
+        marketSources?.firstIndex(where: { $0 == marketSource })
+    }
+
+    func contains(_ marketSource: LiquiditySourceType) -> Bool {
+        index(of: marketSource) != nil
+    }
+
+    // MARK: - Private methods
+
+    private func setMarketSources(_ marketSources: [LiquiditySourceType]) {
         self.marketSources = marketSources
     }
 
-    func setMarketSources(from serverMarketSources: [LiquiditySourceType]) {
-        marketSources = serverMarketSources
+    private func setMarketSources(from remoteMarketSources: [LiquiditySourceType]) {
+        marketSources = remoteMarketSources
     }
 
-    func forceAddSmartMarketSourceIfNecessary() {
+    private func forceAddSmartMarketSourceIfNecessary() {
         if isEmpty(), shouldForceAddSmartMarketSource() {
             add(.smart)
         }
     }
 
-    func shouldForceAddSmartMarketSource() -> Bool {
+    private func shouldForceAddSmartMarketSource() -> Bool {
         isXSTUSD(fromAssetId) && shouldForceSmartMarketSource(for: toAssetId) ||
             isXSTUSD(toAssetId) && shouldForceSmartMarketSource(for: fromAssetId)
     }
 
-    func isXSTUSD(_ assetId: String) -> Bool {
-        assetId == PolkaswapConstnts.xstusd
+    private func isXSTUSD(_ assetId: String) -> Bool {
+        assetId == remoteSettings.xstusdId
     }
 
-    func shouldForceSmartMarketSource(for assetId: String) -> Bool {
-        forceSmartIds.contains(assetId)
+    private func shouldForceSmartMarketSource(for assetId: String) -> Bool {
+        remoteSettings.forceSmartIds.contains(assetId)
     }
 
-    func add(_ marketSource: LiquiditySourceType) {
+    private func add(_ marketSource: LiquiditySourceType) {
         DispatchQueue.global().sync {
             marketSources?.append(marketSource)
         }
     }
 
-    func addSmartIfNotEmpty() {
+    private func addSmartIfNotEmpty() {
         guard let marketSources = marketSources else { return }
 
         let notEmpty = !marketSources.isEmpty
@@ -97,20 +109,7 @@ final class SwapMarketSourcer: SwapMarketSourcerProtocol {
         }
     }
 
-    func getServerMarketSources() -> [String] {
-        let filteredMarketSources = marketSources?.filter { shouldSendToServer($0) } ?? []
-        return filteredMarketSources.map { $0.rawValue }
-    }
-
-    func shouldSendToServer(_ markerSource: LiquiditySourceType) -> Bool {
+    private func shouldSendToServer(_ markerSource: LiquiditySourceType) -> Bool {
         markerSource != LiquiditySourceType.smart
-    }
-
-    func index(of marketSource: LiquiditySourceType) -> Int? {
-        marketSources?.firstIndex(where: { $0 == marketSource })
-    }
-
-    func contains(_ marketSource: LiquiditySourceType) -> Bool {
-        index(of: marketSource) != nil
     }
 }

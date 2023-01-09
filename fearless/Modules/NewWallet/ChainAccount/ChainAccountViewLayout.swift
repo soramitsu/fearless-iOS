@@ -90,7 +90,6 @@ final class ChainAccountViewLayout: UIView {
 
     let receiveContainer: BorderedContainerView = {
         let container = BorderedContainerView()
-        container.borderType = [.left, .right]
         container.backgroundColor = .clear
         container.strokeWidth = 1.0
         container.strokeColor = R.color.colorDarkGray()!
@@ -159,9 +158,11 @@ final class ChainAccountViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
-        buyButton.isEnabled = viewModel.chainAssetModel?.purchaseProviders?.first != nil
+        buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
         polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
-        buyButton.isHidden = !polkaswapButton.isHidden
+
+        let borderType: BorderType = (buyButton.isHidden && polkaswapButton.isHidden) ? .left : [.left, .right]
+        receiveContainer.borderType = borderType
     }
 }
 

@@ -46,6 +46,7 @@ final class SelectMarketViewController: SelectableListViewController<ExpandableS
     }
 
     private func setupLayout() {
+        rootView.backgroundColor = R.color.colorAlmostBlack()
         rootView.tableView.snp.makeConstraints { make in
             make.height.equalTo(UIScreen.main.bounds.height / 2.5)
         }
@@ -53,7 +54,6 @@ final class SelectMarketViewController: SelectableListViewController<ExpandableS
 
     private func configure() {
         rootView.bind(viewModel: nil)
-        rootView.backgroundColor = R.color.colorAlmostBlack()
         rootView.titleLabel.text = R.string.localizable
             .polkaswapMarketAlgorithmTitle(preferredLanguages: selectedLocale.rLanguages)
     }

@@ -155,6 +155,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
                 if let priceData = priceData, let rate = Decimal(string: priceData.price) {
                     fiatBalance = priceFormatter.stringFromDecimal(balance * rate)
                 }
+
+                if let fiatBalance = fiatBalance {
+                    balanceString?.append(contentsOf: " (\(fiatBalance))")
+                }
             }
 
             return AssetBalanceViewModel(

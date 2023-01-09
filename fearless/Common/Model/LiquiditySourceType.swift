@@ -39,12 +39,12 @@ enum LiquiditySourceType: String, Codable {
         }
     }
 
-    var filterMode: FilterMode {
+    var filterMode: PolkaswapLiquidityFilterMode {
         self == .smart ? .disabled : .allowSelected
     }
 
-    var description: String {
-        let preferredLocalizations = LocalizationManager.shared.preferredLocalizations
+    func description(for locale: Locale) -> String {
+        let preferredLocalizations = locale.rLanguages
         switch self {
         case .smart:
             return R.string.localizable

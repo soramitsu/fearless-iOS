@@ -1,11 +1,3 @@
-//
-//  PolkaswapSettingsFactory.swift
-//  fearless
-//
-//  Created by Soramitsu on 19.12.2022.
-//  Copyright © 2022 Soramitsu. All rights reserved.
-//
-
 import Foundation
 import RobinHood
 import FearlessUtils

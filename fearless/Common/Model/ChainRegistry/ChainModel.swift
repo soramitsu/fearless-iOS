@@ -262,7 +262,7 @@ extension ChainModel {
         case both
         case onlyOwn
     }
-    
+
     func polkascanAddressURL(_ address: String) -> URL? {
         URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
     }

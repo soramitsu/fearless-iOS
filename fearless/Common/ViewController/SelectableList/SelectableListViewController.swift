@@ -120,7 +120,7 @@ extension SelectableListViewController: SelectionListViewProtocol {
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
     }
 
-    func didReloadCell(at indexPath: IndexPath) {
+    func reloadCell(at indexPath: IndexPath) {
         rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }

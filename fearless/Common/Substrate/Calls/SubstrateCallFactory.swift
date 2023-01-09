@@ -597,14 +597,14 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         type: [[String?]],
         filter: Int
     ) -> RuntimeCall<SwapCall> {
-        let filterMode = FilterMode(rawValue: filter) ?? .disabled
+        let filterMode = PolkaswapLiquidityFilterMode(rawValue: filter) ?? .disabled
         let args = SwapCall(
             dexId: dexId,
             inputAssetId: SoraAssetId(wrappedValue: asset),
             outputAssetId: SoraAssetId(wrappedValue: targetAsset),
             amount: amountCall,
             liquiditySourceType: type,
-            filterMode: FilterModeType(
+            filterMode: PolkaswapCallFilterModeType(
                 wrappedName: filterMode.code,
                 wrappedValue: UInt(filter)
             )

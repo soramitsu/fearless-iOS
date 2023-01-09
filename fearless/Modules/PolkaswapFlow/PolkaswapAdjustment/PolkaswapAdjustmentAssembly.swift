@@ -5,11 +5,11 @@ import RobinHood
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
-        swapFromChainAsset: ChainAsset
+        swapFromChainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) -> PolkaswapAdjustmentModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let wallet = SelectedWalletSettings.shared.value,
-              let connection = chainRegistry.getConnection(for: swapFromChainAsset.chain.chainId),
+        guard let connection = chainRegistry.getConnection(for: swapFromChainAsset.chain.chainId),
               let accountResponse = wallet.fetch(for: swapFromChainAsset.chain.accountRequest()),
               let runtimeService = chainRegistry.getRuntimeProvider(for: swapFromChainAsset.chain.chainId),
               let xorChainAsset = swapFromChainAsset.chain.utilityChainAssets().first

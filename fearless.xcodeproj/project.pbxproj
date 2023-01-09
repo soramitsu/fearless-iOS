@@ -60,16 +60,15 @@
 		076D9D33293DB8E3002762E3 /* SwapMarketSources.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D32293DB8E3002762E3 /* SwapMarketSources.swift */; };
 		076D9D35293E34AF002762E3 /* LiquiditySourceType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D34293E34AF002762E3 /* LiquiditySourceType.swift */; };
 		076D9D37293E34EE002762E3 /* SwapVariant.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D36293E34EE002762E3 /* SwapVariant.swift */; };
-		076D9D39293E3500002762E3 /* FilterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D38293E3500002762E3 /* FilterMode.swift */; };
+		076D9D39293E3500002762E3 /* PolkaswapLiquidityFilterMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D38293E3500002762E3 /* PolkaswapLiquidityFilterMode.swift */; };
 		076D9D3B293E3511002762E3 /* SwapValues.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D3A293E3511002762E3 /* SwapValues.swift */; };
 		076D9D3D293E357A002762E3 /* PolkaswapRemoteSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D3C293E357A002762E3 /* PolkaswapRemoteSettings.swift */; };
 		076D9D3F293E367C002762E3 /* PolkaswapDex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D3E293E367C002762E3 /* PolkaswapDex.swift */; };
 		076D9D41293F2A1F002762E3 /* SlippageToleranceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D40293F2A1F002762E3 /* SlippageToleranceView.swift */; };
 		076D9D43294051B3002762E3 /* ExpandableSubtitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D42294051B3002762E3 /* ExpandableSubtitleCell.swift */; };
 		076D9D4529405987002762E3 /* SlippageToleranceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4429405987002762E3 /* SlippageToleranceViewModelFactory.swift */; };
-		076D9D4829417DFA002762E3 /* PolkaswapStorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4729417DFA002762E3 /* PolkaswapStorageKeyFactory.swift */; };
 		076D9D4A29419745002762E3 /* PolkaswapRemoteSubscriptionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4929419745002762E3 /* PolkaswapRemoteSubscriptionService.swift */; };
-		076D9D4D29431C71002762E3 /* SwapQuoteAmoutFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4C29431C71002762E3 /* SwapQuoteAmoutFactory.swift */; };
+		076D9D4D29431C71002762E3 /* SwapQuoteAmountFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4C29431C71002762E3 /* SwapQuoteAmountFactory.swift */; };
 		076D9D4F2946E665002762E3 /* PolkaswapSwapCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D4E2946E665002762E3 /* PolkaswapSwapCall.swift */; };
 		076D9D5129484C8E002762E3 /* PolkaswapDexInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D5029484C8E002762E3 /* PolkaswapDexInfo.swift */; };
 		076D9D53294AC0A6002762E3 /* PolkaswapJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 076D9D52294AC0A6002762E3 /* PolkaswapJSON.swift */; };
@@ -2606,16 +2605,15 @@
 		076D9D32293DB8E3002762E3 /* SwapMarketSources.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapMarketSources.swift; sourceTree = "<group>"; };
 		076D9D34293E34AF002762E3 /* LiquiditySourceType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquiditySourceType.swift; sourceTree = "<group>"; };
 		076D9D36293E34EE002762E3 /* SwapVariant.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapVariant.swift; sourceTree = "<group>"; };
-		076D9D38293E3500002762E3 /* FilterMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FilterMode.swift; sourceTree = "<group>"; };
+		076D9D38293E3500002762E3 /* PolkaswapLiquidityFilterMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapLiquidityFilterMode.swift; sourceTree = "<group>"; };
 		076D9D3A293E3511002762E3 /* SwapValues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapValues.swift; sourceTree = "<group>"; };
 		076D9D3C293E357A002762E3 /* PolkaswapRemoteSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapRemoteSettings.swift; sourceTree = "<group>"; };
 		076D9D3E293E367C002762E3 /* PolkaswapDex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapDex.swift; sourceTree = "<group>"; };
 		076D9D40293F2A1F002762E3 /* SlippageToleranceView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageToleranceView.swift; sourceTree = "<group>"; };
 		076D9D42294051B3002762E3 /* ExpandableSubtitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableSubtitleCell.swift; sourceTree = "<group>"; };
 		076D9D4429405987002762E3 /* SlippageToleranceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlippageToleranceViewModelFactory.swift; sourceTree = "<group>"; };
-		076D9D4729417DFA002762E3 /* PolkaswapStorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapStorageKeyFactory.swift; sourceTree = "<group>"; };
 		076D9D4929419745002762E3 /* PolkaswapRemoteSubscriptionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapRemoteSubscriptionService.swift; sourceTree = "<group>"; };
-		076D9D4C29431C71002762E3 /* SwapQuoteAmoutFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapQuoteAmoutFactory.swift; sourceTree = "<group>"; };
+		076D9D4C29431C71002762E3 /* SwapQuoteAmountFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SwapQuoteAmountFactory.swift; sourceTree = "<group>"; };
 		076D9D4E2946E665002762E3 /* PolkaswapSwapCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapSwapCall.swift; sourceTree = "<group>"; };
 		076D9D5029484C8E002762E3 /* PolkaswapDexInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapDexInfo.swift; sourceTree = "<group>"; };
 		076D9D52294AC0A6002762E3 /* PolkaswapJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PolkaswapJSON.swift; sourceTree = "<group>"; };
@@ -5386,7 +5384,7 @@
 				076D9D3E293E367C002762E3 /* PolkaswapDex.swift */,
 				076D9D5029484C8E002762E3 /* PolkaswapDexInfo.swift */,
 				076D9D36293E34EE002762E3 /* SwapVariant.swift */,
-				076D9D38293E3500002762E3 /* FilterMode.swift */,
+				076D9D38293E3500002762E3 /* PolkaswapLiquidityFilterMode.swift */,
 				076D9D3A293E3511002762E3 /* SwapValues.swift */,
 				076D9D54294AC3E3002762E3 /* DexIdInfo.swift */,
 				076D9D56294B38E1002762E3 /* PolkaswapPreviewParams.swift */,
@@ -5398,7 +5396,6 @@
 			isa = PBXGroup;
 			children = (
 				076D9D2D2939B77F002762E3 /* PolkaswapOperationFactoryProtocol.swift */,
-				076D9D4729417DFA002762E3 /* PolkaswapStorageKeyFactory.swift */,
 				076D9D52294AC0A6002762E3 /* PolkaswapJSON.swift */,
 			);
 			path = Polkaswap;
@@ -5407,7 +5404,7 @@
 		076D9D4B29431C50002762E3 /* Helpres */ = {
 			isa = PBXGroup;
 			children = (
-				076D9D4C29431C71002762E3 /* SwapQuoteAmoutFactory.swift */,
+				076D9D4C29431C71002762E3 /* SwapQuoteAmountFactory.swift */,
 			);
 			path = Helpres;
 			sourceTree = "<group>";
@@ -13376,7 +13373,7 @@
 				8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */,
 				07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */,
 				846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */,
-				076D9D4D29431C71002762E3 /* SwapQuoteAmoutFactory.swift in Sources */,
+				076D9D4D29431C71002762E3 /* SwapQuoteAmountFactory.swift in Sources */,
 				8423B0E0251A759000B8687C /* Chain.swift in Sources */,
 				07F2B75728A3A4B800280C38 /* ChainCollectionView.swift in Sources */,
 				8473D40D2657E9DC00B394B2 /* MultiSigner.swift in Sources */,
@@ -13883,7 +13880,6 @@
 				84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */,
 				FAC0BBD5291D0EB000E6F106 /* SendProtocols.swift in Sources */,
 				8472C5B1265CF9C500E2481B /* StakingRewardDestConfirmViewFactory.swift in Sources */,
-				076D9D4829417DFA002762E3 /* PolkaswapStorageKeyFactory.swift in Sources */,
 				F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */,
 				849DF02F26C53DB900B702F4 /* RuntimeSyncEvents.swift in Sources */,
 				84265E042523D20A005EEE2D /* WalletBaseAmountView.swift in Sources */,
@@ -13893,7 +13889,7 @@
 				FA936BD0286C41E80059B97A /* StakingRebondConfirmationRelaychainViewModelState.swift in Sources */,
 				C661B3AD27DF0193005F1F7D /* AccountCreateViewLayout.swift in Sources */,
 				8470D6D0253E321C009E9A5D /* StorageSubscriptionProtocols.swift in Sources */,
-				076D9D39293E3500002762E3 /* FilterMode.swift in Sources */,
+				076D9D39293E3500002762E3 /* PolkaswapLiquidityFilterMode.swift in Sources */,
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
 				C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */,
 				8460E1132541DEDA00826F55 /* TransactionDetailsFormViewModelBinder.swift in Sources */,

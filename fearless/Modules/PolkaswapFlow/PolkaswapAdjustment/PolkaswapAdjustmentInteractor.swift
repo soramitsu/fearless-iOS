@@ -21,10 +21,11 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     }()
 
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
-    private var dexIds: [UInt32] = [PolkaswapConstnts.xorDexID, PolkaswapConstnts.xstusdDexID]
+    private var dexIds: [UInt32] = []
     private var swapValues: [SwapValues] = []
     private var swapValueErrors: [Error] = []
     private var listeningSubscription: [String] = []
+    private var dexInfos: [PolkaswapDexInfo] = []
 
     init(
         xorChainAsset: ChainAsset,
@@ -66,8 +67,6 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         }
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
-
-    var dexInfos: [PolkaswapDexInfo] = []
 
     private func fetchIsPairAvailableAndMarkets(
         for dexIds: [UInt32],
@@ -239,7 +238,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         toAssetId: String,
         swapVariant: SwapVariant,
         swapAmount: SwapAmount,
-        filter: FilterMode,
+        filter: PolkaswapLiquidityFilterMode,
         liquiditySourceType: LiquiditySourceType
     ) {
         let amountCall = [swapVariant: swapAmount]

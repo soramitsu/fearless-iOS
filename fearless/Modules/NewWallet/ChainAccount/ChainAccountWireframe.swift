@@ -187,9 +187,10 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
 
     func showPolkaswap(
         from view: ChainAccountViewProtocol?,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
     ) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset) else {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)

@@ -78,10 +78,6 @@ extension PolkaswapTransaktionSettingsPresenter: PolkaswapTransaktionSettingsVie
     }
 
     func didTapSelectMarket() {
-        guard markets.count > 1 else {
-            router.present(message: nil, title: "Only smart", closeAction: nil, from: view)
-            return
-        }
         router.showSelectMarket(
             from: view,
             markets: markets,

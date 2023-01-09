@@ -1,6 +1,6 @@
 import Foundation
 
-enum FilterMode: Int, CaseIterable {
+enum PolkaswapLiquidityFilterMode: Int, CaseIterable {
     case disabled = 0
     case forbidSelected
     case allowSelected

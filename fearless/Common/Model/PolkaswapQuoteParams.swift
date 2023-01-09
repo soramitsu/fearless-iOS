@@ -6,5 +6,5 @@ struct PolkaswapQuoteParams {
     let amount: String
     let swapVariant: SwapVariant
     let liquiditySources: [String]
-    let filterMode: FilterMode
+    let filterMode: PolkaswapLiquidityFilterMode
 }

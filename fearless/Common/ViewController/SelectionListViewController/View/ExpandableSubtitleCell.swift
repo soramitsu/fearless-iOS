@@ -13,7 +13,6 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
     let infoButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconExpandable(), for: .normal)
-        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
     }()
 
@@ -21,7 +20,6 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .h4Title
-        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
@@ -96,12 +94,14 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
         }
 
         textVStackView.addArrangedSubview(titleLabel)
+        titleLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         textVStackView.addArrangedSubview(subtitle)
         subtitle.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
         }
 
         contentView.addSubview(infoButton)
+        infoButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         infoButton.snp.makeConstraints { make in
             make.leading.equalTo(textVStackView.snp.trailing)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)

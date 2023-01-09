@@ -116,7 +116,6 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
             return
         }
         self.selectedChainAsset = selectedChainAsset
-//        output.assetSelection(didCompleteWith: selectedChainAsset, contextTag: contextTag)
         router.dismiss(view: view)
     }
 
