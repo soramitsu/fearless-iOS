@@ -89,4 +89,24 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
 
         return module.input
     }
+
+    func showPoolValidators(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let validatorsView = YourValidatorListViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .pool
+        ) else {
+            return
+        }
+
+        let navigationController = ImportantFlowViewFactory.createNavigation(
+            from: validatorsView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }

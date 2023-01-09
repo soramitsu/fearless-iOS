@@ -330,7 +330,7 @@ final class StakingStateViewModelFactory {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let balance = convertAmount(
-            commonData.accountInfo?.data.available,
+            commonData.accountInfo?.data.stakingAvailable,
             for: chainAsset,
             defaultValue: 0.0
         )

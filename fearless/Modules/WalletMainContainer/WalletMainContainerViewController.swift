@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class WalletMainContainerViewController: UIViewController, ViewHolder {
+final class WalletMainContainerViewController: UIViewController, ViewHolder, AllDonePresentable {
     typealias RootViewType = WalletMainContainerViewLayout
 
     // MARK: Private properties

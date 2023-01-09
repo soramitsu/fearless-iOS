@@ -97,7 +97,7 @@ final class StakingPoolInfoViewLayout: UIView {
         view.valueLabel.font = .h5Title
         view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
-        view.valueLabel.numberOfLines = 2
+        view.valueLabel.numberOfLines = 0
         return view
     }()
 
@@ -354,7 +354,7 @@ final class StakingPoolInfoViewLayout: UIView {
 
         nameView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.cellHeight)
+            make.height.greaterThanOrEqualTo(UIConstants.cellHeight)
         }
 
         nameView.valueImageView.snp.remakeConstraints { _ in

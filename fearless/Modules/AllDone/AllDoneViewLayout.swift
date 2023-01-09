@@ -117,9 +117,11 @@ final class AllDoneViewLayout: UIView {
 
     // MARK: - Public methods
 
-    func bind(_ hashString: String) {
-        self.hashString = hashString
-        let hashString = NSMutableAttributedString(string: hashString + "  ")
+    func bind(_ viewModel: AllDoneViewModel) {
+        titleLabel.text = viewModel.title
+        descriptionLabel.text = viewModel.description
+        self.hashString = viewModel.extrinsicHash
+        let hashString = NSMutableAttributedString(string: viewModel.extrinsicHash + "  ")
 
         let imageAttachment = NSTextAttachment()
         imageAttachment.bounds = CGRect(
@@ -147,10 +149,6 @@ final class AllDoneViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .allDoneAlertAllDoneStub(preferredLanguages: locale.rLanguages)
-        descriptionLabel.text = R.string.localizable
-            .allDoneAlertDescriptionStub(preferredLanguages: locale.rLanguages)
         hashView.titleLabel.text = R.string.localizable
             .allDoneAlertHashStub(preferredLanguages: locale.rLanguages)
         resultView.titleLabel.text = R.string.localizable

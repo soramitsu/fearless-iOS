@@ -1,13 +1,14 @@
 typealias AllDoneModuleCreationResult = (view: AllDoneViewInput, input: AllDoneModuleInput)
 
 protocol AllDoneViewInput: ControllerBackedProtocol {
-    func didReceive(hashString: String)
+    func didReceive(viewModel: AllDoneViewModel)
 }
 
 protocol AllDoneViewOutput: AnyObject {
     func didLoad(view: AllDoneViewInput)
     func dismiss()
     func didCopyTapped()
+    func presentationControllerWillDismiss()
 }
 
 protocol AllDoneInteractorInput: AnyObject {

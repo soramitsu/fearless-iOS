@@ -56,7 +56,8 @@ protocol SheetAlertPresentable {
         message: String?,
         title: String,
         closeAction: String?,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        actions: [SheetAlertPresentableAction]
     )
 }
 
@@ -81,7 +82,8 @@ extension SheetAlertPresentable {
         message: String?,
         title: String,
         closeAction: String?,
-        from view: ControllerBackedProtocol?
+        from view: ControllerBackedProtocol?,
+        actions: [SheetAlertPresentableAction] = []
     ) {
         guard let controller = view?.controller else {
             return
@@ -90,7 +92,7 @@ extension SheetAlertPresentable {
         let viewModel = SheetAlertPresentableViewModel(
             title: title,
             message: message,
-            actions: [],
+            actions: actions,
             closeAction: closeAction
         )
         let sheetController = SheetAletViewController(viewModel: viewModel)

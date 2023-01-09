@@ -68,15 +68,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             )
         }
 
-        var utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
-        utilityChainAssets = sortAssetList(
-            wallet: wallet,
-            chainAssets: utilityChainAssets,
-            accountInfos: accountInfos,
-            priceData: prices.pricesData
-        )
-
-        let selectAssetCellModels: [SelectAssetCellViewModel] = utilityChainAssets.compactMap { chainAsset in
+        let selectAssetCellModels: [SelectAssetCellViewModel] = chainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 

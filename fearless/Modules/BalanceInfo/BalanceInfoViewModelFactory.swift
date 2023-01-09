@@ -29,7 +29,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         case let .wallet(metaAccount):
             guard let info = balances[metaAccount.metaId] else {
                 return zeroBalanceViewModel(
-                    currencySymbol: metaAccount.selectedCurrency.symbol,
+                    balanceString: metaAccount.selectedCurrency.symbol + "0",
                     infoButtonEnabled: false
                 )
             }
@@ -41,7 +41,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         case let .chainAsset(metaAccount, chainAsset):
             guard let info = balances[metaAccount.metaId] else {
                 return zeroBalanceViewModel(
-                    currencySymbol: metaAccount.selectedCurrency.symbol,
+                    balanceString: "0 " + chainAsset.asset.symbol.uppercased(),
                     infoButtonEnabled: false
                 )
             }
@@ -91,7 +91,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         let accountRequest = chainAsset.chain.accountRequest()
         guard let accountId = metaAccount.fetch(for: accountRequest)?.accountId else {
             return zeroBalanceViewModel(
-                currencySymbol: metaAccount.selectedCurrency.symbol,
+                balanceString: "0 " + chainAsset.asset.symbol.uppercased(),
                 infoButtonEnabled: false
             )
         }
@@ -116,7 +116,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
             let balanceString = assetFormatter.stringFromDecimal(balance)
         else {
             return zeroBalanceViewModel(
-                currencySymbol: metaAccount.selectedCurrency.symbol,
+                balanceString: "0 " + chainAsset.asset.symbol.uppercased(),
                 infoButtonEnabled: infoButtonEnabled
             )
         }
@@ -129,12 +129,12 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
     }
 
     private func zeroBalanceViewModel(
-        currencySymbol: String,
+        balanceString: String,
         infoButtonEnabled: Bool
     ) -> BalanceInfoViewModel {
         BalanceInfoViewModel(
             dayChangeAttributedString: nil,
-            balanceString: currencySymbol + "0",
+            balanceString: balanceString,
             infoButtonEnabled: infoButtonEnabled
         )
     }

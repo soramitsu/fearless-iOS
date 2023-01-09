@@ -34,12 +34,15 @@ protocol StakingPoolCreateConfirmRouterDeps:
     BaseErrorPresentable,
     ModalAlertPresenting {}
 
-protocol StakingPoolCreateConfirmRouterInput: StakingPoolCreateConfirmRouterDeps {
+protocol StakingPoolCreateConfirmRouterInput: StakingPoolCreateConfirmRouterDeps, AllDonePresentable {
     func finish(view: ControllerBackedProtocol?)
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String
+        extrinsicHash: String,
+        text: String,
+        closure: (() -> Void)?
     )
+
     func proceedToSelectValidatorsStart(
         from view: ControllerBackedProtocol?,
         poolId: UInt32,

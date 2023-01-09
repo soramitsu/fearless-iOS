@@ -18,3 +18,9 @@ protocol DataValidating {
 protocol DataValidationRunnerProtocol {
     func runValidation(notifyingOnSuccess closure: @escaping DataValidationRunnerCompletion)
 }
+
+class SucceedDataValidating: DataValidating {
+    func validate(notifying _: DataValidatingDelegate) -> DataValidationProblem? {
+        nil
+    }
+}

@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 final class StoriesViewFactory: StoriesViewFactoryProtocol {
-    static func createView(with index: Int) -> StoriesViewProtocol? {
+    static func createView(with index: Int, chainAsset: ChainAsset) -> StoriesViewProtocol? {
         // MARK: - View
 
         let view = StoriesViewController(nib: R.nib.storiesViewController)
@@ -11,7 +11,10 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
 
         // MARK: - Interactor
 
-        let storiesModel = StoriesFactory.createModel().value(for: localizationManager.selectedLocale)
+        let factory = StoriesFactory()
+        guard let storiesModel = factory.createModel(for: chainAsset.stakingType)?.value(for: localizationManager.selectedLocale) else {
+            return nil
+        }
         let interactor = StoriesInteractor(model: storiesModel)
 
         // MARK: - Presenter

@@ -1,6 +1,7 @@
 import CommonWallet
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 protocol HistoryOperationFactoryProtocol {
     func fetchTransactionHistoryOperation(
@@ -21,10 +22,15 @@ protocol HistoryOperationFactoryProtocol {
 }
 
 class HistoryOperationFactory: HistoryOperationFactoryProtocol {
-    let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    private let runtimeService: RuntimeCodingServiceProtocol
 
-    init(txStorage: AnyDataProviderRepository<TransactionHistoryItem>) {
+    init(
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) {
         self.txStorage = txStorage
+        self.runtimeService = runtimeService
     }
 
     func fetchSubqueryHistoryOperation(
@@ -34,6 +40,8 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -69,7 +77,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
-        var dependencies: [Operation] = [remoteHistoryOperation]
+        var dependencies: [Operation] = [remoteHistoryOperation, runtimeOperation]
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 
@@ -86,6 +94,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
 
         let mergeOperation = createSubqueryHistoryMergeOperation(
             dependingOn: remoteHistoryOperation,
+            runtimeOperation: runtimeOperation,
             localOperation: localFetchOperation,
             asset: asset,
             chain: chain,
@@ -257,15 +266,62 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
 
     func createSubqueryHistoryMergeOperation(
         dependingOn remoteOperation: BaseOperation<SubqueryHistoryData>?,
+        runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
         let addressFactory = SS58AddressFactory()
-
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
+            let filteredTransactions = try remoteTransactions.filter { transaction in
+                var assetId: String?
+
+                if let transfer = transaction.transfer {
+                    assetId = transfer.assetId
+                } else if let reward = transaction.reward {
+                    assetId = reward.assetId
+                } else if let extrinsic = transaction.extrinsic {
+                    assetId = extrinsic.assetId
+                }
+
+                if chainAsset.chainAssetType != .normal, assetId == nil {
+                    return false
+                }
+
+                if chainAsset.chainAssetType == .normal, assetId != nil {
+                    return false
+                }
+
+                if chainAsset.chainAssetType == .normal, assetId == nil {
+                    return true
+                }
+
+                guard let assetId = assetId else {
+                    return false
+                }
+
+                let assetIdBytes = try Data(hexString: assetId)
+                let encoder = try runtimeOperation.extractNoCancellableResultData().createEncoder()
+                guard let currencyId = chainAsset.currencyId else {
+                    return false
+                }
+
+                guard let type = try runtimeOperation.extractNoCancellableResultData().metadata.schema?.types
+                    .first(where: { $0.type.path.contains("CurrencyId") })?
+                    .type
+                    .path
+                    .joined(separator: "::")
+                else {
+                    return false
+                }
+                try encoder.append(currencyId, ofType: type)
+                let currencyIdBytes = try encoder.encode()
+
+                return currencyIdBytes == assetIdBytes
+            }
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
                !localTransactions.isEmpty {
@@ -280,7 +336,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
+                let transactions: [AssetTransactionData] = filteredTransactions.map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,

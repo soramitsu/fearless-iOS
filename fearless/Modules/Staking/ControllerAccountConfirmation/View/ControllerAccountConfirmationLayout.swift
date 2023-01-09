@@ -8,9 +8,19 @@ final class ControllerAccountConfirmationLayout: UIView {
         return view
     }()
 
-    let stashAccountView = UIFactory.default.createAccountView()
+    let stashAccountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView()
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
 
-    let controllerAccountView = UIFactory.default.createAccountView()
+    let controllerAccountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView()
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
 
     let networkFeeFooterView: NetworkFeeFooterView = UIFactory.default.createNetworkFeeFooterView()
 

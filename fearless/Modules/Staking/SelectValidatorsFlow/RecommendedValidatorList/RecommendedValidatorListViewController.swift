@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class RecommendedValidatorListViewController: UIViewController {
     var presenter: RecommendedValidatorListPresenterProtocol!
@@ -79,6 +80,8 @@ extension RecommendedValidatorListViewController: RecommendedValidatorListViewPr
         }
 
         tableView.reloadData()
+
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -96,5 +99,35 @@ extension RecommendedValidatorListViewController: CustomValidatorCellDelegate {
         if let indexPath = tableView.indexPath(for: cell) {
             presenter.showValidatorInfoAt(index: indexPath.row)
         }
+    }
+}
+
+extension RecommendedValidatorListViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension RecommendedValidatorListViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let _ = viewModel else {
+            return nil
+        }
+
+        let errorView = ErrorStateView()
+        errorView.isUserInteractionEnabled = false
+        errorView.errorDescriptionLabel.text = R.string.localizable.validatorsListEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
+        errorView.locale = selectedLocale
+        errorView.setRetryEnabled(false)
+        return errorView
+    }
+}
+
+extension RecommendedValidatorListViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let viewModel = viewModel else {
+            return false
+        }
+
+        return viewModel.itemViewModels.isEmpty
     }
 }

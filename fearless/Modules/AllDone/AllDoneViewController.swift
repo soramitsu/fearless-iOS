@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
-final class AllDoneViewController: UIViewController, ViewHolder {
+final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePresentationControllerDelegate {
     typealias RootViewType = AllDoneViewLayout
 
     // MARK: Private properties
@@ -36,6 +37,11 @@ final class AllDoneViewController: UIViewController, ViewHolder {
         setup()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        output.presentationControllerWillDismiss()
+    }
+
     // MARK: - Private methods
 
     private func setup() {
@@ -55,8 +61,8 @@ final class AllDoneViewController: UIViewController, ViewHolder {
 // MARK: - AllDoneViewInput
 
 extension AllDoneViewController: AllDoneViewInput {
-    func didReceive(hashString: String) {
-        rootView.bind(hashString)
+    func didReceive(viewModel: AllDoneViewModel) {
+        rootView.bind(viewModel)
     }
 }
 

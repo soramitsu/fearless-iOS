@@ -23,9 +23,10 @@ protocol StakingPoolStartInteractorOutput: AnyObject {
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
+    func didReceive(networkInfo: StakingPoolNetworkInfo)
 }
 
-protocol StakingPoolStartRouterInput: AnyObject, PresentDismissable, WebPresentable {
+protocol StakingPoolStartRouterInput: AnyObject, AnyDismissable, WebPresentable, StakingErrorPresentable, SheetAlertPresentable, ErrorPresentable {
     func presentJoinFlow(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,

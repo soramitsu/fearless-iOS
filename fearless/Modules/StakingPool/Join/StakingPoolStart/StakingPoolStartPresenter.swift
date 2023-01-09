@@ -11,9 +11,12 @@ final class StakingPoolStartPresenter {
     private let wallet: MetaAccountModel
     private let chainAsset: ChainAsset
     private let amount: Decimal?
+    private let logger: LoggerProtocol?
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     private var stakingDuration: StakingDuration?
     private var calculator: RewardCalculatorEngineProtocol?
+    private var networkInfo: StakingPoolNetworkInfo?
 
     // MARK: - Constructors
 
@@ -24,7 +27,9 @@ final class StakingPoolStartPresenter {
         viewModelFactory: StakingPoolStartViewModelFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?
+        amount: Decimal?,
+        logger: LoggerProtocol?,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
@@ -32,6 +37,8 @@ final class StakingPoolStartPresenter {
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.amount = amount
+        self.logger = logger
+        self.dataValidatingFactory = dataValidatingFactory
         self.localizationManager = localizationManager
     }
 
@@ -64,12 +71,26 @@ extension StakingPoolStartPresenter: StakingPoolStartViewOutput {
     }
 
     func didTapCreatePoolButton() {
-        router.presentCreateFlow(
-            chainAsset: chainAsset,
-            wallet: wallet,
-            amount: amount,
-            from: view
-        )
+        DataValidationRunner(validators: [
+            dataValidatingFactory.poolsLimitNotReached(
+                existingPoolsCount: networkInfo?.existingPoolsCount,
+                maximumPoolsCount: networkInfo?.possiblePoolsCount,
+                locale: selectedLocale
+            )
+        ]).runValidation { [weak self] in
+            guard
+                let strongSelf = self
+            else {
+                return
+            }
+
+            strongSelf.router.presentCreateFlow(
+                chainAsset: strongSelf.chainAsset,
+                wallet: strongSelf.wallet,
+                amount: strongSelf.amount,
+                from: strongSelf.view
+            )
+        }
     }
 
     func didTapWatchAboutButton() {
@@ -99,7 +120,9 @@ extension StakingPoolStartPresenter: StakingPoolStartInteractorOutput {
         provideViewModel()
     }
 
-    func didReceive(error _: Error) {}
+    func didReceive(error: Error) {
+        logger?.error("error: \(error)")
+    }
 
     func didReceive(calculator: RewardCalculatorEngineProtocol) {
         self.calculator = calculator
@@ -107,7 +130,13 @@ extension StakingPoolStartPresenter: StakingPoolStartInteractorOutput {
         provideViewModel()
     }
 
-    func didReceive(calculatorError _: Error) {}
+    func didReceive(calculatorError: Error) {
+        logger?.error("calculatorError: \(calculatorError)")
+    }
+
+    func didReceive(networkInfo: StakingPoolNetworkInfo) {
+        self.networkInfo = networkInfo
+    }
 }
 
 // MARK: - Localizable

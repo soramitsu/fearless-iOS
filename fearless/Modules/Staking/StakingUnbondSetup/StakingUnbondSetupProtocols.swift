@@ -33,7 +33,7 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingUnbondSetupWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
-    StakingErrorPresentable, AnyDismissable {
+    StakingErrorPresentable, AnyDismissable, WebPresentable {
     func close(view: StakingUnbondSetupViewProtocol?)
     func proceed(
         view: StakingUnbondSetupViewProtocol?,

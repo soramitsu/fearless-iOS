@@ -51,7 +51,7 @@ final class StakingAssetSelectionPresenter {
 
         if let accountInfo = accountInfo {
             maybeBalance = Decimal.fromSubstrateAmount(
-                accountInfo.data.available,
+                accountInfo.data.stakingAvailable,
                 precision: assetInfo.assetPrecision
             )
         } else {

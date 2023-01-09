@@ -180,7 +180,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
         switch result {
         case let .success(accountInfo):
             balance = accountInfo.map {
-                Decimal.fromSubstrateAmount($0.data.available, precision: Int16(asset.precision))
+                Decimal.fromSubstrateAmount($0.data.stakingAvailable, precision: Int16(asset.precision))
             } ?? nil
         case let .failure(error):
             logger?.error("Did receive balance error: \(error)")
