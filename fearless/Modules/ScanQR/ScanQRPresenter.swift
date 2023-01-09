@@ -184,7 +184,7 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
         logger.error("Unexpected qr service error \(error)")
     }
 
-    func handleMatched(addressInfo: AddressQRInfo) {
+    func handleMatched(addressInfo: QRInfo) {
         router.close(view: view) {
             self.moduleOutput.didFinishWith(address: addressInfo.address)
         }
@@ -207,7 +207,7 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let addressInfo = qrScanMatcher.addressInfo else {
+        guard let addressInfo = qrScanMatcher.qrInfo else {
             logger.warning("Can't find receiver's info for matched code")
             return
         }
