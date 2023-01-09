@@ -3,11 +3,6 @@ import UIKit
 final class VerificationStatusInteractor {
     // MARK: - Private properties
 
-    var onStatus: ((SCVerificationStatus) -> Void)?
-    var onError: ((String) -> Void)?
-    var onClose: (() -> Void)?
-    var onRestart: (() -> Void)?
-
     private weak var output: VerificationStatusInteractorOutput?
     private let service: SCKYCService
     private let data: SCKYCUserDataModel

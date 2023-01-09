@@ -45,7 +45,7 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapTryagainButton() {}
+    func didTapTryAgainButton() {}
 
     func didTapRefresh() {
         view?.didStartLoading()

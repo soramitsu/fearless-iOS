@@ -32,24 +32,16 @@ final class WalletMainContainerRouter: WalletMainContainerRouterInput {
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?
     ) {
-        #if DEBUG
-            guard let module = VerificationStatusAssembly.configureModule() else {
-                return
-            }
+        guard
+            let module = WalletsManagmentAssembly.configureModule(
+                shouldSaveSelected: true,
+                moduleOutput: moduleOutput
+            )
+        else {
+            return
+        }
 
-            view?.controller.present(module.view.controller, animated: true)
-        #else
-            guard
-                let module = WalletsManagmentAssembly.configureModule(
-                    shouldSaveSelected: true,
-                    moduleOutput: moduleOutput
-                )
-            else {
-                return
-            }
-
-            view?.controller.present(module.view.controller, animated: true)
-        #endif
+        view?.controller.present(module.view.controller, animated: true)
     }
 
     func showScanQr(from view: WalletMainContainerViewInput?, moduleOutput: ScanQRModuleOutput) {

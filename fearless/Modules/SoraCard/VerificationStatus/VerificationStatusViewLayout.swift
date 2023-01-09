@@ -63,8 +63,12 @@ final class VerificationStatusViewLayout: UIView {
     let actionButton = UIFactory.default.createRoundedButton()
 
     var locale = Locale.current {
-        didSet {}
+        didSet {
+            applyLocalization()
+        }
     }
+
+    private var status: SoraCardStatus?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -77,7 +81,31 @@ final class VerificationStatusViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func applyLocalization() {}
+    func bind(status: SoraCardStatus) {
+        self.status = status
+
+        cardImageView.isHidden = false
+
+        titleLabel.text = status.title(with: locale)
+        statusLabel.text = status.description(with: locale)
+        statusImageView.image = status.iconImage
+        actionButton.setTitle(status.buttonTitle(with: locale).uppercased(), for: .normal)
+
+        switch status {
+        case .rejected:
+            actionButton.backgroundColor = R.color.colorWhiteAccentSecondary()
+            actionButton.setTitleColor(R.color.colorBlackAccentSecondary(), for: .normal)
+        default:
+            actionButton.backgroundColor = R.color.colorBlackAccentSecondary()
+            actionButton.setTitleColor(R.color.colorWhiteAccentSecondary(), for: .normal)
+        }
+    }
+
+    private func applyLocalization() {
+        if let status = status {
+            bind(status: status)
+        }
+    }
 
     private func setupLayout() {
         addSubview(navigationBar)
@@ -141,24 +169,6 @@ final class VerificationStatusViewLayout: UIView {
             make.size.equalTo(LayoutConstants.statusIconSize)
             make.trailing.equalTo(cardImageView).offset(UIConstants.bigOffset)
             make.top.equalTo(cardImageView).inset(-UIConstants.bigOffset)
-        }
-    }
-
-    func bind(status: SoraCardStatus) {
-        cardImageView.isHidden = false
-
-        titleLabel.text = status.title(with: locale)
-        statusLabel.text = status.description(with: locale)
-        statusImageView.image = status.iconImage
-        actionButton.setTitle(status.buttonTitle(with: locale).uppercased(), for: .normal)
-
-        switch status {
-        case .rejected:
-            actionButton.backgroundColor = R.color.colorWhiteAccentSecondary()
-            actionButton.setTitleColor(R.color.colorBlackAccentSecondary(), for: .normal)
-        default:
-            actionButton.backgroundColor = R.color.colorBlackAccentSecondary()
-            actionButton.setTitleColor(R.color.colorWhiteAccentSecondary(), for: .normal)
         }
     }
 }
