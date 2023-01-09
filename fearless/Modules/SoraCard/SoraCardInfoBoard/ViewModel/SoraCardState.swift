@@ -23,6 +23,7 @@ enum SoraCardState {
         case .onway:
             return R.string.localizable.soraCardStateOnwayTitle(preferredLanguages: preferredLanguages)
         case .active:
+            // TODO: this is phase#2 - there will be card fiat balance.
             return ""
         case .error:
             return R.string.localizable.commonErrorNetwork(preferredLanguages: preferredLanguages)

@@ -37,8 +37,6 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
         interactor.setup(with: self)
 
         didTapRefresh()
-
-        view.didReceive(stateViewModel: .none)
     }
 
     func didTapGetSoraCard() {}
@@ -60,12 +58,15 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
         view?.didStopLoading()
 
         logger?.error(error.localizedDescription)
+
+        let viewModel = viewModelFactory.buildEmptyViewModel()
+        view?.didReceive(stateViewModel: viewModel)
     }
 
     func didReceive(status: SCKYCStatusResponse) {
         view?.didStopLoading()
 
-        let statusViewModel = viewModelFactory.buildState(from: status)
+        let statusViewModel = viewModelFactory.buildViewModel(from: status)
         view?.didReceive(stateViewModel: statusViewModel)
     }
 }

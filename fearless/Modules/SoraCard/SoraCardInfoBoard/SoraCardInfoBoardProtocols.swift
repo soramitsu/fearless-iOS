@@ -1,7 +1,9 @@
+import SoraFoundation
+
 typealias SoraCardInfoBoardModuleCreationResult = (view: SoraCardInfoBoardViewInput, input: SoraCardInfoBoardModuleInput)
 
 protocol SoraCardInfoBoardViewInput: ControllerBackedProtocol, LoadableViewProtocol {
-    func didReceive(stateViewModel: SoraCardState)
+    func didReceive(stateViewModel: LocalizableResource<SoraCardInfoViewModel>)
 }
 
 protocol SoraCardInfoBoardViewOutput: AnyObject {
