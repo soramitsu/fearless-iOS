@@ -1,4 +1,5 @@
-import UIKit
+import Foundation
+import PayWingsOAuthSDK
 
 final class VerificationStatusInteractor {
     // MARK: - Private properties
