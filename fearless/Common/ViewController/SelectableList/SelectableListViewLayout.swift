@@ -37,7 +37,11 @@ final class SelectableListViewLayout: UIView {
     }()
 
     let tableView = UITableView()
-    lazy var emptyView = EmptyView()
+    lazy var emptyView: EmptyView = {
+        let view = EmptyView()
+        view.isHidden = true
+        return view
+    }()
 
     var locale: Locale = .current
 
