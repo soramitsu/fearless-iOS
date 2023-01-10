@@ -6,17 +6,17 @@ final class IntroducePresenter {
 
     private weak var view: IntroduceViewInput?
     private let router: IntroduceRouterInput
-    private let interactor: IntroduceInteractorInput
+    private let phone: String
 
     // MARK: - Constructors
 
     init(
-        interactor: IntroduceInteractorInput,
         router: IntroduceRouterInput,
+        phone: String,
         localizationManager: LocalizationManagerProtocol
     ) {
-        self.interactor = interactor
         self.router = router
+        self.phone = phone
         self.localizationManager = localizationManager
     }
 
@@ -28,7 +28,23 @@ final class IntroducePresenter {
 extension IntroducePresenter: IntroduceViewOutput {
     func didLoad(view: IntroduceViewInput) {
         self.view = view
-        interactor.setup(with: self)
+    }
+
+    func didTapContinueButton(name: String, lastName: String) {
+        router.presentVerificationEmail(
+            from: view,
+            phone: phone,
+            name: name,
+            lastName: lastName
+        )
+    }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
+    }
+
+    func didTapCloseButton() {
+        router.close(from: view)
     }
 }
 

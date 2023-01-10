@@ -1,11 +1,11 @@
+import UIKit
 import SoraSwiftUI
 import SoraUI
 
-final class PhoneVerificationViewLayout: UIView {
+final class PhoneVerificationCodeViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
-        bar.tintColor = R.color.colorPink1()
         bar.backgroundColor = R.color.colorBlack()
         return bar
     }()
@@ -25,13 +25,12 @@ final class PhoneVerificationViewLayout: UIView {
         return label
     }()
 
-    let phoneInputField: InputField = {
+    let codeInputField: InputField = {
         let view = InputField()
         view.sora.backgroundColor = .fgPrimary
 //        view.stackView.sora.backgroundColor = .bgSurface
         view.textField.sora.textColor = .fgPrimary
-        view.sora.keyboardType = .phonePad
-        view.sora.textContentType = .telephoneNumber
+        view.sora.keyboardType = .numberPad
         return view
     }()
 
@@ -60,26 +59,49 @@ final class PhoneVerificationViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func set(state: VerificationState) {
-        switch state {
-        case .enabled:
-            sendButton.isEnabled = true
-            phoneInputField.sora.state = .success
-        case let .disabled(errorMessage):
+    func set(phone: String) {
+        textLabel.sora.text = R.string.localizable
+            .verifyPhoneNumberDescription(phone, preferredLanguages: locale.rLanguages)
+    }
+
+    func set(timerState: PhoneVerificationCodeTimerState) {
+        switch timerState {
+        case let .inProgress(timeRemaining):
+            sendButton.imageWithTitleView?.title = R.string.localizable
+                .verifyPhoneNumberResendCodeTitle(timeRemaining)
             sendButton.isEnabled = false
-            phoneInputField.sora.state = .fail
-            phoneInputField.sora.descriptionLabelText = errorMessage
+        case .finished:
+            sendButton.imageWithTitleView?.title = R.string.localizable
+                .commonSendCode(preferredLanguages: locale.rLanguages)
+            sendButton.isEnabled = true
+        }
+    }
+
+    func set(state: PhoneVerificationCodeState) {
+        switch state {
+        case .succeed:
+            codeInputField.sora.state = .success
+            codeInputField.sora.descriptionLabelText = "Succeed"
+        case .editing:
+            codeInputField.sora.state = .default
+            codeInputField.sora.descriptionLabelText = ""
+        case .sent:
+            codeInputField.sora.state = .disabled
+            codeInputField.sora.descriptionLabelText = "Cheking..."
+        case let .wrong(error):
+            codeInputField.sora.state = .fail
+            codeInputField.sora.descriptionLabelText = error
         }
     }
 }
 
-private extension PhoneVerificationViewLayout {
+private extension PhoneVerificationCodeViewLayout {
     func setupLayout() {
         navigationBar.setRightViews([closeButton])
 
         addSubview(navigationBar)
         addSubview(textLabel)
-        addSubview(phoneInputField)
+        addSubview(codeInputField)
         addSubview(sendButton)
 
         navigationBar.snp.makeConstraints { make in
@@ -92,14 +114,14 @@ private extension PhoneVerificationViewLayout {
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
         }
 
-        phoneInputField.snp.makeConstraints { make in
+        codeInputField.snp.makeConstraints { make in
             make.top.equalTo(textLabel.snp.bottom).offset(UIConstants.hugeOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
         }
 
         sendButton.snp.makeConstraints { make in
-            make.top.equalTo(phoneInputField.snp.bottom).offset(UIConstants.hugeOffset)
+            make.top.equalTo(codeInputField.snp.bottom).offset(UIConstants.hugeOffset)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
             make.height.equalTo(UIConstants.soraCardButtonHeight)
@@ -110,11 +132,7 @@ private extension PhoneVerificationViewLayout {
         navigationBar.setTitle(
             R.string.localizable.verifyPhoneNumberTitle(preferredLanguages: locale.rLanguages)
         )
-        textLabel.sora.text = R.string.localizable.enterPhoneNumberDescription(preferredLanguages: locale.rLanguages)
-        phoneInputField.sora.titleLabelText = R.string.localizable
-            .enterPhoneNumberPhoneInputFieldLabel(preferredLanguages: locale.rLanguages)
-        phoneInputField.sora.descriptionLabelText = R.string.localizable.commonNoSpam(preferredLanguages: locale.rLanguages)
-        sendButton.imageWithTitleView?.title = R.string.localizable
-            .commonSendCode(preferredLanguages: locale.rLanguages).uppercased()
+        codeInputField.sora.titleLabelText = R.string.localizable
+            .verifyPhoneNumberCodeInputFieldLabel(preferredLanguages: locale.rLanguages)
     }
 }

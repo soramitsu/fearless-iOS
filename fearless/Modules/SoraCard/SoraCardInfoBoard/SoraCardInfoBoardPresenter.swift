@@ -41,7 +41,9 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
         view.didReceive(stateViewModel: .none)
     }
 
-    func didTapGetSoraCard() {}
+    func didTapGetSoraCard() {
+        router.presentTermsAndConditions(from: view)
+    }
 
     func didTapKYCStatus() {}
 

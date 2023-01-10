@@ -22,7 +22,9 @@ protocol SoraCardInfoBoardInteractorOutput: AnyObject {
     func didReceive(status: SCKYCStatusResponse)
 }
 
-protocol SoraCardInfoBoardRouterInput: AnyObject {}
+protocol SoraCardInfoBoardRouterInput: AnyObject {
+    func presentTermsAndConditions(from view: SoraCardInfoBoardViewInput?)
+}
 
 protocol SoraCardInfoBoardModuleInput: AnyObject {}
 

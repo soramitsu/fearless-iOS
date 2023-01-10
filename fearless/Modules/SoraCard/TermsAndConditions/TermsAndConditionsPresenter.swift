@@ -6,17 +6,21 @@ final class TermsAndConditionsPresenter {
 
     private weak var view: TermsAndConditionsViewInput?
     private let router: TermsAndConditionsRouterInput
-    private let interactor: TermsAndConditionsInteractorInput
+    private let termsUrl: URL
+    private let privacyURL: URL
 
     // MARK: - Constructors
 
     init(
-        interactor: TermsAndConditionsInteractorInput,
         router: TermsAndConditionsRouterInput,
-        localizationManager: LocalizationManagerProtocol
+        localizationManager: LocalizationManagerProtocol,
+        termsUrl: URL,
+        privacyUrl: URL
     ) {
-        self.interactor = interactor
         self.router = router
+        self.termsUrl = termsUrl
+        privacyURL = privacyUrl
+
         self.localizationManager = localizationManager
     }
 
@@ -28,7 +32,32 @@ final class TermsAndConditionsPresenter {
 extension TermsAndConditionsPresenter: TermsAndConditionsViewOutput {
     func didLoad(view: TermsAndConditionsViewInput) {
         self.view = view
-        interactor.setup(with: self)
+    }
+
+    func didTapTermsButton() {
+        guard let view = view else { return }
+        router.showWeb(
+            url: termsUrl,
+            from: view,
+            style: .automatic
+        )
+    }
+
+    func didTapPrivacyButton() {
+        guard let view = view else { return }
+        router.showWeb(
+            url: privacyURL,
+            from: view,
+            style: .automatic
+        )
+    }
+
+    func didTapAcceptButton() {
+        router.presentPhoneVerification(from: view)
+    }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
     }
 }
 

@@ -27,6 +27,8 @@ protocol ApplicationConfigProtocol {
     var fearlessAnnouncements: URL { get }
     var fearlessHappiness: URL { get }
     var crowdloanWiki: URL { get }
+    var soraCardTerms: URL { get }
+    var soraCardPrivacy: URL { get }
 
     // MARK: - GitHub
 
@@ -156,6 +158,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var crowdloanWiki: URL {
         URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
+    }
+
+    var soraCardTerms: URL {
+        URL(string: "https://soracard.com/terms/")!
+    }
+
+    var soraCardPrivacy: URL {
+        URL(string: "https://soracard.com/privacy/")!
     }
 
     // MARK: - GitHub

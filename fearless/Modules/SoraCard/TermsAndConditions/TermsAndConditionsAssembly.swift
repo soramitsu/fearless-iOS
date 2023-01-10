@@ -5,13 +5,14 @@ final class TermsAndConditionsAssembly {
     static func configureModule() -> TermsAndConditionsModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = TermsAndConditionsInteractor()
         let router = TermsAndConditionsRouter()
+        let config: ApplicationConfigProtocol = ApplicationConfig.shared
 
         let presenter = TermsAndConditionsPresenter(
-            interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            termsUrl: config.soraCardTerms,
+            privacyUrl: config.soraCardPrivacy
         )
 
         let view = TermsAndConditionsViewController(

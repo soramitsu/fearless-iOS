@@ -4,6 +4,10 @@ protocol TermsAndConditionsViewInput: ControllerBackedProtocol {}
 
 protocol TermsAndConditionsViewOutput: AnyObject {
     func didLoad(view: TermsAndConditionsViewInput)
+    func didTapTermsButton()
+    func didTapPrivacyButton()
+    func didTapAcceptButton()
+    func didTapBackButton()
 }
 
 protocol TermsAndConditionsInteractorInput: AnyObject {
@@ -12,7 +16,9 @@ protocol TermsAndConditionsInteractorInput: AnyObject {
 
 protocol TermsAndConditionsInteractorOutput: AnyObject {}
 
-protocol TermsAndConditionsRouterInput: AnyObject {}
+protocol TermsAndConditionsRouterInput: PresentDismissable, WebPresentable {
+    func presentPhoneVerification(from view: TermsAndConditionsViewInput?)
+}
 
 protocol TermsAndConditionsModuleInput: AnyObject {}
 

@@ -30,6 +30,18 @@ extension PhoneVerificationPresenter: PhoneVerificationViewOutput {
         self.view = view
         interactor.setup(with: self)
     }
+
+    func didTapSendButton(with phone: String) {
+        router.presentVerificationCode(from: view, phone: phone)
+    }
+
+    func didTapBackButton() {
+        router.dismiss(view: view)
+    }
+
+    func didTapCloseButton() {
+        router.close(from: view)
+    }
 }
 
 // MARK: - PhoneVerificationInteractorOutput
