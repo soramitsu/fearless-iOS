@@ -9,6 +9,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
     func didReceive(stakingEstimationViewModel: StakingEstimationViewModel)
+    func didReceive(stories: LocalizableResource<StoriesModel>)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
@@ -113,7 +114,8 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
 
     func showStories(
         from view: ControllerBackedProtocol?,
-        startingFrom index: Int
+        startingFrom index: Int,
+        chainAsset: ChainAsset
     )
 
     func showRewardDetails(

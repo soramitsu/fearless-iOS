@@ -640,7 +640,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
             if swapFromChainAsset == chainAsset {
                 swapFromBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? .zero
@@ -649,7 +649,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
             if swapToChainAsset == chainAsset {
                 swapToBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? .zero
@@ -658,7 +658,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
             if xorChainAsset == chainAsset {
                 xorBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? .zero

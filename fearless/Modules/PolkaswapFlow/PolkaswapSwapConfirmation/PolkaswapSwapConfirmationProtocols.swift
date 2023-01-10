@@ -26,7 +26,7 @@ protocol PolkaswapSwapConfirmationInteractorOutput: AnyObject {
 protocol PolkaswapSwapConfirmationRouterInput: PushDismissable, SheetAlertPresentable {
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String,
+        hashString: String,
         chainAsset: ChainAsset
     )
 }

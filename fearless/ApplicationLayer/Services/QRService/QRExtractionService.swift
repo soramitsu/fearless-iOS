@@ -6,7 +6,7 @@ protocol QRExtractionServiceProtocol {
         from image: UIImage,
         using matcher: QRMatcherProtocol,
         dispatchCompletionIn queue: DispatchQueue?,
-        completionBlock: @escaping (Result<String, Error>) -> Void
+        completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     )
 }
 
@@ -14,6 +14,7 @@ enum QRExtractionServiceError: Error {
     case invalidImage
     case detectorUnavailable
     case noFeatures
+    case plainAddress(address: String)
 }
 
 final class QRExtractionService {
@@ -23,7 +24,7 @@ final class QRExtractionService {
         self.processingQueue = processingQueue
     }
 
-    private func proccess(image: UIImage, with matcher: QRMatcherProtocol) -> Result<String, Error> {
+    private func proccess(image: UIImage, with matcher: QRMatcherProtocol) -> Result<String, QRExtractionServiceError> {
         var optionalImage: CIImage?
 
         if let ciImage = CIImage(image: image) {
@@ -47,15 +48,17 @@ final class QRExtractionService {
 
         let features = detector.features(in: ciImage)
 
-        let optionalMatch: String? = features
-            .compactMap { ($0 as? CIQRCodeFeature)?.messageString }
-            .first { matcher.match(code: $0) }
+        let receivedString = features.compactMap { ($0 as? CIQRCodeFeature)?.messageString }.first
 
-        guard let match = optionalMatch else {
+        guard let receivedString = receivedString else {
             return .failure(QRExtractionServiceError.noFeatures)
         }
 
-        return .success(match)
+        guard matcher.match(code: receivedString) else {
+            return .failure(QRExtractionServiceError.plainAddress(address: receivedString))
+        }
+
+        return .success(receivedString)
     }
 }
 
@@ -64,7 +67,7 @@ extension QRExtractionService: QRExtractionServiceProtocol {
         from image: UIImage,
         using matcher: QRMatcherProtocol,
         dispatchCompletionIn queue: DispatchQueue?,
-        completionBlock: @escaping (Result<String, Error>) -> Void
+        completionBlock: @escaping (Result<String, QRExtractionServiceError>) -> Void
     ) {
         processingQueue.async {
             let result = self.proccess(image: image, with: matcher)

@@ -30,7 +30,7 @@ protocol StakingUnbondConfirmWireframeProtocol: SheetAlertPresentable, ErrorPres
     StakingErrorPresentable, AddressOptionsPresentable, AnyDismissable {
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String,
+        hash: String,
         chainAsset: ChainAsset
     )
 }

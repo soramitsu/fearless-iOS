@@ -156,14 +156,12 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         }
 
         let incoming: Bool
-        let icon: UIImage?
+        let icon: UIImage? = data.status == .rejected ? R.image.iconTxFailed() : nil
 
         if let transactionType = optionalTransactionType {
             incoming = transactionType.isIncome
-            icon = transactionType.typeIcon
         } else {
             incoming = false
-            icon = nil
         }
 
         let signString = incoming ? "+" : "-"

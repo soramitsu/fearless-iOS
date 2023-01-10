@@ -73,8 +73,8 @@ final class StakingPoolCreateViewLayout: UIView {
 
     let poolIdView: CommonInputViewV2 = createInputV2View()
     let depositorView: CommonInputViewV2 = createInputV2View()
-    let rootAccountView: CommonInputViewV2 = createInputV2View()
 
+    let rootAccountView: DetailsTriangularedView = createRoleView()
     let nominatorView: DetailsTriangularedView = createRoleView()
     let stateTogglerView: DetailsTriangularedView = createRoleView()
 
@@ -108,7 +108,7 @@ final class StakingPoolCreateViewLayout: UIView {
             poolIdView.text = "\(poolId)"
         }
         depositorView.text = viewModel.depositor
-        rootAccountView.text = viewModel.root
+        rootAccountView.subtitle = viewModel.root
         nominatorView.subtitle = viewModel.naminator
         stateTogglerView.subtitle = viewModel.stateToggler
     }

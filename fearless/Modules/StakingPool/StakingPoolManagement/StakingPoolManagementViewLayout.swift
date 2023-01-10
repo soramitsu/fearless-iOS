@@ -75,6 +75,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
         view.valueLabel.isUserInteractionEnabled = true
+        view.valueImageView.contentMode = .center
         return view
     }()
 

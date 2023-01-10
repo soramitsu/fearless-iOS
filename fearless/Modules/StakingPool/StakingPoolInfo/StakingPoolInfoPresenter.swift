@@ -21,7 +21,6 @@ final class StakingPoolInfoPresenter {
     private var stakingPool: StakingPool?
     private var editedRoles: StakingPoolRoles?
     private var activeEraInfo: ActiveEraInfo?
-
     private var nomination: Nomination?
     private var eraStakersInfo: EraStakersInfo?
 

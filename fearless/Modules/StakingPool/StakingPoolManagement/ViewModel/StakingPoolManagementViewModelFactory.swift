@@ -61,15 +61,13 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
 
     func buildViewModel(
         stakeInfo: StakingPoolMember?,
-        stakingPool: StakingPool?,
-        wallet: MetaAccountModel
+        stakingPool _: StakingPool?,
+        wallet _: MetaAccountModel
     ) -> StakingPoolManagementViewModel {
         var unstakeButtonEnabled = false
 
-        if let stakeInfo = stakeInfo, let stakingPool = stakingPool {
-            let userIsPoolOwner = stakingPool.info.roles.root == wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
-
-            unstakeButtonEnabled = stakeInfo.points != BigUInt.zero && !userIsPoolOwner
+        if let stakeInfo = stakeInfo {
+            unstakeButtonEnabled = stakeInfo.points != BigUInt.zero
         }
 
         return StakingPoolManagementViewModel(

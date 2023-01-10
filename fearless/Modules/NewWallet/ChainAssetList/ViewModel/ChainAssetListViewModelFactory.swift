@@ -54,6 +54,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             break
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
+        case .search:
+            utilityChainAssets = filteredUnique(chainAssets: chainAssets)
         }
 
         utilityChainAssets = sortAssetList(

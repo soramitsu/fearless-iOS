@@ -177,6 +177,7 @@ extension ChainModel: Hashable {
             && lhs.addressPrefix == rhs.addressPrefix
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
+            && lhs.selectedNode == rhs.selectedNode
     }
 
     func hash(into hasher: inout Hasher) {

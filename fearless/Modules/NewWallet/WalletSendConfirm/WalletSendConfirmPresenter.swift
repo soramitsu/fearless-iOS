@@ -153,7 +153,10 @@ final class WalletSendConfirmPresenter {
 
 extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
     func didTapScamWarningButton() {
-        let title = R.string.localizable.scamWarningAlertTitle(preferredLanguages: selectedLocale.rLanguages)
+        let title = R.string.localizable.scamWarningAlertTitle(
+            chainAsset.asset.symbol.uppercased(),
+            preferredLanguages: selectedLocale.rLanguages
+        )
         let message = R.string.localizable.scamWarningAlertSubtitle(
             chainAsset.asset.name,
             preferredLanguages: selectedLocale.rLanguages
@@ -270,7 +273,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
                 totalBalanceValue = accountInfo?.data.total ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(chainAsset.asset.precision)
                     )
                 } ?? 0.0
@@ -279,7 +282,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
             } else {
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
-                        $0.data.available,
+                        $0.data.sendAvailable,
                         precision: Int16(self.chainAsset.asset.precision)
                     )
                 } ?? 0

@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct TokenSymbol {
+struct TokenSymbol: Equatable {
     let symbol: String
 }
 
@@ -15,7 +15,7 @@ extension TokenSymbol: Codable {
     }
 }
 
-enum CurrencyId {
+enum CurrencyId: Equatable {
     case token(symbol: TokenSymbol?)
     case liquidCrowdloan(liquidCrowdloan: String)
     case foreignAsset(foreignAsset: String)

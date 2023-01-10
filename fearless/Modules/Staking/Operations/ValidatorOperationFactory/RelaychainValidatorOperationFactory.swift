@@ -44,6 +44,11 @@ final class RelaychainValidatorOperationFactory {
         let keyParams: () throws -> [String] = {
             let activeEra = try activeEraClosure()
             let duration = try slashDefer.extractNoCancellableResultData()
+
+            guard activeEra > duration else {
+                return []
+            }
+
             let startEra = max(activeEra - duration, 0)
             return (startEra ... activeEra).map { String($0) }
         }

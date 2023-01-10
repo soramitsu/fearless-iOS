@@ -1,8 +1,13 @@
 import UIKit
 import CommonWallet
 import RobinHood
+import SoraFoundation
 
 final class WalletTransactionHistoryInteractor {
+    private enum Constants {
+        static let reloadInterval: TimeInterval = 30.0
+    }
+
     weak var presenter: WalletTransactionHistoryInteractorOutputProtocol?
     let historyService: HistoryServiceProtocol
     let dataProviderFactory: HistoryDataProviderFactoryProtocol
@@ -14,10 +19,13 @@ final class WalletTransactionHistoryInteractor {
     var filters: [FilterSet]
     let transactionsPerPage: Int
     let eventCenter: EventCenterProtocol
+    let applicationHandler: ApplicationHandler
 
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
     private(set) var pages: [AssetTransactionPageData] = []
     var dataProvider: SingleValueProvider<AssetTransactionPageData>?
+
+    private var reloadTimer: Timer?
 
     init(
         chain: ChainModel,
@@ -30,7 +38,8 @@ final class WalletTransactionHistoryInteractor {
         selectedFilter: WalletHistoryRequest,
         transactionsPerPage: Int = 100,
         filters: [FilterSet],
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        applicationHandler: ApplicationHandler
     ) {
         self.selectedAccount = selectedAccount
         self.dataProviderFactory = dataProviderFactory
@@ -41,11 +50,18 @@ final class WalletTransactionHistoryInteractor {
         self.transactionsPerPage = transactionsPerPage
         self.filters = filters
         self.eventCenter = eventCenter
+        self.applicationHandler = applicationHandler
         chainAsset = ChainAsset(chain: chain, asset: asset)
+
+        applicationHandler.delegate = self
     }
 
     private func loadTransactions(for pagination: Pagination) {
-        guard let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
+        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
+            return
+        }
+
+        guard let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress() else {
             return
         }
 
@@ -78,9 +94,12 @@ final class WalletTransactionHistoryInteractor {
     }
 
     private func setupDataProvider() {
+        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
+            return
+        }
+
         guard
-            let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress(),
-            case .normal = chainAsset.chainAssetType
+            let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress()
         else {
             handleDataProvider(transactionData: nil)
             return
@@ -270,11 +289,36 @@ final class WalletTransactionHistoryInteractor {
             logger?.debug("Failed page already loaded")
         }
     }
+
+    private func setupReloadTimer() {
+        reloadTimer = Timer.scheduledTimer(
+            withTimeInterval: Constants.reloadInterval,
+            repeats: true,
+            block: { [weak self] _ in
+                guard let strongSelf = self else {
+                    return
+                }
+                let pagination = Pagination(count: strongSelf.transactionsPerPage)
+                strongSelf.dataLoadingState = .filtering(page: pagination, previousPage: nil)
+                strongSelf.loadTransactions(for: pagination)
+            }
+        )
+    }
+
+    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+        guard let chainAsset = chainAsset else { return nil }
+        if chainAsset.chain.isSora, !chainAsset.isUtility,
+           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+            return utilityAsset
+        }
+        return chainAsset
+    }
 }
 
 extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractorInputProtocol {
     func setup() {
         setupDataProvider()
+        setupReloadTimer()
 
         presenter?.didReceive(filters: filters)
 
@@ -282,6 +326,8 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     }
 
     func loadNext() -> Bool {
+        reloadTimer?.invalidate()
+
         switch dataLoadingState {
         case .waitingCached:
             return false
@@ -312,7 +358,7 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         }
     }
 
-    func reload() {
+    @objc func reload() {
         let pagination = Pagination(count: transactionsPerPage)
         dataLoadingState = .filtering(page: pagination, previousPage: nil)
         loadTransactions(for: pagination)
@@ -334,5 +380,15 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
 extension WalletTransactionHistoryInteractor: EventVisitorProtocol {
     func processNewTransaction(event _: WalletNewTransactionInserted) {
         reload()
+    }
+}
+
+extension WalletTransactionHistoryInteractor: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        reloadTimer?.invalidate()
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        setupReloadTimer()
     }
 }

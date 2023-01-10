@@ -4,6 +4,7 @@ import SoraFoundation
 enum AssetListDisplayType {
     case chain
     case assetChains
+    case search
 }
 
 typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
@@ -52,10 +53,10 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        let additionalDataReceived = displayType != .search && accountInfosFetched && pricesFetched || displayType == .search
         guard
             let chainAssets = chainAssets,
-            accountInfosFetched,
-            pricesFetched
+            additionalDataReceived
         else {
             return
         }
@@ -309,16 +310,34 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        pricesFetched = filters.contains(where: { filter in
+        let filteredByChain = filters.contains(where: { filter in
+            if case ChainAssetsFetching.Filter.chainId = filter {
+                return true
+            }
+
+            return false
+        })
+
+        let searchIsActive = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.search = filter {
                 return true
             }
+
             return false
         })
+
+        pricesFetched = searchIsActive
         accountInfosFetched = false
         accountInfos = [:]
 
-        filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
+        if searchIsActive {
+            displayType = .search
+        } else if filteredByChain {
+            displayType = .chain
+        } else {
+            displayType = .assetChains
+        }
+
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }

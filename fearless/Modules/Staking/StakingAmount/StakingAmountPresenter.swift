@@ -253,7 +253,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     }
 
     func didReceive(balance: AccountData?) {
-        if let availableValue = balance?.available {
+        if let availableValue = balance?.stakingAvailable {
             self.balance = Decimal.fromSubstrateAmount(
                 availableValue,
                 precision: Int16(asset.precision)

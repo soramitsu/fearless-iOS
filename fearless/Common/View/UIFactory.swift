@@ -167,13 +167,13 @@ final class UIFactory: UIFactoryProtocol {
             view.highlightedFillColor = R.color.colorSemiBlack()!
             view.strokeColor = R.color.colorWhite8()!
             view.highlightedStrokeColor = R.color.colorWhite8()!
-            view.borderWidth = 0.5
+            view.borderWidth = 1
         } else {
             view.fillColor = .clear
             view.highlightedFillColor = .clear
             view.strokeColor = R.color.colorWhite8()!
             view.highlightedStrokeColor = R.color.colorWhite8()!
-            view.borderWidth = 0.5
+            view.borderWidth = 1
         }
 
         switch layout {

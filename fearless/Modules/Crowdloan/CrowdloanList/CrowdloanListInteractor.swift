@@ -209,6 +209,14 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         ) { [weak self] (result: Result<LeasingPeriod, Error>) in
             self?.presenter.didReceiveLeasingPeriod(result: result)
         }
+
+        fetchConstant(
+            for: .leaseOffset,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<LeasingOffset, Error>) in
+            self?.presenter.didReceiveLeasingOffset(result: result)
+        }
     }
 }
 
