@@ -1938,6 +1938,7 @@
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
 		FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
+		FA0BFEC1296D409400E66B83 /* SCKYCPhoneCodeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEC0296D409300E66B83 /* SCKYCPhoneCodeState.swift */; };
 		FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109EA27A92D56003C2158 /* ChainAction.swift */; };
 		FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */; };
 		FA15BC0D2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */; };
@@ -4549,6 +4550,7 @@
 		FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceLocalSearchEngineProtocol.swift; sourceTree = "<group>"; };
 		FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsPresentable.swift; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
+		FA0BFEC0296D409300E66B83 /* SCKYCPhoneCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCPhoneCodeState.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
@@ -7669,7 +7671,6 @@
 				FA8644342767AB7E00956D8E /* CoreLayer */,
 				FA38C9A227606FDD005C5577 /* ApplicationLayer */,
 				84452F6F25D5E2B300F47EC5 /* Resources */,
-				8490141D24A93027008F705E /* Fonts */,
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
@@ -10231,6 +10232,7 @@
 		C2B59701D3F1E38D391B34DB /* PhoneVerificationCode */ = {
 			isa = PBXGroup;
 			children = (
+				FA0BFEBF296D408600E66B83 /* ViewModel */,
 				CBF48DB50645BA551A050139 /* PhoneVerificationCodeProtocols.swift */,
 				971B5AD463A1022BC23F9E39 /* PhoneVerificationCodeRouter.swift */,
 				61F39F508DE269B9C5EE6365 /* PhoneVerificationCodePresenter.swift */,
@@ -11215,6 +11217,14 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		FA0BFEBF296D408600E66B83 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				FA0BFEC0296D409300E66B83 /* SCKYCPhoneCodeState.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		FA169F9D28B7A37300E8D2DC /* History */ = {
 			isa = PBXGroup;
 			children = (
@@ -11724,6 +11734,7 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				8490141D24A93027008F705E /* Fonts */,
 				FA4D514429558FD20060C8BD /* SoraCard */,
 				FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
@@ -14120,6 +14131,7 @@
 				FA3F5B17281A790A00BEF03B /* StakingAmountFlow.swift in Sources */,
 				84DD5F30263D84F300425ACF /* RuntimeConstantFetching.swift in Sources */,
 				C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */,
+				FA0BFEC1296D409400E66B83 /* SCKYCPhoneCodeState.swift in Sources */,
 				84265E002523C410005EEE2D /* TransferDefinitionFactory.swift in Sources */,
 				07DFA4442897AEB40035A8AB /* WalletsManagmentTableCell.swift in Sources */,
 				FAFDB2C329112A00003971FB /* SubstrateCallPath.swift in Sources */,

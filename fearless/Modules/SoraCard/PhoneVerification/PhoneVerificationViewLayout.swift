@@ -27,11 +27,13 @@ final class PhoneVerificationViewLayout: UIView {
 
     let phoneInputField: InputField = {
         let view = InputField()
-        view.sora.backgroundColor = .fgPrimary
-//        view.stackView.sora.backgroundColor = .bgSurface
+        view.sora.backgroundColor = .bgPage
         view.textField.sora.textColor = .fgPrimary
+        view.textField.sora.backgroundColor = .bgSurface
         view.sora.keyboardType = .phonePad
         view.sora.textContentType = .telephoneNumber
+        view.sora.state = .default
+
         return view
     }()
 
@@ -63,12 +65,31 @@ final class PhoneVerificationViewLayout: UIView {
     func set(state: VerificationState) {
         switch state {
         case .enabled:
+            phoneInputField.sora.isUserInteractionEnabled = true
             sendButton.isEnabled = true
-            phoneInputField.sora.state = .success
+            phoneInputField.sora.state = .focused
+            phoneInputField.sora.descriptionLabelText = nil
         case let .disabled(errorMessage):
+            phoneInputField.sora.isUserInteractionEnabled = true
             sendButton.isEnabled = false
             phoneInputField.sora.state = .fail
             phoneInputField.sora.descriptionLabelText = errorMessage
+        case .inProgress:
+            phoneInputField.sora.isUserInteractionEnabled = false
+            sendButton.isEnabled = false
+            phoneInputField.sora.state = .default
+            phoneInputField.sora.descriptionLabelText = "Please wait..."
+        }
+    }
+
+    func resetTextFieldState() {
+        switch phoneInputField.sora.state {
+        case .fail, .success:
+            sendButton.isEnabled = true
+            phoneInputField.sora.state = .disabled
+            phoneInputField.sora.descriptionLabelText = nil
+        default:
+            break
         }
     }
 }

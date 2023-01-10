@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import PayWingsOAuthSDK
 
 final class PhoneVerificationPresenter {
     // MARK: Private properties
@@ -7,16 +8,19 @@ final class PhoneVerificationPresenter {
     private weak var view: PhoneVerificationViewInput?
     private let router: PhoneVerificationRouterInput
     private let interactor: PhoneVerificationInteractorInput
+    private let logger: LoggerProtocol
 
     // MARK: - Constructors
 
     init(
         interactor: PhoneVerificationInteractorInput,
         router: PhoneVerificationRouterInput,
+        logger: LoggerProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
+        self.logger = logger
         self.localizationManager = localizationManager
     }
 
@@ -32,7 +36,7 @@ extension PhoneVerificationPresenter: PhoneVerificationViewOutput {
     }
 
     func didTapSendButton(with phone: String) {
-        router.presentVerificationCode(from: view, phone: phone)
+        interactor.requestVerificationCode(phoneNumber: phone)
     }
 
     func didTapBackButton() {
@@ -46,7 +50,21 @@ extension PhoneVerificationPresenter: PhoneVerificationViewOutput {
 
 // MARK: - PhoneVerificationInteractorOutput
 
-extension PhoneVerificationPresenter: PhoneVerificationInteractorOutput {}
+extension PhoneVerificationPresenter: PhoneVerificationInteractorOutput {
+    func didReceive(error: Error) {
+        logger.error(error.localizedDescription)
+    }
+
+    func didReceive(oAuthError: PayWingsOAuthSDK.OAuthErrorCode) {
+        logger.error(oAuthError.description)
+
+        view?.didReceive(error: oAuthError.description)
+    }
+
+    func didProceed(with data: SCKYCUserDataModel, otpLength: Int) {
+        router.presentVerificationCode(from: view, data: data, otpLength: otpLength)
+    }
+}
 
 // MARK: - Localizable
 

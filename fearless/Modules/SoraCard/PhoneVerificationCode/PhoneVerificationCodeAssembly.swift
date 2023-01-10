@@ -2,16 +2,17 @@ import UIKit
 import SoraFoundation
 
 final class PhoneVerificationCodeAssembly {
-    static func configureModule(with phone: String) -> PhoneVerificationCodeModuleCreationResult? {
+    static func configureModule(with data: SCKYCUserDataModel, otpLength: Int) -> PhoneVerificationCodeModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = PhoneVerificationCodeInteractor()
+        let service: SCKYCService = .init(client: .shared)
+        let interactor = PhoneVerificationCodeInteractor(data: data, service: service, otpLength: otpLength)
         let router = PhoneVerificationCodeRouter()
 
         let presenter = PhoneVerificationCodePresenter(
             interactor: interactor,
             router: router,
-            phone: phone,
+            phone: data.phoneNumber,
             localizationManager: localizationManager
         )
 

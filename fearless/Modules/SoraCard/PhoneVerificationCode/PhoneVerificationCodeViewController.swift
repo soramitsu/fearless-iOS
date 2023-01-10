@@ -54,17 +54,17 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
             if let code = self?.rootView.codeInputField.textField.text, code.count == 6 {
                 self?.output.send(code: code)
             } else {
-                self?.rootView.set(state: .editing)
+                self?.rootView.bind(state: .editing)
             }
         }
-        timer = Timer.scheduledTimer(
-            timeInterval: 1,
-            target: self,
-            selector: #selector(updateTimer),
-            userInfo: nil,
-            repeats: true
-        )
-        timer?.fire()
+//        timer = Timer.scheduledTimer(
+//            timeInterval: 1,
+//            target: self,
+//            selector: #selector(updateTimer),
+//            userInfo: nil,
+//            repeats: true
+//        )
+//        timer?.fire()
     }
 
     @objc private func updateTimer() {
@@ -87,7 +87,9 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
     }
 
     @objc private func sendButtonClicked() {
-        output.didTapSendButton()
+        guard let code = rootView.codeInputField.textField.text, !code.isEmpty else { return }
+
+        output.didTapSendButton(with: code)
 
         remainingTime = 60
         timer?.invalidate()
@@ -115,6 +117,10 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
 extension PhoneVerificationCodeViewController: PhoneVerificationCodeViewInput {
     func set(phone: String) {
         rootView.set(phone: phone)
+    }
+
+    func didReceive(state: SCKYCPhoneCodeState) {
+        rootView.bind(state: state)
     }
 }
 

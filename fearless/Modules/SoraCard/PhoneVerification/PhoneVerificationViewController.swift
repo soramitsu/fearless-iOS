@@ -37,6 +37,11 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         configure()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        rootView.resetTextFieldState()
+    }
+
     func set(state: VerificationState) {
         rootView.set(state: state)
     }
@@ -48,11 +53,16 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         rootView.phoneInputField.sora.addHandler(for: .touchUpInside) { [weak self] in
             self?.set(state: (self?.rootView.phoneInputField.textField.text?.isEmpty ?? true) ? .disabled(errorMessage: "Empty") : .enabled)
         }
+        rootView.phoneInputField.sora.addHandler(for: .editingChanged) { [weak self] in
+            self?.rootView.resetTextFieldState()
+        }
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
     }
 
     @objc private func sendButtonClicked() {
+        rootView.set(state: .inProgress)
+
         guard let phone = rootView.phoneInputField.textField.text, !phone.isEmpty else { return }
         output.didTapSendButton(with: phone)
     }
@@ -68,7 +78,11 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
 
 // MARK: - PhoneVerificationViewInput
 
-extension PhoneVerificationViewController: PhoneVerificationViewInput {}
+extension PhoneVerificationViewController: PhoneVerificationViewInput {
+    func didReceive(error: String) {
+        set(state: .disabled(errorMessage: error))
+    }
+}
 
 // MARK: - Localizable
 

@@ -6,17 +6,17 @@ final class IntroducePresenter {
 
     private weak var view: IntroduceViewInput?
     private let router: IntroduceRouterInput
-    private let phone: String
+    private let data: SCKYCUserDataModel
 
     // MARK: - Constructors
 
     init(
         router: IntroduceRouterInput,
-        phone: String,
+        data: SCKYCUserDataModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.router = router
-        self.phone = phone
+        self.data = data
         self.localizationManager = localizationManager
     }
 
@@ -30,13 +30,13 @@ extension IntroducePresenter: IntroduceViewOutput {
         self.view = view
     }
 
-    func didTapContinueButton(name: String, lastName: String) {
-        router.presentVerificationEmail(
-            from: view,
-            phone: phone,
-            name: name,
-            lastName: lastName
-        )
+    func didTapContinueButton(name _: String, lastName _: String) {
+//        router.presentVerificationEmail(
+//            from: view,
+//            phone: phone,
+//            name: name,
+//            lastName: lastName
+//        )
     }
 
     func didTapBackButton() {

@@ -1,13 +1,6 @@
 import Foundation
 import SoraFoundation
 
-enum PhoneVerificationCodeState {
-    case editing
-    case sent
-    case wrong(String)
-    case succeed
-}
-
 final class PhoneVerificationCodePresenter {
     // MARK: Private properties
 
@@ -44,9 +37,8 @@ extension PhoneVerificationCodePresenter: PhoneVerificationCodeViewOutput {
 
     func send(code _: String) {}
 
-    func didTapSendButton() {
-//        Replace to send code after implement logic
-        router.presentIntroduce(from: view, phone: phone)
+    func didTapSendButton(with code: String) {
+        interactor.verify(code: code)
     }
 
     func didTapBackButton() {
@@ -60,7 +52,19 @@ extension PhoneVerificationCodePresenter: PhoneVerificationCodeViewOutput {
 
 // MARK: - PhoneVerificationCodeInteractorOutput
 
-extension PhoneVerificationCodePresenter: PhoneVerificationCodeInteractorOutput {}
+extension PhoneVerificationCodePresenter: PhoneVerificationCodeInteractorOutput {
+    func didReceiveEmailVerificationStep(data _: SCKYCUserDataModel) {}
+
+    func didReceiveUserRegistrationStep(data: SCKYCUserDataModel) {
+        router.presentIntroduce(from: view, data: data)
+    }
+
+    func didReceiveSignInSuccessfulStep(data _: SCKYCUserDataModel) {}
+
+    func didReceive(state: SCKYCPhoneCodeState) {
+        view?.didReceive(state: state)
+    }
+}
 
 // MARK: - Localizable
 

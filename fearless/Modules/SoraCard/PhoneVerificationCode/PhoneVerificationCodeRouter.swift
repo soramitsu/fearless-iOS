@@ -1,8 +1,8 @@
 import Foundation
 
 final class PhoneVerificationCodeRouter: PhoneVerificationCodeRouterInput {
-    func presentIntroduce(from view: PhoneVerificationCodeViewInput?, phone: String) {
-        guard let module = IntroduceAssembly.configureModule(with: phone) else {
+    func presentIntroduce(from view: PhoneVerificationCodeViewInput?, data: SCKYCUserDataModel) {
+        guard let module = IntroduceAssembly.configureModule(with: data) else {
             return
         }
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)

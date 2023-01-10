@@ -17,21 +17,21 @@ final class IntroduceViewLayout: UIView {
 
     let nameInputField: InputField = {
         let view = InputField()
-        view.sora.backgroundColor = .fgPrimary
-//        view.stackView.sora.backgroundColor = .bgSurface
+        view.sora.backgroundColor = .bgPage
         view.textField.sora.textColor = .fgPrimary
         view.sora.keyboardType = .alphabet
         view.sora.textContentType = .name
+        view.sora.state = .default
         return view
     }()
 
     let lastNameInputField: InputField = {
         let view = InputField()
-        view.sora.backgroundColor = .fgPrimary
-//        view.stackView.sora.backgroundColor = .bgSurface
+        view.sora.backgroundColor = .bgPage
         view.textField.sora.textColor = .fgPrimary
         view.sora.keyboardType = .alphabet
         view.sora.textContentType = .familyName
+        view.sora.state = .default
         return view
     }()
 

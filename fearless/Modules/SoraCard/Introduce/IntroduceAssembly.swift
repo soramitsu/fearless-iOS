@@ -2,14 +2,14 @@ import UIKit
 import SoraFoundation
 
 final class IntroduceAssembly {
-    static func configureModule(with phone: String) -> IntroduceModuleCreationResult? {
+    static func configureModule(with data: SCKYCUserDataModel) -> IntroduceModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let router = IntroduceRouter()
 
         let presenter = IntroducePresenter(
             router: router,
-            phone: phone,
+            data: data,
             localizationManager: localizationManager
         )
 

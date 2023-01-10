@@ -27,10 +27,10 @@ final class PhoneVerificationCodeViewLayout: UIView {
 
     let codeInputField: InputField = {
         let view = InputField()
-        view.sora.backgroundColor = .fgPrimary
-//        view.stackView.sora.backgroundColor = .bgSurface
+        view.sora.backgroundColor = .bgPage
         view.textField.sora.textColor = .fgPrimary
         view.sora.keyboardType = .numberPad
+        view.sora.state = .default
         return view
     }()
 
@@ -77,7 +77,7 @@ final class PhoneVerificationCodeViewLayout: UIView {
         }
     }
 
-    func set(state: PhoneVerificationCodeState) {
+    func bind(state: SCKYCPhoneCodeState) {
         switch state {
         case .succeed:
             codeInputField.sora.state = .success
