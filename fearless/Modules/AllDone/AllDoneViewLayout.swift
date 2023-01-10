@@ -89,6 +89,16 @@ final class AllDoneViewLayout: UIView {
         return view
     }()
 
+    private let successView: TitleValueView = {
+        let view = TitleValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h5Title
+        view.valueLabel.textColor = R.color.colorGreen()
+        view.borderView.isHidden = true
+        return view
+    }()
+
     let subscanButton: TriangularedButton = UIFactory.default.createDisabledButton()
     let shareButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
@@ -146,6 +156,10 @@ final class AllDoneViewLayout: UIView {
             .allDoneAlertDescriptionStub(preferredLanguages: locale.rLanguages)
         hashView.titleLabel.text = R.string.localizable
             .allDoneAlertHashStub(preferredLanguages: locale.rLanguages)
+        successView.titleLabel.text = R.string.localizable
+            .allDoneAlertResultStub(preferredLanguages: locale.rLanguages)
+        successView.valueLabel.text = R.string.localizable
+            .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
         subscanButton.imageWithTitleView?.title = R.string.localizable
             .allDoneSubscanButtonTitle(preferredLanguages: locale.rLanguages)
         shareButton.imageWithTitleView?.title = R.string.localizable
@@ -203,6 +217,7 @@ final class AllDoneViewLayout: UIView {
         contentStackView.addArrangedSubview(infoBackground)
         infoBackground.addSubview(infoStackView)
         infoStackView.addArrangedSubview(hashView)
+        infoStackView.addArrangedSubview(successView)
 
         let buttonHStachView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.offset12)
         buttonHStachView.distribution = .fillEqually
@@ -225,6 +240,11 @@ final class AllDoneViewLayout: UIView {
         }
 
         hashView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.cellHeight)
+        }
+
+        successView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }

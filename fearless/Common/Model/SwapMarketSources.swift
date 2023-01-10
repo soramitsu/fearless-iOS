@@ -30,7 +30,7 @@ final class SwapMarketSource: SwapMarketSourceProtocol {
     }
 
     func getMarketSources() -> [LiquiditySourceType] {
-        marketSources ?? []
+        marketSources ?? [.smart]
     }
 
     func getMarketSource(at index: Int) -> LiquiditySourceType? {

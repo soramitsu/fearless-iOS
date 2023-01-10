@@ -118,7 +118,7 @@ final class PolkaswapAdjustmentPresenter {
 
     private func provideToAssetVewModel() {
         let inputAmount = swapToInputResult?
-            .absoluteValue(from: swapToBalance ?? .zero) ?? .zero
+            .absoluteValue(from: swapToBalance ?? .zero)
         let balanceViewModelFactory = buildBalanceSwapToViewModelFactory(
             wallet: wallet,
             for: swapToChainAsset

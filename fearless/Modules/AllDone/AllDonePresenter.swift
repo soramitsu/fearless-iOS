@@ -64,8 +64,12 @@ extension AllDonePresenter: AllDoneViewOutput {
     }
 
     func shareButtonDidTapped() {
-        let source = TextSharingSource(message: hashString)
-        router.share(source: source, from: view, with: nil)
+        guard let subscanExplorer = self.subscanExplorer,
+              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+        else {
+            return
+        }
+        router.share(sources: [subscanUrl], from: view, with: nil)
     }
 }
 

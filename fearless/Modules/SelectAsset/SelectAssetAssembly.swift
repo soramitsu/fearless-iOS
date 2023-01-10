@@ -80,12 +80,14 @@ final class SelectAssetAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
-        view.modalPresentationStyle = .custom
+        if !isFullSize {
+            view.modalPresentationStyle = .custom
 
-        let factory = ModalSheetBlurPresentationFactory(
-            configuration: ModalSheetPresentationConfiguration.fearlessBlur
-        )
-        view.modalTransitioningFactory = factory
+            let factory = ModalSheetBlurPresentationFactory(
+                configuration: ModalSheetPresentationConfiguration.fearlessBlur
+            )
+            view.modalTransitioningFactory = factory
+        }
 
         return (view, presenter)
     }

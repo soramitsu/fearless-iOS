@@ -115,7 +115,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var learnPayoutURL: URL {
-        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+        URL(string: "https://wiki.polkadot.network/docs/learn-staking-advanced#simple-payouts")!
     }
 
     var learnControllerAccountURL: URL {
