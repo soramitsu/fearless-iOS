@@ -1920,6 +1920,16 @@
 		FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */; };
 		FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
+		FA0BFEB5296D2C8C00E66B83 /* SoraCardInfoBoardRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEAA296D2C8B00E66B83 /* SoraCardInfoBoardRouter.swift */; };
+		FA0BFEB6296D2C8C00E66B83 /* SoraCardStateViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEAC296D2C8B00E66B83 /* SoraCardStateViewModelFactory.swift */; };
+		FA0BFEB7296D2C8C00E66B83 /* SoraCardInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEAD296D2C8B00E66B83 /* SoraCardInfoViewModel.swift */; };
+		FA0BFEB8296D2C8C00E66B83 /* SoraCardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEAE296D2C8B00E66B83 /* SoraCardState.swift */; };
+		FA0BFEB9296D2C8C00E66B83 /* SoraCardInfoBoardViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEAF296D2C8B00E66B83 /* SoraCardInfoBoardViewLayout.swift */; };
+		FA0BFEBA296D2C8C00E66B83 /* SoraCardInfoBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEB0296D2C8B00E66B83 /* SoraCardInfoBoardViewController.swift */; };
+		FA0BFEBB296D2C8C00E66B83 /* SoraCardInfoBoardAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEB1296D2C8B00E66B83 /* SoraCardInfoBoardAssembly.swift */; };
+		FA0BFEBC296D2C8C00E66B83 /* SoraCardInfoBoardPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEB2296D2C8B00E66B83 /* SoraCardInfoBoardPresenter.swift */; };
+		FA0BFEBD296D2C8C00E66B83 /* SoraCardInfoBoardProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEB3296D2C8B00E66B83 /* SoraCardInfoBoardProtocols.swift */; };
+		FA0BFEBE296D2C8C00E66B83 /* SoraCardInfoBoardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEB4296D2C8B00E66B83 /* SoraCardInfoBoardInteractor.swift */; };
 		FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109EA27A92D56003C2158 /* ChainAction.swift */; };
 		FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */; };
 		FA15BC0D2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */; };
@@ -4515,6 +4525,16 @@
 		FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceLocalSearchEngineProtocol.swift; sourceTree = "<group>"; };
 		FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsPresentable.swift; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
+		FA0BFEAA296D2C8B00E66B83 /* SoraCardInfoBoardRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardRouter.swift; sourceTree = "<group>"; };
+		FA0BFEAC296D2C8B00E66B83 /* SoraCardStateViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardStateViewModelFactory.swift; sourceTree = "<group>"; };
+		FA0BFEAD296D2C8B00E66B83 /* SoraCardInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoViewModel.swift; sourceTree = "<group>"; };
+		FA0BFEAE296D2C8B00E66B83 /* SoraCardState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardState.swift; sourceTree = "<group>"; };
+		FA0BFEAF296D2C8B00E66B83 /* SoraCardInfoBoardViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardViewLayout.swift; sourceTree = "<group>"; };
+		FA0BFEB0296D2C8B00E66B83 /* SoraCardInfoBoardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardViewController.swift; sourceTree = "<group>"; };
+		FA0BFEB1296D2C8B00E66B83 /* SoraCardInfoBoardAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardAssembly.swift; sourceTree = "<group>"; };
+		FA0BFEB2296D2C8B00E66B83 /* SoraCardInfoBoardPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardPresenter.swift; sourceTree = "<group>"; };
+		FA0BFEB3296D2C8B00E66B83 /* SoraCardInfoBoardProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardProtocols.swift; sourceTree = "<group>"; };
+		FA0BFEB4296D2C8B00E66B83 /* SoraCardInfoBoardInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardInteractor.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
@@ -11120,6 +11140,31 @@
 			path = ViewModels;
 			sourceTree = "<group>";
 		};
+		FA0BFEA9296D2C8B00E66B83 /* SoraCardInfoBoard */ = {
+			isa = PBXGroup;
+			children = (
+				FA0BFEAA296D2C8B00E66B83 /* SoraCardInfoBoardRouter.swift */,
+				FA0BFEAB296D2C8B00E66B83 /* ViewModel */,
+				FA0BFEAF296D2C8B00E66B83 /* SoraCardInfoBoardViewLayout.swift */,
+				FA0BFEB0296D2C8B00E66B83 /* SoraCardInfoBoardViewController.swift */,
+				FA0BFEB1296D2C8B00E66B83 /* SoraCardInfoBoardAssembly.swift */,
+				FA0BFEB2296D2C8B00E66B83 /* SoraCardInfoBoardPresenter.swift */,
+				FA0BFEB3296D2C8B00E66B83 /* SoraCardInfoBoardProtocols.swift */,
+				FA0BFEB4296D2C8B00E66B83 /* SoraCardInfoBoardInteractor.swift */,
+			);
+			path = SoraCardInfoBoard;
+			sourceTree = "<group>";
+		};
+		FA0BFEAB296D2C8B00E66B83 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				FA0BFEAC296D2C8B00E66B83 /* SoraCardStateViewModelFactory.swift */,
+				FA0BFEAD296D2C8B00E66B83 /* SoraCardInfoViewModel.swift */,
+				FA0BFEAE296D2C8B00E66B83 /* SoraCardState.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		FA169F9D28B7A37300E8D2DC /* History */ = {
 			isa = PBXGroup;
 			children = (
@@ -11894,6 +11939,7 @@
 		FA4D51C0295590190060C8BD /* SoraCard */ = {
 			isa = PBXGroup;
 			children = (
+				FA0BFEA9296D2C8B00E66B83 /* SoraCardInfoBoard */,
 				FA4D516E295590140060C8BD /* EmailVerification */,
 				FA4D5166295590140060C8BD /* Introduce */,
 				FA4D517E295590150060C8BD /* PhoneVerification */,
@@ -13555,6 +13601,7 @@
 				C6A8D6C127FC318A0080F81C /* UniqueChainViewModel.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
+				FA0BFEBD296D2C8C00E66B83 /* SoraCardInfoBoardProtocols.swift in Sources */,
 				F40966B926B297D6008CD244 /* AnalyticsRewardsViewModel.swift in Sources */,
 				FA1DBEB229596A7A007933D3 /* VerificationStatusViewModelFactory.swift in Sources */,
 				FAE9EBA1288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift in Sources */,
@@ -13669,6 +13716,7 @@
 				84893C0724DA890F008F6A3F /* CommonError.swift in Sources */,
 				849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */,
 				84F13F0826F13898006725FF /* StakingAssetSettings.swift in Sources */,
+				FA0BFEBE296D2C8C00E66B83 /* SoraCardInfoBoardInteractor.swift in Sources */,
 				84F30EF1260001A600039D09 /* DataProviderChange+Helper.swift in Sources */,
 				F47BBD8026317B970087DA11 /* StakingBalanceViewModel.swift in Sources */,
 				FA2FC80028B3807C00CC0A42 /* StakingPoolJoinChoosePoolViewController.swift in Sources */,
@@ -14298,6 +14346,7 @@
 				AEF505A92620249F0098574D /* UIColor+HEX.swift in Sources */,
 				84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */,
 				84205897260C795B007D26C6 /* NominatorState+Status.swift in Sources */,
+				FA0BFEBC296D2C8C00E66B83 /* SoraCardInfoBoardPresenter.swift in Sources */,
 				FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */,
 				AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */,
 				FA256997274CE65100875A53 /* HTTPRequestBuilder.swift in Sources */,
@@ -14851,6 +14900,7 @@
 				8468B87024F63D2000B76BC6 /* AddAccount+UsernameSetupWireframe.swift in Sources */,
 				FA2FC82428B380C500CC0A42 /* StakingPoolRoles.swift in Sources */,
 				84754CA42513E6DC00854599 /* PrimitiveContextWrapper.swift in Sources */,
+				FA0BFEBB296D2C8C00E66B83 /* SoraCardInfoBoardAssembly.swift in Sources */,
 				FA15BC0F2823AE4D0037C023 /* ParachainStakingCandidate.swift in Sources */,
 				84F47D4B2666EF1C00F7647A /* KaruraStatementData.swift in Sources */,
 				8443FE24255586230092893D /* ExportMnemonicConfirmProtocols.swift in Sources */,
@@ -15010,6 +15060,7 @@
 				8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */,
 				C6264C38279AB09600FCA0DB /* WalletDetailsInteractor.swift in Sources */,
 				84A15489262888CA0050D557 /* IdentityOperationFactory.swift in Sources */,
+				FA0BFEBA296D2C8C00E66B83 /* SoraCardInfoBoardViewController.swift in Sources */,
 				8473D4212657FFFB00B394B2 /* Crowdloan.swift in Sources */,
 				844CB57626FA064700396E13 /* ChainRegistryError.swift in Sources */,
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
@@ -15018,6 +15069,7 @@
 				84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */,
 				FA6DB7C52757C9B000233FBA /* ChainAccountViewController.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
+				FA0BFEB6296D2C8C00E66B83 /* SoraCardStateViewModelFactory.swift in Sources */,
 				84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */,
 				84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */,
 				074EB7AF290BA057000A2A6A /* ConnectionOfflineEvent.swift in Sources */,
@@ -15169,6 +15221,7 @@
 				EF02C9661F03C8EF58182997 /* StakingAmountViewController.swift in Sources */,
 				D8581E5440A19D977E17BFDE /* StakingAmountViewFactory.swift in Sources */,
 				C6CA307F286190630087776D /* DelegationStateView.swift in Sources */,
+				FA0BFEB8296D2C8C00E66B83 /* SoraCardState.swift in Sources */,
 				F40966C626B297D6008CD244 /* AnalyticsRewardsInteractor.swift in Sources */,
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,
@@ -15201,6 +15254,7 @@
 				6ECD0116CD39D8F55D246864 /* SelectValidatorsConfirmPresenter.swift in Sources */,
 				FA4C3D122886794D00176398 /* SelfSizingTableView.swift in Sources */,
 				CC545DF80038901FA06FDD58 /* SelectValidatorsConfirmViewController.swift in Sources */,
+				FA0BFEB7296D2C8C00E66B83 /* SoraCardInfoViewModel.swift in Sources */,
 				1F88F3DBFA0BD6D0FDF558F3 /* SelectValidatorsConfirmViewFactory.swift in Sources */,
 				FA38C9A1275FD6B9005C5577 /* BundleImageViewModel.swift in Sources */,
 				D344C6DAC1F8BB6152BA8DD0 /* RecommendedValidatorListProtocols.swift in Sources */,
@@ -15229,6 +15283,7 @@
 				58F693958EF69F59D7C9760E /* StakingRewardPayoutsInteractor.swift in Sources */,
 				FA2569A6274CE6AD00875A53 /* BalanceLockSubscription.swift in Sources */,
 				FAA0139628DA1312000A5230 /* StakingBondMoreConfirmationPoolViewModelState.swift in Sources */,
+				FA0BFEB9296D2C8C00E66B83 /* SoraCardInfoBoardViewLayout.swift in Sources */,
 				50758C9BBB27AE5732FF78BA /* StakingRewardPayoutsViewController.swift in Sources */,
 				AEF507AF262423FD0098574D /* HmacSigner.swift in Sources */,
 				3229E306230161AA99B14BDD /* StakingRewardPayoutsViewFactory.swift in Sources */,
@@ -15542,6 +15597,7 @@
 				3761C36C5BAFFB1518CD93A0 /* FiltersProtocols.swift in Sources */,
 				93B7B64D9259FCCEDE6672FB /* FiltersWireframe.swift in Sources */,
 				D3E91C1BA3CBB8F391AC4530 /* FiltersPresenter.swift in Sources */,
+				FA0BFEB5296D2C8C00E66B83 /* SoraCardInfoBoardRouter.swift in Sources */,
 				C4F8BEB6DFA03A374135BD6B /* FiltersInteractor.swift in Sources */,
 				FEB21960BEBE9863BEC63F50 /* FiltersViewController.swift in Sources */,
 				3EC834936AEA6088FBC926B4 /* FiltersViewLayout.swift in Sources */,
