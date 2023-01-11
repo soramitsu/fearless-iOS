@@ -40,6 +40,7 @@ struct UIConstants {
     static let validatorCellHeight: CGFloat = 77.0
     static let infoButtonSize: CGFloat = 14.0
     static let soraCardButtonHeight: CGFloat = 56
+    static let roundedButtonHeight: CGFloat = 56.0
 }
 
 enum AccountViewMode {
@@ -90,6 +91,7 @@ protocol UIFactoryProtocol {
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
     func createSearchTextField() -> SearchTextField
+    func createRoundedButton() -> UIButton
 }
 
 extension UIFactoryProtocol {
@@ -622,5 +624,12 @@ final class UIFactory: UIFactoryProtocol {
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.shadowOpacity = 0
         return searchTextField
+    }
+
+    func createRoundedButton() -> UIButton {
+        let button = UIButton(type: .custom)
+        button.titleLabel?.font = .h6Title
+        button.layer.cornerRadius = 12
+        return button
     }
 }

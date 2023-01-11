@@ -1939,6 +1939,9 @@
 		FA072C23277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */; };
 		FA072C25277C0FA900731718 /* ApplicationSettingsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */; };
 		FA0BFEC1296D409400E66B83 /* SCKYCPhoneCodeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEC0296D409300E66B83 /* SCKYCPhoneCodeState.swift */; };
+		FA0BFEC3296EC6F200E66B83 /* SoraCardInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEC2296EC6F100E66B83 /* SoraCardInfoViewModel.swift */; };
+		FA0BFEC7296EC70300E66B83 /* VerificationStatusViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEC5296EC70300E66B83 /* VerificationStatusViewModelFactory.swift */; };
+		FA0BFEC8296EC70300E66B83 /* VerificationStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0BFEC6296EC70300E66B83 /* VerificationStatusViewModel.swift */; };
 		FA1109EB27A92D56003C2158 /* ChainAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1109EA27A92D56003C2158 /* ChainAction.swift */; };
 		FA15BC0B2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */; };
 		FA15BC0D2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */; };
@@ -4551,6 +4554,9 @@
 		FA072C24277C0FA900731718 /* ApplicationSettingsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationSettingsPresentable.swift; sourceTree = "<group>"; };
 		FA0B7C9F68A6BF3D3A6D8234 /* StakingPoolInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoInteractor.swift; sourceTree = "<group>"; };
 		FA0BFEC0296D409300E66B83 /* SCKYCPhoneCodeState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCPhoneCodeState.swift; sourceTree = "<group>"; };
+		FA0BFEC2296EC6F100E66B83 /* SoraCardInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoViewModel.swift; sourceTree = "<group>"; };
+		FA0BFEC5296EC70300E66B83 /* VerificationStatusViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewModelFactory.swift; sourceTree = "<group>"; };
+		FA0BFEC6296EC70300E66B83 /* VerificationStatusViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewModel.swift; sourceTree = "<group>"; };
 		FA1109EA27A92D56003C2158 /* ChainAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAction.swift; sourceTree = "<group>"; };
 		FA15BC0A2822EF820037C023 /* StakingAmountParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAmountParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA15BC0C2823ADCD0037C023 /* ParachainStakingLocalSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainStakingLocalSubscriptionFactory.swift; sourceTree = "<group>"; };
@@ -11225,6 +11231,15 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		FA0BFEC4296EC70300E66B83 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				FA0BFEC5296EC70300E66B83 /* VerificationStatusViewModelFactory.swift */,
+				FA0BFEC6296EC70300E66B83 /* VerificationStatusViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		FA169F9D28B7A37300E8D2DC /* History */ = {
 			isa = PBXGroup;
 			children = (
@@ -11975,6 +11990,7 @@
 		FA4D518E295590150060C8BD /* VerificationStatus */ = {
 			isa = PBXGroup;
 			children = (
+				FA0BFEC4296EC70300E66B83 /* ViewModel */,
 				FA4D518F295590150060C8BD /* VerificationStatusPresenter.swift */,
 				FA4D5190295590150060C8BD /* VerificationStatusProtocols.swift */,
 				FA4D5191295590150060C8BD /* VerificationStatusViewLayout.swift */,
@@ -12040,6 +12056,7 @@
 		FA79D2DB295B1583009147CB /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
+				FA0BFEC2296EC6F100E66B83 /* SoraCardInfoViewModel.swift */,
 				FA79D2DD295B15B6009147CB /* SoraCardState.swift */,
 				FAC7F47D295D851900C5B8B3 /* SoraCardStateViewModelFactory.swift */,
 			);
@@ -13956,6 +13973,7 @@
 				8461CC8A26BD2F07007460E4 /* RuntimeProviderPool.swift in Sources */,
 				848DE76626D642670045CD29 /* StorageMigrator.swift in Sources */,
 				F4AE12A1268DD69B0097D1C7 /* MnemonicTextNormalizer.swift in Sources */,
+				FA0BFEC8296EC70300E66B83 /* VerificationStatusViewModel.swift in Sources */,
 				070B2C55289CE43A00F78F82 /* SelectNetworkProtocols.swift in Sources */,
 				8463A72525E3A82A003B8160 /* DataProviderProxyTrigger.swift in Sources */,
 				847119EB262EFF3800716580 /* ValidatorPayoutInfoFactory.swift in Sources */,
@@ -14038,6 +14056,7 @@
 				FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */,
 				AE528E4F26852E410058935A /* ValidatorSearchViewModelFactory.swift in Sources */,
 				841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */,
+				FA0BFEC3296EC6F200E66B83 /* SoraCardInfoViewModel.swift in Sources */,
 				07089AF528B64701001566CA /* ChainReconnectingEvent.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				F40966CE26B297D6008CD244 /* AnalyticsStakeProtocols.swift in Sources */,
@@ -14758,6 +14777,7 @@
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,
 				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
 				8439399C2636FAB40087658D /* YourValidatorViewModel.swift in Sources */,
+				FA0BFEC7296EC70300E66B83 /* VerificationStatusViewModelFactory.swift in Sources */,
 				846A2601267C768500429A7F /* CrowdloanContributionMapper.swift in Sources */,
 				84CFF1EA26526FBC00DB7CF7 /* StakingBondMoreConfirmationViewFactory.swift in Sources */,
 				F4D96B7E2638191F00B23D3D /* StakingRebondOption.swift in Sources */,

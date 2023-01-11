@@ -1,4 +1,5 @@
 import UIKit
+import SoraFoundation
 
 final class SoraCardInfoBoardViewLayout: UIView {
     private enum LayoutConstants {
@@ -12,12 +13,20 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }()
 
     let statusButton: UIButton = {
-        let button = UIButton()
+        let button = UIButton(type: .custom)
         button.backgroundColor = R.color.colorBlack19()
+        button.titleLabel?.font = .capsTitle
+        button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
         return button
     }()
 
-    var locale = Locale.current
+    var locale = Locale.current {
+        didSet {
+            applyLocalization()
+        }
+    }
+
+    private var viewModel: LocalizableResource<SoraCardInfoViewModel>?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -32,6 +41,14 @@ final class SoraCardInfoBoardViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         statusButton.rounded()
+    }
+
+    func bind(viewModel: LocalizableResource<SoraCardInfoViewModel>) {
+        self.viewModel = viewModel
+
+        statusButton.setTitle(viewModel.value(for: locale).title?.uppercased(), for: .normal)
+        statusButton.setNeedsLayout()
+        statusButton.layoutIfNeeded()
     }
 
     private func setupLayout() {
@@ -49,9 +66,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
         }
     }
 
-    func bind(state: SoraCardState) {
-        statusButton.setTitle(state.title(for: locale), for: .normal)
-        statusButton.setNeedsLayout()
-        statusButton.layoutIfNeeded()
+    private func applyLocalization() {
+        statusButton.setTitle(viewModel?.value(for: locale).title?.uppercased(), for: .normal)
     }
 }
