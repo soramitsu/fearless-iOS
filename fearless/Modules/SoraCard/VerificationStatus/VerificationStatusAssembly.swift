@@ -5,13 +5,20 @@ final class VerificationStatusAssembly {
     static func configureModule() -> VerificationStatusModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = VerificationStatusInteractor()
+        let service: SCKYCService = .init(client: .shared)
+
+        let interactor = VerificationStatusInteractor(data: SCKYCUserDataModel(), service: service)
         let router = VerificationStatusRouter()
+
+        let logger: LoggerProtocol = Logger.shared
+        let viewModelFactory: VerificationStatusViewModelFactoryProtocol = VerificationStatusViewModelFactory()
 
         let presenter = VerificationStatusPresenter(
             interactor: interactor,
             router: router,
-            localizationManager: localizationManager
+            logger: logger,
+            localizationManager: localizationManager,
+            viewModelFactory: viewModelFactory
         )
 
         let view = VerificationStatusViewController(

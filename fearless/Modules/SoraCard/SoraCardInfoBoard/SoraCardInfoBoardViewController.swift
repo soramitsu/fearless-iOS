@@ -88,15 +88,17 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
 // MARK: - SoraCardInfoBoardViewInput
 
 extension SoraCardInfoBoardViewController: SoraCardInfoBoardViewInput {
-    func didReceive(stateViewModel: SoraCardState) {
-        setupActions(with: stateViewModel)
+    func didReceive(stateViewModel: LocalizableResource<SoraCardInfoViewModel>) {
+        setupActions(with: stateViewModel.value(for: Locale.current).state)
 
-        rootView.bind(state: stateViewModel)
+        rootView.bind(viewModel: stateViewModel)
     }
 }
 
 // MARK: - Localizable
 
 extension SoraCardInfoBoardViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

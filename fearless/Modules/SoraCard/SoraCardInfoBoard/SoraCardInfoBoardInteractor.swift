@@ -5,7 +5,7 @@ final class SoraCardInfoBoardInteractor {
 
     private weak var output: SoraCardInfoBoardInteractorOutput?
     private let service: SCKYCService
-    let data: SCKYCUserDataModel
+    private let data: SCKYCUserDataModel
 
     init(data: SCKYCUserDataModel, service: SCKYCService) {
         self.data = data

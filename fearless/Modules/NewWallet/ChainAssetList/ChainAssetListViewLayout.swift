@@ -21,11 +21,12 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
+    private let scrollView = UIScrollView()
     private let cardContainer = UIView()
     private let contentContainer = UIView()
 
-    let tableView: UITableView = {
-        let view = UITableView(frame: .zero, style: .grouped)
+    let tableView: SelfSizingTableView = {
+        let view = SelfSizingTableView()
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
@@ -64,20 +65,26 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(cardContainer)
-        addSubview(contentContainer)
+        addSubview(scrollView)
+        scrollView.addSubview(cardContainer)
+        scrollView.addSubview(contentContainer)
         contentContainer.addSubview(tableView)
         contentContainer.addSubview(emptyView)
 
+        scrollView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalToSuperview()
+        }
+
         cardContainer.snp.makeConstraints { make in
             make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.trailing.equalTo(self).inset(UIConstants.bigOffset)
             make.height.equalTo(Constants.cardContainerHeight)
         }
 
         contentContainer.snp.makeConstraints { make in
             make.top.equalTo(cardContainer.snp.bottom)
-            make.leading.trailing.equalToSuperview()
+            make.leading.trailing.equalTo(self)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 
