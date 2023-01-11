@@ -6,7 +6,7 @@ final class IntroducePresenter {
 
     private weak var view: IntroduceViewInput?
     private let router: IntroduceRouterInput
-    private let data: SCKYCUserDataModel
+    private var data: SCKYCUserDataModel
 
     // MARK: - Constructors
 
@@ -30,13 +30,13 @@ extension IntroducePresenter: IntroduceViewOutput {
         self.view = view
     }
 
-    func didTapContinueButton(name _: String, lastName _: String) {
-//        router.presentVerificationEmail(
-//            from: view,
-//            phone: phone,
-//            name: name,
-//            lastName: lastName
-//        )
+    func didTapContinueButton(name: String, lastName: String) {
+        data.name = name
+        data.lastname = lastName
+        router.presentVerificationEmail(
+            from: view,
+            data: data
+        )
     }
 
     func didTapBackButton() {

@@ -62,7 +62,7 @@ final class PhoneVerificationViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    func set(state: VerificationState) {
+    func set(state: PhoneVerificationState) {
         switch state {
         case .enabled:
             phoneInputField.sora.isUserInteractionEnabled = true

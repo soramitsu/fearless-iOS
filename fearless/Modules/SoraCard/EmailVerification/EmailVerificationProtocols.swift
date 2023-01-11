@@ -4,6 +4,9 @@ protocol EmailVerificationViewInput: ControllerBackedProtocol {}
 
 protocol EmailVerificationViewOutput: AnyObject {
     func didLoad(view: EmailVerificationViewInput)
+    func didTapSendButton(with email: String)
+    func didTapBackButton()
+    func didTapCloseButton()
 }
 
 protocol EmailVerificationInteractorInput: AnyObject {
@@ -12,7 +15,10 @@ protocol EmailVerificationInteractorInput: AnyObject {
 
 protocol EmailVerificationInteractorOutput: AnyObject {}
 
-protocol EmailVerificationRouterInput: AnyObject {}
+protocol EmailVerificationRouterInput: PushDismissable {
+    func presentPreparation(from view: EmailVerificationViewInput?, data: SCKYCUserDataModel)
+    func close(from view: EmailVerificationViewInput?)
+}
 
 protocol EmailVerificationModuleInput: AnyObject {}
 

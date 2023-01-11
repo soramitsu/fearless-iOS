@@ -1661,7 +1661,9 @@
 		C6663B20275F20AE00D699AF /* ReceiveAssetViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */; };
 		C6663B22275F5F3500D699AF /* ReceiveAssetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */; };
 		C6663B24275F609B00D699AF /* ReceiveAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */; };
-		C676AF66296CE530009D8C32 /* VerificationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C676AF65296CE530009D8C32 /* VerificationState.swift */; };
+		C676AF66296CE530009D8C32 /* PhoneVerificationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C676AF65296CE530009D8C32 /* PhoneVerificationState.swift */; };
+		C676AF6C296E6FF6009D8C32 /* VerificationTimerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C676AF6B296E6FF6009D8C32 /* VerificationTimerState.swift */; };
+		C676AF6E296E7656009D8C32 /* EmailVerificationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C676AF6D296E7656009D8C32 /* EmailVerificationState.swift */; };
 		C67E780F27B3163B0053346B /* CheckPincodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */; };
 		C67E781127B318840053346B /* CheckPincodeViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781027B318840053346B /* CheckPincodeViewFactory.swift */; };
 		C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C67E781427B31FCB0053346B /* CheckPincodePresenter.swift */; };
@@ -4252,7 +4254,9 @@
 		C6663B1F275F20AE00D699AF /* ReceiveAssetViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewLayout.swift; sourceTree = "<group>"; };
 		C6663B21275F5F3500D699AF /* ReceiveAssetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetViewController.swift; sourceTree = "<group>"; };
 		C6663B23275F609B00D699AF /* ReceiveAssetProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAssetProtocols.swift; sourceTree = "<group>"; };
-		C676AF65296CE530009D8C32 /* VerificationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationState.swift; sourceTree = "<group>"; };
+		C676AF65296CE530009D8C32 /* PhoneVerificationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhoneVerificationState.swift; sourceTree = "<group>"; };
+		C676AF6B296E6FF6009D8C32 /* VerificationTimerState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VerificationTimerState.swift; sourceTree = "<group>"; };
+		C676AF6D296E7656009D8C32 /* EmailVerificationState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailVerificationState.swift; sourceTree = "<group>"; };
 		C67ACC943DA07FC529AE69B4 /* StakingBalanceFlow.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingBalanceFlow.swift; sourceTree = "<group>"; };
 		C67E780E27B3163B0053346B /* CheckPincodeProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeProtocols.swift; sourceTree = "<group>"; };
 		C67E781027B318840053346B /* CheckPincodeViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckPincodeViewFactory.swift; sourceTree = "<group>"; };
@@ -10240,6 +10244,7 @@
 				2551A90481957855DF5304D0 /* PhoneVerificationCodeViewController.swift */,
 				D2FC6C0CC68BB3C17A527C67 /* PhoneVerificationCodeViewLayout.swift */,
 				2A51325D4DFB85E16D75CDC1 /* PhoneVerificationCodeAssembly.swift */,
+				C676AF6B296E6FF6009D8C32 /* VerificationTimerState.swift */,
 			);
 			path = PhoneVerificationCode;
 			sourceTree = "<group>";
@@ -10403,14 +10408,6 @@
 				C68130E62761BC0C007B573A /* ReceiveAssetViewFactory.swift */,
 			);
 			path = ReceiveAsset;
-			sourceTree = "<group>";
-		};
-		C676AF64296CE51C009D8C32 /* Entities */ = {
-			isa = PBXGroup;
-			children = (
-				C676AF65296CE530009D8C32 /* VerificationState.swift */,
-			);
-			path = Entities;
 			sourceTree = "<group>";
 		};
 		C67E780B27B314A20053346B /* CheckPincode */ = {
@@ -11926,6 +11923,7 @@
 				FA4D5173295590150060C8BD /* EmailVerificationViewLayout.swift */,
 				FA4D5174295590150060C8BD /* EmailVerificationViewController.swift */,
 				FA4D5175295590150060C8BD /* EmailVerificationRouter.swift */,
+				C676AF6D296E7656009D8C32 /* EmailVerificationState.swift */,
 			);
 			path = EmailVerification;
 			sourceTree = "<group>";
@@ -11947,6 +11945,7 @@
 		FA4D517E295590150060C8BD /* PhoneVerification */ = {
 			isa = PBXGroup;
 			children = (
+				C676AF65296CE530009D8C32 /* PhoneVerificationState.swift */,
 				FA4D517F295590150060C8BD /* PhoneVerificationViewLayout.swift */,
 				FA4D5180295590150060C8BD /* PhoneVerificationProtocols.swift */,
 				FA4D5181295590150060C8BD /* PhoneVerificationRouter.swift */,
@@ -11989,7 +11988,6 @@
 		FA4D51C0295590190060C8BD /* SoraCard */ = {
 			isa = PBXGroup;
 			children = (
-				C676AF64296CE51C009D8C32 /* Entities */,
 				DF3CA732947C96754BB40766 /* SoraCardInfoBoard */,
 				FA4D516E295590140060C8BD /* EmailVerification */,
 				FA4D5166295590140060C8BD /* Introduce */,
@@ -14065,6 +14063,7 @@
 				8470D6D0253E321C009E9A5D /* StorageSubscriptionProtocols.swift in Sources */,
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
 				C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */,
+				C676AF6E296E7656009D8C32 /* EmailVerificationState.swift in Sources */,
 				8460E1132541DEDA00826F55 /* TransactionDetailsFormViewModelBinder.swift in Sources */,
 				8444D1BE2671465A00AF6D8C /* CrowdloanBonusServiceError.swift in Sources */,
 				FA4D516429558FE10060C8BD /* KYCOnboardingInteractor.swift in Sources */,
@@ -14769,7 +14768,7 @@
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,
 				84EBAB0B265E28590015E446 /* ChainDateCalculator.swift in Sources */,
-				C676AF66296CE530009D8C32 /* VerificationState.swift in Sources */,
+				C676AF66296CE530009D8C32 /* PhoneVerificationState.swift in Sources */,
 				FAA013A728DA133E000A5230 /* ShadowRoundedBackground.swift in Sources */,
 				AE9EF26E260A82D50026910A /* SlideViewModel.swift in Sources */,
 				84754C9A2513871300854599 /* SNAddressType+Codable.swift in Sources */,
@@ -15338,6 +15337,7 @@
 				FA2569A6274CE6AD00875A53 /* BalanceLockSubscription.swift in Sources */,
 				FAA0139628DA1312000A5230 /* StakingBondMoreConfirmationPoolViewModelState.swift in Sources */,
 				50758C9BBB27AE5732FF78BA /* StakingRewardPayoutsViewController.swift in Sources */,
+				C676AF6C296E6FF6009D8C32 /* VerificationTimerState.swift in Sources */,
 				AEF507AF262423FD0098574D /* HmacSigner.swift in Sources */,
 				3229E306230161AA99B14BDD /* StakingRewardPayoutsViewFactory.swift in Sources */,
 				8473D4002657E8BB00B394B2 /* CrowdloanFunds.swift in Sources */,

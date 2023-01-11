@@ -1,11 +1,6 @@
 import UIKit
 import SoraFoundation
 
-enum PhoneVerificationCodeTimerState {
-    case inProgress(timeRemaining: String)
-    case finished
-}
-
 final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
     typealias RootViewType = PhoneVerificationCodeViewLayout
 
@@ -41,6 +36,7 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
         output.didLoad(view: self)
         applyLocalization()
+        rootView.set(timerState: .finished)
         configure()
     }
 
@@ -57,14 +53,6 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
                 self?.rootView.bind(state: .editing)
             }
         }
-//        timer = Timer.scheduledTimer(
-//            timeInterval: 1,
-//            target: self,
-//            selector: #selector(updateTimer),
-//            userInfo: nil,
-//            repeats: true
-//        )
-//        timer?.fire()
     }
 
     @objc private func updateTimer() {

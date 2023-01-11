@@ -923,7 +923,12 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "verify.phone.number.title" = "Verify your phone number";
 "verify.phone.number.description" = "Enter SMS code that has been sent to \n %@";
 "verify.phone.number.code.input.field.label" = "SMS code";
-"verify.phone.number.resend.code.title" = "Re-send in %@";
+"resend.button.title" = "Re-send in %@";
 "user.registration.title" = "Introduce yourself";
 "user.registration.first.name.input.filed.label" = "First name";
 "user.registration.last.name.input.filed.label" = "Last name";
+"enter.email.description" = "Magic link will be sent\nto your email";
+"enter.email.input.field.label" = "Your Email";
+"common.send.link" = "Send link";
+"verify.email.description" = "Follow a magic link that has been sent\nto %s";
+"common.change.email" = "Use another email";

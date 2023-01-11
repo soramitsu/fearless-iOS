@@ -42,7 +42,7 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         rootView.resetTextFieldState()
     }
 
-    func set(state: VerificationState) {
+    func set(state: PhoneVerificationState) {
         rootView.set(state: state)
     }
 

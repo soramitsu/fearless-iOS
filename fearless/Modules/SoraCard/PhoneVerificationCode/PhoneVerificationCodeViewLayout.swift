@@ -64,11 +64,11 @@ final class PhoneVerificationCodeViewLayout: UIView {
             .verifyPhoneNumberDescription(phone, preferredLanguages: locale.rLanguages)
     }
 
-    func set(timerState: PhoneVerificationCodeTimerState) {
+    func set(timerState: VerificationTimerState) {
         switch timerState {
         case let .inProgress(timeRemaining):
             sendButton.imageWithTitleView?.title = R.string.localizable
-                .verifyPhoneNumberResendCodeTitle(timeRemaining)
+                .resendButtonTitle(timeRemaining)
             sendButton.isEnabled = false
         case .finished:
             sendButton.imageWithTitleView?.title = R.string.localizable
