@@ -75,7 +75,7 @@ final class SwapMarketSource: SwapMarketSourceProtocol {
     }
 
     private func forceAddSmartMarketSourceIfNecessary() {
-        if isEmpty(), shouldForceAddSmartMarketSource() {
+        if isEmpty() || shouldForceAddSmartMarketSource() {
             add(.smart)
         }
     }

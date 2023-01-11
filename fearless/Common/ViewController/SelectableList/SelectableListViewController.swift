@@ -7,7 +7,8 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     UITableViewDataSource,
     UITableViewDelegate,
     ViewHolder,
-    KeyboardViewAdoptable {
+    KeyboardViewAdoptable,
+    LoadableViewProtocol {
     typealias RootViewType = SelectableListViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?
@@ -45,6 +46,9 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
 
         if keyboardHandler == nil {
             setupKeyboardHandler()
+        }
+        if listPresenter.numberOfItems == 0 {
+            didStartLoading()
         }
     }
 
@@ -118,6 +122,7 @@ extension SelectableListViewController: SelectionListViewProtocol {
     func didReload() {
         rootView.tableView.reloadData()
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
+        didStopLoading()
     }
 
     func reloadCell(at indexPath: IndexPath) {

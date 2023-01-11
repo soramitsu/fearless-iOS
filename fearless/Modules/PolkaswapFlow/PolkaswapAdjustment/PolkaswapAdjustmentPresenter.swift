@@ -599,6 +599,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
                 feeAndTip: networkFee + liquidityProviderFee,
                 sendAmount: .zero,
                 locale: selectedLocale
+            ),
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: swapFromBalance),
+                feeAndTip: .zero,
+                sendAmount: amounts.fromAmount,
+                locale: selectedLocale
             )
         ]).runValidation { [weak self] in
             self?.confirmationScreenModuleInput = self?.router.showConfirmation(with: params, from: self?.view)
@@ -627,7 +633,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
             prices = priceData
         case let .failure(error):
             prices = []
-            router.present(error: error, from: view, locale: selectedLocale)
+            logger.error("\(error)")
         }
 
         provideFromAssetVewModel()
