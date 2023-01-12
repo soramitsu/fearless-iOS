@@ -1,11 +1,6 @@
 import UIKit
 import SoraFoundation
 
-enum PhoneVerificationCodeTimerState {
-    case inProgress(timeRemaining: String)
-    case finished
-}
-
 final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
     typealias RootViewType = PhoneVerificationCodeViewLayout
 
@@ -45,6 +40,15 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
         output.didLoad(view: self)
         applyLocalization()
         configure()
+
+        timer = Timer.scheduledTimer(
+            timeInterval: 1,
+            target: self,
+            selector: #selector(updateTimer),
+            userInfo: nil,
+            repeats: true
+        )
+        timer?.fire()
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -70,14 +74,6 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
                 self?.rootView.bind(state: .editing)
             }
         }
-        timer = Timer.scheduledTimer(
-            timeInterval: 1,
-            target: self,
-            selector: #selector(updateTimer),
-            userInfo: nil,
-            repeats: true
-        )
-        timer?.fire()
     }
 
     @objc private func updateTimer() {

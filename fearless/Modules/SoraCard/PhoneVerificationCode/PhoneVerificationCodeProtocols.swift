@@ -27,7 +27,14 @@ protocol PhoneVerificationCodeInteractorOutput: AnyObject {
 }
 
 protocol PhoneVerificationCodeRouterInput: PushDismissable {
-    func presentIntroduce(from view: PhoneVerificationCodeViewInput?, data: SCKYCUserDataModel)
+    func presentIntroduce(
+        from view: PhoneVerificationCodeViewInput?,
+        data: SCKYCUserDataModel
+    )
+    func presentVerificationEmail(
+        from view: PhoneVerificationCodeViewInput?,
+        data: SCKYCUserDataModel
+    )
     func close(from view: PhoneVerificationCodeViewInput?)
 }
 

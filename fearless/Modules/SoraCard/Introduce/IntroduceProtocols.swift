@@ -16,12 +16,7 @@ protocol IntroduceInteractorInput: AnyObject {
 protocol IntroduceInteractorOutput: AnyObject {}
 
 protocol IntroduceRouterInput: PushDismissable {
-    func presentVerificationEmail(
-        from view: IntroduceViewInput?,
-        phone: String,
-        name: String,
-        lastName: String
-    )
+    func presentVerificationEmail(from view: IntroduceViewInput?, data: SCKYCUserDataModel)
     func close(from view: IntroduceViewInput?)
 }
 

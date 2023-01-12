@@ -2,15 +2,17 @@ import UIKit
 import SoraFoundation
 
 final class EmailVerificationAssembly {
-    static func configureModule() -> EmailVerificationModuleCreationResult? {
+    static func configureModule(with data: SCKYCUserDataModel) -> EmailVerificationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
-        let interactor = EmailVerificationInteractor()
+        let service: SCKYCService = .init(client: .shared)
+        let interactor = EmailVerificationInteractor(service: service, data: data)
         let router = EmailVerificationRouter()
 
         let presenter = EmailVerificationPresenter(
             interactor: interactor,
             router: router,
+            data: data,
             localizationManager: localizationManager
         )
 

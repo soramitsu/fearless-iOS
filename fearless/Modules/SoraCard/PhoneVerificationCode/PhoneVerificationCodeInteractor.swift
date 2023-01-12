@@ -8,6 +8,7 @@ final class PhoneVerificationCodeInteractor {
     private let data: SCKYCUserDataModel
     private let service: SCKYCService
     private var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    private let requestOtpCallback = SignInWithPhoneNumberRequestOtpCallback()
     private let otpLength: Int
     private var codeState: SCKYCPhoneCodeState = .editing {
         didSet {
@@ -20,6 +21,7 @@ final class PhoneVerificationCodeInteractor {
         self.data = data
         self.otpLength = otpLength
         callback.delegate = self
+        requestOtpCallback.delegate = self
     }
 }
 
@@ -30,7 +32,9 @@ extension PhoneVerificationCodeInteractor: PhoneVerificationCodeInteractorInput 
         self.output = output
     }
 
-    func askToResendCode() {}
+    func askToResendCode() {
+        service.signInWithPhoneNumberRequestOtp(phoneNumber: data.phoneNumber, callback: requestOtpCallback)
+    }
 
     func verify(code: String) {
         if code.count < otpLength {
@@ -42,7 +46,11 @@ extension PhoneVerificationCodeInteractor: PhoneVerificationCodeInteractorInput 
     }
 }
 
-extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbackDelegate {
+extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbackDelegate, SignInWithPhoneNumberRequestOtpCallbackDelegate {
+    func onShowOtpInputScreen(otpLength _: Int) {
+        codeState = .editing
+    }
+
     func onShowEmailConfirmationScreen(email: String, autoEmailSent _: Bool) {
         data.email = email
         codeState = .succeed

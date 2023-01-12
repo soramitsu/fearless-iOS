@@ -55,13 +55,17 @@ extension PhoneVerificationCodePresenter: PhoneVerificationCodeViewOutput {
 // MARK: - PhoneVerificationCodeInteractorOutput
 
 extension PhoneVerificationCodePresenter: PhoneVerificationCodeInteractorOutput {
-    func didReceiveEmailVerificationStep(data _: SCKYCUserDataModel) {}
+    func didReceiveEmailVerificationStep(data: SCKYCUserDataModel) {
+        router.presentVerificationEmail(from: view, data: data)
+    }
 
     func didReceiveUserRegistrationStep(data: SCKYCUserDataModel) {
         router.presentIntroduce(from: view, data: data)
     }
 
-    func didReceiveSignInSuccessfulStep(data _: SCKYCUserDataModel) {}
+    func didReceiveSignInSuccessfulStep(data: SCKYCUserDataModel) {
+        router.presentIntroduce(from: view, data: data)
+    }
 
     func didReceive(state: SCKYCPhoneCodeState) {
         view?.didReceive(state: state)

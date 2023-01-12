@@ -1,12 +1,14 @@
 import UIKit
 import SoraFoundation
 
-final class EmailVerificationViewController: UIViewController, ViewHolder {
+final class EmailVerificationViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = EmailVerificationViewLayout
 
     // MARK: Private properties
 
     private let output: EmailVerificationViewOutput
+    private var timer: Timer?
+    private var remainingTime = 60
 
     // MARK: - Constructor
 
@@ -33,17 +35,76 @@ final class EmailVerificationViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        applyLocalization()
+        rootView.set(state: .enter)
+        configure()
     }
 
     // MARK: - Private methods
+
+    private func configure() {
+        rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
+        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
+        rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
+    }
+
+    @objc private func updateTimer() {
+        if remainingTime != 0 {
+            remainingTime -= 1
+            rootView.set(timerState: .inProgress(timeRemaining: timeFormatted(remainingTime)))
+        } else {
+            rootView.set(timerState: .finished)
+            if let timer = self.timer {
+                timer.invalidate()
+                self.timer = nil
+            }
+        }
+    }
+
+    private func timeFormatted(_ totalSeconds: Int) -> String {
+        let seconds: Int = totalSeconds % 60
+        let minutes: Int = (totalSeconds / 60) % 60
+        return String(format: "%02d:%02d", minutes, seconds)
+    }
+
+    @objc private func sendButtonClicked() {
+        guard let email = rootView.emailInputField.textField.text, !email.isEmpty else { return }
+
+        output.didTapSendButton(with: email)
+
+        remainingTime = 60
+        timer?.invalidate()
+        timer = Timer.scheduledTimer(
+            timeInterval: 1,
+            target: self,
+            selector: #selector(updateTimer),
+            userInfo: nil,
+            repeats: true
+        )
+        timer?.fire()
+    }
+
+    @objc private func backButtonClicked() {
+        output.didTapBackButton()
+    }
+
+    @objc private func closeButtonClicked() {
+        output.didTapCloseButton()
+    }
 }
 
 // MARK: - EmailVerificationViewInput
 
-extension EmailVerificationViewController: EmailVerificationViewInput {}
+extension EmailVerificationViewController: EmailVerificationViewInput {
+    func didReceiveVerifyEmail(_ email: String) {
+        rootView.set(state: .verify(email: email))
+    }
+}
 
 // MARK: - Localizable
 
 extension EmailVerificationViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

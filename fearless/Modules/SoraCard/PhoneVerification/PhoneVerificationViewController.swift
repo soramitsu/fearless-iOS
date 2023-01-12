@@ -42,7 +42,7 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         rootView.resetTextFieldState()
     }
 
-    func set(state: VerificationState) {
+    func set(state: PhoneVerificationState) {
         rootView.set(state: state)
     }
 
@@ -61,9 +61,8 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
     }
 
     @objc private func sendButtonClicked() {
-        rootView.set(state: .inProgress)
-
         guard let phone = rootView.phoneInputField.textField.text, !phone.isEmpty else { return }
+        rootView.set(state: .inProgress)
         output.didTapSendButton(with: phone)
     }
 
