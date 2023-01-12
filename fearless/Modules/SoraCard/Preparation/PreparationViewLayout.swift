@@ -114,6 +114,26 @@ private extension PreparationViewLayout {
             step5View,
             confirmButton
         ])
+
+        navigationBar.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+        }
+
+        contentView.snp.makeConstraints { make in
+            make.top.equalTo(navigationBar.snp.bottom).offset(UIConstants.bigOffset)
+            make.leading.bottom.equalToSuperview().offset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview().offset(-UIConstants.bigOffset)
+        }
+
+        contentView.stackView.subviews.forEach { view in
+            view.snp.makeConstraints { make in
+                make.width.equalToSuperview()
+            }
+        }
+
+        confirmButton.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.soraCardButtonHeight)
+        }
     }
 
     private func applyLocalization() {
