@@ -30,4 +30,22 @@ class ScaleUnit32Tests: XCTestCase {
             XCTAssertEqual(value, test.value)
         }
     }
+    
+    func testRepeatCoding() throws {
+        var timeSteps: Array<Double> = []
+        let encoder = ScaleEncoder()
+        for step in 1...5 {
+            let startDate = Date()
+            for _ in 1...10000 {
+                try UInt32.random(in: 0...10000).encode(scaleEncoder: encoder)
+                let result: Data = encoder.encode()
+                _ = result.toHex()
+            }
+            let endDate = Date()
+            let measureTime = endDate.timeIntervalSince(startDate)
+            print("time(\(step)): \(measureTime)")
+            timeSteps.append(measureTime)
+        }
+        print("mean time: \(timeSteps.reduce(0, +) / Double(timeSteps.count))")
+    }
 }
