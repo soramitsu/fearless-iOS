@@ -23,7 +23,7 @@ final class SCKYCService {
         self.client = client
 
         let domain = "soracard.com"
-        let apiKey = ""
+        let apiKey = "6974528a-ee11-4509-b549-a8d02c1aec0d"
         PayWingsOAuthClient.initialize(environmentType: .TEST, apiKey: apiKey, domain: domain)
 
         payWingsOAuthClient = PayWingsOAuthClient.instance()!
