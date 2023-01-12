@@ -64,7 +64,7 @@ extension PhoneVerificationCodePresenter: PhoneVerificationCodeInteractorOutput 
     }
 
     func didReceiveSignInSuccessfulStep(data: SCKYCUserDataModel) {
-        router.presentIntroduce(from: view, data: data)
+        router.presentPreparation(from: view, data: data)
     }
 
     func didReceive(state: SCKYCPhoneCodeState) {
