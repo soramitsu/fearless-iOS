@@ -33,9 +33,24 @@ final class PreparationViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
         output.didLoad(view: self)
+        applyLocalization()
+        configure()
     }
 
     // MARK: - Private methods
+
+    private func configure() {
+        rootView.confirmButton.addTarget(self, action: #selector(confirmButtonClicked), for: .touchUpInside)
+        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
+    }
+
+    @objc private func backButtonClicked() {
+        output.didTapBackButton()
+    }
+
+    @objc private func confirmButtonClicked() {
+        output.didTapConfirmButton()
+    }
 }
 
 // MARK: - PreparationViewInput
@@ -45,5 +60,9 @@ extension PreparationViewController: PreparationViewInput {}
 // MARK: - Localizable
 
 extension PreparationViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
+
+extension PreparationViewController: HiddableBarWhenPushed {}
