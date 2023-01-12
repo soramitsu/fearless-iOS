@@ -35,10 +35,12 @@ extension PhoneVerificationCodePresenter: PhoneVerificationCodeViewOutput {
         interactor.setup(with: self)
     }
 
-    func send(code _: String) {}
-
-    func didTapSendButton(with code: String) {
+    func send(code: String) {
         interactor.verify(code: code)
+    }
+
+    func didTapResendButton() {
+        interactor.askToResendCode()
     }
 
     func didTapBackButton() {

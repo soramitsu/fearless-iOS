@@ -7,8 +7,14 @@ protocol SoraCardStateViewModelFactoryProtocol {
 }
 
 final class SoraCardStateViewModelFactory: SoraCardStateViewModelFactoryProtocol {
-    private func buildState(from _: SCKYCStatusResponse) -> SoraCardState {
-        .none
+    private func buildState(from kycStatus: SCKYCStatusResponse) -> SoraCardState {
+        var state: SoraCardState = .none
+        switch kycStatus.verificationStatus {
+        case .none, .accepted, .pending, .rejected:
+            state = .none
+        }
+
+        return state
     }
 
     func buildEmptyViewModel() -> LocalizableResource<SoraCardInfoViewModel> {

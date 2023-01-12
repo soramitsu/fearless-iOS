@@ -8,7 +8,7 @@ protocol PhoneVerificationCodeViewInput: ControllerBackedProtocol {
 protocol PhoneVerificationCodeViewOutput: AnyObject {
     func didLoad(view: PhoneVerificationCodeViewInput)
     func send(code: String)
-    func didTapSendButton(with code: String)
+    func didTapResendButton()
     func didTapBackButton()
     func didTapCloseButton()
 }
@@ -16,6 +16,7 @@ protocol PhoneVerificationCodeViewOutput: AnyObject {
 protocol PhoneVerificationCodeInteractorInput: AnyObject {
     func setup(with output: PhoneVerificationCodeInteractorOutput)
     func verify(code: String)
+    func askToResendCode()
 }
 
 protocol PhoneVerificationCodeInteractorOutput: AnyObject {

@@ -85,12 +85,27 @@ final class PhoneVerificationCodeViewLayout: UIView {
         case .editing:
             codeInputField.sora.state = .default
             codeInputField.sora.descriptionLabelText = ""
+            codeInputField.sora.isUserInteractionEnabled = true
         case .sent:
-            codeInputField.sora.state = .disabled
+            sendButton.isEnabled = false
+            codeInputField.sora.state = .default
             codeInputField.sora.descriptionLabelText = "Cheking..."
+            codeInputField.sora.isUserInteractionEnabled = false
         case let .wrong(error):
             codeInputField.sora.state = .fail
             codeInputField.sora.descriptionLabelText = error
+            codeInputField.sora.isUserInteractionEnabled = true
+        }
+    }
+
+    func resetTextFieldState() {
+        switch codeInputField.sora.state {
+        case .fail, .success, .default:
+            sendButton.isEnabled = true
+            codeInputField.sora.state = .disabled
+            codeInputField.sora.descriptionLabelText = nil
+        default:
+            break
         }
     }
 }

@@ -14,14 +14,17 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
     private let output: PhoneVerificationCodeViewOutput
     private var timer: Timer?
     private var remainingTime = 60
+    private var otpLength: Int
 
     // MARK: - Constructor
 
     init(
         output: PhoneVerificationCodeViewOutput,
+        otpLength: Int,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
+        self.otpLength = otpLength
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -44,27 +47,37 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
         configure()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        rootView.resetTextFieldState()
+    }
+
     // MARK: - Private methods
+
+    private func didTriggerCodeMatch(code: String) {
+        rootView.bind(state: .sent)
+        output.send(code: code)
+    }
 
     private func configure() {
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
         rootView.codeInputField.sora.addHandler(for: .editingChanged) { [weak self] in
-            if let code = self?.rootView.codeInputField.textField.text, code.count == 6 {
-                self?.output.send(code: code)
+            if let code = self?.rootView.codeInputField.textField.text, code.count == self?.otpLength {
+                self?.didTriggerCodeMatch(code: code)
             } else {
                 self?.rootView.bind(state: .editing)
             }
         }
-//        timer = Timer.scheduledTimer(
-//            timeInterval: 1,
-//            target: self,
-//            selector: #selector(updateTimer),
-//            userInfo: nil,
-//            repeats: true
-//        )
-//        timer?.fire()
+        timer = Timer.scheduledTimer(
+            timeInterval: 1,
+            target: self,
+            selector: #selector(updateTimer),
+            userInfo: nil,
+            repeats: true
+        )
+        timer?.fire()
     }
 
     @objc private func updateTimer() {
@@ -89,7 +102,7 @@ final class PhoneVerificationCodeViewController: UIViewController, ViewHolder {
     @objc private func sendButtonClicked() {
         guard let code = rootView.codeInputField.textField.text, !code.isEmpty else { return }
 
-        output.didTapSendButton(with: code)
+        output.didTapResendButton()
 
         remainingTime = 60
         timer?.invalidate()

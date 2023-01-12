@@ -30,6 +30,8 @@ extension PhoneVerificationCodeInteractor: PhoneVerificationCodeInteractorInput 
         self.output = output
     }
 
+    func askToResendCode() {}
+
     func verify(code: String) {
         if code.count < otpLength {
             codeState = .editing

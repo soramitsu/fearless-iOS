@@ -84,7 +84,7 @@ final class PhoneVerificationViewLayout: UIView {
 
     func resetTextFieldState() {
         switch phoneInputField.sora.state {
-        case .fail, .success:
+        case .fail, .success, .default:
             sendButton.isEnabled = true
             phoneInputField.sora.state = .disabled
             phoneInputField.sora.descriptionLabelText = nil

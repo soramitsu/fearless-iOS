@@ -133,7 +133,6 @@
 		07FBC9E628BE29C900ED65B4 /* ChainIssuesCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
 		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
-		0976445169AA30857800B12E /* PhoneVerificationCodeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69E4905EDD42A5BFFFFC7077 /* PhoneVerificationCodeTests.swift */; };
 		0A4820F04EC9DA9DD515EC3A /* MainNftContainerRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0C1CA1EF5BF1151E0DFB298C /* MainNftContainerRouter.swift */; };
 		0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB887490A8B33890B4E0E4 /* ControllerAccountConfirmationPresenter.swift */; };
 		0B2B9C6E2BA2E924D6A54F4B /* CrowdloanListInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4E78D69E8EBC3EB4D01F8EF /* CrowdloanListInteractor.swift */; };
@@ -2903,7 +2902,6 @@
 		67B3E1906EEBE32E71E82BB6 /* NodeSelectionViewLayout.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewLayout.swift; sourceTree = "<group>"; };
 		67BC51ED6E3FE787909A5EF9 /* PhoneVerificationCodeInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeInteractor.swift; sourceTree = "<group>"; };
 		6897929D244B5C29E3FD0727 /* StakingPoolCreateRouter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingPoolCreateRouter.swift; sourceTree = "<group>"; };
-		69E4905EDD42A5BFFFFC7077 /* PhoneVerificationCodeTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeTests.swift; sourceTree = "<group>"; };
 		6A825B6368073B06F32D7C8F /* StakingMainViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainViewFactory.swift; sourceTree = "<group>"; };
 		6B0277C3D897EADD48A7C64F /* AnalyticsValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsInteractor.swift; sourceTree = "<group>"; };
 		6B37BB3FF5CDF7EA9D7371B7 /* WalletTransactionDetailsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsInteractor.swift; sourceTree = "<group>"; };
@@ -6221,7 +6219,6 @@
 				31633C7D632F94F2DD4774F3 /* PhoneVerification */,
 				A16F0BFDEFE156C7D1F456DA /* TermsAndConditions */,
 				94FC59EF170CFC021A36A932 /* SoraCardInfoBoard */,
-				A036BCD2E8EF64F39A11E944 /* PhoneVerificationCode */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -9622,14 +9619,6 @@
 				84D73E43CA6C635583970107 /* CreateContactAssembly.swift */,
 			);
 			path = CreateContact;
-			sourceTree = "<group>";
-		};
-		A036BCD2E8EF64F39A11E944 /* PhoneVerificationCode */ = {
-			isa = PBXGroup;
-			children = (
-				69E4905EDD42A5BFFFFC7077 /* PhoneVerificationCodeTests.swift */,
-			);
-			path = PhoneVerificationCode;
 			sourceTree = "<group>";
 		};
 		A16F0BFDEFE156C7D1F456DA /* TermsAndConditions */ = {
@@ -15984,7 +15973,6 @@
 				ED7CC841EBD01A6EEB34F1FF /* PhoneVerificationTests.swift in Sources */,
 				98FF8CA243AAA2588E8E507F /* TermsAndConditionsTests.swift in Sources */,
 				1FC6FA79CE1A0A6AE4E479DF /* SoraCardInfoBoardTests.swift in Sources */,
-				0976445169AA30857800B12E /* PhoneVerificationCodeTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

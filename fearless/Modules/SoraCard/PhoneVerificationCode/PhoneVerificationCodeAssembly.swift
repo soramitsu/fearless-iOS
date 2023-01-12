@@ -18,6 +18,7 @@ final class PhoneVerificationCodeAssembly {
 
         let view = PhoneVerificationCodeViewController(
             output: presenter,
+            otpLength: otpLength,
             localizationManager: localizationManager
         )
 

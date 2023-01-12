@@ -5,6 +5,7 @@ final class IntroduceViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.set(.push)
+        bar.backButton.isHidden = true
         bar.backgroundColor = R.color.colorBlack()
         return bar
     }()
