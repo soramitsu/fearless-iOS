@@ -152,10 +152,9 @@ extension SelectAssetPresenter: SelectAssetInteractorOutput {
         case let .success(priceDataResult):
             let priceDataUpdated = (pricesData: priceDataResult, updated: true)
             prices = priceDataUpdated
-        case let .failure(error):
+        case .failure:
             let priceDataUpdated = (pricesData: [], updated: true) as PriceDataUpdated
             prices = priceDataUpdated
-            router.present(error: error, from: view, locale: selectedLocale)
         }
 
         pricesFetched = true

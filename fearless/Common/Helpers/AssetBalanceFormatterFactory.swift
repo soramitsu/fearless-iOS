@@ -7,7 +7,6 @@ protocol AssetBalanceFormatterFactoryProtocol {
     ) -> LocalizableResource<NumberFormatter>
 
     func createInputFormatter(
-        for info: AssetBalanceDisplayInfo,
         maximumFractionDigits: Int
     ) -> LocalizableResource<NumberFormatter>
 
@@ -114,7 +113,6 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
     }
 
     func createInputFormatter(
-        for _: AssetBalanceDisplayInfo,
         maximumFractionDigits: Int
     ) -> LocalizableResource<NumberFormatter> {
         let formatter = NumberFormatter.amount

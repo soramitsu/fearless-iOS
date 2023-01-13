@@ -293,12 +293,12 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func fetchSwapFee(amounts: SwapQuoteAmounts) {
-        guard let fromAssetId = swapFromChainAsset?.asset.currencyId,
-              let toAssetId = swapToChainAsset?.asset.currencyId,
-              let precision = swapToChainAsset?.asset.precision
-        else {
+        guard let polkaswapRemoteSettings = polkaswapRemoteSettings else {
             return
         }
+        let fromAssetId = swapFromChainAsset?.asset.currencyId ?? polkaswapRemoteSettings.xstusdId
+        let toAssetId = swapToChainAsset?.asset.currencyId ?? polkaswapRemoteSettings.xstusdId
+        let precision = swapToChainAsset?.asset.precision ?? 18
 
         let desired = amounts.toAmount
             .toSubstrateAmount(precision: Int16(precision)) ?? .zero
@@ -426,6 +426,17 @@ final class PolkaswapAdjustmentPresenter {
             from: view
         )
     }
+
+    private func runCanXorPayValidation(sendAmount: Decimal) {
+        DataValidationRunner(validators: [
+            dataValidatingFactory.canPayFeeAndAmount(
+                balanceType: .utility(balance: xorBalance),
+                feeAndTip: (networkFee ?? .zero) + (liquidityProviderFee ?? .zero),
+                sendAmount: sendAmount,
+                locale: selectedLocale
+            )
+        ]).runValidation {}
+    }
 }
 
 // MARK: - PolkaswapAdjustmentViewOutput
@@ -435,6 +446,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         self.view = view
         interactor.setup(with: self)
         interactor.didReceive(swapFromChainAsset, swapToChainAsset)
+        fetchSwapFee(amounts: .mockQuoteAmount)
         view.didReceive(market: selectedLiquiditySourceType)
     }
 
@@ -488,6 +500,12 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         swapFromInputResult = .rate(Decimal(Double(percentage)))
         provideFromAssetVewModel()
         fetchQuotes()
+
+        if swapFromChainAsset == xorChainAsset {
+            let inputAmount = swapFromInputResult?
+                .absoluteValue(from: xorBalanceMinusFee)
+            runCanXorPayValidation(sendAmount: inputAmount ?? .zero)
+        }
     }
 
     func updateFromAmount(_ newValue: Decimal) {

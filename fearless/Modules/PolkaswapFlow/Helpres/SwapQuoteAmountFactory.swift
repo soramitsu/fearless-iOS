@@ -39,6 +39,13 @@ protocol PolkaswapAdjustmentViewModelFactoryProtocol {
 }
 
 struct SwapQuoteAmounts {
+    static let mockQuoteAmount = SwapQuoteAmounts(
+        bestQuote: .mockSwapValues,
+        fromAmount: .zero,
+        toAmount: .zero,
+        lpAmount: .zero
+    )
+
     let bestQuote: SubstrateSwapValues
     let fromAmount: Decimal
     let toAmount: Decimal

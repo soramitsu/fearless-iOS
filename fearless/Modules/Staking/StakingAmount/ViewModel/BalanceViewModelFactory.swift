@@ -1,7 +1,6 @@
 import Foundation
 import SoraFoundation
 import IrohaCrypto
-import CommonWallet
 import BigInt
 import SoraKeystore
 
@@ -26,7 +25,6 @@ extension BalanceViewModelFactoryProtocol {
 
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
-    private let limit: Decimal
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
 
@@ -35,12 +33,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
         formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
-        limit: Decimal = StakingConstants.maxAmount,
         selectedMetaAccount: MetaAccountModel
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
-        self.limit = limit
         self.selectedMetaAccount = selectedMetaAccount
 
         eventCenter.add(observer: self, dispatchIn: .main)
@@ -103,17 +99,14 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func createBalanceInputViewModel(
         _ amount: Decimal?
     ) -> LocalizableResource<AmountInputViewModelProtocol> {
-        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAssetInfo, maximumFractionDigits: 6)
+        let localizableFormatter = formatterFactory.createInputFormatter(maximumFractionDigits: 6)
         let symbol = targetAssetInfo.symbol
-
-        let currentLimit = limit
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
             return AmountInputViewModel(
                 symbol: symbol,
                 amount: amount,
-                limit: currentLimit,
                 formatter: formatter,
                 precision: Int16(formatter.maximumFractionDigits)
             )
