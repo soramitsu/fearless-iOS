@@ -11,7 +11,14 @@ final class TermsAndConditionsViewLayout: UIView {
         let bar = BaseNavigationBar()
         bar.set(.present)
         bar.backgroundColor = R.color.colorBlack()
+        bar.backButton.isHidden = true
         return bar
+    }()
+
+    let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconClosePinkBold(), for: .normal)
+        return button
     }()
 
     private let contentView: ScrollableContainerView = {
@@ -106,6 +113,8 @@ final class TermsAndConditionsViewLayout: UIView {
 
 private extension TermsAndConditionsViewLayout {
     func setupLayout() {
+        navigationBar.setRightViews([closeButton])
+
         addSubview(navigationBar)
         addSubview(contentView)
 

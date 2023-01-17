@@ -74,6 +74,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         switch option {
         case .accountList:
             wireframe.showAccountSelection(from: view)
+        case .soraCard:
+            wireframe.showSoraCard(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:

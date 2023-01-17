@@ -36,6 +36,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         metaAccount: MetaAccountModel
     )
     func showAccountSelection(from view: ProfileViewProtocol?)
+    func showSoraCard(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)

@@ -10,7 +10,7 @@ final class VerificationStatusViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
         bar.backgroundColor = R.color.colorBlack()
-        bar.setLeftViews([])
+        bar.backButton.setImage(R.image.iconBackPinkBold(), for: .normal)
         return bar
     }()
 
