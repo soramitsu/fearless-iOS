@@ -22,5 +22,5 @@ protocol SelectAssetRouterInput: SheetAlertPresentable, ErrorPresentable, Presen
 protocol SelectAssetModuleInput: AnyObject {}
 
 protocol SelectAssetModuleOutput: AnyObject {
-    func assetSelection(didCompleteWith asset: AssetModel?)
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag: Int?)
 }

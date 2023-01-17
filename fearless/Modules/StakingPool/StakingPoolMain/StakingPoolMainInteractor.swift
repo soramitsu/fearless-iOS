@@ -30,10 +30,18 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
     private var validatorOperationFactory: ValidatorOperationFactoryProtocol
+    private let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
+
+    private var chainSubscriptionId: UUID?
+
+    deinit {
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
+    }
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -58,7 +66,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         accountOperationFactory: AccountOperationFactoryProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
-        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
+        stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -83,6 +92,30 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.existentialDepositService = existentialDepositService
         self.validatorOperationFactory = validatorOperationFactory
         self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
+    }
+
+    func clearChainRemoteSubscription(for chainId: ChainModel.Id) {
+        if let chainSubscriptionId = chainSubscriptionId {
+            stakingRemoteSubscriptionService.detachFromGlobalData(
+                for: chainSubscriptionId,
+                chainId: chainId,
+                queue: nil,
+                closure: nil,
+                stakingType: chainAsset.stakingType
+            )
+
+            self.chainSubscriptionId = nil
+        }
+    }
+
+    func setupChainRemoteSubscription() {
+        chainSubscriptionId = stakingRemoteSubscriptionService.attachToGlobalData(
+            for: chainAsset.chain.chainId,
+            queue: nil,
+            closure: nil,
+            stakingType: chainAsset.stakingType
+        )
     }
 
     private func updateDependencies() {
@@ -183,6 +216,9 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         poolStakingAccountUpdatingService.clearSubscription()
         clear(dataProvider: &poolMemberProvider)
         clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
+
         wallet = newSelectedWallet
 
         if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
@@ -201,6 +237,9 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         output?.didReceive(wallet: newSelectedWallet)
 
         fetchStakeInfo()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
+        setupChainRemoteSubscription()
     }
 
     private func fetchRewardCalculator() {
@@ -396,31 +435,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         }
         operationManager.enqueue(operations: pendingRewardsOperation.allOperations, in: .transient)
     }
-
-//    private func clearAccountRemoteSubscription() {
-//        stakingAccountUpdatingService.clearSubscription()
-//    }
-//
-//    private func setupAccountRemoteSubscription() {
-//        guard
-//            let chainAsset = selectedChainAsset,
-//            let accountId = selectedAccount?.accountId,
-//            let chainFormat = selectedChainAsset?.chain.chainFormat,
-//            let stakingType = selectedChainAsset?.stakingType else {
-//            return
-//        }
-//
-//        do {
-//            try stakingAccountUpdatingService.setupSubscription(
-//                for: accountId,
-//                chainAsset: chainAsset,
-//                chainFormat: chainFormat,
-//                stakingType: stakingType
-//            )
-//        } catch {
-//            logger?.error("Could setup staking account subscription")
-//        }
-//    }
 }
 
 // MARK: - StakingPoolMainInteractorInput
@@ -447,9 +461,11 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &poolMemberProvider)
         clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
 
         poolStakingAccountUpdatingService.clearSubscription()
         stakingAccountUpdatingService.clearSubscription()
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
 
         self.chainAsset = chainAsset
 
@@ -477,6 +493,9 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         fetchNetworkInfo()
         fetchStakeInfo()
         provideEraStakersInfo()
+        setupChainRemoteSubscription()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
@@ -618,6 +637,15 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
             output?.didReceive(nomination: nomination)
         case let .failure(error):
             output?.didReceiveError(.nominationError(error: error))
+        }
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        switch result {
+        case let .success(eraInfo):
+            output?.didReceive(era: eraInfo?.index)
+        case let .failure(error):
+            output?.didReceiveError(.eraStakersInfoError(error: error))
         }
     }
 }

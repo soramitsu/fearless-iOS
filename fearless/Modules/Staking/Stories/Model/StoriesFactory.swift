@@ -90,6 +90,18 @@ final class StoriesFactory {
         LocalizableResource { locale in
             let slides1 = [
                 StorySlide(
+                    description: R.string.localizable.stakingStoryStakingPage1(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/"
+                ),
+
+                StorySlide(
+                    description: R.string.localizable.stakingStoryStakingPage2(preferredLanguages: locale.rLanguages),
+                    urlString: "https://docs.moonbeam.network/learn/features/staking/"
+                )
+            ]
+
+            let slides2 = [
+                StorySlide(
                     description: R.string.localizable.parachainStakingStoryCollatorPage1(preferredLanguages: locale.rLanguages),
                     urlString: "https://docs.moonbeam.network/learn/features/staking/"
                 ),
@@ -100,7 +112,7 @@ final class StoriesFactory {
                 )
             ]
 
-            let slides2 = [
+            let slides3 = [
                 StorySlide(
                     description: R.string.localizable.parachainStakingStoryDelegatorPage1(preferredLanguages: locale.rLanguages),
                     urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
@@ -111,7 +123,7 @@ final class StoriesFactory {
                 )
             ]
 
-            let slides3 = [
+            let slides4 = [
                 StorySlide(
                     description: R.string.localizable.parachainStakingStoryRewardsPage1(preferredLanguages: locale.rLanguages),
                     urlString: "https://docs.moonbeam.network/learn/features/staking/#general-definitions"
@@ -124,24 +136,28 @@ final class StoriesFactory {
             ]
 
             // swiftlint:enable line_length
-
             let story1 = Story(
                 icon: "💰",
-                title: R.string.localizable.parachainStakingStoryCollatorTitle(preferredLanguages: locale.rLanguages),
+                title: R.string.localizable.stakingStoryStakingTitle(preferredLanguages: locale.rLanguages),
                 slides: slides1
             )
             let story2 = Story(
-                icon: "💎",
-                title: R.string.localizable.parachainStakingStoryDelegatorTitle(preferredLanguages: locale.rLanguages),
+                icon: "💰",
+                title: R.string.localizable.parachainStakingStoryCollatorTitle(preferredLanguages: locale.rLanguages),
                 slides: slides2
             )
             let story3 = Story(
-                icon: "🎁",
-                title: R.string.localizable.parachainStakingStoryRewardsTitle(preferredLanguages: locale.rLanguages),
+                icon: "💎",
+                title: R.string.localizable.parachainStakingStoryDelegatorTitle(preferredLanguages: locale.rLanguages),
                 slides: slides3
             )
+            let story4 = Story(
+                icon: "🎁",
+                title: R.string.localizable.parachainStakingStoryRewardsTitle(preferredLanguages: locale.rLanguages),
+                slides: slides4
+            )
 
-            return StoriesModel(stories: [story1, story2, story3])
+            return StoriesModel(stories: [story1, story2, story3, story4])
         }
     }()
 }

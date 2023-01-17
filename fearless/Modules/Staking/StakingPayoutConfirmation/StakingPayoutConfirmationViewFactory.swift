@@ -12,7 +12,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -149,7 +149,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 

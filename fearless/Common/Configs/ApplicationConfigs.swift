@@ -36,6 +36,7 @@ protocol ApplicationConfigProtocol {
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
+    var polkaswapSettingsURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -114,7 +115,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var learnPayoutURL: URL {
-        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+        URL(string: "https://wiki.polkadot.network/docs/learn-staking-advanced#simple-payouts")!
     }
 
     var learnControllerAccountURL: URL {
@@ -190,6 +191,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #else
             GitHubUrl.url(suffix: "ios_app_support.json")
         #endif
+    }
+
+    var polkaswapSettingsURL: URL? {
+        GitHubUrl.url(suffix: "polkaswapSettings.json")
     }
 
     var fiatsURL: URL? {

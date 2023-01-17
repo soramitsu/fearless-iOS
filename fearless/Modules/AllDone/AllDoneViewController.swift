@@ -1,7 +1,8 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
-final class AllDoneViewController: UIViewController, ViewHolder {
+final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePresentationControllerDelegate {
     typealias RootViewType = AllDoneViewLayout
 
     // MARK: Private properties
@@ -36,6 +37,11 @@ final class AllDoneViewController: UIViewController, ViewHolder {
         setup()
     }
 
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        output.presentationControllerWillDismiss()
+    }
+
     // MARK: - Private methods
 
     private func setup() {
@@ -43,12 +49,22 @@ final class AllDoneViewController: UIViewController, ViewHolder {
         rootView.copyOnTap = { [weak self] in
             self?.output.didCopyTapped()
         }
+        rootView.subscanButton.addTarget(self, action: #selector(handleSubscanTapped), for: .touchUpInside)
+        rootView.shareButton.addTarget(self, action: #selector(handleShareTapped), for: .touchUpInside)
     }
 
     // MARK: - Private actions
 
     @objc private func dismissSelf() {
         output.dismiss()
+    }
+
+    @objc private func handleSubscanTapped() {
+        output.subscanButtonDidTapped()
+    }
+
+    @objc private func handleShareTapped() {
+        output.shareButtonDidTapped()
     }
 }
 
@@ -57,6 +73,10 @@ final class AllDoneViewController: UIViewController, ViewHolder {
 extension AllDoneViewController: AllDoneViewInput {
     func didReceive(viewModel: AllDoneViewModel) {
         rootView.bind(viewModel)
+    }
+
+    func didReceive(explorer: ChainModel.ExternalApiExplorer?) {
+        rootView.subscanButton.isHidden = explorer == nil
     }
 }
 

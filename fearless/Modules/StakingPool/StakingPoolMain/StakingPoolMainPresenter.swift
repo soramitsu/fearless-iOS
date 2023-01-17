@@ -114,7 +114,7 @@ final class StakingPoolMainPresenter {
             stakeInfo: stakeInfo,
             priceData: priceData,
             chainAsset: chainAsset,
-            era: eraStakersInfo?.activeEra,
+            era: era,
             poolInfo: poolInfo,
             nomination: nomination,
             pendingRewards: pendingRewards
@@ -175,6 +175,14 @@ final class StakingPoolMainPresenter {
         let poolAccountId = modPrefix + palletIdData + indexData + poolIdData + emptyH256
 
         return poolAccountId[0 ... 31]
+    }
+
+    private func performChangeValidatorsAction() {
+        router.showPoolValidators(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
     }
 }
 
@@ -252,6 +260,19 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         )
         stakingManagmentModuleInput = input
     }
+
+    func didTapStatusView() {
+        switch poolInfo?.info.state {
+        case .open:
+            if (nomination?.targets).isNullOrEmpty != false {
+                performChangeValidatorsAction()
+            }
+        case .blocked, .destroying:
+            break
+        case .none:
+            break
+        }
+    }
 }
 
 // MARK: - StakingPoolMainInteractorOutput
@@ -280,7 +301,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideStakeInfoViewModel()
     }
 
-    func didReceive(era: EraIndex) {
+    func didReceive(era: EraIndex?) {
         self.era = era
 
         provideStakeInfoViewModel()

@@ -363,12 +363,15 @@ extension SendPresenter: ContactsModuleOutput {
 extension SendPresenter: SendModuleInput {}
 
 extension SendPresenter: SelectAssetModuleOutput {
-    func assetSelection(didCompleteWith asset: AssetModel?) {
-        selectedAsset = asset
-        if let asset = asset {
-            if case .initialSelection = state, let chain = selectedChain {
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
+        selectedAsset = chainAsset?.asset
+        if let asset = chainAsset?.asset {
+            if let chain = selectedChain {
                 state = .normal
                 selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+                if let selectedChainAsset = selectedChainAsset {
+                    handle(selectedChainAsset: selectedChainAsset)
+                }
             } else {
                 state = .normal
                 interactor.defineAvailableChains(for: asset) { [weak self] chains in
@@ -504,6 +507,7 @@ private extension SendPresenter {
     }
 
     func handle(selectedChain: ChainModel?) {
+        self.selectedChain = selectedChain
         switch state {
         case .initialSelection:
             if let chain = selectedChain {

@@ -276,35 +276,67 @@ final class ChainModelMapper {
     }
 
     private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApiSet? {
-        let staking: ChainModel.ExternalApi?
-
+        var staking: ChainModel.ExternalApi?
         if let type = entity.stakingApiType, let url = entity.stakingApiUrl {
             staking = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            staking = nil
         }
 
-        let history: ChainModel.ExternalApi?
-
+        var history: ChainModel.ExternalApi?
         if let type = entity.historyApiType, let url = entity.historyApiUrl {
             history = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            history = nil
         }
 
-        let crowdloans: ChainModel.ExternalApi?
-
+        var crowdloans: ChainModel.ExternalApi?
         if let type = entity.crowdloansApiType, let url = entity.crowdloansApiUrl {
             crowdloans = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            crowdloans = nil
         }
 
-        if staking != nil || history != nil || crowdloans != nil {
-            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans)
+        let explorers = createExplorers(from: entity)
+
+        if staking != nil || history != nil || crowdloans != nil || explorers != nil {
+            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
         } else {
             return nil
         }
+    }
+
+    private func createExplorers(from entity: CDChain) -> [ChainModel.ExternalApiExplorer]? {
+        let explorers: [ChainModel.ExternalApiExplorer]? = entity.explorers?.compactMap {
+            guard let explorer = $0 as? CDExternalApi,
+                  let type = explorer.type,
+                  let types = explorer.types as? [String],
+                  let url = explorer.url
+            else {
+                return nil
+            }
+            let externapApiTypes = types.compactMap {
+                ChainModel.SubscanType(rawValue: $0)
+            }
+            return ChainModel.ExternalApiExplorer(
+                type: ChainModel.ExternalApiExplorerType(rawValue: type) ?? .unknown,
+                types: externapApiTypes,
+                url: url
+            )
+        }
+        return explorers
+    }
+
+    private func updateEplorersApis(
+        in entity: CDChain,
+        from apis: [ChainModel.ExternalApiExplorer]?,
+        context: NSManagedObjectContext
+    ) {
+        guard let apis = apis else {
+            return
+        }
+        let explorers: [CDExternalApi] = apis.map { api in
+            let explorer = CDExternalApi(context: context)
+            explorer.type = api.type.rawValue
+            explorer.types = api.types.compactMap { $0.rawValue } as? NSArray
+            explorer.url = api.url
+            return explorer
+        }
+        entity.explorers = Set(explorers) as NSSet
     }
 
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
@@ -417,13 +449,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.options = model.options?.map(\.rawValue) as? NSArray
 
         updateEntityChainAssets(for: entity, from: model, context: context)
-
         updateEntityNodes(for: entity, from: model, context: context)
-
         updateExternalApis(in: entity, from: model.externalApi)
-
         updateEntityCustomNodes(for: entity, from: model, context: context)
-
         updateEntitySelectedNode(for: entity, from: model, context: context)
+        updateEplorersApis(in: entity, from: model.externalApi?.explorers, context: context)
     }
 }

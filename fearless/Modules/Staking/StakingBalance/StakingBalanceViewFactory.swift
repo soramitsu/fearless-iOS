@@ -13,7 +13,7 @@ struct StakingBalanceViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -84,7 +84,7 @@ struct StakingBalanceViewFactory {
     ) -> StakingBalanceDependencyContainer? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 

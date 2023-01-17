@@ -2,11 +2,11 @@ import Foundation
 import SoraUI
 
 final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting, AllDonePresentable {
-    func complete(txHash: String, from view: SelectValidatorsConfirmViewProtocol?) {
+    func complete(chainAsset: ChainAsset, txHash: String, from view: SelectValidatorsConfirmViewProtocol?) {
         let presenter = view?.controller.navigationController?.presentingViewController
         let navigationController = view?.controller.navigationController
 
-        let allDoneController = AllDoneAssembly.configureModule(with: txHash)?.view.controller
+        let allDoneController = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: txHash)?.view.controller
         allDoneController?.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(

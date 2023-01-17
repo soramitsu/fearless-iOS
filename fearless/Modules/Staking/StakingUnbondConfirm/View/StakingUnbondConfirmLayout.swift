@@ -144,7 +144,7 @@ final class StakingUnbondConfirmLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
-        feeView.bind(viewModel: feeViewModel)
+        feeView.bindBalance(viewModel: feeViewModel)
         setNeedsLayout()
     }
 

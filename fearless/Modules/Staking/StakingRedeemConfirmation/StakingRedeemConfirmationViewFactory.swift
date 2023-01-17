@@ -59,7 +59,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
     ) -> StakingRedeemConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -164,7 +164,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 

@@ -9,15 +9,19 @@ final class AllDonePresenter {
     private let interactor: AllDoneInteractorInput
     private let viewModelFactory: AllDoneViewModelFactoryProtocol
 
+    private let chainAsset: ChainAsset
     private let hashString: String
     private var closure: (() -> Void)?
 
     private var title: String?
     private var description: String?
 
+    private var subscanExplorer: ChainModel.ExternalApiExplorer?
+
     // MARK: - Constructors
 
     init(
+        chainAsset: ChainAsset,
         hashString: String,
         interactor: AllDoneInteractorInput,
         router: AllDoneRouterInput,
@@ -27,6 +31,7 @@ final class AllDonePresenter {
         description: String? = nil,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.chainAsset = chainAsset
         self.hashString = hashString
         self.interactor = interactor
         self.router = router
@@ -49,6 +54,14 @@ final class AllDonePresenter {
 
         view?.didReceive(viewModel: viewModel)
     }
+
+    private func prepareSubscanExplorer() {
+        let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
+            $0.type == .subscan
+        })
+        view?.didReceive(explorer: subscanExplorer)
+        self.subscanExplorer = subscanExplorer
+    }
 }
 
 // MARK: - AllDoneViewOutput
@@ -58,14 +71,28 @@ extension AllDonePresenter: AllDoneViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
+        prepareSubscanExplorer()
     }
-}
 
-// MARK: - AllDoneInteractorOutput
+    func subscanButtonDidTapped() {
+        guard let subscanExplorer = self.subscanExplorer,
+              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+        else {
+            return
+        }
+        router.presentSubscan(from: view, url: subscanUrl)
+    }
 
-extension AllDonePresenter: AllDoneInteractorOutput {
+    func shareButtonDidTapped() {
+        guard let subscanExplorer = self.subscanExplorer,
+              let subscanUrl = subscanExplorer.explorerUrl(for: hashString, type: .extrinsic)
+        else {
+            return
+        }
+        router.share(sources: [subscanUrl], from: view, with: nil)
+    }
+
     func dismiss() {
-        closure?()
         router.dismiss(view: view)
     }
 
@@ -73,7 +100,15 @@ extension AllDonePresenter: AllDoneInteractorOutput {
         let copyEvent = HashCopiedEvent(locale: selectedLocale)
         router.presentStatus(with: copyEvent, animated: true)
     }
+
+    func presentationControllerWillDismiss() {
+        closure?()
+    }
 }
+
+// MARK: - AllDoneInteractorOutput
+
+extension AllDonePresenter: AllDoneInteractorOutput {}
 
 // MARK: - Localizable
 

@@ -10,7 +10,15 @@ final class RecommendedValidatorListRelaychainInitiatedViewModelState: Recommend
     }
 
     override func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
-        .relaychainInitiated(targets: validators, maxTargets: maxTargets, bonding: bonding)
+        guard validators.isNotEmpty else {
+            return nil
+        }
+
+        return .relaychainInitiated(
+            targets: validators,
+            maxTargets: maxTargets,
+            bonding: bonding
+        )
     }
 }
 
@@ -24,7 +32,15 @@ final class RecommendedValidatorListRelaychainExistingViewModelState: Recommende
     }
 
     override func selectValidatorsConfirmFlow() -> SelectValidatorsConfirmFlow? {
-        .relaychainExisting(targets: validators, maxTargets: maxTargets, bonding: bonding)
+        guard validators.isNotEmpty else {
+            return nil
+        }
+
+        return .relaychainExisting(
+            targets: validators,
+            maxTargets: maxTargets,
+            bonding: bonding
+        )
     }
 }
 

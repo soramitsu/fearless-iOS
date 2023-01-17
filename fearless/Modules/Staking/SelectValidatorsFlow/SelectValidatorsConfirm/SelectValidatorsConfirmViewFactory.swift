@@ -61,7 +61,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -293,7 +293,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             formatterFactory: AssetBalanceFormatterFactory(),
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
