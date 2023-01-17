@@ -82,6 +82,9 @@ extension ChainAsset {
     }
 
     var storagePath: StorageCodingPath {
+        if isUtility, case .soraAsset = chainAssetType {
+            return StorageCodingPath.account
+        }
         var storagePath: StorageCodingPath
         switch chainAssetType {
         case .normal:

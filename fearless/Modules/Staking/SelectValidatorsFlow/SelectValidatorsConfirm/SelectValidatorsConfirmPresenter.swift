@@ -229,7 +229,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
 
         view?.didStopLoading()
 
-        wireframe.complete(txHash: txHash, from: view)
+        wireframe.complete(chainAsset: chainAsset, txHash: txHash, from: view)
     }
 
     func didFailNomination(error: Error) {

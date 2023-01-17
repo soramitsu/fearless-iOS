@@ -82,7 +82,7 @@ class TitleMultiValueView: UIView {
         valueBottom.isHidden = viewModel?.subtitle == nil
     }
 
-    func bind(viewModel: BalanceViewModelProtocol?) {
+    func bindBalance(viewModel: BalanceViewModelProtocol?) {
         if viewModel != nil {
             activityIndicator.stopAnimating()
         } else {
@@ -91,6 +91,9 @@ class TitleMultiValueView: UIView {
 
         valueTop.text = viewModel?.amount
         valueBottom.text = viewModel?.price
+
+        valueTop.isHidden = viewModel?.amount == nil
+        valueBottom.isHidden = viewModel?.price == nil
     }
 
     func setupLayout() {

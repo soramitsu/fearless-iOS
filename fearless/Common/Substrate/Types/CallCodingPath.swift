@@ -56,6 +56,8 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
             return (moduleName: "NominationPools", callName: "update_roles")
         case let .fromInit(moduleName, callName):
             return (moduleName: moduleName, callName: callName)
+        case .polkaswapSwap:
+            return (moduleName: "LiquidityProxy", callName: "swap")
         }
     }
 
@@ -76,4 +78,5 @@ enum CallCodingPath: Equatable, Codable, CaseIterable {
     case claimPendingRewards
     case poolWithdrawUnbonded
     case nominationPoolUpdateRoles
+    case polkaswapSwap
 }

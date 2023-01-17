@@ -61,7 +61,7 @@ struct StakingBondMoreConfirmViewFactory {
     ) -> StakingBondMoreConfirmationPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 

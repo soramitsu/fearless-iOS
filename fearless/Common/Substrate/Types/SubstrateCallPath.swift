@@ -67,6 +67,8 @@ enum SubstrateCallPath: CaseIterable {
             return (moduleName: "EqBalances", callName: "transfer")
         case .defaultTransfer:
             return (moduleName: "Balances", callName: "transfer")
+        case .soraAssetTransfer:
+            return (moduleName: "Assets", callName: "transfer")
         }
     }
 
@@ -98,4 +100,5 @@ enum SubstrateCallPath: CaseIterable {
     case ormlAssetTransfer
     case equilibriumAssetTransfer
     case defaultTransfer
+    case soraAssetTransfer
 }

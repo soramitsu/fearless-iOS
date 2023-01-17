@@ -16,11 +16,12 @@ final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
 
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String
+        title: String,
+        chainAsset: ChainAsset
     ) {
         let presenter = view?.controller.navigationController?.presentingViewController
 
-        let controller = AllDoneAssembly.configureModule(with: title)?.view.controller
+        let controller = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: title)?.view.controller
         controller?.modalPresentationStyle = .custom
 
         let factory = ModalSheetBlurPresentationFactory(

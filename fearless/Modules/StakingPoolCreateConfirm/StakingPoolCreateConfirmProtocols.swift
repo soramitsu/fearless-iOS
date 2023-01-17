@@ -38,6 +38,7 @@ protocol StakingPoolCreateConfirmRouterInput: StakingPoolCreateConfirmRouterDeps
     func finish(view: ControllerBackedProtocol?)
     func complete(
         on view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
         extrinsicHash: String,
         text: String,
         closure: (() -> Void)?
