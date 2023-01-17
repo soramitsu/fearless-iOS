@@ -4,15 +4,14 @@ import SoraUI
 final class PhoneVerificationViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
-        bar.set(.push)
-        bar.tintColor = R.color.colorPink1()
+        bar.backButton.setImage(R.image.iconBackPinkBold(), for: .normal)
         bar.backgroundColor = R.color.colorBlack()
         return bar
     }()
 
     let closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconClose(), for: .normal)
+        button.setImage(R.image.iconClosePinkBold(), for: .normal)
         return button
     }()
 

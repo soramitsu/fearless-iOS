@@ -4,7 +4,7 @@ import SoraUI
 final class EmailVerificationViewLayout: UIView {
     let navigationBar: BaseNavigationBar = {
         let bar = BaseNavigationBar()
-        bar.set(.push)
+        bar.backButton.setImage(R.image.iconBackPinkBold(), for: .normal)
         bar.backgroundColor = R.color.colorBlack()
         return bar
     }()
