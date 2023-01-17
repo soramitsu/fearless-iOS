@@ -1,11 +1,15 @@
 import Foundation
 
 protocol VerificationStatusViewModelFactoryProtocol {
-    func buildStatusViewModel(from status: SCVerificationStatus) -> SoraCardStatus
+    func buildStatusViewModel(from status: SCVerificationStatus?) -> SoraCardStatus
 }
 
 final class VerificationStatusViewModelFactory: VerificationStatusViewModelFactoryProtocol {
-    func buildStatusViewModel(from status: SCVerificationStatus) -> SoraCardStatus {
+    func buildStatusViewModel(from status: SCVerificationStatus?) -> SoraCardStatus {
+        guard let status = status else {
+            return .failure
+        }
+
         switch status {
         case .none:
             return .failure

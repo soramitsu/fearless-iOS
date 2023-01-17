@@ -36,8 +36,7 @@ protocol PhoneVerificationCodeRouterInput: PushDismissable {
         data: SCKYCUserDataModel
     )
     func presentPreparation(
-        from view: PhoneVerificationCodeViewInput?,
-        data: SCKYCUserDataModel
+        from view: PhoneVerificationCodeViewInput?
     )
     func close(from view: PhoneVerificationCodeViewInput?)
 }

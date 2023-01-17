@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
@@ -70,7 +71,8 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            settings: SettingsManager.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

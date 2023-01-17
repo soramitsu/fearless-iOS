@@ -9,4 +9,14 @@ final class SoraCardInfoBoardRouter: SoraCardInfoBoardRouterInput {
 
         view?.controller.present(navigationController, animated: true)
     }
+
+    func presentPreparation(from view: ControllerBackedProtocol?) {
+        guard let module = PreparationAssembly.configureModule() else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
 }

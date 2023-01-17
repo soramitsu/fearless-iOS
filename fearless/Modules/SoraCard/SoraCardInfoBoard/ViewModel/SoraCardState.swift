@@ -8,6 +8,7 @@ enum SoraCardState {
     case onway
     case active
     case error
+    case kycStarted
 
     func title(for locale: Locale) -> String {
         let preferredLanguages = locale.rLanguages
@@ -25,6 +26,8 @@ enum SoraCardState {
         case .active:
             // TODO: this is phase#2 - there will be card fiat balance.
             return ""
+        case .kycStarted:
+            return R.string.localizable.soraCardStateNoneTitle(preferredLanguages: preferredLanguages)
         case .error:
             return R.string.localizable.commonErrorNetwork(preferredLanguages: preferredLanguages)
         }

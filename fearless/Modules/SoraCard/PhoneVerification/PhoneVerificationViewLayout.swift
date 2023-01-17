@@ -71,7 +71,7 @@ final class PhoneVerificationViewLayout: UIView {
             phoneInputField.sora.descriptionLabelText = nil
         case let .disabled(errorMessage):
             phoneInputField.sora.isUserInteractionEnabled = true
-            sendButton.isEnabled = false
+            sendButton.isEnabled = true
             phoneInputField.sora.state = .fail
             phoneInputField.sora.descriptionLabelText = errorMessage
         case .inProgress:

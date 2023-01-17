@@ -63,7 +63,7 @@ extension VerificationStatusPresenter: VerificationStatusInteractorOutput {
         view?.didReceive(error: error)
     }
 
-    func didReceive(status: SCVerificationStatus) {
+    func didReceive(status: SCVerificationStatus?) {
         view?.didStopLoading()
 
         let statusViewModel = viewModelFactory.buildStatusViewModel(from: status)

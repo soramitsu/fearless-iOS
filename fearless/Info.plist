@@ -50,6 +50,8 @@
 	<true/>
 	<key>LSSupportsOpeningDocumentsInPlace</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app require the access to Microphone to pass KYC</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>sora-Bold.otf</string>

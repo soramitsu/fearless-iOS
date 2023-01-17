@@ -74,17 +74,23 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(
+        let soraCardModule: SoraCardInfoBoardModuleCreationResult? = configureSoraCardModule(wallet: metaAccount)
+
+        let chainAssetListModule = ChainAssetListAssembly.configureModule(
             wallet: metaAccount,
-            soraCardViewController: configureSoraCardModule()?.view.controller
+            soraCardViewController: soraCardModule?.view.controller
         )
+
+        soraCardModule?.input.add(moduleOutput: chainAssetListModule?.input)
+
+        return chainAssetListModule
     }
 
     private static func configureNftModule() -> MainNftContainerModuleCreationResult? {
         MainNftContainerAssembly.configureModule()
     }
 
-    private static func configureSoraCardModule() -> SoraCardInfoBoardModuleCreationResult? {
-        SoraCardInfoBoardAssembly.configureModule()
+    private static func configureSoraCardModule(wallet: MetaAccountModel) -> SoraCardInfoBoardModuleCreationResult? {
+        SoraCardInfoBoardAssembly.configureModule(wallet: wallet)
     }
 }

@@ -38,9 +38,9 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
                 DispatchQueue.main.async { [weak self] in
                     self?.output?.didReceive(error: error)
                 }
-            case let .success(status):
+            case let .success(statuses):
                 DispatchQueue.main.async { [weak self] in
-                    self?.output?.didReceive(status: status.verificationStatus)
+                    self?.output?.didReceive(status: statuses.last?.verificationStatus)
                 }
             }
         }

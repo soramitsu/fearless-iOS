@@ -1,8 +1,8 @@
 import Foundation
 
 final class EmailVerificationRouter: EmailVerificationRouterInput {
-    func presentPreparation(from view: EmailVerificationViewInput?, data: SCKYCUserDataModel) {
-        guard let module = PreparationAssembly.configureModule(with: data) else {
+    func presentPreparation(from view: EmailVerificationViewInput?) {
+        guard let module = PreparationAssembly.configureModule() else {
             return
         }
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)

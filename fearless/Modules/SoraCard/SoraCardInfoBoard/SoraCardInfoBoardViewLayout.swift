@@ -4,6 +4,7 @@ import SoraFoundation
 final class SoraCardInfoBoardViewLayout: UIView {
     private enum LayoutConstants {
         static let statusButtonHeight: CGFloat = 33
+        static let hideButtonSize: CGFloat = 32
     }
 
     let cardBackgroundImageView: UIImageView = {
@@ -17,6 +18,12 @@ final class SoraCardInfoBoardViewLayout: UIView {
         button.backgroundColor = R.color.colorBlack19()
         button.titleLabel?.font = .capsTitle
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        return button
+    }()
+
+    let hideButton: SmallButton = {
+        let button = SmallButton(type: .custom)
+        button.setImage(R.image.iconCloseWhiteTransparent(), for: .normal)
         return button
     }()
 
@@ -54,6 +61,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     private func setupLayout() {
         addSubview(cardBackgroundImageView)
         addSubview(statusButton)
+        addSubview(hideButton)
 
         cardBackgroundImageView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
@@ -63,6 +71,11 @@ final class SoraCardInfoBoardViewLayout: UIView {
             make.centerX.equalToSuperview()
             make.bottom.equalToSuperview().inset(UIConstants.minimalOffset)
             make.height.equalTo(LayoutConstants.statusButtonHeight)
+        }
+
+        hideButton.snp.makeConstraints { make in
+            make.trailing.top.equalToSuperview()
+            make.size.equalTo(LayoutConstants.hideButtonSize)
         }
     }
 

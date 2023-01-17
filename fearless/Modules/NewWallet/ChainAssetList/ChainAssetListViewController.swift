@@ -148,6 +148,10 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     func showEmptyState() {
         rootView.apply(state: .empty)
     }
+
+    func didReceive(soraCardHiddenState: Bool) {
+        rootView.changeSoraCardHiddenState(soraCardHiddenState)
+    }
 }
 
 // MARK: - Localizable

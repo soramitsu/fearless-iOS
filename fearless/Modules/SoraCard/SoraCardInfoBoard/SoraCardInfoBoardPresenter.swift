@@ -9,6 +9,7 @@ final class SoraCardInfoBoardPresenter {
     private let interactor: SoraCardInfoBoardInteractorInput
     private let logger: LoggerProtocol?
     private let viewModelFactory: SoraCardStateViewModelFactoryProtocol
+    private var moduleOutput: SoraCardInfoBoardModuleOutput?
 
     // MARK: - Constructors
 
@@ -32,6 +33,10 @@ final class SoraCardInfoBoardPresenter {
 // MARK: - SoraCardInfoBoardViewOutput
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
+    func didTapStartKyc() {
+        router.presentPreparation(from: view)
+    }
+
     func didLoad(view: SoraCardInfoBoardViewInput) {
         self.view = view
         interactor.setup(with: self)
@@ -51,6 +56,10 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
         view?.didStartLoading()
         interactor.getKYCStatus()
     }
+
+    func didTapHide() {
+        interactor.hideCard()
+    }
 }
 
 // MARK: - SoraCardInfoBoardInteractorOutput
@@ -65,11 +74,15 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
         view?.didReceive(stateViewModel: viewModel)
     }
 
-    func didReceive(status: SCKYCStatusResponse) {
+    func didReceive(status: SCKYCStatusResponse?) {
         view?.didStopLoading()
 
         let statusViewModel = viewModelFactory.buildViewModel(from: status)
         view?.didReceive(stateViewModel: statusViewModel)
+    }
+
+    func didReceive(hiddenState: Bool) {
+        moduleOutput?.didChanged(soraCardHiddenState: hiddenState)
     }
 }
 
@@ -79,4 +92,8 @@ extension SoraCardInfoBoardPresenter: Localizable {
     func applyLocalization() {}
 }
 
-extension SoraCardInfoBoardPresenter: SoraCardInfoBoardModuleInput {}
+extension SoraCardInfoBoardPresenter: SoraCardInfoBoardModuleInput {
+    func add(moduleOutput: SoraCardInfoBoardModuleOutput?) {
+        self.moduleOutput = moduleOutput
+    }
+}

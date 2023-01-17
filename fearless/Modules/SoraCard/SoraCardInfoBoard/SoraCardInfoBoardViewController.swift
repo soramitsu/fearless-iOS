@@ -38,6 +38,12 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     private func setupActions(with state: SoraCardState) {
+        rootView.hideButton.addTarget(
+            self,
+            action: #selector(hideButtonClicked),
+            for: .touchUpInside
+        )
+
         rootView.statusButton.removeTarget(self, action: nil, for: .touchUpInside)
 
         switch state {
@@ -65,7 +71,17 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
                 action: #selector(refreshButtonClicked),
                 for: .touchUpInside
             )
+        case .kycStarted:
+            rootView.statusButton.addTarget(
+                self,
+                action: #selector(startKycButtonClicked),
+                for: .touchUpInside
+            )
         }
+    }
+
+    @objc private func hideButtonClicked() {
+        output.didTapHide()
     }
 
     @objc private func getSoraCardButtonClicked() {
@@ -82,6 +98,10 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
 
     @objc private func refreshButtonClicked() {
         output.didTapRefresh()
+    }
+
+    @objc private func startKycButtonClicked() {
+        output.didTapStartKyc()
     }
 }
 

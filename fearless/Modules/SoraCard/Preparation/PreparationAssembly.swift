@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class PreparationAssembly {
-    static func configureModule(with data: SCKYCUserDataModel) -> PreparationModuleCreationResult? {
+    static func configureModule() -> PreparationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let interactor = PreparationInteractor()
@@ -11,7 +11,6 @@ final class PreparationAssembly {
         let presenter = PreparationPresenter(
             interactor: interactor,
             router: router,
-            data: data,
             localizationManager: localizationManager
         )
 

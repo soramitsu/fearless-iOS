@@ -22,8 +22,13 @@ final class ChainAssetListViewLayout: UIView {
     var keyboardAdoptableConstraint: Constraint?
 
     private let scrollView = UIScrollView()
-    private let cardContainer = UIView()
     private let contentContainer = UIView()
+
+    private let cardContainer: UIView = {
+        let view = UIView()
+        view.isHidden = true
+        return view
+    }()
 
     let tableView: SelfSizingTableView = {
         let view = SelfSizingTableView()
@@ -102,5 +107,16 @@ final class ChainAssetListViewLayout: UIView {
         soraCardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
+    }
+
+    func changeSoraCardHiddenState(_ hidden: Bool) {
+        cardContainer.isHidden = hidden
+
+        let height = hidden ? 0 : Constants.cardContainerHeight
+        cardContainer.snp.updateConstraints { make in
+            make.height.equalTo(height)
+        }
+
+        layoutIfNeeded()
     }
 }

@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import PayWingsOnboardingKYC
 
 final class KYCOnboardingViewController: UIViewController, ViewHolder {
     typealias RootViewType = KYCOnboardingViewLayout
@@ -40,7 +41,11 @@ final class KYCOnboardingViewController: UIViewController, ViewHolder {
 
 // MARK: - KYCOnboardingViewInput
 
-extension KYCOnboardingViewController: KYCOnboardingViewInput {}
+extension KYCOnboardingViewController: KYCOnboardingViewInput {
+    func didReceiveStartKycTrigger(with config: KycConfig, result: PayWingsOnboardingKYC.VerificationResult) {
+        PayWingsOnboardingKyc.startKyc(vc: self, config: config, result: result)
+    }
+}
 
 // MARK: - Localizable
 

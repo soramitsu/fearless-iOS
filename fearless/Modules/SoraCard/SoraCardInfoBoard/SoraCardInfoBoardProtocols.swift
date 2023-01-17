@@ -12,22 +12,31 @@ protocol SoraCardInfoBoardViewOutput: AnyObject {
     func didTapKYCStatus()
     func didTapBalance()
     func didTapRefresh()
+    func didTapStartKyc()
+    func didTapHide()
 }
 
 protocol SoraCardInfoBoardInteractorInput: AnyObject {
     func setup(with output: SoraCardInfoBoardInteractorOutput)
     func getKYCStatus()
+    func hideCard()
 }
 
 protocol SoraCardInfoBoardInteractorOutput: AnyObject {
     func didReceive(error: Error)
-    func didReceive(status: SCKYCStatusResponse)
+    func didReceive(status: SCKYCStatusResponse?)
+    func didReceive(hiddenState: Bool)
 }
 
-protocol SoraCardInfoBoardRouterInput: AnyObject {
+protocol SoraCardInfoBoardRouterInput: AnyObject, SheetAlertPresentable {
     func presentTermsAndConditions(from view: SoraCardInfoBoardViewInput?)
+    func presentPreparation(from view: ControllerBackedProtocol?)
 }
 
-protocol SoraCardInfoBoardModuleInput: AnyObject {}
+protocol SoraCardInfoBoardModuleInput: AnyObject {
+    func add(moduleOutput: SoraCardInfoBoardModuleOutput?)
+}
 
-protocol SoraCardInfoBoardModuleOutput: AnyObject {}
+protocol SoraCardInfoBoardModuleOutput: AnyObject {
+    func didChanged(soraCardHiddenState: Bool)
+}

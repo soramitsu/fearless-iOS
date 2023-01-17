@@ -294,6 +294,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         }
         provideViewModel()
     }
+
+    func didReceive(soraCardHiddenState: Bool) {
+        view?.didReceive(soraCardHiddenState: soraCardHiddenState)
+    }
 }
 
 // MARK: - Localizable
@@ -320,5 +324,11 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
 
         filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
         interactor.updateChainAssets(using: filters, sorts: sorts)
+    }
+}
+
+extension ChainAssetListPresenter: SoraCardInfoBoardModuleOutput {
+    func didChanged(soraCardHiddenState: Bool) {
+        view?.didReceive(soraCardHiddenState: soraCardHiddenState)
     }
 }

@@ -14,7 +14,9 @@ protocol PreparationInteractorInput: AnyObject {
 
 protocol PreparationInteractorOutput: AnyObject {}
 
-protocol PreparationRouterInput: PushDismissable {}
+protocol PreparationRouterInput: PresentDismissable {
+    func presentKYC(from view: ControllerBackedProtocol?)
+}
 
 protocol PreparationModuleInput: AnyObject {}
 
