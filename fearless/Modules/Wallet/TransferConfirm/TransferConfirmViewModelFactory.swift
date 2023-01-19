@@ -105,6 +105,7 @@ final class TransferConfirmViewModelFactory {
             icon: assetId.icon,
             symbol: asset.symbol,
             balance: displayBalance,
+            fiatBalance: nil,
             price: inputBalance.price
         )
 

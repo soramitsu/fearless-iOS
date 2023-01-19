@@ -30,7 +30,7 @@ protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
 
 protocol SelectValidatorsConfirmWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     AddressOptionsPresentable, StakingErrorPresentable {
-    func complete(txHash: String, from view: SelectValidatorsConfirmViewProtocol?)
+    func complete(chainAsset: ChainAsset, txHash: String, from view: SelectValidatorsConfirmViewProtocol?)
 }
 
 protocol SelectValidatorsConfirmViewFactoryProtocol: AnyObject {

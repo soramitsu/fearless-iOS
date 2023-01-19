@@ -127,7 +127,6 @@ final class RewardEstimationView: LocalizableView {
         let newInputViewModel = AmountInputViewModel(
             symbol: assetInfo.symbol,
             amount: widgetViewModel.amount,
-            limit: widgetViewModel.inputLimit,
             formatter: formatter,
             precision: Int16(formatter.maximumFractionDigits)
         )

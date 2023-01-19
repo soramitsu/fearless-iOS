@@ -39,6 +39,7 @@ protocol WalletSendConfirmWireframeProtocol:
     func finish(view: ControllerBackedProtocol?)
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String
+        title: String,
+        chainAsset: ChainAsset
     )
 }

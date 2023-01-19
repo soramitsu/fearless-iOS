@@ -3,9 +3,14 @@ import Foundation
 protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func didReload()
     func bind(viewModel: TextSearchViewModel?)
+    func reloadCell(at indexPath: IndexPath)
 }
 
-protocol SelectionListPresenterProtocol: AnyObject {
+extension SelectionListViewProtocol {
+    func reloadCell(at _: IndexPath) {}
+}
+
+protocol SelectionListPresenterProtocol: AnyObject, SelectionItemViewDelegate {
     var numberOfItems: Int { get }
 
     func item(at index: Int) -> SelectableViewModelProtocol

@@ -89,6 +89,14 @@ protocol UIFactoryProtocol {
     func createWalletReferralBonusButton() -> GradientButton
     func createIndicatorView() -> RoundedView
     func createSearchTextField() -> SearchTextField
+    func createInfoBackground() -> TriangularedView
+    func createMultiView() -> TitleMultiValueView
+    func createConfirmationMultiView() -> TitleMultiValueView
+    func createSliderAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar
+    func createDisabledButton() -> TriangularedButton
 }
 
 extension UIFactoryProtocol {
@@ -138,6 +146,12 @@ final class UIFactory: UIFactoryProtocol {
     func createDestructiveButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyDestructiveStyle()
+        return button
+    }
+
+    func createDisabledButton() -> TriangularedButton {
+        let button = TriangularedButton()
+        button.applyDisabledStyle()
         return button
     }
 
@@ -280,6 +294,49 @@ final class UIFactory: UIFactoryProtocol {
             ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
             ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
             ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
+        ]
+
+        let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let doneAction = ViewSelectorAction(
+            title: doneTitle,
+            selector: #selector(toolBar.actionSelectDone)
+        )
+
+        let spacing: CGFloat
+
+        if toolBar.isAdaptiveWidthDecreased {
+            spacing = UIConstants.accessoryItemsSpacing * toolBar.designScaleRatio.width
+        } else {
+            spacing = UIConstants.accessoryItemsSpacing
+        }
+
+        return createActionsAccessoryView(
+            for: toolBar,
+            actions: actions,
+            doneAction: doneAction,
+            target: toolBar,
+            spacing: spacing
+        )
+    }
+
+    func createSliderAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar {
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
+
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = delegate
+
+        let actions: [ViewSelectorAction] = [
+            ViewSelectorAction(title: "0.1%", selector: #selector(toolBar.actionSelect01)),
+            ViewSelectorAction(title: "0.5%", selector: #selector(toolBar.actionSelect05)),
+            ViewSelectorAction(title: "1%", selector: #selector(toolBar.actionSelect100))
         ]
 
         let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
@@ -621,5 +678,41 @@ final class UIFactory: UIFactoryProtocol {
         searchTextField.triangularedView?.highlightedFillColor = R.color.colorWhite8()!
         searchTextField.triangularedView?.shadowOpacity = 0
         return searchTextField
+    }
+
+    func createInfoBackground() -> TriangularedView {
+        let view = TriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.strokeColor = R.color.colorWhite16()!
+        view.highlightedStrokeColor = R.color.colorWhite16()!
+        view.strokeWidth = 0.5
+        view.shadowOpacity = 0.0
+
+        return view
+    }
+
+    func createMultiView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.borderView.borderType = .none
+        view.titleLabel.font = .p2Paragraph
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h6Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p2Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        return view
+    }
+
+    func createConfirmationMultiView() -> TitleMultiValueView {
+        let view = TitleMultiValueView()
+        view.borderView.borderType = .none
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueTop.font = .h5Title
+        view.valueTop.textColor = R.color.colorWhite()
+        view.valueBottom.font = .p1Paragraph
+        view.valueBottom.textColor = R.color.colorStrokeGray()
+        return view
     }
 }

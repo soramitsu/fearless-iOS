@@ -163,11 +163,11 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol?) {
-        balanceView.bind(viewModel: balanceViewModel)
+        balanceView.bindBalance(viewModel: balanceViewModel)
     }
 
     func bind(unstakeBalanceViewModel: BalanceViewModelProtocol?) {
-        unstakingView.bind(viewModel: unstakeBalanceViewModel)
+        unstakingView.bindBalance(viewModel: unstakeBalanceViewModel)
     }
 
     func bind(stakedAmountString: NSAttributedString) {
