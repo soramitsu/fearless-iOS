@@ -49,6 +49,24 @@ struct SubqueryTransfer: Decodable {
     let assetId: String?
 }
 
+struct SoraSubqueryTransfer: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case amount
+        case receiver = "to"
+        case sender = "from"
+        case assetId
+        case extrinsicId
+        case extrinsicHash
+    }
+
+    let amount: String
+    let receiver: String
+    let sender: String
+    let assetId: String
+    let extrinsicId: String?
+    let extrinsicHash: String?
+}
+
 struct SubqueryRewardOrSlash: Decodable {
     let amount: String
     let isReward: Bool
@@ -117,6 +135,7 @@ struct SubqueryRewardOrSlashData: Decodable {
 }
 
 extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {
+    var extrinsicHash: String? { nil }
     var itemBlockNumber: UInt64 { 0 }
     var itemExtrinsicIndex: UInt16 { 0 }
     var itemTimestamp: Int64 { Int64(timestamp) ?? 0 }
