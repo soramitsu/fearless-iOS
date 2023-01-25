@@ -21,6 +21,19 @@ protocol HistoryOperationFactoryProtocol {
     ) -> CompoundOperationWrapper<AssetTransactionPageData?>
 }
 
+extension HistoryOperationFactoryProtocol {
+    func fetchTransactionHistoryOperation(
+        asset _: AssetModel,
+        chain _: ChainModel,
+        address _: String,
+        filters _: [WalletTransactionHistoryFilter],
+        pagination _: Pagination
+    ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        CompoundOperationWrapper.createWithResult(nil)
+    }
+}
+
+// swiftlint:disable type_body_length function_body_length function_parameter_count
 class HistoryOperationFactory: HistoryOperationFactoryProtocol {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -32,6 +45,8 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         self.txStorage = txStorage
         self.runtimeService = runtimeService
     }
+
+    // MARK: - Public methods
 
     func fetchSubqueryHistoryOperation(
         asset: AssetModel,
@@ -72,8 +87,9 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                 cursor: pagination.context?["endCursor"]
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
-            let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil), nodes: []))
+            let pageInfo = SubqueryPageInfo(startCursor: nil, endCursor: nil)
+            let historyElements = SubqueryHistoryData.HistoryElements(pageInfo: pageInfo, nodes: [])
+            let result = SubqueryHistoryData(historyElements: historyElements)
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
@@ -222,7 +238,9 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         )
     }
 
-    func createHistoryMergeOperation(
+    // MARK: - Private methods
+
+    private func createHistoryMergeOperation(
         dependingOn remoteOperation: BaseOperation<WalletRemoteHistoryData>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
@@ -264,7 +282,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createSubqueryHistoryMergeOperation(
+    private func createSubqueryHistoryMergeOperation(
         dependingOn remoteOperation: BaseOperation<SubqueryHistoryData>?,
         runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
@@ -353,7 +371,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createHistoryMapOperation(
+    private func createHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
         remoteOperation: BaseOperation<WalletRemoteHistoryData>
     ) -> BaseOperation<AssetTransactionPageData?> {
@@ -368,7 +386,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createSubqueryHistoryMapOperation(
+    private func createSubqueryHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
         remoteOperation: BaseOperation<SubqueryHistoryData>
     ) -> BaseOperation<AssetTransactionPageData?> {
