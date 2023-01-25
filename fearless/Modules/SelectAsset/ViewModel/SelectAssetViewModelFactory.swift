@@ -331,14 +331,4 @@ private extension SelectAssetViewModelFactory {
 
         return chainAssetsSorted
     }
-
-    func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let result = assetNamesSet.compactMap { name in
-            chainAssets.first { chainAsset in
-                chainAsset.asset.name == name && chainAsset.asset.chainId == chainAsset.chain.chainId
-            }
-        }
-        return result
-    }
 }

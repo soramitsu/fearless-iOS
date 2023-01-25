@@ -363,9 +363,9 @@ extension SendPresenter: ContactsModuleOutput {
 extension SendPresenter: SendModuleInput {}
 
 extension SendPresenter: SelectAssetModuleOutput {
-    func assetSelection(didCompleteWith asset: AssetModel?) {
-        selectedAsset = asset
-        if let asset = asset {
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
+        selectedAsset = chainAsset?.asset
+        if let asset = chainAsset?.asset {
             if let chain = selectedChain {
                 state = .normal
                 selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })

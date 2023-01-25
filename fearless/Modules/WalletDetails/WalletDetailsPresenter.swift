@@ -207,11 +207,23 @@ private extension WalletDetailsPresenter {
 
     func createActions(for chain: ChainModel, address: String) -> [ChainAction] {
         var actions: [ChainAction] = [.copyAddress, .switchNode, .export, .replace]
-        if let polkascanUrl = chain.polkascanAddressURL(address), chain.isPolkadotOrKusama {
-            actions.append(.polkascan(url: polkascanUrl))
-        }
-        if let subscanUrl = chain.subscanAddressURL(address) {
-            actions.append(.subscan(url: subscanUrl))
+        if let explorers = chain.externalApi?.explorers {
+            let explorerActions: [ChainAction] = explorers.compactMap {
+                switch $0.type {
+                case .subscan:
+                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                        return .polkascan(url: url)
+                    }
+                case .polkascan:
+                    if $0.types.contains(.account), let url = $0.explorerUrl(for: address, type: .account) {
+                        return .subscan(url: url)
+                    }
+                case .unknown:
+                    return nil
+                }
+                return nil
+            }
+            actions.append(contentsOf: explorerActions)
         }
         return actions
     }

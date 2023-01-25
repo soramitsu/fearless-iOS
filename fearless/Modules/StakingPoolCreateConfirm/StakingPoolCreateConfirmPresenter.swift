@@ -163,6 +163,7 @@ extension StakingPoolCreateConfirmPresenter: StakingPoolCreateConfirmInteractorO
 
             router.complete(
                 on: view,
+                chainAsset: createData.chainAsset,
                 extrinsicHash: extrinsicHash,
                 text: R.string.localizable.alertPoolCreatedText(preferredLanguages: selectedLocale.rLanguages)
             ) { [weak self] in
