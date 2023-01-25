@@ -10,55 +10,38 @@ final class ParachainSubqueryRewardsSource {
     private let url: URL
     private let startTimestamp: Int64?
     private let endTimestamp: Int64?
+    private let operationFactory: RewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
         url: URL,
         startTimestamp: Int64? = nil,
-        endTimestamp: Int64? = nil
+        endTimestamp: Int64? = nil,
+        operationFactory: RewardOperationFactoryProtocol
     ) {
         self.address = address
         self.url = url
         self.startTimestamp = startTimestamp
         self.endTimestamp = endTimestamp
+        self.operationFactory = operationFactory
     }
 }
 
 extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
     func fetchOperation() -> CompoundOperationWrapper<[SubqueryRewardItemData]?> {
-        let url = self.url
-        let params = requestParams()
+        let rewardOperation = operationFactory.createDelegatorRewardsOperation(
+            address: address,
+            startTimestamp: startTimestamp,
+            endTimestamp: endTimestamp
+        )
+
         let address = self.address
 
-        let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: url)
-
-            let info = JSON.dictionaryValue(["query": JSON.stringValue(params)])
-            request.httpBody = try JSONEncoder().encode(info)
-            request.setValue(
-                HttpContentType.json.rawValue,
-                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
-            )
-            request.httpMethod = HttpMethod.post.rawValue
-            return request
-        }
-
-        let resultFactory = AnyNetworkResultFactory<[SubqueryRewardItemData]?> { data in
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
-            }
-
-            guard let dataDict = json["data"] as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
-            }
-
-            let response = try SubqueryDelegatorHistoryData(json: dataDict)
-
-            return response.delegators.nodes.first(where: { historyElement in
-                historyElement.id?.lowercased() == address.lowercased()
-            })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
+        let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
+            let rewards = try rewardOperation.extractNoCancellableResultData()
+            return rewards.rewardHistory(for: address).compactMap { wrappedReward in
                 guard
-                    let timestamp = Int64(wrappedReward.timestamp)
+                    let timestamp = Int64(wrappedReward.timestampInSeconds)
                 else {
                     return nil
                 }
@@ -69,13 +52,14 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                     era: EraIndex(0),
                     stashAddress: address,
                     amount: wrappedReward.amount,
-                    isReward: wrappedReward.type.rawValue == 0
+                    isReward: wrappedReward.type.rawValue == 2
                 )
             }
         }
 
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
-        return CompoundOperationWrapper(targetOperation: operation)
+        mappingOperation.addDependency(rewardOperation)
+
+        return CompoundOperationWrapper(targetOperation: mappingOperation, dependencies: [rewardOperation])
     }
 
     private func requestParams() -> String {

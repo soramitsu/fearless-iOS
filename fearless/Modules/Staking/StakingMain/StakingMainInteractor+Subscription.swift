@@ -270,7 +270,7 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
     func handleTotalReward(
         result: Result<TotalRewardItem, Error>,
         for _: AccountAddress,
-        api _: ChainModel.ExternalApi
+        api _: ChainModel.BlockExplorer
     ) {
         switch result {
         case let .success(totalReward):

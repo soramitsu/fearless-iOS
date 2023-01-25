@@ -5,7 +5,7 @@ protocol RelaychainStakingLocalSubscriptionHandler {
     func handleTotalReward(
         result: Result<TotalRewardItem, Error>,
         for address: AccountAddress,
-        api: ChainModel.ExternalApi
+        api: ChainModel.BlockExplorer
     )
 
     func handleStashItem(result: Result<StashItem?, Error>, for address: AccountAddress)
@@ -51,7 +51,7 @@ extension RelaychainStakingLocalSubscriptionHandler {
     func handleTotalReward(
         result _: Result<TotalRewardItem, Error>,
         for _: AccountAddress,
-        api _: ChainModel.ExternalApi
+        api _: ChainModel.BlockExplorer
     ) {}
 
     func handleStashItem(result _: Result<StashItem?, Error>, for _: AccountAddress) {}

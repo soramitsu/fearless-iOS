@@ -185,7 +185,7 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
     func createAprOperation(
         for idsClosure: @escaping () throws -> [AccountId],
         dependingOn roundIdOperation: BaseOperation<String>
-    ) -> BaseOperation<SubqueryCollatorDataResponse> {
+    ) -> BaseOperation<CollatorAprResponse> {
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
             guard let url = self?.url else {
                 throw SubqueryRewardOperationFactoryError.urlMissing
@@ -215,28 +215,21 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryCollatorDataResponse> { data in
-            var nodes: [SubqueryCollatorData] = []
+        let resultFactory = AnyNetworkResultFactory<CollatorAprResponse> { data in
+            do {
+                let response = try JSONDecoder().decode(
+                    SubqueryResponse<SubqueryCollatorAprResponse>.self,
+                    from: data
+                )
 
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let data = json["data"] as? [String: Any],
-               let collatorRounds = data["collatorRounds"] as? [String: Any],
-               let nodesJson = collatorRounds["nodes"] as? [[String: Any]] {
-                for nodeJson in nodesJson {
-                    if let collatorId = nodeJson["collatorId"] as? String, let apr = nodeJson["apr"] as? Double {
-                        let data = SubqueryCollatorData(collatorId: collatorId, apr: apr)
-                        nodes.append(data)
-                    }
+                switch response {
+                case let .errors(error):
+                    throw error
+                case let .data(response):
+                    return response
                 }
-            }
-
-            let response = SubqueryResponse.data(SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: nodes)))
-
-            switch response {
-            case let .errors(error):
+            } catch {
                 throw error
-            case let .data(response):
-                return response
             }
         }
 
@@ -249,7 +242,7 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
-    ) -> BaseOperation<SubqueryDelegatorHistoryData> {
+    ) -> BaseOperation<RewardHistoryResponseProtocol> {
         let queryString = prepareDelegatorHistoryRequest(
             address: address,
             startTimestamp: startTimestamp,
@@ -274,18 +267,22 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryData> { data in
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        let resultFactory = AnyNetworkResultFactory<RewardHistoryResponseProtocol> { data in
+            do {
+                let response = try JSONDecoder().decode(
+                    SubqueryResponse<SubqueryDelegatorHistoryData>.self,
+                    from: data
+                )
+
+                switch response {
+                case let .errors(error):
+                    throw error
+                case let .data(response):
+                    return response
+                }
+            } catch {
+                throw error
             }
-
-            guard let dataDict = json["data"] as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
-            }
-
-            let historyData = try SubqueryDelegatorHistoryData(json: dataDict)
-
-            return historyData
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)

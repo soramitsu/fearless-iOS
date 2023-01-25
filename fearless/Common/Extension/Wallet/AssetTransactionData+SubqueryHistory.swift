@@ -9,8 +9,7 @@ extension AssetTransactionData {
         from item: SubqueryHistoryElement,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         if let transfer = item.transfer {
             return createTransaction(
@@ -18,8 +17,7 @@ extension AssetTransactionData {
                 transfer: transfer,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
@@ -29,8 +27,7 @@ extension AssetTransactionData {
                 reward: reward,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
@@ -40,8 +37,7 @@ extension AssetTransactionData {
                 extrinsic: extrinsic,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
@@ -70,16 +66,15 @@ extension AssetTransactionData {
         transfer: SubqueryTransfer,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = transfer.success ? .commited : .rejected
 
         let peerAddress = transfer.sender == address ? transfer.receiver : transfer.sender
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: peerAddress,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: peerAddress,
+            chain: chain
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
@@ -125,8 +120,7 @@ extension AssetTransactionData {
         from item: SubscanTransferItemData,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
 
@@ -140,9 +134,9 @@ extension AssetTransactionData {
 
         let peerAddress = item.sender == address ? item.receiver : item.sender
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: peerAddress,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: peerAddress,
+            chain: chain
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
@@ -184,8 +178,7 @@ extension AssetTransactionData {
         reward: SubqueryRewardOrSlash,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = .commited
 
@@ -198,9 +191,9 @@ extension AssetTransactionData {
 
         let timestamp = Int64(item.timestamp) ?? 0
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: address,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: address,
+            chain: chain
         )
         let peerId = accountId?.toHex() ?? address
 
@@ -262,8 +255,7 @@ extension AssetTransactionData {
         extrinsic: SubqueryExtrinsic,
         address _: String,
         chain _: ChainModel,
-        asset: AssetModel,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(extrinsic.fee) ?? 0,
@@ -298,17 +290,16 @@ extension AssetTransactionData {
         from item: SubscanConcreteExtrinsicsItemData,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(item.fee) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: address,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: address,
+            chain: chain
         )
         let peerId = accountId?.toHex() ?? address
 
@@ -342,24 +333,21 @@ extension AssetTransactionData {
         from item: TransactionHistoryItem,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         if item.callPath.isTransfer {
             return createLocalTransfer(
                 from: item,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         } else {
             return createLocalExtrinsic(
                 from: item,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
     }
@@ -368,14 +356,13 @@ extension AssetTransactionData {
         from item: TransactionHistoryItem,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let peerAddress = (item.sender == address ? item.receiver : item.sender) ?? item.sender
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: peerAddress,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: peerAddress,
+            chain: chain
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
@@ -427,17 +414,16 @@ extension AssetTransactionData {
         from item: TransactionHistoryItem,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(item.fee) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 
-        let accountId = try? addressFactory.accountId(
-            fromAddress: item.sender,
-            type: chain.addressPrefix
+        let accountId = try? AddressFactory.accountId(
+            from: item.sender,
+            chain: chain
         )
 
         let peerId = accountId?.toHex() ?? address

@@ -35,10 +35,6 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
         for address: AccountAddress,
         url: URL
     ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
-        guard let stakingApi = chainAsset.chain.externalApi?.staking else {
-            return nil
-        }
-
         clearIfNeeded()
 
         let identifier = "weaklyAnalytics" + address + url.absoluteString
@@ -50,10 +46,7 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = RewardOperationFactory.factory(
-            type: stakingApi.type,
-            url: stakingApi.url
-        )
+        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
         let source = ParachainWeaklyAnalyticsRewardSource(
             address: address,
@@ -94,7 +87,7 @@ final class RelaychainAnalyticsLocalSubscriptionFactory {
 
 extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(
-        chainAsset _: ChainAsset,
+        chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
     ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
@@ -109,7 +102,7 @@ extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubs
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = SubqueryRewardOperationFactory(url: url)
+        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let source = RelaychainWeaklyAnalyticsRewardSource(
             address: address,
             operationFactory: operationFactory

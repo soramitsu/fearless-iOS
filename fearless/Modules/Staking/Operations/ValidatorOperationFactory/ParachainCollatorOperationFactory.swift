@@ -410,8 +410,13 @@ extension ParachainCollatorOperationFactory {
                     let address = key
                     let owner = try key.toAccountId()
 
-                    let subqueryData = collatorsApr?.collatorRounds.nodes.first(where: { $0.collatorId.lowercased() == address.lowercased() })
-                    let amountDecimal = Decimal.fromSubstrateAmount(metadata?.totalCounted ?? BigUInt.zero, precision: Int16(strongSelf.asset.precision)) ?? 0
+                    let subqueryData = collatorsApr?.collatorAprInfos.first(
+                        where: { $0.collatorId.lowercased() == address.lowercased() }
+                    )
+                    let amountDecimal = Decimal.fromSubstrateAmount(
+                        metadata?.totalCounted ?? BigUInt.zero,
+                        precision: Int16(strongSelf.asset.precision)
+                    ) ?? 0
 
                     return ParachainStakingCandidateInfo(
                         address: address,
@@ -454,7 +459,10 @@ extension ParachainCollatorOperationFactory {
         }
 
         let roundIdOperation = rewardOperationFactory.createLastRoundOperation()
-        let aprOperation = rewardOperationFactory.createAprOperation(for: accountIdsClosure, dependingOn: roundIdOperation)
+        let aprOperation = rewardOperationFactory.createAprOperation(
+            for: accountIdsClosure,
+            dependingOn: roundIdOperation
+        )
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,
@@ -463,7 +471,10 @@ extension ParachainCollatorOperationFactory {
             chain: chain
         )
 
-        let infoWrapper = createCollatorInfoOperation(dependingOn: runtimeOperation, accountIdsClosure: accountIdsClosure)
+        let infoWrapper = createCollatorInfoOperation(
+            dependingOn: runtimeOperation,
+            accountIdsClosure: accountIdsClosure
+        )
 
         identityWrapper.allOperations.forEach { $0.addDependency(selectedCandidatesOperation.targetOperation) }
         infoWrapper.allOperations.forEach { $0.addDependency(selectedCandidatesOperation.targetOperation) }
@@ -480,7 +491,7 @@ extension ParachainCollatorOperationFactory {
 
             let selectedCandidates: [ParachainStakingCandidateInfo]? = try candidatePool?
                 .filter { selectedCandidatesIds?.contains($0.owner) == true }
-                .compactMap { [weak self] collator in
+                .compactMap { [weak self] collator -> ParachainStakingCandidateInfo? in
                     guard let strongSelf = self else {
                         return nil
                     }
@@ -490,7 +501,9 @@ extension ParachainCollatorOperationFactory {
                         chainFormat: strongSelf.chain.chainFormat
                     )
 
-                    let subqueryData = collatorsApr?.collatorRounds.nodes.first(where: { $0.collatorId.lowercased() == address.lowercased() && $0.apr != nil })
+                    let subqueryData = collatorsApr?.collatorAprInfos.first(
+                        where: { $0.collatorId.lowercased() == address.lowercased() && $0.apr != 0 }
+                    )
 
                     return ParachainStakingCandidateInfo(
                         address: address,

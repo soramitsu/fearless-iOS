@@ -15,19 +15,17 @@ final class SubsquidRewardOperationFactory {
 
     private func prepareLastRoundsQuery() -> String {
         """
-        {
-                  rounds(last: 1) {
-                      nodes {
-                        id
-                      }
-                  }
-                }
+        query MyQuery {
+          rounds(orderBy: index_DESC, limit: 1) {
+            id
+          }
+        }
         """
     }
 
     private func prepareCollatorsAprQuery(collatorIds _: [String], roundId _: String) -> String {
         """
-        query {
+        query MyQuery {
           stakers(where: {role_eq: "collator"}) {
             apr24h
             stashId
@@ -37,39 +35,35 @@ final class SubsquidRewardOperationFactory {
     }
 
     private func prepareDelegatorHistoryRequest(
-        address _: String,
+        address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
-            var result = "timestamp:{"
+            var result = "AND: {"
             if let timestamp = startTimestamp {
-                result.append("greaterThanOrEqualTo:\"\(timestamp)\",")
+                result.append("timestamp_gte:\(timestamp)")
             }
             if let timestamp = endTimestamp {
-                result.append("lessThanOrEqualTo:\"\(timestamp)\",")
+                result.append(",timestamp_lte:\(timestamp)")
             }
             result.append("}")
             return result
         }()
 
         return """
-                    query {
-                      historyElements(where: {staker: {role_eq: "delegator"}}) {
-                        amount
-                        staker {
-                          id
-                        }
-                        round {
-                          id
-                        }
-                        type
-                        timestamp
-                        blockNumber
-                        id
-                      }
-                    }
+        query MyQuery {
+          rewards(orderBy: timestamp_DESC, where: {accountId_containsInsensitive: "\(address)", \(timestampFilter)}) {
+            id
+            accountId
+            amount
+            blockNumber
+            round
+            timestamp
+          }
+        }
+
         """
     }
 
@@ -80,36 +74,29 @@ final class SubsquidRewardOperationFactory {
     ) -> String {
         let timestampFilter: String = {
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
-            var result = "timestamp:{"
+            var result = "AND: {"
             if let timestamp = startTimestamp {
-                result.append("greaterThanOrEqualTo:\"\(timestamp)\",")
+                result.append("timestamp_gte:\(timestamp)")
             }
             if let timestamp = endTimestamp {
-                result.append("lessThanOrEqualTo:\"\(timestamp)\",")
+                result.append(",timestamp_lte:\(timestamp)")
             }
             result.append("}")
             return result
         }()
 
         return """
-        {
-                                historyElements(
-                                     orderBy: TIMESTAMP_DESC,
-                                     filter: {
-                                         address: { equalTo: \"\(address)\"},
-                                         reward: { isNull: false },
-                                        \(timestampFilter)
-                                     }
-                                 ) {
-                                    nodes {
-                                        id
-                                        timestamp
-                                        address
-                                        reward
-                }
-             }
+        query MyQuery {
+          rewards(orderBy: timestamp_DESC, where: {accountId_containsInsensitive: "\(address)", \(timestampFilter)}) {
+            id
+            accountId
+            amount
+            blockNumber
+            extrinsicHash
+            round
+            timestamp
+          }
         }
-
         """
     }
 }
@@ -145,9 +132,8 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
 
             if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
                let data = json["data"] as? [String: Any],
-               let collatorRounds = data["rounds"] as? [String: Any],
-               let nodesJson = collatorRounds["nodes"] as? [[String: Any]] {
-                for nodeJson in nodesJson {
+               let collatorRounds = data["rounds"] as? [[String: Any]] {
+                for nodeJson in collatorRounds {
                     if let foundRoundId = nodeJson["id"] as? String {
                         if let roundIdValue = Int(foundRoundId) {
                             roundId = "\(roundIdValue - 1)"
@@ -167,7 +153,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
     func createAprOperation(
         for idsClosure: @escaping () throws -> [AccountId],
         dependingOn roundIdOperation: BaseOperation<String>
-    ) -> BaseOperation<SubqueryCollatorDataResponse> {
+    ) -> BaseOperation<CollatorAprResponse> {
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
             guard let url = self?.url else {
                 throw SubqueryRewardOperationFactoryError.urlMissing
@@ -197,28 +183,21 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryCollatorDataResponse> { data in
-            var nodes: [SubqueryCollatorData] = []
+        let resultFactory = AnyNetworkResultFactory<CollatorAprResponse> { data in
+            do {
+                let response = try JSONDecoder().decode(
+                    SubqueryResponse<SubsquidCollatorAprResponse>.self,
+                    from: data
+                )
 
-            if let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
-               let data = json["data"] as? [String: Any],
-               let collatorRounds = data["collatorRounds"] as? [String: Any],
-               let nodesJson = collatorRounds["nodes"] as? [[String: Any]] {
-                for nodeJson in nodesJson {
-                    if let collatorId = nodeJson["collatorId"] as? String, let apr = nodeJson["apr"] as? Double {
-                        let data = SubqueryCollatorData(collatorId: collatorId, apr: apr)
-                        nodes.append(data)
-                    }
+                switch response {
+                case let .errors(error):
+                    throw error
+                case let .data(response):
+                    return response
                 }
-            }
-
-            let response = SubqueryResponse.data(SubqueryCollatorDataResponse(collatorRounds: SubqueryCollatorDataResponse.HistoryElements(nodes: nodes)))
-
-            switch response {
-            case let .errors(error):
+            } catch {
                 throw error
-            case let .data(response):
-                return response
             }
         }
 
@@ -231,7 +210,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
-    ) -> BaseOperation<SubqueryDelegatorHistoryData> {
+    ) -> BaseOperation<RewardHistoryResponseProtocol> {
         let queryString = prepareDelegatorHistoryRequest(
             address: address,
             startTimestamp: startTimestamp,
@@ -256,18 +235,22 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryData> { data in
-            guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
+        let resultFactory = AnyNetworkResultFactory<RewardHistoryResponseProtocol> { data in
+            do {
+                let response = try JSONDecoder().decode(
+                    SubqueryResponse<SubsquidDelegatorRewardsData>.self,
+                    from: data
+                )
+
+                switch response {
+                case let .errors(error):
+                    throw error
+                case let .data(response):
+                    return response
+                }
+            } catch {
+                throw error
             }
-
-            guard let dataDict = json["data"] as? [String: Any] else {
-                throw SubqueryHistoryOperationFactoryError.incorrectInputData
-            }
-
-            let historyData = try SubqueryDelegatorHistoryData(json: dataDict)
-
-            return historyData
         }
 
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
