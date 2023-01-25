@@ -2,10 +2,21 @@ import FearlessUtils
 import RobinHood
 
 struct SendDependencies {
+    let wallet: MetaAccountModel
+    let chainAsset: ChainAsset
+
     let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let existentialDepositService: ExistentialDepositServiceProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+
+    func createEqTotalBalanceService() -> EquilibriumTotalBalanceServiceProtocol? {
+        guard chainAsset.chain.isEquilibrium else {
+            return nil
+        }
+        return EquilibriumTotalBalanceServiceFactory
+            .createService(wallet: wallet, chainAsset: chainAsset)
+    }
 }
 
 final class SendDepencyContainer {
@@ -62,6 +73,8 @@ final class SendDepencyContainer {
             )
 
             currentDependecies = SendDependencies(
+                wallet: wallet,
+                chainAsset: chainAsset,
                 runtimeService: runtimeService,
                 extrinsicService: extrinsicService,
                 existentialDepositService: existentialDepositService,

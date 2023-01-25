@@ -22,4 +22,19 @@ final class StorageKeyDataExtractor {
         let uint32 = try UInt32(scaleDecoder: decoder)
         return uint32
     }
+
+    func extractU64Parameter() throws -> UInt64 {
+        let hexSymbolsPerByte = 2
+        let uint64Bytes = 8
+        let keyString = storageKey.toHex()
+
+        let idHexString = keyString.suffix(from: String.Index(
+            utf16Offset: keyString.count - hexSymbolsPerByte * uint64Bytes,
+            in: keyString
+        ))
+        let idData = try Data(hexString: String(idHexString))
+        let decoder = try ScaleDecoder(data: idData)
+        let uint64 = try UInt64(scaleDecoder: decoder)
+        return uint64
+    }
 }
