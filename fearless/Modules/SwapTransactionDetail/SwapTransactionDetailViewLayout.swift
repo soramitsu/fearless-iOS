@@ -101,6 +101,7 @@ final class SwapTransactionDetailViewLayout: UIView {
         doubleImageView.bind(viewModel: viewModel.doubleImageViewViewModel)
         dateView.valueTop.text = viewModel.date
         statusView.valueTop.attributedText = viewModel.status
+        fromView.valueTop.text = viewModel.walletName
         fromView.valueBottom.text = viewModel.address
         networkFeeView.bindBalance(viewModel: viewModel.networkFee)
     }
@@ -113,7 +114,7 @@ final class SwapTransactionDetailViewLayout: UIView {
         statusView.titleLabel.text = R.string.localizable
             .transactionDetailStatus(preferredLanguages: locale.rLanguages)
         fromView.titleLabel.text = R.string.localizable
-            .commonAddress(preferredLanguages: locale.rLanguages)
+            .transactionDetailsFrom(preferredLanguages: locale.rLanguages)
         fromView.valueTop.text = R.string.localizable
             .transactionDetailsSwapAwesomeWallet(preferredLanguages: locale.rLanguages)
         networkFeeView.titleLabel.text = R.string.localizable

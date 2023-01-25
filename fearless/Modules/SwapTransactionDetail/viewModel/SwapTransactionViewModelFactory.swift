@@ -68,6 +68,7 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
             doubleImageViewViewModel: doubleImageViewViewModel,
             amountsText: amountsText,
             status: status,
+            walletName: wallet.name,
             address: address,
             date: dateString,
             networkFee: networkFee
