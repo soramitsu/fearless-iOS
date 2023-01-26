@@ -109,5 +109,5 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
 protocol ChainAccountModuleInput: AnyObject {}
 
 protocol ChainAccountModuleOutput: AnyObject {
-    func updateTransactionHistory()
+    func updateTransactionHistory(for chainAsset: ChainAsset?)
 }
