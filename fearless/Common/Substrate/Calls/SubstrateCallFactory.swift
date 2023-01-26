@@ -52,7 +52,6 @@ protocol SubstrateCallFactoryProtocol {
         amount: BigUInt
     ) -> RuntimeCall<DelegatorBondMoreCall>
     func scheduleDelegatorBondLess(
-        candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
     func scheduleRevokeDelegation(
@@ -366,10 +365,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     }
 
     func scheduleDelegatorBondLess(
-        candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
-        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
+        let args = ScheduleDelegatorBondLessCall(less: amount)
 
         let path: SubstrateCallPath = .scheduleCandidateBondLess
         return RuntimeCall(
