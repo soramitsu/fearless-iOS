@@ -4,11 +4,12 @@ import SoraFoundation
 
 final class WalletTransactionHistoryPresenter {
     weak var view: WalletTransactionHistoryViewProtocol?
-    let wireframe: WalletTransactionHistoryWireframeProtocol
-    let interactor: WalletTransactionHistoryInteractorInputProtocol
-    let viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol
-    let chain: ChainModel
-    let asset: AssetModel
+    private let wireframe: WalletTransactionHistoryWireframeProtocol
+    private let interactor: WalletTransactionHistoryInteractorInputProtocol
+    private let viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol
+    private let chain: ChainModel
+    private let asset: AssetModel
+    private let logger: LoggerProtocol
 
     private var filters: [FilterSet]?
     private(set) var viewModels: [WalletTransactionHistorySection] = []
@@ -19,6 +20,7 @@ final class WalletTransactionHistoryPresenter {
         viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol,
         chain: ChainModel,
         asset: AssetModel,
+        logger: LoggerProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
@@ -26,6 +28,7 @@ final class WalletTransactionHistoryPresenter {
         self.viewModelFactory = viewModelFactory
         self.asset = asset
         self.chain = chain
+        self.logger = logger
         self.localizationManager = localizationManager
     }
 }
@@ -76,7 +79,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
-        guard let _ = chain.externalApi?.history else {
+        guard chain.externalApi?.history != nil else {
             let state: WalletTransactionHistoryViewState = .unsupported
             view?.didReceive(state: state)
             return
@@ -85,25 +88,27 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         var viewModels = reload ? [] : self.viewModels
-        let viewChanges = try? viewModelFactory.merge(
-            newItems: pageData.transactions,
-            into: &viewModels,
-            locale: locale
-        )
+        do {
+            let viewChanges = try viewModelFactory.merge(
+                newItems: pageData.transactions,
+                into: &viewModels,
+                locale: locale
+            )
 
-        guard let viewChanges = viewChanges else {
-            return
+            self.viewModels = viewModels
+            let viewModel = WalletTransactionHistoryViewModel(
+                sections: viewModels,
+                lastChanges: viewChanges
+            )
+
+            let state: WalletTransactionHistoryViewState = reload
+                ? .reloaded(viewModel: viewModel)
+                : .loaded(viewModel: viewModel)
+            view?.didReceive(state: state)
+        } catch {
+            logger.error("\(error)")
+            view?.didReceive(state: .unsupported)
         }
-
-        self.viewModels = viewModels
-
-        let viewModel = WalletTransactionHistoryViewModel(
-            sections: viewModels,
-            lastChanges: viewChanges
-        )
-
-        let state: WalletTransactionHistoryViewState = reload ? .reloaded(viewModel: viewModel) : .loaded(viewModel: viewModel)
-        view?.didReceive(state: state)
     }
 }
 
@@ -113,10 +118,6 @@ extension WalletTransactionHistoryPresenter: Localizable {
 
 extension WalletTransactionHistoryPresenter: FiltersModuleOutput {
     func didFinishWithFilters(filters: [FilterSet]) {
-        guard let filters = filters as? [FilterSet] else {
-            return
-        }
-
         interactor.applyFilters(filters)
     }
 }

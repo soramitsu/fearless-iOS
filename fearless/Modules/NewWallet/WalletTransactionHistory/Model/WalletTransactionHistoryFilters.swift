@@ -5,6 +5,7 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
     enum HistoryFilterType: String {
         case transfer
         case reward
+        case swap
         case other
 
         var id: String {
@@ -13,6 +14,8 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
                 return "transfer"
             case .reward:
                 return "reward"
+            case .swap:
+                return "swap"
             case .other:
                 return "extrinsic"
             }
@@ -28,6 +31,8 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
                 return R.string.localizable.walletFiltersRewardsAndSlashes(
                     preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
                 )
+            case .swap:
+                return "Swap"
             case .other:
                 return R.string.localizable.walletFiltersExtrinsics(
                     preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
@@ -55,6 +60,7 @@ struct WalletTransactionHistoryFilter: SwitchFilterItem {
     static func defaultFilters() -> [WalletTransactionHistoryFilter] {
         [WalletTransactionHistoryFilter(type: .transfer, selected: true),
          WalletTransactionHistoryFilter(type: .reward, selected: true),
-         WalletTransactionHistoryFilter(type: .other, selected: true)]
+         WalletTransactionHistoryFilter(type: .other, selected: true),
+         WalletTransactionHistoryFilter(type: .swap, selected: true)]
     }
 }

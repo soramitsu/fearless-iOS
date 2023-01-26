@@ -85,6 +85,10 @@ class ChainModel: Codable {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
     }
 
+    var hasPolkaswap: Bool {
+        options.or([]).contains(.polkaswap)
+    }
+
     func utilityAssets() -> Set<ChainAssetModel> {
         assets.filter { $0.isUtility }
     }

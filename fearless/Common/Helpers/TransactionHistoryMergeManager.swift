@@ -60,8 +60,7 @@ enum TransactionHistoryMergeItem {
     func buildTransactionData(
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         switch self {
         case let .local(item):
@@ -69,15 +68,13 @@ enum TransactionHistoryMergeItem {
                 from: item,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         case let .remote(item):
             return item.createTransactionForAddress(
                 address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
     }
@@ -97,21 +94,18 @@ enum TransactionHistoryMergeItem {
 }
 
 final class TransactionHistoryMergeManager {
-    let address: String
-    let chain: ChainModel
-    let asset: AssetModel
-    let addressFactory: SS58AddressFactoryProtocol
+    private let address: String
+    private let chain: ChainModel
+    private let asset: AssetModel
 
     init(
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) {
         self.address = address
         self.chain = chain
         self.asset = asset
-        self.addressFactory = addressFactory
     }
 
     func merge(
@@ -156,8 +150,7 @@ final class TransactionHistoryMergeManager {
                 item.buildTransactionData(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
             }
 
@@ -211,8 +204,7 @@ final class TransactionHistoryMergeManager {
                 item.buildTransactionData(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
             }
 
