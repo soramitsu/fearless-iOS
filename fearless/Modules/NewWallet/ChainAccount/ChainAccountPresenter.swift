@@ -233,6 +233,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             wallet: wallet,
             chainAsset: chainAsset
         ))
+        moduleOutput?.updateTransactionHistory(for: chainAsset)
     }
 }
 
