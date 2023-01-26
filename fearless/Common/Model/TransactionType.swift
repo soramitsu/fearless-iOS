@@ -6,4 +6,6 @@ enum TransactionType: String, CaseIterable {
     case reward = "Reward"
     case slash = "Slash"
     case extrinsic = "Extrinsic"
+    case swap = "Swap"
+    case unused
 }

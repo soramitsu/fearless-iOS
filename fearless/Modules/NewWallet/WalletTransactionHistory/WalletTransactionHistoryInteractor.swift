@@ -9,11 +9,10 @@ final class WalletTransactionHistoryInteractor {
     }
 
     weak var presenter: WalletTransactionHistoryInteractorOutputProtocol?
-    let historyService: HistoryServiceProtocol
-    let dataProviderFactory: HistoryDataProviderFactoryProtocol
+    private let dependencyContainer: WalletTransactionHistoryDependencyContainer
     let logger: LoggerProtocol?
     var defaultFilter: WalletHistoryRequest
-    let chainAsset: ChainAsset
+    var chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     private(set) var selectedFilter: WalletHistoryRequest
     var filters: [FilterSet]
@@ -23,7 +22,6 @@ final class WalletTransactionHistoryInteractor {
 
     private(set) var dataLoadingState: WalletTransactionHistoryDataState = .waitingCached
     private(set) var pages: [AssetTransactionPageData] = []
-    var dataProvider: SingleValueProvider<AssetTransactionPageData>?
 
     private var reloadTimer: Timer?
 
@@ -31,8 +29,7 @@ final class WalletTransactionHistoryInteractor {
         chain: ChainModel,
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
-        dataProviderFactory: HistoryDataProviderFactoryProtocol,
-        historyService: HistoryServiceProtocol,
+        dependencyContainer: WalletTransactionHistoryDependencyContainer,
         logger: LoggerProtocol?,
         defaultFilter: WalletHistoryRequest,
         selectedFilter: WalletHistoryRequest,
@@ -42,8 +39,7 @@ final class WalletTransactionHistoryInteractor {
         applicationHandler: ApplicationHandler
     ) {
         self.selectedAccount = selectedAccount
-        self.dataProviderFactory = dataProviderFactory
-        self.historyService = historyService
+        self.dependencyContainer = dependencyContainer
         self.logger = logger
         self.selectedFilter = selectedFilter
         self.defaultFilter = defaultFilter
@@ -69,7 +65,7 @@ final class WalletTransactionHistoryInteractor {
             $0.items as? [WalletTransactionHistoryFilter]
         }.reduce([], +)
 
-        historyService.fetchTransactionHistory(
+        dependencyContainer.dependencies?.historyService.fetchTransactionHistory(
             for: address,
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -93,53 +89,6 @@ final class WalletTransactionHistoryInteractor {
         }
     }
 
-    private func setupDataProvider() {
-        guard let utilityChainAsset = getUtilityAsset(for: chainAsset) else {
-            return
-        }
-
-        guard
-            let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress()
-        else {
-            handleDataProvider(transactionData: nil)
-            return
-        }
-
-        dataProvider = try? dataProviderFactory.createDataProvider(
-            for: address,
-            asset: chainAsset.asset,
-            chain: chainAsset.chain,
-            targetIdentifier: "wallet.transaction.history.\(address)",
-            using: .main
-        )
-
-        let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
-            if let change = changes.first {
-                switch change {
-                case let .insert(item), let .update(item):
-                    self?.handleDataProvider(transactionData: item)
-                default:
-                    break
-                }
-            } else {
-                self?.handleDataProvider(transactionData: nil)
-            }
-        }
-
-        let failBlock: (Error) -> Void = { [weak self] (error: Error) in
-            self?.handleDataProvider(error: error)
-        }
-
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
-        dataProvider?.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesBlock,
-            failing: failBlock,
-            options: options
-        )
-    }
-
     private func handleDataProvider(transactionData: AssetTransactionPageData?) {
         switch dataLoadingState {
         case .waitingCached:
@@ -157,7 +106,7 @@ final class WalletTransactionHistoryInteractor {
 
             pages = [loadedTransactionData]
 
-            dataProvider?.refresh()
+            dependencyContainer.dependencies?.dataProvider?.refresh()
 
         case .loading, .loaded:
             if let transactionData = transactionData {
@@ -313,11 +262,41 @@ final class WalletTransactionHistoryInteractor {
         }
         return chainAsset
     }
+
+    private func setupDependencies(for chainAsset: ChainAsset) {
+        dependencyContainer.createDependencies(for: chainAsset, selectedAccount: selectedAccount)
+
+        let changesBlock = { [weak self] (changes: [DataProviderChange<AssetTransactionPageData>]) -> Void in
+            if let change = changes.first {
+                switch change {
+                case let .insert(item), let .update(item):
+                    self?.handleDataProvider(transactionData: item)
+                default:
+                    break
+                }
+            } else {
+                self?.handleDataProvider(transactionData: nil)
+            }
+        }
+
+        let failBlock: (Error) -> Void = { [weak self] (error: Error) in
+            self?.handleDataProvider(error: error)
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true)
+        dependencyContainer.dependencies?.dataProvider?.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesBlock,
+            failing: failBlock,
+            options: options
+        )
+    }
 }
 
 extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractorInputProtocol {
     func setup() {
-        setupDataProvider()
+        setupDependencies(for: chainAsset)
         setupReloadTimer()
 
         presenter?.didReceive(filters: filters)
@@ -367,13 +346,24 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
     func applyFilters(_ filters: [FilterSet]) {
         self.filters = filters
 
-        dataProvider?.removeObserver(self)
+        dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
 
         let pagination = Pagination(count: transactionsPerPage)
         dataLoadingState = .filtering(page: pagination, previousPage: nil)
         loadTransactions(for: pagination)
 
         presenter?.didReceive(filters: filters)
+    }
+
+    func chainAssetChanged(_ newChainAsset: ChainAsset) {
+        if chainAsset != newChainAsset {
+            chainAsset = newChainAsset
+            dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
+            setupDependencies(for: newChainAsset)
+            dataLoadingState = .waitingCached
+            pages = []
+            reload()
+        }
     }
 }
 
