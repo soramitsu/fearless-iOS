@@ -90,7 +90,7 @@ extension ChainAsset {
         }
         var storagePath: StorageCodingPath
         switch chainAssetType {
-        case .normal:
+        case .normal, .equilibrium:
             storagePath = StorageCodingPath.account
         case
             .ormlChain,
@@ -103,8 +103,6 @@ extension ChainAsset {
             .stable,
             .soraAsset:
             storagePath = StorageCodingPath.tokens
-        case .equilibrium:
-            storagePath = StorageCodingPath.account
         }
 
         return storagePath

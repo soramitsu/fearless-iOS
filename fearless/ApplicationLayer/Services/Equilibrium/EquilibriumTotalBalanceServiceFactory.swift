@@ -25,7 +25,7 @@ final class EquilibriumTotalBalanceServiceFactory {
         let service = EquilibriumTotalBalanceService(
             wallet: wallet,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            equiliriubChainAsset: chainAsset,
+            equilibriumChainAsset: chainAsset,
             storageRequestFactory: storageRequestFactory,
             operationManager: operationManager,
             runtimeService: runtimeProvider,

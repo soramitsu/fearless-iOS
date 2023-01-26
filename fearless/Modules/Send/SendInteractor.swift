@@ -100,10 +100,13 @@ final class SendInteractor: RuntimeConstantFetching {
         if chainAsset.chain.isEquilibrium {
             let service = dependencyContainer
                 .prepareDepencies(chainAsset: chainAsset)?
-                .createEqTotalBalanceService()
+                .equilibruimTotalBalanceService
             equilibriumTotalBalanceService = service
 
-            equilibriumTotalBalanceService?.fetchTotalBalance(handler: self)
+            equilibriumTotalBalanceService?
+                .fetchTotalBalance(completion: { [weak self] totalBalance in
+                    self?.output?.didReceive(eqTotalBalance: totalBalance)
+                })
         }
     }
 }
@@ -243,11 +246,5 @@ extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHan
 extension SendInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
-    }
-}
-
-extension SendInteractor: EquilibriumTotalBalanceServiceDelegate {
-    func handleEquilibrium(totalBalance: BigUInt) {
-        output?.didReceive(eqTotalBalance: totalBalance)
     }
 }

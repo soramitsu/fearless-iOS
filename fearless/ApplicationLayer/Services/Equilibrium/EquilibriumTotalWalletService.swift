@@ -3,12 +3,8 @@ import FearlessUtils
 import RobinHood
 import BigInt
 
-protocol EquilibriumTotalBalanceServiceDelegate: AnyObject {
-    func handleEquilibrium(totalBalance: BigUInt)
-}
-
 protocol EquilibriumTotalBalanceServiceProtocol {
-    func fetchTotalBalance(handler: EquilibriumTotalBalanceServiceDelegate)
+    func fetchTotalBalance(completion: @escaping ((BigUInt) -> Void))
 }
 
 final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol {
@@ -16,7 +12,7 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
     private let wallet: MetaAccountModel
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let equiliriubChainAsset: ChainAsset
+    private let equilibriumChainAsset: ChainAsset
     private let storageRequestFactory: StorageRequestFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol?
@@ -28,14 +24,14 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
     private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
     private var oraclePricesMap: [UInt64: BigUInt] = [:]
 
-    private weak var delegate: EquilibriumTotalBalanceServiceDelegate?
+    private var completion: ((BigUInt) -> Void)?
 
     // MARK: - Constructor
 
     init(
         wallet: MetaAccountModel,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        equiliriubChainAsset: ChainAsset,
+        equilibriumChainAsset: ChainAsset,
         storageRequestFactory: StorageRequestFactoryProtocol,
         operationManager: OperationManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol?,
@@ -44,7 +40,7 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
     ) {
         self.wallet = wallet
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
-        self.equiliriubChainAsset = equiliriubChainAsset
+        self.equilibriumChainAsset = equilibriumChainAsset
         self.storageRequestFactory = storageRequestFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
@@ -54,8 +50,8 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
     // MARK: - Public methods
 
-    func fetchTotalBalance(handler: EquilibriumTotalBalanceServiceDelegate) {
-        delegate = handler
+    func fetchTotalBalance(completion: @escaping ((BigUInt) -> Void)) {
+        self.completion = completion
         fetchOraclePrice()
         subscribeToAccountInfo()
     }
@@ -66,14 +62,14 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
         guard oraclePricesMap.isNotEmpty, accountInfos.isNotEmpty else {
             return
         }
-        let request = equiliriubChainAsset.chain.accountRequest()
+        let request = equilibriumChainAsset.chain.accountRequest()
         guard let accountId = wallet.fetch(for: request)?.accountId else {
             return
         }
-        let precision = Int16(equiliriubChainAsset.asset.precision)
+        let precision = Int16(equilibriumChainAsset.asset.precision)
         var equlibriumTotalBalance: BigUInt = .zero
         oraclePricesMap.forEach { key, price in
-            guard let chainAsset = equiliriubChainAsset.chain.chainAssets.first(where: {
+            guard let chainAsset = equilibriumChainAsset.chain.chainAssets.first(where: {
                 $0.asset.currencyId == "\(key)"
             }) else {
                 return
@@ -94,16 +90,16 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
             equlibriumTotalBalance = equlibriumTotalBalanceDecimal.toSubstrateAmount(precision: precision) ?? .zero
         }
-        delegate?.handleEquilibrium(totalBalance: equlibriumTotalBalance)
+        completion?(equlibriumTotalBalance)
     }
 
     private func subscribeToAccountInfo() {
-        let request = equiliriubChainAsset.chain.accountRequest()
+        let request = equilibriumChainAsset.chain.accountRequest()
         guard let accountId = wallet.fetch(for: request)?.accountId else {
             return
         }
         accountInfoSubscriptionAdapter.subscribe(
-            chainAsset: equiliriubChainAsset,
+            chainAsset: equilibriumChainAsset,
             accountId: accountId,
             handler: self,
             deliveryOn: .global()
@@ -202,7 +198,7 @@ extension EquilibriumTotalBalanceService: AccountInfoSubscriptionAdapterHandler 
         case let .success(accountInfo):
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfos[key] = accountInfo
-            if accountInfos.keys.count == equiliriubChainAsset.chain.chainAssets.count {
+            if accountInfos.keys.count == equilibriumChainAsset.chain.chainAssets.count {
                 calculateTotalBalance()
             }
         case let .failure(error):

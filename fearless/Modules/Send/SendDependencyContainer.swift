@@ -9,14 +9,7 @@ struct SendDependencies {
     let extrinsicService: ExtrinsicServiceProtocol
     let existentialDepositService: ExistentialDepositServiceProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
-    func createEqTotalBalanceService() -> EquilibriumTotalBalanceServiceProtocol? {
-        guard chainAsset.chain.isEquilibrium else {
-            return nil
-        }
-        return EquilibriumTotalBalanceServiceFactory
-            .createService(wallet: wallet, chainAsset: chainAsset)
-    }
+    let equilibruimTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 }
 
 final class SendDepencyContainer {
@@ -72,15 +65,26 @@ final class SendDepencyContainer {
                 selectedMetaAccount: wallet
             )
 
+            let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
+
             currentDependecies = SendDependencies(
                 wallet: wallet,
                 chainAsset: chainAsset,
                 runtimeService: runtimeService,
                 extrinsicService: extrinsicService,
                 existentialDepositService: existentialDepositService,
-                balanceViewModelFactory: balanceViewModelFactory
+                balanceViewModelFactory: balanceViewModelFactory,
+                equilibruimTotalBalanceService: equilibruimTotalBalanceService
             )
         }
         return currentDependecies
+    }
+
+    private func createEqTotalBalanceService(chainAsset: ChainAsset) -> EquilibriumTotalBalanceServiceProtocol? {
+        guard chainAsset.chain.isEquilibrium else {
+            return nil
+        }
+        return EquilibriumTotalBalanceServiceFactory
+            .createService(wallet: wallet, chainAsset: chainAsset)
     }
 }
