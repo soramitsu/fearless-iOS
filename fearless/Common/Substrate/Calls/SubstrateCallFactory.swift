@@ -217,6 +217,14 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<TransferCall> {
         switch chainAsset.chainAssetType {
         case .normal:
+            if chainAsset.chain.isSora {
+                return ormlAssetTransfer(
+                    to: receiver,
+                    amount: amount,
+                    currencyId: chainAsset.currencyId,
+                    path: .soraAssetTransfer
+                )
+            }
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
             return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
