@@ -13,7 +13,7 @@ final class WalletTransactionHistoryInteractor {
     let dataProviderFactory: HistoryDataProviderFactoryProtocol
     let logger: LoggerProtocol?
     var defaultFilter: WalletHistoryRequest
-    let chainAsset: ChainAsset
+    var chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     private(set) var selectedFilter: WalletHistoryRequest
     var filters: [FilterSet]
@@ -374,6 +374,14 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
         loadTransactions(for: pagination)
 
         presenter?.didReceive(filters: filters)
+    }
+
+    func chainAssetChanged(_ newChainAsset: ChainAsset) {
+        chainAsset = newChainAsset
+        setupDataProvider()
+        dataLoadingState = .waitingCached
+        pages = []
+        reload()
     }
 }
 
