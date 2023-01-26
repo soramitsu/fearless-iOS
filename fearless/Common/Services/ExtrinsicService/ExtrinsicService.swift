@@ -157,7 +157,7 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
                     switch result {
                     case let .success(submitAndWatchExtrinsicResult):
                         completionClosure(submitAndWatchExtrinsicResult.result, submitAndWatchExtrinsicResult.extrinsicHash)
-                    case let .failure:
+                    case .failure:
                         completionClosure(.failure(BaseOperationError.parentOperationCancelled), nil)
                     }
                 } else {

@@ -114,8 +114,6 @@ final class SwapTransactionDetailViewLayout: UIView {
             .transactionDetailStatus(preferredLanguages: locale.rLanguages)
         fromView.titleLabel.text = R.string.localizable
             .commonAddress(preferredLanguages: locale.rLanguages)
-        fromView.valueTop.text = R.string.localizable
-            .transactionDetailsSwapAwesomeWallet(preferredLanguages: locale.rLanguages)
         networkFeeView.titleLabel.text = R.string.localizable
             .commonNetworkFee(preferredLanguages: locale.rLanguages)
         closeButton.imageWithTitleView?.title = R.string.localizable

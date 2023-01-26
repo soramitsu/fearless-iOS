@@ -971,4 +971,3 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.dex.alert.title" = "Token Pair Isn’t Created";
 "polkaswap.quotes.not.available" = "Quotes not available";
 "all.done.subscan.button.title" = "Subscan";
-"transaction.details.swap.awesome.wallet" = "My Awesome Wallet";

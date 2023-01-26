@@ -107,6 +107,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             view?.didReceive(state: state)
         } catch {
             logger.error("\(error)")
+            view?.didReceive(state: .unsupported)
         }
     }
 }
