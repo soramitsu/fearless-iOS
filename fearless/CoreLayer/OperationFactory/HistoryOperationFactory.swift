@@ -247,9 +247,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
-
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyItems ?? []
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
@@ -257,8 +255,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                 let manager = TransactionHistoryMergeManager(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
                 return manager.merge(
                     subscanItems: remoteTransactions,
@@ -269,8 +266,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
-                        asset: asset,
-                        addressFactory: addressFactory
+                        asset: asset
                     )
                 }
 
@@ -290,7 +286,6 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
@@ -346,8 +341,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                 let manager = TransactionHistoryMergeManager(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
                 return manager.merge(
                     subscanItems: remoteTransactions,
@@ -358,8 +352,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
-                        asset: asset,
-                        addressFactory: addressFactory
+                        asset: asset
                     )
                 }
 

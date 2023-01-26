@@ -7,14 +7,9 @@ import BigInt
 
 final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-    private let runtimeService: RuntimeCodingServiceProtocol
 
-    init(
-        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) {
+    init(txStorage: AnyDataProviderRepository<TransactionHistoryItem>) {
         self.txStorage = txStorage
-        self.runtimeService = runtimeService
     }
 
     // MARK: - Public methods
@@ -27,7 +22,6 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
-        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -85,7 +79,6 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
         let mergeOperation = createHistoryMergeOperation(
             dependingOn: remoteHistoryWrapper,
             localOperation: localFetchOperation,
-            runtimeOperation: runtimeOperation,
             asset: asset,
             chain: chain,
             address: address
@@ -164,14 +157,11 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
     private func createHistoryMergeOperation(
         dependingOn remoteOperation: CompoundOperationWrapper<WalletRemoteHistoryData>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
-        runtimeOperation _: BaseOperation<RuntimeCoderFactoryProtocol>,
         asset: AssetModel,
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions = try remoteOperation?
                 .targetOperation
                 .extractNoCancellableResultData()
@@ -183,8 +173,7 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 let manager = TransactionHistoryMergeManager(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
                 return manager.merge(
                     subscanItems: remoteTransactions,
@@ -195,8 +184,7 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
-                        asset: asset,
-                        addressFactory: addressFactory
+                        asset: asset
                     )
                 }
 

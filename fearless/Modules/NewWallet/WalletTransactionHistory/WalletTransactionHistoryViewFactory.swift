@@ -99,10 +99,7 @@ enum WalletTransactionHistoryViewFactory {
         let operationFactory: HistoryOperationFactoryProtocol
         switch chainAsset.chainAssetType {
         case .soraAsset:
-            operationFactory = SoraHistoryOperationFactory(
-                txStorage: AnyDataProviderRepository(txStorage),
-                runtimeService: runtimeService
-            )
+            operationFactory = SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
         default:
             operationFactory = HistoryOperationFactory(
                 txStorage: AnyDataProviderRepository(txStorage),
