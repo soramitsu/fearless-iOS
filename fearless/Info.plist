@@ -78,6 +78,8 @@
 	</array>
 	<key>UISupportsDocumentBrowser</key>
 	<false/>
+    <key>ITSAppUsesNonExemptEncryption</key>
+    <false/>
 	<key>UIUserInterfaceStyle</key>
 	<string>Dark</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
