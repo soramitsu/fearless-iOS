@@ -1,3 +1,3 @@
-import Foundation
-
-protocol MoonbeamServiceProtocol: CrowdloanAgreementServiceProtocol {}
+// import Foundation
+//
+// protocol MoonbeamServiceProtocol: CrowdloanAgreementServiceProtocol {}

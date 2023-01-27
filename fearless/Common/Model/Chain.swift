@@ -29,17 +29,3 @@ enum Chain: String, Codable, CaseIterable {
         }
     }
 }
-
-extension Chain {
-    var addressType: SNAddressType {
-        switch self {
-        case .polkadot: return .polkadotMain
-        case .kusama: return .kusamaMain
-        case .westend: return .genericSubstrate
-        case .rococo: return .kusamaSecondary
-        case .moonbeam: return .moonbeam
-        case .moonriver: return .moonriver
-        case .moonbaseAlpha: return .moonbaseAlpha
-        }
-    }
-}
