@@ -11,7 +11,7 @@ struct EventRecord: Decodable {
     let event: Event
 
     init(from decoder: Decoder) throws {
-        var container = try decoder.container(keyedBy: CodingKeys.self)
+        let container = try decoder.container(keyedBy: CodingKeys.self)
 
         phase = try container.decode(Phase.self, forKey: .phase)
         event = try container.decode(Event.self, forKey: .event)

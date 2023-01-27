@@ -93,7 +93,7 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
 
     func buildViewModel(
         viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        asset _: AssetModel
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolInitiatedViewModelState,
@@ -102,29 +102,8 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
             return nil
         }
 
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
-
-        let rewardViewModel: RewardDestinationTypeViewModel
-
-        switch state.rewardDestination {
-        case .restake:
-            rewardViewModel = .restake
-        case let .payout(account):
-            let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
-
-            rewardViewModel = .payout(
-                icon: payoutIcon,
-                title: account.username,
-                address: account.address
-            )
-        }
-
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
-
-            return SelectValidatorsConfirmViewModel(
+        return LocalizableResource { _ in
+            SelectValidatorsConfirmViewModel(
                 senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
                 amount: nil,

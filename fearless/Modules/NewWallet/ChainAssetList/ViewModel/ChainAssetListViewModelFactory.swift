@@ -102,7 +102,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
         let hiddenSectionIsOpen = selectedMetaAccount.assetFilterOptions.contains(.hiddenSectionOpen)
-        var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
+        let hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
             ? .expanded
             : .hidden
         return ChainAssetListViewModel(

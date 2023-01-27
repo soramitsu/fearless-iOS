@@ -16,7 +16,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            let ethereumBased = chainAccontEntity.ethereumBased ?? false
+            let ethereumBased = chainAccontEntity.ethereumBased
 
             let accountId = try Data(hexString: chainAccontEntity.accountId!)
             return ChainAccountModel(

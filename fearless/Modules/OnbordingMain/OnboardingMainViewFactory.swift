@@ -48,11 +48,6 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)
         view.localizationManager = localizationManager
 
-        let jsonDataProviderFactory = JsonDataProviderFactory(
-            storageFacade: SubstrateDataStorageFacade.shared,
-            useCache: false
-        )
-
         let appVersionObserver = AppVersionObserver(
             operationManager: OperationManagerFacade.sharedManager,
             currentAppVersion: AppVersion.stringValue,

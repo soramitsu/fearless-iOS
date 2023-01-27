@@ -4,10 +4,6 @@ import FearlessUtils
 
 typealias RuntimeMetadataClosure = () throws -> RuntimeMetadata
 
-protocol RuntimeRegistryServiceProtocol: ApplicationServiceProtocol {
-    func update(to chain: Chain)
-}
-
 protocol RuntimeCodingServiceProtocol {
     var snapshot: RuntimeSnapshot? { get }
 

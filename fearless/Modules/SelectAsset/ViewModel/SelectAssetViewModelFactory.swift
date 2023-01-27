@@ -99,11 +99,6 @@ private extension SelectAssetViewModelFactory {
         locale: Locale,
         selectedAssetId: String?
     ) -> SelectAssetCellViewModel {
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let key = chainAsset.uniqueKey(accountId: accountId)
-            let accountInfo = accountInfos[key]
-        }
-
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }

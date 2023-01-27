@@ -136,7 +136,7 @@ final class SelectableAmountInputView: UIView {
 
         priceLabel.text = viewModel.price
 
-        if var balance = viewModel.balance {
+        if let balance = viewModel.balance {
             applyType(for: balance)
         } else {
             balanceLabel.text = nil

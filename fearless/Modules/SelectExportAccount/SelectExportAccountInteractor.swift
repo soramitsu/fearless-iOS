@@ -32,7 +32,7 @@ final class SelectExportAccountInteractor {
         switch result {
         case let .success(chains):
             output?.didReceive(chains: chains)
-        case let .failure(error):
+        case .failure:
             break
         case .none:
             break

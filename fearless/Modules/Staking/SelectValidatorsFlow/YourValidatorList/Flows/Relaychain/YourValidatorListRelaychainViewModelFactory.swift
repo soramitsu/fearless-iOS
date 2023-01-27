@@ -30,7 +30,7 @@ final class YourValidatorListRelaychainViewModelFactory {
             let apyStringAttributed = NSMutableAttributedString(string: apyString)
             apyStringAttributed.addAttribute(
                 .foregroundColor,
-                value: R.color.colorColdGreen(),
+                value: R.color.colorColdGreen() as Any,
                 range: (apyString as NSString).range(of: stakeReturnString)
             )
             return apyStringAttributed

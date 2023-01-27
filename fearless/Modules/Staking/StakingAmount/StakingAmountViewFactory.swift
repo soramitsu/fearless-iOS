@@ -313,14 +313,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
         else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()

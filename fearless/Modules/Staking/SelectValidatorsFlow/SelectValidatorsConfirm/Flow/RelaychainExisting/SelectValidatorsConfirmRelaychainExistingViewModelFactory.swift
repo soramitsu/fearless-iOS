@@ -96,8 +96,6 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
             return nil
         }
 
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
         let rewardViewModel: RewardDestinationTypeViewModel
 
         switch state.rewardDestination {

@@ -285,7 +285,7 @@ extension SendPresenter: SendInteractorOutput {
         view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
-            guard var chainAsset = selectedChainAsset,
+            guard let chainAsset = selectedChainAsset,
                   let utilityAsset = interactor.getUtilityAsset(for: chainAsset) else { return }
             fee = BigUInt(dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))

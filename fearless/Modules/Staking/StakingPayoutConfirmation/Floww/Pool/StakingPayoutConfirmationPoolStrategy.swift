@@ -74,11 +74,7 @@ extension StakingPayoutConfirmationPoolStrategy: StakingPayoutConfirmationStrate
             signer: signer,
             runningIn: .main
         ) { [weak self] result in
-            do {
-                self?.output?.didCompletePayout(result: result)
-            } catch {
-                self?.output?.didFailPayout(error: error)
-            }
+            self?.output?.didCompletePayout(result: result)
         }
     }
 
