@@ -110,7 +110,6 @@ final class YourValidatorListRelaychainViewModelState: YourValidatorListViewMode
         }
 
         guard validatorsModel != nil else {
-            stateListener?.didReceiveState(.loading)
             return
         }
 
