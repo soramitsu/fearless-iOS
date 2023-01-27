@@ -154,7 +154,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             accountIds
         }
 
-        let delegationScheduledRequests = collatorOperationFactory.delegationScheduledRequests(accountIdsClosure: accountIdsClosure)
+        let delegationScheduledRequests = collatorOperationFactory
+            .delegationScheduledRequests(accountIdsClosure: accountIdsClosure)
 
         delegationScheduledRequests.targetOperation.completionBlock = { [weak self] in
             let requests = try? delegationScheduledRequests.targetOperation.extractNoCancellableResultData()
@@ -163,7 +164,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             }
         }
 
-        let bottomDelegationsOperation = collatorOperationFactory.collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
+        let bottomDelegationsOperation = collatorOperationFactory
+            .collatorBottomDelegations(accountIdsClosure: accountIdsClosure)
 
         bottomDelegationsOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -172,7 +174,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             }
         }
 
-        let topDelegationsOperation = collatorOperationFactory.collatorTopDelegations(accountIdsClosure: accountIdsClosure)
+        let topDelegationsOperation = collatorOperationFactory
+            .collatorTopDelegations(accountIdsClosure: accountIdsClosure)
 
         topDelegationsOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -181,7 +184,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: delegationScheduledRequests.allOperations + bottomDelegationsOperation.allOperations + topDelegationsOperation.allOperations, in: .transient)
+        let operations = [
+            delegationScheduledRequests.allOperations,
+            bottomDelegationsOperation.allOperations,
+            topDelegationsOperation.allOperations
+        ].reduce([], +)
+
+        operationManager.enqueue(operations: operations, in: .transient)
     }
 
     private func fetchParachainInfo() {
@@ -205,7 +214,12 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: roundOperation.allOperations + currentBlockOperation.allOperations, in: .transient)
+        let operations = [
+            roundOperation.allOperations,
+            currentBlockOperation.allOperations
+        ].reduce([], +)
+
+        operationManager.enqueue(operations: operations, in: .transient)
     }
 
     private func updateAfterSelectedAccountChange() {
@@ -234,14 +248,11 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         }
 
         selectedAccount = newSelectedAccount
-
         setupAccountRemoteSubscription()
-
         performAccountInfoSubscription()
-
         provideSelectedAccount()
-
         performStashControllerSubscription()
+        fetchParachainInfo()
 
         if
             let chainAsset = selectedChainAsset,

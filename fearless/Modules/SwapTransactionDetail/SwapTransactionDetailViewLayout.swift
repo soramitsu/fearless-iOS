@@ -101,6 +101,7 @@ final class SwapTransactionDetailViewLayout: UIView {
         doubleImageView.bind(viewModel: viewModel.doubleImageViewViewModel)
         dateView.valueTop.text = viewModel.date
         statusView.valueTop.attributedText = viewModel.status
+        fromView.valueTop.text = viewModel.walletName
         fromView.valueBottom.text = viewModel.address
         networkFeeView.bindBalance(viewModel: viewModel.networkFee)
     }

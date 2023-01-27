@@ -51,7 +51,12 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
     let infoViewsStackView = UIFactory.default.createVerticalStackView()
 
     let minMaxReceivedView = UIFactory.default.createConfirmationMultiView()
-    let swapRouteView = UIFactory.default.createConfirmationMultiView()
+    let swapRouteView: TitleMultiValueView = {
+        let view = UIFactory.default.createMultiView()
+        view.isHidden = true
+        return view
+    }()
+
     let fromPerToPriceView = UIFactory.default.createConfirmationMultiView()
     let toPerFromPriceView = UIFactory.default.createConfirmationMultiView()
     let liquidityProviderFeeView = UIFactory.default.createConfirmationMultiView()

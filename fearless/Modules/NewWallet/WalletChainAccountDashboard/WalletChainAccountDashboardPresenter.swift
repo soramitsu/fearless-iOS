@@ -24,7 +24,7 @@ extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardPrese
 extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardInteractorOutputProtocol {}
 
 extension WalletChainAccountDashboardPresenter: ChainAccountModuleOutput {
-    func updateTransactionHistory() {
-        transactionHistoryModuleInput?.updateTransactionHistory()
+    func updateTransactionHistory(for chainAsset: ChainAsset?) {
+        transactionHistoryModuleInput?.updateTransactionHistory(for: chainAsset)
     }
 }

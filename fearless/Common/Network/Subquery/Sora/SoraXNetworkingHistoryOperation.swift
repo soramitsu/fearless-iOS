@@ -61,7 +61,7 @@ final class SoraXNetworkingHistoryOperation<ResultType>: BaseOperation<ResultTyp
         DispatchQueue.main.async {
             self.subQueryClient.getTransactionHistoryPaged(
                 address: self.address,
-                networkName: "Sora",
+                networkName: self.chainAsset.chain.name,
                 page: Int64(self.page),
                 url: self.url.absoluteString,
                 filter: filter,

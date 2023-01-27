@@ -34,8 +34,12 @@ final class WalletTransactionHistoryPresenter {
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput {
-    func updateTransactionHistory() {
-        interactor.reload()
+    func updateTransactionHistory(for chainAsset: ChainAsset?) {
+        if let chainAsset = chainAsset {
+            interactor.chainAssetChanged(chainAsset)
+        } else {
+            interactor.reload()
+        }
     }
 }
 

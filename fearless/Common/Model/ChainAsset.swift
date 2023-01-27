@@ -22,6 +22,12 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
     var currencyId: CurrencyId? {
         switch chainAssetType {
         case .normal:
+            if chain.isSora, isUtility {
+                guard let currencyId = asset.currencyId else {
+                    return nil
+                }
+                return CurrencyId.soraAsset(id: currencyId)
+            }
             return nil
         case .ormlChain, .ormlAsset:
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
@@ -82,9 +88,6 @@ extension ChainAsset {
     }
 
     var storagePath: StorageCodingPath {
-        if isUtility, case .soraAsset = chainAssetType {
-            return StorageCodingPath.account
-        }
         var storagePath: StorageCodingPath
         switch chainAssetType {
         case .normal:

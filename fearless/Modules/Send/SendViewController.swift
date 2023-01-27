@@ -208,7 +208,7 @@ extension SendViewController: UITextFieldDelegate {
             let newString = text.replacingCharacters(in: range, with: string)
             output.searchTextDidChanged(newString)
         }
-        return true
+        return false
     }
 
     func textFieldShouldClear(_ textField: UITextField) -> Bool {
