@@ -33,7 +33,7 @@ class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSu
 
             var request: SubscriptionRequestProtocol
 
-            if let currencyId = chainAsset.currencyId, case .soraAsset = currencyId, chainAsset.isUtility {
+            if chainAsset.chain.isSora, chainAsset.isUtility {
                 request = MapSubscriptionRequest(storagePath: storagePath, localKey: localKey) {
                     accountId
                 }

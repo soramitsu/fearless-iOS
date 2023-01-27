@@ -16,16 +16,13 @@ enum WalletTransactionHistoryViewFactory {
         selectedAccount: MetaAccountModel
     ) -> WalletTransactionHistoryModule? {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
-        guard let historyDeps = Self.createHistoryDeps(for: chainAsset) else {
-            return nil
-        }
+        let dependencyContainer = WalletTransactionHistoryDependencyContainer(selectedAccount: selectedAccount)
 
         let interactor = WalletTransactionHistoryInteractor(
             chain: chain,
             asset: asset,
             selectedAccount: selectedAccount,
-            dataProviderFactory: historyDeps.1,
-            historyService: historyDeps.0,
+            dependencyContainer: dependencyContainer,
             logger: Logger.shared,
             defaultFilter: WalletHistoryRequest(assets: [asset.identifier]),
             selectedFilter: WalletHistoryRequest(assets: [asset.identifier]),
@@ -99,10 +96,7 @@ enum WalletTransactionHistoryViewFactory {
         let operationFactory: HistoryOperationFactoryProtocol
         switch chainAsset.chainAssetType {
         case .soraAsset:
-            operationFactory = SoraHistoryOperationFactory(
-                txStorage: AnyDataProviderRepository(txStorage),
-                runtimeService: runtimeService
-            )
+            operationFactory = SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
         default:
             operationFactory = HistoryOperationFactory(
                 txStorage: AnyDataProviderRepository(txStorage),

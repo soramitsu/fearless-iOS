@@ -21,8 +21,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     func createTransactionForAddress(
         _ address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         var dict = [String: JSON]()
 
@@ -41,8 +40,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
                 transfer,
                 address: address,
                 chain: chain,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
@@ -53,9 +51,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
         if let liquidity = try? json.map(to: SubqueryLiquidity.self) {
             return createTransactionForLiquidity(
                 liquidity,
-                address: address,
-                asset: asset,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
@@ -63,16 +59,12 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
             return createTransactionForReferral(
                 referral,
                 address: address,
-                asset: asset,
-                reason: method,
-                addressFactory: addressFactory
+                asset: asset
             )
         }
 
         if let depositLiquidityData = createDepositLiquidityAssetTransaction(
-            address: address,
-            asset: asset,
-            addressFactory: addressFactory
+            asset: asset
         ) {
             return depositLiquidityData
         }
@@ -107,16 +99,15 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
         _ transfer: SoraSubqueryTransfer,
         address: String,
         chain: ChainModel,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status = success ? AssetTransactionStatus.commited : AssetTransactionStatus.rejected
 
         let peerAddress = transfer.sender == address ? transfer.receiver : transfer.sender
 
-        let peerAccountId = try? addressFactory.accountId(
-            fromAddress: peerAddress,
-            type: chain.addressPrefix
+        let peerAccountId = try? AddressFactory.accountId(
+            from: address,
+            chain: chain
         )
 
         let amountDecimal = Decimal(string: transfer.amount) ?? .zero
@@ -237,9 +228,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     }
 
     private func createDepositLiquidityAssetTransaction(
-        address: String,
-        asset: AssetModel,
-        addressFactory: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData? {
         var dict = [String: JSON]()
 
@@ -255,9 +244,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
             if let extrinsic = try? json.map(to: SubqueryCreatePoolLiquidity.self) {
                 return createTransactionForCreateLiquidityPool(
                     extrinsic,
-                    address: address,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
             }
         }
@@ -266,9 +253,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
 
     private func createTransactionForLiquidity(
         _ liquidity: SubqueryLiquidity,
-        address _: String,
-        asset: AssetModel,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = success ? .commited : .rejected
         let amountDecimal = Decimal(string: liquidity.targetAssetAmount) ?? .zero
@@ -299,9 +284,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
 
     private func createTransactionForCreateLiquidityPool(
         _ liquidity: SubqueryCreatePoolLiquidity,
-        address _: String,
-        asset: AssetModel,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = success ? .commited : .rejected
         let amountDecimal = Decimal(string: liquidity.inputADesired) ?? .zero
@@ -333,9 +316,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     private func createTransactionForReferral(
         _ referral: SubqueryReferral,
         address: String,
-        asset: AssetModel,
-        reason _: String,
-        addressFactory _: SS58AddressFactoryProtocol
+        asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus = success ? .commited : .rejected
         let amountDecimal = Decimal(string: referral.amount ?? "") ?? .zero

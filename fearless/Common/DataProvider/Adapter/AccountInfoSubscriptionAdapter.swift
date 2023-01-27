@@ -109,10 +109,17 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         self.handler = handler
         deliveryQueue = queue
 
-        chainsAssets.forEach { chainAsset in
-            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-               let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-                lock.exclusivelyWrite { [unowned self] in self.subscriptions.append(subscription) }
+        lock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else { return }
+            chainsAssets.forEach { chainAsset in
+                let accountRequest = chainAsset.chain.accountRequest()
+                if let accountId = strongSelf.selectedMetaAccount.fetch(for: accountRequest)?.accountId,
+                   let subscription = strongSelf.wrapper.subscribeAccountProvider(
+                       for: accountId,
+                       chainAsset: chainAsset
+                   ) {
+                    strongSelf.subscriptions.append(subscription)
+                }
             }
         }
     }

@@ -120,7 +120,7 @@ class TitleMultiValueView: UIView {
         addSubview(activityIndicator)
         activityIndicator.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.trailing.equalTo(valueTop.snp.trailing)
+            make.trailing.equalToSuperview()
         }
     }
 }

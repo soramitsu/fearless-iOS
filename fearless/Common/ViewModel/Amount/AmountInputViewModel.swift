@@ -27,7 +27,7 @@ final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable
     }
 
     var decimalAmount: Decimal? {
-        if amount.isEmpty {
+        if amount.isEmpty || amount.last == "," || amount.last == "." {
             return nil
         }
 

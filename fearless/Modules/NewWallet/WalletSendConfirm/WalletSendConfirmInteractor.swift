@@ -65,27 +65,16 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToAccountInfo() {
-        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            presenter?.didReceiveAccountInfo(
-                result: .failure(ChainAccountFetchingError.accountNotExists),
-                for: chainAsset
-            )
-            return
-        }
-
-        accountInfoSubscriptionAdapter.subscribe(
-            chainAsset: chainAsset,
-            accountId: accountId,
-            handler: self
-        )
+        var chainsAssets = [chainAsset]
         if chainAsset.chain.isSora, !chainAsset.isUtility,
            let utilityAsset = getUtilityAsset(for: chainAsset) {
-            accountInfoSubscriptionAdapter.subscribe(
-                chainAsset: utilityAsset,
-                accountId: accountId,
-                handler: self
-            )
+            chainsAssets.append(utilityAsset)
         }
+        accountInfoSubscriptionAdapter.subscribe(
+            chainsAssets: chainsAssets,
+            handler: self,
+            deliveryOn: .main
+        )
     }
 
     private func subscribeToPrice() {

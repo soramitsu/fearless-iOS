@@ -34,8 +34,12 @@ final class WalletTransactionHistoryPresenter {
 }
 
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput {
-    func updateTransactionHistory() {
-        interactor.reload()
+    func updateTransactionHistory(for chainAsset: ChainAsset?) {
+        if let chainAsset = chainAsset {
+            interactor.chainAssetChanged(chainAsset)
+        } else {
+            interactor.reload()
+        }
     }
 }
 
@@ -107,6 +111,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
             view?.didReceive(state: state)
         } catch {
             logger.error("\(error)")
+            view?.didReceive(state: .unsupported)
         }
     }
 }
