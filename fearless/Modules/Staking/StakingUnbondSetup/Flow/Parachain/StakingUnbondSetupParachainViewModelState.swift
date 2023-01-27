@@ -34,7 +34,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
                 if self.isCollator {
                     newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
                 } else {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(amount: amount))
                 }
             }
 
@@ -58,7 +58,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             if isCollator {
                 identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
             } else {
-                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
+                identifier = callFactory.scheduleDelegatorBondLess(amount: amount).callName
             }
         }
 
@@ -186,7 +186,7 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

@@ -1,6 +1,7 @@
 import CommonWallet
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 protocol HistoryOperationFactoryProtocol {
     func fetchTransactionHistoryOperation(
@@ -20,12 +21,32 @@ protocol HistoryOperationFactoryProtocol {
     ) -> CompoundOperationWrapper<AssetTransactionPageData?>
 }
 
-class HistoryOperationFactory: HistoryOperationFactoryProtocol {
-    let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
-
-    init(txStorage: AnyDataProviderRepository<TransactionHistoryItem>) {
-        self.txStorage = txStorage
+extension HistoryOperationFactoryProtocol {
+    func fetchTransactionHistoryOperation(
+        asset _: AssetModel,
+        chain _: ChainModel,
+        address _: String,
+        filters _: [WalletTransactionHistoryFilter],
+        pagination _: Pagination
+    ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        CompoundOperationWrapper.createWithResult(nil)
     }
+}
+
+// swiftlint:disable type_body_length function_body_length function_parameter_count
+class HistoryOperationFactory: HistoryOperationFactoryProtocol {
+    private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    private let runtimeService: RuntimeCodingServiceProtocol
+
+    init(
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) {
+        self.txStorage = txStorage
+        self.runtimeService = runtimeService
+    }
+
+    // MARK: - Public methods
 
     func fetchSubqueryHistoryOperation(
         asset: AssetModel,
@@ -34,6 +55,8 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
@@ -64,12 +87,13 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                 cursor: pagination.context?["endCursor"]
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
-            let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil), nodes: []))
+            let pageInfo = SubqueryPageInfo(startCursor: nil, endCursor: nil)
+            let historyElements = SubqueryHistoryData.HistoryElements(pageInfo: pageInfo, nodes: [])
+            let result = SubqueryHistoryData(historyElements: historyElements)
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
-        var dependencies: [Operation] = [remoteHistoryOperation]
+        var dependencies: [Operation] = [remoteHistoryOperation, runtimeOperation]
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 
@@ -86,6 +110,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
 
         let mergeOperation = createSubqueryHistoryMergeOperation(
             dependingOn: remoteHistoryOperation,
+            runtimeOperation: runtimeOperation,
             localOperation: localFetchOperation,
             asset: asset,
             chain: chain,
@@ -213,16 +238,16 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         )
     }
 
-    func createHistoryMergeOperation(
+    // MARK: - Private methods
+
+    private func createHistoryMergeOperation(
         dependingOn remoteOperation: BaseOperation<WalletRemoteHistoryData>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
-
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyItems ?? []
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
@@ -230,8 +255,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                 let manager = TransactionHistoryMergeManager(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
                 return manager.merge(
                     subscanItems: remoteTransactions,
@@ -242,8 +266,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
-                        asset: asset,
-                        addressFactory: addressFactory
+                        asset: asset
                     )
                 }
 
@@ -255,37 +278,81 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createSubqueryHistoryMergeOperation(
+    private func createSubqueryHistoryMergeOperation(
         dependingOn remoteOperation: BaseOperation<SubqueryHistoryData>?,
+        runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
-
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
+            let filteredTransactions = try remoteTransactions.filter { transaction in
+                var assetId: String?
+
+                if let transfer = transaction.transfer {
+                    assetId = transfer.assetId
+                } else if let reward = transaction.reward {
+                    assetId = reward.assetId
+                } else if let extrinsic = transaction.extrinsic {
+                    assetId = extrinsic.assetId
+                }
+
+                if chainAsset.chainAssetType != .normal, assetId == nil {
+                    return false
+                }
+
+                if chainAsset.chainAssetType == .normal, assetId != nil {
+                    return false
+                }
+
+                if chainAsset.chainAssetType == .normal, assetId == nil {
+                    return true
+                }
+
+                guard let assetId = assetId else {
+                    return false
+                }
+
+                let assetIdBytes = try Data(hexString: assetId)
+                let encoder = try runtimeOperation.extractNoCancellableResultData().createEncoder()
+                guard let currencyId = chainAsset.currencyId else {
+                    return false
+                }
+
+                guard let type = try runtimeOperation.extractNoCancellableResultData().metadata.schema?.types
+                    .first(where: { $0.type.path.contains("CurrencyId") })?
+                    .type
+                    .path
+                    .joined(separator: "::")
+                else {
+                    return false
+                }
+                try encoder.append(currencyId, ofType: type)
+                let currencyIdBytes = try encoder.encode()
+
+                return currencyIdBytes == assetIdBytes
+            }
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
                !localTransactions.isEmpty {
                 let manager = TransactionHistoryMergeManager(
                     address: address,
                     chain: chain,
-                    asset: asset,
-                    addressFactory: addressFactory
+                    asset: asset
                 )
                 return manager.merge(
                     subscanItems: remoteTransactions,
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
+                let transactions: [AssetTransactionData] = filteredTransactions.map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
-                        asset: asset,
-                        addressFactory: addressFactory
+                        asset: asset
                     )
                 }
 
@@ -297,7 +364,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createHistoryMapOperation(
+    private func createHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
         remoteOperation: BaseOperation<WalletRemoteHistoryData>
     ) -> BaseOperation<AssetTransactionPageData?> {
@@ -312,7 +379,7 @@ class HistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
     }
 
-    func createSubqueryHistoryMapOperation(
+    private func createSubqueryHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
         remoteOperation: BaseOperation<SubqueryHistoryData>
     ) -> BaseOperation<AssetTransactionPageData?> {

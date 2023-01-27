@@ -61,7 +61,6 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
     ) -> StakingUnbondConfirmPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
             selectedMetaAccount: wallet
         )
 

@@ -5,6 +5,7 @@ protocol StakingPoolCreateViewModelFactoryProtocol {
         wallet: MetaAccountModel,
         nominatorWallet: MetaAccountModel,
         stateToggler: MetaAccountModel,
+        rootWallet: MetaAccountModel,
         lastPoolId: UInt32?
     ) -> StakingPoolCreateViewModel
 }
@@ -14,6 +15,7 @@ final class StakingPoolCreateViewModelFactory: StakingPoolCreateViewModelFactory
         wallet: MetaAccountModel,
         nominatorWallet: MetaAccountModel,
         stateToggler: MetaAccountModel,
+        rootWallet: MetaAccountModel,
         lastPoolId: UInt32?
     ) -> StakingPoolCreateViewModel {
         var createPoolId: Int?
@@ -23,7 +25,7 @@ final class StakingPoolCreateViewModelFactory: StakingPoolCreateViewModelFactory
         return StakingPoolCreateViewModel(
             poolId: createPoolId,
             depositor: wallet.name,
-            root: wallet.name,
+            root: rootWallet.name,
             naminator: nominatorWallet.name,
             stateToggler: stateToggler.name
         )

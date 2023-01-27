@@ -24,14 +24,24 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private var eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     private let eventCenter: EventCenterProtocol
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
-    private let stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
+    private let poolStakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
+    private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
     private var validatorOperationFactory: ValidatorOperationFactoryProtocol
+    private let stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
+
+    private var chainSubscriptionId: UUID?
+
+    deinit {
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
+    }
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -51,11 +61,13 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         eventCenter: EventCenterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
-        stakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
+        poolStakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         accountOperationFactory: AccountOperationFactoryProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
-        validatorOperationFactory: ValidatorOperationFactoryProtocol
+        validatorOperationFactory: ValidatorOperationFactoryProtocol,
+        stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
+        stakingRemoteSubscriptionService: StakingRemoteSubscriptionServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.selectedWalletSettings = selectedWalletSettings
@@ -74,11 +86,36 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.eventCenter = eventCenter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
-        self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.poolStakingAccountUpdatingService = poolStakingAccountUpdatingService
         self.runtimeService = runtimeService
         self.accountOperationFactory = accountOperationFactory
         self.existentialDepositService = existentialDepositService
         self.validatorOperationFactory = validatorOperationFactory
+        self.stakingAccountUpdatingService = stakingAccountUpdatingService
+        self.stakingRemoteSubscriptionService = stakingRemoteSubscriptionService
+    }
+
+    func clearChainRemoteSubscription(for chainId: ChainModel.Id) {
+        if let chainSubscriptionId = chainSubscriptionId {
+            stakingRemoteSubscriptionService.detachFromGlobalData(
+                for: chainSubscriptionId,
+                chainId: chainId,
+                queue: nil,
+                closure: nil,
+                stakingType: chainAsset.stakingType
+            )
+
+            self.chainSubscriptionId = nil
+        }
+    }
+
+    func setupChainRemoteSubscription() {
+        chainSubscriptionId = stakingRemoteSubscriptionService.attachToGlobalData(
+            for: chainAsset.chain.chainId,
+            queue: nil,
+            closure: nil,
+            stakingType: chainAsset.stakingType
+        )
     }
 
     private func updateDependencies() {
@@ -176,13 +213,17 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         }
 
         stakingAccountUpdatingService.clearSubscription()
+        poolStakingAccountUpdatingService.clearSubscription()
         clear(dataProvider: &poolMemberProvider)
+        clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
 
         wallet = newSelectedWallet
 
         if let accountId = newSelectedWallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
-            try? stakingAccountUpdatingService.setupSubscription(
+            try? poolStakingAccountUpdatingService.setupSubscription(
                 for: accountId,
                 chainAsset: chainAsset,
                 chainFormat: chainAsset.chain.chainFormat,
@@ -196,6 +237,9 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         output?.didReceive(wallet: newSelectedWallet)
 
         fetchStakeInfo()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
+        setupChainRemoteSubscription()
     }
 
     private func fetchRewardCalculator() {
@@ -416,7 +460,12 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         output?.didReceive(poolAccountInfo: nil)
         clear(singleValueProvider: &priceProvider)
         clear(dataProvider: &poolMemberProvider)
+        clear(dataProvider: &nominationProvider)
+        clear(dataProvider: &activeEraProvider)
+
+        poolStakingAccountUpdatingService.clearSubscription()
         stakingAccountUpdatingService.clearSubscription()
+        clearChainRemoteSubscription(for: chainAsset.chain.chainId)
 
         self.chainAsset = chainAsset
 
@@ -424,7 +473,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
            let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
-            try? stakingAccountUpdatingService.setupSubscription(
+            try? poolStakingAccountUpdatingService.setupSubscription(
                 for: accountId,
                 chainAsset: chainAsset,
                 chainFormat: chainAsset.chain.chainFormat,
@@ -444,6 +493,9 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
         fetchNetworkInfo()
         fetchStakeInfo()
         provideEraStakersInfo()
+        setupChainRemoteSubscription()
+
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchCompoundConstant(
             for: .nominationPoolsPalletId,
@@ -488,19 +540,18 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
     }
 
     func fetchPoolNomination(poolStashAccountId: AccountId) {
-        let nominationOperation = validatorOperationFactory.nomination(accountId: poolStashAccountId)
-        nominationOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
-                    self?.output?.didReceive(nomination: nomination)
-                } catch {
-                    self?.output?.didReceiveError(.nominationError(error: error))
-                }
-            }
+        do {
+            try stakingAccountUpdatingService.setupSubscription(
+                for: poolStashAccountId,
+                chainAsset: chainAsset,
+                chainFormat: chainAsset.chain.chainFormat,
+                stakingType: .relayChain
+            )
+        } catch {
+            output?.didReceiveError(.nominationError(error: error))
         }
 
-        operationManager.enqueue(operations: nominationOperation.allOperations, in: .transient)
+        nominationProvider = subscribeNomination(for: poolStashAccountId, chainAsset: chainAsset)
     }
 }
 
@@ -577,6 +628,24 @@ extension StakingPoolMainInteractor: RelaychainStakingLocalStorageSubscriber, Re
             DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceiveError(.stakeInfoError(error: error))
             }
+        }
+    }
+
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        switch result {
+        case let .success(nomination):
+            output?.didReceive(nomination: nomination)
+        case let .failure(error):
+            output?.didReceiveError(.nominationError(error: error))
+        }
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chainId _: ChainModel.Id) {
+        switch result {
+        case let .success(eraInfo):
+            output?.didReceive(era: eraInfo?.index)
+        case let .failure(error):
+            output?.didReceiveError(.eraStakersInfoError(error: error))
         }
     }
 }

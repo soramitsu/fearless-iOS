@@ -86,6 +86,8 @@ final class StakingPoolMainViewController: UIViewController, ViewHolder, Hiddabl
             action: #selector(stakeInfoViewClicked),
             for: .touchUpInside
         )
+
+        rootView.nominatorStateView.delegate = self
     }
 
     @objc private func selectAssetButtonClicked() {
@@ -176,4 +178,12 @@ extension StakingPoolMainViewController: KeyboardAdoptable {
     }
 
     func updateWhileKeyboardFrameChanging(_: CGRect) {}
+}
+
+extension StakingPoolMainViewController: StakingStateViewDelegate {
+    func stakingStateViewDidReceiveStatusAction(_: StakingStateView) {
+        output.didTapStatusView()
+    }
+
+    func stakingStateViewDidReceiveMoreAction(_: StakingStateView) {}
 }

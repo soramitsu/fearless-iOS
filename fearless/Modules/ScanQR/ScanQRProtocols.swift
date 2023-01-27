@@ -28,6 +28,7 @@ protocol ScanQRInteractorInput: AnyObject {
 
 protocol ScanQRInteractorOutput: AnyObject {
     func handleQRService(error: Error)
+    func handleAddress(_ address: String)
     func handleMatched(addressInfo: QRInfo)
 }
 

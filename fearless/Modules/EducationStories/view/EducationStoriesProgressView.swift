@@ -46,7 +46,7 @@ final class EducationStoriesProgressView: UIStackView {
     }
 
     func startAnimation() {
-        next()
+        showNextStory()
     }
 
     func pauseAnimation() {
@@ -61,10 +61,10 @@ final class EducationStoriesProgressView: UIStackView {
         if currentAnimationIndex <= arrangedSubviews.count, currentAnimationIndex > 0 {
             if let currentSegment = arrangedSubviews[currentAnimationIndex - 1] as? UIProgressView {
                 stopAnimation(for: currentSegment, progress: 1)
-                next()
+                showNextStory()
             }
         } else {
-            next()
+            showNextStory()
         }
     }
 
@@ -78,7 +78,7 @@ final class EducationStoriesProgressView: UIStackView {
         ) { [weak self] in
             guard let self = self else { return }
             if catchedIndex == self.currentAnimationIndex {
-                self.next()
+                self.showNextStory()
             }
         }
     }
@@ -120,14 +120,14 @@ final class EducationStoriesProgressView: UIStackView {
                 ) {
                     progressView.setProgress(1, animated: true)
                 } completion: { [weak self] _ in
-                    self?.next()
+                    self?.showNextStory()
                 }
                 strongSelf.animator.startAnimation()
             }
         }
     }
 
-    private func next() {
+    private func showNextStory() {
         if isValid {
             if let progressView = arrangedSubviews[currentAnimationIndex] as? UIProgressView {
                 delegate?.storiesProgressViewChanged(index: currentAnimationIndex)

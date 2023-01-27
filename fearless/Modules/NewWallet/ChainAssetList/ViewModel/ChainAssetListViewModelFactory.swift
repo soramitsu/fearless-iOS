@@ -54,6 +54,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             break
         case .assetChains:
             utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
+        case .search:
+            utilityChainAssets = filteredUnique(chainAssets: chainAssets)
         }
 
         utilityChainAssets = sortAssetList(
@@ -469,8 +471,9 @@ private extension ChainAssetListViewModelFactory {
 
     func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        let chainAssetsSorted = chainAssets.sorted { $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue }
         let result = assetNamesSet.compactMap { name in
-            chainAssets.first { chainAsset in
+            chainAssetsSorted.first { chainAsset in
                 chainAsset.asset.name == name && chainAsset.asset.chainId == chainAsset.chain.chainId
             }
         }

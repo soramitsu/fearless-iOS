@@ -130,13 +130,14 @@ PODS:
   - SwiftLint (0.49.1)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
+  - XNetworking (0.0.37)
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `606bbd0a10457e283edcc27b26c69c36f787b044`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -154,6 +155,7 @@ DEPENDENCIES:
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftLint
   - SwiftyBeaver
+  - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
   trunk:
@@ -186,7 +188,6 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   FearlessUtils:
-    :commit: 606bbd0a10457e283edcc27b26c69c36f787b044
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
@@ -194,10 +195,12 @@ EXTERNAL SOURCES:
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
+  XNetworking:
+    :podspec: https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec
 
 CHECKOUT OPTIONS:
   FearlessUtils:
-    :commit: 606bbd0a10457e283edcc27b26c69c36f787b044
+    :commit: 2157cda29d2141b663a832629ca808ae17e7a1de
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
@@ -235,8 +238,9 @@ SPEC CHECKSUMS:
   SwiftLint: 32ee33ded0636d0905ef6911b2b67bbaeeedafa5
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
+  XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: bf68d73cc1b63e19bda4a3eaa9a09fbde082c7b8
+PODFILE CHECKSUM: 81785d867977a99a968c3b4581ffd806a053f910
 
 COCOAPODS: 1.11.3

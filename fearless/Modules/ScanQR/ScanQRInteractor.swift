@@ -42,6 +42,11 @@ extension ScanQRInteractor: ScanQRInteractorInput {
                     self?.output?.handleMatched(addressInfo: addressInfo)
                 }
             case let .failure(error):
+                if case let QRExtractionServiceError.plainAddress(address) = error {
+                    self?.output?.handleAddress(address)
+                    return
+                }
+
                 self?.output?.handleQRService(error: error)
             }
         }

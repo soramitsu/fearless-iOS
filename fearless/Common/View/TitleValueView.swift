@@ -77,7 +77,7 @@ final class TitleValueView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+            make.leading.top.bottom.equalToSuperview()
         }
 
         let valueStackView = UIFactory.default.createHorizontalStackView(spacing: 5)
@@ -85,7 +85,7 @@ final class TitleValueView: UIView {
         valueStackView.addArrangedSubview(valueImageView)
         addSubview(valueStackView)
         valueStackView.snp.makeConstraints { make in
-            make.trailing.centerY.equalToSuperview()
+            make.trailing.top.bottom.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 

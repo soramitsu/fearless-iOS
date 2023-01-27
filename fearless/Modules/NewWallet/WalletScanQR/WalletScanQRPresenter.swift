@@ -117,6 +117,8 @@ final class WalletScanQRPresenter: NSObject {
             view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
         case .detectorUnavailable, .invalidImage:
             view?.present(message: L10n.InvoiceScan.Error.invalidImage, animated: true)
+        case .plainAddress:
+            break
         }
     }
 

@@ -9,13 +9,29 @@ final class WalletTransactionHistoryWireframe: WalletTransactionHistoryWireframe
         asset: AssetModel,
         selectedAccount: MetaAccountModel
     ) {
-        guard let controller = WalletTransactionDetailsViewFactory.createView(
-            transaction: transaction,
-            asset: asset,
-            chain: chain,
-            selectedAccount: selectedAccount
-        )?.controller else {
-            return
+        let transactionType = TransactionType(rawValue: transaction.type)
+
+        let controller: UIViewController
+        switch transactionType {
+        case .swap:
+            guard let module = SwapTransactionDetailAssembly.configureModule(
+                wallet: selectedAccount,
+                chainAsset: ChainAsset(chain: chain, asset: asset),
+                transaction: transaction
+            ) else {
+                return
+            }
+            controller = module.view.controller
+        default:
+            guard let module = WalletTransactionDetailsViewFactory.createView(
+                transaction: transaction,
+                asset: asset,
+                chain: chain,
+                selectedAccount: selectedAccount
+            ) else {
+                return
+            }
+            controller = module.controller
         }
 
         view?.controller.present(controller, animated: true)

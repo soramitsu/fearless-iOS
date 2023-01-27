@@ -16,6 +16,7 @@ protocol WalletTransactionHistoryInteractorInputProtocol: AnyObject {
     func loadNext() -> Bool
     func applyFilters(_ filters: [FilterSet])
     func reload()
+    func chainAssetChanged(_ newChainAsset: ChainAsset)
 }
 
 protocol WalletTransactionHistoryInteractorOutputProtocol: AnyObject {
@@ -38,5 +39,5 @@ protocol WalletTransactionHistoryWireframeProtocol: AnyObject, FiltersPresentabl
 }
 
 protocol WalletTransactionHistoryModuleInput: AnyObject {
-    func updateTransactionHistory()
+    func updateTransactionHistory(for chainAsset: ChainAsset?)
 }

@@ -117,7 +117,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
     func provideFeeViewModel() {
         if let fee = viewModelState.fee {
             let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
-            let locale = view?.localizationManager?.selectedLocale ?? Locale.current
             let feeViewModel = viewModelFactory.buildNetworkFeeViewModel(from: balanceViewModel)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {

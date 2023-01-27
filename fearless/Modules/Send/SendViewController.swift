@@ -100,7 +100,9 @@ final class SendViewController: UIViewController, ViewHolder {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(selectNetworkClicked))
         rootView.selectNetworkView.addGestureRecognizer(tapGesture)
 
-        rootView.amountView.selectHandler = selectAssetClicked
+        rootView.amountView.selectHandler = { [weak self] in
+            self?.output.didTapSelectAsset()
+        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
@@ -134,10 +136,6 @@ final class SendViewController: UIViewController, ViewHolder {
 
     @objc private func selectNetworkClicked() {
         output.didTapSelectNetwork()
-    }
-
-    @objc private func selectAssetClicked() {
-        output.didTapSelectAsset()
     }
 }
 

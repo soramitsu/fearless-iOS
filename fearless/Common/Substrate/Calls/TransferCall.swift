@@ -2,7 +2,7 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct TokenSymbol {
+struct TokenSymbol: Equatable {
     let symbol: String
 }
 
@@ -15,7 +15,7 @@ extension TokenSymbol: Codable {
     }
 }
 
-enum CurrencyId {
+enum CurrencyId: Equatable {
     case token(symbol: TokenSymbol?)
     case liquidCrowdloan(liquidCrowdloan: String)
     case foreignAsset(foreignAsset: String)
@@ -82,6 +82,7 @@ struct TransferCall: Codable {
         case currencyId = "currency_id"
         case equilibrium = "asset"
         case to
+        case assetId = "asset_id"
     }
 
     var dest: MultiAddress
@@ -112,6 +113,10 @@ struct TransferCall: Codable {
                 try container.encode(currencyId, forKey: .equilibrium)
                 try container.encode(dest, forKey: .to)
                 try container.encode(String(value), forKey: .value)
+            } else if case .soraAsset = currencyId, case let .accoundId(accountId) = dest {
+                try container.encode(currencyId, forKey: .assetId)
+                try container.encode(accountId, forKey: .to)
+                try container.encode(String(value), forKey: .amount)
             } else {
                 try container.encode(dest, forKey: .dest)
                 try container.encode(currencyId, forKey: .currencyId)

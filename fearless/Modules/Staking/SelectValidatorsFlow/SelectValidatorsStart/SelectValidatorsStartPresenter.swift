@@ -82,7 +82,7 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         updateView()
     }
 
-    func selectRecommendedValidators() {
+    private func proceedToRecommendedValidators() {
         do {
             guard let recommendedValidatorListFlow = try viewModelState.recommendedValidatorListFlow() else {
                 return
@@ -98,6 +98,24 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             let locale = view?.localizationManager?.selectedLocale ?? Locale.current
             wireframe.present(error: error, from: view, locale: locale)
         }
+    }
+
+    func selectRecommendedValidators() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages))
+        { [weak self] in
+            self?.proceedToRecommendedValidators()
+        }
+
+        wireframe.present(
+            message: R.string.localizable.selectSuggestedValidatorsWarning(preferredLanguages: locale.rLanguages),
+            title: "",
+            closeAction: nil,
+            from: view,
+            actions: [action]
+        )
     }
 
     func selectCustomValidators() {

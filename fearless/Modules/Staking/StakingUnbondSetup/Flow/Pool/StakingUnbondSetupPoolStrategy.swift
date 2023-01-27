@@ -10,6 +10,8 @@ protocol StakingUnbondSetupPoolStrategyOutput: AnyObject {
     func didReceive(stakeInfo: StakingPoolMember?)
     func didReceive(error: Error)
     func didReceive(stakingDuration: StakingDuration)
+    func didReceive(networkInfo: StakingPoolNetworkInfo)
+    func didReceive(stakingPool: StakingPool?)
 }
 
 final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetching {
@@ -55,6 +57,68 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
 
+    private func fetchNetworkInfo() {
+        let fetchMinJoinBondOperation = stakingPoolOperationFactory.fetchMinJoinBondOperation()
+        let fetchMinCreateBondOperation = stakingPoolOperationFactory.fetchMinCreateBondOperation()
+        let maxStakingPoolsCountOperation = stakingPoolOperationFactory.fetchMaxStakingPoolsCount()
+        let maxPoolsMembersOperation = stakingPoolOperationFactory.fetchMaxPoolMembers()
+        let existingPoolsCountOperation = stakingPoolOperationFactory.fetchCounterForBondedPools()
+        let maxPoolMembersPerPoolOperation = stakingPoolOperationFactory.fetchMaxPoolMembersPerPool()
+
+        let mapOperation = ClosureOperation<StakingPoolNetworkInfo> {
+            let minJoinBond = try? fetchMinJoinBondOperation.targetOperation.extractNoCancellableResultData()
+            let minCreateBond = try? fetchMinCreateBondOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolsCount = try? maxStakingPoolsCountOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolsMembers = try? maxPoolsMembersOperation.targetOperation.extractNoCancellableResultData()
+            let existingPoolsCount = try? existingPoolsCountOperation.targetOperation.extractNoCancellableResultData()
+            let maxPoolMembersPerPool = try? maxPoolMembersPerPoolOperation.targetOperation.extractNoCancellableResultData()
+
+            return StakingPoolNetworkInfo(
+                minJoinBond: minJoinBond,
+                minCreateBond: minCreateBond,
+                existingPoolsCount: existingPoolsCount,
+                possiblePoolsCount: maxPoolsCount,
+                maxMembersInPool: maxPoolMembersPerPool,
+                maxPoolsMembers: maxPoolsMembers
+            )
+        }
+
+        mapOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let networkInfo = try mapOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(networkInfo: networkInfo)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        let dependencies = [fetchMinJoinBondOperation.targetOperation,
+                            fetchMinCreateBondOperation.targetOperation,
+                            maxStakingPoolsCountOperation.targetOperation,
+                            maxPoolsMembersOperation.targetOperation,
+                            existingPoolsCountOperation.targetOperation,
+                            maxPoolMembersPerPoolOperation.targetOperation]
+
+        dependencies.forEach {
+            mapOperation.addDependency($0)
+        }
+
+        var allOperations: [Operation] = [mapOperation]
+        allOperations.append(contentsOf: fetchMinJoinBondOperation.allOperations)
+        allOperations.append(contentsOf: fetchMinCreateBondOperation.allOperations)
+        allOperations.append(contentsOf: maxStakingPoolsCountOperation.allOperations)
+        allOperations.append(contentsOf: maxPoolsMembersOperation.allOperations)
+        allOperations.append(contentsOf: existingPoolsCountOperation.allOperations)
+        allOperations.append(contentsOf: maxPoolMembersPerPoolOperation.allOperations)
+
+        operationManager.enqueue(
+            operations: allOperations,
+            in: .transient
+        )
+    }
+
     private func fetchStakingDuration() {
         let durationOperation = stakingDurationOperationFactory.createDurationOperation(from: runtimeService)
 
@@ -70,6 +134,22 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         }
 
         operationManager.enqueue(operations: durationOperation.allOperations, in: .transient)
+    }
+
+    private func fetchPoolInfo(poolId: String) {
+        let fetchPoolInfoOperation = stakingPoolOperationFactory.fetchBondedPoolOperation(poolId: poolId)
+        fetchPoolInfoOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let stakingPool = try fetchPoolInfoOperation.targetOperation.extractNoCancellableResultData()
+                    self?.output?.didReceive(stakingPool: stakingPool)
+                } catch {
+                    self?.output?.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: fetchPoolInfoOperation.allOperations, in: .transient)
     }
 }
 
@@ -108,6 +188,7 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
         feeProxy.delegate = self
 
         fetchStakingDuration()
+        fetchNetworkInfo()
     }
 
     func estimateFee() {
@@ -162,6 +243,10 @@ extension StakingUnbondSetupPoolStrategy: RelaychainStakingLocalStorageSubscribe
         switch result {
         case let .success(poolMember):
             output?.didReceive(stakeInfo: poolMember)
+
+            if let poolId = poolMember?.poolId.value {
+                fetchPoolInfo(poolId: poolId.description)
+            }
         case let .failure(error):
             output?.didReceive(error: error)
         }

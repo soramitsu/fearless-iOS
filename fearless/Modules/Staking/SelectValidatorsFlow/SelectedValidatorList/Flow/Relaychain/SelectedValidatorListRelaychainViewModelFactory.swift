@@ -67,9 +67,11 @@ final class SelectedValidatorListRelaychainViewModelFactory {
                 preferredLanguages: locale.rLanguages
             )
 
+            let name = validator.identity?.displayName ?? validator.address
+
             return SelectedValidatorCellViewModel(
                 icon: icon,
-                name: validator.identity?.displayName,
+                name: name,
                 address: validator.address,
                 detailsAttributedString: apy,
                 detailsAux: stakedString,

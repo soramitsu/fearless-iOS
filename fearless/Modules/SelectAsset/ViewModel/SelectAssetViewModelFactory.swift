@@ -68,15 +68,7 @@ final class SelectAssetViewModelFactory: SelectAssetViewModelFactoryProtocol {
             )
         }
 
-        var utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
-        utilityChainAssets = sortAssetList(
-            wallet: wallet,
-            chainAssets: utilityChainAssets,
-            accountInfos: accountInfos,
-            priceData: prices.pricesData
-        )
-
-        let selectAssetCellModels: [SelectAssetCellViewModel] = utilityChainAssets.compactMap { chainAsset in
+        let selectAssetCellModels: [SelectAssetCellViewModel] = chainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -338,15 +330,5 @@ private extension SelectAssetViewModelFactory {
             }
 
         return chainAssetsSorted
-    }
-
-    func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let result = assetNamesSet.compactMap { name in
-            chainAssets.first { chainAsset in
-                chainAsset.asset.name == name && chainAsset.asset.chainId == chainAsset.chain.chainId
-            }
-        }
-        return result
     }
 }
