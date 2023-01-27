@@ -221,10 +221,16 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
         if let actionButton = actionButton {
+            let usingFont = actionButton.imageWithTitleView?.titleFont ?? .h5Title
+            let buttonTitleWidth = actionButton
+                .imageWithTitleView?
+                .title?
+                .widthOfString(usingFont: usingFont) ?? LayoutConstants.actionButtonSize.width
+            let buttonWidth = UIConstants.defaultOffset * 2 + buttonTitleWidth
             actionButton.frame = CGRect(
-                x: bounds.maxX - contentInsets.right - LayoutConstants.actionButtonSize.width,
+                x: bounds.maxX - contentInsets.right - buttonWidth,
                 y: bounds.midY - LayoutConstants.actionButtonSize.height / 2,
-                width: LayoutConstants.actionButtonSize.width,
+                width: buttonWidth,
                 height: LayoutConstants.actionButtonSize.height
             )
 
