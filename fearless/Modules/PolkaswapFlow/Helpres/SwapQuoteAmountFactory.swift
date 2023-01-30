@@ -150,8 +150,16 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         let fromPerToTitle = [fromDisplayName, toDisplayName].joined(separator: " / ")
         let toPerFromTitle = [toDisplayName, fromDisplayName].joined(separator: " / ")
 
-        let fromPerToValue = amounts.fromAmount / amounts.toAmount
-        let toPerFromValue = amounts.toAmount / amounts.fromAmount
+        let fromPerToValue: Decimal
+        let toPerFromValue: Decimal
+        switch swapVariant {
+        case .desiredInput:
+            fromPerToValue = amounts.fromAmount / amounts.toAmount
+            toPerFromValue = amounts.toAmount / amounts.fromAmount
+        case .desiredOutput:
+            fromPerToValue = amounts.toAmount / amounts.fromAmount
+            toPerFromValue = amounts.fromAmount / amounts.toAmount
+        }
 
         let liqudityProviderFeeVieModel = createLiqitityProviderFeeViewMode(
             lpAmount: amounts.lpAmount,
