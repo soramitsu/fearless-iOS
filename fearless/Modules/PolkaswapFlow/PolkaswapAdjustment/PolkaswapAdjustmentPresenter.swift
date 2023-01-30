@@ -608,6 +608,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
 
+        let sendAmount = swapFromInputResult?.absoluteValue(from: swapFromBalance ?? .zero)
+
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: { [weak self] in
                 self?.fetchSwapFee(amounts: amounts)
@@ -621,7 +623,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
                 feeAndTip: .zero,
-                sendAmount: amounts.fromAmount,
+                sendAmount: sendAmount,
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in

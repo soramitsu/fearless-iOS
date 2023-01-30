@@ -30,7 +30,8 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
             amountsText: amountsText,
             doubleImageViewViewModel: doubleImageViewViewModel,
             adjustmentDetailsViewModel: params.detailsViewModel,
-            networkFee: params.networkFee
+            networkFee: params.networkFee,
+            swapVariant: params.swapVariant
         )
         return viewModel
     }

@@ -27,8 +27,10 @@ final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable
     }
 
     var decimalAmount: Decimal? {
-        if amount.isEmpty || amount.last == "," || amount.last == "." {
+        if amount.last == "," || amount.last == "." {
             return nil
+        } else if amount.isEmpty {
+            return .zero
         }
 
         return Decimal(string: amount, locale: formatter.locale)

@@ -5,4 +5,5 @@ struct PolkaswapSwapConfirmationViewModel {
     let doubleImageViewViewModel: PolkaswapDoubleSymbolViewModel
     let adjustmentDetailsViewModel: PolkaswapAdjustmentDetailsViewModel
     let networkFee: BalanceViewModelProtocol
+    let swapVariant: SwapVariant
 }

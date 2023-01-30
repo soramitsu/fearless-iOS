@@ -115,6 +115,15 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
             .bindBalance(viewModel: viewModel.adjustmentDetailsViewModel.liqudityProviderFeeVieModel)
         networkFeeView
             .bindBalance(viewModel: viewModel.networkFee)
+
+        switch viewModel.swapVariant {
+        case .desiredInput:
+            minMaxReceivedView.titleLabel.text = R.string.localizable
+                .polkaswapMinReceived(preferredLanguages: locale.rLanguages)
+        case .desiredOutput:
+            minMaxReceivedView.titleLabel.text = R.string.localizable
+                .polkaswapMaxReceived(preferredLanguages: locale.rLanguages)
+        }
     }
 
     // MARK: - Private methods
@@ -122,8 +131,6 @@ final class PolkaswapSwapConfirmationViewLayout: UIView {
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
-        minMaxReceivedView.titleLabel.text = R.string.localizable
-            .polkaswapMinReceived(preferredLanguages: locale.rLanguages)
         swapRouteView.titleLabel.text = R.string.localizable
             .polkaswapConfirmationRouteStub(preferredLanguages: locale.rLanguages)
         liquidityProviderFeeView.titleLabel.text = R.string.localizable
