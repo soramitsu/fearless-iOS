@@ -9,7 +9,9 @@ final class SelectAssetAssembly {
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,
         searchTextsViewModel: TextSearchViewModel?,
-        output: SelectAssetModuleOutput
+        output: SelectAssetModuleOutput,
+        contextTag: Int? = nil,
+        isFullSize: Bool = false
     ) -> SelectAssetModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -69,19 +71,23 @@ final class SelectAssetAssembly {
             interactor: interactor,
             router: router,
             output: output,
-            localizationManager: localizationManager
+            localizationManager: localizationManager,
+            contextTag: contextTag
         )
 
         let view = SelectAssetViewController(
+            isFullSize: isFullSize,
             output: presenter,
             localizationManager: localizationManager
         )
-        view.modalPresentationStyle = .custom
+        if !isFullSize {
+            view.modalPresentationStyle = .custom
 
-        let factory = ModalSheetBlurPresentationFactory(
-            configuration: ModalSheetPresentationConfiguration.fearlessBlur
-        )
-        view.modalTransitioningFactory = factory
+            let factory = ModalSheetBlurPresentationFactory(
+                configuration: ModalSheetPresentationConfiguration.fearlessBlur
+            )
+            view.modalTransitioningFactory = factory
+        }
 
         return (view, presenter)
     }

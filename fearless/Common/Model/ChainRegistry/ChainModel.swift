@@ -5,28 +5,6 @@ class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
 
-    struct TypesSettings: Codable, Hashable {
-        let url: URL
-        let overridesCommon: Bool
-    }
-
-    struct ExternalApi: Codable, Hashable {
-        let type: String
-        let url: URL
-    }
-
-    struct ExternalApiSet: Codable, Hashable {
-        let staking: ExternalApi?
-        let history: ExternalApi?
-        let crowdloans: ExternalApi?
-    }
-
-    enum TypesUsage {
-        case onlyCommon
-        case both
-        case onlyOwn
-    }
-
     let chainId: Id
     let parentId: Id?
     let name: String
@@ -105,6 +83,10 @@ class ChainModel: Codable {
 
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
+    }
+
+    var hasPolkaswap: Bool {
+        options.or([]).contains(.polkaswap)
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {
@@ -218,6 +200,7 @@ enum ChainOptions: String, Codable {
     case orml
     case tipRequired
     case poolStaking
+    case polkaswap
 
     case unsupported
 
@@ -233,6 +216,58 @@ enum ChainOptions: String, Codable {
 }
 
 extension ChainModel {
+    struct TypesSettings: Codable, Hashable {
+        let url: URL
+        let overridesCommon: Bool
+    }
+
+    struct ExternalApi: Codable, Hashable {
+        let type: String
+        let url: URL
+    }
+
+    enum SubscanType: String, Codable, Hashable {
+        case extrinsic
+        case account
+        case event
+        case unknown
+
+        public init(from decoder: Decoder) throws {
+            self = try SubscanType(rawValue: decoder.singleValueContainer().decode(RawValue.self)) ?? .unknown
+        }
+    }
+
+    enum ExternalApiExplorerType: String, Codable {
+        case subscan
+        case polkascan
+        case unknown
+
+        public init(from decoder: Decoder) throws {
+            self = try ExternalApiExplorerType(
+                rawValue: decoder.singleValueContainer().decode(RawValue.self)
+            ) ?? .unknown
+        }
+    }
+
+    struct ExternalApiExplorer: Codable, Hashable {
+        let type: ExternalApiExplorerType
+        let types: [SubscanType]
+        let url: String
+    }
+
+    struct ExternalApiSet: Codable, Hashable {
+        let staking: ExternalApi?
+        let history: ExternalApi?
+        let crowdloans: ExternalApi?
+        let explorers: [ExternalApiExplorer]?
+    }
+
+    enum TypesUsage {
+        case onlyCommon
+        case both
+        case onlyOwn
+    }
+
     func polkascanAddressURL(_ address: String) -> URL? {
         URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
     }
@@ -243,5 +278,13 @@ extension ChainModel {
 
     func subscanExtrinsicUrl(_ extrinsicHash: String) -> URL? {
         URL(string: "https://\(name.lowercased()).subscan.io/extrinsic/\(extrinsicHash)")
+    }
+}
+
+extension ChainModel.ExternalApiExplorer {
+    func explorerUrl(for value: String, type: ChainModel.SubscanType) -> URL? {
+        let replaceType = url.replacingOccurrences(of: "{type}", with: type.rawValue)
+        let replaceValue = replaceType.replacingOccurrences(of: "{value}", with: value)
+        return URL(string: replaceValue)
     }
 }

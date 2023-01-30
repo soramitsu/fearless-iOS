@@ -15,6 +15,7 @@ struct RichAmountDisplayViewModel: RichAmountDisplayViewModelProtocol {
     let icon: UIImage?
     let symbol: String
     let balance: String?
+    let fiatBalance: String?
     let price: String?
 
     func accept(definition: WalletFormDefining) -> WalletFormItemView? {

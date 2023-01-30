@@ -25,6 +25,14 @@ class AmountInputAccessoryView: UIToolbar, AdaptiveDesignable {
         actionDelegate?.didSelect(on: self, percentage: 0.25)
     }
 
+    @objc func actionSelect01() {
+        actionDelegate?.didSelect(on: self, percentage: 0.1)
+    }
+
+    @objc func actionSelect05() {
+        actionDelegate?.didSelect(on: self, percentage: 0.5)
+    }
+
     @objc func actionSelectDone() {
         actionDelegate?.didSelectDone(on: self)
     }

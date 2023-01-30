@@ -1,11 +1,11 @@
 import FearlessUtils
 
 protocol QRScanMatcherProtocol: QRMatcherProtocol {
-    var addressInfo: AddressQRInfo? { get }
+    var qrInfo: QRInfo? { get }
 }
 
 final class QRScanMatcher: QRScanMatcherProtocol {
-    private(set) var addressInfo: AddressQRInfo?
+    private(set) var qrInfo: QRInfo?
 
     private let decoder: QRDecoderProtocol
 
@@ -18,7 +18,7 @@ final class QRScanMatcher: QRScanMatcherProtocol {
             return false
         }
 
-        addressInfo = info
+        qrInfo = info
 
         return true
     }

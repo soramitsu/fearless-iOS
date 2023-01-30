@@ -254,7 +254,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         switch result {
         case let .success(hash):
 
-            wireframe.complete(on: view, title: hash)
+            wireframe.complete(on: view, title: hash, chainAsset: chainAsset)
         case let .failure(error):
             guard let view = view else {
                 return

@@ -3,6 +3,7 @@ import SoraUI
 
 protocol AllDonePresentable {
     func presentDone(
+        chainAsset: ChainAsset,
         title: String?,
         description: String?,
         extrinsicHash: String,
@@ -13,6 +14,7 @@ protocol AllDonePresentable {
 
 extension AllDonePresentable {
     func presentDone(
+        chainAsset: ChainAsset,
         title: String? = nil,
         description: String? = nil,
         extrinsicHash: String,
@@ -20,9 +22,10 @@ extension AllDonePresentable {
         closure: (() -> Void)? = nil
     ) {
         if let controller = AllDoneAssembly.configureModule(
+            chainAsset: chainAsset,
+            hashString: extrinsicHash,
             title: title,
             description: description,
-            with: extrinsicHash,
             closure: closure
         )?.view.controller {
             controller.modalPresentationStyle = .custom

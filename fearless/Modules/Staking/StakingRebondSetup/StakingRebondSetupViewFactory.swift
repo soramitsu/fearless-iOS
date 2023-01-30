@@ -30,7 +30,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: selectedAccount
         )
 

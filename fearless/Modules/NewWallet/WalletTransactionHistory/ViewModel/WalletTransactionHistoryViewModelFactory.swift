@@ -3,6 +3,11 @@ import RobinHood
 import FearlessUtils
 import UIKit
 
+enum TransactionHistoryViewModelFactoryError: Error {
+    case missingAsset
+    case unsupportedType
+}
+
 private typealias SearchableSection = (section: WalletTransactionHistorySection, index: Int)
 
 let extrinsicFeeCallNames: [String] = ["transfer", "contribute"]
@@ -15,12 +20,13 @@ protocol WalletTransactionHistoryViewModelFactoryProtocol {
     ) throws -> [SectionedListDifference<WalletTransactionHistorySection, WalletTransactionHistoryCellViewModel>]
 }
 
-class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol {
-    let balanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    let includesFeeInAmount: Bool
-    let transactionTypes: [WalletTransactionType]
-    let chainAsset: ChainAsset
-    let iconGenerator: IconGenerating
+// swiftlint:disable type_body_length function_body_length file_length
+final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol {
+    private let balanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private let includesFeeInAmount: Bool
+    private let transactionTypes: [WalletTransactionType]
+    private let chainAsset: ChainAsset
+    private let iconGenerator: IconGenerating
 
     init(
         balanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
@@ -36,6 +42,8 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         self.iconGenerator = iconGenerator
     }
 
+    // MARK: - Public methods
+
     func merge(
         newItems: [AssetTransactionData],
         into existingViewModels: inout [WalletTransactionHistorySection],
@@ -46,17 +54,25 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             searchableSections[section.title] = SearchableSection(section: section, index: index)
         }
 
-        var changes = [SectionedListDifference<WalletTransactionHistorySection, WalletTransactionHistoryCellViewModel>]()
+        var changes = [SectionedListDifference<
+            WalletTransactionHistorySection,
+            WalletTransactionHistoryCellViewModel
+        >]()
 
         try newItems.forEach { event in
-            let viewModel = try createItemFromData(event, locale: locale)
+            guard let viewModel = try createItemFromData(event, locale: locale) else {
+                return
+            }
 
             let eventDate = Date(timeIntervalSince1970: TimeInterval(event.timestamp))
             let sectionTitle = DateFormatter.sectionedDate.value(for: locale).string(from: eventDate)
 
-            if var searchableSection = searchableSections[sectionTitle] {
+            if let searchableSection = searchableSections[sectionTitle] {
                 let itemChange = ListDifference.insert(index: searchableSection.section.items.count, new: viewModel)
-                let sectionChange = SectionedListDifference<WalletTransactionHistorySection, WalletTransactionHistoryCellViewModel>.update(
+                let sectionChange = SectionedListDifference<
+                    WalletTransactionHistorySection,
+                    WalletTransactionHistoryCellViewModel
+                >.update(
                     index: searchableSection.index,
                     itemChange: itemChange,
                     section: searchableSection.section
@@ -70,8 +86,10 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
                     items: [viewModel]
                 )
 
-                let change: SectionedListDifference<WalletTransactionHistorySection, WalletTransactionHistoryCellViewModel>
-                    = .insert(index: searchableSections.count, newSection: newSection)
+                let change: SectionedListDifference<
+                    WalletTransactionHistorySection,
+                    WalletTransactionHistoryCellViewModel
+                > = .insert(index: searchableSections.count, newSection: newSection)
 
                 changes.append(change)
 
@@ -85,10 +103,12 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         return changes
     }
 
-    func createItemFromData(
+    // MARK: - Private methods
+
+    private func createItemFromData(
         _ data: AssetTransactionData,
         locale: Locale
-    ) throws -> WalletTransactionHistoryCellViewModel {
+    ) throws -> WalletTransactionHistoryCellViewModel? {
         guard let transactionType = TransactionType(rawValue: data.type) else {
             throw TransactionHistoryViewModelFactoryError.unsupportedType
         }
@@ -112,6 +132,13 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
                 locale: locale,
                 txType: transactionType
             )
+        case .swap:
+            return try createSwapItemFromData(
+                data,
+                locale: locale
+            )
+        case .unused:
+            return nil
         }
     }
 
@@ -121,9 +148,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         txType _: TransactionType
     ) throws -> WalletTransactionHistoryCellViewModel {
         let amountValue = data.amount.decimalValue
-
         var totalAmountValue = amountValue
-
         let optionalTransactionType = transactionTypes.first { $0.backendName.lowercased() == data.type.lowercased() }
 
         if includesFeeInAmount,
@@ -136,14 +161,11 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
                     return result
                 }
             }
-
             totalAmountValue += totalFee
         }
 
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
-
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
-
         let address: String
 
         if data.peerFirstName != nil || data.peerLastName != nil {
@@ -156,7 +178,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         }
 
         let incoming: Bool
-        let icon: UIImage? = data.status == .rejected ? R.image.iconTxFailed() : nil
+        let statusIcon: UIImage? = data.status == .rejected ? R.image.iconTxFailed() : nil
 
         if let transactionType = optionalTransactionType {
             incoming = transactionType.isIncome
@@ -165,18 +187,23 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         }
 
         let signString = incoming ? "+" : "-"
-
         let date = Date(timeIntervalSince1970: TimeInterval(data.timestamp))
         let dateString = DateFormatter.txHistory.value(for: locale).string(from: date)
 
+        let icon = try? iconGenerator.generateFromAddress(address)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: CGSize(width: 50, height: 50),
+                contentScale: UIScreen.main.scale
+            )
         let viewModel = WalletTransactionHistoryCellViewModel(
             transaction: data,
             address: address,
-            icon: try? iconGenerator.generateFromAddress(address).imageWithFillColor(R.color.colorWhite()!, size: CGSize(width: 50, height: 50), contentScale: UIScreen.main.scale),
+            icon: icon,
             transactionType: data.type,
             amountString: signString.appending(amountDisplayString),
             timeString: dateString,
-            statusIcon: icon,
+            statusIcon: statusIcon,
             status: data.status,
             incoming: incoming,
             imageViewModel: nil
@@ -245,9 +272,7 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         txType _: TransactionType
     ) throws -> WalletTransactionHistoryCellViewModel {
         let amountValue = data.amount.decimalValue
-
         var totalAmountValue = amountValue
-
         let optionalTransactionType = transactionTypes.first { $0.backendName.lowercased() == data.type.lowercased() }
 
         if includesFeeInAmount,
@@ -265,23 +290,10 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
         }
 
         let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
-
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
-
-        let address: String
-
-        if data.peerFirstName != nil || data.peerLastName != nil {
-            let firstName = data.peerFirstName ?? ""
-            let lastName = data.peerLastName ?? ""
-
-            address = L10n.Common.fullName(firstName, lastName)
-        } else {
-            address = data.peerName ?? ""
-        }
 
         let incoming: Bool
         let icon: UIImage?
-
         if let transactionType = optionalTransactionType {
             incoming = transactionType.isIncome
             icon = transactionType.typeIcon
@@ -317,6 +329,73 @@ class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryViewMode
             statusIcon: icon,
             status: data.status,
             incoming: incoming,
+            imageViewModel: imageViewModel
+        )
+
+        return viewModel
+    }
+
+    private func createSwapItemFromData(
+        _ data: AssetTransactionData,
+        locale: Locale
+    ) throws -> WalletTransactionHistoryCellViewModel {
+        let amountValue = data.amount.decimalValue
+
+        var receiveAmountString = amountValue.toString(locale: locale) ?? ""
+        let receiveAsset = chainAsset.chain.chainAssets.first {
+            $0.asset.currencyId == data.assetId
+        }
+        if let receiveAsset = receiveAsset {
+            let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo)
+            receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
+        }
+
+        let sendAmountDecimal = AmountDecimal(string: data.details)
+        let sendAsset = chainAsset.chain.chainAssets.first(where: {
+            $0.asset.currencyId == data.peerId
+        })
+        var sendAmount = "\(sendAmountDecimal?.decimalValue ?? .zero)"
+        if let sendAsset = sendAsset {
+            let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo)
+            sendAmount = sendAmountFormatter
+                .value(for: locale)
+                .stringFromDecimal(sendAmountDecimal?.decimalValue ?? .zero) ?? ""
+        }
+
+        let amountString = [sendAmount, receiveAmountString].joined(separator: "-")
+
+        let date = Date(timeIntervalSince1970: TimeInterval(data.timestamp))
+        let dateString = DateFormatter.txHistory.value(for: locale).string(from: date)
+
+        var imageViewModel: RemoteImageViewModel?
+        if let assetIconURL = chainAsset.chain.icon {
+            imageViewModel = RemoteImageViewModel(url: assetIconURL)
+        }
+
+        let statusString: String
+        switch data.status {
+        case .pending:
+            statusString = data.status.rawValue
+        case .commited:
+            statusString = R.string.localizable
+                .polkaswapConfirmationSwappedStub(preferredLanguages: locale.rLanguages)
+        case .rejected:
+            statusString = data.status.rawValue
+        }
+
+        let swapStub = R.string.localizable
+            .polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages)
+        let statusIcon: UIImage? = data.status == .rejected ? R.image.iconTxFailed() : nil
+        let viewModel = WalletTransactionHistoryCellViewModel(
+            transaction: data,
+            address: swapStub,
+            icon: R.image.iconSwap(),
+            transactionType: statusString,
+            amountString: amountString,
+            timeString: dateString,
+            statusIcon: statusIcon,
+            status: data.status,
+            incoming: true,
             imageViewModel: imageViewModel
         )
 

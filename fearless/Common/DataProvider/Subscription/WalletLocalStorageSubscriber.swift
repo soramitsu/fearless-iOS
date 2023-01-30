@@ -73,6 +73,11 @@ extension WalletLocalStorageSubscriber {
             return
         }
 
+        if chainAsset.chain.isSora, chainAsset.isUtility {
+            handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+            return
+        }
+
         switch chainAsset.chainAssetType {
         case .normal:
             handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)

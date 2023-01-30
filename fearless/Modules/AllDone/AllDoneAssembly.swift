@@ -3,9 +3,10 @@ import SoraFoundation
 
 final class AllDoneAssembly {
     static func configureModule(
+        chainAsset: ChainAsset,
+        hashString: String,
         title: String? = nil,
         description: String? = nil,
-        with hashString: String,
         closure: (() -> Void)? = nil
     ) -> AllDoneModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
@@ -15,6 +16,7 @@ final class AllDoneAssembly {
         let viewModelFactory = AllDoneViewModelFactory()
 
         let presenter = AllDonePresenter(
+            chainAsset: chainAsset,
             hashString: hashString,
             interactor: interactor,
             router: router,

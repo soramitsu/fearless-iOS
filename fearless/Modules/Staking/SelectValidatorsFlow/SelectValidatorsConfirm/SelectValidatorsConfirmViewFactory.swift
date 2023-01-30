@@ -6,6 +6,57 @@ import FearlessUtils
 
 // swiftlint:disable type_body_length function_body_length
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {
+    private static func createSigner(
+        wallet: MetaAccountModel,
+        flow: SelectValidatorsConfirmFlow,
+        accountResponse: ChainAccountResponse
+    ) -> SigningWrapperProtocol {
+        switch flow {
+        case let .relaychainExisting(_, _, bonding):
+            return SigningWrapper(
+                keystore: Keychain(),
+                metaId: bonding.controllerAccount.walletId,
+                accountResponse: bonding.controllerAccount
+            )
+        default:
+            return SigningWrapper(
+                keystore: Keychain(),
+                metaId: wallet.metaId,
+                accountResponse: accountResponse
+            )
+        }
+    }
+
+    private static func createExtrinsicService(
+        for account: ChainAccountResponse,
+        runtimeService: RuntimeProviderProtocol,
+        connection: ChainConnection,
+        operationManager: OperationManagerProtocol,
+        chainAsset: ChainAsset,
+        flow: SelectValidatorsConfirmFlow
+    ) -> ExtrinsicServiceProtocol {
+        switch flow {
+        case let .relaychainExisting(_, _, bonding):
+            return ExtrinsicService(
+                accountId: bonding.controllerAccount.accountId,
+                chainFormat: chainAsset.chain.chainFormat,
+                cryptoType: bonding.controllerAccount.cryptoType,
+                runtimeRegistry: runtimeService,
+                engine: connection,
+                operationManager: operationManager
+            )
+        default:
+            return ExtrinsicService(
+                accountId: account.accountId,
+                chainFormat: chainAsset.chain.chainFormat,
+                cryptoType: account.cryptoType,
+                runtimeRegistry: runtimeService,
+                engine: connection,
+                operationManager: operationManager
+            )
+        }
+    }
+
     private static func createContainer(
         flow: SelectValidatorsConfirmFlow,
         chainAsset: ChainAsset,
@@ -33,21 +84,6 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             return nil
         }
 
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
-        let signer = SigningWrapper(
-            keystore: Keychain(),
-            metaId: wallet.metaId,
-            accountResponse: accountResponse
-        )
-
         let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
@@ -61,7 +97,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -82,6 +118,21 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
             engine: connection
+        )
+
+        let extrinsicService = createExtrinsicService(
+            for: accountResponse,
+            runtimeService: runtimeService,
+            connection: connection,
+            operationManager: operationManager,
+            chainAsset: chainAsset,
+            flow: flow
+        )
+
+        let signer = createSigner(
+            wallet: wallet,
+            flow: flow,
+            accountResponse: accountResponse
         )
 
         switch flow {
@@ -124,10 +175,11 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 existingBonding: bonding,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                operationManager: OperationManagerFacade.sharedManager, dataValidatingFactory: dataValidatingFactory
+                operationManager: OperationManagerFacade.sharedManager,
+                dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmRelaychainExistingStrategy(
-                balanceAccountId: accountResponse.accountId,
+                balanceAccountId: bonding.controllerAccount.accountId,
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
                 priceLocalSubscriptionFactory: priceLocalSubcriptionFactory,
                 extrinsicService: extrinsicService,
@@ -240,7 +292,8 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 existingBonding: bonding,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                operationManager: OperationManagerFacade.sharedManager, dataValidatingFactory: dataValidatingFactory
+                operationManager: OperationManagerFacade.sharedManager,
+                dataValidatingFactory: dataValidatingFactory
             )
             let strategy = SelectValidatorsConfirmPoolExistingStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -293,7 +346,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
             formatterFactory: AssetBalanceFormatterFactory(),
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
