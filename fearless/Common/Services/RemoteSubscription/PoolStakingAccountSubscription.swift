@@ -7,7 +7,7 @@ protocol PoolStakingAccountSubscriptionProtocol {
     func subscribeRemote()
 }
 
-final class PoolStakingAccountSubscription: WebSocketSubscribing, PoolStakingAccountSubscriptionProtocol {
+final class PoolStakingAccountSubscription: PoolStakingAccountSubscriptionProtocol {
     struct Subscription {
         let handlers: [StorageChildSubscribing]
         let subscriptionId: UInt16

@@ -1,7 +1,7 @@
 import Foundation
 import FearlessUtils
 
-typealias ChainConnection = JSONRPCEngine & ConnectionAutobalancing & ConnectionStateReporting
+typealias ChainConnection = JSONRPCEngine
 
 protocol ConnectionFactoryProtocol {
     func createConnection(
