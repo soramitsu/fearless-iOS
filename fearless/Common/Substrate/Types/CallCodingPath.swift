@@ -1,7 +1,6 @@
 import Foundation
 
 enum CallCodingPath: Equatable, Codable, CaseIterable {
-    #warning("Do not forget added new case in allCases")
     static var allCases: [CallCodingPath] {
         [
             .transfer,

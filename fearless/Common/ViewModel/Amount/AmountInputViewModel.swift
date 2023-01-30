@@ -90,10 +90,6 @@ final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable
             newAmount = set(newAmount)
         }
 
-        let optionalAmountDecimal = !newAmount.isEmpty
-            ? Decimal(string: newAmount, locale: formatter.locale)
-            : Decimal.zero
-
         amount = newAmount
 
         return false

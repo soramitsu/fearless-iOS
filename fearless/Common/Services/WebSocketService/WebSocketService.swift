@@ -5,23 +5,6 @@ import IrohaCrypto
 import FearlessUtils
 
 final class WebSocketService: WebSocketServiceProtocol {
-    static let shared: WebSocketService = {
-        let connectionItem = SettingsManager.shared.selectedConnection
-        let address = SettingsManager.shared.selectedAccount?.address
-
-        let settings = WebSocketServiceSettings(
-            url: connectionItem.url,
-            addressType: connectionItem.type,
-            address: address
-        )
-        let storageFacade = SubstrateDataStorageFacade.shared
-        return WebSocketService(
-            settings: settings,
-            chainRegistry: ChainRegistryFacade.sharedRegistry,
-            applicationHandler: ApplicationHandler()
-        )
-    }()
-
     enum State {
         case throttled
         case active
