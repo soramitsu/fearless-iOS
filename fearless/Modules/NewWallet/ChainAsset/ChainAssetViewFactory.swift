@@ -5,16 +5,16 @@ import RobinHood
 import SoraKeystore
 
 struct ChainAccountModule {
-    let view: ChainAccountViewProtocol?
-    let moduleInput: ChainAccountModuleInput?
+    let view: ChainAssetViewProtocol?
+    let moduleInput: ChainAssetModuleInput?
 }
 
 // swiftlint:disable function_body_length
-enum ChainAccountViewFactory {
+enum ChainAssetViewFactory {
     static func createView(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        moduleOutput: ChainAccountModuleOutput
+        moduleOutput: ChainAssetModuleOutput
     ) -> ChainAccountModule? {
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
@@ -42,7 +42,7 @@ enum ChainAccountViewFactory {
             meta: wallet
         )
 
-        let interactor = ChainAccountInteractor(
+        let interactor = ChainAssetInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
             operationManager: operationManager,
@@ -52,7 +52,7 @@ enum ChainAccountViewFactory {
             chainAssetFetching: chainAssetFetching
         )
 
-        let wireframe = ChainAccountWireframe()
+        let wireframe = ChainAssetWireframe()
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
         let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
@@ -65,7 +65,7 @@ enum ChainAccountViewFactory {
             return nil
         }
 
-        let presenter = ChainAccountPresenter(
+        let presenter = ChainAssetPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
@@ -78,7 +78,7 @@ enum ChainAccountViewFactory {
 
         interactor.presenter = presenter
 
-        let view = ChainAccountViewController(
+        let view = ChainAssetViewController(
             presenter: presenter,
             balanceInfoViewController: balanceInfoModule.view.controller,
             localizationManager: LocalizationManager.shared

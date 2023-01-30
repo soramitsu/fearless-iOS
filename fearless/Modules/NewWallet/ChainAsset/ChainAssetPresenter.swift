@@ -2,10 +2,10 @@ import Foundation
 import SoraFoundation
 import BigInt
 
-final class ChainAccountPresenter {
-    weak var view: ChainAccountViewProtocol?
-    let wireframe: ChainAccountWireframeProtocol
-    let interactor: ChainAccountInteractorInputProtocol
+final class ChainAssetPresenter {
+    weak var view: ChainAssetViewProtocol?
+    let wireframe: ChainAssetWireframeProtocol
+    let interactor: ChainAssetInteractorInputProtocol
     let viewModelFactory: ChainAccountViewModelFactoryProtocol
     let logger: LoggerProtocol
     var chainAsset: ChainAsset {
@@ -13,7 +13,7 @@ final class ChainAccountPresenter {
     }
 
     let wallet: MetaAccountModel
-    weak var moduleOutput: ChainAccountModuleOutput?
+    weak var moduleOutput: ChainAssetModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
 
     private lazy var rampProvider = RampProvider()
@@ -27,12 +27,12 @@ final class ChainAccountPresenter {
     }()
 
     init(
-        interactor: ChainAccountInteractorInputProtocol,
-        wireframe: ChainAccountWireframeProtocol,
+        interactor: ChainAssetInteractorInputProtocol,
+        wireframe: ChainAssetWireframeProtocol,
         viewModelFactory: ChainAccountViewModelFactoryProtocol,
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
-        moduleOutput: ChainAccountModuleOutput?,
+        moduleOutput: ChainAssetModuleOutput?,
         balanceInfoModule: BalanceInfoModuleInput,
         localizationManager: LocalizationManagerProtocol
     ) {
@@ -118,9 +118,9 @@ final class ChainAccountPresenter {
     }
 }
 
-extension ChainAccountPresenter: ChainAccountModuleInput {}
+extension ChainAssetPresenter: ChainAssetModuleInput {}
 
-extension ChainAccountPresenter: ChainAccountPresenterProtocol {
+extension ChainAssetPresenter: ChainAssetPresenterProtocol {
     func addressDidCopied() {
         wireframe.presentStatus(
             with: AddressCopiedEvent(locale: selectedLocale),
@@ -188,7 +188,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
     }
 }
 
-extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
+extension ChainAssetPresenter: ChainAssetInteractorOutputProtocol {
     func didReceiveExportOptions(options: [ExportOption]) {
         let items: [ChainAction] = [.export, .switchNode, .replace]
         let selectionCallback: ModalPickerSelectionCallback = { [weak self] selectedIndex in
@@ -237,19 +237,19 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
     }
 }
 
-extension ChainAccountPresenter: Localizable {
+extension ChainAssetPresenter: Localizable {
     func applyLocalization() {
         provideViewModel()
     }
 }
 
-extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
+extension ChainAssetPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
         wireframe.presentPurchaseWebView(from: view, action: getPurchaseActions()[index])
     }
 }
 
-extension ChainAccountPresenter: SelectNetworkDelegate {
+extension ChainAssetPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
         didCompleteWith chain: ChainModel?

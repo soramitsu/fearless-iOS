@@ -1,11 +1,11 @@
 import UIKit
 import SoraUI
 
-protocol ChainAccountViewDelegate: AnyObject {
+protocol ChainAssetViewDelegate: AnyObject {
     func selectNetworkDidTap()
 }
 
-final class ChainAccountViewLayout: UIView {
+final class ChainAssetViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 80
         static let accessoryButtonSize: CGFloat = 32.0
@@ -17,7 +17,7 @@ final class ChainAccountViewLayout: UIView {
         static let navigationBarSpacing: CGFloat = 32
     }
 
-    weak var delegate: ChainAccountViewDelegate?
+    weak var delegate: ChainAssetViewDelegate?
 
     private let backgroundImageView: UIImageView = {
         let imageView = UIImageView()
@@ -166,7 +166,7 @@ final class ChainAccountViewLayout: UIView {
     }
 }
 
-private extension ChainAccountViewLayout {
+private extension ChainAssetViewLayout {
     func setupLayout() {
         addSubview(backgroundImageView)
         backgroundImageView.snp.makeConstraints { make in

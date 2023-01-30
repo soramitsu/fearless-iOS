@@ -1,10 +1,10 @@
 import BigInt
 
-protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
+protocol ChainAssetViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)
 }
 
-protocol ChainAccountPresenterProtocol: AnyObject {
+protocol ChainAssetPresenterProtocol: AnyObject {
     func setup()
     func didTapBackButton()
 
@@ -17,7 +17,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapPolkaswapButton()
 }
 
-protocol ChainAccountInteractorInputProtocol: AnyObject {
+protocol ChainAssetInteractorInputProtocol: AnyObject {
     func setup()
     func getAvailableExportOptions(for address: String)
     func update(chain: ChainModel)
@@ -26,12 +26,12 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
     var availableChainAssets: [ChainAsset] { get }
 }
 
-protocol ChainAccountInteractorOutputProtocol: AnyObject {
+protocol ChainAssetInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption])
     func didUpdate(chainAsset: ChainAsset)
 }
 
-protocol ChainAccountWireframeProtocol: ErrorPresentable,
+protocol ChainAssetWireframeProtocol: ErrorPresentable,
     SheetAlertPresentable,
     ModalAlertPresenting,
     AuthorizationPresentable,
@@ -93,21 +93,21 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     func showImport(uniqueChainModel: UniqueChainModel, from view: ControllerBackedProtocol?)
 
     func showSelectNetwork(
-        from view: ChainAccountViewProtocol?,
+        from view: ChainAssetViewProtocol?,
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
         delegate: SelectNetworkDelegate?
     )
     func showPolkaswap(
-        from view: ChainAccountViewProtocol?,
+        from view: ChainAssetViewProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
 }
 
-protocol ChainAccountModuleInput: AnyObject {}
+protocol ChainAssetModuleInput: AnyObject {}
 
-protocol ChainAccountModuleOutput: AnyObject {
+protocol ChainAssetModuleOutput: AnyObject {
     func updateTransactionHistory(for chainAsset: ChainAsset?)
 }

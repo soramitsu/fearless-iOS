@@ -4,8 +4,8 @@ import BigInt
 import FearlessUtils
 import SoraKeystore
 
-final class ChainAccountInteractor {
-    weak var presenter: ChainAccountInteractorOutputProtocol?
+final class ChainAssetInteractor {
+    weak var presenter: ChainAssetInteractorOutputProtocol?
     var chainAsset: ChainAsset
     var availableChainAssets: [ChainAsset] = []
 
@@ -49,7 +49,7 @@ final class ChainAccountInteractor {
     }
 }
 
-extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
+extension ChainAssetInteractor: ChainAssetInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
         getAvailableChainAssets()
@@ -92,7 +92,7 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 }
 
-extension ChainAccountInteractor: EventVisitorProtocol {
+extension ChainAssetInteractor: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         if let updated = event.updatedChains.first(where: { [weak self] updatedChain in
             guard let self = self else { return false }
@@ -103,4 +103,4 @@ extension ChainAccountInteractor: EventVisitorProtocol {
     }
 }
 
-extension ChainAccountInteractor: AccountFetching {}
+extension ChainAssetInteractor: AccountFetching {}

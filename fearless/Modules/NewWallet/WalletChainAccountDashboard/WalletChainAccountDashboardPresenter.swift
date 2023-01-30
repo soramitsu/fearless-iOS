@@ -6,7 +6,7 @@ final class WalletChainAccountDashboardPresenter {
     let interactor: WalletChainAccountDashboardInteractorInputProtocol
 
     weak var transactionHistoryModuleInput: WalletTransactionHistoryModuleInput?
-    weak var chainAccountModuleInput: ChainAccountModuleInput?
+    weak var chainAccountModuleInput: ChainAssetModuleInput?
 
     init(
         interactor: WalletChainAccountDashboardInteractorInputProtocol,
@@ -23,7 +23,7 @@ extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardPrese
 
 extension WalletChainAccountDashboardPresenter: WalletChainAccountDashboardInteractorOutputProtocol {}
 
-extension WalletChainAccountDashboardPresenter: ChainAccountModuleOutput {
+extension WalletChainAccountDashboardPresenter: ChainAssetModuleOutput {
     func updateTransactionHistory(for chainAsset: ChainAsset?) {
         transactionHistoryModuleInput?.updateTransactionHistory(for: chainAsset)
     }

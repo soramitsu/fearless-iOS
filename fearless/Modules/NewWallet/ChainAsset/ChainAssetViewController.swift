@@ -1,14 +1,14 @@
 import UIKit
 import SoraFoundation
 
-final class ChainAccountViewController: UIViewController, ViewHolder {
+final class ChainAssetViewController: UIViewController, ViewHolder {
     enum Constants {
         static let defaultContentHeight: CGFloat = 270
     }
 
-    typealias RootViewType = ChainAccountViewLayout
+    typealias RootViewType = ChainAssetViewLayout
 
-    let presenter: ChainAccountPresenterProtocol
+    let presenter: ChainAssetPresenterProtocol
 
     private var state: ChainAccountViewState = .loading
     private let balanceInfoViewController: UIViewController
@@ -22,7 +22,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     lazy var preferredContentHeight: CGFloat = Constants.defaultContentHeight
 
     init(
-        presenter: ChainAccountPresenterProtocol,
+        presenter: ChainAssetPresenterProtocol,
         balanceInfoViewController: UIViewController,
         localizationManager: LocalizationManagerProtocol
     ) {
@@ -38,7 +38,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = ChainAccountViewLayout()
+        view = ChainAssetViewLayout()
     }
 
     override func viewDidLoad() {
@@ -119,22 +119,22 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
     }
 }
 
-extension ChainAccountViewController: ChainAccountViewProtocol {
+extension ChainAssetViewController: ChainAssetViewProtocol {
     func didReceiveState(_ state: ChainAccountViewState) {
         self.state = state
         applyState()
     }
 }
 
-extension ChainAccountViewController: Localizable {
+extension ChainAssetViewController: Localizable {
     func applyLocalization() {
         rootView.locale = selectedLocale
     }
 }
 
-extension ChainAccountViewController: HiddableBarWhenPushed {}
+extension ChainAssetViewController: HiddableBarWhenPushed {}
 
-extension ChainAccountViewController: Containable {
+extension ChainAssetViewController: Containable {
     var contentView: UIView {
         view
     }

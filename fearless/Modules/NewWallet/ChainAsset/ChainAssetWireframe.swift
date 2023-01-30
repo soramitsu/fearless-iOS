@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class ChainAccountWireframe: ChainAccountWireframeProtocol {
+final class ChainAssetWireframe: ChainAssetWireframeProtocol {
     func close(view: ControllerBackedProtocol?) {
         view?.controller.navigationController?.popViewController(animated: true)
     }
@@ -163,7 +163,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     }
 
     func showSelectNetwork(
-        from view: ChainAccountViewProtocol?,
+        from view: ChainAssetViewProtocol?,
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
@@ -186,7 +186,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     }
 
     func showPolkaswap(
-        from view: ChainAccountViewProtocol?,
+        from view: ChainAssetViewProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
@@ -202,7 +202,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     }
 }
 
-private extension ChainAccountWireframe {
+private extension ChainAssetWireframe {
     func performExportPresentation(
         for address: String,
         chain: ChainModel,
