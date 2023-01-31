@@ -43,11 +43,17 @@ extension DateFormatter {
     }
 
     static var giantsquidDate: LocalizableResource<DateFormatter> {
-        LocalizableResource { locale in
-            let format = DateFormatter.dateFormat(fromTemplate: "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ", options: 0, locale: locale)
+        LocalizableResource { _ in
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = format
-            dateFormatter.locale = locale
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+            return dateFormatter
+        }
+    }
+
+    static var suibsquidInputDate: LocalizableResource<DateFormatter> {
+        LocalizableResource { _ in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
             return dateFormatter
         }
     }

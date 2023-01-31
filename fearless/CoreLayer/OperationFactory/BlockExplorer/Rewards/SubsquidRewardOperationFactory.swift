@@ -41,12 +41,19 @@ final class SubsquidRewardOperationFactory {
     ) -> String {
         let timestampFilter: String = {
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
+
             var result = "AND: {"
-            if let timestamp = startTimestamp {
-                result.append("timestamp_gte:\(timestamp)")
+            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: Locale.current)
+            if let startTimestamp = startTimestamp {
+                let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
+                let startDateString = dateFormatter.string(from: startDate)
+                result.append("timestamp_gte:\"\(startDateString)\"")
             }
-            if let timestamp = endTimestamp {
-                result.append(",timestamp_lte:\(timestamp)")
+
+            if let endTimestamp = endTimestamp {
+                let endDate = Date(timeIntervalSince1970: TimeInterval(endTimestamp))
+                let endDateString = dateFormatter.string(from: endDate)
+                result.append("timestamp_lte:\"\(endDateString)\"")
             }
             result.append("}")
             return result
