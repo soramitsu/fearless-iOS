@@ -6,6 +6,7 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
         static let cellHeight: CGFloat = 50.0
         static let iconSize = CGSize(width: 32.0, height: 32.0)
         static let checkmarkSize = CGSize(width: 20.0, height: 20.0)
+        static let infoButtonSize: CGFloat = 44.0
     }
 
     weak var delegate: SelectionItemViewDelegate?
@@ -101,11 +102,11 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
         }
 
         contentView.addSubview(infoButton)
-        infoButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         infoButton.snp.makeConstraints { make in
             make.leading.equalTo(textVStackView.snp.trailing)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview()
             make.centerY.equalTo(titleLabel.snp.centerY)
+            make.size.equalTo(Constants.infoButtonSize)
         }
     }
 }

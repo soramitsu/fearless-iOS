@@ -163,8 +163,7 @@ final class PolkaswapAdjustmentPresenter {
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let swapFromAssetId = swapFromChainAsset.asset.currencyId,
-              let swapToAssetId = swapToChainAsset.asset.currencyId,
-              let marketSourcer = marketSource
+              let swapToAssetId = swapToChainAsset.asset.currencyId
         else {
             return
         }
@@ -192,14 +191,14 @@ final class PolkaswapAdjustmentPresenter {
             amount = String(bigUIntValue)
         }
 
-        let liquiditySources = marketSourcer.getRemoteMarketSources()
+        let liquiditySources = marketSource?.getRemoteMarketSources()
 
         let quoteParams = PolkaswapQuoteParams(
             fromAssetId: swapFromAssetId,
             toAssetId: swapToAssetId,
             amount: amount,
             swapVariant: swapVariant,
-            liquiditySources: liquiditySources,
+            liquiditySources: liquiditySources ?? [],
             filterMode: selectedLiquiditySourceType.filterMode
         )
 
@@ -608,6 +607,8 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
 
+        let sendAmount = swapFromInputResult?.absoluteValue(from: swapFromBalance ?? .zero)
+
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: networkFee, locale: selectedLocale, onError: { [weak self] in
                 self?.fetchSwapFee(amounts: amounts)
@@ -621,7 +622,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: swapFromBalance),
                 feeAndTip: .zero,
-                sendAmount: amounts.fromAmount,
+                sendAmount: sendAmount,
                 locale: selectedLocale
             )
         ]).runValidation { [weak self] in

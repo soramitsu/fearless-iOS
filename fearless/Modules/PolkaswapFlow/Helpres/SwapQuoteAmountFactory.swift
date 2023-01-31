@@ -150,8 +150,16 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         let fromPerToTitle = [fromDisplayName, toDisplayName].joined(separator: " / ")
         let toPerFromTitle = [toDisplayName, fromDisplayName].joined(separator: " / ")
 
-        let fromPerToValue = amounts.fromAmount / amounts.toAmount
-        let toPerFromValue = amounts.toAmount / amounts.fromAmount
+        let fromPerToValue: Decimal
+        let toPerFromValue: Decimal
+        switch swapVariant {
+        case .desiredInput:
+            fromPerToValue = amounts.fromAmount / amounts.toAmount
+            toPerFromValue = amounts.toAmount / amounts.fromAmount
+        case .desiredOutput:
+            fromPerToValue = amounts.toAmount / amounts.fromAmount
+            toPerFromValue = amounts.fromAmount / amounts.toAmount
+        }
 
         let liqudityProviderFeeVieModel = createLiqitityProviderFeeViewMode(
             lpAmount: amounts.lpAmount,
@@ -195,20 +203,23 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
     ) -> (BalanceViewModelProtocol, Decimal) {
         var minMaxValue: Decimal
         var price: PriceData?
+        let balanceAsset: ChainAsset
         switch swapVariant {
         case .desiredInput:
+            balanceAsset = swapToChainAsset
             minMaxValue = value * Decimal(1 - Double(slippadgeTolerance) / 100.0)
             price = prices?.first(where: { price in
                 price.priceId == swapToChainAsset.asset.priceId
             })
         case .desiredOutput:
+            balanceAsset = swapFromChainAsset
             minMaxValue = value * Decimal(1 + Double(slippadgeTolerance) / 100.0)
             price = prices?.first(where: { price in
                 price.priceId == swapFromChainAsset.asset.priceId
             })
         }
 
-        let balanceViewModelFactory = createBalanceViewModelFactory(for: swapToChainAsset)
+        let balanceViewModelFactory = createBalanceViewModelFactory(for: balanceAsset)
         let receiveValue = balanceViewModelFactory.balanceFromPrice(
             minMaxValue,
             priceData: price,
