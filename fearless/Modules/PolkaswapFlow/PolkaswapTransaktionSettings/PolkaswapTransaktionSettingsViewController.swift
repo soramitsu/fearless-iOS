@@ -135,7 +135,9 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
             return true
         }
         let oldString = (textField.text ?? "") as NSString
-        let candidate = oldString.replacingCharacters(in: range, with: string)
+        let candidate = oldString
+            .replacingCharacters(in: range, with: string)
+            .replacingOccurrences(of: ",", with: ".")
         let regex = try? NSRegularExpression(pattern: "^[0-9]{1}([.]{0,1})?([0-9]{0,2})?$", options: [])
         if regex?.firstMatch(in: candidate, options: [], range: NSRange(location: 0, length: candidate.count)) != nil {
             NSObject.cancelPreviousPerformRequests(
@@ -150,10 +152,10 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
     }
 
     @objc private func didChangeSlider() {
-        let text = rootView.slippageToleranceView.textField.text
         guard
-            text?.last != ",", text?.last != ".",
-            let float = Float(rootView.slippageToleranceView.textField.text.or(""))
+            let text = rootView.slippageToleranceView.textField.text?.replacingOccurrences(of: ",", with: "."),
+            text.last != ",", text.last != ".",
+            let float = Float(text)
         else {
             return
         }
