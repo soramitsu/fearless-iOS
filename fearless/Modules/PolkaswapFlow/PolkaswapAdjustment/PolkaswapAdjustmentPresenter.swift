@@ -163,8 +163,7 @@ final class PolkaswapAdjustmentPresenter {
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let swapFromAssetId = swapFromChainAsset.asset.currencyId,
-              let swapToAssetId = swapToChainAsset.asset.currencyId,
-              let marketSourcer = marketSource
+              let swapToAssetId = swapToChainAsset.asset.currencyId
         else {
             return
         }
@@ -192,14 +191,14 @@ final class PolkaswapAdjustmentPresenter {
             amount = String(bigUIntValue)
         }
 
-        let liquiditySources = marketSourcer.getRemoteMarketSources()
+        let liquiditySources = marketSource?.getRemoteMarketSources()
 
         let quoteParams = PolkaswapQuoteParams(
             fromAssetId: swapFromAssetId,
             toAssetId: swapToAssetId,
             amount: amount,
             swapVariant: swapVariant,
-            liquiditySources: liquiditySources,
+            liquiditySources: liquiditySources ?? [],
             filterMode: selectedLiquiditySourceType.filterMode
         )
 
