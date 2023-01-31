@@ -3,7 +3,7 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
-final class StakingAccountResolver: WebSocketSubscribing {
+final class StakingAccountResolver {
     struct Subscription {
         let controller: StorageChildSubscribing
         let ledger: StorageChildSubscribing
