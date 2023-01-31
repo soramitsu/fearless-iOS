@@ -64,9 +64,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
         let sortedChainAssets = sortAssetList(
             wallet: wallet,
-            chainAssets: assetChainAssetsArray,
-            accountInfos: accountInfos,
-            priceData: prices.pricesData
+            chainAssets: assetChainAssetsArray
         )
 
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedChainAssets.compactMap { chainAsset in
@@ -243,9 +241,7 @@ private extension ChainAssetListViewModelFactory {
 
     func sortAssetList(
         wallet: MetaAccountModel,
-        chainAssets: [AssetChainAssets],
-        accountInfos _: [ChainAssetKey: AccountInfo?],
-        priceData _: [PriceData]
+        chainAssets: [AssetChainAssets]
     ) -> [ChainAsset] {
         func fetchAccountIds(
             for ca1: ChainAsset,
@@ -487,17 +483,18 @@ private extension ChainAssetListViewModelFactory {
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        let chainAssetsSorted = chainAssets.sorted { $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue }
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
-            guard let mainChainAsset = assetChainAssets.first { $0.asset.chainId == $0.chain.chainId } ?? assetChainAssets.first else {
-                return
-            }
+            let assetChainAssets = chainAssetsSorted.filter { $0.asset.name == name }
+            let mainChainAsset = assetChainAssets.first {
+                $0.asset.chainId == $0.chain.chainId
+            } ?? assetChainAssets.first!
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
                 wallet: wallet
             )
-            let priceId = mainChainAsset?.asset.priceId ?? mainChainAsset?.asset.id
+            let priceId = mainChainAsset.asset.priceId ?? mainChainAsset.asset.id
             let priceData = pricesData.first(where: { $0.priceId == priceId })
             let totalFiatBalance = getTotalFiatBalance(
                 for: assetChainAssets,
