@@ -12,7 +12,7 @@ final class ChainAssetPresenter {
         interactor.chainAsset
     }
 
-    let wallet: MetaAccountModel
+    private var wallet: MetaAccountModel
     weak var moduleOutput: ChainAssetModuleOutput?
     private let balanceInfoModule: BalanceInfoModuleInput
 
@@ -234,6 +234,11 @@ extension ChainAssetPresenter: ChainAssetInteractorOutputProtocol {
             chainAsset: chainAsset
         ))
         moduleOutput?.updateTransactionHistory(for: chainAsset)
+    }
+
+    func didReceive(selectedWallet: MetaAccountModel) {
+        wallet = selectedWallet
+        provideViewModel()
     }
 }
 

@@ -101,6 +101,11 @@ extension ChainAssetInteractor: EventVisitorProtocol {
             chainAsset = ChainAsset(chain: updated, asset: chainAsset.asset)
         }
     }
+
+    func processMetaAccountChanged(event: MetaAccountModelChangedEvent) {
+        wallet = event.account
+        presenter?.didReceive(selectedWallet: event.account)
+    }
 }
 
 extension ChainAssetInteractor: AccountFetching {}

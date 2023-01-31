@@ -29,6 +29,7 @@ protocol ChainAssetInteractorInputProtocol: AnyObject {
 protocol ChainAssetInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption])
     func didUpdate(chainAsset: ChainAsset)
+    func didReceive(selectedWallet: MetaAccountModel)
 }
 
 protocol ChainAssetWireframeProtocol: ErrorPresentable,
