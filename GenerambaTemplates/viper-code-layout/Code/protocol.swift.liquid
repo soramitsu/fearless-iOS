@@ -1,16 +1,7 @@
-typealias {{ module_info.name }}ModuleCreationResult = (view: {{ module_info.name }}ViewInput, input: {{ module_info.name }}ModuleInput)
-
-protocol {{ module_info.name }}ViewInput: ControllerBackedProtocol {}
-
-protocol {{ module_info.name }}ViewOutput: AnyObject {
-    func didLoad(view: {{ module_info.name }}ViewInput)
-}
-
-protocol {{ module_info.name }}InteractorInput: AnyObject {
-    func setup(with output: {{ module_info.name }}InteractorOutput)
-}
-
-protocol {{ module_info.name }}InteractorOutput: AnyObject {}
+typealias {{ module_info.name }}ModuleCreationResult = (
+    view: {{ module_info.name }}ViewInput,
+    input: {{ module_info.name }}ModuleInput
+)
 
 protocol {{ module_info.name }}RouterInput: AnyObject {}
 
