@@ -54,7 +54,7 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
 
     private func setupLayout() {
         if !isFullSize {
-            rootView.snp.makeConstraints { make in
+            rootView.contentStackView.snp.makeConstraints { make in
                 make.height.equalTo(UIScreen.main.bounds.height / 2)
             }
         }
