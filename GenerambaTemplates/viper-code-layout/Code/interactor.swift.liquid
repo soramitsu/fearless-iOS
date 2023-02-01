@@ -1,5 +1,7 @@
 import UIKit
 
+protocol {{ module_info.name }}InteractorOutput: AnyObject {}
+
 final class {{ module_info.name }}Interactor {
     // MARK: - Private properties
     private weak var output: {{ module_info.name }}InteractorOutput?
