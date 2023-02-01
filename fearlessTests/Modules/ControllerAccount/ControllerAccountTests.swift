@@ -5,6 +5,7 @@ import FearlessUtils
 import SoraKeystore
 import SoraFoundation
 @testable import fearless
+import BigInt
 
 class ControllerAccountTests: XCTestCase {
 
@@ -17,7 +18,7 @@ class ControllerAccountTests: XCTestCase {
 
         let chain = ChainModelGenerator.generateChain(generatingAssets: 1,
                                                       addressPrefix: UInt16(SNAddressType.genericSubstrate.rawValue))
-        let asset = ChainModelGenerator.generateAssetWithId("test")
+        let asset = ChainModelGenerator.generateAssetWithId("test", symbol: "test")
         let selectedAccount = AccountGenerator.generateMetaAccount()
         let presenter = ControllerAccountPresenter(wireframe: wireframe,
                                                    interactor: interactor,
@@ -48,7 +49,7 @@ class ControllerAccountTests: XCTestCase {
                 showConfirmationExpectation.fulfill()
             }
             
-            when(stub).present(viewModel: any(), style: any(), from: any()).thenDoNothing()
+            when(stub).present(viewModel: any(), from: any()).thenDoNothing()
         }
         stub(viewModelFactory) { stub in
             when(stub).createViewModel(stashItem: any(), stashAccountItem: any(), chosenAccountItem: any())
@@ -76,7 +77,8 @@ class ControllerAccountTests: XCTestCase {
                                                     cryptoType: .ecdsa,
                                                     addressPrefix: 0,
                                                     isEthereumBased: false,
-                                                    isChainAccount: false)
+                                                    isChainAccount: false,
+                                                    walletId: selectedAccount.metaId)
         presenter.didReceiveControllerAccount(result: .success(chainAccountItem))
 
         let controllerAccountInfo = AccountInfo(
@@ -95,7 +97,12 @@ class ControllerAccountTests: XCTestCase {
         )
         presenter.didReceiveAccountInfo(result: .success(stashAccountInfo), address: stashAddress)
 
-        let fee = RuntimeDispatchInfo(dispatchClass: "normal", fee: "12600002654", weight: 331759000)
+        let feeDetails = FeeDetails(
+            baseFee: BigUInt(stringLiteral: "12600002654"),
+            lenFee: BigUInt(stringLiteral: "0"),
+            adjustedWeightFee: BigUInt(stringLiteral: "331759000")
+        )
+        let fee = RuntimeDispatchInfo(inclusionFee: feeDetails)
         presenter.didReceiveFee(result: .success(fee))
 
         // when
@@ -110,7 +117,7 @@ class ControllerAccountTests: XCTestCase {
             description: "Show error alert if user has not sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).present(message: any(), title: any(), closeAction: any(), from: any()).then { _ in
+            when(stub).present(message: any(), title: any(), closeAction: any(), from: any(), actions: any()).then { _ in
                 showErrorAlertExpectation.fulfill()
             }
         }
@@ -122,8 +129,7 @@ class ControllerAccountTests: XCTestCase {
             data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance), address: stashAddress)
-
-        let extraFee = RuntimeDispatchInfo(dispatchClass: "normal", fee: "126000002654", weight: 331759000)
+        let extraFee = RuntimeDispatchInfo(inclusionFee: feeDetails)
         presenter.didReceiveFee(result: .success(extraFee))
 
         // when

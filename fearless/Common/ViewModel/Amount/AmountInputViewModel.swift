@@ -4,7 +4,7 @@ import Foundation
     func amountInputDidChange()
 }
 
-protocol AmountInputViewModelProtocol: AnyObject {
+protocol IAmountInputViewModel: AnyObject {
     var symbol: String { get }
     var displayAmount: String { get }
     var decimalAmount: Decimal? { get }
@@ -15,11 +15,11 @@ protocol AmountInputViewModelProtocol: AnyObject {
     func didUpdateAmount(to newAmount: Decimal)
 }
 
-extension AmountInputViewModelProtocol {
+extension IAmountInputViewModel {
     func didUpdateAmount(to _: Decimal) {}
 }
 
-final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable {
+final class AmountInputViewModel: IAmountInputViewModel, MoneyPresentable {
     static let zero: String = "0"
 
     var displayAmount: String {

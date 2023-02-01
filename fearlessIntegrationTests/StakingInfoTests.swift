@@ -3,30 +3,43 @@ import XCTest
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import FearlessUtils
 
 class StakingInfoTests: XCTestCase {
     func testRewardsPolkadot() throws {
+        let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        
         try performCalculatorServiceTest(
             address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
-            chainId: Chain.polkadot.genesisHash,
+            chainAsset: chainAsset,
             chainFormat: .substrate(0),
             assetPrecision: 10
         )
     }
 
     func testRewardsKusama() throws {
+        let asset = ChainModelGenerator.generateAssetWithId("1e0c2ec6-935f-49bd-a854-5e12ee6c9f1b", symbol: "ksm")
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 2)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        
         try performCalculatorServiceTest(
             address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
-            chainId: Chain.kusama.genesisHash,
+            chainAsset: chainAsset,
             chainFormat: .substrate(2),
             assetPrecision: 12
         )
     }
 
     func testRewardsWestend() throws {
+        let asset = ChainModelGenerator.generateAssetWithId("a3868e1b-922e-42d4-b73e-b41712f0843c", symbol: "wnd")
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 42)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
+        
         try performCalculatorServiceTest(
             address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-            chainId: Chain.westend.genesisHash,
+            chainAsset: chainAsset,
             chainFormat: .substrate(42),
             assetPrecision: 12
         )
@@ -35,7 +48,7 @@ class StakingInfoTests: XCTestCase {
     // MARK: - Private
     private func performCalculatorServiceTest(
         address: String,
-        chainId: ChainModel.Id,
+        chainAsset: ChainAsset,
         chainFormat: ChainFormat,
         assetPrecision: Int16
     ) throws {
@@ -55,13 +68,37 @@ class StakingInfoTests: XCTestCase {
         )
 
         let validatorService = try stakingServiceFactory.createEraValidatorService(
-            for: chainId
+            for: chainAsset.chain
+        )
+        
+        let operationManager = OperationManagerFacade.sharedManager
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+        
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId),
+              let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId)
+        else {
+            throw ChainRegistryError.connectionUnavailable
+        }
+        
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
+        let rewardOperationFactory = SubqueryRewardOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+        let collatorOperationFactory = ParachainCollatorOperationFactory(
+            asset: chainAsset.asset,
+            chain: chainAsset.chain,
+            storageRequestFactory: storageRequestFactory,
+            runtimeService: runtimeService,
+            engine: connection,
+            identityOperationFactory: identityOperationFactory,
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         let rewardCalculatorService = try stakingServiceFactory.createRewardCalculatorService(
-            for: chainId,
+            for: chainAsset,
             assetPrecision: assetPrecision,
-            validatorService: validatorService
+            validatorService: validatorService, collatorOperationFactory: collatorOperationFactory
         )
 
         let chainItemRepository = SubstrateRepositoryFactory(
@@ -75,9 +112,10 @@ class StakingInfoTests: XCTestCase {
         )
 
         let subscriptionId = remoteStakingSubcriptionService.attachToGlobalData(
-            for: chainId,
+            for: chainAsset.chain.chainId,
             queue: nil,
-            closure: nil
+            closure: nil,
+            stakingType: chainAsset.stakingType
         )
 
         // when
@@ -119,9 +157,10 @@ class StakingInfoTests: XCTestCase {
 
         remoteStakingSubcriptionService.detachFromGlobalData(
             for: subscriptionId!,
-            chainId: chainId,
+            chainId: chainAsset.chain.chainId,
             queue: nil,
-            closure: nil
+            closure: nil,
+            stakingType: chainAsset.stakingType
         )
     }
 }

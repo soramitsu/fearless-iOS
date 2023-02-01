@@ -5,7 +5,7 @@ typealias SendModuleCreationResult = (view: SendViewInput, input: SendModuleInpu
 
 protocol SendViewInput: ControllerBackedProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
-    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?)
+    func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(selectNetworkViewModel: SelectNetworkViewModel)
     func didReceive(feeViewModel: BalanceViewModelProtocol?)
     func didReceive(tipViewModel: TipViewModel?)

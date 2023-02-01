@@ -31,22 +31,26 @@ class ChainSelectionTests: XCTestCase {
         let saveChainsOperation = repository.saveOperation( { chains }, { [] })
         operationQueue.addOperations([saveChainsOperation], waitUntilFinished: true)
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactoryStub(
-            balance: BigUInt(1e+18)
+        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactoryStub()
+
+        let adapter = MockAccountInfoSubscriptionAdapter()
+        let interactor = ChainSelectionInteractor(
+            selectedMetaAccount: selectedAccount,
+            repository: AnyDataProviderRepository(repository),
+            accountInfoSubscriptionAdapter: adapter,
+            operationQueue: operationQueue,
+            showBalances: true,
+            chainModels: chains
         )
-
-        let adapter = AccountInfoSubscriptionAdapter(walletLocalSubscriptionFactory: walletLocalSubscriptionFactory,
-                                                     selectedMetaAccount: selectedAccount)
-        let interactor = ChainSelectionInteractor(selectedMetaAccount: selectedAccount,
-                                                  repository: AnyDataProviderRepository(repository),
-                                                  accountInfoSubscriptionAdapter: adapter,
-                                                  operationQueue: operationQueue)
-
+    
         let presenter = ChainSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
-            selectedChainId: chains.last!.chainId,
+            selectedChainId: chains.first!.chainId,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            includeAllNetworksCell: true,
+            showBalances: true,
+            selectedMetaAccount: selectedAccount,
             localizationManager: LocalizationManager.shared
         )
 

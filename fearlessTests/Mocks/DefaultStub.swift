@@ -83,11 +83,12 @@ extension MockStakingRemoteSubscriptionServiceProtocol {
             stub.attachToGlobalData(
                 for: any(),
                 queue: any(),
-                closure: any()
-            ).then { chainId, maybeQueue, maybeClosure in
+                closure: any(),
+                stakingType: any()
+            ).then { result in
 
-                if let closure = maybeClosure {
-                    let queue = maybeQueue ?? DispatchQueue.main
+                if let closure = result.2 {
+                    let queue = result.1 ?? DispatchQueue.main
 
                     queue.async {
                         closure(.success(()))
@@ -101,10 +102,11 @@ extension MockStakingRemoteSubscriptionServiceProtocol {
                 for: any(),
                 chainId: any(),
                 queue: any(),
-                closure: any()
-            ).then { subscriptionId, chainId, maybeQueue, maybeClosure in
-                if let closure = maybeClosure {
-                    let queue = maybeQueue ?? DispatchQueue.main
+                closure: any(),
+                stakingType: any()
+            ).then { result in
+                if let closure = result.3 {
+                    let queue = result.2 ?? DispatchQueue.main
 
                     queue.async {
                         closure(.success(()))
@@ -120,7 +122,7 @@ extension MockStakingRemoteSubscriptionServiceProtocol {
 extension MockStakingAccountUpdatingServiceProtocol {
     func applyDefault() -> MockStakingAccountUpdatingServiceProtocol {
         stub(self) { stub in
-            stub.setupSubscription(for: any(), chainId: any(), chainFormat: any()).thenDoNothing()
+            stub.setupSubscription(for: any(), chainAsset: any(), chainFormat: any(), stakingType: any()).thenDoNothing()
             stub.clearSubscription().thenDoNothing()
         }
 

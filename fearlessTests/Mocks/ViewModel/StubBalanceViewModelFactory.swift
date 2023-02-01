@@ -4,6 +4,24 @@ import CommonWallet
 @testable import fearless
 
 struct StubBalanceViewModelFactory: BalanceViewModelFactoryProtocol {
+    func balanceFromPrice(_ amount: Decimal, priceData: fearless.PriceData?, isApproximately: Bool) -> SoraFoundation.LocalizableResource<fearless.BalanceViewModelProtocol> {
+        LocalizableResource { _ in
+            BalanceViewModel(amount: amount.description, price: priceData?.price.description)
+        }
+    }
+    
+    func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: fearless.PriceData?) -> SoraFoundation.LocalizableResource<fearless.AssetBalanceViewModelProtocol> {
+        LocalizableResource { _ in
+            AssetBalanceViewModel(
+                symbol: "KSM",
+                balance: balance?.description,
+                fiatBalance: nil,
+                price: priceData?.price.description,
+                iconViewModel: nil
+            )
+        }
+    }
+    
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
         LocalizableResource { _ in
             "$100"
@@ -22,20 +40,9 @@ struct StubBalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol> {
+    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<fearless.IAmountInputViewModel> {
         LocalizableResource { _ in
-            AmountInputViewModel(symbol: "KSM", amount: amount, limit: 0, formatter: NumberFormatter())
-        }
-    }
-
-    func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?) -> LocalizableResource<AssetBalanceViewModelProtocol> {
-        LocalizableResource { _ in
-            AssetBalanceViewModel(
-                symbol: "KSM",
-                balance: balance?.description,
-                price: priceData?.price.description,
-                iconViewModel: nil
-            )
+            fearless.AmountInputViewModel(symbol: "KSM", amount: amount, formatter: NumberFormatter())
         }
     }
 }

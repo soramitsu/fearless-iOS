@@ -7,7 +7,7 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     let presenter: CrowdloanContributionSetupPresenterProtocol
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
 
     var uiFactory: UIFactoryProtocol = UIFactory.default
 
@@ -83,7 +83,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         rootView.bind(feeViewModel: viewModel)
     }
 
-    func didReceiveInput(viewModel: AmountInputViewModelProtocol) {
+    func didReceiveInput(viewModel: IAmountInputViewModel) {
         amountInputViewModel?.observable.remove(observer: self)
 
         amountInputViewModel = viewModel

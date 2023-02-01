@@ -6,12 +6,43 @@ import SoraFoundation
 import RobinHood
 
 class MockAccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol {
-    func subscribe(chain: ChainModel,
-                   accountId: AccountId,
-                   handler: AccountInfoSubscriptionAdapterHandler?) {
+    
+    func subscribe(chainAsset: ChainAsset, accountId: AccountId, handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
+        let accountInfo  = AccountInfo(
+            nonce: 0,
+            consumers: 1,
+            providers: 2,
+            data: AccountData(
+                free: BigUInt(100000),
+                reserved: 0,
+                miscFrozen: 0,
+                feeFrozen: 0
+            )
+        )
+        
+            
+        handler?.handleAccountInfo(result: .success(accountInfo), accountId: accountId, chainAsset: chainAsset)
     }
-    func subscribe(chains: [ChainModel], handler: AccountInfoSubscriptionAdapterHandler?) {
+    
+    func subscribe(chainsAssets: [ChainAsset], handler: AccountInfoSubscriptionAdapterHandler?, deliveryOn queue: DispatchQueue?) {
+        chainsAssets.forEach { chainAsset in
+            let accountInfo  = AccountInfo(
+                nonce: 0,
+                consumers: 1,
+                providers: 2,
+                data: AccountData(
+                    free: BigUInt(100000),
+                    reserved: 0,
+                    miscFrozen: 0,
+                    feeFrozen: 0
+                )
+            )
+            
+                
+            handler?.handleAccountInfo(result: .success(accountInfo), accountId: Data.random(of: 32)!, chainAsset: chainAsset)
+        }
     }
+
     func reset() {
     }
 }
@@ -44,27 +75,29 @@ class AssetSelectionTests: XCTestCase {
         let saveChainsOperation = repository.saveOperation( { chains }, { [] })
         operationQueue.addOperations([saveChainsOperation], waitUntilFinished: true)
 
-        let walletLocalSubscriptionFactory = WalletLocalSubscriptionFactoryStub(
-            balance: BigUInt(1e+18)
+        let interactor = ChainSelectionInteractor(
+            selectedMetaAccount: selectedAccount,
+            repository: AnyDataProviderRepository(repository),
+            accountInfoSubscriptionAdapter: MockAccountInfoSubscriptionAdapter(),
+            operationQueue: operationQueue,
+            showBalances: true,
+            chainModels: nil
         )
-
-        let interactor = ChainSelectionInteractor(selectedMetaAccount: selectedAccount,
-                                                  repository: AnyDataProviderRepository(repository),
-                                                  accountInfoSubscriptionAdapter: MockAccountInfoSubscriptionAdapter(),
-                                                  operationQueue: operationQueue)
-
+        
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
         let selectedChainAssetId = ChainAssetId(
             chainId: selectedChain.chainId,
             assetId: selectedAsset.assetId
         )
+        let chainAsset = ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
 
         let presenter = AssetSelectionPresenter(
             interactor: interactor,
             wireframe: wireframe,
             assetFilter: { asset in asset.staking != nil },
-            selectedChainAssetId: selectedChainAssetId,
+            type: .normal(chainAsset: chainAsset),
+            selectedMetaAccount: selectedAccount,
             assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
             localizationManager: LocalizationManager.shared
         )
@@ -88,8 +121,8 @@ class AssetSelectionTests: XCTestCase {
         let completionExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            stub.complete(on: any(), selecting: any()).then { (_, chainAsset) in
-                XCTAssertEqual(chains.first, chainAsset.chain)
+            stub.complete(on: any(), selecting: any(), context: any()).then { result in
+                XCTAssertEqual(chains.first, result.1.chain)
                 XCTAssertNotNil(selectedAsset.staking)
                 completionExpectation.fulfill()
             }

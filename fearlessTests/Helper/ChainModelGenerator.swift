@@ -46,10 +46,9 @@ enum ChainModelGenerator {
                             options: options.isEmpty ? nil : options,
                             externalApi: externalApi,
                             customNodes: nil,
-                            iosMinAppVersion: nil,
-                            unused: false
+                            iosMinAppVersion: nil
                         )
-            let asset = generateAssetWithId("", assetPresicion: 12, chainId: chainId)
+            let asset = generateAssetWithId("", symbol: "", assetPresicion: 12, chainId: chainId)
             let chainAsset = generateChainAsset(asset, chain: chain, staking: staking)
             let chainAssets = Set(arrayLiteral: chainAsset)
             chain.assets = chainAssets
@@ -98,12 +97,12 @@ enum ChainModelGenerator {
             options: options.isEmpty ? nil : options,
             externalApi: externalApi,
             customNodes: nil,
-            iosMinAppVersion: nil,
-            unused: false
+            iosMinAppVersion: nil
         )
         let chainAssetsArray: [ChainAssetModel] = (0..<count).map { index in
             let asset = generateAssetWithId(
                 AssetModel.Id(index),
+                symbol: "\(index)",
                 assetPresicion: assetPresicion
             )
             return generateChainAsset(asset, chain: chain, staking: staking)
@@ -113,26 +112,34 @@ enum ChainModelGenerator {
         return chain
     }
     
-    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: StakingType? = nil) -> ChainAssetModel {
-        ChainAssetModel(assetId: asset.id,
-                        staking: staking,
-                        purchaseProviders: nil,
-                        asset: asset,
-                        chain: chain)
+    static func generateChainAsset(_ asset: AssetModel, chain: ChainModel, staking: StakingType? = nil, chainAssetType: ChainAssetType = .normal) -> ChainAssetModel {
+        ChainAssetModel(
+            assetId: asset.id,
+            type: chainAssetType,
+            asset: asset,
+            chain: chain,
+            isUtility: asset.chainId == chain.chainId)
     }
 
     static func generateAssetWithId(
         _ identifier: AssetModel.Id,
+        symbol: String,
         assetPresicion: UInt16 = (9...18).randomElement()!,
         chainId: String = ""
     ) -> AssetModel {
         AssetModel(
             id: identifier,
+            symbol: symbol,
             chainId: chainId,
-            precision: 12,
+            precision: assetPresicion,
             icon: nil,
             priceId: nil,
-            price: nil
+            price: nil,
+            fiatDayChange: nil,
+            transfersEnabled: true,
+            currencyId: nil,
+            displayName: nil,
+            existentialDeposit: nil
         )
     }
 
@@ -162,9 +169,10 @@ enum ChainModelGenerator {
         } else {
             stakingApi = nil
         }
+        
 
         if crowdloanApi != nil || stakingApi != nil {
-            return ChainModel.ExternalApiSet(staking: stakingApi, history: nil, crowdloans: crowdloanApi)
+            return ChainModel.ExternalApiSet(staking: stakingApi, history: nil, crowdloans: crowdloanApi, explorers: nil)
         } else {
             return nil
         }

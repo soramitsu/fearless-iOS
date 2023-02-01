@@ -9,6 +9,14 @@ final class MockConnection {
 }
 
 extension MockConnection: ChainConnection {
+    var pendingEngineRequests: [FearlessUtils.JSONRPCRequest] {
+        []
+    }
+    
+    func connect(with pendingRequests: [FearlessUtils.JSONRPCRequest]) {
+
+    }
+    
     func generateRequestId() -> UInt16 {
         0
     }

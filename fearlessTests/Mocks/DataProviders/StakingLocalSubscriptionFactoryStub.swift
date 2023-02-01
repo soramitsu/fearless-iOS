@@ -13,6 +13,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
     let activeEra: ActiveEraInfo?
     let currentEra: EraIndex?
     let payee: RewardDestinationArg?
+    let poolMember: StakingPoolMember?
     let totalReward: TotalRewardItem?
     let stashItem: StashItem?
     let storageFacade: StorageFacadeProtocol
@@ -27,6 +28,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         activeEra: ActiveEraInfo? = nil,
         currentEra: EraIndex? = nil,
         payee: RewardDestinationArg? = nil,
+        poolMember: StakingPoolMember? = nil,
         totalReward: TotalRewardItem? = nil,
         stashItem: StashItem? = nil,
         storageFacade: StorageFacadeProtocol = SubstrateStorageTestFacade()
@@ -40,6 +42,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         self.activeEra = activeEra
         self.currentEra = currentEra
         self.payee = payee
+        self.poolMember = poolMember
         self.totalReward = totalReward
         self.stashItem = stashItem
         self.storageFacade = storageFacade
@@ -115,29 +118,6 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         return AnyDataProvider(DataProviderStub(models: [maxNominatorsCountModel]))
     }
 
-    func getNominationProvider(
-        for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedNomination> {
-        let localIdentifierFactory = LocalStorageKeyFactory()
-
-        let nominationModel: DecodedNomination = try {
-            let localKey = try localIdentifierFactory.createFromStoragePath(
-                .nominators,
-                accountId: accountId,
-                chainId: chainId
-            )
-
-            if let nomination = nomination {
-                return DecodedNomination(identifier: localKey, item: nomination)
-            } else {
-                return DecodedNomination(identifier: localKey, item: nil)
-            }
-        }()
-
-        return AnyDataProvider(DataProviderStub(models: [nominationModel]))
-    }
-
     func getValidatorProvider(
         for accountId: AccountId,
         chainId: ChainModel.Id
@@ -147,7 +127,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         let validatorModel: DecodedValidator = try {
             let localKey = try localIdentifierFactory.createFromStoragePath(
                 .validatorPrefs,
-                accountId: accountId,
+                encodableElement: accountId,
                 chainId: chainId
             )
 
@@ -159,52 +139,6 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         }()
 
         return AnyDataProvider(DataProviderStub(models: [validatorModel]))
-    }
-
-    func getLedgerInfoProvider(
-        for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedLedgerInfo> {
-        let localIdentifierFactory = LocalStorageKeyFactory()
-
-        let ledgerInfoModel: DecodedLedgerInfo = try {
-            let localKey = try localIdentifierFactory.createFromStoragePath(
-                .stakingLedger,
-                accountId: accountId,
-                chainId: chainId
-            )
-
-            if let ledgerInfo = ledgerInfo {
-                return DecodedLedgerInfo(identifier: localKey, item: ledgerInfo)
-            } else {
-                return DecodedLedgerInfo(identifier: localKey, item: nil)
-            }
-        }()
-
-        return AnyDataProvider(DataProviderStub(models: [ledgerInfoModel]))
-    }
-
-    func getPayee(
-        for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedPayee> {
-        let localIdentifierFactory = LocalStorageKeyFactory()
-
-        let payeeModel: DecodedPayee = try {
-            let localKey = try localIdentifierFactory.createFromStoragePath(
-                .payee,
-                accountId: accountId,
-                chainId: chainId
-            )
-
-            if let payee = payee {
-                return DecodedPayee(identifier: localKey, item: payee)
-            } else {
-                return DecodedPayee(identifier: localKey, item: nil)
-            }
-        }()
-
-        return AnyDataProvider(DataProviderStub(models: [payeeModel]))
     }
 
     func getActiveEra(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedActiveEra> {
@@ -266,5 +200,105 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
         }
 
         return provider
+    }
+    
+    func getNominationProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedNomination> {
+        let localIdentifierFactory = LocalStorageKeyFactory()
+
+        let nominationModel: DecodedNomination = try {
+            let localKey = try localIdentifierFactory.createFromStoragePath(
+                .nominators,
+                encodableElement: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+
+            if let nomination = nomination {
+                return DecodedNomination(identifier: localKey, item: nomination)
+            } else {
+                return DecodedNomination(identifier: localKey, item: nil)
+            }
+        }()
+
+        return AnyDataProvider(DataProviderStub(models: [nominationModel]))
+    }
+    
+    func getValidatorProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedValidator> {
+        let localIdentifierFactory = LocalStorageKeyFactory()
+
+        let validatorModel: DecodedValidator = try {
+            let localKey = try localIdentifierFactory.createFromStoragePath(
+                .validatorPrefs,
+                encodableElement: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+
+            if let validatorPrefs = validatorPrefs {
+                return DecodedValidator(identifier: localKey, item: validatorPrefs)
+            } else {
+                return DecodedValidator(identifier: localKey, item: nil)
+            }
+        }()
+
+        return AnyDataProvider(DataProviderStub(models: [validatorModel]))
+    }
+    
+    func getLedgerInfoProvider(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedLedgerInfo> {
+        let localIdentifierFactory = LocalStorageKeyFactory()
+
+        let ledgerInfoModel: DecodedLedgerInfo = try {
+            let localKey = try localIdentifierFactory.createFromStoragePath(
+                .stakingLedger,
+                encodableElement: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+
+            if let ledgerInfo = ledgerInfo {
+                return DecodedLedgerInfo(identifier: localKey, item: ledgerInfo)
+            } else {
+                return DecodedLedgerInfo(identifier: localKey, item: nil)
+            }
+        }()
+
+        return AnyDataProvider(DataProviderStub(models: [ledgerInfoModel]))
+    }
+    
+    func getPayee(for accountId: fearless.AccountId, chainAsset: fearless.ChainAsset) throws -> RobinHood.AnyDataProvider<fearless.DecodedPayee> {
+        let localIdentifierFactory = LocalStorageKeyFactory()
+
+        let payeeModel: DecodedPayee = try {
+            let localKey = try localIdentifierFactory.createFromStoragePath(
+                .payee,
+                encodableElement: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+
+            if let payee = payee {
+                return DecodedPayee(identifier: localKey, item: payee)
+            } else {
+                return DecodedPayee(identifier: localKey, item: nil)
+            }
+        }()
+
+        return AnyDataProvider(DataProviderStub(models: [payeeModel]))
+    }
+    
+    func getPoolMembersProvider(for chainAsset: fearless.ChainAsset, accountId: fearless.AccountId) throws -> RobinHood.AnyDataProvider<fearless.DecodedPoolMember> {
+        let localIdentifierFactory = LocalStorageKeyFactory()
+
+        let poolMemberModel: DecodedPoolMember = try {
+            let localKey = try localIdentifierFactory.createFromStoragePath(
+                .stakingPoolMembers,
+                encodableElement: accountId,
+                chainId: chainAsset.chain.chainId
+            )
+
+            if let poolMember = poolMember {
+                return DecodedPoolMember(identifier: localKey, item: poolMember)
+            } else {
+                return DecodedPoolMember(identifier: localKey, item: nil)
+            }
+        }()
+
+        return AnyDataProvider(DataProviderStub(models: [poolMemberModel]))
     }
 }

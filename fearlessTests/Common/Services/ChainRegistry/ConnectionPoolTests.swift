@@ -11,7 +11,7 @@ class ConnectionPoolTests: XCTestCase {
             let connectionFactory = MockConnectionFactoryProtocol()
 
             stub(connectionFactory) { stub in
-                stub.createConnection(for: any(), delegate: any()).then { _ in
+                stub.createConnection(connectionName: any(), for: any(), delegate: any()).then { _ in
                     MockConnection()
                 }
             }
@@ -56,7 +56,7 @@ class ConnectionPoolTests: XCTestCase {
             }
 
             stub(connectionFactory) { stub in
-                stub.createConnection(for: any(), delegate: any()).then { _ in
+                stub.createConnection(connectionName: any(), for: any(), delegate: any()).then { _ in
                     setupConnection()
                 }
             }

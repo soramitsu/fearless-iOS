@@ -33,7 +33,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -411,7 +411,7 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
         updateActionButton()
     }
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let concreteViewModel = viewModel.value(for: locale)
 

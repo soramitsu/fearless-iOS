@@ -12,7 +12,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
 
     private let output: StakingPoolCreateViewOutput
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var poolNameInputViewModel: InputViewModelProtocol?
 
     // MARK: - Constructor
@@ -137,7 +137,7 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel) {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)
