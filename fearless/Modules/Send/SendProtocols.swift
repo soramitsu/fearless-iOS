@@ -54,6 +54,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)
     func didReceive(possibleChains: [ChainModel]?)
+    func didReceive(eqTotalBalance: BigUInt)
 }
 
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {
