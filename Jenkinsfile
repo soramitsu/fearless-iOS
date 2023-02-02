@@ -10,5 +10,5 @@ def appPipline = new org.ios.AppPipeline(
     appTests: true,
     appPushNoti: true,
     jobParams: jobParams,
-    label: 'macos-ios-1-2')
+    label: 'macOS-latest')
 appPipline.runPipeline('fearless')
