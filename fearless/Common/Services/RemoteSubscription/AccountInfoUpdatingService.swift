@@ -64,7 +64,7 @@ final class AccountInfoUpdatingService {
             case let .insert(newItem):
                 if chainRegistry.availableChainIds.or([]).contains(newItem.chainId) {
                     if newItem.isEquilibrium {
-                        guard let utility = newItem.utilityChainAssets().first else {
+                        guard let utility = newItem.chainAssets.first else {
                             return
                         }
                         addSubscriptionIfNeeded(for: utility)
