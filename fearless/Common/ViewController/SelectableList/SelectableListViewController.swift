@@ -48,7 +48,9 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
             setupKeyboardHandler()
         }
         if listPresenter.numberOfItems == 0 {
-            didStartLoading()
+            if isMovingToParent {
+                didStartLoading()
+            }
         }
     }
 
