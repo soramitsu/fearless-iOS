@@ -24,6 +24,7 @@ struct SheetAlertPresentableViewModel {
     let message: String?
     let messageStyle: SheetAlertPresentableStyle?
     let actions: [SheetAlertPresentableAction]
+    let isInfo: Bool
     let closeAction: String?
     let dismissCompletion: (() -> Void)?
 
@@ -33,6 +34,7 @@ struct SheetAlertPresentableViewModel {
         message: String?,
         messageStyle: SheetAlertPresentableStyle? = .defaultSubtitle,
         actions: [SheetAlertPresentableAction],
+        isInfo: Bool = false,
         closeAction: String?,
         dismissCompletion: (() -> Void)? = nil
     ) {
@@ -41,6 +43,7 @@ struct SheetAlertPresentableViewModel {
         self.message = message
         self.messageStyle = messageStyle
         self.actions = actions
+        self.isInfo = isInfo
         self.closeAction = closeAction
         self.dismissCompletion = dismissCompletion
     }
@@ -58,6 +61,12 @@ protocol SheetAlertPresentable: BaseErrorPresentable, ErrorPresentable {
         closeAction: String?,
         from view: ControllerBackedProtocol?,
         actions: [SheetAlertPresentableAction]
+    )
+
+    func presentInfo(
+        message: String?,
+        title: String,
+        from view: ControllerBackedProtocol?
     )
 }
 
@@ -93,7 +102,32 @@ extension SheetAlertPresentable {
             title: title,
             message: message,
             actions: actions,
+            isInfo: false,
             closeAction: closeAction
+        )
+        let sheetController = SheetAletViewController(viewModel: viewModel)
+        sheetController.modalPresentationStyle = .custom
+        let factory = ModalSheetBlurPresentationFactory(configuration: .fearlessBlur)
+        sheetController.modalTransitioningFactory = factory
+
+        controller.present(sheetController, animated: true)
+    }
+
+    func presentInfo(
+        message: String?,
+        title: String,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let controller = view?.controller else {
+            return
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [],
+            isInfo: true,
+            closeAction: nil
         )
         let sheetController = SheetAletViewController(viewModel: viewModel)
         sheetController.modalPresentationStyle = .custom

@@ -565,10 +565,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             infoText = R.string.localizable
                 .polkaswapMaximumSoldInfo(preferredLanguages: selectedLocale.rLanguages)
         }
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
@@ -578,10 +577,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             .polkaswapLiquidityProviderFee(preferredLanguages: selectedLocale.rLanguages)
         let infoText = R.string.localizable
             .polkaswapLiqudityFeeInfo(preferredLanguages: selectedLocale.rLanguages)
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
@@ -591,10 +589,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             .commonNetworkFee(preferredLanguages: selectedLocale.rLanguages)
         let infoText = R.string.localizable
             .polkaswapNetworkFeeInfo(preferredLanguages: selectedLocale.rLanguages)
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
