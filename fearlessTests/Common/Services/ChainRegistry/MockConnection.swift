@@ -4,11 +4,13 @@ import FearlessUtils
 
 final class MockConnection {
     let internalConnection = MockJSONRPCEngine()
-    let autobalancing = MockConnectionAutobalancing()
-    let stateReporting = MockConnectionStateReporting()
 }
 
 extension MockConnection: ChainConnection {
+    func connectIfNeeded() {
+        
+    }
+    
     var pendingEngineRequests: [FearlessUtils.JSONRPCRequest] {
         []
     }
@@ -27,21 +29,13 @@ extension MockConnection: ChainConnection {
     
     var url: URL? {
         get {
-            autobalancing.url
+            internalConnection.url
         }
         set(newValue) { }
     }
-    
-    var ranking: [ConnectionRank] {
-        autobalancing.ranking
-    }
-
-    func set(ranking: [ConnectionRank]) {
-        autobalancing.set(ranking: ranking)
-    }
 
     var state: WebSocketEngine.State {
-        stateReporting.state
+        .connected
     }
 
     func callMethod<P, T>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 where P : Encodable, T : Decodable {

@@ -549,6 +549,32 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
     
     
     
+    public var url: URL? {
+        get {
+            return cuckoo_manager.getter("url",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.url)
+        }
+        
+        set {
+            cuckoo_manager.setter("url",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.url = newValue)
+        }
+        
+    }
+    
+    
+    
+    
+    
     public var pendingEngineRequests: [JSONRPCRequest] {
         get {
             return cuckoo_manager.getter("pendingEngineRequests",
@@ -669,26 +695,6 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
     
     
     
-    public func connect(with pendingRequests: [JSONRPCRequest])  {
-        
-    return cuckoo_manager.call(
-    """
-    connect(with: [JSONRPCRequest])
-    """,
-            parameters: (pendingRequests),
-            escapingParameters: (pendingRequests),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.connect(with: pendingRequests))
-        
-    }
-    
-    
-    
-    
-    
     public func reconnect(url: URL)  {
         
     return cuckoo_manager.call(
@@ -706,6 +712,46 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
     }
     
     
+    
+    
+    
+    public func connectIfNeeded()  {
+        
+    return cuckoo_manager.call(
+    """
+    connectIfNeeded()
+    """,
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.connectIfNeeded())
+        
+    }
+    
+    
+    
+    
+    
+    public func disconnectIfNeeded()  {
+        
+    return cuckoo_manager.call(
+    """
+    disconnectIfNeeded()
+    """,
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.disconnectIfNeeded())
+        
+    }
+    
+    
 
     public struct __StubbingProxy_JSONRPCEngine: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -713,6 +759,13 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
         public init(manager: Cuckoo.MockManager) {
             self.cuckoo_manager = manager
         }
+        
+        
+        
+        var url: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockJSONRPCEngine, URL> {
+            return .init(manager: cuckoo_manager, name: "url")
+        }
+        
         
         
         
@@ -779,22 +832,33 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
         
         
         
-        func connect<M1: Cuckoo.Matchable>(with pendingRequests: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([JSONRPCRequest])> where M1.MatchedType == [JSONRPCRequest] {
-            let matchers: [Cuckoo.ParameterMatcher<([JSONRPCRequest])>] = [wrap(matchable: pendingRequests) { $0 }]
+        func reconnect<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(URL)> where M1.MatchedType == URL {
+            let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
             return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
     """
-    connect(with: [JSONRPCRequest])
+    reconnect(url: URL)
     """, parameterMatchers: matchers))
         }
         
         
         
         
-        func reconnect<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(URL)> where M1.MatchedType == URL {
-            let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
+        func connectIfNeeded() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
             return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
     """
-    reconnect(url: URL)
+    connectIfNeeded()
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func disconnectIfNeeded() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method:
+    """
+    disconnectIfNeeded()
     """, parameterMatchers: matchers))
         }
         
@@ -812,6 +876,13 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
             self.sourceLocation = sourceLocation
         }
     
+        
+        
+        
+        var url: Cuckoo.VerifyOptionalProperty<URL> {
+            return .init(manager: cuckoo_manager, name: "url", callMatcher: callMatcher, sourceLocation: sourceLocation)
+        }
+        
         
         
         
@@ -885,18 +956,6 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
         
         
         @discardableResult
-        func connect<M1: Cuckoo.Matchable>(with pendingRequests: M1) -> Cuckoo.__DoNotUse<([JSONRPCRequest]), Void> where M1.MatchedType == [JSONRPCRequest] {
-            let matchers: [Cuckoo.ParameterMatcher<([JSONRPCRequest])>] = [wrap(matchable: pendingRequests) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    connect(with: [JSONRPCRequest])
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
         func reconnect<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.__DoNotUse<(URL), Void> where M1.MatchedType == URL {
             let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
             return cuckoo_manager.verify(
@@ -906,11 +965,48 @@ public class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
         }
         
         
+        
+        
+        @discardableResult
+        func connectIfNeeded() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+    """
+    connectIfNeeded()
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
+        func disconnectIfNeeded() -> Cuckoo.__DoNotUse<(), Void> {
+            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+            return cuckoo_manager.verify(
+    """
+    disconnectIfNeeded()
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
 
 public class JSONRPCEngineStub: JSONRPCEngine {
+    
+    
+    
+    
+    public var url: URL? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (URL?).self)
+        }
+        
+        set { }
+        
+    }
+    
     
     
     
@@ -970,7 +1066,7 @@ public class JSONRPCEngineStub: JSONRPCEngine {
     
     
     
-    public func connect(with pendingRequests: [JSONRPCRequest])   {
+    public func reconnect(url: URL)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -978,7 +1074,15 @@ public class JSONRPCEngineStub: JSONRPCEngine {
     
     
     
-    public func reconnect(url: URL)   {
+    public func connectIfNeeded()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+    public func disconnectIfNeeded()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -3032,394 +3136,6 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
-
-
-
-
-
-
- class MockConnectionAutobalancing: ConnectionAutobalancing, Cuckoo.ProtocolMock {
-    
-     typealias MocksType = ConnectionAutobalancing
-    
-     typealias Stubbing = __StubbingProxy_ConnectionAutobalancing
-     typealias Verification = __VerificationProxy_ConnectionAutobalancing
-
-     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: ConnectionAutobalancing?
-
-     func enableDefaultImplementation(_ stub: ConnectionAutobalancing) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-    
-    
-    
-     var ranking: [ConnectionRank] {
-        get {
-            return cuckoo_manager.getter("ranking",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.ranking)
-        }
-        
-    }
-    
-    
-    
-    
-    
-     var url: URL? {
-        get {
-            return cuckoo_manager.getter("url",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.url)
-        }
-        
-        set {
-            cuckoo_manager.setter("url",
-                value: newValue,
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.url = newValue)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-     func set(ranking: [ConnectionRank])  {
-        
-    return cuckoo_manager.call(
-    """
-    set(ranking: [ConnectionRank])
-    """,
-            parameters: (ranking),
-            escapingParameters: (ranking),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.set(ranking: ranking))
-        
-    }
-    
-    
-    
-    
-    
-     func disconnectIfNeeded()  {
-        
-    return cuckoo_manager.call(
-    """
-    disconnectIfNeeded()
-    """,
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.disconnectIfNeeded())
-        
-    }
-    
-    
-
-     struct __StubbingProxy_ConnectionAutobalancing: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        var ranking: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockConnectionAutobalancing, [ConnectionRank]> {
-            return .init(manager: cuckoo_manager, name: "ranking")
-        }
-        
-        
-        
-        
-        var url: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockConnectionAutobalancing, URL> {
-            return .init(manager: cuckoo_manager, name: "url")
-        }
-        
-        
-        
-        
-        
-        func set<M1: Cuckoo.Matchable>(ranking: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ConnectionRank])> where M1.MatchedType == [ConnectionRank] {
-            let matchers: [Cuckoo.ParameterMatcher<([ConnectionRank])>] = [wrap(matchable: ranking) { $0 }]
-            return .init(stub: cuckoo_manager.createStub(for: MockConnectionAutobalancing.self, method:
-    """
-    set(ranking: [ConnectionRank])
-    """, parameterMatchers: matchers))
-        }
-        
-        
-        
-        
-        func disconnectIfNeeded() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return .init(stub: cuckoo_manager.createStub(for: MockConnectionAutobalancing.self, method:
-    """
-    disconnectIfNeeded()
-    """, parameterMatchers: matchers))
-        }
-        
-        
-    }
-
-     struct __VerificationProxy_ConnectionAutobalancing: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-        
-        
-        var ranking: Cuckoo.VerifyReadOnlyProperty<[ConnectionRank]> {
-            return .init(manager: cuckoo_manager, name: "ranking", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        var url: Cuckoo.VerifyOptionalProperty<URL> {
-            return .init(manager: cuckoo_manager, name: "url", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-    
-        
-        
-        
-        @discardableResult
-        func set<M1: Cuckoo.Matchable>(ranking: M1) -> Cuckoo.__DoNotUse<([ConnectionRank]), Void> where M1.MatchedType == [ConnectionRank] {
-            let matchers: [Cuckoo.ParameterMatcher<([ConnectionRank])>] = [wrap(matchable: ranking) { $0 }]
-            return cuckoo_manager.verify(
-    """
-    set(ranking: [ConnectionRank])
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-        
-        
-        @discardableResult
-        func disconnectIfNeeded() -> Cuckoo.__DoNotUse<(), Void> {
-            let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-            return cuckoo_manager.verify(
-    """
-    disconnectIfNeeded()
-    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-        }
-        
-        
-    }
-}
-
-
- class ConnectionAutobalancingStub: ConnectionAutobalancing {
-    
-    
-    
-    
-     var ranking: [ConnectionRank] {
-        get {
-            return DefaultValueRegistry.defaultValue(for: ([ConnectionRank]).self)
-        }
-        
-    }
-    
-    
-    
-    
-    
-     var url: URL? {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (URL?).self)
-        }
-        
-        set { }
-        
-    }
-    
-    
-
-    
-
-    
-    
-    
-    
-     func set(ranking: [ConnectionRank])   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-    
-    
-    
-     func disconnectIfNeeded()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-    
-}
-
-
-
-
-
-import Cuckoo
-@testable import fearless
-@testable import SoraKeystore
-
-import FearlessUtils
-import Foundation
-
-
-
-
-
-
- class MockConnectionStateReporting: ConnectionStateReporting, Cuckoo.ProtocolMock {
-    
-     typealias MocksType = ConnectionStateReporting
-    
-     typealias Stubbing = __StubbingProxy_ConnectionStateReporting
-     typealias Verification = __VerificationProxy_ConnectionStateReporting
-
-     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
-
-    
-    private var __defaultImplStub: ConnectionStateReporting?
-
-     func enableDefaultImplementation(_ stub: ConnectionStateReporting) {
-        __defaultImplStub = stub
-        cuckoo_manager.enableDefaultStubImplementation()
-    }
-    
-
-    
-    
-    
-    
-     var state: WebSocketEngine.State {
-        get {
-            return cuckoo_manager.getter("state",
-                superclassCall:
-                    
-                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                    ,
-                defaultCall: __defaultImplStub!.state)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-
-     struct __StubbingProxy_ConnectionStateReporting: Cuckoo.StubbingProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-    
-         init(manager: Cuckoo.MockManager) {
-            self.cuckoo_manager = manager
-        }
-        
-        
-        
-        var state: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockConnectionStateReporting, WebSocketEngine.State> {
-            return .init(manager: cuckoo_manager, name: "state")
-        }
-        
-        
-        
-    }
-
-     struct __VerificationProxy_ConnectionStateReporting: Cuckoo.VerificationProxy {
-        private let cuckoo_manager: Cuckoo.MockManager
-        private let callMatcher: Cuckoo.CallMatcher
-        private let sourceLocation: Cuckoo.SourceLocation
-    
-         init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
-            self.cuckoo_manager = manager
-            self.callMatcher = callMatcher
-            self.sourceLocation = sourceLocation
-        }
-    
-        
-        
-        
-        var state: Cuckoo.VerifyReadOnlyProperty<WebSocketEngine.State> {
-            return .init(manager: cuckoo_manager, name: "state", callMatcher: callMatcher, sourceLocation: sourceLocation)
-        }
-        
-        
-    
-        
-    }
-}
-
-
- class ConnectionStateReportingStub: ConnectionStateReporting {
-    
-    
-    
-    
-     var state: WebSocketEngine.State {
-        get {
-            return DefaultValueRegistry.defaultValue(for: (WebSocketEngine.State).self)
-        }
-        
-    }
-    
-    
-
-    
-
-    
-}
-
-
-
-
-
-import Cuckoo
-@testable import fearless
-@testable import SoraKeystore
-
-import Foundation
 import RobinHood
 
 
@@ -4380,6 +4096,7 @@ import Cuckoo
 
 import FearlessUtils
 import Foundation
+import SoraFoundation
 
 
 
