@@ -28,6 +28,7 @@ final class WalletSendConfirmPresenter {
     private var blockDuration: BlockTime?
     private var minimumBalance: BigUInt?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+    private var eqUilibriumTotalBalance: BigUInt?
 
     init(
         interactor: WalletSendConfirmInteractorInputProtocol,
@@ -202,6 +203,13 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             )
         }
 
+        if chainAsset.chain.isEquilibrium {
+            utilityBalance = Decimal.fromSubstrateAmount(
+                eqUilibriumTotalBalance ?? .zero,
+                precision: Int16(chainAsset.asset.precision)
+            )
+        }
+
         let edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
             .utility(
                 spendingAmount: spendingValue,
@@ -340,6 +348,10 @@ extension WalletSendConfirmPresenter: WalletSendConfirmInteractorOutputProtocol 
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
+    }
+
+    func didReceive(eqTotalBalance: BigUInt) {
+        eqUilibriumTotalBalance = eqTotalBalance
     }
 }
 

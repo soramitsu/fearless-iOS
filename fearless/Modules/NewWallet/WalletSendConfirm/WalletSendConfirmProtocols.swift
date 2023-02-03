@@ -26,7 +26,7 @@ protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-
+    func didReceive(eqTotalBalance: BigUInt)
     func didTransfer(result: Result<String, Error>)
 }
 
