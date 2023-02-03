@@ -39,6 +39,7 @@ final class SendPresenter {
     private var balanceMinusFeeAndTip: Decimal { (balance ?? 0) - (fee ?? 0) - (tip ?? 0) }
     private var scamInfo: ScamInfo?
     private var state: State = .normal
+    private var eqUilibriumTotalBalance: BigUInt?
 
     // MARK: - Constructors
 
@@ -186,6 +187,13 @@ extension SendPresenter: SendViewOutput {
         if let minBalance = minimumBalance {
             minimumBalanceDecimal = Decimal.fromSubstrateAmount(
                 minBalance,
+                precision: Int16(chainAsset.asset.precision)
+            )
+        }
+
+        if chainAsset.chain.isEquilibrium {
+            utilityBalance = Decimal.fromSubstrateAmount(
+                eqUilibriumTotalBalance ?? .zero,
                 precision: Int16(chainAsset.asset.precision)
             )
         }
@@ -406,6 +414,10 @@ extension SendPresenter: SendInteractorOutput {
                 delegate: self
             )
         }
+    }
+
+    func didReceive(eqTotalBalance: BigUInt) {
+        eqUilibriumTotalBalance = eqTotalBalance
     }
 }
 
