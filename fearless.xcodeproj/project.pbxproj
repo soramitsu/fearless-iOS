@@ -1680,6 +1680,7 @@
 		C640415D28F507E900845780 /* TriangularedTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415C28F507E900845780 /* TriangularedTextField.swift */; };
 		C640416028F5191100845780 /* CreateContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415F28F5191100845780 /* CreateContactViewModel.swift */; };
 		C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */; };
+		C646B3BD298CC9FD00A36ACE /* AddressChainDefiner.swift in Sources */ = {isa = PBXBuildFile; fileRef = C646B3BC298CC9FD00A36ACE /* AddressChainDefiner.swift */; };
 		C648FFC828DC43A70072951B /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C648FFC728DC43A70072951B /* EmptyView.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
 		C65817D128DA70FC00988FC4 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65817D028DA70FC00988FC4 /* QRView.swift */; };
@@ -4238,6 +4239,7 @@
 		C640415C28F507E900845780 /* TriangularedTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedTextField.swift; sourceTree = "<group>"; };
 		C640415F28F5191100845780 /* CreateContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModel.swift; sourceTree = "<group>"; };
 		C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModelFactory.swift; sourceTree = "<group>"; };
+		C646B3BC298CC9FD00A36ACE /* AddressChainDefiner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressChainDefiner.swift; sourceTree = "<group>"; };
 		C648FFC728DC43A70072951B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
 		C650892E2927A88400440227 /* QRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
@@ -7759,6 +7761,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				C646B3BB298CC99600A36ACE /* AddressChainDefiner */,
 				FAADC1BD29265A7900DA9903 /* QRCoding */,
 				07FBC9E328BE269F00ED65B4 /* ChainIssuesCenter */,
 				FA4B929C2844D0C80003BCEF /* SyntaxSugar */,
@@ -10369,6 +10372,14 @@
 				C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */,
 			);
 			path = "View Models";
+			sourceTree = "<group>";
+		};
+		C646B3BB298CC99600A36ACE /* AddressChainDefiner */ = {
+			isa = PBXGroup;
+			children = (
+				C646B3BC298CC9FD00A36ACE /* AddressChainDefiner.swift */,
+			);
+			path = AddressChainDefiner;
 			sourceTree = "<group>";
 		};
 		C65817CF28DA70D900988FC4 /* View */ = {
@@ -15409,6 +15420,7 @@
 				7BEEF481CD12F404AD746FB5 /* WalletChainAccountDashboardViewLayout.swift in Sources */,
 				D23DD717E3EA941FA78B59C9 /* WalletChainAccountDashboardViewFactory.swift in Sources */,
 				FAA0136A28DA12E3000A5230 /* StakingRedeemConfirmationWireframe.swift in Sources */,
+				C646B3BD298CC9FD00A36ACE /* AddressChainDefiner.swift in Sources */,
 				FA2FC7FC28B3807C00CC0A42 /* StakingPoolJoinChoosePoolPresenter.swift in Sources */,
 				07D05E6928EF0F2700B66C70 /* PoolNominateCall.swift in Sources */,
 				3B1D59D21B409CADFCEF5EEA /* WalletScanQRProtocols.swift in Sources */,

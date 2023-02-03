@@ -976,3 +976,5 @@
 "polkaswap.dex.alert.title" = "Token Pair Isn’t Created";
 "polkaswap.quotes.not.available" = "Quotes not available";
 "all.done.subscan.button.title" = "Subscan";
+"error.invalid.address" = "Invalid address for selected chain";
+"same.address.transfer.warning.message" = "Вы пытаетесь сделать трансфер на свой адрес. За операцию будет списана комиссия и это не несет никакого смысла.";

@@ -89,7 +89,9 @@ extension SendPresenter: SendViewOutput {
                 isValid: true
             )
             view.didReceive(viewModel: viewModel)
-            interactor.getPossibleChains(for: address)
+            interactor.getPossibleChains(for: address) { possibleChains in
+                didReceive(possibleChains: possibleChains)
+            }
         }
     }
 
@@ -112,14 +114,66 @@ extension SendPresenter: SendViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapContinueButton() {
-        guard let chainAsset = selectedChainAsset else { return }
-        guard let address = recipientAddress,
-              interactor.validate(address: address, for: chainAsset.chain)
-        else {
-            router.present(message: nil, title: "Incorrect address", closeAction: "Close", from: view)
-            return
+    func validateAddress(with chainAsset: ChainAsset, successCompletion: @escaping (String) -> Void) {
+        switch interactor.validate(address: recipientAddress, for: chainAsset.chain) {
+        case let .valid(address):
+            successCompletion(address)
+        case let .invalid(address):
+            guard let address = address else {
+                router.present(
+                    message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                    closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+                    from: view
+                )
+                return
+            }
+            interactor.getPossibleChains(for: address) { possibleChains in
+                guard let possibleChains = possibleChains else {
+                    router.present(
+                        message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+                        title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                        closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+                        from: view
+                    )
+                    return
+                }
+                let action = SheetAlertPresentableAction(
+                    title: R.string.localizable.commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
+                ) { [weak self] in
+                    guard let strongSelf = self else { return }
+                    strongSelf.router.showSelectNetwork(
+                        from: strongSelf.view,
+                        wallet: strongSelf.wallet,
+                        selectedChainId: nil,
+                        chainModels: possibleChains,
+                        delegate: strongSelf
+                    )
+                }
+                router.present(
+                    message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                    closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+                    from: view,
+                    actions: [action]
+                )
+                return
+            }
+        case let .sameAddress(address):
+            let action = SheetAlertPresentableAction(title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)) {
+                successCompletion(address)
+            }
+            router.present(
+                message: R.string.localizable.sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
+                title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                from: view,
+                actions: [action]
+            )
         }
+    }
+
+    func validateInputData(with address: String, chainAsset: ChainAsset) {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
@@ -175,6 +229,13 @@ extension SendPresenter: SendViewOutput {
                 tip: strongSelf.tip,
                 scamInfo: strongSelf.scamInfo
             )
+        }
+    }
+
+    func didTapContinueButton() {
+        guard let chainAsset = selectedChainAsset else { return }
+        validateAddress(with: chainAsset) { [weak self] address in
+            self?.validateInputData(with: address, chainAsset: chainAsset)
         }
     }
 
@@ -494,10 +555,9 @@ private extension SendPresenter {
     func handle(newAddress: String) {
         recipientAddress = newAddress
         guard let chainAsset = selectedChainAsset else { return }
-        let addressIsValid = interactor.validate(address: newAddress, for: chainAsset.chain)
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
-            isValid: addressIsValid
+            isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid
         )
         view?.didReceive(viewModel: viewModel)
 
