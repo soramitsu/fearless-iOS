@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-final class SelectCurrencyViewController: UIViewController, ViewHolder {
+final class SelectCurrencyViewController: UIViewController, ViewHolder, LoadableViewProtocol {
     typealias RootViewType = SelectCurrencyViewLayout
 
     // MARK: Private properties
@@ -44,6 +44,11 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        didStartLoading()
     }
 
     // MARK: - Private methods
@@ -110,6 +115,7 @@ extension SelectCurrencyViewController: SelectCurrencyViewInput {
     func didRecieve(viewModel: [SelectCurrencyCellViewModel]) {
         viewModels = viewModel
         rootView.tableView.reloadData()
+        didStopLoading()
     }
 }
 

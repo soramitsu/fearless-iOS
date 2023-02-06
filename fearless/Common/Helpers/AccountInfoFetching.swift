@@ -196,7 +196,7 @@ private extension AccountInfoFetching {
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let decodingOperation = StorageDecodingOperation<EquilibriumAccountInfo?>(
-            path: .eqBalances,
+            path: chainAsset.storagePath,
             data: item.data
         )
         decodingOperation.configurationBlock = {
@@ -210,22 +210,41 @@ private extension AccountInfoFetching {
 
         decodingOperation.addDependency(codingFactoryOperation)
 
-        decodingOperation.completionBlock = {
+        decodingOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 guard let result = decodingOperation.result else {
                     completionBlock(chainAsset, nil)
                     return
                 }
-
-                switch result {
-                case let .success(equilibriumAccountInfo):
-                    let accountInfo = AccountInfo(equilibriumAccountInfo: equilibriumAccountInfo)
-                    completionBlock(chainAsset, accountInfo)
-                case .failure:
-                    completionBlock(chainAsset, nil)
-                }
+                self?.handleEquilibrium(result: result, chainAsset: chainAsset, completionBlock: completionBlock)
             }
         }
         operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
+    }
+
+    private func handleEquilibrium(
+        result: Result<EquilibriumAccountInfo?, Error>,
+        chainAsset: ChainAsset,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        switch result {
+        case let .success(equilibriumAccountInfo):
+            switch equilibriumAccountInfo?.data {
+            case let .v0data(info):
+                let map = info.mapBalances()
+                chainAsset.chain.chainAssets.forEach { chainAsset in
+                    guard let currencyId = chainAsset.asset.currencyId else {
+                        return
+                    }
+                    let equilibriumFree = map[currencyId]
+                    let accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
+                    completionBlock(chainAsset, accountInfo)
+                }
+            case .none:
+                completionBlock(chainAsset, nil)
+            }
+        case .failure:
+            completionBlock(chainAsset, nil)
+        }
     }
 }

@@ -39,13 +39,12 @@ final class WalletTransactionHistoryDependencyContainer {
 
         let service = HistoryService(operationFactory: operationFactory, operationQueue: OperationQueue())
         var dataProvider: SingleValueProvider<AssetTransactionPageData>?
-        if let utilityChainAsset = getUtilityAsset(for: chainAsset),
-           let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             dataProvider = try? dataProviderFactory.createDataProvider(
                 for: address,
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
-                targetIdentifier: "wallet.transaction.history.\(address)",
+                targetIdentifier: "wallet.transaction.history.\(address).\(chainAsset.chainAssetId)",
                 using: .main
             )
         }
