@@ -7,10 +7,7 @@ final class BalanceInfoViewLayout: UIView {
         return label
     }()
 
-    private let balanceContainerView: UIView = {
-        let view = UIView()
-        return view
-    }()
+    private let balanceContainerView = UIStackView()
 
     private let balanceLabel: UILabel = {
         let label = UILabel()
@@ -42,8 +39,8 @@ final class BalanceInfoViewLayout: UIView {
     }
 
     private func setupLayout() {
-        balanceContainerView.addSubview(balanceLabel)
-        balanceContainerView.addSubview(infoButton)
+        balanceContainerView.addArrangedSubview(balanceLabel)
+        balanceContainerView.addArrangedSubview(infoButton)
         balanceLabel.snp.makeConstraints { make in
             make.leading.top.bottom.equalToSuperview()
         }
