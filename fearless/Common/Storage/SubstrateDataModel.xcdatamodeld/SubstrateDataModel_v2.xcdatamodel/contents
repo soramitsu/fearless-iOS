@@ -85,7 +85,7 @@
     </entity>
     <entity name="CDExternalApi" representedClassName="CDExternalApi" syncable="YES" codeGenerationType="class">
         <attribute name="type" optional="YES" attributeType="String"/>
-        <attribute name="types" optional="YES" attributeType="Transformable"/>
+        <attribute name="types" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <attribute name="url" optional="YES" attributeType="String"/>
         <relationship name="chain" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDChain" inverseName="explorers" inverseEntity="CDChain"/>
     </entity>

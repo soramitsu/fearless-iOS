@@ -317,7 +317,7 @@ extension WalletBalanceSubscriptionAdapter: AccountInfoSubscriptionAdapterHandle
 
             accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
             guard chainAssets.count == accountInfos.keys.count else {
-                if chainAsset.chain.isEquilibrium {
+                if chainAssets.count == 1, chainAsset.chain.isEquilibrium {
                     buildBalance()
                 }
                 return

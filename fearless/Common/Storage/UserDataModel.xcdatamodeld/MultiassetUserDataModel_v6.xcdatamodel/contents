@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="20086" systemVersion="21D62" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDChainAccount" representedClassName="CDChainAccount" syncable="YES" codeGenerationType="class">
         <attribute name="accountId" attributeType="String"/>
         <attribute name="chainId" attributeType="String"/>
@@ -24,9 +24,9 @@
         <attribute name="url" attributeType="URI"/>
     </entity>
     <entity name="CDMetaAccount" representedClassName="CDMetaAccount" syncable="YES" codeGenerationType="class">
-        <attribute name="assetFilterOptions" optional="YES" attributeType="Transformable"/>
-        <attribute name="assetIdsEnabled" optional="YES" attributeType="Transformable" customClassName="NSArray"/>
-        <attribute name="assetKeysOrder" optional="YES" attributeType="Transformable" customClassName="NSArray"/>
+        <attribute name="assetFilterOptions" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="assetIdsEnabled" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="NSArray"/>
+        <attribute name="assetKeysOrder" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" customClassName="NSArray"/>
         <attribute name="canExportEthereumMnemonic" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="chainIdForFilter" optional="YES" attributeType="String"/>
         <attribute name="ethereumAddress" optional="YES" attributeType="String"/>
@@ -38,15 +38,8 @@
         <attribute name="substrateAccountId" attributeType="String"/>
         <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="substratePublicKey" attributeType="Binary"/>
-        <attribute name="unusedChainIds" optional="YES" attributeType="Transformable"/>
+        <attribute name="unusedChainIds" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
         <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
         <relationship name="selectedCurrency" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDCurrency"/>
     </entity>
-    <elements>
-        <element name="CDChainAccount" positionX="-54" positionY="-9" width="128" height="119"/>
-        <element name="CDChainSettings" positionX="-54" positionY="45" width="128" height="59"/>
-        <element name="CDCurrency" positionX="-45" positionY="108" width="128" height="104"/>
-        <element name="CDCustomChainNode" positionX="-45" positionY="54" width="128" height="59"/>
-        <element name="CDMetaAccount" positionX="-63" positionY="-18" width="128" height="284"/>
-    </elements>
 </model>
