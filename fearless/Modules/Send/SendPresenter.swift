@@ -90,8 +90,8 @@ extension SendPresenter: SendViewOutput {
                 isValid: true
             )
             view.didReceive(viewModel: viewModel)
-            interactor.getPossibleChains(for: address) { possibleChains in
-                didReceive(possibleChains: possibleChains)
+            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
+                self?.didReceive(possibleChains: possibleChains)
             }
         }
     }
@@ -121,56 +121,18 @@ extension SendPresenter: SendViewOutput {
             successCompletion(address)
         case let .invalid(address):
             guard let address = address else {
-                router.present(
-                    message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
-                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                    closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-                    from: view
-                )
+                showInvalidAddressAlert()
                 return
             }
-            interactor.getPossibleChains(for: address) { possibleChains in
+            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
                 guard let possibleChains = possibleChains else {
-                    router.present(
-                        message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
-                        title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                        closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-                        from: view
-                    )
+                    self?.showInvalidAddressAlert()
                     return
                 }
-                let action = SheetAlertPresentableAction(
-                    title: R.string.localizable.commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
-                ) { [weak self] in
-                    guard let strongSelf = self else { return }
-                    strongSelf.router.showSelectNetwork(
-                        from: strongSelf.view,
-                        wallet: strongSelf.wallet,
-                        selectedChainId: nil,
-                        chainModels: possibleChains,
-                        delegate: strongSelf
-                    )
-                }
-                router.present(
-                    message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
-                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                    closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
-                    from: view,
-                    actions: [action]
-                )
-                return
+                showPossibleChainsAlert(possibleChains)
             }
         case let .sameAddress(address):
-            let action = SheetAlertPresentableAction(title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)) {
-                successCompletion(address)
-            }
-            router.present(
-                message: R.string.localizable.sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
-                title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
-                from: view,
-                actions: [action]
-            )
+            showSameAddressAlert(address, successCompletion: successCompletion)
         }
     }
 
@@ -354,7 +316,7 @@ extension SendPresenter: SendInteractorOutput {
         view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
-            guard var chainAsset = selectedChainAsset,
+            guard let chainAsset = selectedChainAsset,
                   let utilityAsset = interactor.getUtilityAsset(for: chainAsset) else { return }
             fee = BigUInt(dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
@@ -627,6 +589,53 @@ private extension SendPresenter {
                 output: self
             )
         }
+    }
+
+    private func showInvalidAddressAlert() {
+        router.present(
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            from: view
+        )
+    }
+
+    private func showPossibleChainsAlert(_ possibleChains: [ChainModel]) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showSelectNetwork(
+                from: strongSelf.view,
+                wallet: strongSelf.wallet,
+                selectedChainId: nil,
+                chainModels: possibleChains,
+                delegate: strongSelf
+            )
+        }
+        router.present(
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: [action]
+        )
+    }
+
+    private func showSameAddressAlert(_ address: String, successCompletion: @escaping (String) -> Void) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)
+        ) {
+            successCompletion(address)
+        }
+        router.present(
+            message: R.string.localizable
+                .sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: [action]
+        )
     }
 }
 
