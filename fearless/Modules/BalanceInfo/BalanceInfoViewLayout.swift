@@ -49,8 +49,9 @@ final class BalanceInfoViewLayout: UIView {
         }
         infoButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview()
-            make.leading.equalTo(balanceLabel.snp.trailing).offset(UIConstants.minimalOffset)
+            make.leading.equalTo(balanceLabel.snp.trailing)
             make.centerY.equalTo(balanceLabel)
+            make.size.equalTo(UIConstants.minButtonSize)
         }
 
         let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
