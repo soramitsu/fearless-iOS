@@ -3,16 +3,17 @@ import CommonWallet
 import BigInt
 import IrohaCrypto
 import FearlessUtils
+import SoraFoundation
 
 extension AssetTransactionData {
     static func createTransaction(
         transfer: GiantsquidTransfer,
         address: String,
-        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
+        let locale = LocalizationManager.shared.selectedLocale
         let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: transfer.timestamp)
+        let date = dateFormatter.value(for: locale).date(from: transfer.timestamp)
         let peerAddress = transfer.from?.id == address ? transfer.to?.id : transfer.from?.id
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
@@ -49,8 +50,9 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
+        let locale = LocalizationManager.shared.selectedLocale
         let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: reward.timestamp)
+        let date = dateFormatter.value(for: locale).date(from: reward.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(reward.amount) ?? 0,
@@ -87,8 +89,9 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
+        let locale = LocalizationManager.shared.selectedLocale
         let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: bond.timestamp)
+        let date = dateFormatter.value(for: locale).date(from: bond.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(bond.amount) ?? 0,
@@ -125,8 +128,9 @@ extension AssetTransactionData {
         chain: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
+        let locale = LocalizationManager.shared.selectedLocale
         let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: slash.timestamp)
+        let date = dateFormatter.value(for: locale).date(from: slash.timestamp)
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
             BigUInt(slash.amount) ?? 0,

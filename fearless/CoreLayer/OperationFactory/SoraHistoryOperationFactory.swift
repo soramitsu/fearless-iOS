@@ -21,22 +21,6 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        fetchSubqueryHistoryOperation(
-            asset: asset,
-            chain: chain,
-            address: address,
-            filters: filters,
-            pagination: pagination
-        )
-    }
-
-    func fetchSubqueryHistoryOperation(
-        asset: AssetModel,
-        chain: ChainModel,
-        address: String,
-        filters: [WalletTransactionHistoryFilter],
-        pagination: Pagination
-    ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],

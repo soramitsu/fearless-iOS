@@ -32,12 +32,4 @@ protocol HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?>
-
-    func fetchSubqueryHistoryOperation(
-        asset: AssetModel,
-        chain: ChainModel,
-        address: String,
-        filters: [WalletTransactionHistoryFilter],
-        pagination: Pagination
-    ) -> CompoundOperationWrapper<AssetTransactionPageData?>
 }

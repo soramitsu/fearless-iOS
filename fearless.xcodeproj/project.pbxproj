@@ -2230,6 +2230,7 @@
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
+		FA6C174F2992519400A55254 /* DateFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C174E2992519400A55254 /* DateFormats.swift */; };
 		FA6D407F2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6D407E2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift */; };
 		FA6D40812837A4A300A7A4C6 /* SelectedValidatorListRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6D40802837A4A300A7A4C6 /* SelectedValidatorListRelaychainViewModelFactory.swift */; };
 		FA6DB7C32757C9B000233FBA /* ChainAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */; };
@@ -4839,6 +4840,7 @@
 		FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
+		FA6C174E2992519400A55254 /* DateFormats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormats.swift; sourceTree = "<group>"; };
 		FA6D407E2837A49700A7A4C6 /* SelectedValidatorListRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA6D40802837A4A300A7A4C6 /* SelectedValidatorListRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorListRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA6DB7BC2757C9AF00233FBA /* ChainAccountViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountViewLayout.swift; sourceTree = "<group>"; };
@@ -8162,6 +8164,7 @@
 				C65A6591288E5CF400679D65 /* AccountInfoFetching.swift */,
 				07F2B75E28AA183C00280C38 /* PrintTimer.swift */,
 				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
+				FA6C174E2992519400A55254 /* DateFormats.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -15363,6 +15366,7 @@
 				C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */,
 				FAA0137428DA12E3000A5230 /* StakingRedeemConfirmationRelaychainViewModelState.swift in Sources */,
 				FA37AE272859AB1B001DCA96 /* DelegatorBondMoreCall.swift in Sources */,
+				FA6C174F2992519400A55254 /* DateFormats.swift in Sources */,
 				076D9D4F2946E665002762E3 /* PolkaswapSwapCall.swift in Sources */,
 				FAAA46752976916300F53FB8 /* AssetTransactionData+GiantsquidHistory.swift in Sources */,
 				270C21973CB61F0BF3D2D1E3 /* CrowdloanListProtocols.swift in Sources */,

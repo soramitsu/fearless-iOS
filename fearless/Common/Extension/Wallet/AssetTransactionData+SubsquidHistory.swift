@@ -35,8 +35,6 @@ extension AssetTransactionData {
             return createTransaction(
                 from: item,
                 extrinsic: extrinsic,
-                address: address,
-                chain: chain,
                 asset: asset
             )
         }
@@ -157,8 +155,6 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubsquidHistoryElement,
         extrinsic: SubsquidExtrinsic,
-        address _: String,
-        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(

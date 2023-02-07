@@ -45,7 +45,7 @@ extension DateFormatter {
     static var giantsquidDate: LocalizableResource<DateFormatter> {
         LocalizableResource { _ in
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSSZ"
+            dateFormatter.dateFormat = DateStringFormat.subsquid.rawValue
             return dateFormatter
         }
     }
@@ -53,7 +53,7 @@ extension DateFormatter {
     static var suibsquidInputDate: LocalizableResource<DateFormatter> {
         LocalizableResource { _ in
             let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'"
+            dateFormatter.dateFormat = DateStringFormat.subsquidInput.rawValue
             return dateFormatter
         }
     }
