@@ -36,10 +36,24 @@ final class SendPresenter {
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var inputResult: AmountInputResult?
-    private var balanceMinusFeeAndTip: Decimal { (balance ?? 0) - (fee ?? 0) - (tip ?? 0) }
     private var scamInfo: ScamInfo?
     private var state: State = .normal
-    private var eqUilibriumTotalBalance: BigUInt?
+    private var eqUilibriumTotalBalance: Decimal?
+    private var balanceMinusFeeAndTip: Decimal {
+        let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
+        if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
+            return (balance ?? 0)
+        }
+        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0)
+    }
+
+    private var fullAmount: Decimal {
+        let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
+        if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
+            return (balance ?? 0)
+        }
+        return (balance ?? 0) + (fee ?? 0) + (tip ?? 0)
+    }
 
     // MARK: - Constructors
 
@@ -114,8 +128,8 @@ extension SendPresenter: SendViewOutput {
     }
 
     func didTapContinueButton() {
-        guard let chainAsset = selectedChainAsset else { return }
-        guard let address = recipientAddress,
+        guard let chainAsset = selectedChainAsset,
+              let address = recipientAddress,
               interactor.validate(address: address, for: chainAsset.chain)
         else {
             router.present(message: nil, title: "Incorrect address", closeAction: "Close", from: view)
@@ -127,7 +141,7 @@ extension SendPresenter: SendViewOutput {
             (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0) +
             (tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isSora) ?
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
@@ -137,14 +151,7 @@ extension SendPresenter: SendViewOutput {
             )
         }
 
-        if chainAsset.chain.isEquilibrium {
-            utilityBalance = Decimal.fromSubstrateAmount(
-                eqUilibriumTotalBalance ?? .zero,
-                precision: Int16(chainAsset.asset.precision)
-            )
-        }
-
-        let edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
+        var edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
             .utility(
                 spendingAmount: spendingValue,
                 totalAmount: totalBalanceValue,
@@ -155,6 +162,12 @@ extension SendPresenter: SendViewOutput {
                 feeAndTip: (fee ?? 0) + (tip ?? 0),
                 utilityBalance: utilityBalance
             )
+        if chainAsset.chain.isEquilibrium {
+            edParameters = .equilibrium(
+                minimumBalance: minimumBalanceDecimal,
+                totalBalance: eqUilibriumTotalBalance
+            )
+        }
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -251,7 +264,8 @@ extension SendPresenter: SendInteractorOutput {
                 } ?? 0.0
 
                 provideAssetVewModel()
-            } else if let utilityAsset = selectedChainAsset {
+            } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+                      utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -293,8 +307,8 @@ extension SendPresenter: SendInteractorOutput {
         view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
-            guard var chainAsset = selectedChainAsset,
-                  let utilityAsset = interactor.getUtilityAsset(for: chainAsset) else { return }
+            guard let chainAsset = selectedChainAsset,
+                  let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
             fee = BigUInt(dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
@@ -355,7 +369,7 @@ extension SendPresenter: SendInteractorOutput {
         }
     }
 
-    func didReceive(eqTotalBalance: BigUInt) {
+    func didReceive(eqTotalBalance: Decimal) {
         eqUilibriumTotalBalance = eqTotalBalance
     }
 }
@@ -433,11 +447,14 @@ private extension SendPresenter {
             priceData: priceData
         ).value(for: selectedLocale)
         view?.didReceive(assetBalanceViewModel: viewModel)
+
+        let fullAmount = inputResult?.absoluteValue(from: fullAmount) ?? .zero
+        interactor.calculateEquilibriumBalance(chainAsset: chainAsset, amount: fullAmount)
     }
 
     func provideTipViewModel() {
         guard let chainAsset = selectedChainAsset,
-              let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
+              let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
               .prepareDepencies(chainAsset: utilityAsset)?
@@ -458,7 +475,7 @@ private extension SendPresenter {
     }
 
     func provideFeeViewModel() {
-        guard let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
+        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
               .prepareDepencies(chainAsset: utilityAsset)?
