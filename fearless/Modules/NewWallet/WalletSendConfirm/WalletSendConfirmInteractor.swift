@@ -14,6 +14,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let receiverAddress: String
     private let signingWrapper: SigningWrapperProtocol
     private let chainAsset: ChainAsset
+    private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 
     let dependencyContainer: SendDepencyContainer
 
@@ -90,12 +91,26 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
         }
     }
 
+    private func fetchEquilibriumTotalBalance(chainAsset: ChainAsset) {
+        if chainAsset.chain.isEquilibrium {
+            let service = dependencyContainer
+                .prepareDepencies(chainAsset: chainAsset)?
+                .equilibruimTotalBalanceService
+            equilibriumTotalBalanceService = service
+
+            equilibriumTotalBalanceService?
+                .fetchTotalBalance(completion: { [weak self] totalBalance in
+                    self?.presenter?.didReceive(eqTotalBalance: totalBalance)
+                })
+        }
+    }
+
     func setup() {
         feeProxy.delegate = self
 
         subscribeToPrice()
         subscribeToAccountInfo()
-
+        fetchEquilibriumTotalBalance(chainAsset: chainAsset)
         provideConstants()
     }
 }

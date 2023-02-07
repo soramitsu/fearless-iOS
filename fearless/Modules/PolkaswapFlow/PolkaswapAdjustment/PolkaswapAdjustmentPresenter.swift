@@ -56,7 +56,7 @@ final class PolkaswapAdjustmentPresenter {
 
     private var xorBalance: Decimal?
     private var xorBalanceMinusFee: Decimal {
-        (xorBalance ?? 0) - (networkFee ?? 0) - (liquidityProviderFee ?? 0)
+        (xorBalance ?? 0) - (networkFee ?? 0)
     }
 
     // MARK: - Constructors
@@ -350,6 +350,9 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
+        if swapFromChainAsset == xorChainAsset {
+            swapFromBalance = xorBalanceMinusFee
+        }
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let polkaswapDexForRoute = polkaswapDexForRoute,
@@ -431,7 +434,7 @@ final class PolkaswapAdjustmentPresenter {
         DataValidationRunner(validators: [
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
-                feeAndTip: (networkFee ?? .zero) + (liquidityProviderFee ?? .zero),
+                feeAndTip: networkFee ?? .zero,
                 sendAmount: sendAmount,
                 locale: selectedLocale
             )
@@ -598,11 +601,15 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
     func didTapPreviewButton() {
         guard let networkFee = networkFee,
-              let liquidityProviderFee = liquidityProviderFee,
               let params = preparePreviewParams(),
               let amounts = calcalatedAmounts
         else {
             return
+        }
+
+        // if don't have XOR balance for fee payment, fee will be payment from receive amount
+        if xorBalance.or(.zero) < networkFee, swapToChainAsset?.identifier == xorChainAsset.identifier {
+            xorBalance = networkFee
         }
 
         DataValidationRunner(validators: [
@@ -611,7 +618,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             }),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
-                feeAndTip: networkFee + liquidityProviderFee,
+                feeAndTip: networkFee,
                 sendAmount: .zero,
                 locale: selectedLocale
             ),

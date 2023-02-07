@@ -63,6 +63,7 @@ extension WalletsManagmentInteractor: WalletsManagmentInteractorInput {
         let oldMetaAccount = settings.value
 
         guard wallet.info.identifier != oldMetaAccount?.identifier else {
+            output?.didCompleteSelection()
             return
         }
 

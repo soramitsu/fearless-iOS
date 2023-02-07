@@ -87,11 +87,9 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         let webView = PurchaseViewFactory.createView(
             for: action
         )
-        view?.controller.dismiss(animated: true, completion: {
-            if let webViewController = webView?.controller {
-                view?.controller.present(webViewController, animated: true, completion: nil)
-            }
-        })
+        if let webViewController = webView?.controller {
+            view?.controller.present(webViewController, animated: true, completion: nil)
+        }
     }
 
     func presentNodeSelection(

@@ -553,7 +553,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY + UIConstants.actionHeight
         let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
 
         var contentInsets = scrollView.contentInset
@@ -577,7 +577,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
             actionButton.snp.updateConstraints { make in
                 make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-                    .inset(updatedFrame.height + UIConstants.bigOffset)
+                    .inset(updatedFrame.height)
             }
         } else {
             actionButton.snp.updateConstraints { make in
