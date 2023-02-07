@@ -95,7 +95,8 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.symbol == rhs.symbol &&
             lhs.transfersEnabled == rhs.transfersEnabled &&
             lhs.currencyId == rhs.currencyId &&
-            lhs.displayName == rhs.displayName
+            lhs.displayName == rhs.displayName &&
+            lhs.existentialDeposit == rhs.existentialDeposit
     }
 }
 

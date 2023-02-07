@@ -1,5 +1,6 @@
 import Foundation
 import FearlessUtils
+import SoraFoundation
 
 enum ConnectionPoolError: Error {
     case onlyOneNode
@@ -18,6 +19,7 @@ protocol ConnectionPoolDelegate: AnyObject {
 
 final class ConnectionPool {
     private let connectionFactory: ConnectionFactoryProtocol
+    private let applicationHandler = ApplicationHandler()
     private weak var delegate: ConnectionPoolDelegate?
 
     private let mutex = NSLock()
@@ -32,8 +34,11 @@ final class ConnectionPool {
 
     init(connectionFactory: ConnectionFactoryProtocol) {
         self.connectionFactory = connectionFactory
+        applicationHandler.delegate = self
     }
 }
+
+// MARK: - ConnectionPoolProtocol
 
 extension ConnectionPool: ConnectionPoolProtocol {
     func setDelegate(_ delegate: ConnectionPoolDelegate) {
@@ -96,6 +101,8 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 }
 
+// MARK: - WebSocketEngineDelegate
+
 extension ConnectionPool: WebSocketEngineDelegate {
     func webSocketDidChangeState(
         engine: WebSocketEngine,
@@ -107,5 +114,27 @@ extension ConnectionPool: WebSocketEngineDelegate {
         }
 
         delegate?.webSocketDidChangeState(url: previousUrl, state: newState)
+    }
+}
+
+// MARK: - ApplicationHandlerDelegate
+
+extension ConnectionPool: ApplicationHandlerDelegate {
+    func didReceiveDidEnterBackground(notification _: Notification) {
+        connectionsByChainIds.values.forEach { wrapper in
+            guard let connection = wrapper.target as? ChainConnection else {
+                return
+            }
+            connection.disconnectIfNeeded()
+        }
+    }
+
+    func didReceiveWillEnterForeground(notification _: Notification) {
+        connectionsByChainIds.values.forEach { wrapper in
+            guard let connection = wrapper.target as? ChainConnection else {
+                return
+            }
+            connection.connectIfNeeded()
+        }
     }
 }

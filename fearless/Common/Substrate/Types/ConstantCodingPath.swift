@@ -24,7 +24,7 @@ enum ConstantCodingPath: CaseIterable {
         case .existentialDeposit:
             return (moduleName: "Balances", constantName: "ExistentialDeposit")
         case .equilibriumExistentialDeposit:
-            return (moduleName: "eqBalances", constantName: "depositEq")
+            return (moduleName: "eqBalances", constantName: "ExistentialDeposit")
         case .paraLeasingPeriod:
             return (moduleName: "Slots", constantName: "LeasePeriod")
         case .babeBlockTime:

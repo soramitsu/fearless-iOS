@@ -24,10 +24,9 @@ final class WalletTransactionHistoryDependencyContainer {
             SubstrateDataStorageFacade.shared.createRepository()
 
         let operationFactory: HistoryOperationFactoryProtocol
-        switch chainAsset.chainAssetType {
-        case .soraAsset:
+        if chainAsset.chain.isSora {
             operationFactory = SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
-        default:
+        } else {
             operationFactory = HistoryOperationFactory(
                 txStorage: AnyDataProviderRepository(txStorage),
                 runtimeService: runtimeService
@@ -40,13 +39,12 @@ final class WalletTransactionHistoryDependencyContainer {
 
         let service = HistoryService(operationFactory: operationFactory, operationQueue: OperationQueue())
         var dataProvider: SingleValueProvider<AssetTransactionPageData>?
-        if let utilityChainAsset = getUtilityAsset(for: chainAsset),
-           let address = selectedAccount.fetch(for: utilityChainAsset.chain.accountRequest())?.toAddress() {
+        if let address = selectedAccount.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             dataProvider = try? dataProviderFactory.createDataProvider(
                 for: address,
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
-                targetIdentifier: "wallet.transaction.history.\(address)",
+                targetIdentifier: "wallet.transaction.history.\(address).\(chainAsset.chainAssetId)",
                 using: .main
             )
         }

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-final class StorageSubscriptionContainer: WebSocketSubscribing {
+final class StorageSubscriptionContainer {
     let children: [StorageChildSubscribing]
     let engine: JSONRPCEngine
     let logger: LoggerProtocol

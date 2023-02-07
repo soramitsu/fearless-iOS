@@ -337,8 +337,8 @@ final class StakingPoolManagementViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
 
-        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.poolStakingClaimAmountTitle(
-            "", preferredLanguages: locale.rLanguages
+        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(
+            preferredLanguages: locale.rLanguages
         )
         redeemView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(
             preferredLanguages: locale.rLanguages

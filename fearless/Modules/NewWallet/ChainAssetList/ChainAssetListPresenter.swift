@@ -72,7 +72,7 @@ final class ChainAssetListPresenter {
 
             let viewModel = self.viewModelFactory.buildViewModel(
                 displayType: self.displayType,
-                selectedMetaAccount: self.wallet,
+                wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
                 accountInfos: self.lock.concurrentlyRead { [unowned self] in

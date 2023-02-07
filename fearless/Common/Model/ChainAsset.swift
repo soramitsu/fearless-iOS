@@ -22,6 +22,12 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
     var currencyId: CurrencyId? {
         switch chainAssetType {
         case .normal:
+            if chain.isSora, isUtility {
+                guard let currencyId = asset.currencyId else {
+                    return nil
+                }
+                return CurrencyId.soraAsset(id: currencyId)
+            }
             return nil
         case .ormlChain, .ormlAsset:
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
@@ -51,7 +57,10 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
             let tokenSymbol = TokenSymbol(symbol: asset.symbol)
             return CurrencyId.stable(symbol: tokenSymbol)
         case .equilibrium:
-            return CurrencyId.equilibrium(id: asset.symbol)
+            guard let currencyId = asset.currencyId else {
+                return nil
+            }
+            return CurrencyId.equilibrium(id: currencyId)
         case .soraAsset:
             guard let currencyId = asset.currencyId else {
                 return nil
@@ -82,12 +91,9 @@ extension ChainAsset {
     }
 
     var storagePath: StorageCodingPath {
-        if isUtility, case .soraAsset = chainAssetType {
-            return StorageCodingPath.account
-        }
         var storagePath: StorageCodingPath
         switch chainAssetType {
-        case .normal:
+        case .normal, .equilibrium:
             storagePath = StorageCodingPath.account
         case
             .ormlChain,
@@ -100,8 +106,6 @@ extension ChainAsset {
             .stable,
             .soraAsset:
             storagePath = StorageCodingPath.tokens
-        case .equilibrium:
-            storagePath = StorageCodingPath.eqBalances
         }
 
         return storagePath

@@ -40,10 +40,10 @@ protocol SendInteractorInput: AnyObject {
         completionBlock: @escaping ([ChainModel]?) -> Void
     )
     func estimateFee(for amount: BigUInt, tip: BigUInt?, for address: String?, chainAsset: ChainAsset)
-    func validate(address: String, for chain: ChainModel) -> Bool
+    func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
     func fetchScamInfo(for address: String)
     func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset?
-    func getPossibleChains(for address: String)
+    func getPossibleChains(for address: String, completion: ([ChainModel]?) -> Void)
 }
 
 protocol SendInteractorOutput: AnyObject {
@@ -54,6 +54,7 @@ protocol SendInteractorOutput: AnyObject {
     func didReceiveTip(result: Result<BigUInt, Error>)
     func didReceive(scamInfo: ScamInfo?)
     func didReceive(possibleChains: [ChainModel]?)
+    func didReceive(eqTotalBalance: BigUInt)
 }
 
 protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable, PresentDismissable {

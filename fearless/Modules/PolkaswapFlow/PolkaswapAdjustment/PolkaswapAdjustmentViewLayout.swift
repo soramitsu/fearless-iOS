@@ -51,7 +51,12 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     }()
 
     let minMaxReceivedView = UIFactory.default.createMultiView()
-    let swapRouteView = UIFactory.default.createMultiView()
+    let swapRouteView: TitleMultiValueView = {
+        let view = UIFactory.default.createMultiView()
+        view.isHidden = true
+        return view
+    }()
+
     let fromPerToPriceView = UIFactory.default.createMultiView()
     let toPerFromPriceView = UIFactory.default.createMultiView()
     let liquidityProviderFeeView = UIFactory.default.createMultiView()
@@ -59,7 +64,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private lazy var multiViews = [
         minMaxReceivedView,
-        swapRouteView,
         fromPerToPriceView,
         toPerFromPriceView,
         liquidityProviderFeeView,
