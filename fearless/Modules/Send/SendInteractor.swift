@@ -15,6 +15,7 @@ final class SendInteractor: RuntimeConstantFetching {
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let chainModelRepository: AnyDataProviderRepository<ChainModel>
+    private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 
     let dependencyContainer: SendDepencyContainer
 
@@ -45,10 +46,10 @@ final class SendInteractor: RuntimeConstantFetching {
         self.dependencyContainer = dependencyContainer
         self.chainModelRepository = chainModelRepository
     }
-}
 
-private extension SendInteractor {
-    func provideConstants(for chainAsset: ChainAsset) {
+    // MARK: - Private methods
+
+    private func provideConstants(for chainAsset: ChainAsset) {
         guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
@@ -69,7 +70,7 @@ private extension SendInteractor {
         }
     }
 
-    func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
+    private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
         var chainAssets: [ChainAsset] = [chainAsset]
         if let utilityAsset = utilityAsset {
             chainAssets.append(utilityAsset)
@@ -80,7 +81,7 @@ private extension SendInteractor {
         )
     }
 
-    func subscribeToPrice(for chainAsset: ChainAsset) {
+    private func subscribeToPrice(for chainAsset: ChainAsset) {
         priceProvider?.removeObserver(self)
         utilityPriceProvider?.removeObserver(self)
         if let priceId = chainAsset.asset.priceId {
@@ -92,6 +93,20 @@ private extension SendInteractor {
            let utilityAsset = getUtilityAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
+        }
+    }
+
+    private func fetchEquilibriumTotalBalance(chainAsset: ChainAsset) {
+        if chainAsset.chain.isEquilibrium {
+            let service = dependencyContainer
+                .prepareDepencies(chainAsset: chainAsset)?
+                .equilibruimTotalBalanceService
+            equilibriumTotalBalanceService = service
+
+            equilibriumTotalBalanceService?
+                .fetchTotalBalance(completion: { [weak self] totalBalance in
+                    self?.output?.didReceive(eqTotalBalance: totalBalance)
+                })
         }
     }
 }
@@ -111,6 +126,7 @@ extension SendInteractor: SendInteractorInput {
             subscribeToAccountInfo(for: chainAsset)
             provideConstants(for: chainAsset)
         }
+        fetchEquilibriumTotalBalance(chainAsset: chainAsset)
     }
 
     func defineAvailableChains(

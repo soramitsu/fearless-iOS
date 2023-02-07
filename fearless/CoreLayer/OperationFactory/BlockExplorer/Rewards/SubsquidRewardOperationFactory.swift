@@ -98,7 +98,7 @@ final class SubsquidRewardOperationFactory {
             result.append("}")
             return result
         }()
-        
+
         return """
         query MyQuery {
           rewards(orderBy: timestamp_DESC, where: {accountId_containsInsensitive: "\(address)", \(timestampFilter)}) {

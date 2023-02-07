@@ -11,13 +11,12 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
 
     func createTransactionForAddress(
         _ address: String,
-        chain: ChainModel,
+        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         AssetTransactionData.createTransaction(
             from: self,
             address: address,
-            chain: chain,
             asset: asset
         )
     }

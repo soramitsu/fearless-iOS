@@ -150,9 +150,14 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
     }
 
     @objc private func didChangeSlider() {
-        if let float = Float(rootView.slippageToleranceView.textField.text.or("")) {
-            output.didChangeSlider(value: float)
+        let text = rootView.slippageToleranceView.textField.text
+        guard
+            text?.last != ",", text?.last != ".",
+            let float = Float(rootView.slippageToleranceView.textField.text.or(""))
+        else {
+            return
         }
+        output.didChangeSlider(value: float)
     }
 
     func textFieldDidBeginEditing(_ textField: UITextField) {

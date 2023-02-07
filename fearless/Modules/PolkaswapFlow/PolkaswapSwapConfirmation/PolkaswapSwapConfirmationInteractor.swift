@@ -25,8 +25,6 @@ final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
     }
 
     private func builderClosure() -> ExtrinsicBuilderClosure? {
-        let fromPrecision = Int16(params.swapFromChainAsset.asset.precision)
-
         guard let fromAssetId = params.swapFromChainAsset.asset.currencyId,
               let toAssetId = params.swapToChainAsset.asset.currencyId
         else {

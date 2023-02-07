@@ -1,6 +1,12 @@
 import Foundation
 import SoraFoundation
 
+protocol {{ module_info.name }}ViewInput: ControllerBackedProtocol {}
+
+protocol {{ module_info.name }}InteractorInput: AnyObject {
+    func setup(with output: {{ module_info.name }}InteractorOutput)
+}
+
 final class {{ module_info.name }}Presenter {
     // MARK: Private properties
     private weak var view: {{ module_info.name }}ViewInput?

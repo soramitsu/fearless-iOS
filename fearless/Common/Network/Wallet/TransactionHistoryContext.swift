@@ -78,6 +78,9 @@ struct TransactionHistorySourceContext {
 }
 
 struct TransactionHistoryContext {
+    static let cursor = "cursor"
+    static let isComplete = "isComplete"
+
     static let transfersSuffix = ".transfers"
     static let rewardsSuffix = ".rewards"
     static let extrinsicsSuffix = ".extrinsics"
@@ -88,6 +91,9 @@ struct TransactionHistoryContext {
     let defaultRow: Int
 
     var isComplete: Bool { transfers.isComplete && rewards.isComplete && extrinsics.isComplete }
+
+    var soraCursor: Int?
+    var soraIsComplete: Bool = false
 
     init(
         transfers: TransactionHistorySourceContext,

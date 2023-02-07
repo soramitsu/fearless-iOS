@@ -94,9 +94,9 @@ enum TransactionHistoryMergeItem {
 }
 
 final class TransactionHistoryMergeManager {
-    let address: String
-    let chain: ChainModel
-    let asset: AssetModel
+    private let address: String
+    private let chain: ChainModel
+    private let asset: AssetModel
 
     init(
         address: String,

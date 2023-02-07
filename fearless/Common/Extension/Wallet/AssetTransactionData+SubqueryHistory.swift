@@ -35,8 +35,6 @@ extension AssetTransactionData {
             return createTransaction(
                 from: item,
                 extrinsic: extrinsic,
-                address: address,
-                chain: chain,
                 asset: asset
             )
         }
@@ -218,7 +216,6 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubscanRewardItemData,
         address: String,
-        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
@@ -253,8 +250,6 @@ extension AssetTransactionData {
     static func createTransaction(
         from item: SubqueryHistoryElement,
         extrinsic: SubqueryExtrinsic,
-        address _: String,
-        chain _: ChainModel,
         asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
@@ -422,7 +417,7 @@ extension AssetTransactionData {
         ) ?? .zero
 
         let accountId = try? AddressFactory.accountId(
-            from: item.sender,
+            from: address,
             chain: chain
         )
 

@@ -8,7 +8,7 @@ final class HistoryOperationFactoriesAssembly {
         chainAsset: ChainAsset,
         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
         runtimeService: RuntimeCodingServiceProtocol
-    ) -> HistoryOperationFactoryProtocol? {
+    ) -> HistoryOperationFactoryProtocol {
         switch chainAsset.chain.externalApi?.history?.type {
         case .subquery:
             return SubqueryHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
@@ -16,8 +16,10 @@ final class HistoryOperationFactoriesAssembly {
             return SubsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
         case .giantsquid:
             return GiantsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
+        case .sora:
+            return SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
         case .none:
-            return nil
+            return GiantsquidHistoryOperationFactory(txStorage: txStorage, runtimeService: runtimeService)
         }
     }
 }

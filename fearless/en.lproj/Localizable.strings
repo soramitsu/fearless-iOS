@@ -948,6 +948,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.confirmation.route.stub" = "Route";
 "polkaswap.confirmation.price.impact.stub" = "Price impact ";
 "polkaswap.confirmation.swap.stub" = "Swap";
+"polkaswap.confirmation.swapped.stub" = "Swapped";
 "polkaswap.settings.reset" = "Reset to default";
 "polkaswap.settings.slippage.stub" = "Your transactions will revert if the price changes unfavorably by more than this percentage";
 "polkaswap.settings.slippage.title" = "Slippage Tolerance";

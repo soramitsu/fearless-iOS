@@ -5,6 +5,7 @@ enum BlockExplorerType: String, Codable {
     case subquery
     case subsquid
     case giantsquid
+    case sora
 }
 
 class ChainModel: Codable {
@@ -79,6 +80,10 @@ class ChainModel: Codable {
         name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
     }
 
+    var isEquilibrium: Bool {
+        name.lowercased() == "equilibrium"
+    }
+
     var hasStakingRewardHistory: Bool {
         isPolkadotOrKusama || isWestend
     }
@@ -89,6 +94,10 @@ class ChainModel: Codable {
 
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
+    }
+
+    var hasPolkaswap: Bool {
+        options.or([]).contains(.polkaswap)
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {

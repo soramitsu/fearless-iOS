@@ -52,7 +52,6 @@ protocol SubstrateCallFactoryProtocol {
         amount: BigUInt
     ) -> RuntimeCall<DelegatorBondMoreCall>
     func scheduleDelegatorBondLess(
-        candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall>
     func scheduleRevokeDelegation(
@@ -218,6 +217,14 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<TransferCall> {
         switch chainAsset.chainAssetType {
         case .normal:
+            if chainAsset.chain.isSora {
+                return ormlAssetTransfer(
+                    to: receiver,
+                    amount: amount,
+                    currencyId: chainAsset.currencyId,
+                    path: .soraAssetTransfer
+                )
+            }
             return defaultTransfer(to: receiver, amount: amount)
         case .ormlChain:
             return ormlChainTransfer(to: receiver, amount: amount, currencyId: chainAsset.currencyId)
@@ -366,10 +373,9 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     }
 
     func scheduleDelegatorBondLess(
-        candidate: AccountId,
         amount: BigUInt
     ) -> RuntimeCall<ScheduleDelegatorBondLessCall> {
-        let args = ScheduleDelegatorBondLessCall(candidate: candidate, less: amount)
+        let args = ScheduleDelegatorBondLessCall(less: amount)
 
         let path: SubstrateCallPath = .scheduleCandidateBondLess
         return RuntimeCall(
