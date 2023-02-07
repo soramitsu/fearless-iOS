@@ -3,18 +3,18 @@ import BigInt
 import CommonWallet
 import IrohaCrypto
 
-struct GiantsquidAssetInfo: Decodable {
-    let symbol: String
-    let amount: String
-}
-
 struct GiantsquidDestination: Decodable {
     let id: String
 }
 
+struct GiantsquidTransferResponse: Decodable {
+    let id: String
+    let transfer: GiantsquidTransfer
+}
+
 struct GiantsquidTransfer: Decodable {
     let id: String
-    let asset: GiantsquidAssetInfo
+    let amount: String
     let to: GiantsquidDestination?
     let from: GiantsquidDestination?
     let success: Bool?

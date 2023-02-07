@@ -16,7 +16,7 @@ extension AssetTransactionData {
         let peerAddress = transfer.from?.id == address ? transfer.to?.id : transfer.from?.id
         let timestamp = Int64(date?.timeIntervalSince1970 ?? 0)
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(transfer.asset.amount) ?? 0,
+            BigUInt(transfer.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? .zero
 

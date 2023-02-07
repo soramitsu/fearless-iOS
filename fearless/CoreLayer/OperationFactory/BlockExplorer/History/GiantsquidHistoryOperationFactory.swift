@@ -102,78 +102,70 @@ class GiantsquidHistoryOperationFactory {
     ) -> String {
         var filterStrings: [String] = []
 
-        if filters.contains(where: { $0.type == .other && $0.selected }) {
-            filterStrings.append(
-                """
-                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                            accountId
-                            amount
-                            blockNumber
-                            era
-                            extrinsicHash
-                            id
-                            timestamp
-                          }
-                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                            accountId
-                            amount
-                            blockNumber
-                            extrinsicHash
-                            id
-                            success
-                            timestamp
-                            type
-                          }
-                """
-            )
-        }
-
-        if filters.contains(where: { $0.type == .reward && $0.selected }) {
-            filterStrings.append(
-                """
-                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                accountId
-                amount
-                blockNumber
-                era
-                extrinsicHash
-                id
-                timestamp
-                validator
-                }
-                """
-            )
-        }
+        // TODO: Return once giantsquid implemented rewards
+//        if filters.contains(where: { $0.type == .other && $0.selected }) {
+//            filterStrings.append(
+//                """
+//                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
+//                            accountId
+//                            amount
+//                            blockNumber
+//                            era
+//                            extrinsicHash
+//                            id
+//                            timestamp
+//                          }
+//                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
+//                            accountId
+//                            amount
+//                            blockNumber
+//                            extrinsicHash
+//                            id
+//                            success
+//                            timestamp
+//                            type
+//                          }
+//                """
+//            )
+//        }
+//
+//        if filters.contains(where: { $0.type == .reward && $0.selected }) {
+//            filterStrings.append(
+//                """
+//                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
+//                accountId
+//                amount
+//                blockNumber
+//                era
+//                extrinsicHash
+//                id
+//                timestamp
+//                validator
+//                }
+//                """
+//            )
+//        }
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                          transfers(where: {OR: {from: {id_containsInsensitive: "\(address)"}, OR: {to: {id_containsInsensitive: "\(address)"}}}}) {
-                            asset {
-                                  ... on TransferAssetToken {
-                                    symbol
-                                    amount
-                                  }
-                                  ... on TransferAssetMultiToken {
-                                    __typename
-                                  }
-                                }
-                            blockNumber
-                            extrinsicHash
-                            from {
-                              ... on TransferLocationAccount {
-                                id
-                              }
-                            }
-                            id
-                            success
-                            timestamp
-                            to {
-                              ... on TransferLocationAccount {
-                                id
-                              }
-                            }
-                            type
+                          transfers(where: {account: {id_eq: "\(address)"}}, orderBy: id_DESC) {
+                           id
+                               transfer {
+                                 amount
+                                 blockNumber
+                                 extrinsicHash
+                                 from {
+                                   id
+                                 }
+                                 to {
+                                   id
+                                 }
+                                 timestamp
+                                 success
+                                 id
+                               }
+                               direction
                           }
                 """
             )
@@ -246,13 +238,6 @@ class GiantsquidHistoryOperationFactory {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions: [WalletRemoteHistoryItemProtocol] = try remoteOperation?.extractNoCancellableResultData().history ?? []
-            let filteredTransactions = remoteTransactions.filter { transaction in
-                guard let transfer = transaction as? GiantsquidTransfer else {
-                    return true
-                }
-
-                return transfer.asset.symbol.lowercased() == chainAsset.asset.symbol.lowercased()
-            }
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
                !localTransactions.isEmpty {
@@ -262,11 +247,11 @@ class GiantsquidHistoryOperationFactory {
                     asset: asset
                 )
                 return manager.merge(
-                    subscanItems: filteredTransactions,
+                    subscanItems: remoteTransactions,
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = filteredTransactions.map { item in
+                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
