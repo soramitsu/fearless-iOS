@@ -971,3 +971,5 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "polkaswap.dex.alert.title" = "Token Pair Isn’t Created";
 "polkaswap.quotes.not.available" = "Quotes not available";
 "all.done.subscan.button.title" = "Subscan";
+"error.invalid.address" = "Invalid address for selected chain";
+"same.address.transfer.warning.message" = "You're trying to make a transfer to the same account. The operation will charge a fee and doesn't make any sense";
