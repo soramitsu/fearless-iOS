@@ -52,7 +52,7 @@ extension ParachainSubqueryRewardsSource: SingleValueProviderSourceProtocol {
                     era: EraIndex(0),
                     stashAddress: address,
                     amount: wrappedReward.amount,
-                    isReward: wrappedReward.type.rawValue == 2
+                    isReward: wrappedReward.type == .reward
                 )
             }
         }

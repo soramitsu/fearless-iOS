@@ -4,4 +4,3 @@ excluded:
   - R.generated.swift
   - fearlessTests
   - fearlessIntegrationTests
-  - fearless/Common/Extension/MonadicJSON

@@ -7,7 +7,7 @@ enum SubsquidRewardOperationFactoryError: Error {
 }
 
 final class SubsquidRewardOperationFactory {
-    let url: URL?
+    private let url: URL?
 
     init(url: URL?) {
         self.url = url
@@ -148,10 +148,8 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
                let data = json["data"] as? [String: Any],
                let collatorRounds = data["rounds"] as? [[String: Any]] {
                 for nodeJson in collatorRounds {
-                    if let foundRoundId = nodeJson["id"] as? String {
-                        if let roundIdValue = Int(foundRoundId) {
-                            roundId = "\(roundIdValue - 1)"
-                        }
+                    if let foundRoundId = nodeJson["index"] as? UInt32 {
+                        roundId = "\(foundRoundId - 1)"
                     }
                 }
             }
@@ -165,7 +163,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
     }
 
     func createAprOperation(
-        for idsClosure: @escaping () throws -> [AccountId],
+        for accountIdsClosure: @escaping () throws -> [AccountId],
         dependingOn roundIdOperation: BaseOperation<String>
     ) -> BaseOperation<CollatorAprResponse> {
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
@@ -179,7 +177,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
 
             let roundId = (try? roundIdOperation.extractNoCancellableResultData()) ?? ""
 
-            let ids = try? idsClosure()
+            let ids = try? accountIdsClosure()
             let idsFilter = (ids?.compactMap { $0.toHex(includePrefix: true) }) ?? []
 
             let queryString = strongSelf.prepareCollatorsAprQuery(collatorIds: idsFilter, roundId: roundId)
