@@ -50,8 +50,12 @@ final class SendAssembly {
             operationQueue: operationQueue,
             meta: wallet
         )
+        let addressChainDefiner = AddressChainDefiner(
+            operationManager: operationManager,
+            chainModelRepository: AnyDataProviderRepository(chainRepository),
+            wallet: wallet
+        )
         let interactor = SendInteractor(
-            wallet: wallet,
             feeProxy: ExtrinsicFeeProxy(),
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -62,7 +66,7 @@ final class SendAssembly {
             scamServiceOperationFactory: scamServiceOperationFactory,
             chainAssetFetching: chainAssetFetching,
             dependencyContainer: dependencyContainer,
-            chainModelRepository: AnyDataProviderRepository(chainRepository)
+            addressChainDefiner: addressChainDefiner
         )
         let router = SendRouter()
 
