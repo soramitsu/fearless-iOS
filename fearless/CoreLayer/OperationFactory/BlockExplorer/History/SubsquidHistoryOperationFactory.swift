@@ -119,10 +119,9 @@ final class SubsquidHistoryOperationFactory {
     private func prepareQueryForAddress(
         _ address: String,
         count _: Int,
-        cursor: String?,
+        cursor _: String?,
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
-        let after = cursor.map { "\"\($0)\"" } ?? "null"
         let filterString = prepareFilter(filters: filters)
         return """
         query MyQuery {
@@ -206,8 +205,7 @@ final class SubsquidHistoryOperationFactory {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements ?? []
             let filteredTransactions = remoteTransactions.sorted { element1, element2 in
                 element2.timestampInSeconds < element1.timestampInSeconds

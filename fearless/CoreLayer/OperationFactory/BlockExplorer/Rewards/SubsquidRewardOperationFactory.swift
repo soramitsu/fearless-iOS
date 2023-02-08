@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import SoraFoundation
 
 enum SubsquidRewardOperationFactoryError: Error {
     case urlMissing
@@ -40,10 +41,11 @@ final class SubsquidRewardOperationFactory {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
+            let locale = LocalizationManager.shared.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"
-            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: Locale.current)
+            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: locale)
             if let startTimestamp = startTimestamp {
                 let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
                 let startDateString = dateFormatter.string(from: startDate)
@@ -80,10 +82,11 @@ final class SubsquidRewardOperationFactory {
         endTimestamp: Int64?
     ) -> String {
         let timestampFilter: String = {
+            let locale = LocalizationManager.shared.selectedLocale
             guard startTimestamp != nil || endTimestamp != nil else { return "" }
 
             var result = "AND: {"
-            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: Locale.current)
+            let dateFormatter = DateFormatter.suibsquidInputDate.value(for: locale)
             if let startTimestamp = startTimestamp {
                 let startDate = Date(timeIntervalSince1970: TimeInterval(startTimestamp))
                 let startDateString = dateFormatter.string(from: startDate)

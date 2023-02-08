@@ -5,6 +5,11 @@ import IrohaCrypto
 import FearlessUtils
 
 final class GiantsquidHistoryOperationFactory {
+    private enum GiantsquidConfig {
+        static let giantsquidRewardsEnabled = false
+        static let giantsquidExtrinsicEnabled = false
+    }
+
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     private let runtimeService: RuntimeCodingServiceProtocol
 
@@ -100,49 +105,48 @@ final class GiantsquidHistoryOperationFactory {
     ) -> String {
         var filterStrings: [String] = []
 
-        // TODO: Return once giantsquid implemented rewards
-//        if filters.contains(where: { $0.type == .other && $0.selected }) {
-//            filterStrings.append(
-//                """
-//                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                            accountId
-//                            amount
-//                            blockNumber
-//                            era
-//                            extrinsicHash
-//                            id
-//                            timestamp
-//                          }
-//                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                            accountId
-//                            amount
-//                            blockNumber
-//                            extrinsicHash
-//                            id
-//                            success
-//                            timestamp
-//                            type
-//                          }
-//                """
-//            )
-//        }
-//
-//        if filters.contains(where: { $0.type == .reward && $0.selected }) {
-//            filterStrings.append(
-//                """
-//                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
-//                accountId
-//                amount
-//                blockNumber
-//                era
-//                extrinsicHash
-//                id
-//                timestamp
-//                validator
-//                }
-//                """
-//            )
-//        }
+        if filters.contains(where: { $0.type == .other && $0.selected }), GiantsquidConfig.giantsquidExtrinsicEnabled {
+            filterStrings.append(
+                """
+                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                            accountId
+                            amount
+                            blockNumber
+                            era
+                            extrinsicHash
+                            id
+                            timestamp
+                          }
+                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                            accountId
+                            amount
+                            blockNumber
+                            extrinsicHash
+                            id
+                            success
+                            timestamp
+                            type
+                          }
+                """
+            )
+        }
+
+        if filters.contains(where: { $0.type == .reward && $0.selected }), GiantsquidConfig.giantsquidRewardsEnabled {
+            filterStrings.append(
+                """
+                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                accountId
+                amount
+                blockNumber
+                era
+                extrinsicHash
+                id
+                timestamp
+                validator
+                }
+                """
+            )
+        }
 
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(

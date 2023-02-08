@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import CommonWallet
 import IrohaCrypto
+import SoraFoundation
 
 struct GiantsquidDestination: Decodable {
     let id: String
@@ -24,8 +25,9 @@ struct GiantsquidTransfer: Decodable {
     let type: String?
 
     var timestampInSeconds: Int64 {
+        let locale = LocalizationManager.shared.selectedLocale
         let dateFormatter = DateFormatter.giantsquidDate
-        let date = dateFormatter.value(for: Locale.current).date(from: timestamp)
+        let date = dateFormatter.value(for: locale).date(from: timestamp)
         return Int64(date?.timeIntervalSince1970 ?? 0)
     }
 }
