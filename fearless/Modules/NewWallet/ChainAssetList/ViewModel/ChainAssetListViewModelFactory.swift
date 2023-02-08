@@ -4,7 +4,6 @@ import SoraFoundation
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
-        displayType: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -30,7 +29,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     func buildViewModel(
-        displayType _: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -483,12 +481,17 @@ private extension ChainAssetListViewModelFactory {
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let chainAssetsSorted = chainAssets.sorted { $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue }
+        let chainAssetsSorted = chainAssets.sorted {
+            $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue
+        }
         return assetNamesSet.compactMap { name in
             let assetChainAssets = chainAssetsSorted.filter { $0.asset.name == name }
-            let mainChainAsset = assetChainAssets.first {
-                $0.asset.chainId == $0.chain.chainId
-            } ?? assetChainAssets.first!
+            guard let mainChainAsset =
+                assetChainAssets.first(where: { $0.isUtility }) ??
+                assetChainAssets.first(where: { $0.isNative == true }) ??
+                assetChainAssets.first else {
+                    return nil
+            }
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
