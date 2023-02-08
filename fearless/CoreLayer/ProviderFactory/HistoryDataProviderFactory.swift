@@ -45,7 +45,7 @@ class HistoryDataProviderFactory: BaseDataProviderFactory, HistoryDataProviderFa
             AnySingleValueProviderSource {
                 let filters: [WalletTransactionHistoryFilter] = WalletTransactionHistoryFilter.defaultFilters()
                 let operation = self.operationFactory
-                    .fetchSubqueryHistoryOperation(
+                    .fetchTransactionHistoryOperation(
                         asset: asset,
                         chain: chain,
                         address: address,

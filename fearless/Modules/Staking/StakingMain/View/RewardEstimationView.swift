@@ -313,7 +313,9 @@ extension RewardEstimationView: AmountInputViewModelObserver {
 
         amountInputView.fieldText = inputViewModel.displayAmount
 
-        let amount = inputViewModel.decimalAmount
+        guard let amount = inputViewModel.decimalAmount else {
+            return
+        }
 
         delegate?.rewardEstimationView(self, didChange: amount)
     }

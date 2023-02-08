@@ -276,19 +276,19 @@ final class ChainModelMapper {
     }
 
     private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApiSet? {
-        var staking: ChainModel.ExternalApi?
+        var staking: ChainModel.BlockExplorer?
         if let type = entity.stakingApiType, let url = entity.stakingApiUrl {
-            staking = ChainModel.ExternalApi(type: type, url: url)
+            staking = ChainModel.BlockExplorer(type: type, url: url)
         }
 
-        var history: ChainModel.ExternalApi?
+        var history: ChainModel.BlockExplorer?
         if let type = entity.historyApiType, let url = entity.historyApiUrl {
-            history = ChainModel.ExternalApi(type: type, url: url)
+            history = ChainModel.BlockExplorer(type: type, url: url)
         }
 
-        var crowdloans: ChainModel.ExternalApi?
+        var crowdloans: ChainModel.ExternalResource?
         if let type = entity.crowdloansApiType, let url = entity.crowdloansApiUrl {
-            crowdloans = ChainModel.ExternalApi(type: type, url: url)
+            crowdloans = ChainModel.ExternalResource(type: type, url: url)
         }
 
         let explorers = createExplorers(from: entity)
@@ -340,10 +340,10 @@ final class ChainModelMapper {
     }
 
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
-        entity.stakingApiType = apis?.staking?.type
+        entity.stakingApiType = apis?.staking?.type.rawValue
         entity.stakingApiUrl = apis?.staking?.url
 
-        entity.historyApiType = apis?.history?.type
+        entity.historyApiType = apis?.history?.type.rawValue
         entity.historyApiUrl = apis?.history?.url
 
         entity.crowdloansApiType = apis?.crowdloans?.type

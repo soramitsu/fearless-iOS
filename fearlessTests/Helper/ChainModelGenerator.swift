@@ -148,10 +148,10 @@ enum ChainModelGenerator {
         staking: StakingType?,
         hasCrowdloans: Bool
     ) -> ChainModel.ExternalApiSet? {
-        let crowdloanApi: ChainModel.ExternalApi?
+        let crowdloanApi: ChainModel.BlockExplorer?
 
         if hasCrowdloans {
-            crowdloanApi = ChainModel.ExternalApi(
+            crowdloanApi = ChainModel.BlockExplorer(
                 type: "test",
                 url: URL(string: "https://crowdloan.io/\(chainId)-\(UUID().uuidString).json")!
             )
@@ -159,10 +159,10 @@ enum ChainModelGenerator {
             crowdloanApi = nil
         }
 
-        let stakingApi: ChainModel.ExternalApi?
+        let stakingApi: ChainModel.BlockExplorer?
 
         if staking != nil {
-            stakingApi = ChainModel.ExternalApi(
+            stakingApi = ChainModel.BlockExplorer(
                 type: "test",
                 url: URL(string: "https://staking.io/\(chainId)-\(UUID().uuidString).json")!
             )
