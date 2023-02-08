@@ -255,12 +255,10 @@ final class SubsquidHistoryOperationFactory {
     }
 
     private func createSubqueryHistoryMapOperation(
-        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<SubsquidHistoryResponse>
+        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
-            let remoteData = try remoteOperation.extractNoCancellableResultData()
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
@@ -307,7 +305,6 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
             let result = SubsquidHistoryResponse(historyElements: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
@@ -351,8 +348,7 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
 
         let mapOperation = createSubqueryHistoryMapOperation(
-            dependingOn: mergeOperation,
-            remoteOperation: remoteHistoryOperation
+            dependingOn: mergeOperation
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }

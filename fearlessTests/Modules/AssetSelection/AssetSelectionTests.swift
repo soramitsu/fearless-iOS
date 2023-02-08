@@ -86,10 +86,6 @@ class AssetSelectionTests: XCTestCase {
         
         let selectedChain = chains.last!
         let selectedAsset = selectedChain.assets.first!
-        let selectedChainAssetId = ChainAssetId(
-            chainId: selectedChain.chainId,
-            assetId: selectedAsset.assetId
-        )
         let chainAsset = ChainAsset(chain: selectedChain, asset: selectedAsset.asset)
 
         let presenter = AssetSelectionPresenter(

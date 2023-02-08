@@ -915,9 +915,6 @@
 		849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013D924A927E2008F705E /* LocalizationManager+Shared.swift */; };
 		849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013DA24A927E2008F705E /* SettingsExtension.swift */; };
 		849013E224A9288B008F705E /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013E124A9288B008F705E /* Language.swift */; };
-		849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F824A92A05008F705E /* fearless.dev.xcconfig */; };
-		849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F924A92A05008F705E /* fearless.release.xcconfig */; };
-		849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013FA24A92A05008F705E /* fearless.debug.xcconfig */; };
 		8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140224A92F6D008F705E /* OnboardingMainViewController.swift */; };
 		8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140524A92F6D008F705E /* AttributedStringDecorator+Terms.swift */; };
 		8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8490140624A92F6D008F705E /* OnbordingMain.xib */; };
@@ -12834,7 +12831,7 @@
 			isa = PBXProject;
 			attributes = {
 				LastSwiftUpdateCheck = 1150;
-				LastUpgradeCheck = 1150;
+				LastUpgradeCheck = 1400;
 				ORGANIZATIONNAME = Soramitsu;
 				TargetAttributes = {
 					8438E1CE24BFAAD2001BDB13 = {
@@ -12885,7 +12882,6 @@
 			files = (
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				841937872544772F00CFA50C /* animatedBg.gif in Resources */,
-				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
 				8467FD4724ED6496005D486C /* ProfileDetailsTableViewCell.xib in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				07F2B75C28A6565500280C38 /* assets.json in Resources */,
@@ -12896,7 +12892,6 @@
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
 				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
-				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
 				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
 				84D2F45A25EF0556008B914D /* RecommendedValidatorCell.xib in Resources */,
 				84452F7625D5E2B300F47EC5 /* runtime-default.json in Resources */,
@@ -12925,7 +12920,6 @@
 				84D8F16924D821ED00AF43E9 /* IconWithTitleTableViewCell.xib in Resources */,
 				84DF21A325347042005454AE /* DetailsDisplayTableViewCell.xib in Resources */,
 				849528DE2603697B009DC845 /* RewardEstimationView.xib in Resources */,
-				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 				84452F7725D5E2B300F47EC5 /* runtime-kusama.json in Resources */,
 				842876A924AE049B00D91AD8 /* SelectionSubtitleTableViewCell.xib in Resources */,
 				8468B86724F59DA700B76BC6 /* IconTitleHeaderView.xib in Resources */,
@@ -15806,6 +15800,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -15867,6 +15862,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
@@ -16022,6 +16018,7 @@
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
 				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
 				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
 				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
