@@ -8,13 +8,12 @@ final class SendInteractor: RuntimeConstantFetching {
     private weak var output: SendInteractorOutput?
 
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let wallet: MetaAccountModel
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
-    private let chainModelRepository: AnyDataProviderRepository<ChainModel>
+    private let addressChainDefiner: AddressChainDefiner
     private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 
     let dependencyContainer: SendDepencyContainer
@@ -26,7 +25,6 @@ final class SendInteractor: RuntimeConstantFetching {
     private(set) lazy var callFactory = SubstrateCallFactory()
 
     init(
-        wallet: MetaAccountModel,
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -34,9 +32,8 @@ final class SendInteractor: RuntimeConstantFetching {
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
-        chainModelRepository: AnyDataProviderRepository<ChainModel>
+        addressChainDefiner: AddressChainDefiner
     ) {
-        self.wallet = wallet
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -44,7 +41,7 @@ final class SendInteractor: RuntimeConstantFetching {
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
-        self.chainModelRepository = chainModelRepository
+        self.addressChainDefiner = addressChainDefiner
     }
 
     // MARK: - Private methods
@@ -95,20 +92,6 @@ final class SendInteractor: RuntimeConstantFetching {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
     }
-
-//    private func fetchEquilibriumTotalBalance(chainAsset: ChainAsset) {
-//        if chainAsset.chain.isEquilibrium {
-//            let service = dependencyContainer
-//                .prepareDepencies(chainAsset: chainAsset)?
-//                .equilibruimTotalBalanceService
-//            equilibriumTotalBalanceService = service
-//
-//            equilibriumTotalBalanceService?
-//                .fetchTotalBalance(completion: { [weak self] totalBalance in
-//                    self?.output?.didReceive(eqTotalBalance: totalBalance)
-//                })
-//        }
-//    }
 }
 
 extension SendInteractor: SendInteractorInput {
@@ -127,7 +110,6 @@ extension SendInteractor: SendInteractorInput {
             subscribeToAccountInfo(for: chainAsset)
             provideConstants(for: chainAsset)
         }
-//        fetchEquilibriumTotalBalance(chainAsset: chainAsset)
     }
 
     func defineAvailableChains(
@@ -178,10 +160,6 @@ extension SendInteractor: SendInteractorInput {
         }
     }
 
-    func validate(address: String, for chain: ChainModel) -> Bool {
-        ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
-    }
-
     func fetchScamInfo(for address: String) {
         let allOperation = scamServiceOperationFactory.fetchScamInfoOperation(for: address)
 
@@ -211,20 +189,14 @@ extension SendInteractor: SendInteractorInput {
         return chainAsset
     }
 
-    func getPossibleChains(for address: String) {
-        let fetchOperation = chainModelRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = {
-            let chains = try? fetchOperation.extractNoCancellableResultData()
-            let posssibleChains = chains?.filter { [weak self] chain in
-                guard let strongSelf = self else { return false }
-                return strongSelf.validate(address: address, for: chain)
-            }
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceive(possibleChains: posssibleChains)
-            }
+    func getPossibleChains(for address: String, completion _: ([ChainModel]?) -> Void) {
+        addressChainDefiner.getPossibleChains(for: address) { [weak self] chains in
+            self?.output?.didReceive(possibleChains: chains)
         }
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+    }
+
+    func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
+        addressChainDefiner.validate(address: address, for: chain)
     }
 
     func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal) {
