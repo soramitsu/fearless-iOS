@@ -142,7 +142,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
             var balanceString: String?
             var fiatBalance: String?
-            if let balance = balance {
+            if var balance = balance {
+                if balance < 0 {
+                    balance = .zero
+                }
                 balanceString = balanceFormatter.stringFromDecimal(balance)
 
                 if let priceData = priceData, let rate = Decimal(string: priceData.price) {

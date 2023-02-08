@@ -345,7 +345,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             make.height.equalTo(UIConstants.actionHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }
 
@@ -576,15 +576,16 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             scrollView.scrollRectToVisible(updatedFrame, animated: true)
 
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-                    .inset(updatedFrame.height)
+                make.bottom.equalTo(view.safeAreaLayoutGuide)
+                    .inset(updatedFrame.height + UIConstants.bigOffset)
             }
         } else {
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+                make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             }
         }
 
+        changeActionButtonVisibility(!actionButton.isHidden)
         UIView.animate(withDuration: Constants.keyboardAnimateDuration) {
             self.view.layoutIfNeeded()
         }
