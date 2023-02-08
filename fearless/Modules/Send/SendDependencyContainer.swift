@@ -84,6 +84,9 @@ final class SendDepencyContainer {
         guard chainAsset.chain.isEquilibrium else {
             return nil
         }
+        if let equilibruimTotalBalanceService = currentDependecies?.equilibruimTotalBalanceService {
+            return equilibruimTotalBalanceService
+        }
         return EquilibriumTotalBalanceServiceFactory
             .createService(wallet: wallet, chainAsset: chainAsset)
     }

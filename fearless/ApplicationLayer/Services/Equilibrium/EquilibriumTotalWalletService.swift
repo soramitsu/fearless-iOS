@@ -4,7 +4,10 @@ import RobinHood
 import BigInt
 
 protocol EquilibriumTotalBalanceServiceProtocol {
+    var accountInfos: [ChainAssetKey: AccountInfo?] { get }
+    var oraclePricesMap: [UInt64: BigUInt] { get }
     func fetchTotalBalance(completion: @escaping ((BigUInt) -> Void))
+    func totalBalanceAfterTransfer(chainAsset: ChainAsset, amount: Decimal) -> Decimal?
 }
 
 final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol {
@@ -21,10 +24,11 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
     private let lock = NSLock()
 
-    private var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
-    private var oraclePricesMap: [UInt64: BigUInt] = [:]
+    var accountInfos: [ChainAssetKey: AccountInfo?] = [:]
+    var oraclePricesMap: [UInt64: BigUInt] = [:]
 
     private var completion: ((BigUInt) -> Void)?
+    private var equlibriumTotalBalance: BigUInt?
 
     // MARK: - Constructor
 
@@ -46,6 +50,9 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
         self.runtimeService = runtimeService
         self.engine = engine
         self.logger = logger
+
+        fetchOraclePrice()
+        subscribeToAccountInfo()
     }
 
     // MARK: - Public methods
@@ -54,6 +61,27 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
         self.completion = completion
         fetchOraclePrice()
         subscribeToAccountInfo()
+    }
+
+    func totalBalanceAfterTransfer(chainAsset: ChainAsset, amount: Decimal) -> Decimal? {
+        let request = equilibriumChainAsset.chain.accountRequest()
+        guard oraclePricesMap.isNotEmpty,
+              let accountId = wallet.fetch(for: request)?.accountId,
+              let currencyId = UInt64(chainAsset.asset.currencyId.or("")),
+              let equlibriumTotalBalance = equlibriumTotalBalance else {
+            return nil
+        }
+        let precision = Int16(equilibriumChainAsset.asset.precision)
+        let uniqueKey = chainAsset.uniqueKey(accountId: accountId)
+        let price = oraclePricesMap[currencyId].or(.zero)
+
+        let priceDecimal = Decimal
+            .fromSubstrateAmount(price, precision: precision) ?? .zero
+        let amountPrice = amount * priceDecimal
+        let equlibriumTotalBalanceDecimal = Decimal
+            .fromSubstrateAmount(equlibriumTotalBalance, precision: precision) ?? .zero
+
+        return equlibriumTotalBalanceDecimal - amountPrice
     }
 
     // MARK: - Private methods
@@ -90,6 +118,7 @@ final class EquilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtoc
 
             equlibriumTotalBalance = equlibriumTotalBalanceDecimal.toSubstrateAmount(precision: precision) ?? .zero
         }
+        self.equlibriumTotalBalance = equlibriumTotalBalance
         completion?(equlibriumTotalBalance)
     }
 
