@@ -31,13 +31,7 @@ extension AnalyticsRewardsParachainViewModelState: AnalyticsRewardsViewModelStat
 
 extension AnalyticsRewardsParachainViewModelState: AnalyticsRewardsParachainStrategyOutput {
     func didReceieveSubqueryData(_ subqueryData: [SubqueryRewardItemData]?) {
-        // TODO: Remove once subquery will be fixed
-        self.subqueryData = subqueryData?.filter { item in
-            Decimal.fromSubstrateAmount(
-                item.amount,
-                precision: Int16(chainAsset.asset.precision)
-            ) ?? 0 < 1
-        }
+        self.subqueryData = subqueryData
 
         stateListener?.provideRewardsViewModel()
     }

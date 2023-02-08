@@ -661,14 +661,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
                 return
             }
 
-            // TODO: Remove once subquery will be fixed
-            let filteredRewards = rewards?.filter { item in
-                Decimal.fromSubstrateAmount(
-                    item.amount,
-                    precision: Int16(chainAsset.asset.precision)
-                ) ?? 0 < 1
-            }
-            stateMachine.state.process(subqueryRewards: (filteredRewards, period))
+            stateMachine.state.process(subqueryRewards: (rewards, period))
         case let .failure(error):
             handle(error: error)
         }

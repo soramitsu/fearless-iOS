@@ -156,8 +156,10 @@ extension StakingMainInteractor {
     }
 
     func subscribeRewardsAnalytics(for address: AccountAddress) {
-        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url, selectedChainAsset?.stakingType == .paraChain {
-            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(for: address, url: analyticsURL)
+        if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url,
+           selectedChainAsset?.stakingType == .paraChain,
+           let chainAsset = selectedChainAsset {
+            rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(chainAsset: chainAsset, for: address, url: analyticsURL)
         } else {
             presenter?.didReceieve(
                 subqueryRewards: .success(nil),
@@ -268,7 +270,7 @@ extension StakingMainInteractor: RelaychainStakingLocalStorageSubscriber, Relayc
     func handleTotalReward(
         result: Result<TotalRewardItem, Error>,
         for _: AccountAddress,
-        api _: ChainModel.ExternalApi
+        api _: ChainModel.BlockExplorer
     ) {
         switch result {
         case let .success(totalReward):

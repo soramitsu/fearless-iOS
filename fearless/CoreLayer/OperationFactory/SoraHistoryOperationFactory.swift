@@ -14,7 +14,7 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
     // MARK: - Public methods
 
-    func fetchSubqueryHistoryOperation(
+    func fetchTransactionHistoryOperation(
         asset: AssetModel,
         chain: ChainModel,
         address: String,
