@@ -65,13 +65,13 @@ final class SendInteractor: RuntimeConstantFetching {
                 self?.output?.didReceiveTip(result: result)
             }
         }
+        if chainAsset.chain.isEquilibrium {
+            equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+        }
     }
 
     private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
-        var chainAssets: [ChainAsset] = [chainAsset]
-        if let utilityAsset = utilityAsset {
-            chainAssets.append(utilityAsset)
-        }
+        let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self
@@ -87,23 +87,9 @@ final class SendInteractor: RuntimeConstantFetching {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getUtilityAsset(for: chainAsset),
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
-        }
-    }
-
-    private func fetchEquilibriumTotalBalance(chainAsset: ChainAsset) {
-        if chainAsset.chain.isEquilibrium {
-            let service = dependencyContainer
-                .prepareDepencies(chainAsset: chainAsset)?
-                .equilibruimTotalBalanceService
-            equilibriumTotalBalanceService = service
-
-            equilibriumTotalBalanceService?
-                .fetchTotalBalance(completion: { [weak self] totalBalance in
-                    self?.output?.didReceive(eqTotalBalance: totalBalance)
-                })
         }
     }
 }
@@ -116,14 +102,14 @@ extension SendInteractor: SendInteractorInput {
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
         subscribeToPrice(for: chainAsset)
-        if chainAsset.chain.isSora, !chainAsset.isUtility, let utilityAsset = getUtilityAsset(for: chainAsset) {
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
             subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
             provideConstants(for: utilityAsset)
         } else {
             subscribeToAccountInfo(for: chainAsset)
             provideConstants(for: chainAsset)
         }
-        fetchEquilibriumTotalBalance(chainAsset: chainAsset)
     }
 
     func defineAvailableChains(
@@ -194,9 +180,9 @@ extension SendInteractor: SendInteractorInput {
         operationManager.enqueue(operations: [allOperation], in: .transient)
     }
 
-    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+    func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
            let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }
@@ -211,6 +197,14 @@ extension SendInteractor: SendInteractorInput {
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
         addressChainDefiner.validate(address: address, for: chain)
+    }
+
+    func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal) {
+        if chainAsset.chain.isEquilibrium {
+            let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
+                .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
+            output?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+        }
     }
 }
 

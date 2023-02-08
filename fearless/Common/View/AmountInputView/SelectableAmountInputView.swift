@@ -157,7 +157,7 @@ final class SelectableAmountInputView: UIView {
     private func applyType(for balance: String) {
         switch type {
         case .send, .swapSend, .swapReceive:
-            balanceLabel.text = R.string.localizable.commonBalanceFormat(
+            balanceLabel.text = R.string.localizable.commonAvailableFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )

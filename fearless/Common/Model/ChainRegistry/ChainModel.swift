@@ -84,6 +84,10 @@ class ChainModel: Codable {
         name.lowercased() == "equilibrium"
     }
 
+    var isUtilityFeePayment: Bool {
+        isSora || isEquilibrium
+    }
+
     var hasStakingRewardHistory: Bool {
         isPolkadotOrKusama || isWestend
     }
