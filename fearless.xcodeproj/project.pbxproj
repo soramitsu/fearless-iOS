@@ -589,7 +589,6 @@
 		8436EDE725895846004D9E97 /* PurchaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436EDE625895846004D9E97 /* PurchaseProvider.swift */; };
 		8436EDEF25896722004D9E97 /* PurchaseAggregator+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8436EDEE25896722004D9E97 /* PurchaseAggregator+Default.swift */; };
 		84378775264D2C6600E6AFD2 /* UsernameSetupModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84378774264D2C6600E6AFD2 /* UsernameSetupModel.swift */; };
-		8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84378779264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift */; };
 		8438C45B2655AC2600047E3F /* runtime-rococo.json in Resources */ = {isa = PBXBuildFile; fileRef = 8438C45A2655AC2600047E3F /* runtime-rococo.json */; };
 		8438E1D224BFAAD2001BDB13 /* JSONRPCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */; };
 		843910B0253ED36C00E3C217 /* ChainStorageItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910AF253ED36C00E3C217 /* ChainStorageItem.swift */; };
@@ -3123,7 +3122,6 @@
 		8436EDE625895846004D9E97 /* PurchaseProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PurchaseProvider.swift; sourceTree = "<group>"; };
 		8436EDEE25896722004D9E97 /* PurchaseAggregator+Default.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PurchaseAggregator+Default.swift"; sourceTree = "<group>"; };
 		84378774264D2C6600E6AFD2 /* UsernameSetupModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UsernameSetupModel.swift; sourceTree = "<group>"; };
-		84378779264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkTypeSelectionPresentable.swift; sourceTree = "<group>"; };
 		8438C45A2655AC2600047E3F /* runtime-rococo.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = "runtime-rococo.json"; sourceTree = "<group>"; };
 		8438E1CF24BFAAD2001BDB13 /* fearlessIntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fearlessIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCTests.swift; sourceTree = "<group>"; };
@@ -7959,7 +7957,6 @@
 				84DD5F2F263D84F300425ACF /* RuntimeConstantFetching.swift */,
 				84DD5F34263D86EF00425ACF /* AccountFetching.swift */,
 				F4D551A02643DD240002363F /* AccountSelectionPresentable.swift */,
-				84378779264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift */,
 				84DBEA55265ED62700FDF73C /* BaseErrorPresentable.swift */,
 				FA072C20277B19A900731718 /* ImageGalleryProtocols.swift */,
 				FA072C22277B1B2600731718 /* InvoiceLocalSearchEngineProtocol.swift */,
@@ -13263,7 +13260,6 @@
 				076D9D55294AC3E3002762E3 /* DexIdInfo.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				84DBEA47265E98C300FDF73C /* AmountInputResult.swift in Sources */,
-				8437877A264D2D5800E6AFD2 /* NetworkTypeSelectionPresentable.swift in Sources */,
 				07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */,
 				846CD25B265709A800A2E4B6 /* StorageKeySuffixMapper.swift in Sources */,
 				076D9D4D29431C71002762E3 /* SwapQuoteAmountFactory.swift in Sources */,

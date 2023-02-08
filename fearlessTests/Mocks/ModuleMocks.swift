@@ -1091,6 +1091,26 @@ import UIKit
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_SheetAlertPresentable: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -1118,6 +1138,17 @@ import UIKit
             return .init(stub: cuckoo_manager.createStub(for: MockSheetAlertPresentable.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockSheetAlertPresentable.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -1162,6 +1193,18 @@ import UIKit
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -1184,6 +1227,14 @@ import UIKit
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2944,6 +2995,26 @@ import Cuckoo
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountConfirmWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -2982,6 +3053,17 @@ import Cuckoo
             return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -3038,6 +3120,18 @@ import Cuckoo
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -3068,6 +3162,14 @@ import Cuckoo
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4519,6 +4621,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountCreateWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -4568,6 +4690,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -4636,6 +4769,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -4674,6 +4819,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -6767,6 +6920,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountImportWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -6838,6 +7011,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockAccountImportWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountImportWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -6930,6 +7114,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -6984,6 +7180,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -8495,6 +8699,26 @@ import RobinHood
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountManagementWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -8577,6 +8801,17 @@ import RobinHood
             return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -8681,6 +8916,18 @@ import RobinHood
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -8743,6 +8990,14 @@ import RobinHood
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -8844,6 +9099,26 @@ import Cuckoo
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AssetSelectionWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -8882,6 +9157,17 @@ import Cuckoo
             return .init(stub: cuckoo_manager.createStub(for: MockAssetSelectionWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAssetSelectionWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -8938,6 +9224,18 @@ import Cuckoo
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -8968,6 +9266,14 @@ import Cuckoo
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -10098,6 +10404,26 @@ import Cuckoo
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ChainSelectionWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -10136,6 +10462,17 @@ import Cuckoo
             return .init(stub: cuckoo_manager.createStub(for: MockChainSelectionWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockChainSelectionWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -10192,6 +10529,18 @@ import Cuckoo
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -10222,6 +10571,14 @@ import Cuckoo
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -13174,6 +13531,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_CrowdloanContributionConfirmWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -13212,6 +13589,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionConfirmWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -13268,6 +13656,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -13298,6 +13698,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -15164,6 +15572,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)  {
         
     return cuckoo_manager.call(
@@ -15230,6 +15658,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -15312,6 +15751,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.__DoNotUse<(URL, ControllerBackedProtocol, WebPresentableStyle), Void> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
             let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
             return cuckoo_manager.verify(
@@ -15359,6 +15810,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -18440,6 +18899,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ReferralCrowdloanWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -18489,6 +18968,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -18557,6 +19047,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -18595,6 +19097,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -19577,6 +20087,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_AccountExportPasswordWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -19626,6 +20156,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -19694,6 +20235,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -19732,6 +20285,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -20528,6 +21089,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func share(source: UIActivityItemSource, from view: ControllerBackedProtocol?, with completionHandler: SharingCompletionHandler?)  {
         
     return cuckoo_manager.call(
@@ -20614,6 +21195,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockExportGenericWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockExportGenericWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -20707,6 +21299,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func share<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(source: M1, from view: M2, with completionHandler: M3) -> Cuckoo.__DoNotUse<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?), Void> where M1.MatchedType == UIActivityItemSource, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == SharingCompletionHandler {
             let matchers: [Cuckoo.ParameterMatcher<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?)>] = [wrap(matchable: source) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: completionHandler) { $0.2 }]
             return cuckoo_manager.verify(
@@ -20766,6 +21370,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -21270,6 +21882,26 @@ import IrohaCrypto
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func share(source: UIActivityItemSource, from view: ControllerBackedProtocol?, with completionHandler: SharingCompletionHandler?)  {
         
     return cuckoo_manager.call(
@@ -21367,6 +21999,17 @@ import IrohaCrypto
             return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockExportMnemonicWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -21472,6 +22115,18 @@ import IrohaCrypto
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func share<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(source: M1, from view: M2, with completionHandler: M3) -> Cuckoo.__DoNotUse<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?), Void> where M1.MatchedType == UIActivityItemSource, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == SharingCompletionHandler {
             let matchers: [Cuckoo.ParameterMatcher<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?)>] = [wrap(matchable: source) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: completionHandler) { $0.2 }]
             return cuckoo_manager.verify(
@@ -21539,6 +22194,14 @@ import IrohaCrypto
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -21721,6 +22384,26 @@ import Foundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func share(source: UIActivityItemSource, from view: ControllerBackedProtocol?, with completionHandler: SharingCompletionHandler?)  {
         
     return cuckoo_manager.call(
@@ -21829,6 +22512,17 @@ import Foundation
             return .init(stub: cuckoo_manager.createStub(for: MockExportRestoreJsonWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockExportRestoreJsonWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -21946,6 +22640,18 @@ import Foundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func share<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(source: M1, from view: M2, with completionHandler: M3) -> Cuckoo.__DoNotUse<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?), Void> where M1.MatchedType == UIActivityItemSource, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == SharingCompletionHandler {
             let matchers: [Cuckoo.ParameterMatcher<(UIActivityItemSource, ControllerBackedProtocol?, SharingCompletionHandler?)>] = [wrap(matchable: source) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: completionHandler) { $0.2 }]
             return cuckoo_manager.verify(
@@ -22021,6 +22727,14 @@ import Foundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -23246,6 +23960,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)  {
         
     return cuckoo_manager.call(
@@ -23301,6 +24035,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -23371,6 +24116,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?, (() -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
             let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
             return cuckoo_manager.verify(
@@ -23410,6 +24167,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -24056,6 +24821,26 @@ import Foundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_OnboardingMainWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -24127,6 +24912,17 @@ import Foundation
             return .init(stub: cuckoo_manager.createStub(for: MockOnboardingMainWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockOnboardingMainWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -24219,6 +25015,18 @@ import Foundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -24273,6 +25081,14 @@ import Foundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -27130,6 +27946,26 @@ import Foundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)  {
         
     return cuckoo_manager.call(
@@ -27293,6 +28129,17 @@ import Foundation
             return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -27470,6 +28317,18 @@ import Foundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.__DoNotUse<(URL, ControllerBackedProtocol, WebPresentableStyle), Void> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
             let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
             return cuckoo_manager.verify(
@@ -27585,6 +28444,14 @@ import Foundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -29264,6 +30131,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)  {
         
     return cuckoo_manager.call(
@@ -29319,6 +30206,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockAnalyticsRewardDetailsWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockAnalyticsRewardDetailsWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -29389,6 +30287,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.__DoNotUse<(URL, ControllerBackedProtocol, WebPresentableStyle), Void> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
             let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
             return cuckoo_manager.verify(
@@ -29428,6 +30338,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -31168,6 +32086,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ControllerAccountWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -31239,6 +32177,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -31331,6 +32280,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -31385,6 +32346,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -33329,6 +34298,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_CustomValidatorListWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -33411,6 +34400,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockCustomValidatorListWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -33515,6 +34515,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -33577,6 +34589,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -35797,6 +36817,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_SelectValidatorsConfirmWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -35835,6 +36875,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsConfirmWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -35891,6 +36942,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -35921,6 +36984,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -37048,6 +38119,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_SelectValidatorsStartWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -37097,6 +38188,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockSelectValidatorsStartWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -37165,6 +38267,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -37203,6 +38317,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -38198,6 +39320,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_SelectedValidatorListWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -38258,6 +39400,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -38338,6 +39491,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -38384,6 +39549,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -40141,6 +41314,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ValidatorInfoWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -40190,6 +41383,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -40258,6 +41462,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -40296,6 +41512,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -41451,6 +42675,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_ValidatorSearchWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -41500,6 +42744,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockValidatorSearchWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -41568,6 +42823,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -41606,6 +42873,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -44099,6 +45374,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_YourValidatorListWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -44148,6 +45443,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorListWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorListWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -44216,6 +45522,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -44254,6 +45572,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -45511,6 +46837,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingBalanceWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -45604,6 +46950,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -45720,6 +47077,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -45790,6 +47159,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -47071,6 +48448,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingBondMoreWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -47109,6 +48506,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -47165,6 +48573,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -47195,6 +48615,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -48507,6 +49935,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingBondMoreConfirmationWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -48545,6 +49993,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreConfirmationWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingBondMoreConfirmationWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -48601,6 +50060,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -48631,6 +50102,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -53109,6 +54588,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingMainWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -53323,6 +54822,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -53571,6 +55081,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -53729,6 +55251,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -55159,6 +56689,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingPayoutConfirmationWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -55197,6 +56747,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -55253,6 +56814,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -55283,6 +56856,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -56544,6 +58125,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingRebondConfirmationWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -56582,6 +58183,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondConfirmationWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondConfirmationWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -56638,6 +58250,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -56668,6 +58292,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -58122,6 +59754,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingRebondSetupWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -58171,6 +59823,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondSetupWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingRebondSetupWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -58239,6 +59902,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -58277,6 +59952,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -59589,6 +61272,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingRedeemWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -59627,6 +61330,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingRedeemWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -59683,6 +61397,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -59713,6 +61439,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -61227,6 +62961,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingRewardDestConfirmWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -61265,6 +63019,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestConfirmWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestConfirmWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -61321,6 +63086,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -61351,6 +63128,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -63113,6 +64898,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func presentAccountSelection(_ accounts: [ChainAccountResponse], selectedAccountItem: ChainAccountResponse?, title: LocalizableResource<String>, delegate: ModalPickerViewControllerDelegate, from view: ControllerBackedProtocol?, context: AnyObject?)  {
         
     return cuckoo_manager.call(
@@ -63179,6 +64984,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardDestSetupWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -63261,6 +65077,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func presentAccountSelection<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.OptionalMatchable, M6: Cuckoo.OptionalMatchable>(_ accounts: M1, selectedAccountItem: M2, title: M3, delegate: M4, from view: M5, context: M6) -> Cuckoo.__DoNotUse<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?), Void> where M1.MatchedType == [ChainAccountResponse], M2.OptionalMatchedType == ChainAccountResponse, M3.MatchedType == LocalizableResource<String>, M4.MatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == ControllerBackedProtocol, M6.OptionalMatchedType == AnyObject {
             let matchers: [Cuckoo.ParameterMatcher<([ChainAccountResponse], ChainAccountResponse?, LocalizableResource<String>, ModalPickerViewControllerDelegate, ControllerBackedProtocol?, AnyObject?)>] = [wrap(matchable: accounts) { $0.0 }, wrap(matchable: selectedAccountItem) { $0.1 }, wrap(matchable: title) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: view) { $0.4 }, wrap(matchable: context) { $0.5 }]
             return cuckoo_manager.verify(
@@ -63308,6 +65136,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -67127,6 +68963,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_StakingUnbondConfirmWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -67165,6 +69021,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -67221,6 +69088,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -67251,6 +69130,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -68709,6 +70596,26 @@ import SoraFoundation
     
     
     
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
+    
+    
+    
      func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)  {
         
     return cuckoo_manager.call(
@@ -68775,6 +70682,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondSetupWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondSetupWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -68857,6 +70775,18 @@ import SoraFoundation
         
         
         @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
+        
+        
+        @discardableResult
         func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.__DoNotUse<(URL, ControllerBackedProtocol, WebPresentableStyle), Void> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
             let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
             return cuckoo_manager.verify(
@@ -68904,6 +70834,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -70639,6 +72577,26 @@ import SoraFoundation
     }
     
     
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """,
+            parameters: (message, title, view),
+            escapingParameters: (message, title, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentInfo(message: message, title: title, from: view))
+        
+    }
+    
+    
 
      struct __StubbingProxy_UsernameSetupWireframeProtocol: Cuckoo.StubbingProxy {
         private let cuckoo_manager: Cuckoo.MockManager
@@ -70677,6 +72635,17 @@ import SoraFoundation
             return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupWireframeProtocol.self, method:
     """
     present(message: String?, title: String, closeAction: String?, from: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])
+    """, parameterMatchers: matchers))
+        }
+        
+        
+        
+        
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupWireframeProtocol.self, method:
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
     """, parameterMatchers: matchers))
         }
         
@@ -70733,6 +72702,18 @@ import SoraFoundation
         }
         
         
+        
+        
+        @discardableResult
+        func presentInfo<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(message: M1, title: M2, from view: M3) -> Cuckoo.__DoNotUse<(String?, String, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.MatchedType == String, M3.OptionalMatchedType == ControllerBackedProtocol {
+            let matchers: [Cuckoo.ParameterMatcher<(String?, String, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: view) { $0.2 }]
+            return cuckoo_manager.verify(
+    """
+    presentInfo(message: String?, title: String, from: ControllerBackedProtocol?)
+    """, callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+        }
+        
+        
     }
 }
 
@@ -70763,6 +72744,14 @@ import SoraFoundation
     
     
      func present(message: String?, title: String, closeAction: String?, from view: ControllerBackedProtocol?, actions: [SheetAlertPresentableAction])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    
+    
+    
+    
+     func presentInfo(message: String?, title: String, from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

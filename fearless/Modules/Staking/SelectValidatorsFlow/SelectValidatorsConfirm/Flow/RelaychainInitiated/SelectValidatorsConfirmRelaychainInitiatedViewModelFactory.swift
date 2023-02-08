@@ -87,8 +87,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset _: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
               let state = viewModelState.confirmationModel else {

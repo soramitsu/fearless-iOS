@@ -51,8 +51,7 @@ struct SelectValidatorsConfirmDependencyContainer {
 
 protocol SelectValidatorsConfirmViewModelFactoryProtocol {
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>?
     func buildHintsViewModel(
         viewModelState: SelectValidatorsConfirmViewModelState

@@ -92,8 +92,7 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset _: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolExistingViewModelState,
