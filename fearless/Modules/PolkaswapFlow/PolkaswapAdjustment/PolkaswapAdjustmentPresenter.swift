@@ -440,6 +440,17 @@ final class PolkaswapAdjustmentPresenter {
             )
         ]).runValidation {}
     }
+
+    private func presentAddMoreAmountAlert() {
+        let message = R.string.localizable
+            .polkaswapAddMoreAmountMessage(preferredLanguages: selectedLocale.rLanguages)
+        router.present(
+            message: message,
+            title: "",
+            closeAction: nil,
+            from: view
+        )
+    }
 }
 
 // MARK: - PolkaswapAdjustmentViewOutput
@@ -609,6 +620,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
 
         // if don't have XOR balance for fee payment, fee will be payment from receive amount
         if xorBalance.or(.zero) < networkFee, swapToChainAsset?.identifier == xorChainAsset.identifier {
+            if params.toAmount <= networkFee {
+                presentAddMoreAmountAlert()
+                return
+            }
             xorBalance = networkFee
         }
 
