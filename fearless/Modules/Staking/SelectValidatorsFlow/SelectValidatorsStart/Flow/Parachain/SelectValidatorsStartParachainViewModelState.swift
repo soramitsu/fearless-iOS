@@ -6,7 +6,7 @@ final class SelectValidatorsStartParachainViewModelState: SelectValidatorsStartV
     private(set) var maxDelegations: Int?
     private(set) var maxTopDelegationsPerCandidate: Int?
     private(set) var maxBottomDelegationsPerCandidate: Int?
-    private(set) var collatorsApr: [SubqueryCollatorData]?
+    private(set) var collatorsApr: [CollatorAprInfoProtocol]?
     private(set) var selectedCandidates: [ParachainStakingCandidateInfo]?
     private(set) var recommendedCandidates: [ParachainStakingCandidateInfo]?
     private var topDelegationsByCollator: [AccountAddress: ParachainStakingDelegations] = [:]
@@ -121,7 +121,7 @@ extension SelectValidatorsStartParachainViewModelState: SelectValidatorsStartPar
         }
     }
 
-    func didReceiveCollatorsApr(collatorsApr: [SubqueryCollatorData]) {
+    func didReceiveCollatorsApr(collatorsApr: [CollatorAprInfoProtocol]) {
         self.collatorsApr = collatorsApr
 
         stateListener?.modelStateDidChanged(viewModelState: self)

@@ -66,7 +66,7 @@ private extension ContactsInteractor {
                        WalletTransactionHistoryFilter(type: .other, selected: false),
                        WalletTransactionHistoryFilter(type: .reward, selected: false)]
 
-        let operationWrapper = historyOperationFactory.fetchSubqueryHistoryOperation(
+        let operationWrapper = historyOperationFactory.fetchTransactionHistoryOperation(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             address: address,

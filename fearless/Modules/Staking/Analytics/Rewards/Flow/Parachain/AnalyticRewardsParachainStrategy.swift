@@ -12,6 +12,7 @@ final class AnalyticsRewardsParachainStrategy {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private weak var output: AnalyticsRewardsParachainStrategyOutput?
+    private let rewardOperationFactory: RewardOperationFactoryProtocol
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
@@ -20,13 +21,15 @@ final class AnalyticsRewardsParachainStrategy {
         logger: LoggerProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        output: AnalyticsRewardsParachainStrategyOutput?
+        output: AnalyticsRewardsParachainStrategyOutput?,
+        rewardOperationFactory: RewardOperationFactoryProtocol
     ) {
         self.operationManager = operationManager
         self.logger = logger
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.output = output
+        self.rewardOperationFactory = rewardOperationFactory
     }
 }
 
@@ -39,7 +42,11 @@ extension AnalyticsRewardsParachainStrategy: AnalyticsRewardsStrategy {
 
     func fetchRewards(address: AccountAddress) {
         guard let analyticsURL = chainAsset.chain.externalApi?.staking?.url else { return }
-        let subqueryRewardsSource = ParachainSubqueryRewardsSource(address: address, url: analyticsURL)
+        let subqueryRewardsSource = ParachainSubqueryRewardsSource(
+            address: address,
+            url: analyticsURL,
+            operationFactory: rewardOperationFactory
+        )
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in

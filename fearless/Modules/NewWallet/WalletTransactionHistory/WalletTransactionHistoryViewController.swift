@@ -176,8 +176,6 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
-        print("[transaction_history] numberOfSections: \(viewModel.sections.count)")
-
         return viewModel.sections.count
     }
 
@@ -186,7 +184,6 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
-        print("[transaction_history] numberOfRowsInSection: \(viewModel.sections[section].items.count)")
         return viewModel.sections[section].items.count
     }
 
