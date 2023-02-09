@@ -62,7 +62,8 @@ final class ChainModelMapper {
             type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
             chain: parentChain,
-            isUtility: entity.isUtility
+            isUtility: entity.isUtility,
+            isNative: entity.isNative
         )
     }
 
@@ -106,6 +107,7 @@ final class ChainModelMapper {
             assetEntity.staking = asset.staking?.rawValue
             assetEntity.type = asset.type.rawValue
             assetEntity.isUtility = asset.isUtility
+            assetEntity.isNative = asset.isNative
 
             updateEntityAsset(
                 for: assetEntity,
