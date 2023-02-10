@@ -5,6 +5,7 @@ import SnapKit
 enum HiddenSectionState {
     case hidden
     case expanded
+    case empty
 }
 
 final class ChainAssetListViewController:
@@ -110,6 +111,8 @@ private extension ChainAssetListViewController {
             hiddenSectionState = .hidden
         case .hidden:
             hiddenSectionState = .expanded
+        case .empty:
+            hiddenSectionState = .empty
         }
         output.didTapExpandSections(state: hiddenSectionState)
         rootView.tableView.reloadData()
@@ -165,6 +168,8 @@ extension ChainAssetListViewController: UITableViewDelegate {
                 view.imageView.image = R.image.iconExpandable()
             case .hidden:
                 view.imageView.image = R.image.iconExpandableInverted()
+            case .empty:
+                return nil
             }
             let sectionViewModel = HiddenSectionViewModel(
                 title: R.string.localizable.hiddenAssets(preferredLanguages: locale.rLanguages),
@@ -180,7 +185,12 @@ extension ChainAssetListViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         if section == 1 {
-            return Constants.sectionHeaderHeight
+            switch hiddenSectionState {
+            case .expanded, .hidden:
+                return Constants.sectionHeaderHeight
+            case .empty:
+                return 0
+            }
         }
         return 0
     }

@@ -157,6 +157,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             filterOptions.removeAll(where: { $0 == .hiddenSectionOpen })
         case .expanded:
             filterOptions.append(.hiddenSectionOpen)
+        case .empty:
+            return
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
