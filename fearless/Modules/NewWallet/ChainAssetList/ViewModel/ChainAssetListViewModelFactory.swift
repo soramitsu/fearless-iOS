@@ -112,6 +112,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
             ? .expanded
             : .hidden
+
+        if hiddenSectionCellModels.isEmpty {
+            hiddenSectionState = .empty
+        }
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -289,13 +293,15 @@ private extension ChainAssetListViewModelFactory {
                 aca1.totalBalance,
                 aca1.mainChainAsset.chain.isTestnet.intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca1.mainChainAsset.chain.name
+                aca1.mainChainAsset.chain.name,
+                aca1.mainChainAsset.asset.name
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
                 aca2.mainChainAsset.chain.isTestnet.intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca2.mainChainAsset.chain.name
+                aca2.mainChainAsset.chain.name,
+                aca2.mainChainAsset.asset.name
             )
         }
 
