@@ -164,7 +164,7 @@ class CustomValidatorCell: UITableViewCell {
     }
 
     func bind(viewModel: RecommendedValidatorViewModelProtocol) {
-        iconView.image = R.image.iconListSelectionOn()
+        iconView.image = viewModel.isSelected ? R.image.iconListSelectionOn() : R.image.iconListSelectionOff()
 
         titleLabel.text = viewModel.title
         detailsLabel.attributedText = viewModel.detailsAttributedString
