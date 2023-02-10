@@ -7,6 +7,11 @@ protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
         accountId: AccountId,
         chainAsset: ChainAsset
     )
+    func accountInfoDeliveryDidFinish()
+}
+
+extension AccountInfoSubscriptionAdapterHandler {
+    func accountInfoDeliveryDidFinish() {}
 }
 
 protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
@@ -57,6 +62,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     private var subscriptions: [StreamableProvider<ChainStorageItem>] = []
     private var selectedMetaAccount: MetaAccountModel
+    private var deliveryCount: Int = 0
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
         AccountInfoSubscriptionProviderWrapper(factory: walletLocalSubscriptionFactory, handler: self)
@@ -78,6 +84,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     // MARK: - Public methods
 
     func reset() {
+        deliveryCount = 0
         subscriptions.forEach { subscription in
             subscription.removeObserver(wrapper)
         }
@@ -139,6 +146,10 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
                 accountId: accountId,
                 chainAsset: chainAsset
             )
+        }
+        deliveryCount += 1
+        if deliveryCount == subscriptions.count {
+            handler?.accountInfoDeliveryDidFinish()
         }
     }
 }

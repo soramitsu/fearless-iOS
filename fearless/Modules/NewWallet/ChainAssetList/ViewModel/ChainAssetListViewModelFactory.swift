@@ -112,6 +112,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
             ? .expanded
             : .hidden
+
+        if hiddenSectionCellModels.isEmpty {
+            hiddenSectionState = .empty
+        }
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -289,13 +293,15 @@ private extension ChainAssetListViewModelFactory {
                 aca1.totalBalance,
                 aca1.mainChainAsset.chain.isTestnet.intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca1.mainChainAsset.chain.name
+                aca1.mainChainAsset.chain.name,
+                aca1.mainChainAsset.asset.name
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
                 aca2.mainChainAsset.chain.isTestnet.intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca2.mainChainAsset.chain.name
+                aca2.mainChainAsset.chain.name,
+                aca2.mainChainAsset.asset.name
             )
         }
 
@@ -487,9 +493,11 @@ private extension ChainAssetListViewModelFactory {
     ) -> Bool {
         (
             ca1.chain.isTestnet.intValue,
+            ca1.isParentChain().invert().intValue,
             ca1.isPolkadot(polkadotChainId).invert().intValue
         ) < (
             ca2.chain.isTestnet.intValue,
+            ca2.isParentChain().invert().intValue,
             ca2.isPolkadot(polkadotChainId).invert().intValue
         )
     }
@@ -552,6 +560,10 @@ extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {
 
 private extension ChainAsset {
     func isPolkadot(_ polkadotId: String?) -> Bool {
-        chain.parentId == polkadotId
+        chain.parentId == polkadotId || chain.chainId == polkadotId
+    }
+
+    func isParentChain() -> Bool {
+        chain.parentId == nil
     }
 }
