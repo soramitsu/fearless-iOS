@@ -13,4 +13,5 @@ struct WalletSendConfirmViewModel {
     let tipAmountString: String
     let tipPriceString: String
     let showWarning: Bool
+    let symbolViewModel: SymbolViewModel
 }

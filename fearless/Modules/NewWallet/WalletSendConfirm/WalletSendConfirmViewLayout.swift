@@ -39,11 +39,7 @@ final class WalletSendConfirmViewLayout: UIView {
         return view
     }()
 
-    let iconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.image = R.image.iconPoolStaking()
-        return imageView
-    }()
+    let symbolView = SymbolView()
 
     let infoViewsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
     let senderView: TitleMultiValueView = {
@@ -151,6 +147,7 @@ final class WalletSendConfirmViewLayout: UIView {
         tipView.valueBottom.text = confirmViewModel.tipPriceString
         tipView.isHidden = !confirmViewModel.tipRequired
         receiverWarningButton.isHidden = !confirmViewModel.showWarning
+        symbolView.bind(viewModel: confirmViewModel.symbolViewModel)
 
         confirmViewModel.feeAmountString.isEmpty
             ? feeView.activityIndicator.startAnimating()
@@ -209,7 +206,7 @@ final class WalletSendConfirmViewLayout: UIView {
         addSubview(contentView)
         addSubview(confirmButton)
 
-        contentView.stackView.addArrangedSubview(iconImageView)
+        contentView.stackView.addArrangedSubview(symbolView)
         contentView.stackView.addArrangedSubview(amountLabel)
         contentView.stackView.addArrangedSubview(infoBackground)
 
