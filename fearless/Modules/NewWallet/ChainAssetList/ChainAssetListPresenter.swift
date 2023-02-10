@@ -71,7 +71,6 @@ final class ChainAssetListPresenter {
             }
 
             let viewModel = self.viewModelFactory.buildViewModel(
-                displayType: self.displayType,
                 wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,

@@ -23,15 +23,11 @@ final class WalletTransactionHistoryDependencyContainer {
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
-        let operationFactory: HistoryOperationFactoryProtocol
-        if chainAsset.chain.isSora {
-            operationFactory = SoraHistoryOperationFactory(txStorage: AnyDataProviderRepository(txStorage))
-        } else {
-            operationFactory = HistoryOperationFactory(
-                txStorage: AnyDataProviderRepository(txStorage),
-                runtimeService: runtimeService
-            )
-        }
+        let operationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
+            chainAsset: chainAsset,
+            txStorage: AnyDataProviderRepository(txStorage),
+            runtimeService: runtimeService
+        )
         let dataProviderFactory = HistoryDataProviderFactory(
             cacheFacade: SubstrateDataStorageFacade.shared,
             operationFactory: operationFactory

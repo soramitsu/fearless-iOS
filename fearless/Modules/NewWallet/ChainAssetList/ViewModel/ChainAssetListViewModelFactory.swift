@@ -4,7 +4,6 @@ import SoraFoundation
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
-        displayType: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -24,13 +23,13 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var polkadotChainId: String?
 
     init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
     }
 
     func buildViewModel(
-        displayType _: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -53,6 +52,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 accountInfo: accountInfo,
                 priceData: priceData
             )
+        }
+
+        if let polkadotId = chainAssets.first { chain in
+            chain.isUtility && chain.chain.name.lowercased() == "polkadot"
+        }?.chain.chainId {
+            self.polkadotChainId = polkadotId
         }
 
         let assetChainAssetsArray = createAssetChainAssets(
@@ -476,6 +481,19 @@ private extension ChainAssetListViewModelFactory {
         return priceWithChangeAttributed
     }
 
+    func sortChainAssets(
+        ca1: ChainAsset,
+        ca2: ChainAsset
+    ) -> Bool {
+        (
+            ca1.chain.isTestnet.intValue,
+            ca1.isPolkadot(polkadotChainId).invert().intValue
+        ) < (
+            ca2.chain.isTestnet.intValue,
+            ca2.isPolkadot(polkadotChainId).invert().intValue
+        )
+    }
+
     func createAssetChainAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -483,12 +501,17 @@ private extension ChainAssetListViewModelFactory {
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let chainAssetsSorted = chainAssets.sorted { $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue }
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssetsSorted.filter { $0.asset.name == name }
-            let mainChainAsset = assetChainAssets.first {
-                $0.asset.chainId == $0.chain.chainId
-            } ?? assetChainAssets.first!
+            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
+            let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
+                sortChainAssets(ca1: ca1, ca2: ca2)
+            })
+            guard let mainChainAsset =
+                chainAssetsSorted.first(where: { $0.isUtility }) ??
+                chainAssetsSorted.first(where: { $0.isNative == true }) ??
+                chainAssetsSorted.first else {
+                return nil
+            }
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
@@ -526,3 +549,9 @@ private extension ChainAssetListViewModelFactory {
 
 extension ChainAssetListViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
+
+private extension ChainAsset {
+    func isPolkadot(_ polkadotId: String?) -> Bool {
+        chain.parentId == polkadotId
+    }
+}

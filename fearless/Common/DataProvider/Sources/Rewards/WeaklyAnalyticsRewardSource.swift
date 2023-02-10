@@ -7,11 +7,11 @@ final class ParachainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
     private let address: AccountAddress
-    private let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let operationFactory: RewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
-        operationFactory: SubqueryRewardOperationFactoryProtocol
+        operationFactory: RewardOperationFactoryProtocol
     ) {
         self.address = address
         self.operationFactory = operationFactory
@@ -33,11 +33,9 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
 
         let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
             let rewards = try rewardOperation.extractNoCancellableResultData()
-            return rewards.delegators.nodes.first(where: { historyElement in
-                historyElement.id?.lowercased() == address.lowercased()
-            })?.delegatorHistoryElements.nodes.compactMap { wrappedReward in
+            return rewards.rewardHistory(for: address).compactMap { wrappedReward in
                 guard
-                    let timestamp = Int64(wrappedReward.timestamp)
+                    let timestamp = Int64(wrappedReward.timestampInSeconds)
                 else {
                     return nil
                 }
@@ -48,7 +46,7 @@ extension ParachainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoco
                     era: EraIndex(0),
                     stashAddress: address,
                     amount: wrappedReward.amount,
-                    isReward: wrappedReward.type.rawValue == 0
+                    isReward: wrappedReward.type == .reward
                 )
             }
         }
@@ -63,11 +61,11 @@ final class RelaychainWeaklyAnalyticsRewardSource {
     typealias Model = [SubqueryRewardItemData]
 
     private let address: AccountAddress
-    private let operationFactory: SubqueryRewardOperationFactoryProtocol
+    private let operationFactory: RewardOperationFactoryProtocol
 
     init(
         address: AccountAddress,
-        operationFactory: SubqueryRewardOperationFactoryProtocol
+        operationFactory: RewardOperationFactoryProtocol
     ) {
         self.address = address
         self.operationFactory = operationFactory

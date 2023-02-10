@@ -10,7 +10,7 @@ final class SubqueryRewardSource {
     let assetPrecision: Int16
     let targetIdentifier: String
     let repository: AnyDataProviderRepository<SingleValueProviderObject>
-    let operationFactory: SubqueryRewardOperationFactoryProtocol
+    let operationFactory: RewardOperationFactoryProtocol
     let trigger: DataProviderTriggerProtocol
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
@@ -25,7 +25,7 @@ final class SubqueryRewardSource {
         assetPrecision: Int16,
         targetIdentifier: String,
         repository: AnyDataProviderRepository<SingleValueProviderObject>,
-        operationFactory: SubqueryRewardOperationFactoryProtocol,
+        operationFactory: RewardOperationFactoryProtocol,
         trigger: DataProviderTriggerProtocol,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil

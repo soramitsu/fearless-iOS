@@ -45,7 +45,14 @@ extension AnalyticsRewardsRelaychainStrategy: AnalyticsRewardsStrategy {
 
     func fetchRewards(address: AccountAddress) {
         guard let analyticsURL = chainAsset.chain.externalApi?.staking?.url else { return }
-        let subqueryRewardsSource = ParachainSubqueryRewardsSource(address: address, url: analyticsURL)
+        let rewardOperationFactory = RewardOperationFactory.factory(
+            blockExplorer: chainAsset.chain.externalApi?.staking
+        )
+        let subqueryRewardsSource = ParachainSubqueryRewardsSource(
+            address: address,
+            url: analyticsURL,
+            operationFactory: rewardOperationFactory
+        )
         let fetchOperation = subqueryRewardsSource.fetchOperation()
 
         fetchOperation.targetOperation.completionBlock = { [weak self] in
