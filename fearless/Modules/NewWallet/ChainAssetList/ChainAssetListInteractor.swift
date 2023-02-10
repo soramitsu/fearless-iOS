@@ -223,6 +223,10 @@ extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
     }
+
+    func accountInfoDeliveryDidFinish() {
+        output?.accountInfoDeliveryDidFinish()
+    }
 }
 
 extension ChainAssetListInteractor: EventVisitorProtocol {
