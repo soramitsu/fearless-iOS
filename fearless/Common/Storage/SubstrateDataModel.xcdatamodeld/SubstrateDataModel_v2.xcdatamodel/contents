@@ -49,6 +49,7 @@
     </entity>
     <entity name="CDChainAsset" representedClassName="CDChainAsset" syncable="YES" codeGenerationType="class">
         <attribute name="assetId" attributeType="String"/>
+        <attribute name="isNative" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
         <attribute name="staking" optional="YES" attributeType="String"/>

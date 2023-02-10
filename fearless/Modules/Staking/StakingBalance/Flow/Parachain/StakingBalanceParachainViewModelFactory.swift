@@ -139,8 +139,8 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
             redeemTitle: R.string.localizable.parachainStakingUnlock(preferredLanguages: locale.rLanguages),
             redeemIcon: R.image.iconRevoke(),
             redeemActionIsAvailable: redeemableDecimal > 0,
-            stakeMoreActionAvailable: bondedDecimal != unbondedDecimal,
-            stakeLessActionAvailable: bondedDecimal > unbondedDecimal
+            stakeMoreActionAvailable: bondedDecimal != unbondedDecimal && redeemableDecimal < bondedDecimal,
+            stakeLessActionAvailable: bondedDecimal > unbondedDecimal && redeemableDecimal < bondedDecimal
         )
     }
 

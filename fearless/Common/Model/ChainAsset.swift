@@ -15,6 +15,10 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
         chain.assets.first(where: { $0.assetId == asset.id })?.isUtility ?? false
     }
 
+    var isNative: Bool {
+        chain.assets.first(where: { $0.assetId == asset.id })?.isNative ?? false
+    }
+
     var identifier: String {
         chain.identifier + asset.identifier
     }

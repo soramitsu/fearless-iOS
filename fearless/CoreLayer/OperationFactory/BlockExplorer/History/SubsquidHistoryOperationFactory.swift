@@ -118,14 +118,15 @@ final class SubsquidHistoryOperationFactory {
 
     private func prepareQueryForAddress(
         _ address: String,
-        count _: Int,
-        cursor _: String?,
+        count: Int,
+        cursor: String?,
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
         let filterString = prepareFilter(filters: filters)
+        let offset: Int = cursor.map { Int($0) ?? 0 } ?? 0
         return """
         query MyQuery {
-          historyElements(where: {address_eq: "\(address)", \(filterString)}, orderBy: timestamp_DESC) {
+          historyElements(where: {address_eq: "\(address)", \(filterString)}, orderBy: timestamp_DESC, limit: \(count), offset: \(offset)) {
             timestamp
             id
             extrinsicIdx
@@ -256,15 +257,19 @@ final class SubsquidHistoryOperationFactory {
 
     private func createSubqueryHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<SubsquidHistoryResponse>
+        remoteOperation: BaseOperation<SubsquidHistoryResponse>,
+        pagination: Pagination
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
+            let context = pagination.context
+            let endCursor = context.map { (Int($0["endCursor"] ?? "0") ?? 0) + pagination.count } ?? pagination.count
+
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
             let remoteData = try remoteOperation.extractNoCancellableResultData()
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: [:]
+                context: ["endCursor": "\(endCursor)"]
             )
         }
     }
@@ -352,7 +357,8 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
         let mapOperation = createSubqueryHistoryMapOperation(
             dependingOn: mergeOperation,
-            remoteOperation: remoteHistoryOperation
+            remoteOperation: remoteHistoryOperation,
+            pagination: pagination
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }

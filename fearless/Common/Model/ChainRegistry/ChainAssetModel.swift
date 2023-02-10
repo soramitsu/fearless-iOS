@@ -8,6 +8,7 @@ class ChainAssetModel: Codable {
     let purchaseProviders: [PurchaseProvider]?
     let type: ChainAssetType
     let isUtility: Bool
+    let isNative: Bool
 
     var asset: AssetModel!
     weak var chain: ChainModel?
@@ -19,7 +20,8 @@ class ChainAssetModel: Codable {
         type: ChainAssetType,
         asset: AssetModel,
         chain: ChainModel,
-        isUtility: Bool
+        isUtility: Bool,
+        isNative: Bool
     ) {
         self.assetId = assetId
         self.staking = staking
@@ -28,6 +30,7 @@ class ChainAssetModel: Codable {
         self.asset = asset
         self.chain = chain
         self.isUtility = isUtility
+        self.isNative = isNative
     }
 
     required init(from decoder: Decoder) throws {
@@ -40,6 +43,7 @@ class ChainAssetModel: Codable {
         self.type = type ?? ChainAssetType.normal
 
         isUtility = (try? container.decode(Bool?.self, forKey: .isUtility)) ?? false
+        isNative = (try? container.decode(Bool?.self, forKey: .isNative)) ?? false
     }
 }
 
@@ -50,7 +54,8 @@ extension ChainAssetModel: Hashable {
             lhs.staking == rhs.staking &&
             lhs.purchaseProviders == rhs.purchaseProviders &&
             lhs.type == rhs.type &&
-            lhs.isUtility == rhs.isUtility
+            lhs.isUtility == rhs.isUtility &&
+            lhs.isNative == rhs.isNative
     }
 
     func hash(into hasher: inout Hasher) {

@@ -357,6 +357,7 @@ extension WalletTransactionHistoryInteractor: WalletTransactionHistoryInteractor
 
     func chainAssetChanged(_ newChainAsset: ChainAsset) {
         if chainAsset != newChainAsset {
+            filters = WalletTransactionHistoryViewFactory.transactionHistoryFilters(for: newChainAsset.chain)
             chainAsset = newChainAsset
             dependencyContainer.dependencies?.dataProvider?.removeObserver(self)
             setupDependencies(for: newChainAsset)
