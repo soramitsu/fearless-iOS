@@ -44,8 +44,7 @@ enum WalletTransactionHistoryViewFactory {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            chain: chain,
-            asset: asset,
+            chainAsset: ChainAsset(chain: chain, asset: asset),
             logger: Logger.shared,
             localizationManager: LocalizationManager.shared
         )
