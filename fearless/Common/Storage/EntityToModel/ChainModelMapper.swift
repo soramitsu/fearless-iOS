@@ -37,7 +37,8 @@ final class ChainModelMapper {
             transfersEnabled: entity.transfersEnabled,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            existentialDeposit: entity.existentialDeposit,
+            color: entity.color
         )
     }
 
@@ -153,6 +154,7 @@ final class ChainModelMapper {
         assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
+        assetEntity.color = model.asset.color
 
         entity.asset = assetEntity
     }
