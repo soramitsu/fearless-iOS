@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 
-class ImportantFlowNavigationController: FearlessNavigationController, ControllerBackedProtocol {
+class ImportantFlowNavigationController: FearlessNavigationController {
     let localizationManager: LocalizationManagerProtocol
 
     init(
