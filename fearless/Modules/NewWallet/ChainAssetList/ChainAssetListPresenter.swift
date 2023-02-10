@@ -27,7 +27,6 @@ final class ChainAssetListPresenter {
     private var displayType: AssetListDisplayType = .assetChains
     private var chainsWithNetworkIssues: [ChainModel.Id] = []
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
-    private var accountInfosFetched = false
     private var pricesFetched = false
 
     private lazy var factoryOperationQueue: OperationQueue = {
@@ -53,7 +52,7 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let additionalDataReceived = displayType != .search && accountInfosFetched && pricesFetched || displayType == .search
+        let additionalDataReceived = displayType != .search && pricesFetched || displayType == .search
         guard
             let chainAssets = chainAssets,
             additionalDataReceived
@@ -252,8 +251,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 }
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
-                accountInfosFetched = true
-                provideViewModel()
             }
         case let .failure(error):
             DispatchQueue.main.async {
@@ -294,6 +291,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
         }
         provideViewModel()
     }
+
+    func accountInfoDeliveryDidFinish() {
+        provideViewModel()
+    }
 }
 
 // MARK: - Localizable
@@ -326,7 +327,6 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         })
 
         pricesFetched = searchIsActive
-        accountInfosFetched = false
         accountInfos = [:]
 
         if searchIsActive {

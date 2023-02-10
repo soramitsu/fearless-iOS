@@ -157,6 +157,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             filterOptions.removeAll(where: { $0 == .hiddenSectionOpen })
         case .expanded:
             filterOptions.append(.hiddenSectionOpen)
+        case .empty:
+            return
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
@@ -220,6 +222,10 @@ extension ChainAssetListInteractor: PriceLocalStorageSubscriber, PriceLocalSubsc
 extension ChainAssetListInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId _: AccountId, chainAsset: ChainAsset) {
         output?.didReceiveAccountInfo(result: result, for: chainAsset)
+    }
+
+    func accountInfoDeliveryDidFinish() {
+        output?.accountInfoDeliveryDidFinish()
     }
 }
 
