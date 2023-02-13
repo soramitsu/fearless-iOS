@@ -45,8 +45,8 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
         output.didTapCloseButton()
     }
 
-    @objc private func tryagainButtonClicked() {
-        output.didTapTryagainButton()
+    @objc private func tryAgainButtonClicked() {
+        output.didTapTryAgainButton()
     }
 
     private func configureButtons() {
@@ -70,7 +70,7 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
         case .rejected:
             rootView.actionButton.addTarget(
                 self,
-                action: #selector(tryagainButtonClicked),
+                action: #selector(tryAgainButtonClicked),
                 for: .touchUpInside
             )
         }
@@ -99,11 +99,13 @@ extension VerificationStatusViewController: VerificationStatusViewInput {
 // MARK: - Localizable
 
 extension VerificationStatusViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }
 
 extension VerificationStatusViewController: LoadableViewProtocol {
-    var loadableContentView: UIView! { rootView.contentView }
+    var loadableContentView: UIView { rootView.contentView }
 }
 
 extension VerificationStatusViewController: EmptyStateViewOwnerProtocol {

@@ -912,3 +912,8 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "sora.card.status.failure.title" = "Verification failed";
 "sora.card.status.rejected.title" = "Verification rejected";
 "try.again.common" = "Try again";
+"sora.card.state.none.title" = "Get Sora Card";
+"sora.card.state.verification.title" = "Verification in progress";
+"sora.card.state.rejected.title" = "Card is rejected";
+"sora.card.state.onway.title" = "Card is on the way";
+"sora.card.state.verificationfailed.title" = "Verification failed";

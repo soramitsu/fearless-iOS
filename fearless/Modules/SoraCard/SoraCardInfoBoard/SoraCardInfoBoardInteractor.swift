@@ -1,10 +1,9 @@
-import Foundation
-import PayWingsOAuthSDK
+import UIKit
 
-final class VerificationStatusInteractor {
+final class SoraCardInfoBoardInteractor {
     // MARK: - Private properties
 
-    private weak var output: VerificationStatusInteractorOutput?
+    private weak var output: SoraCardInfoBoardInteractorOutput?
     private let service: SCKYCService
     private let data: SCKYCUserDataModel
 
@@ -14,10 +13,10 @@ final class VerificationStatusInteractor {
     }
 }
 
-// MARK: - VerificationStatusInteractorInput
+// MARK: - SoraCardInfoBoardInteractorInput
 
-extension VerificationStatusInteractor: VerificationStatusInteractorInput {
-    func setup(with output: VerificationStatusInteractorOutput) {
+extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
+    func setup(with output: SoraCardInfoBoardInteractorOutput) {
         self.output = output
     }
 
@@ -40,7 +39,7 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
                 }
             case let .success(status):
                 DispatchQueue.main.async { [weak self] in
-                    self?.output?.didReceive(status: status.verificationStatus)
+                    self?.output?.didReceive(status: status)
                 }
             }
         }
