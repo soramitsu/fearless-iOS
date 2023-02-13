@@ -7,11 +7,6 @@ protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
         accountId: AccountId,
         chainAsset: ChainAsset
     )
-    func accountInfoDeliveryDidFinish()
-}
-
-extension AccountInfoSubscriptionAdapterHandler {
-    func accountInfoDeliveryDidFinish() {}
 }
 
 protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
@@ -145,7 +140,5 @@ extension AccountInfoSubscriptionAdapter: WalletLocalStorageSubscriber, WalletLo
                 chainAsset: chainAsset
             )
         }
-
-        handler?.accountInfoDeliveryDidFinish()
     }
 }
