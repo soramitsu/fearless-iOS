@@ -2230,6 +2230,8 @@
 		FA66FE922779C9C90037C989 /* RuntimeFilesOperationFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA66FE912779C9C90037C989 /* RuntimeFilesOperationFacade.swift */; };
 		FA67200D2914B163007EB694 /* StorageKeyExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */; };
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
+		FA69987D299A172F00445773 /* Array+Difference.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA69987C299A172F00445773 /* Array+Difference.swift */; };
+		FA69987F299A224100445773 /* TimeInterval+Debounce.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA69987E299A224100445773 /* TimeInterval+Debounce.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
 		FA6C174F2992519400A55254 /* DateFormats.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6C174E2992519400A55254 /* DateFormats.swift */; };
@@ -4842,6 +4844,8 @@
 		FA66FE912779C9C90037C989 /* RuntimeFilesOperationFacade.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeFilesOperationFacade.swift; sourceTree = "<group>"; };
 		FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageKeyExtractor.swift; sourceTree = "<group>"; };
 		FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolViewModelFactory.swift; sourceTree = "<group>"; };
+		FA69987C299A172F00445773 /* Array+Difference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Difference.swift"; sourceTree = "<group>"; };
+		FA69987E299A224100445773 /* TimeInterval+Debounce.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Debounce.swift"; sourceTree = "<group>"; };
 		FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV2Mapping.xcmappingmodel; sourceTree = "<group>"; };
 		FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainNodeModelMapper.swift; sourceTree = "<group>"; };
 		FA6C174E2992519400A55254 /* DateFormats.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormats.swift; sourceTree = "<group>"; };
@@ -8197,6 +8201,8 @@
 				84443BA126C123F100C33B5D /* Data+Random.swift */,
 				C6A53DEE28A4FB2C00EFF190 /* Array + Divide.swift */,
 				C6A53DF028A5036400EFF190 /* Array + Unique.swift */,
+				FA69987C299A172F00445773 /* Array+Difference.swift */,
+				FA69987E299A224100445773 /* TimeInterval+Debounce.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -13782,6 +13788,7 @@
 				FA37AE432859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift in Sources */,
 				FAA0133128DA12B6000A5230 /* StakingPoolMainViewController.swift in Sources */,
 				FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */,
+				FA69987F299A224100445773 /* TimeInterval+Debounce.swift in Sources */,
 				FA93A30C2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift in Sources */,
 				844CB56E26F9CB1500396E13 /* CrowdloanLocalStorageSubscriber.swift in Sources */,
 				0716C84C288802EB004C8CB1 /* SwipableTableViewCell.swift in Sources */,
@@ -15386,6 +15393,7 @@
 				FAAA46752976916300F53FB8 /* AssetTransactionData+GiantsquidHistory.swift in Sources */,
 				270C21973CB61F0BF3D2D1E3 /* CrowdloanListProtocols.swift in Sources */,
 				FA123FFD2979006700C3BFC1 /* AssetTransactionData+SubsquidHistory.swift in Sources */,
+				FA69987D299A172F00445773 /* Array+Difference.swift in Sources */,
 				6D61E43A79BDF5EA6CA9E85D /* CrowdloanListWireframe.swift in Sources */,
 				FA936BD4286C66A60059B97A /* StakingRebondConfirmationParachainStrategy.swift in Sources */,
 				FA5ED5FD29912943000DECE8 /* SubqueryDelegatorHistoryData.swift in Sources */,
