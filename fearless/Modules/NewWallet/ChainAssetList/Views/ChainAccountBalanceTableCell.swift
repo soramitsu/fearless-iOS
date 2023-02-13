@@ -9,7 +9,7 @@ protocol ChainAccountBalanceTableCellDelegate: AnyObject {
 
 final class ChainAccountBalanceTableCell: SwipableTableViewCell {
     enum LayoutConstants {
-        static let cellHeight: CGFloat = 80
+        static let cellHeight: CGFloat = 93
         static let assetImageTopOffset: CGFloat = 11
         static let stackViewVerticalOffset: CGFloat = 6
         static let iconSize: CGFloat = 48
@@ -344,6 +344,9 @@ extension ChainAccountBalanceTableCell {
 
     private func setupLoadingSkeleton() {
         let spaceSize = contentStackView.frame.size
+        guard spaceSize.width > 0, spaceSize.height > 0 else {
+            return
+        }
 
         let skeletonView = Skrull(
             size: spaceSize,
