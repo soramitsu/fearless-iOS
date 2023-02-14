@@ -58,4 +58,15 @@ final class PolkaswapAdjustmentRouter: PolkaswapAdjustmentRouterInput {
 
         return module.input
     }
+
+    func showDisclaimer(
+        moduleOutput: PolkaswapDisclaimerModuleOutput?,
+        from view: ControllerBackedProtocol?
+    ) {
+        guard let module = PolkaswapDisclaimerAssembly.configureModule(moduleOutput: moduleOutput) else {
+            return
+        }
+
+        view?.controller.present(module.view.controller, animated: true)
+    }
 }

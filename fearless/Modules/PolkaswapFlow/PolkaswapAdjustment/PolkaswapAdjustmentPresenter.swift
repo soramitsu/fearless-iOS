@@ -655,6 +655,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
     }
+
+    func didTapReadDisclaimer() {
+        router.showDisclaimer(moduleOutput: self, from: view)
+    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorOutput
@@ -797,6 +801,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         calcalatedAmounts = nil
         fetchQuotes()
     }
+
+    func didReceiveDisclaimer(visible: Bool) {
+        view?.setDisclaimer(visible: visible)
+    }
 }
 
 // MARK: - Localizable
@@ -870,5 +878,13 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
+    }
+}
+
+// MARK: - PolkaswapDisclaimerModuleOutput
+
+extension PolkaswapAdjustmentPresenter: PolkaswapDisclaimerModuleOutput {
+    func disclaimerDidRead() {
+        view?.setDisclaimer(visible: false)
     }
 }

@@ -8,6 +8,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         static let imageWidth: CGFloat = 12
         static let imageHeight: CGFloat = 12
         static let imageVerticalPosition: CGFloat = 2
+        static let disclaimerMinHeight: CGFloat = 42.0
     }
 
     var keyboardAdoptableConstraint: Constraint?
@@ -74,6 +75,28 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         let button = TriangularedButton()
         button.applyEnabledStyle()
         return button
+    }()
+
+    let disclaimerView: DetailsTriangularedView = {
+        let view = DetailsTriangularedView()
+        view.fillColor = R.color.colorSemiBlack()!
+        view.highlightedFillColor = R.color.colorSemiBlack()!
+        view.iconImage = R.image.iconWarning()
+        view.titleLabel.font = .capsTitle
+        view.titleLabel.textColor = R.color.colorOrange()
+        view.subtitleLabel?.font = .p3Paragraph
+        view.subtitleLabel?.textColor = R.color.colorWhite50()
+        view.borderWidth = 1
+        view.strokeColor = R.color.colorWhite8()!
+        view.iconInCenterY = true
+        view.layout = .smallIconTitleSubtitleButton
+        view.isUserInteractionEnabled = true
+        view.contentView?.isUserInteractionEnabled = true
+        view.backgroundView?.isUserInteractionEnabled = true
+        view.actionButton?.triangularedView?.fillColor = R.color.colorOrange()!
+        view.actionButton?.triangularedView?.highlightedFillColor = R.color.colorOrange()!
+        view.actionButton?.imageWithTitleView?.titleFont = .p3Paragraph
+        return view
     }()
 
     var locale: Locale = .current {
@@ -177,18 +200,19 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupContentsLayout() {
         addSubview(contentView)
-        addSubview(previewButton)
+
+        let bottomContainer = createBottomContainer()
+        addSubview(bottomContainer)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(bottomContainer.snp.top).offset(-UIConstants.bigOffset)
         }
 
-        previewButton.snp.makeConstraints { make in
+        bottomContainer.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
-            make.height.equalTo(UIConstants.actionHeight)
         }
 
         let switchInputsView = createSwitchInputsView()
@@ -202,6 +226,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         feesView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
+        layoutIfNeeded()
     }
 
     private func createSwitchInputsView() -> UIView {
@@ -284,6 +309,28 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
         previewButton.imageWithTitleView?.title = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
+
+        disclaimerView.title = "DISCLAIMER"
+        disclaimerView.subtitle = "Please read before continuing to use Polkaswap"
+        disclaimerView.actionButton?.imageWithTitleView?.title = "Read"
+    }
+
+    private func createBottomContainer() -> UIView {
+        let container = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+        container.addArrangedSubview(disclaimerView)
+        container.addArrangedSubview(previewButton)
+
+        disclaimerView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.greaterThanOrEqualTo(Constants.disclaimerMinHeight)
+        }
+
+        previewButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        return container
     }
 
     private func setInfoImage(for label: UILabel, text: String) {

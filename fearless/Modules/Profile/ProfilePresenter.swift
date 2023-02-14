@@ -78,6 +78,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showPincodeChange(from: view)
         case .language:
             wireframe.showLanguageSelection(from: view)
+        case .polkaswapDisclaimer:
+            wireframe.showPolkaswapDisclaimer(from: view)
         case .about:
             wireframe.showAbout(from: view)
         case .currency:
