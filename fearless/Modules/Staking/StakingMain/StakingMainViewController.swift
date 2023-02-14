@@ -568,7 +568,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             let updatedFrame = CGRect(
                 origin: CGPoint(
                     x: fieldFrame.origin.x,
-                    y: fieldFrame.origin.y + UIConstants.actionHeight + UIConstants.bigOffset
+                    y: fieldFrame.origin.y + UIConstants.actionHeight
                 ),
                 size: fieldFrame.size
             )
@@ -577,7 +577,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
             actionButton.snp.updateConstraints { make in
                 make.bottom.equalTo(view.safeAreaLayoutGuide)
-                    .inset(updatedFrame.height + UIConstants.bigOffset)
+                    .inset(updatedFrame.height + UIConstants.accessoryBarHeight)
             }
         } else {
             actionButton.snp.updateConstraints { make in

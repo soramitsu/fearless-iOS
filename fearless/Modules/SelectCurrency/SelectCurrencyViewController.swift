@@ -38,7 +38,6 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder, Loadable
         super.viewDidLoad()
         setupActions()
         setupTableView()
-        output.didLoad(view: self)
     }
 
     override func viewWillLayoutSubviews() {
@@ -49,6 +48,7 @@ final class SelectCurrencyViewController: UIViewController, ViewHolder, Loadable
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         didStartLoading()
+        output.didLoad(view: self)
     }
 
     // MARK: - Private methods

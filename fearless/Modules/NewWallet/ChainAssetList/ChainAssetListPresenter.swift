@@ -252,6 +252,9 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
             }
+
+            provideViewModel()
+
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -289,10 +292,6 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 chainsWithMissingAccounts = chains.map { $0.chainId }
             }
         }
-        provideViewModel()
-    }
-
-    func accountInfoDeliveryDidFinish() {
         provideViewModel()
     }
 }
