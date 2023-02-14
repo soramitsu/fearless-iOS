@@ -39,12 +39,12 @@ extension FiltersInteractor: FiltersInteractorInputProtocol {
             }
         }
 
-        var selectedFilters = filters.compactMap { filterSet in
-            filterSet.items.compactMap { item in
+        var selectedFilters: [SwitchFilterItem] = []
+        filters.forEach { filterSet in
+            filterSet.items.forEach { item in
                 if let switchItem = item as? SwitchFilterItem, switchItem.selected {
-                    return switchItem
+                    selectedFilters.append(switchItem)
                 }
-                return nil
             }
         }
         completion(selectedFilters.isNotEmpty)
