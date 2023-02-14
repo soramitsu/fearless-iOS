@@ -70,9 +70,6 @@ final class SelectCurrencyViewLayout: UIView {
         if isModal {
             layer.cornerRadius = Constants.cornerRadius
             clipsToBounds = true
-            snp.makeConstraints { make in
-                make.height.equalTo(UIScreen.main.bounds.height / 2.5)
-            }
             tableView.backgroundColor = R.color.colorBlack()
         }
 
