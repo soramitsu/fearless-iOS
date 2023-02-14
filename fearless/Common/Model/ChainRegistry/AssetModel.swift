@@ -67,7 +67,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
-        color = try container.decode(String.self, forKey: .color)
+        color = try? container.decode(String.self, forKey: .color)
 
         price = nil
         fiatDayChange = nil
