@@ -3,6 +3,7 @@ import Foundation
 protocol FiltersViewProtocol: ControllerBackedProtocol {
     func didReceive(state: FiltersViewState)
     func didReceive(locale: Locale)
+    func didReceive(applyEnabled: Bool)
 }
 
 protocol FiltersPresenterProtocol: AnyObject {
@@ -16,7 +17,7 @@ protocol FiltersInteractorInputProtocol: AnyObject {
     func setup()
     func resetFilters()
     func applyFilters()
-    func switchFilterState(id: String, selected: Bool)
+    func switchFilterState(id: String, selected: Bool, completion: (Bool) -> Void)
 }
 
 protocol FiltersInteractorOutputProtocol: AnyObject {
