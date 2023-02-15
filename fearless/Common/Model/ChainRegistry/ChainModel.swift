@@ -298,7 +298,11 @@ extension ChainModel {
     }
 
     func polkascanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
+        if isPolkadotOrKusama {
+            return URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
+        }
+
+        return nil
     }
 
     func subscanAddressURL(_ address: String) -> URL? {

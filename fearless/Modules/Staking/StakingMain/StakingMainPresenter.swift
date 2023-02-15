@@ -27,6 +27,12 @@ final class StakingMainPresenter {
     }
 
     var amount: Decimal? {
+        if let amount = stateMachine.viewState(
+            using: { (state: ParachainState) in state.rewardEstimationAmount }
+        ) {
+            return amount
+        }
+
         if let amount = stateMachine
             .viewState(using: { (state: NoStashState) in state.rewardEstimationAmount }) {
             return amount

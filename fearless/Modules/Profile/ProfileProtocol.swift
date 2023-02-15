@@ -9,7 +9,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateAccountDetails()
     func activateOption(_ option: ProfileOption)
     func logout()
-    func switcherValueChanged(isOn: Bool)
+    func switcherValueChanged(isOn: Bool, index: Int)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {

@@ -21,6 +21,7 @@ enum ProfileOption: UInt, CaseIterable {
     case changePincode
     case biometry
     case about
+    case zeroBalances
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -119,6 +120,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
+            case .zeroBalances:
+                return createZeroBalancesViewModel(for: locale)
             }
         }
 
@@ -208,6 +211,18 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .arrow,
             option: .about
+        )
+    }
+
+    private func createZeroBalancesViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconSettingsWebsite()!,
+            accessoryTitle: nil,
+            accessoryType: .switcher(settings.hideZeroBalances ?? false),
+            option: .zeroBalances
         )
     }
 

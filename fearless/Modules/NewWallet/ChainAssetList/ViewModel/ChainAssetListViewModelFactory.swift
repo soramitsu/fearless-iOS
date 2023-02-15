@@ -1,5 +1,7 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
+import BigInt
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
@@ -24,9 +26,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
 
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
     private var polkadotChainId: String?
+    private let settings: SettingsManagerProtocol
 
-    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
+    init(
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.settings = settings
     }
 
     func buildViewModel(
@@ -239,7 +246,7 @@ private extension ChainAssetListViewModelFactory {
             locale: locale
         )
 
-        if wallet.assetFilterOptions.contains(.hideZeroBalance),
+        if settings.hideZeroBalances == true,
            accountInfo == nil,
            !isColdBoot {
             return nil

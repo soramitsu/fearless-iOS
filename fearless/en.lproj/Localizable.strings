@@ -974,3 +974,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "error.invalid.address" = "Invalid address for selected chain";
 "same.address.transfer.warning.message" = "You're trying to make a transfer to the same account. The operation will charge a fee and doesn't make any sense";
 "polkaswap.add.more.amount.message" = "Sorry, you don't have enough funds to pay the network fee. We can't charge. The fee neither from your current balance nor from the swap results. Please add more tokens or adjust the transaction amount to proceed";
+"profile.hide.zero.balances.title" = "Hide zero balances";

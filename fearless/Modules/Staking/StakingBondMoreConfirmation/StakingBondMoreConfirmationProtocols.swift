@@ -29,7 +29,11 @@ protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {
 protocol StakingBondMoreConfirmationWireframeProtocol: SheetAlertPresentable, ErrorPresentable,
     StakingErrorPresentable,
     AddressOptionsPresentable, AnyDismissable {
-    func complete(from view: StakingBondMoreConfirmationViewProtocol?)
+    func complete(
+        from view: StakingBondMoreConfirmationViewProtocol,
+        chainAsset: ChainAsset,
+        extrinsicHash: String
+    )
 }
 
 protocol StakingBondMoreConfirmationViewLayoutProtocol {

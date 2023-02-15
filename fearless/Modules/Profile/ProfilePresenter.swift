@@ -85,11 +85,22 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
+        case .zeroBalances:
+            break
         }
     }
 
-    func switcherValueChanged(isOn: Bool) {
-        settings.biometryEnabled = isOn
+    func switcherValueChanged(isOn: Bool, index: Int) {
+        let option = ProfileOption(rawValue: UInt(index))
+        switch option {
+        case .biometry:
+            settings.biometryEnabled = isOn
+        case .zeroBalances:
+            settings.hideZeroBalances = isOn
+            eventCenter.notify(with: ZeroBalancesSettingChanged())
+        default:
+            break
+        }
     }
 
     func logout() {
