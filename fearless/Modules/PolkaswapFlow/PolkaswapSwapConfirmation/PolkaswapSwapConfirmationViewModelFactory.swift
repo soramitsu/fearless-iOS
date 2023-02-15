@@ -19,9 +19,13 @@ final class PolkaswapSwapConfirmationViewModelFactory: PolkaswapSwapConfirmation
         with params: PolkaswapPreviewParams,
         locale: Locale
     ) -> PolkaswapSwapConfirmationViewModel {
+        let leftColor = HexColorConverter.hexStringToUIColor(hex: params.swapFromChainAsset.asset.color)?.cgColor
+        let rightColor = HexColorConverter.hexStringToUIColor(hex: params.swapToChainAsset.asset.color)?.cgColor
         let doubleImageViewViewModel = PolkaswapDoubleSymbolViewModel(
             leftViewModel: params.swapFromChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
-            rightViewModel: params.swapToChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) }
+            rightViewModel: params.swapToChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
+            leftShadowColor: leftColor,
+            rightShadowColor: rightColor
         )
 
         let amountsText = buildAmountsText(for: params, locale: locale)

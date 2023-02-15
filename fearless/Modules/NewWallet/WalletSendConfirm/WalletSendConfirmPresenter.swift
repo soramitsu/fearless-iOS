@@ -67,7 +67,8 @@ final class WalletSendConfirmPresenter {
             feeViewModel: provideFeeViewModel(),
             wallet: wallet,
             locale: selectedLocale,
-            scamInfo: scamInfo
+            scamInfo: scamInfo,
+            assetModel: chainAsset.asset
         )
         let viewModel = walletSendConfirmViewModelFactory.buildViewModel(
             parameters: parameters

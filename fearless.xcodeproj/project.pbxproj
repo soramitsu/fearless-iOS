@@ -1672,6 +1672,8 @@
 		C6992F0D2807E796003BC769 /* ReplaceChainOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6992F0C2807E796003BC769 /* ReplaceChainOption.swift */; };
 		C6992F10280836FA003BC769 /* AccountConfirmFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */; };
 		C69C41812993DB6B00A517A0 /* Bool + Inverted.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69C41802993DB6B00A517A0 /* Bool + Inverted.swift */; };
+		C69C41832994F17B00A517A0 /* HexColorConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69C41822994F17B00A517A0 /* HexColorConverter.swift */; };
+		C69C41852996527300A517A0 /* SymbolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C69C41842996527300A517A0 /* SymbolView.swift */; };
 		C6A53DEF28A4FB2C00EFF190 /* Array + Divide.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A53DEE28A4FB2C00EFF190 /* Array + Divide.swift */; };
 		C6A53DF128A5036400EFF190 /* Array + Unique.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A53DF028A5036400EFF190 /* Array + Unique.swift */; };
 		C6A8D6BD27EF0CF40080F81C /* UIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6A8D6BC27EF0CF40080F81C /* UIView.swift */; };
@@ -4263,6 +4265,8 @@
 		C6992F0C2807E796003BC769 /* ReplaceChainOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReplaceChainOption.swift; sourceTree = "<group>"; };
 		C6992F0F280836FA003BC769 /* AccountConfirmFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConfirmFlow.swift; sourceTree = "<group>"; };
 		C69C41802993DB6B00A517A0 /* Bool + Inverted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Bool + Inverted.swift"; sourceTree = "<group>"; };
+		C69C41822994F17B00A517A0 /* HexColorConverter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HexColorConverter.swift; sourceTree = "<group>"; };
+		C69C41842996527300A517A0 /* SymbolView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SymbolView.swift; sourceTree = "<group>"; };
 		C6A53DEE28A4FB2C00EFF190 /* Array + Divide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array + Divide.swift"; sourceTree = "<group>"; };
 		C6A53DF028A5036400EFF190 /* Array + Unique.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array + Unique.swift"; sourceTree = "<group>"; };
 		C6A654294D46A966EE99764F /* AllDonePresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AllDonePresenter.swift; sourceTree = "<group>"; };
@@ -8173,6 +8177,7 @@
 				07F2B75E28AA183C00280C38 /* PrintTimer.swift */,
 				C63FE88929000EB500E97E8E /* FearlessKeyboardHandler.swift */,
 				FA6C174E2992519400A55254 /* DateFormats.swift */,
+				C69C41822994F17B00A517A0 /* HexColorConverter.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -8337,6 +8342,7 @@
 				C648FFC728DC43A70072951B /* EmptyView.swift */,
 				C640415C28F507E900845780 /* TriangularedTextField.swift */,
 				076D9D58294C461E002762E3 /* PolkaswapDoubleSymbolView.swift */,
+				C69C41842996527300A517A0 /* SymbolView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -13511,6 +13517,7 @@
 				FA38C9A62760701F005C5577 /* SearchService.swift in Sources */,
 				84873B0926029CBD000A83EE /* StakingStateViewModelFactory.swift in Sources */,
 				84C3F78C26020DE800D47501 /* StakingStateMachineProtocols.swift in Sources */,
+				C69C41852996527300A517A0 /* SymbolView.swift in Sources */,
 				846CA7722707A3060011124C /* SingleToMultiasset.xcmappingmodel in Sources */,
 				8425EA9525EA82CE00C307C9 /* AccountIdentity.swift in Sources */,
 				845BB8DB25E462B100E5FCDC /* SubstrateConstansts.swift in Sources */,
@@ -14150,6 +14157,7 @@
 				07DE95CB28A169A600E9C2CB /* AssetListSearchRouter.swift in Sources */,
 				FA93A2EC2833B1000021330F /* RecommendedValidatorListRelaychainStrategy.swift in Sources */,
 				845C40792702571200BFA50B /* StakingRemoteSubscriptionService.swift in Sources */,
+				C69C41832994F17B00A517A0 /* HexColorConverter.swift in Sources */,
 				FAA0133A28DA12B6000A5230 /* StakingPoolManagementViewController.swift in Sources */,
 				8468B86A24F63CBA00B76BC6 /* AddAccount+AccountImportInteractor.swift in Sources */,
 				84B66A0B26FDB70F0038B963 /* CrowdloansListInteractor+Protocols.swift in Sources */,
