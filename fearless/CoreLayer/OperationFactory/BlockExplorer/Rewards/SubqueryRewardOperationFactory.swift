@@ -294,7 +294,7 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
-    ) -> BaseOperation<SubqueryRewardOrSlashData> {
+    ) -> BaseOperation<RewardOrSlashResponse> {
         let queryString = prepareHistoryRequestForAddress(
             address,
             startTimestamp: startTimestamp,
@@ -319,7 +319,7 @@ extension SubqueryRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryRewardOrSlashData> { data in
+        let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
                 SubqueryResponse<SubqueryRewardOrSlashData>.self,
                 from: data
