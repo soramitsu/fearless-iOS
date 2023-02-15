@@ -81,7 +81,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
-        guard chainAsset.chain.externalApi?.history != nil else {
+        guard chainAsset.chain.externalApi?.history != nil, chainAsset.isUtility else {
             let state: WalletTransactionHistoryViewState = .unsupported
             view?.didReceive(state: state)
             return
