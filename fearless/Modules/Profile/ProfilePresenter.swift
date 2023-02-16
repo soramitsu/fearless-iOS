@@ -73,7 +73,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     func activateOption(_ option: ProfileOption) {
         switch option {
         case .accountList:
-            wireframe.showAccountSelection(from: view)
+            wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -202,5 +202,15 @@ extension ProfilePresenter: EventVisitorProtocol {
         let currency = event.account.selectedCurrency
         selectedWallet = event.account
         interactor.update(currency: currency)
+    }
+}
+
+extension ProfilePresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        wireframe.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        wireframe.showImportWallet(from: view)
     }
 }

@@ -81,6 +81,7 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
+        view?.didStopLoading()
         guard chainAsset.chain.externalApi?.history != nil, chainAsset.isUtility else {
             let state: WalletTransactionHistoryViewState = .unsupported
             view?.didReceive(state: state)
@@ -120,6 +121,7 @@ extension WalletTransactionHistoryPresenter: Localizable {
 
 extension WalletTransactionHistoryPresenter: FiltersModuleOutput {
     func didFinishWithFilters(filters: [FilterSet]) {
+        view?.didStartLoading()
         interactor.applyFilters(filters)
     }
 }

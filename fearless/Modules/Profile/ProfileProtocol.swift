@@ -30,12 +30,16 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     SheetAlertPresentable,
     WebPresentable,
     ModalAlertPresenting,
-    AddressOptionsPresentable {
+    AddressOptionsPresentable,
+    AccountManagementPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     )
-    func showAccountSelection(from view: ProfileViewProtocol?)
+    func showAccountSelection(
+        from view: ProfileViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)

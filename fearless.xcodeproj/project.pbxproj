@@ -2332,6 +2332,7 @@
 		FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */; };
 		FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */; };
 		FA98F8C5299CC20B00C9B3F4 /* ZeroBalancesSettingChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA98F8C4299CC20B00C9B3F4 /* ZeroBalancesSettingChanged.swift */; };
+		FA98F8C7299DEBEF00C9B3F4 /* AccountManagementPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA98F8C6299DEBEF00C9B3F4 /* AccountManagementPresentable.swift */; };
 		FA99422827FE925000D771E5 /* UISwitch+CustomSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */; };
 		FA99422A27FE927800D771E5 /* AssetModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422927FE927700D771E5 /* AssetModelMapper.swift */; };
 		FA99422D28002BB800D771E5 /* MissingAccountOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */; };
@@ -4948,6 +4949,7 @@
 		FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA98F8C4299CC20B00C9B3F4 /* ZeroBalancesSettingChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZeroBalancesSettingChanged.swift; sourceTree = "<group>"; };
+		FA98F8C6299DEBEF00C9B3F4 /* AccountManagementPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountManagementPresentable.swift; sourceTree = "<group>"; };
 		FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UISwitch+CustomSize.swift"; sourceTree = "<group>"; };
 		FA99422927FE927700D771E5 /* AssetModelMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetModelMapper.swift; sourceTree = "<group>"; };
 		FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountOptions.swift; sourceTree = "<group>"; };
@@ -8068,6 +8070,7 @@
 				FA17B4BF27E97536006E0735 /* DeactivatableView.swift */,
 				07089AF828B78248001566CA /* SheetAlertPresentable.swift */,
 				FAC2175D293F41B600A8BA83 /* AllDonePresentable.swift */,
+				FA98F8C6299DEBEF00C9B3F4 /* AccountManagementPresentable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -14642,6 +14645,7 @@
 				FAADC1BA2926597400DA9903 /* ScanQRPresenter.swift in Sources */,
 				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
 				8430AB002602338D005B1066 /* PendingNominatorState.swift in Sources */,
+				FA98F8C7299DEBEF00C9B3F4 /* AccountManagementPresentable.swift in Sources */,
 				AE7129BC2608C069000AA3F5 /* RelaychainStakingInfoOperationFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				076D9D4529405987002762E3 /* SlippageToleranceViewModelFactory.swift in Sources */,

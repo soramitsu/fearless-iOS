@@ -280,7 +280,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performDelegationStatusAction() {}
 
     func performAccountAction() {
-        wireframe.showAccountsSelection(from: view)
+        wireframe.showAccountsSelection(from: view, moduleOutput: self)
     }
 
     func performManageStakingAction() {
@@ -885,5 +885,15 @@ extension StakingMainPresenter: EventVisitorProtocol {
             return
         }
         interactor.updatePrices()
+    }
+}
+
+extension StakingMainPresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        wireframe.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        wireframe.showImportWallet(from: view)
     }
 }
