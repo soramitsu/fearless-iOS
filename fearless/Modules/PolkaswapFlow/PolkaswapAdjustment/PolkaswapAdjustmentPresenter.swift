@@ -451,6 +451,14 @@ final class PolkaswapAdjustmentPresenter {
             from: view
         )
     }
+
+    func toggleSwapDirection() {
+        if swapVariant == .desiredInput {
+            swapVariant = .desiredOutput
+        } else {
+            swapVariant = .desiredInput
+        }
+    }
 }
 
 // MARK: - PolkaswapAdjustmentViewOutput
@@ -559,6 +567,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         swapToBalance = fromBalance
         swapFromBalance = toBalance
 
+        toggleSwapDirection()
         provideFromAssetVewModel()
         provideToAssetVewModel()
         fetchQuotes()
