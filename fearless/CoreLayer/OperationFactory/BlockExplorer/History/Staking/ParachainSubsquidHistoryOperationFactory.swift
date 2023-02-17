@@ -20,7 +20,7 @@ final class ParachainSubsquidHistoryOperationFactory {
     ) -> String {
         """
               query MyQuery {
-                historyElements(where: {staker: {id_eq: "\(delegatorAddress)"}, amount_isNull: false, collator: {id_eq: "\(collatorAddress)"}}) {
+                historyElements(where: {delegator: {id_eq: "\(delegatorAddress)"}, amount_isNull: false, collator: {id_eq: "\(collatorAddress)"}}) {
                   id
                   amount
                   blockNumber

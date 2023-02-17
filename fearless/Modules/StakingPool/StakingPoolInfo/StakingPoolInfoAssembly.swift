@@ -51,9 +51,8 @@ final class StakingPoolInfoAssembly {
         }
         eraValidatorService.setup()
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
-            url: chainAsset.chain.externalApi?.staking?.url
-        )
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -61,7 +60,7 @@ final class StakingPoolInfoAssembly {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
