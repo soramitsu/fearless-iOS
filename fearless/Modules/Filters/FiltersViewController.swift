@@ -130,4 +130,8 @@ extension FiltersViewController: FiltersViewProtocol {
     func didReceive(locale: Locale) {
         rootView.locale = locale
     }
+
+    func didReceive(applyEnabled: Bool) {
+        rootView.applyButton.set(enabled: applyEnabled)
+    }
 }
