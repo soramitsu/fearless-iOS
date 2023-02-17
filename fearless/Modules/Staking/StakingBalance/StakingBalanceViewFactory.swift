@@ -202,7 +202,9 @@ struct StakingBalanceViewFactory {
                 subqueryOperationFactory: subqueryOperationFactory
             )
 
-            let subqueryHistoryOperationFactory = ParachainSubqueryHistoryOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+            let subqueryHistoryOperationFactory = ParachainHistoryOperationFactoryAssembly.factory(
+                blockExplorer: chainAsset.chain.externalApi?.staking
+            )
 
             let viewModelState = StakingBalanceParachainViewModelState(
                 chainAsset: chainAsset,

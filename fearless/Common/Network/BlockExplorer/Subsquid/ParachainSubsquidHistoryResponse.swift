@@ -5,10 +5,16 @@ struct SubsquidDelegatorHistoryData: Decodable {
     let historyElements: [SubsquidDelegatorHistoryItem]
 }
 
-struct SubsquidDelegatorHistoryItem: Decodable {
+struct SubsquidDelegatorHistoryItem: Decodable, DelegatorHistoryItem {
     let id: String
     let type: SubqueryDelegationAction
     let timestamp: String
     let blockNumber: Int
     let amount: BigUInt
+}
+
+extension SubsquidDelegatorHistoryData: DelegatorHistoryResponse {
+    func history(for _: String) -> [DelegatorHistoryItem] {
+        historyElements
+    }
 }
