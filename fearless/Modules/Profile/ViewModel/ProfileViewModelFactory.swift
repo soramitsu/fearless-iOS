@@ -221,7 +221,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             title: title,
             icon: R.image.iconSettingsWebsite()!,
             accessoryTitle: nil,
-            accessoryType: .switcher(settings.hideZeroBalances ?? false),
+            accessoryType: .switcher(settings.shouldHideZeroBalanceAssets ?? false),
             option: .zeroBalances
         )
     }

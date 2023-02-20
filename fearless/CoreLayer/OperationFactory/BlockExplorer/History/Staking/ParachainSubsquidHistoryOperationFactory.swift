@@ -43,9 +43,7 @@ extension ParachainSubsquidHistoryOperationFactory: ParachainHistoryOperationFac
             collatorAddress: collatorAddress
         )
 
-        let url = self.url
-
-        let requestFactory = BlockNetworkRequestFactory {
+        let requestFactory = BlockNetworkRequestFactory { [url] in
             guard let url = url else {
                 throw SubqueryHistoryOperationFactoryError.urlMissing
             }

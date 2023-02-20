@@ -246,7 +246,7 @@ private extension ChainAssetListViewModelFactory {
             locale: locale
         )
 
-        if settings.hideZeroBalances == true,
+        if settings.shouldHideZeroBalanceAssets == true,
            accountInfo == nil,
            !isColdBoot {
             return nil
