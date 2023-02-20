@@ -36,7 +36,7 @@ final class SubsquidPayoutValidatorsForNominatorFactory {
         AnyNetworkResultFactory<[AccountId]> { [chainAsset] data in
             guard
                 let resultData = try? JSONDecoder().decode(JSON.self, from: data),
-                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
+                let nodes = resultData.data?.eraValidatorInfos?.arrayValue
             else { return [] }
 
             return try nodes.compactMap { node in
@@ -51,22 +51,13 @@ final class SubsquidPayoutValidatorsForNominatorFactory {
 
     private func requestParams(accountAddress: AccountAddress, eraRange: EraRange?) -> String {
         let eraFilter: String = eraRange.map {
-            "era:{greaterThanOrEqualTo: \($0.start), lessThanOrEqualTo: \($0.end)},"
+            ",era_gte: \($0.start), era_lte: \($0.end)"
         } ?? ""
 
         return """
-        {
-          query {
-            eraValidatorInfos(
-              filter:{
-                \(eraFilter)
-                others:{contains:[{who:\"\(accountAddress)\"}]}
-              }
-            ) {
-              nodes {
-                address
-              }
-            }
+        query MyQuery {
+          eraValidatorInfos(where: {othersWho_contains: "\(accountAddress)"\(eraFilter)}) {
+            address
           }
         }
         """

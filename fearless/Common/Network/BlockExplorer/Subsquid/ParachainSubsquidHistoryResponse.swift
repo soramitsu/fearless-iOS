@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import FearlessUtils
 
 struct SubsquidDelegatorHistoryData: Decodable {
     let historyElements: [SubsquidDelegatorHistoryItem]
@@ -10,7 +11,7 @@ struct SubsquidDelegatorHistoryItem: Decodable, DelegatorHistoryItem {
     let type: SubqueryDelegationAction
     let timestamp: String
     let blockNumber: Int
-    let amount: BigUInt
+    @StringCodable var amount: BigUInt
 }
 
 extension SubsquidDelegatorHistoryData: DelegatorHistoryResponse {
