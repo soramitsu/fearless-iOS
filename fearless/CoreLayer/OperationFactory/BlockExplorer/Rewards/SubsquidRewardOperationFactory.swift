@@ -104,14 +104,18 @@ final class SubsquidRewardOperationFactory {
 
         return """
         query MyQuery {
-          rewards(orderBy: timestamp_DESC, where: {accountId_containsInsensitive: "\(address)", \(timestampFilter)}) {
-            id
-            accountId
-            amount
-            blockNumber
-            extrinsicHash
-            round
+          historyElements(orderBy: timestamp_DESC, where: {address_eq: "\(address)", \(timestampFilter), reward_isNull: false}) {
             timestamp
+                id
+                address
+                reward {
+                  amount
+                  era
+                  eventIdx
+                  isReward
+                  stash
+                  validator
+                }
           }
         }
         """
@@ -277,7 +281,7 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
-    ) -> BaseOperation<SubqueryRewardOrSlashData> {
+    ) -> BaseOperation<RewardOrSlashResponse> {
         let queryString = prepareHistoryRequestForAddress(
             address,
             startTimestamp: startTimestamp,
@@ -302,9 +306,9 @@ extension SubsquidRewardOperationFactory: RewardOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryRewardOrSlashData> { data in
+        let resultFactory = AnyNetworkResultFactory<RewardOrSlashResponse> { data in
             let response = try JSONDecoder().decode(
-                SubqueryResponse<SubqueryRewardOrSlashData>.self,
+                SubqueryResponse<SubsquidHistoryResponse>.self,
                 from: data
             )
 

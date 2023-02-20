@@ -979,6 +979,7 @@
 "error.invalid.address" = "Invalid address for selected chain";
 "same.address.transfer.warning.message" = "Вы пытаетесь сделать трансфер на свой адрес. За операцию будет списана комиссия и это не несет никакого смысла.";
 "polkaswap.add.more.amount.message" = "Sorry, you don't have enough funds to pay the network fee. We can't charge. The fee neither from your current balance nor from the swap results. Please add more tokens or adjust the transaction amount to proceed";
+"profile.hide.zero.balances.title" = "Hide zero balances";
 "polkaswap.disclaimer.settings" = "Polkaswap disclamer";
 "polkaswap.disclaimer.title" = "Disclaimer";
 "polkaswap.disclaimer.paragraph.1" = "Polkaswap is maintained by the SORA community. Before continuing to use Polkaswap, please review the %%Polkaswap FAQ%% and documentation, which includes a detailed explanation on how Polkaswap works, as well as the %%Polkaswap Memorandum and Terms of Services%%, and %%Privacy Policy%%.";

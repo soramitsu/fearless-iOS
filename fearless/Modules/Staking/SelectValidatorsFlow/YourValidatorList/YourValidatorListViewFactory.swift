@@ -96,7 +96,7 @@ struct YourValidatorListViewFactory {
             return nil
         }
 
-        let subqueryRewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -104,7 +104,7 @@ struct YourValidatorListViewFactory {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(

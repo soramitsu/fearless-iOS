@@ -71,7 +71,6 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
-        rootView.swapToInputView.textField.inputAccessoryView = accessoryView
         updatePreviewButton()
     }
 

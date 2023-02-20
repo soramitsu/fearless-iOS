@@ -66,7 +66,7 @@ final class ProfileViewController: UIViewController, ViewHolder {
     }
 
     @objc func switcherValueChanged(sender: UISwitch) {
-        presenter.switcherValueChanged(isOn: sender.isOn)
+        presenter.switcherValueChanged(isOn: sender.isOn, index: sender.tag)
     }
 
     // MARK: - tableView
@@ -118,7 +118,10 @@ final class ProfileViewController: UIViewController, ViewHolder {
             cell.bind(viewModel: viewModel)
 
             if case .switcher = viewModel.accessoryType {
-                cell.switcher.tag = indexPath.row
+                if let optionIndex = viewModel.option?.rawValue {
+                    cell.switcher.tag = Int(optionIndex)
+                }
+
                 cell.switcher.addTarget(
                     self,
                     action: #selector(switcherValueChanged(sender:)),

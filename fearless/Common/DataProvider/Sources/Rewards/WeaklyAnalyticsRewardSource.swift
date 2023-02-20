@@ -85,9 +85,9 @@ extension RelaychainWeaklyAnalyticsRewardSource: SingleValueProviderSourceProtoc
 
         let mappingOperation = ClosureOperation<[SubqueryRewardItemData]?> {
             let rewards = try rewardOperation.extractNoCancellableResultData()
-            return rewards.historyElements.nodes.compactMap { wrappedReward in
+            return rewards.data.compactMap { wrappedReward in
                 guard
-                    let reward = wrappedReward.reward,
+                    let reward = wrappedReward.rewardInfo,
                     let validatorAddress = reward.validator,
                     let timestamp = Int64(wrappedReward.timestamp),
                     let era = reward.era, era >= 0,

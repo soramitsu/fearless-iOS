@@ -7,3 +7,9 @@ struct SubqueryRewardOrSlashData: Decodable {
 
     let historyElements: HistoryElements
 }
+
+extension SubqueryRewardOrSlashData: RewardOrSlashResponse {
+    var data: [RewardOrSlashData] {
+        historyElements.nodes
+    }
+}

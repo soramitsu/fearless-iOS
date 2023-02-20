@@ -7,13 +7,6 @@ enum SubqueryHistoryOperationFactoryError: Error {
     case incorrectInputData
 }
 
-protocol ParachainSubqueryHistoryOperationFactoryProtocol {
-    func createUnstakingHistoryOperation(
-        delegatorAddress: String,
-        collatorAddress: String
-    ) -> BaseOperation<SubqueryDelegatorHistoryData>
-}
-
 final class ParachainSubqueryHistoryOperationFactory {
     private let url: URL?
 
@@ -58,11 +51,11 @@ final class ParachainSubqueryHistoryOperationFactory {
     }
 }
 
-extension ParachainSubqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol {
+extension ParachainSubqueryHistoryOperationFactory: ParachainHistoryOperationFactory {
     func createUnstakingHistoryOperation(
         delegatorAddress: String,
         collatorAddress: String
-    ) -> BaseOperation<SubqueryDelegatorHistoryData> {
+    ) -> BaseOperation<DelegatorHistoryResponse> {
         let queryString = prepareUnstakingHistoryRequest(
             delegatorAddress: delegatorAddress,
             collatorAddress: collatorAddress
@@ -88,7 +81,7 @@ extension ParachainSubqueryHistoryOperationFactory: ParachainSubqueryHistoryOper
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<SubqueryDelegatorHistoryData> { data in
+        let resultFactory = AnyNetworkResultFactory<DelegatorHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
                     SubqueryResponse<SubqueryDelegatorHistoryData>.self,

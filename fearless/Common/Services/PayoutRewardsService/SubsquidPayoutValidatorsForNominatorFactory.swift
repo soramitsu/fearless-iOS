@@ -3,13 +3,13 @@ import Foundation
 import FearlessUtils
 import IrohaCrypto
 
-final class PayoutValidatorsForNominatorFactory {
-    let url: URL
-    let addressFactory: SS58AddressFactoryProtocol
+final class SubsquidPayoutValidatorsForNominatorFactory {
+    private let url: URL
+    private let chainAsset: ChainAsset
 
-    init(url: URL, addressFactory: SS58AddressFactoryProtocol) {
+    init(url: URL, chainAsset: ChainAsset) {
         self.url = url
-        self.addressFactory = addressFactory
+        self.chainAsset = chainAsset
     }
 
     private func createRequestFactory(
@@ -32,13 +32,11 @@ final class PayoutValidatorsForNominatorFactory {
         }
     }
 
-    private func createResultFactory(
-        for addressFactory: SS58AddressFactoryProtocol
-    ) -> AnyNetworkResultFactory<[AccountId]> {
-        AnyNetworkResultFactory<[AccountId]> { data in
+    private func createResultFactory() -> AnyNetworkResultFactory<[AccountId]> {
+        AnyNetworkResultFactory<[AccountId]> { [chainAsset] data in
             guard
                 let resultData = try? JSONDecoder().decode(JSON.self, from: data),
-                let nodes = resultData.data?.query?.eraValidatorInfos?.nodes?.arrayValue
+                let nodes = resultData.data?.eraValidatorInfos?.arrayValue
             else { return [] }
 
             return try nodes.compactMap { node in
@@ -46,42 +44,33 @@ final class PayoutValidatorsForNominatorFactory {
                     return nil
                 }
 
-                return try addressFactory.accountId(from: address)
+                return try AddressFactory.accountId(from: address, chain: chainAsset.chain)
             }
         }
     }
 
     private func requestParams(accountAddress: AccountAddress, eraRange: EraRange?) -> String {
         let eraFilter: String = eraRange.map {
-            "era:{greaterThanOrEqualTo: \($0.start), lessThanOrEqualTo: \($0.end)},"
+            ",era_gte: \($0.start), era_lte: \($0.end)"
         } ?? ""
 
         return """
-        {
-          query {
-            eraValidatorInfos(
-              filter:{
-                \(eraFilter)
-                others:{contains:[{who:\"\(accountAddress)\"}]}
-              }
-            ) {
-              nodes {
-                address
-              }
-            }
+        query MyQuery {
+          eraValidatorInfos(where: {othersWho_contains: "\(accountAddress)"\(eraFilter)}) {
+            address
           }
         }
         """
     }
 }
 
-extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
+extension SubsquidPayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
     func createResolutionOperation(
         for address: AccountAddress,
         eraRangeClosure _: @escaping () throws -> EraRange?
     ) -> CompoundOperationWrapper<[AccountId]> {
         let requestFactory = createRequestFactory(address: address, historyRange: { nil })
-        let resultFactory = createResultFactory(for: addressFactory)
+        let resultFactory = createResultFactory()
 
         let networkOperation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
         return CompoundOperationWrapper(targetOperation: networkOperation)

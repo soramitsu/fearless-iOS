@@ -88,7 +88,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
-protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable, AccountManagementPresentable {
     func showSetupAmount(
         from view: StakingMainViewProtocol?,
         amount: Decimal?,
@@ -167,7 +167,10 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
         selectedAccount: MetaAccountModel
     )
 
-    func showAccountsSelection(from view: StakingMainViewProtocol?)
+    func showAccountsSelection(
+        from view: StakingMainViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
 
     func showBondMore(
         from view: ControllerBackedProtocol?,

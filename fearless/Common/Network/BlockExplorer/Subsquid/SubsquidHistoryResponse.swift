@@ -5,7 +5,13 @@ struct SubsquidHistoryResponse: Decodable {
     let historyElements: [SubsquidHistoryElement]
 }
 
-struct SubsquidHistoryElement: Decodable {
+extension SubsquidHistoryResponse: RewardOrSlashResponse {
+    var data: [RewardOrSlashData] {
+        historyElements
+    }
+}
+
+struct SubsquidHistoryElement: Decodable, RewardOrSlashData {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
         case timestamp
@@ -24,6 +30,10 @@ struct SubsquidHistoryElement: Decodable {
 
     var timestampInSeconds: Int64 {
         (Int64(timestamp) ?? 0) / 1000
+    }
+
+    var rewardInfo: RewardOrSlash? {
+        reward
     }
 }
 
@@ -51,7 +61,7 @@ struct SubsquidTransfer: Decodable {
     let assetId: String?
 }
 
-struct SubsquidRewardOrSlash: Decodable {
+struct SubsquidRewardOrSlash: Decodable, RewardOrSlash {
     let amount: String
     let isReward: Bool
     let era: Int?

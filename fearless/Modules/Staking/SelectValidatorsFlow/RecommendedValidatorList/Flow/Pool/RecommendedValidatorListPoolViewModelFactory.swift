@@ -80,7 +80,7 @@ extension RecommendedValidatorListPoolViewModelFactory: RecommendedValidatorList
                         title: title,
                         detailsAttributedString: apy,
                         detailsAux: stakedString,
-                        isSelected: false
+                        isSelected: true
                     )
                 }
             }
