@@ -297,12 +297,12 @@ extension ChainModel {
         case onlyOwn
     }
 
-    func polkascanAddressURL(_ address: String) -> URL? {
-        guard let urlString = externalApi?.explorers?.first(where: { $0.type == .polkascan })?.url else {
+    func polkascanAddressURL(address: String) -> URL? {
+        guard let explorer = externalApi?.explorers?.first(where: { $0.type == .polkascan }) else {
             return nil
         }
         
-        return URL(string: urlString)
+        return explorer.explorerUrl(for: address, type: .account)
     }
 
     func subscanAddressURL(_ address: String) -> URL? {

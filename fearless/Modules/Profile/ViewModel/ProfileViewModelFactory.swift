@@ -236,7 +236,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
-            icon: R.image.iconSettingsWebsite()!,
+            icon: R.image.iconZeroBalances()!,
             accessoryTitle: nil,
             accessoryType: .switcher(settings.shouldHideZeroBalanceAssets ?? false),
             option: .zeroBalances
