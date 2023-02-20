@@ -1,6 +1,7 @@
 import UIKit
 import FearlessUtils
 import RobinHood
+import SoraKeystore
 
 final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
@@ -16,6 +17,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let operationManager: OperationManagerProtocol
     private let xorChainAsset: ChainAsset
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let userDefaultsStorage: SettingsManagerProtocol
     private lazy var callFactory: SubstrateCallFactoryProtocol = {
         SubstrateCallFactory()
     }()
@@ -36,7 +38,8 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         extrinsicService: ExtrinsicServiceProtocol,
         operationFactory: PolkaswapOperationFactoryProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        userDefaultsStorage: SettingsManagerProtocol
     ) {
         self.xorChainAsset = xorChainAsset
         self.subscriptionService = subscriptionService
@@ -47,6 +50,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         self.extrinsicService = extrinsicService
         self.operationFactory = operationFactory
         self.operationManager = operationManager
+        self.userDefaultsStorage = userDefaultsStorage
     }
 
     // MARK: - Private methods
@@ -139,6 +143,13 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
 
         operationManager.enqueue(operations: [operation], in: .transient)
     }
+
+    private func fetchDisclaimerVisible() {
+        let isRead = userDefaultsStorage.bool(
+            for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue
+        ) ?? false
+        output?.didReceiveDisclaimer(visible: !isRead)
+    }
 }
 
 // MARK: - PolkaswapAdjustmentInteractorInput
@@ -148,6 +159,7 @@ extension PolkaswapAdjustmentInteractor: PolkaswapAdjustmentInteractorInput {
         self.output = output
         feeProxy.delegate = self
         fetchPolkaswapSettings()
+        fetchDisclaimerVisible()
     }
 
     func didReceive(_ fromChainAsset: ChainAsset?, _ toChainAsset: ChainAsset?) {

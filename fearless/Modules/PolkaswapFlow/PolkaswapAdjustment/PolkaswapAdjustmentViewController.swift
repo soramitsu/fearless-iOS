@@ -127,6 +127,12 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapPreviewButton),
             for: .touchUpInside
         )
+
+        rootView.disclaimerView.actionButton?.addTarget(
+            self,
+            action: #selector(handleReadDisclaimerButton),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private actions
@@ -157,6 +163,10 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
+    }
+
+    @objc private func handleReadDisclaimerButton() {
+        output.didTapReadDisclaimer()
     }
 }
 
@@ -210,6 +220,10 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
         rootView.bindDetails(viewModel: viewModel)
         updatePreviewButton()
+    }
+
+    func setDisclaimer(visible: Bool) {
+        rootView.disclaimerView.isHidden = !visible
     }
 }
 

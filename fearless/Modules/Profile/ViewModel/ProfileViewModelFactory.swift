@@ -18,6 +18,7 @@ enum ProfileOption: UInt, CaseIterable {
     case accountList
     case currency
     case language
+    case polkaswapDisclaimer
     case changePincode
     case biometry
     case about
@@ -113,6 +114,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createChangePincode(for: locale)
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
+            case .polkaswapDisclaimer:
+                return createPolkaswapDisclaimer(locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
             case .biometry:
@@ -194,6 +197,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: subtitle,
             accessoryType: .arrow,
             option: .language
+        )
+
+        return viewModel
+    }
+
+    private func createPolkaswapDisclaimer(locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .polkaswapDisclaimerSettings(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.pinkPolkaswap()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow,
+            option: .polkaswapDisclaimer
         )
 
         return viewModel
