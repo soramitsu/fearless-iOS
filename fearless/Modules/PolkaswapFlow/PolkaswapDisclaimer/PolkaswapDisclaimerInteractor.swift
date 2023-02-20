@@ -21,7 +21,7 @@ final class PolkaswapDisclaimerInteractor {
 
     // MARK: - Private func
 
-    private func fetchDisclaimerRead() {
+    private func fetchDisclaimerIsRead() {
         let isRead = userDefaultsStorage.bool(for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue)
         output?.didReceiveDisclaimer(isRead: isRead.or(false))
     }
@@ -32,7 +32,7 @@ final class PolkaswapDisclaimerInteractor {
 extension PolkaswapDisclaimerInteractor: PolkaswapDisclaimerInteractorInput {
     func setup(with output: PolkaswapDisclaimerInteractorOutput) {
         self.output = output
-        fetchDisclaimerRead()
+        fetchDisclaimerIsRead()
     }
 
     func setDisclaimerIsRead() {

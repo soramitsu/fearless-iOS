@@ -48,7 +48,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
     }
 
-    var iconInCenterY: Bool = false {
+    var iconShouldCenterVertically: Bool = false {
         didSet {
             resolveLayout()
         }
@@ -262,7 +262,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         if let iconView = lazyIconView {
-            let iconViewY = iconInCenterY ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
+            let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
             iconView.frame = CGRect(
                 x: bounds.minX + contentInsets.left,
                 y: iconViewY,

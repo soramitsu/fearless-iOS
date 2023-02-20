@@ -23,8 +23,8 @@ final class LinkDecorator: LinkDecoratorProtocol {
         let results = regex.matches(in: text, options: [], range: range)
         var links: [(URL, NSRange)] = []
         for result in results.enumerated() {
-            let locationAfterRemovingPercents = result.element.range.location - 2 * 2 * result.offset
-            let lengthAfterRemovingPercents = result.element.range.length - 4
+            let locationAfterRemovingPercents = result.element.range.location - 2 * "%%".count * result.offset
+            let lengthAfterRemovingPercents = result.element.range.length - 2 * "%%".count
             let trimmedRange = NSRange(location: locationAfterRemovingPercents, length: lengthAfterRemovingPercents)
             links.append((urls[result.offset], trimmedRange))
         }

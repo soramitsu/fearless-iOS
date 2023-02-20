@@ -88,7 +88,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         view.subtitleLabel?.textColor = R.color.colorWhite50()
         view.borderWidth = 1
         view.strokeColor = R.color.colorWhite8()!
-        view.iconInCenterY = true
+        view.iconShouldCenterVertically = true
         view.layout = .smallIconTitleSubtitleButton
         view.isUserInteractionEnabled = true
         view.contentView?.isUserInteractionEnabled = true
@@ -226,7 +226,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         feesView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
-        layoutIfNeeded()
     }
 
     private func createSwitchInputsView() -> UIView {
@@ -310,9 +309,12 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         previewButton.imageWithTitleView?.title = R.string.localizable
             .commonPreview(preferredLanguages: locale.rLanguages)
 
-        disclaimerView.title = "DISCLAIMER"
-        disclaimerView.subtitle = "Please read before continuing to use Polkaswap"
-        disclaimerView.actionButton?.imageWithTitleView?.title = "Read"
+        disclaimerView.title = R.string.localizable
+            .polkaswapDisclaimerStub(preferredLanguages: locale.rLanguages)
+        disclaimerView.subtitle = R.string.localizable
+            .polkaswapDisclaimerReadBefore(preferredLanguages: locale.rLanguages)
+        disclaimerView.actionButton?.imageWithTitleView?.title = R.string.localizable
+            .polkaswapDisclaimerStubRead(preferredLanguages: locale.rLanguages)
     }
 
     private func createBottomContainer() -> UIView {

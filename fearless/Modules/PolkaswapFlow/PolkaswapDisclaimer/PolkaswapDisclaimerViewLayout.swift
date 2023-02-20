@@ -114,7 +114,7 @@ final class PolkaswapDisclaimerViewLayout: UIView {
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(bottomContainer.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(bottomContainer.snp.top).inset(UIConstants.bigOffset)
             make.width.equalToSuperview().inset(UIConstants.bigOffset)
         }
 

@@ -989,3 +989,6 @@
 "polkaswap.disclaimer.number.2" = "Your understanding that the current version of Polkaswap is an alpha version: it has not been fully tested, and some functions may not perform as designed;";
 "polkaswap.disclaimer.number.3" = "Your understanding and voluntary acceptance of the risks involved in using Polkaswap, including, but not limited to, the risk of losing tokens.";
 "polkaswap.disclaimer.important" = "IMPORTANT: I confirm that I have read all of the documents mentioned and pressing Сontinue I accept them.";
+"polkaswap.disclaimer.stub" = "DISCLAIMER";
+"polkaswap.disclaimer.read.before" = "Please read before continuing to use Polkaswap";
+"polkaswap.disclaimer.stub.read" = "Read";

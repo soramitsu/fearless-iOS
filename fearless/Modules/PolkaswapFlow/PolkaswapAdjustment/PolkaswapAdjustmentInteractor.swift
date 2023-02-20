@@ -145,10 +145,10 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     }
 
     private func fetchDisclaimerVisible() {
-        let isVisible = userDefaultsStorage.bool(
+        let isRead = userDefaultsStorage.bool(
             for: PolkaswapDisclaimerKeys.polkaswapDisclaimerIsRead.rawValue
         ) ?? false
-        output?.didReceiveDisclaimer(visible: !isVisible)
+        output?.didReceiveDisclaimer(visible: !isRead)
     }
 }
 

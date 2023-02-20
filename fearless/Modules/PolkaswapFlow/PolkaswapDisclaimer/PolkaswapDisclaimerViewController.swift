@@ -67,9 +67,7 @@ extension PolkaswapDisclaimerViewController: PolkaswapDisclaimerViewInput {
 
     func didReceiveDisclaimer(isRead: Bool) {
         rootView.confirmSwitch.isUserInteractionEnabled = !isRead
-        if isRead {
-            rootView.continueButton.isEnabled = true
-        }
+        rootView.continueButton.isEnabled = isRead
     }
 }
 
