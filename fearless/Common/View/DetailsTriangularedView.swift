@@ -48,6 +48,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
     }
 
+    var iconShouldCenterVertically: Bool = false {
+        didSet {
+            resolveLayout()
+        }
+    }
+
     var onCopied: (() -> Void)?
 
     var iconRadius: CGFloat = LayoutConstants.iconRadius {
@@ -216,6 +222,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let titleHeight = titleLabel.intrinsicContentSize.height
         var titleWidth = titleLabel.intrinsicContentSize.width
         var subtitleWidth = subtitleLabel.intrinsicContentSize.width
+        var subtitleHeight = subtitleLabel.intrinsicContentSize.height
 
         let iconOffset = lazyIconView != nil ? LayoutConstants.iconSize + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
@@ -246,7 +253,6 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         let subtitleY = titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset
-        let subtitleHeight = frame.size.height - subtitleY - UIConstants.defaultOffset
 
         subtitleLabel.frame = CGRect(
             x: labelX,
@@ -256,13 +262,16 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         if let iconView = lazyIconView {
+            let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
             iconView.frame = CGRect(
                 x: bounds.minX + contentInsets.left,
-                y: UIConstants.defaultOffset,
+                y: iconViewY,
                 width: LayoutConstants.iconSize,
                 height: LayoutConstants.iconSize
             )
         }
+
+        frame.size.height = titleHeight + subtitleHeight + contentInsets.top + contentInsets.bottom
     }
 
     private func layoutWithoutIcon() {

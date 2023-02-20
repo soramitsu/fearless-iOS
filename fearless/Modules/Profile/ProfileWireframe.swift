@@ -96,6 +96,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.navigationController?.pushViewController(controller, animated: true)
     }
 
+    func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?) {
+        guard let module = PolkaswapDisclaimerAssembly.configureModule() else {
+            return
+        }
+        view?.controller.present(module.view.controller, animated: true)
+    }
+
     // MARK: Private
 
     private func showPinSetup(from view: ProfileViewProtocol?) {
