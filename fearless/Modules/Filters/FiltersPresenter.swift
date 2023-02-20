@@ -57,7 +57,9 @@ extension FiltersPresenter: FiltersInteractorOutputProtocol {
 
 extension FiltersPresenter: SwitchFilterTableCellViewModelDelegate {
     func filterStateChanged(filterId: String, selected: Bool) {
-        interactor.switchFilterState(id: filterId, selected: selected)
+        interactor.switchFilterState(id: filterId, selected: selected) { validState in
+            view?.didReceive(applyEnabled: validState)
+        }
     }
 }
 

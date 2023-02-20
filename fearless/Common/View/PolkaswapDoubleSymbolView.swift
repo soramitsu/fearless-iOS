@@ -4,6 +4,8 @@ import UIKit
 struct PolkaswapDoubleSymbolViewModel {
     let leftViewModel: RemoteImageViewModel?
     let rightViewModel: RemoteImageViewModel?
+    let leftShadowColor: CGColor?
+    let rightShadowColor: CGColor?
 }
 
 final class PolkaswapDoubleSymbolView: UIView {
@@ -11,6 +13,8 @@ final class PolkaswapDoubleSymbolView: UIView {
         static let imageViewSize = CGSize(width: 41, height: 41)
         static let imageViewInset: CGFloat = 18.0
         static let imagesInset: CGFloat = 22.0
+        static let shadowRadius: CGFloat = 12
+        static let shadowOpacity: Float = 0.5
     }
 
     private let leftContainer = UIView()
@@ -45,6 +49,8 @@ final class PolkaswapDoubleSymbolView: UIView {
             targetSize: Constants.imageViewSize,
             animated: true
         )
+        leftContainer.layer.shadowColor = viewModel.leftShadowColor
+        rightContainer.layer.shadowColor = viewModel.rightShadowColor
     }
 
     private func setupLayout() {
@@ -64,9 +70,8 @@ final class PolkaswapDoubleSymbolView: UIView {
         }
 
         [leftContainer, rightContainer].forEach { view in
-            view.layer.shadowColor = R.color.colorPink()!.cgColor
-            view.layer.shadowRadius = 12
-            view.layer.shadowOpacity = 0.5
+            view.layer.shadowRadius = Constants.shadowRadius
+            view.layer.shadowOpacity = Constants.shadowOpacity
         }
 
         addSubview(rightContainer)
