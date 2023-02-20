@@ -30,7 +30,8 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             transfersEnabled: entity.transfersEnabled,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            existentialDeposit: entity.existentialDeposit,
+            color: entity.color
         )
     }
 
@@ -50,5 +51,6 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.transfersEnabled = model.transfersEnabled ?? true
         entity.currencyId = model.currencyId
         entity.existentialDeposit = model.existentialDeposit
+        entity.color = model.color
     }
 }
