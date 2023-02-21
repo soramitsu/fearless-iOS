@@ -222,7 +222,9 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
     }
 
     func setDisclaimer(visible: Bool) {
-        rootView.disclaimerView.isHidden = !visible
+        if !visible {
+            rootView.disclaimerView.removeFromSuperview()
+        }
     }
 }
 

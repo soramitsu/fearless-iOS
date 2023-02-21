@@ -82,10 +82,11 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         view.fillColor = R.color.colorSemiBlack()!
         view.highlightedFillColor = R.color.colorSemiBlack()!
         view.iconImage = R.image.iconWarning()
-        view.titleLabel.font = .capsTitle
+        view.titleLabel.font = .h6Title
         view.titleLabel.textColor = R.color.colorOrange()
         view.subtitleLabel?.font = .p3Paragraph
         view.subtitleLabel?.textColor = R.color.colorWhite50()
+        view.subtitleLabel?.numberOfLines = 0
         view.borderWidth = 1
         view.strokeColor = R.color.colorWhite8()!
         view.iconShouldCenterVertically = true
@@ -96,6 +97,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         view.actionButton?.triangularedView?.fillColor = R.color.colorOrange()!
         view.actionButton?.triangularedView?.highlightedFillColor = R.color.colorOrange()!
         view.actionButton?.imageWithTitleView?.titleFont = .p3Paragraph
+        view.actionButton?.contentInsets = UIEdgeInsets(top: 8, left: 22, bottom: 8, right: 22)
         return view
     }()
 

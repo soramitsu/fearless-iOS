@@ -222,18 +222,19 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let titleHeight = titleLabel.intrinsicContentSize.height
         var titleWidth = titleLabel.intrinsicContentSize.width
         var subtitleWidth = subtitleLabel.intrinsicContentSize.width
-        var subtitleHeight = subtitleLabel.intrinsicContentSize.height
 
         let iconOffset = lazyIconView != nil ? LayoutConstants.iconSize + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
+        let usingFont = actionButton?.imageWithTitleView?.titleFont ?? .h5Title
         if let actionButton = actionButton {
-            let usingFont = actionButton.imageWithTitleView?.titleFont ?? .h5Title
             let buttonTitleWidth = actionButton
                 .imageWithTitleView?
                 .title?
                 .widthOfString(usingFont: usingFont) ?? LayoutConstants.actionButtonSize.width
-            let buttonWidth = UIConstants.defaultOffset * 2 + buttonTitleWidth
+            let buttonContentEdges = actionButton.contentInsets
+            let buttonHorizontalInsets = buttonContentEdges.left + buttonContentEdges.right
+            let buttonWidth = UIConstants.defaultOffset * 2 + buttonTitleWidth + buttonHorizontalInsets
             actionButton.frame = CGRect(
                 x: bounds.maxX - contentInsets.right - buttonWidth,
                 y: bounds.midY - LayoutConstants.actionButtonSize.height / 2,
@@ -253,6 +254,8 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         let subtitleY = titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset
+        let subtitleHeight = subtitleLabel.text?
+            .height(withWidth: subtitleWidth, font: usingFont) ?? .zero
 
         subtitleLabel.frame = CGRect(
             x: labelX,
