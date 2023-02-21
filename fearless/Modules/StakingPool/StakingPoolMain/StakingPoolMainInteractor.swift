@@ -135,9 +135,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let subqueryOperationFactory = SubqueryRewardOperationFactory(
-            url: chainAsset.chain.externalApi?.staking?.url
-        )
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -146,7 +144,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: subqueryOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         do {

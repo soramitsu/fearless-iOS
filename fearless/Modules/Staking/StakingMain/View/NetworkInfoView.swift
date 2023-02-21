@@ -56,7 +56,10 @@ final class NetworkInfoView: UIView {
             right: UIConstants.bigOffset
         )
 
-        return UICollectionView(frame: .zero, collectionViewLayout: layout)
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.showsHorizontalScrollIndicator = false
+
+        return collectionView
     }()
 
     weak var delegate: NetworkInfoViewDelegate?

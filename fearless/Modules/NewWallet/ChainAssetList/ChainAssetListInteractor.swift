@@ -247,6 +247,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
         updateChainAssets(using: filters, sorts: sorts)
     }
+
+    func processZeroBalancesSettingChanged() {
+        updateChainAssets(using: filters, sorts: sorts)
+    }
 }
 
 extension ChainAssetListInteractor: ChainsIssuesCenterListener {

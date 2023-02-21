@@ -92,10 +92,10 @@ final class SubqueryRewardSource {
         operationManager.enqueue(operations: [remoteOperation], in: .transient)
     }
 
-    private func processOperations(remoteOperation: BaseOperation<SubqueryRewardOrSlashData>) {
+    private func processOperations(remoteOperation: BaseOperation<RewardOrSlashResponse>) {
         do {
             let remoteData = try remoteOperation.extractNoCancellableResultData()
-            let newReward = calculateReward(from: remoteData.historyElements.nodes)
+            let newReward = calculateReward(from: remoteData.data)
 
             logger?.debug("New total reward: \(newReward)")
 
@@ -138,10 +138,10 @@ final class SubqueryRewardSource {
         }
     }
 
-    private func calculateReward(from remoteItems: [SubqueryHistoryElement]) -> Decimal {
+    private func calculateReward(from remoteItems: [RewardOrSlashData]) -> Decimal {
         remoteItems.reduce(Decimal(0.0)) { amount, remoteItem in
             guard
-                let rewardOrSlash = remoteItem.reward,
+                let rewardOrSlash = remoteItem.rewardInfo,
                 let nextAmount = BigUInt(rewardOrSlash.amount),
                 let nextAmountDecimal = Decimal.fromSubstrateAmount(
                     nextAmount,

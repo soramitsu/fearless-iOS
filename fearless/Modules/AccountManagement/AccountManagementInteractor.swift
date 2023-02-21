@@ -33,14 +33,17 @@ final class AccountManagementInteractor {
         let operation = repository.fetchAllOperation(with: options)
 
         operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let items = try operation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                    self?.getBalances(for: items)
-                    let changes = items.map { DataProviderChange.insert(newItem: $0) }
+            do {
+                let items = try operation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                self?.getBalances(for: items)
+                let changes = items.map { DataProviderChange.insert(newItem: $0) }
+
+                DispatchQueue.main.async {
                     self?.presenter?.didReceive(changes: changes)
-                } catch {
+                }
+            } catch {
+                DispatchQueue.main.async {
                     self?.presenter?.didReceive(error: error)
                 }
             }

@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
@@ -71,7 +72,8 @@ final class ChainAssetListAssembly {
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            settings: SettingsManager.shared
         )
 
         let presenter = ChainAssetListPresenter(

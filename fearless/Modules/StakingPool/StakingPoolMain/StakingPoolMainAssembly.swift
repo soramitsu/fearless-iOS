@@ -158,9 +158,8 @@ final class StakingPoolMainAssembly {
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
-            url: chainAsset.chain.externalApi?.staking?.url
-        )
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -168,7 +167,7 @@ final class StakingPoolMainAssembly {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(

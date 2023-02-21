@@ -214,7 +214,7 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
     }
 
     func didTapAccountSelection() {
-        router.showAccountsSelection(from: view)
+        router.showAccountsSelection(from: view, moduleOutput: self)
     }
 
     func performRewardInfoAction() {
@@ -441,5 +441,15 @@ extension StakingPoolMainPresenter: AssetSelectionDelegate {
         case .pool:
             break
         }
+    }
+}
+
+extension StakingPoolMainPresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        router.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        router.showImportWallet(from: view)
     }
 }

@@ -189,9 +189,9 @@ extension SendInteractor: SendInteractorInput {
         return chainAsset
     }
 
-    func getPossibleChains(for address: String, completion _: ([ChainModel]?) -> Void) {
-        addressChainDefiner.getPossibleChains(for: address) { [weak self] chains in
-            self?.output?.didReceive(possibleChains: chains)
+    func getPossibleChains(for address: String, completion: @escaping ([ChainModel]?) -> Void) {
+        addressChainDefiner.getPossibleChains(for: address) { chains in
+            completion(chains)
         }
     }
 

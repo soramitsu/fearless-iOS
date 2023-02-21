@@ -45,7 +45,7 @@ protocol RewardOperationFactoryProtocol {
         address: String,
         startTimestamp: Int64?,
         endTimestamp: Int64?
-    ) -> BaseOperation<SubqueryRewardOrSlashData>
+    ) -> BaseOperation<RewardOrSlashResponse>
 
     func createDelegatorRewardsOperation(
         address: String,
@@ -62,7 +62,7 @@ protocol RewardOperationFactoryProtocol {
 }
 
 extension RewardOperationFactoryProtocol {
-    func createHistoryOperation(address: String) -> BaseOperation<SubqueryRewardOrSlashData> {
+    func createHistoryOperation(address: String) -> BaseOperation<RewardOrSlashResponse> {
         createHistoryOperation(address: address, startTimestamp: nil, endTimestamp: nil)
     }
 }

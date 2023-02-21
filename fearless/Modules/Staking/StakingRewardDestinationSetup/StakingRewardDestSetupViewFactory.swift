@@ -131,7 +131,7 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let subqueryRewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -139,7 +139,7 @@ struct StakingRewardDestSetupViewFactory {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
