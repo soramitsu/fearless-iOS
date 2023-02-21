@@ -247,7 +247,7 @@ private extension ChainAssetListViewModelFactory {
         )
 
         if settings.shouldHideZeroBalanceAssets == true,
-           accountInfo == nil,
+           accountInfo == nil || accountInfo?.data.free == BigUInt.zero,
            !isColdBoot {
             return nil
         } else {
@@ -298,14 +298,14 @@ private extension ChainAssetListViewModelFactory {
             (
                 aca1.totalFiatBalance,
                 aca1.totalBalance,
-                aca1.mainChainAsset.chain.isTestnet.intValue,
+                aca1.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca1.mainChainAsset.chain.name,
                 aca1.mainChainAsset.asset.name
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
-                aca2.mainChainAsset.chain.isTestnet.intValue,
+                aca2.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca2.mainChainAsset.chain.name,
                 aca2.mainChainAsset.asset.name
