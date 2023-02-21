@@ -247,7 +247,7 @@ private extension ChainAssetListViewModelFactory {
         )
 
         if settings.shouldHideZeroBalanceAssets == true,
-           accountInfo == nil,
+           accountInfo == nil || accountInfo?.data.free == BigUInt.zero,
            !isColdBoot {
             return nil
         } else {
