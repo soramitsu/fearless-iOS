@@ -17,7 +17,12 @@ final class PolkaswapDisclaimerViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: UIConstants.bigOffset, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(
+            top: UIConstants.bigOffset,
+            left: 0.0,
+            bottom: UIConstants.bigOffset,
+            right: 0.0
+        )
         view.stackView.alignment = .fill
         view.stackView.distribution = .fill
         return view
@@ -82,11 +87,6 @@ final class PolkaswapDisclaimerViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    override func layoutSubviews() {
-        super.layoutSubviews()
-        setupLayout()
-    }
-
     func bind(viewModel: PolkaswapDisclaimerViewModel) {
         firstParagraphLabel.attributedText = viewModel.firstParagraph
         fourthParagraphLabel.attributedText = viewModel.fourthParagraph
@@ -149,7 +149,6 @@ final class PolkaswapDisclaimerViewLayout: UIView {
         }
 
         bottomContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(UIConstants.bigOffset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalTo(safeAreaLayoutGuide)
         }
@@ -198,17 +197,20 @@ final class PolkaswapDisclaimerViewLayout: UIView {
 
     private func createConfirmSwitchContainer() -> UIView {
         let container = UIView()
+        container.backgroundColor = R.color.colorBlack19()
         container.addSubview(importantTextLabel)
         container.addSubview(confirmSwitch)
         container.setContentHuggingPriority(.defaultHigh, for: .vertical)
 
+        importantTextLabel.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
         importantTextLabel.numberOfLines = 0
         importantTextLabel.snp.makeConstraints { make in
-            make.top.leading.bottom.equalToSuperview()
+            make.top.equalToSuperview().inset(UIConstants.bigOffset)
+            make.leading.bottom.equalToSuperview()
         }
 
         confirmSwitch.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
+            make.centerY.equalTo(importantTextLabel.snp.centerY)
             make.leading.equalTo(importantTextLabel.snp.trailing).offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview()
         }
