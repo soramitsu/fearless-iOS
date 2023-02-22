@@ -77,6 +77,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
         return button
     }()
 
+    let disclaimerViewContainer = UIFactory.default.createVerticalStackView()
     let disclaimerView: DetailsTriangularedView = {
         let view = DetailsTriangularedView()
         view.fillColor = R.color.colorSemiBlack()!
@@ -123,6 +124,7 @@ final class PolkaswapAdjustmentViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         backButton.rounded()
+        contentView.scrollBottomOffset = disclaimerViewContainer.frame.height + UIConstants.bigOffset
     }
 
     // MARK: - Public methods
@@ -202,19 +204,29 @@ final class PolkaswapAdjustmentViewLayout: UIView {
 
     private func setupContentsLayout() {
         addSubview(contentView)
-
-        let bottomContainer = createBottomContainer()
-        addSubview(bottomContainer)
+        addSubview(previewButton)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(bottomContainer.snp.top).offset(-UIConstants.bigOffset)
+            make.bottom.equalTo(previewButton.snp.top).offset(-UIConstants.bigOffset)
         }
 
-        bottomContainer.snp.makeConstraints { make in
+        previewButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
             keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.bigOffset).constraint
+        }
+
+        addSubview(disclaimerViewContainer)
+        disclaimerViewContainer.addArrangedSubview(disclaimerView)
+        disclaimerView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+        disclaimerViewContainer.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalTo(contentView.snp.bottom)
+            make.height.greaterThanOrEqualTo(Constants.disclaimerMinHeight)
         }
 
         let switchInputsView = createSwitchInputsView()
@@ -317,24 +329,6 @@ final class PolkaswapAdjustmentViewLayout: UIView {
             .polkaswapDisclaimerReadBefore(preferredLanguages: locale.rLanguages)
         disclaimerView.actionButton?.imageWithTitleView?.title = R.string.localizable
             .polkaswapDisclaimerStubRead(preferredLanguages: locale.rLanguages)
-    }
-
-    private func createBottomContainer() -> UIView {
-        let container = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
-        container.addArrangedSubview(disclaimerView)
-        container.addArrangedSubview(previewButton)
-
-        disclaimerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.greaterThanOrEqualTo(Constants.disclaimerMinHeight)
-        }
-
-        previewButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
-            make.height.equalTo(UIConstants.actionHeight)
-        }
-
-        return container
     }
 
     private func setInfoImage(for label: UILabel, text: String) {
