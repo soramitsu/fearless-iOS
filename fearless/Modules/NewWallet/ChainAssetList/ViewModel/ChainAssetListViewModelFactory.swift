@@ -17,6 +17,20 @@ protocol ChainAssetListViewModelFactoryProtocol {
 }
 
 final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtocol {
+    enum ChainEcosystem: String, Equatable {
+        case kusama
+        case polkadot
+
+        var isKusama: Bool {
+            switch self {
+            case .kusama:
+                return true
+            case .polkadot:
+                return false
+            }
+        }
+    }
+
     struct AssetChainAssets {
         let chainAssets: [ChainAsset]
         let mainChainAsset: ChainAsset
@@ -25,7 +39,6 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
-    private var polkadotChainId: String?
     private let settings: SettingsManagerProtocol
 
     init(
@@ -61,30 +74,42 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        if let polkadotId = chainAssets.first { chain in
-            chain.isUtility && chain.chain.name.lowercased() == "polkadot"
-        }?.chain.chainId {
-            self.polkadotChainId = polkadotId
-        }
+        let kusamaChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .kusama }).slice
+        let polkadotChainAssets = chainAssets.divide(predicate: { $0.defineEcosystem() == .polkadot }).slice
 
-        let assetChainAssetsArray = createAssetChainAssets(
-            from: chainAssets,
+        let kusamaAssetChainAssetsArray = createAssetChainAssets(
+            from: kusamaChainAssets,
             accountInfos: accountInfos,
             pricesData: prices.pricesData,
             wallet: wallet
         )
+        let polkadotAssetChainAssetsArray = createAssetChainAssets(
+            from: polkadotChainAssets,
+            accountInfos: accountInfos,
+            pricesData: prices.pricesData,
+            wallet: wallet
+        )
+        let assetChainAssetsArray = kusamaAssetChainAssetsArray + polkadotAssetChainAssetsArray
 
         let sortedChainAssets = sortAssetList(
             wallet: wallet,
             chainAssets: assetChainAssetsArray
         )
 
+        let nonEmptyChainAssets = chainAssets.filter { chainAsset in
+            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+               let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
+                return getBalance(for: chainAsset, accountInfo: accountInfo) != Decimal.zero
+            }
+            return false
+        }
+
         let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
             return buildChainAccountBalanceCellViewModel(
-                chainAssets: chainAssets,
+                chainAssets: nonEmptyChainAssets,
                 chainAsset: chainAsset,
                 priceData: priceData,
                 priceDataUpdated: prices.updated,
@@ -183,6 +208,7 @@ private extension ChainAssetListViewModelFactory {
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
+        let notUtilityChainsWithBalance = containsChainAssets.filter { $0 != chainAsset }
         let isNetworkIssues = containsChainAssets.first(where: {
             chainsWithIssues.contains($0.chain.chainId)
         }) != nil
@@ -219,7 +245,7 @@ private extension ChainAssetListViewModelFactory {
         }
 
         let viewModel = ChainAccountBalanceCellViewModel(
-            assetContainsChainAssets: containsChainAssets,
+            assetContainsChainAssets: notUtilityChainsWithBalance,
             chainAsset: chainAsset,
             assetName: chainAsset.chain.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
@@ -501,11 +527,11 @@ private extension ChainAssetListViewModelFactory {
         (
             ca1.chain.isTestnet.intValue,
             ca1.isParentChain().invert().intValue,
-            ca1.isPolkadot(polkadotChainId).invert().intValue
+            ca1.defineEcosystem().isKusama.intValue
         ) < (
             ca2.chain.isTestnet.intValue,
             ca2.isParentChain().invert().intValue,
-            ca2.isPolkadot(polkadotChainId).invert().intValue
+            ca2.defineEcosystem().isKusama.intValue
         )
     }
 
@@ -516,6 +542,7 @@ private extension ChainAssetListViewModelFactory {
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+
         return assetNamesSet.compactMap { name in
             let assetChainAssets = chainAssets.filter { $0.asset.name == name }
             let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
@@ -566,8 +593,11 @@ extension ChainAssetListViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
 
 private extension ChainAsset {
-    func isPolkadot(_ polkadotId: String?) -> Bool {
-        chain.parentId == polkadotId || chain.chainId == polkadotId
+    func defineEcosystem() -> ChainAssetListViewModelFactory.ChainEcosystem {
+        if chain.parentId == Chain.polkadot.chainId || chain.chainId == Chain.polkadot.chainId {
+            return .polkadot
+        }
+        return .kusama
     }
 
     func isParentChain() -> Bool {
