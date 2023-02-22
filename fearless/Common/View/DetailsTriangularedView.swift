@@ -254,15 +254,13 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         let subtitleY = titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset
-        let subtitleHeight = subtitleLabel.text?
-            .height(withWidth: subtitleWidth, font: usingFont) ?? .zero
-
-        subtitleLabel.frame = CGRect(
-            x: labelX,
-            y: subtitleY,
-            width: subtitleWidth,
-            height: subtitleHeight
+        let forBounds = CGRect(x: labelX, y: subtitleY, width: subtitleWidth, height: CGFloat.greatestFiniteMagnitude)
+        let subtitleRect = subtitleLabel.textRect(
+            forBounds: forBounds,
+            limitedToNumberOfLines: 2
         )
+
+        subtitleLabel.frame = subtitleRect
 
         if let iconView = lazyIconView {
             let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
@@ -274,7 +272,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
             )
         }
 
-        frame.size.height = titleHeight + subtitleHeight + contentInsets.top + contentInsets.bottom
+        frame.size.height = titleHeight + subtitleRect.height + contentInsets.top + contentInsets.bottom
     }
 
     private func layoutWithoutIcon() {
