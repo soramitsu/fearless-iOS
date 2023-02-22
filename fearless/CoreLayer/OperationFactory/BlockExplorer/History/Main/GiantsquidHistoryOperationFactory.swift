@@ -306,6 +306,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let historyContext = TransactionHistoryContext(
@@ -313,7 +314,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             defaultRow: pagination.count
         ).byApplying(filters: filters)
 
-        guard !historyContext.isComplete else {
+        guard !historyContext.isComplete, chainAsset.isUtility else {
             let pageData = AssetTransactionPageData(
                 transactions: [],
                 context: nil
