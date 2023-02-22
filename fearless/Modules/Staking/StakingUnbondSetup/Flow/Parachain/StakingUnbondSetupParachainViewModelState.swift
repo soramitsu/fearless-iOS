@@ -29,12 +29,15 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         return { [unowned self] builder in
             var newBuilder = builder
             if self.isRevoke {
-                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
+                let call = self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner)
+                newBuilder = try newBuilder.adding(call: call)
             } else {
                 if self.isCollator {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
+                    let call = self.callFactory.scheduleCandidateBondLess(amount: amount)
+                    newBuilder = try newBuilder.adding(call: call)
                 } else {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(amount: amount))
+                    let call = self.callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount)
+                    newBuilder = try newBuilder.adding(call: call)
                 }
             }
 
@@ -58,7 +61,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             if isCollator {
                 identifier = callFactory.scheduleCandidateBondLess(amount: amount).callName
             } else {
-                identifier = callFactory.scheduleDelegatorBondLess(amount: amount).callName
+                identifier = callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount).callName
             }
         }
 
