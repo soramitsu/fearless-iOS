@@ -56,7 +56,7 @@ final class PolkaswapAdjustmentPresenter {
 
     private var xorBalance: Decimal?
     private var xorBalanceMinusFee: Decimal {
-        (xorBalance ?? 0) - (networkFee ?? 0) - (liquidityProviderFee ?? 0)
+        (xorBalance ?? 0) - (networkFee ?? 0)
     }
 
     // MARK: - Constructors
@@ -89,7 +89,7 @@ final class PolkaswapAdjustmentPresenter {
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
-            balance = xorBalanceMinusFee
+            balance = xorBalance
         }
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balance ?? .zero)
@@ -350,6 +350,10 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
+        var swapFromBalance = swapFromBalance
+        if swapFromChainAsset == xorChainAsset {
+            swapFromBalance = xorBalanceMinusFee
+        }
         guard let swapFromChainAsset = swapFromChainAsset,
               let swapToChainAsset = swapToChainAsset,
               let polkaswapDexForRoute = polkaswapDexForRoute,
@@ -431,11 +435,30 @@ final class PolkaswapAdjustmentPresenter {
         DataValidationRunner(validators: [
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
-                feeAndTip: (networkFee ?? .zero) + (liquidityProviderFee ?? .zero),
+                feeAndTip: networkFee ?? .zero,
                 sendAmount: sendAmount,
                 locale: selectedLocale
             )
         ]).runValidation {}
+    }
+
+    private func presentAddMoreAmountAlert() {
+        let message = R.string.localizable
+            .polkaswapAddMoreAmountMessage(preferredLanguages: selectedLocale.rLanguages)
+        router.present(
+            message: message,
+            title: "",
+            closeAction: nil,
+            from: view
+        )
+    }
+
+    func toggleSwapDirection() {
+        if swapVariant == .desiredInput {
+            swapVariant = .desiredOutput
+        } else {
+            swapVariant = .desiredInput
+        }
     }
 }
 
@@ -545,6 +568,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         swapToBalance = fromBalance
         swapFromBalance = toBalance
 
+        toggleSwapDirection()
         provideFromAssetVewModel()
         provideToAssetVewModel()
         fetchQuotes()
@@ -565,10 +589,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             infoText = R.string.localizable
                 .polkaswapMaximumSoldInfo(preferredLanguages: selectedLocale.rLanguages)
         }
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
@@ -578,10 +601,9 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             .polkaswapLiquidityProviderFee(preferredLanguages: selectedLocale.rLanguages)
         let infoText = R.string.localizable
             .polkaswapLiqudityFeeInfo(preferredLanguages: selectedLocale.rLanguages)
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
@@ -591,21 +613,28 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             .commonNetworkFee(preferredLanguages: selectedLocale.rLanguages)
         let infoText = R.string.localizable
             .polkaswapNetworkFeeInfo(preferredLanguages: selectedLocale.rLanguages)
-        router.present(
+        router.presentInfo(
             message: infoText,
             title: infoTitle,
-            closeAction: nil,
             from: view
         )
     }
 
     func didTapPreviewButton() {
         guard let networkFee = networkFee,
-              let liquidityProviderFee = liquidityProviderFee,
               let params = preparePreviewParams(),
               let amounts = calcalatedAmounts
         else {
             return
+        }
+
+        // if don't have XOR balance for fee payment, fee will be payment from receive amount
+        if xorBalance.or(.zero) < networkFee, swapToChainAsset?.identifier == xorChainAsset.identifier {
+            if params.toAmount <= networkFee {
+                presentAddMoreAmountAlert()
+                return
+            }
+            xorBalance = networkFee
         }
 
         DataValidationRunner(validators: [
@@ -614,7 +643,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             }),
             dataValidatingFactory.canPayFeeAndAmount(
                 balanceType: .utility(balance: xorBalance),
-                feeAndTip: networkFee + liquidityProviderFee,
+                feeAndTip: networkFee,
                 sendAmount: .zero,
                 locale: selectedLocale
             ),
@@ -635,6 +664,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
+    }
+
+    func didTapReadDisclaimer() {
+        router.showDisclaimer(moduleOutput: self, from: view)
     }
 }
 
@@ -778,6 +811,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         calcalatedAmounts = nil
         fetchQuotes()
     }
+
+    func didReceiveDisclaimer(visible: Bool) {
+        view?.setDisclaimer(visible: visible)
+    }
 }
 
 // MARK: - Localizable
@@ -851,5 +888,13 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
+    }
+}
+
+// MARK: - PolkaswapDisclaimerModuleOutput
+
+extension PolkaswapAdjustmentPresenter: PolkaswapDisclaimerModuleOutput {
+    func disclaimerDidRead() {
+        view?.setDisclaimer(visible: false)
     }
 }

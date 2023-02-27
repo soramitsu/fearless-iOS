@@ -27,6 +27,12 @@ final class StakingMainPresenter {
     }
 
     var amount: Decimal? {
+        if let amount = stateMachine.viewState(
+            using: { (state: ParachainState) in state.rewardEstimationAmount }
+        ) {
+            return amount
+        }
+
         if let amount = stateMachine
             .viewState(using: { (state: NoStashState) in state.rewardEstimationAmount }) {
             return amount
@@ -274,7 +280,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performDelegationStatusAction() {}
 
     func performAccountAction() {
-        wireframe.showAccountsSelection(from: view)
+        wireframe.showAccountsSelection(from: view, moduleOutput: self)
     }
 
     func performManageStakingAction() {
@@ -661,14 +667,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
                 return
             }
 
-            // TODO: Remove once subquery will be fixed
-            let filteredRewards = rewards?.filter { item in
-                Decimal.fromSubstrateAmount(
-                    item.amount,
-                    precision: Int16(chainAsset.asset.precision)
-                ) ?? 0 < 1
-            }
-            stateMachine.state.process(subqueryRewards: (filteredRewards, period))
+            stateMachine.state.process(subqueryRewards: (rewards, period))
         case let .failure(error):
             handle(error: error)
         }
@@ -886,5 +885,15 @@ extension StakingMainPresenter: EventVisitorProtocol {
             return
         }
         interactor.updatePrices()
+    }
+}
+
+extension StakingMainPresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        wireframe.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        wireframe.showImportWallet(from: view)
     }
 }

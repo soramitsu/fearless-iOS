@@ -45,9 +45,7 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
-            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.staking?.url
-            )
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
             let collatorOperationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -56,7 +54,7 @@ final class ValidatorInfoViewFactory {
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: subqueryRewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory
             )
 
             guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -116,9 +114,8 @@ final class ValidatorInfoViewFactory {
                 operationManager: OperationManagerFacade.sharedManager
             )
 
-            let subqueryOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.staking?.url
-            )
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
@@ -126,7 +123,7 @@ final class ValidatorInfoViewFactory {
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: subqueryOperationFactory
+                subqueryOperationFactory: rewardOperationFactory
             )
             let viewModelState = ValidatorInfoParachainViewModelState(collatorInfo: candidate)
             let strategy = ValidatorInfoParachainStrategy(
@@ -174,9 +171,7 @@ final class ValidatorInfoViewFactory {
                 return nil
             }
 
-            let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.staking?.url
-            )
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
             let collatorOperationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -185,7 +180,7 @@ final class ValidatorInfoViewFactory {
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: subqueryRewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory
             )
 
             guard let rewardService = try? serviceFactory.createRewardCalculatorService(

@@ -188,9 +188,7 @@ struct StakingBalanceViewFactory {
                 logger: Logger.shared
             )
 
-            let subqueryOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.staking?.url
-            )
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -199,10 +197,12 @@ struct StakingBalanceViewFactory {
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: subqueryOperationFactory
+                subqueryOperationFactory: rewardOperationFactory
             )
 
-            let subqueryHistoryOperationFactory = ParachainSubqueryHistoryOperationFactory(url: chainAsset.chain.externalApi?.staking?.url)
+            let subqueryHistoryOperationFactory = ParachainHistoryOperationFactoryAssembly.factory(
+                blockExplorer: chainAsset.chain.externalApi?.staking
+            )
 
             let viewModelState = StakingBalanceParachainViewModelState(
                 chainAsset: chainAsset,

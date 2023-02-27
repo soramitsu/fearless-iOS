@@ -1,6 +1,13 @@
 import Foundation
 import RobinHood
 
+enum BlockExplorerType: String, Codable {
+    case subquery
+    case subsquid
+    case giantsquid
+    case sora
+}
+
 class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
@@ -71,6 +78,14 @@ class ChainModel: Codable {
 
     var isSora: Bool {
         name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
+    }
+
+    var isEquilibrium: Bool {
+        name.lowercased() == "equilibrium"
+    }
+
+    var isUtilityFeePayment: Bool {
+        isSora || isEquilibrium
     }
 
     var hasStakingRewardHistory: Bool {
@@ -221,9 +236,23 @@ extension ChainModel {
         let overridesCommon: Bool
     }
 
-    struct ExternalApi: Codable, Hashable {
+    struct ExternalResource: Codable, Hashable {
         let type: String
         let url: URL
+    }
+
+    struct BlockExplorer: Codable, Hashable {
+        let type: BlockExplorerType
+        let url: URL
+
+        init?(type: String, url: URL) {
+            guard let externalApiType = BlockExplorerType(rawValue: type) else {
+                return nil
+            }
+
+            self.type = externalApiType
+            self.url = url
+        }
     }
 
     enum SubscanType: String, Codable, Hashable {
@@ -256,9 +285,9 @@ extension ChainModel {
     }
 
     struct ExternalApiSet: Codable, Hashable {
-        let staking: ExternalApi?
-        let history: ExternalApi?
-        let crowdloans: ExternalApi?
+        let staking: BlockExplorer?
+        let history: BlockExplorer?
+        let crowdloans: ExternalResource?
         let explorers: [ExternalApiExplorer]?
     }
 
@@ -269,7 +298,11 @@ extension ChainModel {
     }
 
     func polkascanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
+        guard let explorer = externalApi?.explorers?.first(where: { $0.type == .polkascan }) else {
+            return nil
+        }
+
+        return explorer.explorerUrl(for: address, type: .account)
     }
 
     func subscanAddressURL(_ address: String) -> URL? {

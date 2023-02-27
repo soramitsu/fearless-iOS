@@ -56,7 +56,7 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(pendingRewardsError: Error)
 }
 
-protocol StakingPoolMainRouterInput: AnyObject {
+protocol StakingPoolMainRouterInput: AnyObject, AccountManagementPresentable {
     func showChainAssetSelection(
         from view: StakingPoolMainViewInput?,
         type: AssetSelectionStakingType,
@@ -76,7 +76,10 @@ protocol StakingPoolMainRouterInput: AnyObject {
         wallet: MetaAccountModel
     )
 
-    func showAccountsSelection(from view: ControllerBackedProtocol?)
+    func showAccountsSelection(
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
 
     func showStakingManagement(
         chainAsset: ChainAsset,

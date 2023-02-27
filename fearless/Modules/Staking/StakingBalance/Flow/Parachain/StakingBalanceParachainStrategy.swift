@@ -7,7 +7,7 @@ protocol StakingBalanceParachainStrategyOutput: AnyObject {
     func didReceiveScheduledRequests(requests: [ParachainStakingScheduledRequest]?)
     func didReceiveCurrentRound(round: ParachainStakingRoundInfo?)
     func didReceiveCurrentBlock(currentBlock: UInt32?)
-    func didReceiveSubqueryData(_ subqueryData: SubqueryDelegatorHistoryData?)
+    func didReceiveSubqueryData(_ subqueryData: DelegatorHistoryResponse?)
 }
 
 final class StakingBalanceParachainStrategy {
@@ -23,7 +23,7 @@ final class StakingBalanceParachainStrategy {
     var parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol
     private let logger: LoggerProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
-    private let subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
+    private let subqueryHistoryOperationFactory: ParachainHistoryOperationFactory
 
     deinit {
         stakingAccountUpdatingService.clearSubscription()
@@ -39,7 +39,7 @@ final class StakingBalanceParachainStrategy {
         parachainStakingLocalSubscriptionFactory: ParachainStakingLocalSubscriptionFactoryProtocol,
         logger: LoggerProtocol,
         stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol,
-        subqueryHistoryOperationFactory: ParachainSubqueryHistoryOperationFactoryProtocol
+        subqueryHistoryOperationFactory: ParachainHistoryOperationFactory
     ) {
         self.collator = collator
         self.chainAsset = chainAsset

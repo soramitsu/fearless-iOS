@@ -216,7 +216,7 @@ extension WalletLocalStorageSubscriber {
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let decodingOperation = StorageDecodingOperation<EquilibriumAccountInfo?>(
-            path: .eqBalances,
+            path: chainAsset.storagePath,
             data: item.data
         )
         decodingOperation.configurationBlock = {
@@ -234,28 +234,51 @@ extension WalletLocalStorageSubscriber {
             guard let result = decodingOperation.result else {
                 return
             }
-
-            switch result {
-            case let .success(equilibriumAccountInfo):
-                let accountInfo = AccountInfo(equilibriumAccountInfo: equilibriumAccountInfo)
-                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                    result: .success(accountInfo),
-                    accountId: accountId,
-                    chainAsset: chainAsset
-                )
-            case let .failure(error):
-                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
-                    result: .failure(error),
-                    accountId: accountId,
-                    chainAsset: chainAsset
-                )
-            }
+            self?.handleEquilibrium(result: result, accountId: accountId, chainAsset: chainAsset)
         }
 
         walletLocalSubscriptionFactory.operationManager.enqueue(
             operations: [codingFactoryOperation, decodingOperation],
             in: .transient
         )
+    }
+
+    private func handleEquilibrium(
+        result: Result<EquilibriumAccountInfo?, Error>,
+        accountId: AccountId,
+        chainAsset: ChainAsset
+    ) {
+        switch result {
+        case let .success(equilibriumAccountInfo):
+            switch equilibriumAccountInfo?.data {
+            case let .v0data(info):
+                let map = info.mapBalances()
+                chainAsset.chain.chainAssets.forEach { chainAsset in
+                    guard let currencyId = chainAsset.asset.currencyId else {
+                        return
+                    }
+                    let equilibriumFree = map[currencyId]
+                    let accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
+                    walletLocalSubscriptionHandler?.handleAccountInfo(
+                        result: .success(accountInfo),
+                        accountId: accountId,
+                        chainAsset: chainAsset
+                    )
+                }
+            case .none:
+                walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .success(nil),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
+            }
+        case let .failure(error):
+            walletLocalSubscriptionHandler?.handleAccountInfo(
+                result: .failure(error),
+                accountId: accountId,
+                chainAsset: chainAsset
+            )
+        }
     }
 }
 

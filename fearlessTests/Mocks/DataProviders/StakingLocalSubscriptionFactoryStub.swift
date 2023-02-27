@@ -247,7 +247,7 @@ final class StakingLocalSubscriptionFactoryStub: RelaychainStakingLocalSubscript
 
     func getTotalReward(
         for address: AccountAddress,
-        api: ChainModel.ExternalApi,
+        api: ChainModel.BlockExplorer,
         assetPrecision: Int16
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         AnySingleValueProvider(SingleValueProviderStub(item: totalReward))

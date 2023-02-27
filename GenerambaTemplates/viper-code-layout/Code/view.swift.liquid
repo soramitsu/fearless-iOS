@@ -1,6 +1,10 @@
 import UIKit
 import SoraFoundation
 
+protocol {{ module_info.name }}ViewOutput: AnyObject {
+    func didLoad(view: {{ module_info.name }}ViewInput)
+}
+
 final class {{ module_info.name }}ViewController: UIViewController, ViewHolder {
     typealias RootViewType = {{ module_info.name }}ViewLayout
 
@@ -40,5 +44,7 @@ extension {{ module_info.name }}ViewController: {{ module_info.name }}ViewInput 
 
 // MARK: - Localizable
 extension {{ module_info.name }}ViewController: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        rootView.locale = selectedLocale
+    }
 }

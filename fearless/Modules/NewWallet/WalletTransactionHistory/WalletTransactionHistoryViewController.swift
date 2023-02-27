@@ -176,8 +176,6 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
-        print("[transaction_history] numberOfSections: \(viewModel.sections.count)")
-
         return viewModel.sections.count
     }
 
@@ -186,7 +184,6 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
             return 0
         }
 
-        print("[transaction_history] numberOfRowsInSection: \(viewModel.sections[section].items.count)")
         return viewModel.sections[section].items.count
     }
 
@@ -198,9 +195,7 @@ extension WalletTransactionHistoryViewController: UITableViewDataSource {
         let sectionViewModel = viewModel.sections[indexPath.section]
         let itemViewModel = sectionViewModel.items[indexPath.row]
 
-        guard let cell = tableView.dequeueReusableCellWithType(WalletTransactionHistoryCell.self) else {
-            return UITableViewCell()
-        }
+        let cell = tableView.dequeueReusableCellWithType(WalletTransactionHistoryCell.self, forIndexPath: indexPath)
 
         cell.bind(to: itemViewModel)
 
@@ -233,8 +228,6 @@ extension WalletTransactionHistoryViewController: UITableViewDelegate {
 
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.didSelect(viewModel: itemViewModel)
-//        let items = presenter.sectionModel(at: indexPath.section).items
-//        try? items[indexPath.row].command?.execute()
     }
 }
 

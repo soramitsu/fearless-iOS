@@ -36,9 +36,24 @@ final class SendPresenter {
     private var fee: Decimal?
     private var minimumBalance: BigUInt?
     private var inputResult: AmountInputResult?
-    private var balanceMinusFeeAndTip: Decimal { (balance ?? 0) - (fee ?? 0) - (tip ?? 0) }
     private var scamInfo: ScamInfo?
     private var state: State = .normal
+    private var eqUilibriumTotalBalance: Decimal?
+    private var balanceMinusFeeAndTip: Decimal {
+        let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
+        if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
+            return (balance ?? 0)
+        }
+        return (balance ?? 0) - (fee ?? 0) - (tip ?? 0)
+    }
+
+    private var fullAmount: Decimal {
+        let feePaymentChainAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset)
+        if feePaymentChainAsset?.identifier != selectedChainAsset?.identifier {
+            return (balance ?? 0)
+        }
+        return (balance ?? 0) + (fee ?? 0) + (tip ?? 0)
+    }
 
     // MARK: - Constructors
 
@@ -89,7 +104,9 @@ extension SendPresenter: SendViewOutput {
                 isValid: true
             )
             view.didReceive(viewModel: viewModel)
-            interactor.getPossibleChains(for: address)
+            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
+                self?.didReceive(possibleChains: possibleChains)
+            }
         }
     }
 
@@ -112,21 +129,36 @@ extension SendPresenter: SendViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapContinueButton() {
-        guard let chainAsset = selectedChainAsset else { return }
-        guard let address = recipientAddress,
-              interactor.validate(address: address, for: chainAsset.chain)
-        else {
-            router.present(message: nil, title: "Incorrect address", closeAction: "Close", from: view)
-            return
+    func validateAddress(with chainAsset: ChainAsset, successCompletion: @escaping (String) -> Void) {
+        switch interactor.validate(address: recipientAddress, for: chainAsset.chain) {
+        case let .valid(address):
+            successCompletion(address)
+        case let .invalid(address):
+            guard let address = address else {
+                showInvalidAddressAlert()
+                return
+            }
+            interactor.getPossibleChains(for: address) { [weak self] possibleChains in
+                guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
+                    self?.showInvalidAddressAlert()
+                    return
+                }
+
+                self?.showPossibleChainsAlert(possibleChains)
+            }
+        case let .sameAddress(address):
+            showSameAddressAlert(address, successCompletion: successCompletion)
         }
+    }
+
+    func validateInputData(with address: String, chainAsset: ChainAsset) {
         let sendAmountDecimal = inputResult?.absoluteValue(from: balanceMinusFeeAndTip)
         let sendAmountValue = sendAmountDecimal?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         let spendingValue = (sendAmountValue ?? 0) +
             (fee?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0) +
             (tip?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? 0)
 
-        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isSora) ?
+        let balanceType: BalanceType = (!chainAsset.isUtility && chainAsset.chain.isUtilityFeePayment) ?
             .orml(balance: balance, utilityBalance: utilityBalance) : .utility(balance: balance)
         var minimumBalanceDecimal: Decimal?
         if let minBalance = minimumBalance {
@@ -136,7 +168,7 @@ extension SendPresenter: SendViewOutput {
             )
         }
 
-        let edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
+        var edParameters: ExistentialDepositValidationParameters = chainAsset.isUtility ?
             .utility(
                 spendingAmount: spendingValue,
                 totalAmount: totalBalanceValue,
@@ -147,6 +179,12 @@ extension SendPresenter: SendViewOutput {
                 feeAndTip: (fee ?? 0) + (tip ?? 0),
                 utilityBalance: utilityBalance
             )
+        if chainAsset.chain.isEquilibrium {
+            edParameters = .equilibrium(
+                minimumBalance: minimumBalanceDecimal,
+                totalBalance: eqUilibriumTotalBalance
+            )
+        }
 
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
@@ -175,6 +213,13 @@ extension SendPresenter: SendViewOutput {
                 tip: strongSelf.tip,
                 scamInfo: strongSelf.scamInfo
             )
+        }
+    }
+
+    func didTapContinueButton() {
+        guard let chainAsset = selectedChainAsset else { return }
+        validateAddress(with: chainAsset) { [weak self] address in
+            self?.validateInputData(with: address, chainAsset: chainAsset)
         }
     }
 
@@ -243,7 +288,8 @@ extension SendPresenter: SendInteractorOutput {
                 } ?? 0.0
 
                 provideAssetVewModel()
-            } else if let utilityAsset = selectedChainAsset {
+            } else if let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset),
+                      utilityAsset == chainAsset {
                 utilityBalance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -285,8 +331,8 @@ extension SendPresenter: SendInteractorOutput {
         view?.didStopFeeCalculation()
         switch result {
         case let .success(dispatchInfo):
-            guard var chainAsset = selectedChainAsset,
-                  let utilityAsset = interactor.getUtilityAsset(for: chainAsset) else { return }
+            guard let chainAsset = selectedChainAsset,
+                  let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
             fee = BigUInt(dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
@@ -345,6 +391,10 @@ extension SendPresenter: SendInteractorOutput {
                 delegate: self
             )
         }
+    }
+
+    func didReceive(eqTotalBalance: Decimal) {
+        eqUilibriumTotalBalance = eqTotalBalance
     }
 }
 
@@ -421,11 +471,14 @@ private extension SendPresenter {
             priceData: priceData
         ).value(for: selectedLocale)
         view?.didReceive(assetBalanceViewModel: viewModel)
+
+        let fullAmount = inputResult?.absoluteValue(from: fullAmount) ?? .zero
+        interactor.calculateEquilibriumBalance(chainAsset: chainAsset, amount: fullAmount)
     }
 
     func provideTipViewModel() {
         guard let chainAsset = selectedChainAsset,
-              let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
+              let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
               .prepareDepencies(chainAsset: utilityAsset)?
@@ -446,7 +499,7 @@ private extension SendPresenter {
     }
 
     func provideFeeViewModel() {
-        guard let utilityAsset = interactor.getUtilityAsset(for: selectedChainAsset),
+        guard let utilityAsset = interactor.getFeePaymentChainAsset(for: selectedChainAsset),
               let balanceViewModelFactory = interactor
               .dependencyContainer
               .prepareDepencies(chainAsset: utilityAsset)?
@@ -494,10 +547,9 @@ private extension SendPresenter {
     func handle(newAddress: String) {
         recipientAddress = newAddress
         guard let chainAsset = selectedChainAsset else { return }
-        let addressIsValid = interactor.validate(address: newAddress, for: chainAsset.chain)
         let viewModel = viewModelFactory.buildRecipientViewModel(
             address: newAddress,
-            isValid: addressIsValid
+            isValid: interactor.validate(address: newAddress, for: chainAsset.chain).isValid
         )
         view?.didReceive(viewModel: viewModel)
 
@@ -555,6 +607,53 @@ private extension SendPresenter {
                 output: self
             )
         }
+    }
+
+    private func showInvalidAddressAlert() {
+        router.present(
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            from: view
+        )
+    }
+
+    private func showPossibleChainsAlert(_ possibleChains: [ChainModel]) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.commonSelectNetwork(preferredLanguages: selectedLocale.rLanguages)
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showSelectNetwork(
+                from: strongSelf.view,
+                wallet: strongSelf.wallet,
+                selectedChainId: nil,
+                chainModels: possibleChains,
+                delegate: strongSelf
+            )
+        }
+        router.present(
+            message: R.string.localizable.errorInvalidAddress(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: [action]
+        )
+    }
+
+    private func showSameAddressAlert(_ address: String, successCompletion: @escaping (String) -> Void) {
+        let action = SheetAlertPresentableAction(
+            title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)
+        ) {
+            successCompletion(address)
+        }
+        router.present(
+            message: R.string.localizable
+                .sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
+            title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: [action]
+        )
     }
 }
 

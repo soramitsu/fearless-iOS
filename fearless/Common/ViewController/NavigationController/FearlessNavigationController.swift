@@ -92,4 +92,4 @@ class FearlessNavigationController: UINavigationController, UINavigationControll
     }
 }
 
-extension FearlessNavigationController: NavigationControlling {}
+extension FearlessNavigationController: NavigationControlling, ControllerBackedProtocol {}

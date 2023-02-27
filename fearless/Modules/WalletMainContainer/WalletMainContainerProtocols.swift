@@ -30,7 +30,7 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
 }
 
-protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable {
+protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?
@@ -44,8 +44,6 @@ protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable
         chainModels: [ChainModel]?,
         delegate: SelectNetworkDelegate?
     )
-    func showCreateNewWallet(from view: WalletMainContainerViewInput?)
-    func showImportWallet(from view: WalletMainContainerViewInput?)
     func showSelectCurrency(
         from view: WalletMainContainerViewInput?,
         wallet: MetaAccountModel

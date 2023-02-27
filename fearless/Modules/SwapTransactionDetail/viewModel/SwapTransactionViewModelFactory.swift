@@ -34,8 +34,7 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
 
         let doubleImageViewViewModel = createDoubleImageViewModel(
             fromChainAsset: sendAsset,
-            toChainAsset: receiveAsset,
-            transaction: transaction
+            toChainAsset: receiveAsset
         )
 
         let amountsText = buildAmountsText(
@@ -79,12 +78,15 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
 
     private func createDoubleImageViewModel(
         fromChainAsset: ChainAsset?,
-        toChainAsset: ChainAsset?,
-        transaction _: AssetTransactionData
+        toChainAsset: ChainAsset?
     ) -> PolkaswapDoubleSymbolViewModel {
+        let leftColor = HexColorConverter.hexStringToUIColor(hex: fromChainAsset?.asset.color)?.cgColor
+        let rightColor = HexColorConverter.hexStringToUIColor(hex: toChainAsset?.asset.color)?.cgColor
         let doubleImageViewViewModel = PolkaswapDoubleSymbolViewModel(
             leftViewModel: fromChainAsset?.asset.icon.map { RemoteImageViewModel(url: $0) },
-            rightViewModel: toChainAsset?.asset.icon.map { RemoteImageViewModel(url: $0) }
+            rightViewModel: toChainAsset?.asset.icon.map { RemoteImageViewModel(url: $0) },
+            leftShadowColor: leftColor,
+            rightShadowColor: rightColor
         )
         return doubleImageViewViewModel
     }

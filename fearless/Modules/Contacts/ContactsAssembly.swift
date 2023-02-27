@@ -9,9 +9,18 @@ final class ContactsAssembly {
         moduleOutput: ContactsModuleOutput
     ) -> ContactsModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
+        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
         guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
+
+        let historyOperationFactory = HistoryOperationFactoriesAssembly.createOperationFactory(
+            chainAsset: chainAsset,
+            txStorage: AnyDataProviderRepository(txStorage),
+            runtimeService: runtimeService
+        )
 
         let localizationManager = LocalizationManager.shared
 
@@ -26,18 +35,10 @@ final class ContactsAssembly {
                 mapper: AnyCoreDataMapper(mapper)
             )
 
-        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
-
-        let operationFactory = HistoryOperationFactory(
-            txStorage: AnyDataProviderRepository(txStorage),
-            runtimeService: runtimeService
-        )
-
         let interactor = ContactsInteractor(
             repository: AnyDataProviderRepository(repository),
             operationQueue: OperationQueue(),
-            historyOperationFactory: operationFactory,
+            historyOperationFactory: historyOperationFactory,
             wallet: wallet,
             chainAsset: chainAsset
         )

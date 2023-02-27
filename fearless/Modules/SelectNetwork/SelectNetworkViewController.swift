@@ -51,7 +51,7 @@ final class SelectNetworkViewController: SelectableListViewController<SelectionI
 
     private func setupLayout() {
         rootView.tableView.snp.makeConstraints { make in
-            make.height.equalTo(UIScreen.main.bounds.height / 2.5)
+            make.height.equalTo(UIScreen.main.bounds.height)
         }
     }
 

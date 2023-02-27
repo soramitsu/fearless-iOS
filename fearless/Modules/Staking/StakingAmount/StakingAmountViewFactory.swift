@@ -292,7 +292,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -300,7 +300,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(

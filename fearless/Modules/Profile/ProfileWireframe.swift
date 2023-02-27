@@ -23,17 +23,20 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
-    func showAccountSelection(from view: ProfileViewProtocol?) {
-        guard let accountManagement = AccountManagementViewFactory.createViewForSettings() else {
+    func showAccountSelection(
+        from view: ProfileViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    ) {
+        guard
+            let module = WalletsManagmentAssembly.configureModule(
+                shouldSaveSelected: true,
+                moduleOutput: moduleOutput
+            )
+        else {
             return
         }
 
-        accountManagement.controller.hidesBottomBarWhenPushed = true
-
-        view?.controller.navigationController?.pushViewController(
-            accountManagement.controller,
-            animated: true
-        )
+        view?.controller.present(module.view.controller, animated: true)
     }
 
     func showLanguageSelection(from view: ProfileViewProtocol?) {
@@ -91,6 +94,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         )?.view.controller else { return }
         controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(controller, animated: true)
+    }
+
+    func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?) {
+        guard let module = PolkaswapDisclaimerAssembly.configureModule() else {
+            return
+        }
+        view?.controller.present(module.view.controller, animated: true)
     }
 
     // MARK: Private

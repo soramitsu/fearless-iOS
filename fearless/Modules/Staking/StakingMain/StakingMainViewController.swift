@@ -345,7 +345,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             make.height.equalTo(UIConstants.actionHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }
 
@@ -553,7 +553,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY + UIConstants.actionHeight
         let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
 
         var contentInsets = scrollView.contentInset
@@ -568,7 +568,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             let updatedFrame = CGRect(
                 origin: CGPoint(
                     x: fieldFrame.origin.x,
-                    y: fieldFrame.origin.y + UIConstants.actionHeight + UIConstants.bigOffset
+                    y: fieldFrame.origin.y + UIConstants.actionHeight
                 ),
                 size: fieldFrame.size
             )
@@ -576,15 +576,16 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             scrollView.scrollRectToVisible(updatedFrame, animated: true)
 
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-                    .inset(updatedFrame.height + UIConstants.bigOffset)
+                make.bottom.equalTo(view.safeAreaLayoutGuide)
+                    .inset(updatedFrame.height + UIConstants.accessoryBarHeight)
             }
         } else {
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+                make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             }
         }
 
+        changeActionButtonVisibility(!actionButton.isHidden)
         UIView.animate(withDuration: Constants.keyboardAnimateDuration) {
             self.view.layoutIfNeeded()
         }

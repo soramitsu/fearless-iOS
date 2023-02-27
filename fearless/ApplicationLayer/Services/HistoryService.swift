@@ -36,7 +36,7 @@ class HistoryService: HistoryServiceProtocol {
         runCompletionIn queue: DispatchQueue,
         completionBlock: @escaping TransactionHistoryBlock
     ) -> CancellableCall {
-        let operationWrapper = operationFactory.fetchSubqueryHistoryOperation(
+        let operationWrapper = operationFactory.fetchTransactionHistoryOperation(
             asset: asset,
             chain: chain,
             address: address,
