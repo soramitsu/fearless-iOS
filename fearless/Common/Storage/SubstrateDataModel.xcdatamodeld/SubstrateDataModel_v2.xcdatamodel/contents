@@ -2,6 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21279" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDAsset" representedClassName="CDAsset" syncable="YES" codeGenerationType="class">
         <attribute name="chainId" attributeType="String"/>
+        <attribute name="color" optional="YES" attributeType="String"/>
         <attribute name="currencyId" optional="YES" attributeType="String"/>
         <attribute name="displayName" optional="YES" attributeType="String"/>
         <attribute name="existentialDeposit" optional="YES" attributeType="String"/>
@@ -48,6 +49,7 @@
     </entity>
     <entity name="CDChainAsset" representedClassName="CDChainAsset" syncable="YES" codeGenerationType="class">
         <attribute name="assetId" attributeType="String"/>
+        <attribute name="isNative" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="isUtility" optional="YES" attributeType="Boolean" usesScalarValueType="YES"/>
         <attribute name="purchaseProviders" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromDataTransformer" customClassName="[String]"/>
         <attribute name="staking" optional="YES" attributeType="String"/>

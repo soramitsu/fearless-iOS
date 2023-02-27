@@ -80,7 +80,7 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
                         title: title,
                         detailsAttributedString: apy,
                         detailsAux: stakedString,
-                        isSelected: false
+                        isSelected: true
                     )
                 }
             }

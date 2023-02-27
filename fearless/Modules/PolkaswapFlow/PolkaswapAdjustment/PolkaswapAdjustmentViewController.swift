@@ -71,7 +71,6 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory.default.createAmountAccessoryView(for: self, locale: locale)
         rootView.swapFromInputView.textField.inputAccessoryView = accessoryView
-        rootView.swapToInputView.textField.inputAccessoryView = accessoryView
         updatePreviewButton()
     }
 
@@ -127,6 +126,12 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
             action: #selector(handleTapPreviewButton),
             for: .touchUpInside
         )
+
+        rootView.disclaimerView.actionButton?.addTarget(
+            self,
+            action: #selector(handleReadDisclaimerButton),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private actions
@@ -157,6 +162,10 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     @objc private func handleTapPreviewButton() {
         output.didTapPreviewButton()
+    }
+
+    @objc private func handleReadDisclaimerButton() {
+        output.didTapReadDisclaimer()
     }
 }
 
@@ -210,6 +219,12 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
     func didReceiveDetails(viewModel: PolkaswapAdjustmentDetailsViewModel?) {
         rootView.bindDetails(viewModel: viewModel)
         updatePreviewButton()
+    }
+
+    func setDisclaimer(visible: Bool) {
+        if !visible {
+            rootView.disclaimerView.removeFromSuperview()
+        }
     }
 }
 

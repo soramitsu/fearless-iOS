@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import FearlessUtils
 import RobinHood
+import SoraKeystore
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
@@ -72,7 +73,8 @@ final class PolkaswapAdjustmentAssembly {
             settingsRepository: AnyDataProviderRepository(settingsRepository),
             extrinsicService: extrinsicService,
             operationFactory: operationFactory,
-            operationManager: operationManager
+            operationManager: operationManager,
+            userDefaultsStorage: SettingsManager.shared
         )
         let router = PolkaswapAdjustmentRouter()
 

@@ -2,32 +2,6 @@ import Foundation
 import UIKit
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
-    func showCreateNewWallet(from view: WalletMainContainerViewInput?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
-            return
-        }
-
-        usernameSetup.controller.hidesBottomBarWhenPushed = true
-
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(usernameSetup.controller, animated: true)
-        }
-    }
-
-    func showImportWallet(from view: WalletMainContainerViewInput?) {
-        guard let restorationController = AccountImportViewFactory
-            .createViewForAdding()?.controller
-        else {
-            return
-        }
-
-        restorationController.hidesBottomBarWhenPushed = true
-
-        if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(restorationController, animated: true)
-        }
-    }
-
     func showWalletManagment(
         from view: WalletMainContainerViewInput?,
         moduleOutput: WalletsManagmentModuleOutput?

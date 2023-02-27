@@ -157,6 +157,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             filterOptions.removeAll(where: { $0 == .hiddenSectionOpen })
         case .expanded:
             filterOptions.append(.hiddenSectionOpen)
+        case .empty:
+            return
         }
 
         let updatedAccount = wallet.replacingAssetsFilterOptions(filterOptions)
@@ -243,6 +245,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
     }
 
     func processChainSyncDidComplete(event _: ChainSyncDidComplete) {
+        updateChainAssets(using: filters, sorts: sorts)
+    }
+
+    func processZeroBalancesSettingChanged() {
         updateChainAssets(using: filters, sorts: sorts)
     }
 }

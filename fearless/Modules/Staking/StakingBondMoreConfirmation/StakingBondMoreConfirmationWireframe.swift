@@ -1,14 +1,27 @@
+import SoraUI
+
 final class StakingBondMoreConfirmationWireframe: StakingBondMoreConfirmationWireframeProtocol,
-    ModalAlertPresenting {
-    func complete(from view: StakingBondMoreConfirmationViewProtocol?) {
-        let languages = view?.localizationManager?.selectedLocale.rLanguages
-        let title = R.string.localizable
-            .stakingBondMoreCompletion(preferredLanguages: languages)
+    ModalAlertPresenting, AllDonePresentable {
+    func complete(
+        from view: StakingBondMoreConfirmationViewProtocol,
+        chainAsset: ChainAsset,
+        extrinsicHash: String
+    ) {
+        let presenter = view.controller.navigationController?.presentingViewController
+        let navigationController = view.controller.navigationController
 
-        let presenter = view?.controller.navigationController?.presentingViewController
+        let allDoneController = AllDoneAssembly.configureModule(chainAsset: chainAsset, hashString: extrinsicHash)?.view.controller
+        allDoneController?.modalPresentationStyle = .custom
 
-        presenter?.dismiss(animated: true) {
-            self.presentSuccessNotification(title, from: presenter, completion: nil)
-        }
+        let factory = ModalSheetBlurPresentationFactory(
+            configuration: ModalSheetPresentationConfiguration.fearlessBlur
+        )
+        allDoneController?.modalTransitioningFactory = factory
+
+        navigationController?.dismiss(animated: true, completion: {
+            if let presenter = presenter as? ControllerBackedProtocol, let allDoneController = allDoneController {
+                presenter.controller.present(allDoneController, animated: true)
+            }
+        })
     }
 }

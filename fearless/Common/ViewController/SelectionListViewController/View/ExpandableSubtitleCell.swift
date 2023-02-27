@@ -104,8 +104,9 @@ final class ExpandableSubtitleCell: UITableViewCell, SelectionItemViewProtocol {
         infoButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         infoButton.snp.makeConstraints { make in
             make.leading.equalTo(textVStackView.snp.trailing)
-            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.equalToSuperview()
             make.centerY.equalTo(titleLabel.snp.centerY)
+            make.width.equalTo(44)
         }
     }
 }

@@ -7,8 +7,7 @@ final class WalletTransactionHistoryPresenter {
     private let wireframe: WalletTransactionHistoryWireframeProtocol
     private let interactor: WalletTransactionHistoryInteractorInputProtocol
     private let viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol
-    private let chain: ChainModel
-    private let asset: AssetModel
+    private var chainAsset: ChainAsset
     private let logger: LoggerProtocol
 
     private var filters: [FilterSet]?
@@ -18,16 +17,14 @@ final class WalletTransactionHistoryPresenter {
         interactor: WalletTransactionHistoryInteractorInputProtocol,
         wireframe: WalletTransactionHistoryWireframeProtocol,
         viewModelFactory: WalletTransactionHistoryViewModelFactoryProtocol,
-        chain: ChainModel,
-        asset: AssetModel,
+        chainAsset: ChainAsset,
         logger: LoggerProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.asset = asset
-        self.chain = chain
+        self.chainAsset = chainAsset
         self.logger = logger
         self.localizationManager = localizationManager
     }
@@ -36,6 +33,7 @@ final class WalletTransactionHistoryPresenter {
 extension WalletTransactionHistoryPresenter: WalletTransactionHistoryModuleInput {
     func updateTransactionHistory(for chainAsset: ChainAsset?) {
         if let chainAsset = chainAsset {
+            self.chainAsset = chainAsset
             interactor.chainAssetChanged(chainAsset)
         } else {
             interactor.reload()
@@ -67,8 +65,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryPresenterPr
         wireframe.showTransactionDetails(
             from: view,
             transaction: viewModel.transaction,
-            chain: chain,
-            asset: asset,
+            chain: chainAsset.chain,
+            asset: chainAsset.asset,
             selectedAccount: selectedAccount
         )
     }
@@ -83,7 +81,8 @@ extension WalletTransactionHistoryPresenter: WalletTransactionHistoryInteractorO
         pageData: AssetTransactionPageData,
         reload: Bool
     ) {
-        guard chain.externalApi?.history != nil else {
+        view?.didStopLoading()
+        guard chainAsset.chain.externalApi?.history != nil else {
             let state: WalletTransactionHistoryViewState = .unsupported
             view?.didReceive(state: state)
             return
@@ -122,6 +121,7 @@ extension WalletTransactionHistoryPresenter: Localizable {
 
 extension WalletTransactionHistoryPresenter: FiltersModuleOutput {
     func didFinishWithFilters(filters: [FilterSet]) {
+        view?.didStartLoading()
         interactor.applyFilters(filters)
     }
 }

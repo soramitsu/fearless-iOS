@@ -139,11 +139,12 @@ extension SendPresenter: SendViewOutput {
                 return
             }
             interactor.getPossibleChains(for: address) { [weak self] possibleChains in
-                guard let possibleChains = possibleChains else {
+                guard let possibleChains = possibleChains, possibleChains.isNotEmpty else {
                     self?.showInvalidAddressAlert()
                     return
                 }
-                showPossibleChainsAlert(possibleChains)
+
+                self?.showPossibleChainsAlert(possibleChains)
             }
         case let .sameAddress(address):
             showSameAddressAlert(address, successCompletion: successCompletion)

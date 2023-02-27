@@ -4,12 +4,7 @@ import CommonWallet
 import IrohaCrypto
 import FearlessUtils
 
-final class GiantsquidHistoryOperationFactory {
-    private enum GiantsquidConfig {
-        static let giantsquidRewardsEnabled = false
-        static let giantsquidExtrinsicEnabled = false
-    }
-
+final class SubsquidHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     private let runtimeService: RuntimeCodingServiceProtocol
 
@@ -23,11 +18,15 @@ final class GiantsquidHistoryOperationFactory {
 
     private func createOperation(
         address: String,
+        count: Int,
+        cursor: String?,
         url: URL,
         filters: [WalletTransactionHistoryFilter]
-    ) -> BaseOperation<GiantsquidResponseData> {
+    ) -> BaseOperation<SubsquidHistoryResponse> {
         let queryString = prepareQueryForAddress(
             address,
+            count: count,
+            cursor: cursor,
             filters: filters
         )
 
@@ -45,10 +44,10 @@ final class GiantsquidHistoryOperationFactory {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<GiantsquidResponseData> { data in
+        let resultFactory = AnyNetworkResultFactory<SubsquidHistoryResponse> { data in
             do {
                 let response = try JSONDecoder().decode(
-                    SubqueryResponse<GiantsquidResponseData>.self,
+                    SubqueryResponse<SubsquidHistoryResponse>.self,
                     from: data
                 )
 
@@ -98,90 +97,66 @@ final class GiantsquidHistoryOperationFactory {
     }
 
     private func prepareFilter(
-        filters: [WalletTransactionHistoryFilter],
-        address: String
+        filters: [WalletTransactionHistoryFilter]
     ) -> String {
         var filterStrings: [String] = []
 
-        if filters.contains(where: { $0.type == .other && $0.selected }), GiantsquidConfig.giantsquidExtrinsicEnabled {
-            filterStrings.append(
-                """
-                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                            accountId
-                            amount
-                            blockNumber
-                            era
-                            extrinsicHash
-                            id
-                            timestamp
-                          }
-                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                            accountId
-                            amount
-                            blockNumber
-                            extrinsicHash
-                            id
-                            success
-                            timestamp
-                            type
-                          }
-                """
-            )
+        if !filters.contains(where: { $0.type == .other && $0.selected }) {
+            filterStrings.append("extrinsic_isNull: true")
         }
 
-        if filters.contains(where: { $0.type == .reward && $0.selected }), GiantsquidConfig.giantsquidRewardsEnabled {
-            filterStrings.append(
-                """
-                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
-                accountId
-                amount
-                blockNumber
-                era
-                extrinsicHash
-                id
-                timestamp
-                validator
-                }
-                """
-            )
+        if !filters.contains(where: { $0.type == .reward && $0.selected }) {
+            filterStrings.append("reward_isNull: true")
         }
 
-        if filters.contains(where: { $0.type == .transfer && $0.selected }) {
-            filterStrings.append(
-                """
-                          transfers(where: {account: {id_eq: "\(address)"}}, orderBy: id_DESC) {
-                           id
-                               transfer {
-                                 amount
-                                 blockNumber
-                                 extrinsicHash
-                                 from {
-                                   id
-                                 }
-                                 to {
-                                   id
-                                 }
-                                 timestamp
-                                 success
-                                 id
-                               }
-                               direction
-                          }
-                """
-            )
+        if !filters.contains(where: { $0.type == .transfer && $0.selected }) {
+            filterStrings.append("transfer_isNull: true")
         }
 
-        return filterStrings.joined(separator: "\n")
+        return filterStrings.joined(separator: ",")
     }
 
     private func prepareQueryForAddress(
         _ address: String,
+        count: Int,
+        cursor: String?,
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
-        let filterString = prepareFilter(filters: filters, address: address)
+        let filterString = prepareFilter(filters: filters)
+        let offset: Int = cursor.map { Int($0) ?? 0 } ?? 0
         return """
         query MyQuery {
-          \(filterString)
+          historyElements(where: {address_eq: "\(address)", \(filterString)}, orderBy: timestamp_DESC, limit: \(count), offset: \(offset)) {
+            timestamp
+            id
+            extrinsicIdx
+            extrinsicHash
+            blockNumber
+            address
+                                    extrinsic {
+                                      call
+                                      fee
+                                      hash
+                                      module
+                                      success
+                                    }
+                    transfer {
+                    amount
+                    eventIdx
+                    fee
+                    from
+                    success
+                    to
+                    }
+                                reward {
+                                  amount
+                                  era
+                                  eventIdx
+                                  isReward
+                                  stash
+                                  validator
+                                }
+          }
         }
         """
     }
@@ -225,14 +200,17 @@ final class GiantsquidHistoryOperationFactory {
     }
 
     private func createSubqueryHistoryMergeOperation(
-        dependingOn remoteOperation: BaseOperation<GiantsquidResponseData>?,
+        dependingOn remoteOperation: BaseOperation<SubsquidHistoryResponse>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
         ClosureOperation {
-            let remoteTransactions: [WalletRemoteHistoryItemProtocol] = try remoteOperation?.extractNoCancellableResultData().history ?? []
+            let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements ?? []
+            let filteredTransactions = remoteTransactions.sorted { element1, element2 in
+                element2.timestampInSeconds < element1.timestampInSeconds
+            }
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
                !localTransactions.isEmpty {
@@ -246,7 +224,7 @@ final class GiantsquidHistoryOperationFactory {
                     localItems: localTransactions
                 )
             } else {
-                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
+                let transactions: [AssetTransactionData] = filteredTransactions.map { item in
                     item.createTransactionForAddress(
                         address,
                         chain: chain,
@@ -278,20 +256,25 @@ final class GiantsquidHistoryOperationFactory {
     }
 
     private func createSubqueryHistoryMapOperation(
-        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>
+        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
+        remoteOperation _: BaseOperation<SubsquidHistoryResponse>,
+        pagination: Pagination
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
+            let context = pagination.context
+            let endCursor = context.map { (Int($0["endCursor"] ?? "0") ?? 0) + pagination.count } ?? pagination.count
+
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: [:]
+                context: ["endCursor": "\(endCursor)"]
             )
         }
     }
 }
 
-extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
+extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
     func fetchTransactionHistoryOperation(
         asset: AssetModel,
         chain: ChainModel,
@@ -317,16 +300,18 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let remoteHistoryOperation: BaseOperation<GiantsquidResponseData>
+        let remoteHistoryOperation: BaseOperation<SubsquidHistoryResponse>
 
         if let baseUrl = chain.externalApi?.history?.url {
             remoteHistoryOperation = createOperation(
                 address: address,
+                count: pagination.count,
+                cursor: pagination.context?["endCursor"],
                 url: baseUrl,
                 filters: filters
             )
         } else {
-            let result = GiantsquidResponseData(transfers: [], rewards: [], bonds: [], slashes: [])
+            let result = SubsquidHistoryResponse(historyElements: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
@@ -369,7 +354,9 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
 
         let mapOperation = createSubqueryHistoryMapOperation(
-            dependingOn: mergeOperation
+            dependingOn: mergeOperation,
+            remoteOperation: remoteHistoryOperation,
+            pagination: pagination
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }

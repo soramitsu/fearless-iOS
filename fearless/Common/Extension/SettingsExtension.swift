@@ -12,9 +12,23 @@ enum SettingsKey: String {
     case stakingNetworkExpansion
     case referralEthereumAccount
     case selectedCurrency
+    case shouldHideZeroBalanceAssets
 }
 
 extension SettingsManagerProtocol {
+    var shouldHideZeroBalanceAssets: Bool? {
+        get {
+            bool(for: SettingsKey.shouldHideZeroBalanceAssets.rawValue)
+        }
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.shouldHideZeroBalanceAssets.rawValue)
+            } else {
+                removeValue(for: SettingsKey.shouldHideZeroBalanceAssets.rawValue)
+            }
+        }
+    }
+
     var biometryEnabled: Bool? {
         get {
             bool(for: SettingsKey.biometryEnabled.rawValue)

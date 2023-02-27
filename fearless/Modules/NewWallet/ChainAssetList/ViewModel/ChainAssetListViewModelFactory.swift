@@ -1,10 +1,11 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
+import BigInt
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
-        displayType: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -24,13 +25,18 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
     }
 
     private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var polkadotChainId: String?
+    private let settings: SettingsManagerProtocol
 
-    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
+    init(
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.settings = settings
     }
 
     func buildViewModel(
-        displayType _: AssetListDisplayType,
         wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
@@ -53,6 +59,12 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 accountInfo: accountInfo,
                 priceData: priceData
             )
+        }
+
+        if let polkadotId = chainAssets.first { chain in
+            chain.isUtility && chain.chain.name.lowercased() == "polkadot"
+        }?.chain.chainId {
+            self.polkadotChainId = polkadotId
         }
 
         let assetChainAssetsArray = createAssetChainAssets(
@@ -107,6 +119,10 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
             ? .expanded
             : .hidden
+
+        if hiddenSectionCellModels.isEmpty {
+            hiddenSectionState = .empty
+        }
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -230,8 +246,8 @@ private extension ChainAssetListViewModelFactory {
             locale: locale
         )
 
-        if wallet.assetFilterOptions.contains(.hideZeroBalance),
-           accountInfo == nil,
+        if settings.shouldHideZeroBalanceAssets == true,
+           accountInfo == nil || accountInfo?.data.free == BigUInt.zero,
            !isColdBoot {
             return nil
         } else {
@@ -282,15 +298,17 @@ private extension ChainAssetListViewModelFactory {
             (
                 aca1.totalFiatBalance,
                 aca1.totalBalance,
-                aca1.mainChainAsset.chain.isTestnet.intValue,
+                aca1.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca1.mainChainAsset.chain.name
+                aca1.mainChainAsset.chain.name,
+                aca1.mainChainAsset.asset.name
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
-                aca2.mainChainAsset.chain.isTestnet.intValue,
+                aca2.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
-                aca2.mainChainAsset.chain.name
+                aca2.mainChainAsset.chain.name,
+                aca2.mainChainAsset.asset.name
             )
         }
 
@@ -476,6 +494,21 @@ private extension ChainAssetListViewModelFactory {
         return priceWithChangeAttributed
     }
 
+    func sortChainAssets(
+        ca1: ChainAsset,
+        ca2: ChainAsset
+    ) -> Bool {
+        (
+            ca1.chain.isTestnet.intValue,
+            ca1.isParentChain().invert().intValue,
+            ca1.isPolkadot(polkadotChainId).invert().intValue
+        ) < (
+            ca2.chain.isTestnet.intValue,
+            ca2.isParentChain().invert().intValue,
+            ca2.isPolkadot(polkadotChainId).invert().intValue
+        )
+    }
+
     func createAssetChainAssets(
         from chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -483,12 +516,17 @@ private extension ChainAssetListViewModelFactory {
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
         let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let chainAssetsSorted = chainAssets.sorted { $0.chain.isTestnet.intValue < $1.chain.isTestnet.intValue }
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssetsSorted.filter { $0.asset.name == name }
-            let mainChainAsset = assetChainAssets.first {
-                $0.asset.chainId == $0.chain.chainId
-            } ?? assetChainAssets.first!
+            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
+            let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
+                sortChainAssets(ca1: ca1, ca2: ca2)
+            })
+            guard let mainChainAsset =
+                chainAssetsSorted.first(where: { $0.isUtility }) ??
+                chainAssetsSorted.first(where: { $0.isNative == true }) ??
+                chainAssetsSorted.first else {
+                return nil
+            }
             let totalBalance = getTotalBalance(
                 for: assetChainAssets,
                 accountInfos: accountInfos,
@@ -526,3 +564,13 @@ private extension ChainAssetListViewModelFactory {
 
 extension ChainAssetListViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
+
+private extension ChainAsset {
+    func isPolkadot(_ polkadotId: String?) -> Bool {
+        chain.parentId == polkadotId || chain.chainId == polkadotId
+    }
+
+    func isParentChain() -> Bool {
+        chain.parentId == nil
+    }
+}

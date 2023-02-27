@@ -22,6 +22,7 @@ final class SlippageToleranceViewModelFactory: SlippageToleranceViewModelFactory
         let formatter = NumberFormatter()
         formatter.numberStyle = .decimal
         formatter.maximumFractionDigits = 2
+        formatter.decimalSeparator = "."
 
         var viewModel: SlippageToleranceViewModel
         var warningText: String = ""

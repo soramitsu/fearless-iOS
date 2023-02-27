@@ -158,9 +158,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(candidate, delegation):
-            let subqueryOperationFactory = SubqueryRewardOperationFactory(
-                url: chainAsset.chain.externalApi?.staking?.url
-            )
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
 
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -169,7 +167,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 runtimeService: runtimeService,
                 engine: connection,
                 identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: subqueryOperationFactory
+                subqueryOperationFactory: rewardOperationFactory
             )
             let viewModelState = StakingUnbondSetupParachainViewModelState(
                 chainAsset: chainAsset,

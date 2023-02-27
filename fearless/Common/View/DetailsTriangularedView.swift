@@ -48,6 +48,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
     }
 
+    var iconShouldCenterVertically: Bool = false {
+        didSet {
+            resolveLayout()
+        }
+    }
+
     var onCopied: (() -> Void)?
 
     var iconRadius: CGFloat = LayoutConstants.iconRadius {
@@ -220,13 +226,15 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let iconOffset = lazyIconView != nil ? LayoutConstants.iconSize + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
+        let usingFont = actionButton?.imageWithTitleView?.titleFont ?? .h5Title
         if let actionButton = actionButton {
-            let usingFont = actionButton.imageWithTitleView?.titleFont ?? .h5Title
             let buttonTitleWidth = actionButton
                 .imageWithTitleView?
                 .title?
                 .widthOfString(usingFont: usingFont) ?? LayoutConstants.actionButtonSize.width
-            let buttonWidth = UIConstants.defaultOffset * 2 + buttonTitleWidth
+            let buttonContentEdges = actionButton.contentInsets
+            let buttonHorizontalInsets = buttonContentEdges.left + buttonContentEdges.right
+            let buttonWidth = UIConstants.defaultOffset * 2 + buttonTitleWidth + buttonHorizontalInsets
             actionButton.frame = CGRect(
                 x: bounds.maxX - contentInsets.right - buttonWidth,
                 y: bounds.midY - LayoutConstants.actionButtonSize.height / 2,
@@ -246,23 +254,25 @@ class DetailsTriangularedView: BackgroundedContentControl {
         )
 
         let subtitleY = titleLabel.frame.maxY + LayoutConstants.labelVerticalOffset
-        let subtitleHeight = frame.size.height - subtitleY - UIConstants.defaultOffset
-
-        subtitleLabel.frame = CGRect(
-            x: labelX,
-            y: subtitleY,
-            width: subtitleWidth,
-            height: subtitleHeight
+        let forBounds = CGRect(x: labelX, y: subtitleY, width: subtitleWidth, height: CGFloat.greatestFiniteMagnitude)
+        let subtitleRect = subtitleLabel.textRect(
+            forBounds: forBounds,
+            limitedToNumberOfLines: 2
         )
 
+        subtitleLabel.frame = subtitleRect
+
         if let iconView = lazyIconView {
+            let iconViewY = iconShouldCenterVertically ? (bounds.midY - LayoutConstants.iconSize / 2) : UIConstants.defaultOffset
             iconView.frame = CGRect(
                 x: bounds.minX + contentInsets.left,
-                y: UIConstants.defaultOffset,
+                y: iconViewY,
                 width: LayoutConstants.iconSize,
                 height: LayoutConstants.iconSize
             )
         }
+
+        frame.size.height = titleHeight + subtitleRect.height + contentInsets.top + contentInsets.bottom
     }
 
     private func layoutWithoutIcon() {

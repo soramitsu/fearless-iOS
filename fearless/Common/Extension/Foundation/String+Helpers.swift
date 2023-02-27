@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 
+// swiftformat:disable all
 extension String {
     static var returnKey: String { "\n" }
 

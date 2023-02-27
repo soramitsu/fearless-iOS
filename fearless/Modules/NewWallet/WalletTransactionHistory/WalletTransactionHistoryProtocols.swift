@@ -1,5 +1,5 @@
 import CommonWallet
-protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggable {
+protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggable, LoadableViewProtocol {
     func didReceive(state: WalletTransactionHistoryViewState)
     func reloadContent()
 }

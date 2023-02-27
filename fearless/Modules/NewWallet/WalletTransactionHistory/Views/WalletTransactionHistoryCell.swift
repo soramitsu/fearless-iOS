@@ -6,6 +6,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
     private enum LayoutConstants {
         static let accountImageViewSize = CGSize(width: 32, height: 32)
         static let accountImageSize: CGFloat = 32
+        static let statusImageViewSize = CGSize(width: 16, height: 16)
     }
 
     let accountIconImageView: UIImageView = {
@@ -109,6 +110,10 @@ class WalletTransactionHistoryCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        transactionStatusIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.statusImageViewSize)
         }
     }
 

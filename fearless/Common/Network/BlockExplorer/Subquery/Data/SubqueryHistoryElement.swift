@@ -2,7 +2,7 @@ import Foundation
 import IrohaCrypto
 import CommonWallet
 
-struct SubqueryHistoryElement: Decodable {
+struct SubqueryHistoryElement: Decodable, RewardOrSlashData {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
         case timestamp
@@ -15,9 +15,13 @@ struct SubqueryHistoryElement: Decodable {
     let identifier: String
     let timestamp: String
     let address: String
-    let reward: SubqueryRewardOrSlash?
+    var reward: SubqueryRewardOrSlash?
     let extrinsic: SubqueryExtrinsic?
     let transfer: SubqueryTransfer?
+
+    var rewardInfo: RewardOrSlash? {
+        reward
+    }
 }
 
 extension SubqueryHistoryElement: WalletRemoteHistoryItemProtocol {

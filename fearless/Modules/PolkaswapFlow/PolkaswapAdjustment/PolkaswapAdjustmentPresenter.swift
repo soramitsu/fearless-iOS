@@ -89,7 +89,7 @@ final class PolkaswapAdjustmentPresenter {
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
-            balance = xorBalanceMinusFee
+            balance = xorBalance
         }
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balance ?? .zero)
@@ -350,6 +350,7 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
+        var swapFromBalance = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
             swapFromBalance = xorBalanceMinusFee
         }
@@ -450,6 +451,14 @@ final class PolkaswapAdjustmentPresenter {
             closeAction: nil,
             from: view
         )
+    }
+
+    func toggleSwapDirection() {
+        if swapVariant == .desiredInput {
+            swapVariant = .desiredOutput
+        } else {
+            swapVariant = .desiredInput
+        }
     }
 }
 
@@ -559,6 +568,7 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
         swapToBalance = fromBalance
         swapFromBalance = toBalance
 
+        toggleSwapDirection()
         provideFromAssetVewModel()
         provideToAssetVewModel()
         fetchQuotes()
@@ -654,6 +664,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentViewOutput {
             return
         }
         detailsViewModel = provideDetailsViewModel(with: amounts)
+    }
+
+    func didTapReadDisclaimer() {
+        router.showDisclaimer(moduleOutput: self, from: view)
     }
 }
 
@@ -797,6 +811,10 @@ extension PolkaswapAdjustmentPresenter: PolkaswapAdjustmentInteractorOutput {
         calcalatedAmounts = nil
         fetchQuotes()
     }
+
+    func didReceiveDisclaimer(visible: Bool) {
+        view?.setDisclaimer(visible: visible)
+    }
 }
 
 // MARK: - Localizable
@@ -870,5 +888,13 @@ extension PolkaswapAdjustmentPresenter: PolkaswapTransaktionSettingsModuleOutput
             }
             detailsViewModel = provideDetailsViewModel(with: calcalatedAmounts)
         }
+    }
+}
+
+// MARK: - PolkaswapDisclaimerModuleOutput
+
+extension PolkaswapAdjustmentPresenter: PolkaswapDisclaimerModuleOutput {
+    func disclaimerDidRead() {
+        view?.setDisclaimer(visible: false)
     }
 }
