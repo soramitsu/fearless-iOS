@@ -118,7 +118,8 @@ enum ChainModelGenerator {
             type: chainAssetType,
             asset: asset,
             chain: chain,
-            isUtility: asset.chainId == chain.chainId)
+            isUtility: asset.chainId == chain.chainId,
+            isNative: true)
     }
 
     static func generateAssetWithId(
@@ -139,7 +140,8 @@ enum ChainModelGenerator {
             transfersEnabled: true,
             currencyId: nil,
             displayName: nil,
-            existentialDeposit: nil
+            existentialDeposit: nil,
+            color: nil
         )
     }
 
