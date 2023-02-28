@@ -89,17 +89,12 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
               let state = viewModelState.confirmationModel else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let selectedCollatorViewModel = SelectedValidatorViewModel(
             name: state.target.identity?.name,
@@ -108,7 +103,6 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         )
 
         return LocalizableResource { [weak self] locale in
-            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
             let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
                 state.amount,
                 priceData: viewModelState.priceData

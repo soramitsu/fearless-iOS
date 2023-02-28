@@ -31,7 +31,7 @@ enum SubqueryDelegationAction: Int, Decodable {
     }
 
     init(from decoder: Decoder) throws {
-        var container = try decoder.singleValueContainer()
+        let container = try decoder.singleValueContainer()
 
         let value = try container.decode(Int.self)
         self = .init(rawValue: value) ?? .unknown

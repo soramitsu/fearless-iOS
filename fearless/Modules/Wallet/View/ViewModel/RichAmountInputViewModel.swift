@@ -1,7 +1,7 @@
 import SoraFoundation
 import CommonWallet
 
-protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol {
+protocol RichAmountInputViewModelProtocol: IAmountInputViewModel {
     var balanceViewModelFactory: BalanceViewModelFactoryProtocol { get }
     var priceData: PriceData? { get }
     var displayPrice: LocalizableResource<String> { get }
@@ -16,7 +16,7 @@ protocol RichAmountInputViewModelProtocol: AmountInputViewModelProtocol {
 }
 
 final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
-    let amountInputViewModel: AmountInputViewModelProtocol
+    let amountInputViewModel: IAmountInputViewModel
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     let symbol: String
@@ -64,7 +64,7 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
     }
 
     init(
-        amountInputViewModel: AmountInputViewModelProtocol,
+        amountInputViewModel: IAmountInputViewModel,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         symbol: String,
         icon: UIImage?,

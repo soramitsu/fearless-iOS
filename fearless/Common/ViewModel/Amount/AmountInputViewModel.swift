@@ -4,7 +4,7 @@ import Foundation
     func amountInputDidChange()
 }
 
-protocol AmountInputViewModelProtocol: AnyObject {
+protocol IAmountInputViewModel: AnyObject {
     var symbol: String { get }
     var displayAmount: String { get }
     var decimalAmount: Decimal? { get }
@@ -15,11 +15,11 @@ protocol AmountInputViewModelProtocol: AnyObject {
     func didUpdateAmount(to newAmount: Decimal)
 }
 
-extension AmountInputViewModelProtocol {
+extension IAmountInputViewModel {
     func didUpdateAmount(to _: Decimal) {}
 }
 
-final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable {
+final class AmountInputViewModel: IAmountInputViewModel, MoneyPresentable {
     static let zero: String = "0"
 
     var displayAmount: String {
@@ -89,10 +89,6 @@ final class AmountInputViewModel: AmountInputViewModelProtocol, MoneyPresentable
             newAmount = (newAmount as NSString).replacingCharacters(in: range, with: replacement)
             newAmount = set(newAmount)
         }
-
-        let optionalAmountDecimal = !newAmount.isEmpty
-            ? Decimal(string: newAmount, locale: formatter.locale)
-            : Decimal.zero
 
         amount = newAmount
 

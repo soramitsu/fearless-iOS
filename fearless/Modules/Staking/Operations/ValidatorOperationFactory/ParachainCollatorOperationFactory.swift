@@ -59,7 +59,7 @@ final class ParachainCollatorOperationFactory {
             let topDelegations = try topDelegationsWrapper.targetOperation.extractNoCancellableResultData()
 
             var metadataByAddress: [AccountAddress: ParachainStakingDelegations] = [:]
-            try topDelegations.compactMap {
+            try topDelegations.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let metadata = $0.value {
@@ -97,7 +97,7 @@ final class ParachainCollatorOperationFactory {
             let bottomDelegations = try bottomDelegationsWrapper.targetOperation.extractNoCancellableResultData()
 
             var metadataByAddress: [AccountAddress: ParachainStakingDelegations] = [:]
-            try bottomDelegations.compactMap {
+            try bottomDelegations.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let metadata = $0.value {
@@ -138,7 +138,7 @@ final class ParachainCollatorOperationFactory {
             let topDelegations = try atStakeWrapper.targetOperation.extractNoCancellableResultData()
 
             var metadataByAddress: [AccountAddress: ParachainStakingCollatorSnapshot] = [:]
-            try topDelegations.compactMap {
+            try topDelegations.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let metadata = $0.value {
@@ -176,7 +176,7 @@ final class ParachainCollatorOperationFactory {
             let topDelegations = try topDelegationsWrapper.targetOperation.extractNoCancellableResultData()
 
             var metadataByAddress: [AccountAddress: ParachainStakingDelegatorState] = [:]
-            try topDelegations.compactMap {
+            try topDelegations.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let metadata = $0.value {
@@ -214,7 +214,7 @@ final class ParachainCollatorOperationFactory {
             let candidateInfos = try candidateInfoWrapper.targetOperation.extractNoCancellableResultData()
 
             var metadataByAddress: [AccountAddress: ParachainStakingCandidateMetadata] = [:]
-            try candidateInfos.compactMap {
+            try candidateInfos.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let metadata = $0.value {
@@ -280,7 +280,7 @@ final class ParachainCollatorOperationFactory {
             let requestsInfo = try delegationScheduledRequestsWrapper.targetOperation.extractNoCancellableResultData()
 
             var requestsByAddress: [AccountAddress: [ParachainStakingScheduledRequest]] = [:]
-            try requestsInfo.compactMap {
+            try requestsInfo.forEach {
                 let accountId = $0.key.getAccountIdFromKey(accountIdLenght: strongSelf.chain.accountIdLenght)
                 let address = try AddressFactory.address(for: accountId, chainFormat: strongSelf.chain.chainFormat)
                 if let requests = $0.value {

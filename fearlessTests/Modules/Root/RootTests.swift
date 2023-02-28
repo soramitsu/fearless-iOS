@@ -171,7 +171,8 @@ class RootTests: XCTestCase {
                                  userDefaultsStorage: SettingsManagerProtocol,
                                  migrators: [Migrating] = []
     ) -> RootPresenter {
-        let interactor = RootInteractor(settings: settings,
+        let interactor = RootInteractor(chainRegistry: ChainRegistryFacade.sharedRegistry,
+                                        settings: settings,
                                         applicationConfig: ApplicationConfig.shared,
                                         eventCenter: MockEventCenterProtocol(),
                                         migrators: migrators)

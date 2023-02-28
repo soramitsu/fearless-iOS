@@ -110,7 +110,7 @@ extension CustomValidatorListParachainViewModelState: CustomValidatorListUserInp
         stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
-    func remove(validator: ParachainStakingCandidateInfo) {
+    private func remove(validator: ParachainStakingCandidateInfo) {
         if let displayedValidator = filteredValidatorList.first(where: { $0.address == validator.address }) {
             changeValidatorSelection(address: displayedValidator.address)
         } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {

@@ -188,8 +188,6 @@ final class ExtrinsicOperationFactory {
 
         eraBlockOperation.addDependency(eraWrapper.targetOperation)
 
-        let runtimeRegistry = runtimeRegistry
-
         let extrinsicsOperation = ClosureOperation<[Data]> {
             let nonce = try nonceOperation.extractNoCancellableResultData()
             let codingFactory = try codingFactoryOperation.extractNoCancellableResultData()

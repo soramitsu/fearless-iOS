@@ -157,9 +157,7 @@ class SubqueryHistoryOperationFactory {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
-
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyItems ?? []
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
@@ -198,7 +196,6 @@ class SubqueryHistoryOperationFactory {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let addressFactory = SS58AddressFactory()
         let chainAsset = ChainAsset(chain: chain, asset: asset)
         return ClosureOperation {
             let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyElements.nodes ?? []
@@ -345,7 +342,6 @@ extension SubqueryHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
             let result = SubqueryHistoryData(historyElements: SubqueryHistoryData.HistoryElements(pageInfo: SubqueryPageInfo(startCursor: nil, endCursor: nil), nodes: []))
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }

@@ -66,14 +66,14 @@ class AccountImportTests: XCTestCase {
                 setupExpectation.fulfill()
             }
 
-            when(stub).setName(viewModel: any()).then { viewModel in
-                usernameViewModel = viewModel
+            when(stub).setName(viewModel: any(), visible: any()).then { result in
+                usernameViewModel = result.0
 
                 setupExpectation.fulfill()
             }
 
             when(stub).setSelectedCrypto(model: any()).thenDoNothing()
-            when(stub).setSource(type: any(), selectable: any()).thenDoNothing()
+            when(stub).setSource(type: any(), chainType: any(), selectable: any()).thenDoNothing()
             when(stub).bind(substrateViewModel: any()).thenDoNothing()
             when(stub).bind(ethereumViewModel: any()).thenDoNothing()
             when(stub).show(chainType: any()).thenDoNothing()

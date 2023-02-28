@@ -12,7 +12,8 @@ extension MockStakingServiceFactoryProtocol {
             stub.createRewardCalculatorService(
                 for: any(),
                 assetPrecision: any(),
-                validatorService: any()
+                validatorService: any(),
+                collatorOperationFactory: any()
             ).thenReturn(rewardCalculatorService)
         }
 

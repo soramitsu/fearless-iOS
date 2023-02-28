@@ -16,12 +16,13 @@ class AccountExportPasswordTests: XCTestCase {
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
+        let wallet = AccountGenerator.generateMetaAccount()
 
         let view = MockAccountExportPasswordViewProtocol()
         let wireframe = MockAccountExportPasswordWireframeProtocol()
 
         let presenter = AccountExportPasswordPresenter(
-            flow: .single(chain: ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: UInt16(0)), address: AddressTestConstants.kusamaAddress),
+            flow: .single(chain: ChainModelGenerator.generateChain(generatingAssets: 0, addressPrefix: UInt16(0)), address: AddressTestConstants.kusamaAddress, wallet: wallet),
             localizationManager: LocalizationManager.shared)
 
         presenter.view = view
@@ -54,10 +55,10 @@ class AccountExportPasswordTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showJSONExport(any(), from: any()).then { _ in
+            when(stub).showJSONExport(any(), flow: any(), from: any()).then { _ in
                 expectation.fulfill()
             }
-            when(stub).present(message: any(), title: any(), closeAction: any(), from: any()).then { _ in
+            when(stub).present(message: any(), title: any(), closeAction: any(), from: any(), actions: any()).then { _ in
                 XCTFail()
             }
         }

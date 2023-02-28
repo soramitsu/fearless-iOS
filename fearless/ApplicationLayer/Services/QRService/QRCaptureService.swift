@@ -74,7 +74,7 @@ final class QRCaptureService: NSObject {
             return
         }
 
-        let device = AVCaptureDevice.devices(for: .video).first { $0.position == .back }
+        let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: AVMediaType.video, position: .back)
 
         guard let camera = device else {
             throw QRCaptureServiceError.deviceAccessRestricted

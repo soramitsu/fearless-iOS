@@ -9,7 +9,7 @@ protocol BalanceViewModelFactoryProtocol {
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool)
         -> LocalizableResource<BalanceViewModelProtocol>
-    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol>
+    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel>
     func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: PriceData?)
         -> LocalizableResource<AssetBalanceViewModelProtocol>
 }
@@ -98,7 +98,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func createBalanceInputViewModel(
         _ amount: Decimal?
-    ) -> LocalizableResource<AmountInputViewModelProtocol> {
+    ) -> LocalizableResource<IAmountInputViewModel> {
         let localizableFormatter = formatterFactory.createInputFormatter(maximumFractionDigits: 6)
         let symbol = targetAssetInfo.symbol
 

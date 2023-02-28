@@ -1,5 +1,6 @@
 @testable import fearless
 import RobinHood
+import BigInt
 
 final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
     func createGenesisBlockHashOperation() -> BaseOperation<String> {
@@ -29,9 +30,12 @@ final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
         _ closure: @escaping ExtrinsicBuilderIndexedClosure,
         numberOfExtrinsics: Int
     ) -> CompoundOperationWrapper<[FeeExtrinsicResult]> {
-        let dispatchInfo = RuntimeDispatchInfo(dispatchClass: "Extrinsic",
-                                               fee: "10000000000",
-                                               weight: 10005000)
+        let feeDetails = FeeDetails(
+            baseFee: BigUInt(stringLiteral: "10000000000"),
+            lenFee: BigUInt(stringLiteral: "0"),
+            adjustedWeightFee: BigUInt(stringLiteral: "10005000")
+        )
+        let dispatchInfo = RuntimeDispatchInfo(inclusionFee: feeDetails)
 
         return CompoundOperationWrapper.createWithResult([.success(dispatchInfo)])
     }

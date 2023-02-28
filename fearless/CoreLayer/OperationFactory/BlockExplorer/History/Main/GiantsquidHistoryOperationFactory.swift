@@ -23,13 +23,11 @@ final class GiantsquidHistoryOperationFactory {
 
     private func createOperation(
         address: String,
-        cursor: String?,
         url: URL,
         filters: [WalletTransactionHistoryFilter]
     ) -> BaseOperation<GiantsquidResponseData> {
         let queryString = prepareQueryForAddress(
             address,
-            cursor: cursor,
             filters: filters
         )
 
@@ -178,10 +176,8 @@ final class GiantsquidHistoryOperationFactory {
 
     private func prepareQueryForAddress(
         _ address: String,
-        cursor: String?,
         filters: [WalletTransactionHistoryFilter]
     ) -> String {
-        let after = cursor.map { "\"\($0)\"" } ?? "null"
         let filterString = prepareFilter(filters: filters, address: address)
         return """
         query MyQuery {
@@ -235,8 +231,7 @@ final class GiantsquidHistoryOperationFactory {
         chain: ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
-        return ClosureOperation {
+        ClosureOperation {
             let remoteTransactions: [WalletRemoteHistoryItemProtocol] = try remoteOperation?.extractNoCancellableResultData().history ?? []
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
@@ -283,12 +278,10 @@ final class GiantsquidHistoryOperationFactory {
     }
 
     private func createSubqueryHistoryMapOperation(
-        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<GiantsquidResponseData>
+        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
-            let remoteData = try remoteOperation.extractNoCancellableResultData()
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
@@ -330,12 +323,10 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         if let baseUrl = chain.externalApi?.history?.url {
             remoteHistoryOperation = createOperation(
                 address: address,
-                cursor: pagination.context?["endCursor"],
                 url: baseUrl,
                 filters: filters
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
             let result = GiantsquidResponseData(transfers: [], rewards: [], bonds: [], slashes: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
@@ -379,8 +370,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
         }
 
         let mapOperation = createSubqueryHistoryMapOperation(
-            dependingOn: mergeOperation,
-            remoteOperation: remoteHistoryOperation
+            dependingOn: mergeOperation
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }

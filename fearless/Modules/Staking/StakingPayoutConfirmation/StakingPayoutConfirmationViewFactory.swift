@@ -117,12 +117,11 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
 
         let keystore = Keychain()

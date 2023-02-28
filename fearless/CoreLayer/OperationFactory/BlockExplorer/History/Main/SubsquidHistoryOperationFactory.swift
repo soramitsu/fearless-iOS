@@ -257,7 +257,7 @@ final class SubsquidHistoryOperationFactory {
 
     private func createSubqueryHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<SubsquidHistoryResponse>,
+        remoteOperation _: BaseOperation<SubsquidHistoryResponse>,
         pagination: Pagination
     ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
@@ -265,7 +265,6 @@ final class SubsquidHistoryOperationFactory {
             let endCursor = context.map { (Int($0["endCursor"] ?? "0") ?? 0) + pagination.count } ?? pagination.count
 
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
-            let remoteData = try remoteOperation.extractNoCancellableResultData()
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
@@ -312,7 +311,6 @@ extension SubsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
             let result = SubsquidHistoryResponse(historyElements: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }

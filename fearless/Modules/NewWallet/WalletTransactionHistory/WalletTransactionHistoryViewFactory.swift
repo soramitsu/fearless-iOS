@@ -15,7 +15,6 @@ enum WalletTransactionHistoryViewFactory {
         chain: ChainModel,
         selectedAccount: MetaAccountModel
     ) -> WalletTransactionHistoryModule? {
-        let chainAsset = ChainAsset(chain: chain, asset: asset)
         let dependencyContainer = WalletTransactionHistoryDependencyContainer(selectedAccount: selectedAccount)
 
         let interactor = WalletTransactionHistoryInteractor(

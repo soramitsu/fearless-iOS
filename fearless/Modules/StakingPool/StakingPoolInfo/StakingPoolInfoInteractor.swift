@@ -204,7 +204,7 @@ extension StakingPoolInfoInteractor: StakingPoolInfoInteractorInput {
         nominationOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let nomination = try? nominationOperation.targetOperation.extractNoCancellableResultData()
+                    let nomination = try nominationOperation.targetOperation.extractNoCancellableResultData()
 
                     if let nomination = nomination {
                         self?.fetchSelectedValidators(stashAddress: address, nomination: nomination, activeEra: activeEra)

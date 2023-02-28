@@ -8,7 +8,7 @@ final class StakingPoolJoinConfigViewController: UIViewController, ViewHolder, H
     // MARK: Private properties
 
     private let output: StakingPoolJoinConfigViewOutput
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
@@ -89,7 +89,7 @@ extension StakingPoolJoinConfigViewController: StakingPoolJoinConfigViewInput {
         updateActionButton()
     }
 
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel) {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)

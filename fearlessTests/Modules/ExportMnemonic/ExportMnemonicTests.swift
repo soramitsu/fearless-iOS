@@ -45,8 +45,8 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), style: any(), from: any()).then { (viewModel, _, _) in
-                viewModel.actions.first?.handler?()
+            when(stub).present(viewModel: any(), from: any()).then { viewModel in
+                viewModel.0.actions.first?.handler?()
             }
 
             when(stub).share(source: any(), from: any(), with: any()).then { _ in
@@ -143,8 +143,8 @@ class ExportMnemonicTests: XCTestCase {
         let sharingExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), style: any(), from: any()).then { (viewModel, _, _) in
-                viewModel.actions.first?.handler?()
+            when(stub).present(viewModel: any(), from: any()).then { param in
+                param.0.actions.first?.handler?()
             }
 
             when(stub).share(source: any(), from: any(), with: any()).then { _ in

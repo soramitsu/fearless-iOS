@@ -6,6 +6,16 @@ struct FeeDetails: Codable {
     let lenFee: BigUInt
     let adjustedWeightFee: BigUInt
 
+    init(
+        baseFee: BigUInt,
+        lenFee: BigUInt,
+        adjustedWeightFee: BigUInt
+    ) {
+        self.baseFee = baseFee
+        self.lenFee = lenFee
+        self.adjustedWeightFee = adjustedWeightFee
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 

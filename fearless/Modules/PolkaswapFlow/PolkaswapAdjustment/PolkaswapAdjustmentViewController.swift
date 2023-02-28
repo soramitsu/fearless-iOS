@@ -15,8 +15,8 @@ final class PolkaswapAdjustmentViewController: UIViewController, ViewHolder, Hid
 
     private let output: PolkaswapAdjustmentViewOutput
 
-    private var amountFromInputViewModel: AmountInputViewModelProtocol?
-    private var amountToInputViewModel: AmountInputViewModelProtocol?
+    private var amountFromInputViewModel: IAmountInputViewModel?
+    private var amountToInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
@@ -184,7 +184,7 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
         rootView.bindSwapTo(assetViewModel: viewModel)
     }
 
-    func didReceiveSwapFrom(amountInputViewModel: AmountInputViewModelProtocol?) {
+    func didReceiveSwapFrom(amountInputViewModel: IAmountInputViewModel?) {
         amountFromInputViewModel = amountInputViewModel
         amountInputViewModel?.observable.remove(observer: self)
         amountInputViewModel?.observable.add(observer: self)
@@ -192,7 +192,7 @@ extension PolkaswapAdjustmentViewController: PolkaswapAdjustmentViewInput {
         updatePreviewButton()
     }
 
-    func didReceiveSwapTo(amountInputViewModel: AmountInputViewModelProtocol?) {
+    func didReceiveSwapTo(amountInputViewModel: IAmountInputViewModel?) {
         amountToInputViewModel = amountInputViewModel
         amountInputViewModel?.observable.remove(observer: self)
         amountInputViewModel?.observable.add(observer: self)

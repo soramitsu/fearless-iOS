@@ -8,7 +8,7 @@ struct WestendStub {
     static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
 
     static let price: PriceData = {
-        PriceData(price: "0.3", usdDayChange: 0.1)
+        PriceData(priceId: "wnd", price: "0.3", fiatDayChange: 0.1)
     }()
 
     static let totalReward: TotalRewardItem = {
@@ -157,7 +157,7 @@ struct WestendStub {
 
         return RewardCalculatorEngine(
             chainId: Chain.westend.genesisHash,
-            assetPrecision: Chain.westend.addressType.precision,
+            assetPrecision: 12,
             totalIssuance: total,
             validators: eraValidators,
             eraDurationInSeconds: 21600

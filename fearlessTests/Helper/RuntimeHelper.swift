@@ -69,34 +69,38 @@ final class RuntimeHelper {
 
         let baseData = try Data(contentsOf: baseUrl)
         let networkData = try Data(contentsOf: networkUrl)
+        
+        var usedRuntimePaths = UsedRuntimePaths()
 
         let registry = try TypeRegistryCatalog.createFromTypeDefinition(
             baseData,
             versioningData: networkData,
-            runtimeMetadata: runtimeMetadata
+            runtimeMetadata: runtimeMetadata,
+            usedRuntimePaths: usedRuntimePaths.usedRuntimePaths
         )
 
         return registry
     }
 
-    static let dummyRuntimeMetadata: RuntimeMetadata = {
-        return RuntimeMetadata.v14(
-            types: [],
-            modules: [RuntimeMetadataV14.ModuleMetadata(
-                name: "A",
-                storage: nil,
-                callsIndex: nil,
-                eventsIndex: nil,
-                constants: [],
-                errorsIndex: nil,
-                index: 1
-            )],
-            extrinsic: RuntimeMetadataV14.ExtrinsicMetadata(
-                type: 0,
-                version: 1,
-                signedExtensions: []
-            ),
-            resolver: nil
-        )
-    }()
+    static var dummyRuntimeMetadata: RuntimeMetadata {
+        get throws {
+            return try RuntimeMetadata.v14(
+                types: [],
+                modules: [RuntimeMetadataV14.ModuleMetadata(
+                    name: "A",
+                    storage: nil,
+                    callsIndex: nil,
+                    eventsIndex: nil,
+                    constants: [],
+                    errorsIndex: nil,
+                    index: 1
+                )],
+                extrinsic: RuntimeMetadataV14.ExtrinsicMetadata(
+                    type: 0,
+                    version: 1,
+                    signedExtensions: []
+                )
+            )
+        }
+    }
 }

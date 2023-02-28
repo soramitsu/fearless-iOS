@@ -51,7 +51,7 @@ final class QRDecoder: QRDecoderProtocol {
             try? $0.decode(data: data)
         }.first
 
-        guard let info = info as? QRInfo else {
+        guard let info = info else {
             throw QRDecoderError.wrongDecoder
         }
 
@@ -98,7 +98,7 @@ final class SoraQREncoder {
     }
 
     public func encode(addressInfo: SoraQRInfo) throws -> Data {
-        var fields: [String] = [
+        let fields: [String] = [
             addressInfo.prefix,
             addressInfo.address,
             addressInfo.rawPublicKey.toHex(includePrefix: true),
