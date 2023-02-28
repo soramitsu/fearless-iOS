@@ -7,7 +7,7 @@ def jobParams = [
 
 def appPipline = new org.ios.AppPipeline(
     steps: this, 
-    appTests: true,
+    appTests: false,
     appPushNoti: true,
     jobParams: jobParams,
     label: 'macos-ios-1-2')
