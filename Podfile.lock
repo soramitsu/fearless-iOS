@@ -64,7 +64,7 @@ PODS:
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
-  - RobinHood (2.6.2)
+  - RobinHood (2.6.3)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -131,15 +131,30 @@ PODS:
     - IrohaCrypto/ss58
     - keccak.c
     - SSFModels
+    - xxHash-Swift (~> 1.0.0)
+  - SSFEraKit (0.1.0):
+    - BigInt
+    - FearlessUtils
+    - RobinHood
+    - SSFModels
+    - SSFRuntimeCodingService
   - SSFExtrinsicKit (0.1.0):
     - FearlessUtils
     - IrohaCrypto
     - RobinHood
     - SSFCrypto
+    - SSFEraKit
     - SSFModels
+    - SSFRuntimeCodingService
     - SSFSigner
+  - SSFLogger (0.1.0):
+    - SwiftyBeaver
   - SSFModels (0.1.0):
     - IrohaCrypto
+  - SSFRuntimeCodingService (0.0.1):
+    - FearlessUtils
+    - RobinHood
+    - SSFModels
   - SSFSigner (0.1.0):
     - IrohaCrypto/ed25519
     - IrohaCrypto/Scrypt
@@ -151,6 +166,9 @@ PODS:
     - FearlessUtils
     - IrohaCrypto
     - RobinHood
+    - SSFCrypto
+    - SSFModels
+    - SSFSigner
   - Starscream (4.0.8)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
@@ -173,15 +191,18 @@ DEPENDENCIES:
   - Kingfisher
   - R.swift (= 6.1.0)
   - ReachabilitySwift
-  - RobinHood (~> 2.6.2)
+  - RobinHood
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - SSFCrypto (from `../soramitsu-shared-features-ios/SSFCrypto`)
+  - SSFEraKit (from `../soramitsu-shared-features-ios/SSFEraKit`)
   - SSFExtrinsicKit (from `../soramitsu-shared-features-ios/SSFExtrinsicKit`)
+  - SSFLogger (from `../soramitsu-shared-features-ios/SSFLogger`)
   - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
+  - SSFRuntimeCodingService (from `../soramitsu-shared-features-ios/SSFRuntimeCodingService`)
   - SSFSigner (from `../soramitsu-shared-features-ios/SSFSigner`)
   - SSFXCM (from `../soramitsu-shared-features-ios/SSFXCM`)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
@@ -229,10 +250,16 @@ EXTERNAL SOURCES:
     :tag: 1.0.1
   SSFCrypto:
     :path: "../soramitsu-shared-features-ios/SSFCrypto"
+  SSFEraKit:
+    :path: "../soramitsu-shared-features-ios/SSFEraKit"
   SSFExtrinsicKit:
     :path: "../soramitsu-shared-features-ios/SSFExtrinsicKit"
+  SSFLogger:
+    :path: "../soramitsu-shared-features-ios/SSFLogger"
   SSFModels:
     :path: "../soramitsu-shared-features-ios/SSFModels"
+  SSFRuntimeCodingService:
+    :path: "../soramitsu-shared-features-ios/SSFRuntimeCodingService"
   SSFSigner:
     :path: "../soramitsu-shared-features-ios/SSFSigner"
   SSFXCM:
@@ -268,7 +295,7 @@ SPEC CHECKSUMS:
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  RobinHood: fe6c8892d85185cd5341f4be116eedba4f1a91e8
+  RobinHood: 5aee8ca6d02a1932e0b7c1ea0c431e1bcc51a992
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
@@ -276,11 +303,14 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
-  SSFCrypto: 244671af2eb103390224d8d5c999b7ee83e0b4ef
-  SSFExtrinsicKit: 3afb224c7cc24cbb9ddb13dc556b7e14318236e4
+  SSFCrypto: 9e48dd117b7a5558b1f3029ba36fd478fb680495
+  SSFEraKit: cf32b7700179e32c88e649c46bf1976ff19e6b2c
+  SSFExtrinsicKit: 00886e3640eb3547e81f4151dcaf27afc01affd7
+  SSFLogger: 7236667f0934ffa1928cf818a509c4224ea01b64
   SSFModels: a23c2dd9686855bbdc3d345c7a5fb3f650db2017
+  SSFRuntimeCodingService: d6d09a1804f89f9c38892460e789e149ce3f2996
   SSFSigner: bbf3283a253219fd89daa341cc8e7c1755d1abf9
-  SSFXCM: fb5f0a3934887e73c2a0ef48fd25d29239fa28b3
+  SSFXCM: 282ff5acc937d7270e7607fda5387327c1d4b7c4
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -291,6 +321,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 52215bac3be43bb8fa7a252da8cd71d32261e599
+PODFILE CHECKSUM: e1c36f6a999da8dcce728062c3659be2c07de91b
 
 COCOAPODS: 1.11.3
