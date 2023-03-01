@@ -122,6 +122,35 @@ PODS:
   - Sourcery (1.9.0):
     - Sourcery/CLI-Only (= 1.9.0)
   - Sourcery/CLI-Only (1.9.0)
+  - SSFCrypto (0.1.0):
+    - FearlessUtils
+    - IrohaCrypto/ed25519
+    - IrohaCrypto/Scrypt
+    - IrohaCrypto/secp256k1
+    - IrohaCrypto/sr25519
+    - IrohaCrypto/ss58
+    - keccak.c
+    - SSFModels
+  - SSFExtrinsicKit (0.1.0):
+    - FearlessUtils
+    - IrohaCrypto
+    - RobinHood
+    - SSFCrypto
+    - SSFModels
+    - SSFSigner
+  - SSFModels (0.1.0):
+    - IrohaCrypto
+  - SSFSigner (0.1.0):
+    - IrohaCrypto/ed25519
+    - IrohaCrypto/Scrypt
+    - IrohaCrypto/secp256k1
+    - IrohaCrypto/sr25519
+    - IrohaCrypto/ss58
+    - SSFCrypto
+  - SSFXCM (0.1.0):
+    - FearlessUtils
+    - IrohaCrypto
+    - RobinHood
   - Starscream (4.0.8)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
@@ -150,6 +179,11 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
+  - SSFCrypto (from `../soramitsu-shared-features-ios/SSFCrypto`)
+  - SSFExtrinsicKit (from `../soramitsu-shared-features-ios/SSFExtrinsicKit`)
+  - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
+  - SSFSigner (from `../soramitsu-shared-features-ios/SSFSigner`)
+  - SSFXCM (from `../soramitsu-shared-features-ios/SSFXCM`)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -193,6 +227,16 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SSFCrypto:
+    :path: "../soramitsu-shared-features-ios/SSFCrypto"
+  SSFExtrinsicKit:
+    :path: "../soramitsu-shared-features-ios/SSFExtrinsicKit"
+  SSFModels:
+    :path: "../soramitsu-shared-features-ios/SSFModels"
+  SSFSigner:
+    :path: "../soramitsu-shared-features-ios/SSFSigner"
+  SSFXCM:
+    :path: "../soramitsu-shared-features-ios/SSFXCM"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -232,6 +276,11 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
+  SSFCrypto: 244671af2eb103390224d8d5c999b7ee83e0b4ef
+  SSFExtrinsicKit: 3afb224c7cc24cbb9ddb13dc556b7e14318236e4
+  SSFModels: a23c2dd9686855bbdc3d345c7a5fb3f650db2017
+  SSFSigner: bbf3283a253219fd89daa341cc8e7c1755d1abf9
+  SSFXCM: fb5f0a3934887e73c2a0ef48fd25d29239fa28b3
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -242,6 +291,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: bd211c119bd9c0f80db9f3f572935898463bda27
+PODFILE CHECKSUM: 52215bac3be43bb8fa7a252da8cd71d32261e599
 
 COCOAPODS: 1.11.3

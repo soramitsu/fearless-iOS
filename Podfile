@@ -23,6 +23,14 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
+  
+  
+  # Development pods
+  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
+  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
+  pod 'SSFCrypto', :path => '../soramitsu-shared-features-ios/SSFCrypto'
+  pod 'SSFSigner', :path => '../soramitsu-shared-features-ios/SSFSigner'
+  pod 'SSFModels', :path => '../soramitsu-shared-features-ios/SSFModels'
 
   target 'fearlessTests' do
     inherit! :search_paths
