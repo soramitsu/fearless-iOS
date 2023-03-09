@@ -3,6 +3,7 @@ import Kingfisher
 
 struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]
+    let shownChainAssets: [ChainAsset]
     let chainAsset: ChainAsset
     let assetName: String?
     let assetInfo: AssetBalanceDisplayInfo?
@@ -29,6 +30,7 @@ struct ChainAccountBalanceCellViewModel: Hashable {
 extension ChainAccountBalanceCellViewModel: Equatable {
     static func == (lhs: ChainAccountBalanceCellViewModel, rhs: ChainAccountBalanceCellViewModel) -> Bool {
         lhs.assetContainsChainAssets == rhs.assetContainsChainAssets &&
+            lhs.shownChainAssets == rhs.shownChainAssets &&
             lhs.chainAsset == rhs.chainAsset &&
             lhs.assetName == rhs.assetName &&
             lhs.assetInfo == rhs.assetInfo &&

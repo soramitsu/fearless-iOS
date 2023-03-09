@@ -44,7 +44,8 @@ protocol ChainAssetListRouterInput:
     PresentDismissable {
     func showChainAccount(
         from view: ControllerBackedProtocol?,
-        chainAsset: ChainAsset
+        chainAsset: ChainAsset,
+        chainAssets: [ChainAsset]
     )
     func showSendFlow(
         from view: ControllerBackedProtocol?,

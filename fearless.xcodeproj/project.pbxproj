@@ -1639,6 +1639,7 @@
 		C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */; };
 		C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */; };
 		C6267BBA28D0A18D001E31BF /* AmountInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */; };
+		C633AD1129B99FA400EA8C29 /* ChainEcosystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */; };
 		C63468D828E5BD9B005CB1F1 /* HiddenSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */; };
 		C63468DA28E5E3A3005CB1F1 /* TableView+Scrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */; };
 		C63468DD28EEF58A005CB1F1 /* ContactsTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */; };
@@ -4251,6 +4252,7 @@
 		C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputViewV2.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
+		C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainEcosystem.swift; sourceTree = "<group>"; };
 		C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenSectionHeader.swift; sourceTree = "<group>"; };
 		C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableView+Scrolling.swift"; sourceTree = "<group>"; };
 		C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsTableCellModel.swift; sourceTree = "<group>"; };
@@ -8064,6 +8066,7 @@
 				FA37AE1F2858838A001DCA96 /* ParachainStakingScheduledRequest.swift */,
 				07B018D028C7135400E05510 /* ScamInfo.swift */,
 				C63468DE28F2C178005CB1F1 /* Contact.swift */,
+				C633AD1029B99FA400EA8C29 /* ChainEcosystem.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -14445,6 +14448,7 @@
 				842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */,
 				AE2C84E925EF98D500986716 /* ValidatorInfoViewFactory.swift in Sources */,
 				FA256A29274CE7D600875A53 /* MoonbeamVerifyRemarkInfo.swift in Sources */,
+				C633AD1129B99FA400EA8C29 /* ChainEcosystem.swift in Sources */,
 				C63468D828E5BD9B005CB1F1 /* HiddenSectionHeader.swift in Sources */,
 				FA17B4B727E8695A006E0735 /* WarningPresentable.swift in Sources */,
 				844CB57026F9CB3300396E13 /* CrowdloanLocalSubscriptionHandler.swift in Sources */,
