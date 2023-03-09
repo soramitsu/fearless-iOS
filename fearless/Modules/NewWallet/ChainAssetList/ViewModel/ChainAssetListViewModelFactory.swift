@@ -576,7 +576,7 @@ extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {
 
 private extension ChainAsset {
     func defineEcosystem() -> ChainEcosystem {
-        if chain.parentId == Chain.polkadot.chainId || chain.chainId == Chain.polkadot.chainId {
+        if chain.parentId == Chain.polkadot.genesisHash || chain.chainId == Chain.polkadot.genesisHash {
             return .polkadot
         }
         return .kusama
