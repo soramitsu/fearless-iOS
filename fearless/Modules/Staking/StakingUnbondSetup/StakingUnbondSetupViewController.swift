@@ -24,7 +24,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder, Hidd
 
     var uiFactory: UIFactoryProtocol = UIFactory()
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var bondingDurationViewModel: LocalizableResource<TitleWithSubtitleViewModel>?
     private var feeViewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?
@@ -168,7 +168,7 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
         applyFeeViewModel()
     }
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>) {
         amountInputViewModel?.observable.remove(observer: self)
 
         amountInputViewModel = viewModel.value(for: selectedLocale)

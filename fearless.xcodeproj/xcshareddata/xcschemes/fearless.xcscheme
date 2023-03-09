@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1150"
+   LastUpgradeVersion = "1400"
    version = "1.3">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -63,6 +63,9 @@
                   Identifier = "AccountExportPasswordTests">
                </Test>
                <Test
+                  Identifier = "AccountImportTests">
+               </Test>
+               <Test
                   Identifier = "AccountInfoExportTests">
                </Test>
                <Test
@@ -72,10 +75,49 @@
                   Identifier = "AddConnectionTests">
                </Test>
                <Test
+                  Identifier = "AddCustomNodeTests">
+               </Test>
+               <Test
+                  Identifier = "AnalyticsValidatorsTests">
+               </Test>
+               <Test
+                  Identifier = "AssetSelectionTests">
+               </Test>
+               <Test
                   Identifier = "BondMoreConfirmTests">
                </Test>
                <Test
+                  Identifier = "ChainAccountBalanceTests">
+               </Test>
+               <Test
+                  Identifier = "ChainAccountListTests">
+               </Test>
+               <Test
+                  Identifier = "ChainAccountTests">
+               </Test>
+               <Test
+                  Identifier = "ChainSelectionTests">
+               </Test>
+               <Test
+                  Identifier = "ConnectionPoolTests/testSetupUpdatesExistingConnection()">
+               </Test>
+               <Test
+                  Identifier = "ContactsTests">
+               </Test>
+               <Test
+                  Identifier = "ControllerAccountTests">
+               </Test>
+               <Test
+                  Identifier = "ControllerAccountTests/testContinueAction()">
+               </Test>
+               <Test
+                  Identifier = "CreateContactTests">
+               </Test>
+               <Test
                   Identifier = "ExportMnemonicTests">
+               </Test>
+               <Test
+                  Identifier = "FiltersTests">
                </Test>
                <Test
                   Identifier = "KeystoreExportWrapperTests">
@@ -88,6 +130,9 @@
                </Test>
                <Test
                   Identifier = "NetworkManagementTests">
+               </Test>
+               <Test
+                  Identifier = "NodeSelectionTests">
                </Test>
                <Test
                   Identifier = "OnboardingMainTests">
@@ -147,9 +192,6 @@
                   Identifier = "SharedArrayTests">
                </Test>
                <Test
-                  Identifier = "SigningWrapperTests">
-               </Test>
-               <Test
                   Identifier = "SingleToMultiassetUserMigrationTests">
                </Test>
                <Test
@@ -169,6 +211,15 @@
                </Test>
                <Test
                   Identifier = "StakingPayoutsConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "StakingPoolCreateTests">
+               </Test>
+               <Test
+                  Identifier = "StakingPoolInfoTests">
+               </Test>
+               <Test
+                  Identifier = "StakingPoolManagementTests">
                </Test>
                <Test
                   Identifier = "StakingRebondConfirmationTests">
@@ -219,13 +270,31 @@
                   Identifier = "ValidatorSearchTests">
                </Test>
                <Test
+                  Identifier = "WalletChainAccountDashboardTests">
+               </Test>
+               <Test
                   Identifier = "WalletHistoryFilterTests">
                </Test>
                <Test
                   Identifier = "WalletPurchaseProvidersTests">
                </Test>
                <Test
+                  Identifier = "WalletScanQRTests">
+               </Test>
+               <Test
                   Identifier = "WalletSelectAccountCommandTests">
+               </Test>
+               <Test
+                  Identifier = "WalletSendConfirmTests">
+               </Test>
+               <Test
+                  Identifier = "WalletTransactionDetailsTests">
+               </Test>
+               <Test
+                  Identifier = "WalletTransactionHistoryTests">
+               </Test>
+               <Test
+                  Identifier = "WarningAlertTests">
                </Test>
                <Test
                   Identifier = "YourValidatorListTests">

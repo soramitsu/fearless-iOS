@@ -7,7 +7,7 @@ final class StakingRebondSetupViewController: UIViewController, ViewHolder {
 
     let presenter: StakingRebondSetupPresenterProtocol
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
@@ -147,7 +147,7 @@ extension StakingRebondSetupViewController: StakingRebondSetupViewProtocol {
         applyFeeViewModel()
     }
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>) {
         amountInputViewModel?.observable.remove(observer: self)
 
         amountInputViewModel = viewModel.value(for: selectedLocale)

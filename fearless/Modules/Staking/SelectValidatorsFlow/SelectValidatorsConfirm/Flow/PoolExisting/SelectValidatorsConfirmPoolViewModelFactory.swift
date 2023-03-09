@@ -92,8 +92,7 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolExistingViewModelState,
@@ -101,10 +100,6 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
         else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
         return LocalizableResource { _ in
             SelectValidatorsConfirmViewModel(

@@ -10,7 +10,7 @@ final class SendViewController: UIViewController, ViewHolder {
 
     private let output: SendViewOutput
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
 
     // MARK: - Constructor
 
@@ -148,7 +148,7 @@ extension SendViewController: SendViewInput {
         }
     }
 
-    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?) {
+    func didReceive(amountInputViewModel: IAmountInputViewModel?) {
         self.amountInputViewModel = amountInputViewModel
         if let amountViewModel = amountInputViewModel {
             amountViewModel.observable.remove(observer: self)

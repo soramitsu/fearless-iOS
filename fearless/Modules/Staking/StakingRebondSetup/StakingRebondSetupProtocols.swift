@@ -5,7 +5,7 @@ import CommonWallet
 protocol StakingRebondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
 }
 
 protocol StakingRebondSetupPresenterProtocol: AnyObject {

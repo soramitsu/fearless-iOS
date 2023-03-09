@@ -1,5 +1,6 @@
 import Foundation
 @testable import fearless
+import BigInt
 
 final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
     let dispatchInfo: Result<RuntimeDispatchInfo, Error>
@@ -64,9 +65,12 @@ final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
 
 extension ExtrinsicServiceStub {
     static func dummy() -> ExtrinsicServiceStub {
-        let dispatchInfo = RuntimeDispatchInfo(dispatchClass: "Extrinsic",
-                                               fee: "10000000000",
-                                               weight: 10005000)
+        let feeDetails = FeeDetails(
+            baseFee: BigUInt(stringLiteral: "10000000000"),
+            lenFee: BigUInt(stringLiteral: "0"),
+            adjustedWeightFee: BigUInt(stringLiteral: "10005000")
+        )
+        let dispatchInfo = RuntimeDispatchInfo(inclusionFee: feeDetails)
 
         let txHash = Data(repeating: 7, count: 32).toHex(includePrefix: true)
         return ExtrinsicServiceStub(dispatchInfo: .success(dispatchInfo), txHash: .success(txHash))

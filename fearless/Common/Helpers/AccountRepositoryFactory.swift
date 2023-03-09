@@ -5,7 +5,6 @@ import RobinHood
 protocol AccountRepositoryFactoryProtocol {
     // TODO: remove
     @available(*, deprecated, message: "Use createMetaAccountRepository(for filter:, sortDescriptors:) instead")
-    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem>
     func createRepository() -> AnyDataProviderRepository<MetaAccountModel>
 
     // TODO: remove
@@ -27,10 +26,6 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
 
     init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
-    }
-
-    func createManagedRepository() -> AnyDataProviderRepository<ManagedAccountItem> {
-        Self.createManagedRepository(for: storageFacade)
     }
 
     func createRepository() -> AnyDataProviderRepository<MetaAccountModel> {
@@ -76,15 +71,6 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
 }
 
 extension AccountRepositoryFactory {
-    static func createManagedRepository(
-        for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
-    ) -> AnyDataProviderRepository<ManagedAccountItem> {
-        let mapper = ManagedAccountItemMapper()
-        let repository = storageFacade.createRepository(mapper: AnyCoreDataMapper(mapper))
-
-        return AnyDataProviderRepository(repository)
-    }
-
     static func createRepository(
         for storageFacade: StorageFacadeProtocol = UserDataStorageFacade.shared
     ) -> AnyDataProviderRepository<MetaAccountModel> {

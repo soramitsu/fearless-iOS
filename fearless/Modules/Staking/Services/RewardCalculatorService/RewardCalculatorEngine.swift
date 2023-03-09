@@ -129,7 +129,7 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     func calculateMaxEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {
-        Decimal(collators.compactMap { $0.subqueryData?.apr }.max() ?? 0.0) / 365 * Decimal(period.inDays)
+        Decimal(collators.compactMap { $0.subqueryData?.apr }.max() ?? 0.0) / 365 * Decimal(period.inDays) / 100
     }
 
     func calculateAvgEarnings(amount _: Decimal, isCompound _: Bool, period: CalculationPeriod) -> Decimal {

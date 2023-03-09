@@ -21,7 +21,6 @@ struct EraCountdown {
 
         let numberOfSlotsPerSession = UInt64(sessionLength)
         let currentSessionIndexInt = UInt64(currentSessionIndex)
-        let eraLengthInSlots = UInt64(sessionLength * eraLength)
 
         let sessionStartSlot = currentSessionIndexInt * numberOfSlotsPerSession + genesisSlot
         let sessionProgress = currentSlot &- sessionStartSlot

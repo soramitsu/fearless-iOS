@@ -97,7 +97,7 @@ extension AppVersionObserver: AppVersionObserverProtocol {
                         strongSelf.checkVersion(from: view, callback: callback)
                     }
 
-                    callback?(nil, nil)
+                    callback?(nil, error)
                 }
             }
         }

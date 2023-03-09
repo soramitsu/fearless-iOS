@@ -19,7 +19,7 @@ final class StakingPoolJoinConfigPresenter {
     private var inputResult: AmountInputResult?
     private var balance: Decimal?
     private var priceData: PriceData?
-    private var amountViewModel: AmountInputViewModelProtocol?
+    private var amountViewModel: IAmountInputViewModel?
     private var fee: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var minJoinBond: Decimal?

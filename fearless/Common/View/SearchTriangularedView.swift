@@ -40,7 +40,6 @@ final class SearchTriangularedView: UIView {
         button.setImage(R.image.deleteGrey()?.withRenderingMode(.alwaysTemplate), for: .normal)
         button.tintColor = R.color.colorWhite()
         button.isHidden = true
-        button.addTarget(self, action: #selector(clean), for: .touchUpInside)
         return button
     }()
 
@@ -73,6 +72,8 @@ final class SearchTriangularedView: UIView {
         super.init(frame: frame)
 
         setupLayout()
+
+        cleanButton.addTarget(self, action: #selector(clean), for: .touchUpInside)
     }
 
     @available(*, unavailable)

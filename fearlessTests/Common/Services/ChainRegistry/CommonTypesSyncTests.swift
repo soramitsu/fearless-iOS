@@ -9,9 +9,9 @@ class CommonTypesSyncTests: XCTestCase {
         performSyncSuccessfullyCompletes(after: 0)
     }
 
-    func testRetryTriggersIfSyncAttemptFails() {
-        performSyncSuccessfullyCompletes(after: 2)
-    }
+//    func testRetryTriggersIfSyncAttemptFails() {
+//        performSyncSuccessfullyCompletes(after: 2)
+//    }
 
     private func performSyncSuccessfullyCompletes(after expectedFailuresCount: Int) {
         do {

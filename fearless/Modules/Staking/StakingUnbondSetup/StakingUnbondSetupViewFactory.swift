@@ -101,7 +101,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,

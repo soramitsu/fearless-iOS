@@ -27,7 +27,7 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
         locale: Locale,
         priceData: PriceData?
     ) -> StakingBondMoreConfirmViewModel? {
-        guard let state = state as? StakingBondMoreConfirmationPoolViewModelState else {
+        guard state is StakingBondMoreConfirmationPoolViewModelState else {
             return nil
         }
 
@@ -67,7 +67,7 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 

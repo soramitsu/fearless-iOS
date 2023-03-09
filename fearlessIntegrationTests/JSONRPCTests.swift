@@ -21,7 +21,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Kusama", url: url, logger: logger)
 
         // when
 
@@ -52,7 +52,7 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Kusama", url: url, logger: logger)
 
         let operation = JSONRPCListOperation<String?>(engine: engine,
                                                       method: RPCMethod.getBlockHash,
@@ -77,7 +77,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Westend", url: url, logger: logger)
 
         // when
 
@@ -103,7 +103,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Westend", url: url, logger: logger)
 
         // when
 
@@ -129,7 +129,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Westend", url: url, logger: logger)
 
         // when
 
@@ -157,7 +157,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Westend", url: url, logger: logger)
 
         // when
 
@@ -189,7 +189,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Polkadot", url: url, logger: logger)
 
         // when
 
@@ -231,7 +231,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Polkadot", url: url, logger: logger)
 
         // when
 
@@ -270,7 +270,7 @@ class JSONRPCTests: XCTestCase {
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
-        let engine = WebSocketEngine(url: url, logger: logger)
+        let engine = WebSocketEngine(connectionName: "Polkadot", url: url, logger: logger)
 
         // when
 

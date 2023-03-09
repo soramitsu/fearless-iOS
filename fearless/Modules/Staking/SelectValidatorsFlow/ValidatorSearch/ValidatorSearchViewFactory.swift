@@ -67,7 +67,7 @@ struct ValidatorSearchViewFactory {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: RuntimeRegistryFacade.sharedService,
+            runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )

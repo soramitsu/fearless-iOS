@@ -7,9 +7,6 @@ struct ReceiveAssetViewFactory {
         chain: ChainModel,
         asset: AssetModel
     ) -> ReceiveAssetViewProtocol? {
-        guard let chainAccount = account.fetch(for: chain.accountRequest()) else {
-            return nil
-        }
         let wireframe = ReceiveAssetWireframe()
 
         let qrService = QRService(

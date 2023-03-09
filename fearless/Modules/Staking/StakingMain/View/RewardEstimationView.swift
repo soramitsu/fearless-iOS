@@ -48,7 +48,7 @@ final class RewardEstimationView: LocalizableView {
         }
     }
 
-    private var inputViewModel: AmountInputViewModelProtocol?
+    private var inputViewModel: IAmountInputViewModel?
     private var widgetViewModel: StakingEstimationViewModel?
 
     override func awakeFromNib() {

@@ -89,7 +89,7 @@ final class PolkaswapAdjustmentPresenter {
     private func provideFromAssetVewModel() {
         var balance: Decimal? = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
-            balance = xorBalanceMinusFee
+            balance = xorBalance
         }
         let inputAmount = swapFromInputResult?
             .absoluteValue(from: balance ?? .zero)
@@ -350,6 +350,7 @@ final class PolkaswapAdjustmentPresenter {
     }
 
     private func preparePreviewParams() -> PolkaswapPreviewParams? {
+        var swapFromBalance = swapFromBalance
         if swapFromChainAsset == xorChainAsset {
             swapFromBalance = xorBalanceMinusFee
         }

@@ -17,7 +17,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var assetViewModel: AssetBalanceViewModelProtocol?
     private(set) var rewardDestinationViewModel: RewardDestinationViewModelProtocol?
     private(set) var feeViewModel: BalanceViewModelProtocol?
-    private(set) var inputViewModel: AmountInputViewModelProtocol?
+    private(set) var inputViewModel: IAmountInputViewModel?
     private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     private(set) var maxNominations: Int?
     var payoutAccount: ChainAccountResponse?
