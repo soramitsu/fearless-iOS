@@ -8,7 +8,7 @@ enum RemoteSubscriptionServiceError: Error {
     case remoteKeysNotMatchLocal
 }
 
-class RemoteSubscriptionService {
+class RemoteSubscriptionService<T: StorageWrapper> {
     struct Callback {
         let queue: DispatchQueue
         let closure: RemoteSubscriptionClosure
@@ -41,7 +41,7 @@ class RemoteSubscriptionService {
     }
 
     private let chainRegistry: ChainRegistryProtocol
-    private let repository: AnyDataProviderRepository<ChainStorageItem>
+    private let repository: AnyDataProviderRepository<T>
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol
 
@@ -55,7 +55,7 @@ class RemoteSubscriptionService {
 
     init(
         chainRegistry: ChainRegistryProtocol,
-        repository: AnyDataProviderRepository<ChainStorageItem>,
+        repository: AnyDataProviderRepository<T>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol
     ) {
@@ -236,7 +236,7 @@ class RemoteSubscriptionService {
         }
 
         let subscriptions = zip(remoteKeys, localKeys).map { keysPair in
-            EmptyHandlingStorageSubscription(
+            EmptyHandlingStorageSubscription<T>(
                 remoteStorageKey: keysPair.0,
                 localStorageKey: keysPair.1,
                 storage: repository,

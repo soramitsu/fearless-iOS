@@ -55,7 +55,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     // MARK: - Private properties
 
-    private var subscriptions: [StreamableProvider<ChainStorageItem>] = []
+    private var subscriptions: [StreamableProvider<AccountInfoStorageWrapper>] = []
     private var selectedMetaAccount: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {

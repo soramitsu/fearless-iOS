@@ -7,21 +7,174 @@ protocol AccountInfoFetchingProtocol {
         accountId: AccountId,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     )
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    )
 }
 
 final class AccountInfoFetching: AccountInfoFetchingProtocol {
-    private let accountInfoRepository: AnyDataProviderRepository<ChainStorageItem>
+    private let accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
     private let chainRegistry: ChainRegistryProtocol
     private let operationQueue: OperationQueue
 
     init(
-        accountInfoRepository: AnyDataProviderRepository<ChainStorageItem>,
+        accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
         chainRegistry: ChainRegistryProtocol,
         operationQueue: OperationQueue
     ) {
         self.accountInfoRepository = accountInfoRepository
         self.chainRegistry = chainRegistry
         self.operationQueue = operationQueue
+    }
+
+    func fetch(
+        for chainAssets: [ChainAsset],
+        wallet: MetaAccountModel,
+        completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
+    ) {
+        let keys: [String] = chainAssets.compactMap { chainAsset in
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                  let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                      chainAsset.storagePath,
+                      chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                  ) else {
+                return nil
+            }
+
+            return localKey
+        }
+
+        let fetchOperation = accountInfoRepository.fetchOperation(by: keys, options: RepositoryFetchOptions())
+        let mapChainAssetsWithKeysOperation = ClosureOperation<[ChainAssetKey: ChainAsset]> {
+            let chainAssetsByKeys = chainAssets.reduce(into: [ChainAssetKey: ChainAsset]()) { map, chainAsset in
+                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                          chainAsset.storagePath,
+                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                      ) else {
+                    return
+                }
+
+                map[localKey] = chainAsset
+            }
+
+            return chainAssetsByKeys
+        }
+
+        let transformToDecodingOperationsOperation = ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+            let rawResult = try fetchOperation.extractNoCancellableResultData()
+            let chainAssetsByKeys = try mapChainAssetsWithKeysOperation.extractNoCancellableResultData()
+            let zeroBalanceChainAssetKeys = rawResult.compactMap { $0.identifier }.diff(from: keys)
+            let zeroBalanceChainAssets = chainAssets.filter { chainAsset in
+                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                          chainAsset.storagePath,
+                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                      ) else {
+                    return false
+                }
+
+                return zeroBalanceChainAssetKeys.contains(localKey)
+            }
+
+            let zeroBalanceOperations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = zeroBalanceChainAssets.compactMap { chainAsset in
+                ClosureOperation { [chainAsset: nil] }
+            }
+
+            let operations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = rawResult.compactMap { accountInfoStorageWrapper in
+                let identifier = accountInfoStorageWrapper.identifier
+                guard let chainAsset = chainAssetsByKeys[accountInfoStorageWrapper.identifier] else {
+                    return ClosureOperation { [:] }
+                }
+
+                switch chainAsset.chainAssetType {
+                case .normal:
+                    guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = self.createDecodingOperation(
+                        for: accountInfoStorageWrapper.data,
+                        chainAsset: chainAsset,
+                        storagePath: .account
+                    ) else {
+                        return ClosureOperation { [chainAsset: nil] }
+                    }
+
+                    let operation = self.createNormalMappingOperation(
+                        chainAsset: chainAsset,
+                        dependingOn: decodingOperation
+                    )
+
+                    return operation
+                case
+                    .ormlChain,
+                    .ormlAsset,
+                    .foreignAsset,
+                    .stableAssetPoolToken,
+                    .liquidCrowdloan,
+                    .vToken,
+                    .vsToken,
+                    .stable,
+                    .soraAsset:
+                    guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = self.createDecodingOperation(
+                        for: accountInfoStorageWrapper.data,
+                        chainAsset: chainAsset,
+                        storagePath: .tokens
+                    ) else {
+                        return ClosureOperation { [chainAsset: nil] }
+                    }
+
+                    let operation = self.createOrmlMappingOperation(
+                        chainAsset: chainAsset,
+                        dependingOn: decodingOperation
+                    )
+
+                    return operation
+                case .equilibrium:
+                    guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = self.createDecodingOperation(
+                        for: accountInfoStorageWrapper.data,
+                        chainAsset: chainAsset,
+                        storagePath: chainAsset.storagePath
+                    ) else {
+                        return ClosureOperation { [chainAsset: nil] }
+                    }
+
+                    let operation = self.createEquilibriumMappingOperation(
+                        chainAsset: chainAsset,
+                        dependingOn: decodingOperation
+                    )
+
+                    return operation
+                }
+            }
+
+            return operations + zeroBalanceOperations
+        }
+
+        let mappingOperation = ClosureOperation { [weak self] in
+            let decodingOperations = try transformToDecodingOperationsOperation.extractNoCancellableResultData()
+            let decodingDependencies = decodingOperations.compactMap { $0.dependencies }.reduce([], +)
+            let decodingSubdependencies = decodingDependencies.compactMap { $0.dependencies }.reduce([], +)
+
+            let finishOperation = ClosureOperation {
+                let accountInfos = decodingOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
+                let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
+
+                completionBlock(accountInfoByChainAsset)
+            }
+
+            decodingOperations.forEach { finishOperation.addDependency($0) }
+            decodingDependencies.forEach { finishOperation.addDependency($0) }
+            decodingSubdependencies.forEach { finishOperation.addDependency($0) }
+
+            self?.operationQueue.addOperations([finishOperation] + decodingOperations + decodingDependencies + decodingSubdependencies, waitUntilFinished: true)
+        }
+
+        transformToDecodingOperationsOperation.addDependency(fetchOperation)
+        transformToDecodingOperationsOperation.addDependency(mapChainAssetsWithKeysOperation)
+        mappingOperation.addDependency(transformToDecodingOperationsOperation)
+
+        operationQueue.addOperations([fetchOperation, mapChainAssetsWithKeysOperation, transformToDecodingOperationsOperation, mappingOperation], waitUntilFinished: true)
     }
 
     func fetch(
@@ -65,12 +218,14 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .soraAsset:
                     self?.handleOrmlAccountInfo(
                         chainAsset: chainAsset,
+                        accountId: accountId,
                         item: item,
                         completionBlock: completionBlock
                     )
                 case .equilibrium:
                     self?.handleEquilibrium(
                         chainAsset: chainAsset,
+                        accountId: accountId,
                         item: item,
                         completionBlock: completionBlock
                     )
@@ -84,24 +239,81 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
 }
 
 private extension AccountInfoFetching {
-    func handleOrmlAccountInfo(
+    func createNormalMappingOperation(
         chainAsset: ChainAsset,
-        item: ChainStorageItem,
-        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
-    ) {
+        dependingOn decodingOperation: StorageDecodingOperation<AccountInfo?>
+    ) -> ClosureOperation<[ChainAsset: AccountInfo?]> {
+        let operation = ClosureOperation {
+            let accountInfo = try decodingOperation.extractNoCancellableResultData()
+            return [chainAsset: accountInfo]
+        }
+
+        operation.addDependency(decodingOperation)
+
+        return operation
+    }
+
+    func createOrmlMappingOperation(
+        chainAsset: ChainAsset,
+        dependingOn decodingOperation: StorageDecodingOperation<OrmlAccountInfo?>
+    ) -> ClosureOperation<[ChainAsset: AccountInfo?]> {
+        let operation = ClosureOperation {
+            let ormlAccountInfo = try decodingOperation.extractNoCancellableResultData()
+            let accountInfo = AccountInfo(ormlAccountInfo: ormlAccountInfo)
+            return [chainAsset: accountInfo]
+        }
+
+        operation.addDependency(decodingOperation)
+
+        return operation
+    }
+
+    func createEquilibriumMappingOperation(
+        chainAsset: ChainAsset,
+        dependingOn decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?>
+    ) -> ClosureOperation<[ChainAsset: AccountInfo?]> {
+        let operation = ClosureOperation<[ChainAsset: AccountInfo?]> {
+            let equilibriumAccountInfo = try decodingOperation.extractNoCancellableResultData()
+            var accountInfo: AccountInfo?
+
+            switch equilibriumAccountInfo?.data {
+            case let .v0data(info):
+                guard let currencyId = chainAsset.asset.currencyId else {
+                    return [chainAsset: nil]
+                }
+
+                let map = info.mapBalances()
+                let equilibriumFree = map[currencyId]
+                accountInfo = AccountInfo(equilibriumFree: equilibriumFree)
+            case .none:
+                break
+            }
+
+            return [chainAsset: accountInfo]
+        }
+
+        operation.addDependency(decodingOperation)
+
+        return operation
+    }
+
+    func createDecodingOperation<T: Decodable>(
+        for data: Data,
+        chainAsset: ChainAsset,
+        storagePath: StorageCodingPath
+    ) -> StorageDecodingOperation<T?>? {
         guard
             let runtimeCodingService = chainRegistry.getRuntimeProvider(
                 for: chainAsset.chain.chainId
             )
         else {
-            completionBlock(chainAsset, nil)
-            return
+            return nil
         }
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation = StorageDecodingOperation<OrmlAccountInfo?>(
-            path: .tokens,
-            data: item.data
+        let decodingOperation = StorageDecodingOperation<T?>(
+            path: storagePath,
+            data: data
         )
         decodingOperation.configurationBlock = {
             do {
@@ -113,6 +325,24 @@ private extension AccountInfoFetching {
         }
 
         decodingOperation.addDependency(codingFactoryOperation)
+
+        return decodingOperation
+    }
+
+    func handleOrmlAccountInfo(
+        chainAsset: ChainAsset,
+        accountId _: AccountId,
+        item: AccountInfoStorageWrapper,
+        completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
+    ) {
+        guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
+            for: item.data,
+            chainAsset: chainAsset,
+            storagePath: .tokens
+        ) else {
+            completionBlock(chainAsset, nil)
+            return
+        }
 
         decodingOperation.completionBlock = {
             DispatchQueue.main.async {
@@ -130,38 +360,22 @@ private extension AccountInfoFetching {
                 }
             }
         }
-        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
+        operationQueue.addOperations([decodingOperation] + decodingOperation.dependencies, waitUntilFinished: false)
     }
 
     func handleAccountInfo(
         chainAsset: ChainAsset,
-        item: ChainStorageItem,
+        item: AccountInfoStorageWrapper,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
-        guard
-            let runtimeCodingService = chainRegistry.getRuntimeProvider(
-                for: chainAsset.chain.chainId
-            )
-        else {
+        guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
+            for: item.data,
+            chainAsset: chainAsset,
+            storagePath: .account
+        ) else {
             completionBlock(chainAsset, nil)
             return
         }
-
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation = StorageDecodingOperation<AccountInfo?>(
-            path: .account,
-            data: item.data
-        )
-        decodingOperation.configurationBlock = {
-            do {
-                decodingOperation.codingFactory = try codingFactoryOperation
-                    .extractNoCancellableResultData()
-            } catch {
-                decodingOperation.result = .failure(error)
-            }
-        }
-
-        decodingOperation.addDependency(codingFactoryOperation)
 
         decodingOperation.completionBlock = {
             DispatchQueue.main.async {
@@ -177,38 +391,23 @@ private extension AccountInfoFetching {
                 }
             }
         }
-        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
+        operationQueue.addOperations([decodingOperation] + decodingOperation.dependencies, waitUntilFinished: false)
     }
 
     func handleEquilibrium(
         chainAsset: ChainAsset,
-        item: ChainStorageItem,
+        accountId: AccountId,
+        item: AccountInfoStorageWrapper,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
-        guard
-            let runtimeCodingService = chainRegistry.getRuntimeProvider(
-                for: chainAsset.chain.chainId
-            )
-        else {
+        guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = createDecodingOperation(
+            for: item.data,
+            chainAsset: chainAsset,
+            storagePath: chainAsset.storagePath
+        ) else {
             completionBlock(chainAsset, nil)
             return
         }
-
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation = StorageDecodingOperation<EquilibriumAccountInfo?>(
-            path: chainAsset.storagePath,
-            data: item.data
-        )
-        decodingOperation.configurationBlock = {
-            do {
-                decodingOperation.codingFactory = try codingFactoryOperation
-                    .extractNoCancellableResultData()
-            } catch {
-                decodingOperation.result = .failure(error)
-            }
-        }
-
-        decodingOperation.addDependency(codingFactoryOperation)
 
         decodingOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -216,15 +415,16 @@ private extension AccountInfoFetching {
                     completionBlock(chainAsset, nil)
                     return
                 }
-                self?.handleEquilibrium(result: result, chainAsset: chainAsset, completionBlock: completionBlock)
+                self?.handleEquilibrium(result: result, chainAsset: chainAsset, accountId: accountId, completionBlock: completionBlock)
             }
         }
-        operationQueue.addOperations([decodingOperation, codingFactoryOperation], waitUntilFinished: false)
+        operationQueue.addOperations([decodingOperation] + decodingOperation.dependencies, waitUntilFinished: false)
     }
 
     private func handleEquilibrium(
         result: Result<EquilibriumAccountInfo?, Error>,
         chainAsset: ChainAsset,
+        accountId _: AccountId,
         completionBlock: @escaping (ChainAsset, AccountInfo?) -> Void
     ) {
         switch result {

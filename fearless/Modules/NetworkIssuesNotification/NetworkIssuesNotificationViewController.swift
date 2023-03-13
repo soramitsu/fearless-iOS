@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class NetworkIssuesNotificationViewController: UIViewController, ViewHolder {
     typealias RootViewType = NetworkIssuesNotificationViewLayout
@@ -112,5 +113,26 @@ extension NetworkIssuesNotificationViewController: UITableViewDelegate {
 extension NetworkIssuesNotificationViewController: NetworkIssuesNotificationTableCellDelegate {
     func didTapOnAction(with indexPath: IndexPath?) {
         output.didTapCellAction(indexPath: indexPath)
+    }
+}
+
+extension NetworkIssuesNotificationViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+    var contentViewForEmptyState: UIView { rootView }
+}
+
+extension NetworkIssuesNotificationViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        let errorView = ErrorStateView()
+//        errorView.errorDescriptionLabel.text = error
+        errorView.locale = selectedLocale
+        return errorView
+    }
+}
+
+extension NetworkIssuesNotificationViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        viewModel.isEmpty
     }
 }

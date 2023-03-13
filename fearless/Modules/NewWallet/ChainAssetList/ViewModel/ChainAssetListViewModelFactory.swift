@@ -12,7 +12,8 @@ protocol ChainAssetListViewModelFactoryProtocol {
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         chainsWithIssues: [ChainModel.Id],
-        chainsWithMissingAccounts: [ChainModel.Id]
+        chainsWithMissingAccounts: [ChainModel.Id],
+        chainSettings: [ChainSettings]
     ) -> ChainAssetListViewModel
 }
 
@@ -43,7 +44,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         accountInfos: [ChainAssetKey: AccountInfo?],
         prices: PriceDataUpdated,
         chainsWithIssues: [ChainModel.Id],
-        chainsWithMissingAccounts: [ChainModel.Id]
+        chainsWithMissingAccounts: [ChainModel.Id],
+        chainSettings: [ChainSettings]
     ) -> ChainAssetListViewModel {
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
@@ -93,7 +95,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 currency: wallet.selectedCurrency,
                 wallet: wallet,
                 chainsWithIssues: chainsWithIssues,
-                chainsWithMissingAccounts: chainsWithMissingAccounts
+                chainsWithMissingAccounts: chainsWithMissingAccounts,
+                chainSettings: chainSettings
             )
         }
 
@@ -159,7 +162,8 @@ private extension ChainAssetListViewModelFactory {
         currency: Currency,
         wallet: MetaAccountModel,
         chainsWithIssues: [ChainModel.Id],
-        chainsWithMissingAccounts: [ChainModel.Id]
+        chainsWithMissingAccounts: [ChainModel.Id],
+        chainSettings: [ChainSettings]
     ) -> ChainAccountBalanceCellViewModel? {
         var accountInfo: AccountInfo?
         if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
@@ -183,8 +187,9 @@ private extension ChainAssetListViewModelFactory {
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
+        let mutedIssuesChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
         let isNetworkIssues = containsChainAssets.first(where: {
-            chainsWithIssues.contains($0.chain.chainId)
+            chainsWithIssues.contains($0.chain.chainId) && !mutedIssuesChainIds.contains($0.chain.chainId)
         }) != nil
         let isMissingAccount = containsChainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
@@ -246,8 +251,14 @@ private extension ChainAssetListViewModelFactory {
             locale: locale
         )
 
+        let balance = getTotalBalance(
+            for: containsChainAssets,
+            accountInfos: accountInfos,
+            wallet: wallet
+        )
+
         if settings.shouldHideZeroBalanceAssets == true,
-           accountInfo == nil || accountInfo?.data.free == BigUInt.zero,
+           balance == 0,
            !isColdBoot {
             return nil
         } else {

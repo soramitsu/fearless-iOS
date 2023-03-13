@@ -17,11 +17,14 @@ protocol NetworkIssuesNotificationViewOutput: AnyObject {
 protocol NetworkIssuesNotificationInteractorInput: AnyObject {
     func setup(with output: NetworkIssuesNotificationInteractorOutput)
     func markUnused(chain: ChainModel)
+    func mute(chain: ChainModel)
 }
 
 protocol NetworkIssuesNotificationInteractorOutput: AnyObject {
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsIssues(issues: [ChainIssue])
+    func didReceive(error: Error)
+    func didReceive(chainSettings: [ChainSettings])
 }
 
 protocol NetworkIssuesNotificationRouterInput: SheetAlertPresentable, SheetAlertPresentable {
