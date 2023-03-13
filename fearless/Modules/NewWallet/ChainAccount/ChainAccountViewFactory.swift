@@ -13,21 +13,43 @@ struct ChainAccountModule {
 enum ChainAccountViewFactory {
     static func createView(
         chainAsset: ChainAsset,
-        chainAssets: [ChainAsset],
         wallet: MetaAccountModel,
         moduleOutput: ChainAccountModuleOutput
     ) -> ChainAccountModule? {
         let operationManager = OperationManagerFacade.sharedManager
         let eventCenter = EventCenter.shared
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .background
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: operationQueue,
+            meta: wallet
+        )
 
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
-            availableChainAssets: chainAssets,
             operationManager: operationManager,
             eventCenter: eventCenter,
             repository: AccountRepositoryFactory.createRepository(),
-            availableExportOptionsProvider: AvailableExportOptionsProvider()
+            availableExportOptionsProvider: AvailableExportOptionsProvider(),
+            chainAssetFetching: chainAssetFetching
         )
 
         let wireframe = ChainAccountWireframe()

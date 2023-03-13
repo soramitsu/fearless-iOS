@@ -7,36 +7,52 @@ import SoraKeystore
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
     var chainAsset: ChainAsset
-    var availableChainAssets: [ChainAsset]
+    var availableChainAssets: [ChainAsset] = []
 
     private var wallet: MetaAccountModel
     private let operationManager: OperationManagerProtocol
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<MetaAccountModel>
     private let availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+    private let chainAssetFetching: ChainAssetFetchingProtocol
 
     init(
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        availableChainAssets: [ChainAsset],
         operationManager: OperationManagerProtocol,
         eventCenter: EventCenterProtocol,
         repository: AnyDataProviderRepository<MetaAccountModel>,
-        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol
+        availableExportOptionsProvider: AvailableExportOptionsProviderProtocol,
+        chainAssetFetching: ChainAssetFetchingProtocol
     ) {
         self.wallet = wallet
         self.chainAsset = chainAsset
-        self.availableChainAssets = availableChainAssets
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.repository = repository
         self.availableExportOptionsProvider = availableExportOptionsProvider
+        self.chainAssetFetching = chainAssetFetching
+    }
+
+    private func getAvailableChainAssets() {
+        chainAssetFetching.fetch(
+            filters: [.assetName(chainAsset.asset.name), .ecosystem(chainAsset.defineEcosystem())],
+            sortDescriptors: []
+        ) { [weak self] result in
+            switch result {
+            case let .success(availableChainAssets):
+                self?.availableChainAssets = availableChainAssets
+            default:
+                self?.availableChainAssets = []
+            }
+        }
     }
 }
 
 extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     func setup() {
         eventCenter.add(observer: self, dispatchIn: .main)
+        getAvailableChainAssets()
     }
 
     func getAvailableExportOptions(for address: String) {

@@ -574,7 +574,7 @@ private extension ChainAssetListViewModelFactory {
 extension ChainAssetListViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
 
-private extension ChainAsset {
+extension ChainAsset {
     func defineEcosystem() -> ChainEcosystem {
         if chain.parentId == Chain.polkadot.genesisHash || chain.chainId == Chain.polkadot.genesisHash {
             return .polkadot

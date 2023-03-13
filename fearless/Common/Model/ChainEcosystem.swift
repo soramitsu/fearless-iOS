@@ -10,4 +10,13 @@ enum ChainEcosystem: String, Equatable {
             return false
         }
     }
+
+    var isPolkadot: Bool {
+        switch self {
+        case .polkadot:
+            return true
+        case .kusama:
+            return false
+        }
+    }
 }
