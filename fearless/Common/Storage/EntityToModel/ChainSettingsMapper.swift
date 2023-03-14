@@ -9,6 +9,11 @@ enum ChainSettingsMapperError: Error {
 }
 
 final class ChainSettingsMapper: CoreDataMapperProtocol {
+    var entityIdentifierFieldName: String { "chainId" }
+
+    typealias DataProviderModel = ChainSettings
+    typealias CoreDataEntity = CDChainSettings
+
     func transform(entity: CDChainSettings) throws -> ChainSettings {
         guard let chainId = entity.chainId else {
             throw ChainNodeMapperError.missedRequiredFields
@@ -26,10 +31,4 @@ final class ChainSettingsMapper: CoreDataMapperProtocol {
         entity.autobalanced = model.autobalanced
         entity.issueMuted = model.issueMuted
     }
-
-    var entityIdentifierFieldName: String { "chainId" }
-
-    typealias DataProviderModel = ChainSettings
-
-    typealias CoreDataEntity = CDChainSettings
 }

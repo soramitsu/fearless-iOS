@@ -35,146 +35,36 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
         wallet: MetaAccountModel,
         completionBlock: @escaping ([ChainAsset: AccountInfo?]) -> Void
     ) {
-        let keys: [String] = chainAssets.compactMap { chainAsset in
-            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-                  let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
-                      chainAsset.storagePath,
-                      chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
-                  ) else {
-                return nil
-            }
+        let createAccountInfoOperationsOperation = prepareAccountInfoOperationsOperation(
+            chainAssets: chainAssets,
+            wallet: wallet
+        )
 
-            return localKey
-        }
+        let dependencies = createAccountInfoOperationsOperation.dependencies
 
-        let fetchOperation = accountInfoRepository.fetchOperation(by: keys, options: RepositoryFetchOptions())
-        let mapChainAssetsWithKeysOperation = ClosureOperation<[ChainAssetKey: ChainAsset]> {
-            let chainAssetsByKeys = chainAssets.reduce(into: [ChainAssetKey: ChainAsset]()) { map, chainAsset in
-                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
-                          chainAsset.storagePath,
-                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
-                      ) else {
-                    return
-                }
-
-                map[localKey] = chainAsset
-            }
-
-            return chainAssetsByKeys
-        }
-
-        let transformToDecodingOperationsOperation = ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
-            let rawResult = try fetchOperation.extractNoCancellableResultData()
-            let chainAssetsByKeys = try mapChainAssetsWithKeysOperation.extractNoCancellableResultData()
-            let zeroBalanceChainAssetKeys = rawResult.compactMap { $0.identifier }.diff(from: keys)
-            let zeroBalanceChainAssets = chainAssets.filter { chainAsset in
-                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
-                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
-                          chainAsset.storagePath,
-                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
-                      ) else {
-                    return false
-                }
-
-                return zeroBalanceChainAssetKeys.contains(localKey)
-            }
-
-            let zeroBalanceOperations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = zeroBalanceChainAssets.compactMap { chainAsset in
-                ClosureOperation { [chainAsset: nil] }
-            }
-
-            let operations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = rawResult.compactMap { accountInfoStorageWrapper in
-                let identifier = accountInfoStorageWrapper.identifier
-                guard let chainAsset = chainAssetsByKeys[accountInfoStorageWrapper.identifier] else {
-                    return ClosureOperation { [:] }
-                }
-
-                switch chainAsset.chainAssetType {
-                case .normal:
-                    guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = self.createDecodingOperation(
-                        for: accountInfoStorageWrapper.data,
-                        chainAsset: chainAsset,
-                        storagePath: .account
-                    ) else {
-                        return ClosureOperation { [chainAsset: nil] }
-                    }
-
-                    let operation = self.createNormalMappingOperation(
-                        chainAsset: chainAsset,
-                        dependingOn: decodingOperation
-                    )
-
-                    return operation
-                case
-                    .ormlChain,
-                    .ormlAsset,
-                    .foreignAsset,
-                    .stableAssetPoolToken,
-                    .liquidCrowdloan,
-                    .vToken,
-                    .vsToken,
-                    .stable,
-                    .soraAsset:
-                    guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = self.createDecodingOperation(
-                        for: accountInfoStorageWrapper.data,
-                        chainAsset: chainAsset,
-                        storagePath: .tokens
-                    ) else {
-                        return ClosureOperation { [chainAsset: nil] }
-                    }
-
-                    let operation = self.createOrmlMappingOperation(
-                        chainAsset: chainAsset,
-                        dependingOn: decodingOperation
-                    )
-
-                    return operation
-                case .equilibrium:
-                    guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = self.createDecodingOperation(
-                        for: accountInfoStorageWrapper.data,
-                        chainAsset: chainAsset,
-                        storagePath: chainAsset.storagePath
-                    ) else {
-                        return ClosureOperation { [chainAsset: nil] }
-                    }
-
-                    let operation = self.createEquilibriumMappingOperation(
-                        chainAsset: chainAsset,
-                        dependingOn: decodingOperation
-                    )
-
-                    return operation
-                }
-            }
-
-            return operations + zeroBalanceOperations
-        }
-
-        let mappingOperation = ClosureOperation { [weak self] in
-            let decodingOperations = try transformToDecodingOperationsOperation.extractNoCancellableResultData()
-            let decodingDependencies = decodingOperations.compactMap { $0.dependencies }.reduce([], +)
-            let decodingSubdependencies = decodingDependencies.compactMap { $0.dependencies }.reduce([], +)
+        let executeOperation = ClosureOperation { [weak self] in
+            let accountInfoOperations = try createAccountInfoOperationsOperation.extractNoCancellableResultData()
+            let accountInfoDependencies = accountInfoOperations.compactMap { $0.dependencies }.reduce([], +)
+            let accountInfoSubdependencies = accountInfoDependencies.compactMap { $0.dependencies }.reduce([], +)
 
             let finishOperation = ClosureOperation {
-                let accountInfos = decodingOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
+                let accountInfos = accountInfoOperations.compactMap { try? $0.extractNoCancellableResultData() }.flatMap { $0 }
                 let accountInfoByChainAsset = Dictionary(accountInfos, uniquingKeysWith: { _, last in last })
 
                 completionBlock(accountInfoByChainAsset)
             }
 
-            decodingOperations.forEach { finishOperation.addDependency($0) }
-            decodingDependencies.forEach { finishOperation.addDependency($0) }
-            decodingSubdependencies.forEach { finishOperation.addDependency($0) }
+            accountInfoOperations.forEach { finishOperation.addDependency($0) }
+            accountInfoDependencies.forEach { finishOperation.addDependency($0) }
+            accountInfoSubdependencies.forEach { finishOperation.addDependency($0) }
 
-            self?.operationQueue.addOperations([finishOperation] + decodingOperations + decodingDependencies + decodingSubdependencies, waitUntilFinished: true)
+            self?.operationQueue.addOperations([finishOperation] + accountInfoOperations + accountInfoDependencies + accountInfoSubdependencies, waitUntilFinished: true)
         }
 
-        transformToDecodingOperationsOperation.addDependency(fetchOperation)
-        transformToDecodingOperationsOperation.addDependency(mapChainAssetsWithKeysOperation)
-        mappingOperation.addDependency(transformToDecodingOperationsOperation)
+        executeOperation.addDependency(createAccountInfoOperationsOperation)
+        createAccountInfoOperationsOperation.dependencies.forEach { executeOperation.addDependency($0) }
 
-        operationQueue.addOperations([fetchOperation, mapChainAssetsWithKeysOperation, transformToDecodingOperationsOperation, mappingOperation], waitUntilFinished: true)
+        operationQueue.addOperations(dependencies + [createAccountInfoOperationsOperation, executeOperation], waitUntilFinished: true)
     }
 
     func fetch(
@@ -239,6 +129,202 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
 }
 
 private extension AccountInfoFetching {
+    private func prepareAccountInfoOperationsOperation(
+        chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) -> ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+        let keys = generateStorageKeys(
+            for: chainAssets,
+            wallet: wallet
+        )
+
+        let mapChainAssetsWithKeysOperation = createMapChainAssetsWithKeysOperation(
+            chainAssets: chainAssets,
+            wallet: wallet
+        )
+
+        let fetchOperation = accountInfoRepository.fetchOperation(
+            by: keys,
+            options: RepositoryFetchOptions()
+        )
+
+        let zeroBalanceOperations = createZeroBalanceAccountInfoOperations(
+            dependingOn: fetchOperation,
+            keys: keys,
+            chainAssets: chainAssets,
+            wallet: wallet
+        )
+
+        zeroBalanceOperations.addDependency(fetchOperation)
+
+        let positiveBalanceOperations = ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+            let rawResult = try fetchOperation.extractNoCancellableResultData()
+            let chainAssetsByKeys = try mapChainAssetsWithKeysOperation.extractNoCancellableResultData()
+
+            let operations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = rawResult.compactMap { [weak self] accountInfoStorageWrapper in
+                self?.createDecodeOperation(
+                    accountInfoStorageWrapper: accountInfoStorageWrapper,
+                    chainAssetsByKeys: chainAssetsByKeys
+                )
+            }
+
+            return operations
+        }
+
+        positiveBalanceOperations.addDependency(fetchOperation)
+        positiveBalanceOperations.addDependency(mapChainAssetsWithKeysOperation)
+
+        let uniteOperation = ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+            let zeroOperations = try zeroBalanceOperations.extractNoCancellableResultData()
+            let positiveOperations = try positiveBalanceOperations.extractNoCancellableResultData()
+
+            return zeroOperations + positiveOperations
+        }
+
+        uniteOperation.addDependency(mapChainAssetsWithKeysOperation)
+        uniteOperation.addDependency(fetchOperation)
+        uniteOperation.addDependency(zeroBalanceOperations)
+        uniteOperation.addDependency(positiveBalanceOperations)
+
+        return uniteOperation
+    }
+
+    private func createDecodeOperation(
+        accountInfoStorageWrapper: AccountInfoStorageWrapper,
+        chainAssetsByKeys: [ChainAssetKey: ChainAsset]
+    ) -> ClosureOperation<[ChainAsset: AccountInfo?]> {
+        guard let chainAsset = chainAssetsByKeys[accountInfoStorageWrapper.identifier] else {
+            return ClosureOperation { [:] }
+        }
+
+        switch chainAsset.chainAssetType {
+        case .normal:
+            guard let decodingOperation: StorageDecodingOperation<AccountInfo?> = createDecodingOperation(
+                for: accountInfoStorageWrapper.data,
+                chainAsset: chainAsset,
+                storagePath: .account
+            ) else {
+                return ClosureOperation { [chainAsset: nil] }
+            }
+
+            let operation = createNormalMappingOperation(
+                chainAsset: chainAsset,
+                dependingOn: decodingOperation
+            )
+
+            return operation
+        case
+            .ormlChain,
+            .ormlAsset,
+            .foreignAsset,
+            .stableAssetPoolToken,
+            .liquidCrowdloan,
+            .vToken,
+            .vsToken,
+            .stable,
+            .soraAsset:
+            guard let decodingOperation: StorageDecodingOperation<OrmlAccountInfo?> = createDecodingOperation(
+                for: accountInfoStorageWrapper.data,
+                chainAsset: chainAsset,
+                storagePath: .tokens
+            ) else {
+                return ClosureOperation { [chainAsset: nil] }
+            }
+
+            let operation = createOrmlMappingOperation(
+                chainAsset: chainAsset,
+                dependingOn: decodingOperation
+            )
+
+            return operation
+        case .equilibrium:
+            guard let decodingOperation: StorageDecodingOperation<EquilibriumAccountInfo?> = createDecodingOperation(
+                for: accountInfoStorageWrapper.data,
+                chainAsset: chainAsset,
+                storagePath: chainAsset.storagePath
+            ) else {
+                return ClosureOperation { [chainAsset: nil] }
+            }
+
+            let operation = createEquilibriumMappingOperation(
+                chainAsset: chainAsset,
+                dependingOn: decodingOperation
+            )
+
+            return operation
+        }
+    }
+
+    private func createZeroBalanceAccountInfoOperations(
+        dependingOn fetchOperation: BaseOperation<[AccountInfoStorageWrapper]>,
+        keys: [String],
+        chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) -> ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+        let operation = ClosureOperation<[ClosureOperation<[ChainAsset: AccountInfo?]>]> {
+            let rawResult = try fetchOperation.extractNoCancellableResultData()
+            let zeroBalanceChainAssetKeys = rawResult.compactMap { $0.identifier }.diff(from: keys)
+            let zeroBalanceChainAssets = chainAssets.filter { chainAsset in
+                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                          chainAsset.storagePath,
+                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                      ) else {
+                    return false
+                }
+
+                return zeroBalanceChainAssetKeys.contains(localKey)
+            }
+
+            let zeroBalanceOperations: [ClosureOperation<[ChainAsset: AccountInfo?]>] = zeroBalanceChainAssets.compactMap { chainAsset in
+                ClosureOperation { [chainAsset: nil] }
+            }
+
+            return zeroBalanceOperations
+        }
+
+        return operation
+    }
+
+    func createMapChainAssetsWithKeysOperation(
+        chainAssets: [ChainAsset],
+        wallet: MetaAccountModel
+    ) -> ClosureOperation<[ChainAssetKey: ChainAsset]> {
+        let mapChainAssetsWithKeysOperation = ClosureOperation<[ChainAssetKey: ChainAsset]> {
+            let chainAssetsByKeys = chainAssets.reduce(into: [ChainAssetKey: ChainAsset]()) { map, chainAsset in
+                guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                      let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                          chainAsset.storagePath,
+                          chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                      ) else {
+                    return
+                }
+
+                map[localKey] = chainAsset
+            }
+
+            return chainAssetsByKeys
+        }
+
+        return mapChainAssetsWithKeysOperation
+    }
+
+    func generateStorageKeys(for chainAssets: [ChainAsset], wallet: MetaAccountModel) -> [String] {
+        let keys: [String] = chainAssets.compactMap { chainAsset in
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+                  let localKey = try? LocalStorageKeyFactory().createFromStoragePath(
+                      chainAsset.storagePath,
+                      chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+                  ) else {
+                return nil
+            }
+
+            return localKey
+        }
+
+        return keys
+    }
+
     func createNormalMappingOperation(
         chainAsset: ChainAsset,
         dependingOn decodingOperation: StorageDecodingOperation<AccountInfo?>

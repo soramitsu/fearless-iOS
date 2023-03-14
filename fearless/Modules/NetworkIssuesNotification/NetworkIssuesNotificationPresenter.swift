@@ -151,8 +151,6 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteracto
         self.wallet = wallet
     }
 
-    func didReceive(error _: Error) {}
-
     func didReceive(chainSettings: [ChainSettings]) {
         self.chainSettings = chainSettings
         provideViewModel()

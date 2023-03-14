@@ -23,7 +23,6 @@ protocol NetworkIssuesNotificationInteractorInput: AnyObject {
 protocol NetworkIssuesNotificationInteractorOutput: AnyObject {
     func didReceiveWallet(wallet: MetaAccountModel)
     func didReceiveChainsIssues(issues: [ChainIssue])
-    func didReceive(error: Error)
     func didReceive(chainSettings: [ChainSettings])
 }
 

@@ -125,7 +125,7 @@ extension NetworkIssuesNotificationViewController: EmptyStateViewOwnerProtocol {
 extension NetworkIssuesNotificationViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         let errorView = ErrorStateView()
-//        errorView.errorDescriptionLabel.text = error
+        errorView.errorDescriptionLabel.text = R.string.localizable.networkIssuesEmptyStateTitle(preferredLanguages: selectedLocale.rLanguages)
         errorView.locale = selectedLocale
         return errorView
     }
