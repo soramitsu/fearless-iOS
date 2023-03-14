@@ -28,7 +28,7 @@ extension CrowdloanRemoteSubscriptionServiceProtocol {
     }
 }
 
-class CrowdloanRemoteSubscriptionService: RemoteSubscriptionService, CrowdloanRemoteSubscriptionServiceProtocol {
+class CrowdloanRemoteSubscriptionService: RemoteSubscriptionService<ChainStorageItem>, CrowdloanRemoteSubscriptionServiceProtocol {
     func attach(
         for chainId: ChainModel.Id,
         runningCompletionIn queue: DispatchQueue?,

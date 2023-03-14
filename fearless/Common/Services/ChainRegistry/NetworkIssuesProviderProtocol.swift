@@ -10,6 +10,7 @@ protocol NetworkIssuesCenterProtocol {
         getExisting: Bool
     )
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener)
+    func forceNotify()
 }
 
 final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
@@ -53,6 +54,10 @@ final class NetworkIssuesCenter: NetworkIssuesCenterProtocol {
 
     func removeIssuesListener(_ listener: NetworkIssuesCenterListener) {
         issuesListeners = issuesListeners.filter { $0 !== listener }
+    }
+
+    func forceNotify() {
+        notify()
     }
 
     // MARK: - Private methods

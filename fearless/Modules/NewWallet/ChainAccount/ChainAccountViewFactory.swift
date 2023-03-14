@@ -23,10 +23,10 @@ enum ChainAccountViewFactory {
         )
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
+            storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,

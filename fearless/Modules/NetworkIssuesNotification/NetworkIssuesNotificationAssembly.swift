@@ -7,10 +7,14 @@ final class NetworkIssuesNotificationAssembly {
         wallet: MetaAccountModel,
         issues: [ChainIssue]
     ) -> NetworkIssuesNotificationModuleCreationResult? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createRepository()
+
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
 
         let chainRepository = ChainRepositoryFactory().createRepository(
             sortDescriptors: []
@@ -21,11 +25,23 @@ final class NetworkIssuesNotificationAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let userRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: wallet,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetcher
         )
 
         let interactor = NetworkIssuesNotificationInteractor(
@@ -33,7 +49,8 @@ final class NetworkIssuesNotificationAssembly {
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter
+            chainsIssuesCenter: chainsIssuesCenter,
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
         )
 
         let router = NetworkIssuesNotificationRouter()

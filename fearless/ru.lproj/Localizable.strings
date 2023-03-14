@@ -993,3 +993,5 @@
 "polkaswap.disclaimer.stub" = "DISCLAIMER";
 "polkaswap.disclaimer.read.before" = "Please read before continuing to use Polkaswap";
 "polkaswap.disclaimer.stub.read" = "Read";
+"network.issues.hide.action.title" = "Don’t show me again";
+"network.issues.empty.state.title" = "No network issues.";

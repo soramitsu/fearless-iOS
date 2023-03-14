@@ -1,17 +1,17 @@
 import Foundation
 import RobinHood
 
-class BaseStorageChildSubscription: StorageChildSubscribing {
+class BaseStorageChildSubscription<T: StorageWrapper>: StorageChildSubscribing {
     let remoteStorageKey: Data
     let localStorageKey: String
     let logger: LoggerProtocol
-    let storage: AnyDataProviderRepository<ChainStorageItem>
+    let storage: AnyDataProviderRepository<T>
     let operationManager: OperationManagerProtocol
 
     init(
         remoteStorageKey: Data,
         localStorageKey: String,
-        storage: AnyDataProviderRepository<ChainStorageItem>,
+        storage: AnyDataProviderRepository<T>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol
     ) {
@@ -22,7 +22,7 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
         self.logger = logger
     }
 
-    func handle(result _: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash _: Data?) {
+    func handle(result _: Result<DataProviderChange<T>?, Error>, blockHash _: Data?) {
         logger.warning("Must be overriden after inheritance")
     }
 
@@ -34,12 +34,12 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
             options: RepositoryFetchOptions()
         )
 
-        let processingOperation: BaseOperation<DataProviderChange<ChainStorageItem>?> =
+        let processingOperation: BaseOperation<DataProviderChange<T>?> =
             ClosureOperation {
-                let newItem: ChainStorageItem?
+                let newItem: T?
 
                 if let newData = data {
-                    newItem = ChainStorageItem(identifier: identifier, data: newData)
+                    newItem = T(identifier: identifier, data: newData)
                 } else {
                     newItem = nil
                 }
@@ -47,7 +47,7 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
                 let currentItem = try fetchOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                return DataProviderChange<ChainStorageItem>
+                return DataProviderChange<T>
                     .change(value1: currentItem, value2: newItem)
             }
 

@@ -3,7 +3,7 @@ import Foundation
 struct WalletChainAccountDashboardViewFactory {
     static func createView(
         chainAsset: ChainAsset,
-        chainAssets: [ChainAsset]
+        chainAssets _: [ChainAsset]
     ) -> WalletChainAccountDashboardViewProtocol? {
         let interactor = WalletChainAccountDashboardInteractor()
         let wireframe = WalletChainAccountDashboardWireframe()
@@ -21,7 +21,6 @@ struct WalletChainAccountDashboardViewFactory {
             ),
             let chainAccountModule = ChainAccountViewFactory.createView(
                 chainAsset: chainAsset,
-                chainAssets: chainAssets,
                 wallet: wallet,
                 moduleOutput: presenter
             )

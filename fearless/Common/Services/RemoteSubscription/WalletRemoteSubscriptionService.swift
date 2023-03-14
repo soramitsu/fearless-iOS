@@ -16,7 +16,7 @@ protocol WalletRemoteSubscriptionServiceProtocol {
     )
 }
 
-class WalletRemoteSubscriptionService: RemoteSubscriptionService, WalletRemoteSubscriptionServiceProtocol {
+class WalletRemoteSubscriptionService: RemoteSubscriptionService<AccountInfoStorageWrapper>, WalletRemoteSubscriptionServiceProtocol {
     func attachToAccountInfo(
         of accountId: AccountId,
         chainAsset: ChainAsset,

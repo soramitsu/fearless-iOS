@@ -12,10 +12,10 @@ final class ChainAssetListAssembly {
         )
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
+            storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -56,8 +56,12 @@ final class ChainAssetListAssembly {
             wallet: wallet,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetching
         )
+
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepository = chainSettingsRepositoryFactory.createRepository()
 
         let interactor = ChainAssetListInteractor(
             wallet: wallet,
@@ -68,7 +72,9 @@ final class ChainAssetListAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
+            accountInfoFetching: accountInfoFetching
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(

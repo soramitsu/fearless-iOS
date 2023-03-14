@@ -3,7 +3,8 @@ import Foundation
 protocol NetworkIssuesNotificationViewModelFactoryProtocol {
     func buildViewModel(
         for issues: [ChainIssue],
-        locale: Locale
+        locale: Locale,
+        chainSettings: [ChainSettings]
     ) -> [NetworkIssuesNotificationCellViewModel]
 }
 
@@ -11,12 +12,13 @@ protocol NetworkIssuesNotificationViewModelFactoryProtocol {
 final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotificationViewModelFactoryProtocol {
     func buildViewModel(
         for issues: [ChainIssue],
-        locale: Locale
+        locale: Locale,
+        chainSettings: [ChainSettings]
     ) -> [NetworkIssuesNotificationCellViewModel] {
         issues.map { issue in
             switch issue {
             case let .network(chains: chains):
-                return buildNetworkIssueViewModel(for: chains, locale: locale)
+                return buildNetworkIssueViewModel(for: chains, locale: locale, chainSettings: chainSettings)
             case let .missingAccount(chains: chains):
                 return buildMissingAccountViewModel(for: chains, locale: locale)
             }
@@ -25,9 +27,12 @@ final class NetworkIssuesNotificationViewModelFactory: NetworkIssuesNotification
 
     private func buildNetworkIssueViewModel(
         for chains: [ChainModel],
-        locale: Locale
+        locale: Locale,
+        chainSettings: [ChainSettings]
     ) -> [NetworkIssuesNotificationCellViewModel] {
-        chains.map { chain in
+        let mutedChainIds = chainSettings.filter { $0.issueMuted }.map { $0.chainId }
+
+        return chains.filter { !mutedChainIds.contains($0.chainId) }.map { chain in
 
             let imageViewViewModel = chain.icon.map { buildRemoteImageViewModel(url: $0) }
 
