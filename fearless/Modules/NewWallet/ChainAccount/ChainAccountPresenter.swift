@@ -339,7 +339,7 @@ extension ChainAccountPresenter: ChainAccountInteractorOutputProtocol {
             balance = balances[wallet.metaId]
             provideBalanceViewModel()
         case let .failure(error):
-            print(error)
+            logger.error(error.localizedDescription)
         }
     }
 

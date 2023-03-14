@@ -308,7 +308,6 @@ private extension ChainAccountViewLayout {
 
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.height.equalTo(LayoutConstants.balanceViewHeight)
-//            make.width.equalTo(LayoutConstants.balanceViewWidth)
         }
 
         walletBalanceVStackView.distribution = .fill
