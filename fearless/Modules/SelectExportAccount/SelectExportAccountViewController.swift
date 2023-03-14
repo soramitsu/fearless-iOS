@@ -73,7 +73,7 @@ final class SelectExportAccountViewController: UIViewController, ViewHolder {
     }
 
     @objc private func continueDidTap() {
-        guard case let .loaded(viewModel) = state else { return }
+        guard case .loaded = state else { return }
         output.exportNativeAccounts()
     }
 

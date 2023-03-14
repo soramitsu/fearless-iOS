@@ -22,6 +22,7 @@ protocol StakingPoolMainViewOutput: AnyObject {
     func selectAmountPercentage(_ percentage: Float)
     func networkInfoViewDidChangeExpansion(isExpanded: Bool)
     func didTapStakeInfoView()
+    func didTapStatusView()
 }
 
 protocol StakingPoolMainInteractorInput: AnyObject {
@@ -41,7 +42,7 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(wallet: MetaAccountModel)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(stakeInfo: StakingPoolMember?)
-    func didReceive(era: EraIndex)
+    func didReceive(era: EraIndex?)
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
     func didReceive(poolRewards: StakingPoolRewards?)
@@ -55,7 +56,7 @@ protocol StakingPoolMainInteractorOutput: AnyObject {
     func didReceive(pendingRewardsError: Error)
 }
 
-protocol StakingPoolMainRouterInput: AnyObject {
+protocol StakingPoolMainRouterInput: AnyObject, AccountManagementPresentable {
     func showChainAssetSelection(
         from view: StakingPoolMainViewInput?,
         type: AssetSelectionStakingType,
@@ -75,7 +76,10 @@ protocol StakingPoolMainRouterInput: AnyObject {
         wallet: MetaAccountModel
     )
 
-    func showAccountsSelection(from view: ControllerBackedProtocol?)
+    func showAccountsSelection(
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
 
     func showStakingManagement(
         chainAsset: ChainAsset,
@@ -83,6 +87,12 @@ protocol StakingPoolMainRouterInput: AnyObject {
         status: NominationViewStatus?,
         from view: ControllerBackedProtocol?
     ) -> StakingPoolManagementModuleInput?
+
+    func showPoolValidators(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol StakingPoolMainModuleInput: AnyObject {}

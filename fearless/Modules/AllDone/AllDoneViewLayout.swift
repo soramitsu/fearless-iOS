@@ -89,7 +89,7 @@ final class AllDoneViewLayout: UIView {
         return view
     }()
 
-    private let resultView: TitleValueView = {
+    private let successView: TitleValueView = {
         let view = TitleValueView()
         view.titleLabel.font = .h5Title
         view.titleLabel.textColor = R.color.colorStrokeGray()
@@ -98,6 +98,9 @@ final class AllDoneViewLayout: UIView {
         view.borderView.isHidden = true
         return view
     }()
+
+    let subscanButton: TriangularedButton = UIFactory.default.createDisabledButton()
+    let shareButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     init() {
         super.init(frame: .zero)
@@ -117,9 +120,11 @@ final class AllDoneViewLayout: UIView {
 
     // MARK: - Public methods
 
-    func bind(_ hashString: String) {
-        self.hashString = hashString
-        let hashString = NSMutableAttributedString(string: hashString + "  ")
+    func bind(_ viewModel: AllDoneViewModel) {
+        titleLabel.text = viewModel.title
+        descriptionLabel.text = viewModel.description
+        self.hashString = viewModel.extrinsicHash
+        let hashString = NSMutableAttributedString(string: viewModel.extrinsicHash + "  ")
 
         let imageAttachment = NSTextAttachment()
         imageAttachment.bounds = CGRect(
@@ -147,16 +152,16 @@ final class AllDoneViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .allDoneAlertAllDoneStub(preferredLanguages: locale.rLanguages)
-        descriptionLabel.text = R.string.localizable
-            .allDoneAlertDescriptionStub(preferredLanguages: locale.rLanguages)
         hashView.titleLabel.text = R.string.localizable
             .allDoneAlertHashStub(preferredLanguages: locale.rLanguages)
-        resultView.titleLabel.text = R.string.localizable
+        successView.titleLabel.text = R.string.localizable
             .allDoneAlertResultStub(preferredLanguages: locale.rLanguages)
-        resultView.valueLabel.text = R.string.localizable
+        successView.valueLabel.text = R.string.localizable
             .allDoneAlertSuccessStub(preferredLanguages: locale.rLanguages)
+        subscanButton.imageWithTitleView?.title = R.string.localizable
+            .allDoneSubscanButtonTitle(preferredLanguages: locale.rLanguages)
+        shareButton.imageWithTitleView?.title = R.string.localizable
+            .commonShare(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -210,7 +215,18 @@ final class AllDoneViewLayout: UIView {
         contentStackView.addArrangedSubview(infoBackground)
         infoBackground.addSubview(infoStackView)
         infoStackView.addArrangedSubview(hashView)
-        infoStackView.addArrangedSubview(resultView)
+        infoStackView.addArrangedSubview(successView)
+
+        let buttonHStachView = UIFactory.default.createHorizontalStackView(spacing: UIConstants.offset12)
+        buttonHStachView.distribution = .fillEqually
+        buttonHStachView.addArrangedSubview(subscanButton)
+        buttonHStachView.addArrangedSubview(shareButton)
+        contentStackView.setCustomSpacing(Constants.spacing24, after: infoBackground)
+        contentStackView.addArrangedSubview(buttonHStachView)
+
+        buttonHStachView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
 
         infoBackground.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
@@ -226,7 +242,7 @@ final class AllDoneViewLayout: UIView {
             make.height.equalTo(UIConstants.cellHeight)
         }
 
-        resultView.snp.makeConstraints { make in
+        successView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }

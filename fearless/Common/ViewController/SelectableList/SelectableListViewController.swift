@@ -7,7 +7,8 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
     UITableViewDataSource,
     UITableViewDelegate,
     ViewHolder,
-    KeyboardViewAdoptable {
+    KeyboardViewAdoptable,
+    LoadableViewProtocol {
     typealias RootViewType = SelectableListViewLayout
 
     var keyboardHandler: FearlessKeyboardHandler?
@@ -46,6 +47,11 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         if keyboardHandler == nil {
             setupKeyboardHandler()
         }
+        if listPresenter.numberOfItems == 0 {
+            if isMovingToParent {
+                didStartLoading()
+            }
+        }
     }
 
     override func viewDidDisappear(_ animated: Bool) {
@@ -74,10 +80,13 @@ class SelectableListViewController<C: UITableViewCell & SelectionItemViewProtoco
         listPresenter.numberOfItems
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt _: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCellWithType(C.self) else {
             return UITableViewCell()
         }
+        cell.delegate = listPresenter
+        let viewModel = listPresenter.item(at: indexPath.row)
+        cell.bind(viewModel: viewModel)
         return cell
     }
 
@@ -115,5 +124,10 @@ extension SelectableListViewController: SelectionListViewProtocol {
     func didReload() {
         rootView.tableView.reloadData()
         rootView.setEmptyView(vasible: listPresenter.numberOfItems == 0)
+        didStopLoading()
+    }
+
+    func reloadCell(at indexPath: IndexPath) {
+        rootView.tableView.reloadRows(at: [indexPath], with: .automatic)
     }
 }

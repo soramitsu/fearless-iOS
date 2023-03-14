@@ -166,4 +166,17 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
             }
         }
     }
+
+    func processChainSyncDidComplete(event: ChainSyncDidComplete) {
+        event.newOrUpdatedChains.forEach { chain in
+            chain.chainAssets.forEach {
+                guard let accountId = selectedMetaAccount.fetch(for: $0.chain.accountRequest())?.accountId else {
+                    return
+                }
+                let key = $0.uniqueKey(accountId: accountId)
+                removeSubscription(for: key)
+                addSubscriptionIfNeeded(for: $0)
+            }
+        }
+    }
 }

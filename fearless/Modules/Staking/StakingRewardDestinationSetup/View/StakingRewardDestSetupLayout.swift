@@ -11,7 +11,12 @@ final class StakingRewardDestSetupLayout: UIView {
 
     let restakeOptionView = UIFactory.default.createRewardSelectionView()
     let payoutOptionView = UIFactory.default.createRewardSelectionView()
-    let accountView = UIFactory.default.createAccountView(for: .selection, filled: false)
+    let accountView: DetailsTriangularedView = {
+        let accountView = UIFactory.default.createAccountView(for: .selection, filled: false)
+        accountView.strokeColor = R.color.colorGray()!
+        accountView.highlightedStrokeColor = R.color.colorGray()!
+        return accountView
+    }()
 
     let networkFeeView = UIFactory.default.createNetworkFeeView()
     let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()

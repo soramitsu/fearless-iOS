@@ -32,7 +32,7 @@ final class RootWireframe: RootWireframeProtocol {
 
     func showBroken(on window: UIWindow) {
         // normally user must not see this but on malicious devices it is possible
-        window.backgroundColor = .red
+        window.backgroundColor = .clear
     }
 
     func showEducationStories(on window: UIWindow) {

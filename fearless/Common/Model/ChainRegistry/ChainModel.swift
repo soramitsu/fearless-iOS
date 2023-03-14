@@ -1,31 +1,16 @@
 import Foundation
 import RobinHood
 
+enum BlockExplorerType: String, Codable {
+    case subquery
+    case subsquid
+    case giantsquid
+    case sora
+}
+
 class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
-
-    struct TypesSettings: Codable, Hashable {
-        let url: URL
-        let overridesCommon: Bool
-    }
-
-    struct ExternalApi: Codable, Hashable {
-        let type: String
-        let url: URL
-    }
-
-    struct ExternalApiSet: Codable, Hashable {
-        let staking: ExternalApi?
-        let history: ExternalApi?
-        let crowdloans: ExternalApi?
-    }
-
-    enum TypesUsage {
-        case onlyCommon
-        case both
-        case onlyOwn
-    }
 
     let chainId: Id
     let parentId: Id?
@@ -95,6 +80,14 @@ class ChainModel: Codable {
         name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
     }
 
+    var isEquilibrium: Bool {
+        name.lowercased() == "equilibrium"
+    }
+
+    var isUtilityFeePayment: Bool {
+        isSora || isEquilibrium
+    }
+
     var hasStakingRewardHistory: Bool {
         isPolkadotOrKusama || isWestend
     }
@@ -105,6 +98,10 @@ class ChainModel: Codable {
 
     var isSupported: Bool {
         AppVersion.stringValue?.versionLowerThan(iosMinAppVersion) == false
+    }
+
+    var hasPolkaswap: Bool {
+        options.or([]).contains(.polkaswap)
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {
@@ -199,6 +196,7 @@ extension ChainModel: Hashable {
             && lhs.addressPrefix == rhs.addressPrefix
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
+            && lhs.selectedNode == rhs.selectedNode
     }
 
     func hash(into hasher: inout Hasher) {
@@ -217,6 +215,7 @@ enum ChainOptions: String, Codable {
     case orml
     case tipRequired
     case poolStaking
+    case polkaswap
 
     case unsupported
 
@@ -232,8 +231,78 @@ enum ChainOptions: String, Codable {
 }
 
 extension ChainModel {
+    struct TypesSettings: Codable, Hashable {
+        let url: URL
+        let overridesCommon: Bool
+    }
+
+    struct ExternalResource: Codable, Hashable {
+        let type: String
+        let url: URL
+    }
+
+    struct BlockExplorer: Codable, Hashable {
+        let type: BlockExplorerType
+        let url: URL
+
+        init?(type: String, url: URL) {
+            guard let externalApiType = BlockExplorerType(rawValue: type) else {
+                return nil
+            }
+
+            self.type = externalApiType
+            self.url = url
+        }
+    }
+
+    enum SubscanType: String, Codable, Hashable {
+        case extrinsic
+        case account
+        case event
+        case unknown
+
+        public init(from decoder: Decoder) throws {
+            self = try SubscanType(rawValue: decoder.singleValueContainer().decode(RawValue.self)) ?? .unknown
+        }
+    }
+
+    enum ExternalApiExplorerType: String, Codable {
+        case subscan
+        case polkascan
+        case unknown
+
+        public init(from decoder: Decoder) throws {
+            self = try ExternalApiExplorerType(
+                rawValue: decoder.singleValueContainer().decode(RawValue.self)
+            ) ?? .unknown
+        }
+    }
+
+    struct ExternalApiExplorer: Codable, Hashable {
+        let type: ExternalApiExplorerType
+        let types: [SubscanType]
+        let url: String
+    }
+
+    struct ExternalApiSet: Codable, Hashable {
+        let staking: BlockExplorer?
+        let history: BlockExplorer?
+        let crowdloans: ExternalResource?
+        let explorers: [ExternalApiExplorer]?
+    }
+
+    enum TypesUsage {
+        case onlyCommon
+        case both
+        case onlyOwn
+    }
+
     func polkascanAddressURL(_ address: String) -> URL? {
-        URL(string: "https://explorer.polkascan.io/\(name.lowercased())/account/\(address)")
+        guard let explorer = externalApi?.explorers?.first(where: { $0.type == .polkascan }) else {
+            return nil
+        }
+
+        return explorer.explorerUrl(for: address, type: .account)
     }
 
     func subscanAddressURL(_ address: String) -> URL? {
@@ -242,5 +311,13 @@ extension ChainModel {
 
     func subscanExtrinsicUrl(_ extrinsicHash: String) -> URL? {
         URL(string: "https://\(name.lowercased()).subscan.io/extrinsic/\(extrinsicHash)")
+    }
+}
+
+extension ChainModel.ExternalApiExplorer {
+    func explorerUrl(for value: String, type: ChainModel.SubscanType) -> URL? {
+        let replaceType = url.replacingOccurrences(of: "{type}", with: type.rawValue)
+        let replaceValue = replaceType.replacingOccurrences(of: "{value}", with: value)
+        return URL(string: replaceValue)
     }
 }

@@ -74,7 +74,7 @@ struct AnalyticsRewardsViewFactory {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -115,12 +115,15 @@ struct AnalyticsRewardsViewFactory {
                 wallet: wallet
             )
 
+            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+
             let strategy = AnalyticsRewardsParachainStrategy(
                 operationManager: operationManager,
                 logger: Logger.shared,
                 chainAsset: chainAsset,
                 wallet: wallet,
-                output: viewModelState
+                output: viewModelState,
+                rewardOperationFactory: rewardOperationFactory
             )
 
             let viewModelFactory = AnalyticsRewardsParachainViewModelFactory(

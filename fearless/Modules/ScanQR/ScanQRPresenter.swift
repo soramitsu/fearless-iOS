@@ -77,6 +77,8 @@ final class ScanQRPresenter: NSObject {
             view?.present(message: L10n.InvoiceScan.Error.noInfo, animated: true)
         case .detectorUnavailable, .invalidImage:
             view?.present(message: L10n.InvoiceScan.Error.invalidImage, animated: true)
+        case .plainAddress:
+            break
         }
     }
 
@@ -182,9 +184,17 @@ extension ScanQRPresenter: ScanQRInteractorOutput {
         logger.error("Unexpected qr service error \(error)")
     }
 
-    func handleMatched(addressInfo: AddressQRInfo) {
+    func handleMatched(addressInfo: QRInfo) {
         router.close(view: view) {
             self.moduleOutput.didFinishWith(address: addressInfo.address)
+        }
+    }
+
+    func handleAddress(_ address: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.router.close(view: self?.view) {
+                self?.moduleOutput.didFinishWith(address: address)
+            }
         }
     }
 }
@@ -197,7 +207,7 @@ extension ScanQRPresenter: QRCaptureServiceDelegate {
     }
 
     func qrCapture(service _: QRCaptureServiceProtocol, didMatch _: String) {
-        guard let addressInfo = qrScanMatcher.addressInfo else {
+        guard let addressInfo = qrScanMatcher.qrInfo else {
             logger.warning("Can't find receiver's info for matched code")
             return
         }

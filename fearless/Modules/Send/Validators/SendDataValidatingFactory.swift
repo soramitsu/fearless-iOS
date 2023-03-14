@@ -10,6 +10,7 @@ enum BalanceType {
 enum ExistentialDepositValidationParameters {
     case utility(spendingAmount: BigUInt?, totalAmount: BigUInt?, minimumBalance: BigUInt?)
     case orml(minimumBalance: Decimal?, feeAndTip: Decimal?, utilityBalance: Decimal?)
+    case equilibrium(minimumBalance: Decimal?, totalBalance: Decimal?)
 }
 
 class SendDataValidatingFactory: NSObject {
@@ -123,6 +124,14 @@ class SendDataValidatingFactory: NSObject {
                 } else {
                     return false
                 }
+            case let .equilibrium(minimumBalance, totalBalance):
+                guard let minimumBalance = minimumBalance,
+                      let totalBalance = totalBalance
+                else {
+                    return false
+                }
+
+                return totalBalance > minimumBalance
             }
         })
     }

@@ -9,13 +9,16 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
     // MARK: Private properties
 
     private let output: SelectAssetViewOutput
+    private let isFullSize: Bool
 
     // MARK: - Constructor
 
     init(
+        isFullSize: Bool,
         output: SelectAssetViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.isFullSize = isFullSize
         self.output = output
         super.init(listPresenter: output)
         self.localizationManager = localizationManager
@@ -50,8 +53,10 @@ final class SelectAssetViewController: SelectableListViewController<SelectAssetC
     }
 
     private func setupLayout() {
-        rootView.tableView.snp.makeConstraints { make in
-            make.height.equalTo(UIScreen.main.bounds.height / 2.5)
+        if !isFullSize {
+            rootView.contentStackView.snp.makeConstraints { make in
+                make.height.equalTo(UIScreen.main.bounds.height / 2)
+            }
         }
     }
 

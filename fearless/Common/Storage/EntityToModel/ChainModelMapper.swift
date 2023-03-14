@@ -10,10 +10,17 @@ final class ChainModelMapper {
 
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
+        var symbol: String?
+
+        if let entitySymbol = entity.symbol {
+            symbol = entitySymbol
+        } else {
+            symbol = entity.id
+        }
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = entity.symbol
+            let symbol = symbol
         else {
             preconditionFailure()
         }
@@ -30,7 +37,8 @@ final class ChainModelMapper {
             transfersEnabled: entity.transfersEnabled,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            existentialDeposit: entity.existentialDeposit,
+            color: entity.color
         )
     }
 
@@ -55,7 +63,8 @@ final class ChainModelMapper {
             type: createChainAssetModelType(from: entity.type),
             asset: createAsset(from: asset),
             chain: parentChain,
-            isUtility: entity.isUtility
+            isUtility: entity.isUtility,
+            isNative: entity.isNative
         )
     }
 
@@ -99,6 +108,7 @@ final class ChainModelMapper {
             assetEntity.staking = asset.staking?.rawValue
             assetEntity.type = asset.type.rawValue
             assetEntity.isUtility = asset.isUtility
+            assetEntity.isNative = asset.isNative
 
             updateEntityAsset(
                 for: assetEntity,
@@ -142,10 +152,11 @@ final class ChainModelMapper {
         assetEntity.price = model.asset.price as NSDecimalNumber?
         assetEntity.fiatDayChange = model.asset.fiatDayChange as NSDecimalNumber?
         assetEntity.symbol = model.asset.symbol
-        assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
+        assetEntity.transfersEnabled = model.asset.transfersEnabled
         assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
+        assetEntity.color = model.asset.color
 
         entity.asset = assetEntity
     }
@@ -236,6 +247,7 @@ final class ChainModelMapper {
         context: NSManagedObjectContext
     ) {
         guard let node = model.selectedNode else {
+            entity.selectedNode = nil
             return
         }
         let nodeEntity: CDChainNode
@@ -268,42 +280,74 @@ final class ChainModelMapper {
     }
 
     private func createExternalApi(from entity: CDChain) -> ChainModel.ExternalApiSet? {
-        let staking: ChainModel.ExternalApi?
-
+        var staking: ChainModel.BlockExplorer?
         if let type = entity.stakingApiType, let url = entity.stakingApiUrl {
-            staking = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            staking = nil
+            staking = ChainModel.BlockExplorer(type: type, url: url)
         }
 
-        let history: ChainModel.ExternalApi?
-
+        var history: ChainModel.BlockExplorer?
         if let type = entity.historyApiType, let url = entity.historyApiUrl {
-            history = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            history = nil
+            history = ChainModel.BlockExplorer(type: type, url: url)
         }
 
-        let crowdloans: ChainModel.ExternalApi?
-
+        var crowdloans: ChainModel.ExternalResource?
         if let type = entity.crowdloansApiType, let url = entity.crowdloansApiUrl {
-            crowdloans = ChainModel.ExternalApi(type: type, url: url)
-        } else {
-            crowdloans = nil
+            crowdloans = ChainModel.ExternalResource(type: type, url: url)
         }
 
-        if staking != nil || history != nil || crowdloans != nil {
-            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans)
+        let explorers = createExplorers(from: entity)
+
+        if staking != nil || history != nil || crowdloans != nil || explorers != nil {
+            return ChainModel.ExternalApiSet(staking: staking, history: history, crowdloans: crowdloans, explorers: explorers)
         } else {
             return nil
         }
     }
 
+    private func createExplorers(from entity: CDChain) -> [ChainModel.ExternalApiExplorer]? {
+        let explorers: [ChainModel.ExternalApiExplorer]? = entity.explorers?.compactMap {
+            guard let explorer = $0 as? CDExternalApi,
+                  let type = explorer.type,
+                  let types = explorer.types as? [String],
+                  let url = explorer.url
+            else {
+                return nil
+            }
+            let externapApiTypes = types.compactMap {
+                ChainModel.SubscanType(rawValue: $0)
+            }
+            return ChainModel.ExternalApiExplorer(
+                type: ChainModel.ExternalApiExplorerType(rawValue: type) ?? .unknown,
+                types: externapApiTypes,
+                url: url
+            )
+        }
+        return explorers
+    }
+
+    private func updateEplorersApis(
+        in entity: CDChain,
+        from apis: [ChainModel.ExternalApiExplorer]?,
+        context: NSManagedObjectContext
+    ) {
+        guard let apis = apis else {
+            return
+        }
+        let explorers: [CDExternalApi] = apis.map { api in
+            let explorer = CDExternalApi(context: context)
+            explorer.type = api.type.rawValue
+            explorer.types = api.types.compactMap { $0.rawValue } as? NSArray
+            explorer.url = api.url
+            return explorer
+        }
+        entity.explorers = Set(explorers) as NSSet
+    }
+
     private func updateExternalApis(in entity: CDChain, from apis: ChainModel.ExternalApiSet?) {
-        entity.stakingApiType = apis?.staking?.type
+        entity.stakingApiType = apis?.staking?.type.rawValue
         entity.stakingApiUrl = apis?.staking?.url
 
-        entity.historyApiType = apis?.history?.type
+        entity.historyApiType = apis?.history?.type.rawValue
         entity.historyApiUrl = apis?.history?.url
 
         entity.crowdloansApiType = apis?.crowdloans?.type
@@ -409,13 +453,10 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.options = model.options?.map(\.rawValue) as? NSArray
 
         updateEntityChainAssets(for: entity, from: model, context: context)
-
         updateEntityNodes(for: entity, from: model, context: context)
-
         updateExternalApis(in: entity, from: model.externalApi)
-
         updateEntityCustomNodes(for: entity, from: model, context: context)
-
         updateEntitySelectedNode(for: entity, from: model, context: context)
+        updateEplorersApis(in: entity, from: model.externalApi?.explorers, context: context)
     }
 }

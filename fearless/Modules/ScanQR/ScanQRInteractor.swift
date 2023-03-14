@@ -38,10 +38,15 @@ extension ScanQRInteractor: ScanQRInteractorInput {
         ) { [weak self] result in
             switch result {
             case .success:
-                if let addressInfo = matcher.addressInfo {
+                if let addressInfo = matcher.qrInfo {
                     self?.output?.handleMatched(addressInfo: addressInfo)
                 }
             case let .failure(error):
+                if case let QRExtractionServiceError.plainAddress(address) = error {
+                    self?.output?.handleAddress(address)
+                    return
+                }
+
                 self?.output?.handleQRService(error: error)
             }
         }

@@ -14,6 +14,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private let receiverAddress: String
     private let signingWrapper: SigningWrapperProtocol
     private let chainAsset: ChainAsset
+    private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 
     let dependencyContainer: SendDepencyContainer
 
@@ -46,17 +47,11 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func provideConstants() {
-        guard let utilityAsset = getUtilityAsset(for: chainAsset),
+        guard let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
               let dependencies = dependencyContainer.prepareDepencies(chainAsset: utilityAsset) else {
             return
         }
-        fetchConstant(
-            for: .babeBlockTime,
-            runtimeCodingService: dependencies.runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BlockTime, Error>) in
-            self?.presenter?.didReceiveBlockDuration(result: result)
-        }
+
         dependencies.existentialDepositService.fetchExistentialDeposit(
             chainAsset: utilityAsset
         ) { [weak self] result in
@@ -65,27 +60,16 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     }
 
     private func subscribeToAccountInfo() {
-        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            presenter?.didReceiveAccountInfo(
-                result: .failure(ChainAccountFetchingError.accountNotExists),
-                for: chainAsset
-            )
-            return
+        var chainsAssets = [chainAsset]
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
+            chainsAssets.append(utilityAsset)
         }
-
         accountInfoSubscriptionAdapter.subscribe(
-            chainAsset: chainAsset,
-            accountId: accountId,
-            handler: self
+            chainsAssets: chainsAssets,
+            handler: self,
+            deliveryOn: .main
         )
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getUtilityAsset(for: chainAsset) {
-            accountInfoSubscriptionAdapter.subscribe(
-                chainAsset: utilityAsset,
-                accountId: accountId,
-                handler: self
-            )
-        }
     }
 
     private func subscribeToPrice() {
@@ -95,7 +79,7 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
             presenter?.didReceivePriceData(result: .success(nil), for: nil)
         }
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getUtilityAsset(for: chainAsset),
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
@@ -106,7 +90,6 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
 
         subscribeToPrice()
         subscribeToAccountInfo()
-
         provideConstants()
     }
 }
@@ -164,13 +147,26 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
         )
     }
 
-    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+    func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
            let utilityAsset = chainAsset.chain.utilityAssets().first {
             return ChainAsset(chain: chainAsset.chain, asset: utilityAsset.asset)
         }
         return chainAsset
+    }
+
+    func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal) {
+        if chainAsset.chain.isEquilibrium {
+            let service = dependencyContainer
+                .prepareDepencies(chainAsset: chainAsset)?
+                .equilibruimTotalBalanceService
+            equilibriumTotalBalanceService = service
+
+            let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
+                .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
+            presenter?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+        }
     }
 }
 

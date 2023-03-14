@@ -65,7 +65,7 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorColdGreen(),
+                value: R.color.colorColdGreen() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 

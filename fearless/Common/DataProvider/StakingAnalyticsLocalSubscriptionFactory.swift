@@ -3,9 +3,10 @@ import RobinHood
 
 protocol StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(
+        chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>
+    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>?
 }
 
 final class ParachainAnalyticsLocalSubscriptionFactory {
@@ -30,9 +31,10 @@ final class ParachainAnalyticsLocalSubscriptionFactory {
 
 extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(
+        chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]> {
+    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
         clearIfNeeded()
 
         let identifier = "weaklyAnalytics" + address + url.absoluteString
@@ -44,7 +46,8 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = SubqueryRewardOperationFactory(url: url)
+        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+
         let source = ParachainWeaklyAnalyticsRewardSource(
             address: address,
             operationFactory: operationFactory
@@ -84,9 +87,10 @@ final class RelaychainAnalyticsLocalSubscriptionFactory {
 
 extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubscriptionFactoryProtocol {
     func getWeaklyAnalyticsProvider(
+        chainAsset: ChainAsset,
         for address: AccountAddress,
         url: URL
-    ) -> AnySingleValueProvider<[SubqueryRewardItemData]> {
+    ) -> AnySingleValueProvider<[SubqueryRewardItemData]>? {
         clearIfNeeded()
 
         let identifier = "weaklyAnalytics" + address + url.absoluteString
@@ -98,7 +102,7 @@ extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubs
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = SubqueryRewardOperationFactory(url: url)
+        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let source = RelaychainWeaklyAnalyticsRewardSource(
             address: address,
             operationFactory: operationFactory

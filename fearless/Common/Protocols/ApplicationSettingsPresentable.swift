@@ -30,7 +30,7 @@ extension ApplicationSettingsPresentable {
         let closeAction = UIAlertAction(title: L10n.Common.notNow, style: .cancel, handler: nil)
         let settingsAction = UIAlertAction(title: L10n.Common.openSettings, style: .default) { _ in
             if let url = URL(string: UIApplication.openSettingsURLString), UIApplication.shared.canOpenURL(url) {
-                UIApplication.shared.openURL(url)
+                UIApplication.shared.open(url, options: [:])
             }
         }
 

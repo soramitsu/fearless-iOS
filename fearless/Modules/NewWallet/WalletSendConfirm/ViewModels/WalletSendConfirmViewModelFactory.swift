@@ -11,6 +11,7 @@ struct WalletSendConfirmViewModelFactoryParameters {
     let wallet: MetaAccountModel
     let locale: Locale
     let scamInfo: ScamInfo?
+    let assetModel: AssetModel
 }
 
 protocol WalletSendConfirmViewModelFactoryProtocol {
@@ -43,6 +44,13 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             value: R.color.colorWhite()!.cgColor,
             range: (amountString as NSString).range(of: inputAmount)
         )
+        let shadowColor = HexColorConverter.hexStringToUIColor(
+            hex: parameters.assetModel.color
+        )?.cgColor
+        let symbolViewModel = SymbolViewModel(
+            symbolViewModel: parameters.assetModel.icon.map { RemoteImageViewModel(url: $0) },
+            shadowColor: shadowColor
+        )
         return WalletSendConfirmViewModel(
             amountAttributedString: amountAttributedString,
             amountString: inputAmount,
@@ -55,7 +63,8 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
             tipRequired: parameters.tipRequired,
             tipAmountString: parameters.tipViewModel?.amount ?? "",
             tipPriceString: parameters.tipViewModel?.price ?? "",
-            showWarning: parameters.scamInfo != nil
+            showWarning: parameters.scamInfo != nil,
+            symbolViewModel: symbolViewModel
         )
     }
 }

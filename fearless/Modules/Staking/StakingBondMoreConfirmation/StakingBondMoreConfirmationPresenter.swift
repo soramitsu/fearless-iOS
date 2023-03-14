@@ -99,8 +99,8 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         }
 
         switch result {
-        case .success:
-            wireframe.complete(from: view)
+        case let .success(hash):
+            wireframe.complete(from: view, chainAsset: chainAsset, extrinsicHash: hash)
         case .failure:
             wireframe.presentExtrinsicFailed(from: view, locale: view.localizationManager?.selectedLocale)
         }

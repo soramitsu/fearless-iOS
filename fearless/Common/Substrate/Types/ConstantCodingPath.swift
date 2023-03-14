@@ -24,7 +24,7 @@ enum ConstantCodingPath: CaseIterable {
         case .existentialDeposit:
             return (moduleName: "Balances", constantName: "ExistentialDeposit")
         case .equilibriumExistentialDeposit:
-            return (moduleName: "eqBalances", constantName: "depositEq")
+            return (moduleName: "eqBalances", constantName: "ExistentialDeposit")
         case .paraLeasingPeriod:
             return (moduleName: "Slots", constantName: "LeasePeriod")
         case .babeBlockTime:
@@ -59,6 +59,8 @@ enum ConstantCodingPath: CaseIterable {
             return (moduleName: "NominationPools", constantName: "PalletId")
         case .historyDepth:
             return (moduleName: "Staking", constantName: "HistoryDepth")
+        case .leaseOffset:
+            return (moduleName: "Slots", constantName: "LeaseOffset")
         }
     }
 
@@ -86,4 +88,5 @@ enum ConstantCodingPath: CaseIterable {
     case candidateBondLessDelay
     case nominationPoolsPalletId
     case historyDepth
+    case leaseOffset
 }

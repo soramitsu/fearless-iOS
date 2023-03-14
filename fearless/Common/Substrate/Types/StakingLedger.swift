@@ -19,6 +19,11 @@ struct UnlockChunk: Decodable, Equatable {
     @StringCodable var value: BigUInt
     @StringCodable var era: UInt32
 
+    init(value: BigUInt, era: UInt32) {
+        self.value = value
+        self.era = era
+    }
+
     init(from decoder: Decoder) throws {
         if let container = try? decoder.container(keyedBy: CodingKeys.self) {
             era = try container.decode(StringScaleMapper<UInt32>.self, forKey: .era).value

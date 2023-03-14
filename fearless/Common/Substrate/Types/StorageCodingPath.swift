@@ -125,6 +125,14 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "NominationPools", itemName: "RewardPools")
         case .stakingPoolLastPoolId:
             return (moduleName: "NominationPools", itemName: "LastPoolId")
+        case .polkaswapTbcPool:
+            return (moduleName: "NominationPools", itemName: "RewardPools")
+        case .polkaswapXykPool:
+            return (moduleName: "MulticollateralBondingCurvePool", itemName: "CollateralReserves")
+        case .polkaswapDexManagerDesInfos:
+            return (moduleName: "DexManager", itemName: "DexInfos")
+        case .eqOraclePricePoint:
+            return (moduleName: "Oracle", itemName: "PricePoints")
         }
     }
 
@@ -185,4 +193,8 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case stakingPoolCounterForBondedPools
     case stakingPoolRewards
     case stakingPoolLastPoolId
+    case polkaswapXykPool
+    case polkaswapTbcPool
+    case polkaswapDexManagerDesInfos
+    case eqOraclePricePoint
 }

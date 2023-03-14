@@ -4,6 +4,7 @@ import SoraFoundation
 enum AssetListDisplayType {
     case chain
     case assetChains
+    case search
 }
 
 typealias PriceDataUpdated = (pricesData: [PriceData], updated: Bool)
@@ -26,7 +27,6 @@ final class ChainAssetListPresenter {
     private var displayType: AssetListDisplayType = .assetChains
     private var chainsWithNetworkIssues: [ChainModel.Id] = []
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
-    private var accountInfosFetched = false
     private var pricesFetched = false
 
     private lazy var factoryOperationQueue: OperationQueue = {
@@ -52,10 +52,10 @@ final class ChainAssetListPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
+        let additionalDataReceived = displayType != .search && pricesFetched || displayType == .search
         guard
             let chainAssets = chainAssets,
-            accountInfosFetched,
-            pricesFetched
+            additionalDataReceived
         else {
             return
         }
@@ -70,8 +70,7 @@ final class ChainAssetListPresenter {
             }
 
             let viewModel = self.viewModelFactory.buildViewModel(
-                displayType: self.displayType,
-                selectedMetaAccount: self.wallet,
+                wallet: self.wallet,
                 chainAssets: chainAssets,
                 locale: self.selectedLocale,
                 accountInfos: self.lock.concurrentlyRead { [unowned self] in
@@ -252,9 +251,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 }
                 let key = chainAsset.uniqueKey(accountId: accountId)
                 self.accountInfos[key] = accountInfo
-                accountInfosFetched = true
-                provideViewModel()
             }
+
+            provideViewModel()
+
         case let .failure(error):
             DispatchQueue.main.async {
                 self.router.present(error: error, from: self.view, locale: self.selectedLocale)
@@ -313,16 +313,33 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]
     ) {
-        pricesFetched = filters.contains(where: { filter in
+        let filteredByChain = filters.contains(where: { filter in
+            if case ChainAssetsFetching.Filter.chainId = filter {
+                return true
+            }
+
+            return false
+        })
+
+        let searchIsActive = filters.contains(where: { filter in
             if case ChainAssetsFetching.Filter.search = filter {
                 return true
             }
+
             return false
         })
-        accountInfosFetched = false
+
+        pricesFetched = searchIsActive
         accountInfos = [:]
 
-        filters.isNotEmpty ? (displayType = .chain) : (displayType = .assetChains)
+        if searchIsActive {
+            displayType = .search
+        } else if filteredByChain {
+            displayType = .chain
+        } else {
+            displayType = .assetChains
+        }
+
         interactor.updateChainAssets(using: filters, sorts: sorts)
     }
 }

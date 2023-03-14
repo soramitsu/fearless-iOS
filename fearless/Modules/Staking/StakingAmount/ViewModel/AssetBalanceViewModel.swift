@@ -3,6 +3,7 @@ import UIKit
 protocol AssetBalanceViewModelProtocol {
     var symbol: String { get }
     var balance: String? { get }
+    var fiatBalance: String? { get }
     var price: String? { get }
     var iconViewModel: ImageViewModelProtocol? { get }
 }
@@ -15,6 +16,7 @@ extension AssetBalanceViewModelProtocol {
 struct AssetBalanceViewModel: AssetBalanceViewModelProtocol {
     let symbol: String
     let balance: String?
+    let fiatBalance: String?
     let price: String?
     let iconViewModel: ImageViewModelProtocol?
 }

@@ -30,7 +30,8 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             transfersEnabled: entity.transfersEnabled,
             currencyId: entity.currencyId,
             displayName: entity.displayName,
-            existentialDeposit: entity.existentialDeposit
+            existentialDeposit: entity.existentialDeposit,
+            color: entity.color
         )
     }
 
@@ -47,8 +48,9 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.price = model.price as NSDecimalNumber?
         entity.fiatDayChange = model.fiatDayChange as NSDecimalNumber?
         entity.symbol = model.symbol
-        entity.transfersEnabled = model.transfersEnabled ?? true
+        entity.transfersEnabled = model.transfersEnabled
         entity.currencyId = model.currencyId
         entity.existentialDeposit = model.existentialDeposit
+        entity.color = model.color
     }
 }

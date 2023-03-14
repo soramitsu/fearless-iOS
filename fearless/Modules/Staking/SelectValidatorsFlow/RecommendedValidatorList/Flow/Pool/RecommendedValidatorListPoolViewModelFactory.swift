@@ -80,7 +80,7 @@ extension RecommendedValidatorListPoolViewModelFactory: RecommendedValidatorList
                         title: title,
                         detailsAttributedString: apy,
                         detailsAux: stakedString,
-                        isSelected: false
+                        isSelected: true
                     )
                 }
             }
@@ -92,7 +92,7 @@ extension RecommendedValidatorListPoolViewModelFactory: RecommendedValidatorList
             itemViewModels: items,
             title: R.string.localizable
                 .stakingRecommendedSectionTitle(preferredLanguages: locale.rLanguages),
-            continueButtonEnabled: true,
+            continueButtonEnabled: items.isNotEmpty,
             rewardColumnTitle: R.string.localizable.stakingFilterTitleRewards(preferredLanguages: locale.rLanguages),
             continueButtonTitle: R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
         )

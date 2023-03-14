@@ -1,23 +1,30 @@
 import Foundation
 import SoraFoundation
 import IrohaCrypto
-import CommonWallet
 import BigInt
 import SoraKeystore
 
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
+    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool)
         -> LocalizableResource<BalanceViewModelProtocol>
-    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol>
-    func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
+    func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel>
+    func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: PriceData?)
         -> LocalizableResource<AssetBalanceViewModelProtocol>
+}
+
+extension BalanceViewModelFactoryProtocol {
+    func balanceFromPrice(
+        _ amount: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
+        balanceFromPrice(amount, priceData: priceData, isApproximately: false)
+    }
 }
 
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     private let targetAssetInfo: AssetBalanceDisplayInfo
-    private let limit: Decimal
     private let formatterFactory: AssetBalanceFormatterFactoryProtocol
     private var selectedMetaAccount: MetaAccountModel
 
@@ -26,12 +33,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     init(
         targetAssetInfo: AssetBalanceDisplayInfo,
         formatterFactory: AssetBalanceFormatterFactoryProtocol = AssetBalanceFormatterFactory(),
-        limit: Decimal = StakingConstants.maxAmount,
         selectedMetaAccount: MetaAccountModel
     ) {
         self.targetAssetInfo = targetAssetInfo
         self.formatterFactory = formatterFactory
-        self.limit = limit
         self.selectedMetaAccount = selectedMetaAccount
 
         eventCenter.add(observer: self, dispatchIn: .main)
@@ -63,7 +68,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func balanceFromPrice(
         _ amount: Decimal,
-        priceData: PriceData?
+        priceData: PriceData?,
+        isApproximately: Bool
     ) -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
@@ -81,7 +87,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             let targetAmount = rate * amount
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
-            let priceString = priceFormatter.stringFromDecimal(targetAmount) ?? ""
+            var priceString = priceFormatter.stringFromDecimal(targetAmount) ?? ""
+            if isApproximately {
+                priceString.insert("~", at: priceString.startIndex)
+            }
 
             return BalanceViewModel(amount: amountString, price: priceString)
         }
@@ -89,18 +98,15 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
     func createBalanceInputViewModel(
         _ amount: Decimal?
-    ) -> LocalizableResource<AmountInputViewModelProtocol> {
-        let localizableFormatter = formatterFactory.createInputFormatter(for: targetAssetInfo)
+    ) -> LocalizableResource<IAmountInputViewModel> {
+        let localizableFormatter = formatterFactory.createInputFormatter(maximumFractionDigits: 6)
         let symbol = targetAssetInfo.symbol
-
-        let currentLimit = limit
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
             return AmountInputViewModel(
                 symbol: symbol,
                 amount: amount,
-                limit: currentLimit,
                 formatter: formatter,
                 precision: Int16(formatter.maximumFractionDigits)
             )
@@ -108,7 +114,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func createAssetBalanceViewModel(
-        _ amount: Decimal,
+        _ amount: Decimal?,
         balance: Decimal?,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
@@ -121,12 +127,12 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         let iconViewModel = targetAssetInfo.icon.map { RemoteImageViewModel(url: $0) }
 
         return LocalizableResource { locale in
+            let priceFormatter = localizablePriceFormatter.value(for: locale)
             let priceString: String?
 
             if let priceData = priceData, let rate = Decimal(string: priceData.price) {
-                let targetAmount = rate * amount
+                let targetAmount = rate * (amount ?? .zero)
 
-                let priceFormatter = localizablePriceFormatter.value(for: locale)
                 priceString = priceFormatter.stringFromDecimal(targetAmount)
             } else {
                 priceString = nil
@@ -134,17 +140,27 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
             let balanceFormatter = localizableBalanceFormatter.value(for: locale)
 
-            let balanceString: String?
-
-            if let balance = balance {
+            var balanceString: String?
+            var fiatBalance: String?
+            if var balance = balance {
+                if balance < 0 {
+                    balance = .zero
+                }
                 balanceString = balanceFormatter.stringFromDecimal(balance)
-            } else {
-                balanceString = nil
+
+                if let priceData = priceData, let rate = Decimal(string: priceData.price) {
+                    fiatBalance = priceFormatter.stringFromDecimal(balance * rate)
+                }
+
+                if let fiatBalance = fiatBalance {
+                    balanceString?.append(contentsOf: " (\(fiatBalance))")
+                }
             }
 
             return AssetBalanceViewModel(
                 symbol: symbol,
                 balance: balanceString,
+                fiatBalance: fiatBalance,
                 price: priceString,
                 iconViewModel: iconViewModel
             )

@@ -9,7 +9,7 @@ protocol ProfilePresenterProtocol: AnyObject {
     func activateAccountDetails()
     func activateOption(_ option: ProfileOption)
     func logout()
-    func switcherValueChanged(isOn: Bool)
+    func switcherValueChanged(isOn: Bool, index: Int)
 }
 
 protocol ProfileInteractorInputProtocol: AnyObject {
@@ -30,12 +30,16 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     SheetAlertPresentable,
     WebPresentable,
     ModalAlertPresenting,
-    AddressOptionsPresentable {
+    AddressOptionsPresentable,
+    AccountManagementPresentable {
     func showAccountDetails(
         from view: ProfileViewProtocol?,
         metaAccount: MetaAccountModel
     )
-    func showAccountSelection(from view: ProfileViewProtocol?)
+    func showAccountSelection(
+        from view: ProfileViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
     func showSoraCard(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
@@ -47,6 +51,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     )
     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
+    func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

@@ -43,7 +43,7 @@ final class FiltersViewController: UIViewController, ViewHolder {
         case .empty:
             rootView.tableView.isHidden = true
 
-        case let .loaded(viewModel):
+        case .loaded:
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
         }
@@ -76,7 +76,7 @@ extension FiltersViewController: UITableViewDataSource, UITableViewDelegate {
     }
 
     func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        guard case let .loaded(viewModel) = state else {
+        guard case .loaded = state else {
             return 0
         }
 
@@ -129,5 +129,9 @@ extension FiltersViewController: FiltersViewProtocol {
 
     func didReceive(locale: Locale) {
         rootView.locale = locale
+    }
+
+    func didReceive(applyEnabled: Bool) {
+        rootView.applyButton.set(enabled: applyEnabled)
     }
 }

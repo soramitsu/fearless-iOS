@@ -36,7 +36,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }()
 
     private var networkInfoContainerView: UIView!
-    private var networkInfoView: NetworkInfoView!
+    private var networkInfoView: NetworkInfoView?
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
     private lazy var analyticsContainerView = UIView()
@@ -57,7 +57,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return tableView
     }()
 
-    private lazy var storiesModel: LocalizableResource<StoriesModel> = StoriesFactory.createModel()
+    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relayChain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?
@@ -95,7 +95,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
 
-        networkInfoView.didAppearSkeleton()
+        networkInfoView?.didAppearSkeleton()
         analyticsView.didAppearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
@@ -110,7 +110,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         clearKeyboardHandler()
 
-        networkInfoView.didDisappearSkeleton()
+        networkInfoView?.didDisappearSkeleton()
         analyticsView.didDisappearSkeleton()
 
         if let skeletonState = stateView as? SkeletonLoadable {
@@ -121,7 +121,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        networkInfoView.didUpdateSkeletonLayout()
+        networkInfoView?.didUpdateSkeletonLayout()
         analyticsView.didUpdateSkeletonLayout()
 
         if let skeletonState = stateView as? SkeletonLoadable {
@@ -209,13 +209,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func configureStoriesView() {
-        networkInfoView.collectionView.backgroundView = nil
-        networkInfoView.collectionView.backgroundColor = UIColor.clear
+        networkInfoView?.collectionView.backgroundView = nil
+        networkInfoView?.collectionView.backgroundColor = UIColor.clear
 
-        networkInfoView.collectionView.dataSource = self
-        networkInfoView.collectionView.delegate = self
+        networkInfoView?.collectionView.dataSource = self
+        networkInfoView?.collectionView.delegate = self
 
-        networkInfoView.collectionView.register(
+        networkInfoView?.collectionView.register(
             UINib(resource: R.nib.storiesPreviewCollectionItem),
             forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier
         )
@@ -345,7 +345,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             make.height.equalTo(UIConstants.actionHeight)
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
         }
     }
 
@@ -417,7 +417,7 @@ extension StakingMainViewController: Localizable {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
 
-        networkInfoView.locale = locale
+        networkInfoView?.locale = locale
         stateView?.locale = locale
         alertsView.locale = locale
         analyticsView.locale = locale
@@ -458,7 +458,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         guard networkInfoView != nil else {
             return
         }
-        networkInfoView.bind(viewModel: viewModel)
+        networkInfoView?.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModel) {
@@ -473,7 +473,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         iconButton.imageWithTitleView?.iconImage = R.image.iconFearlessRounded()
         iconButton.invalidateLayout()
 
-        networkInfoView.bind(chainName: viewModel.chainName)
+        networkInfoView?.bind(chainName: viewModel.chainName)
         assetSelectionView.title = viewModel.assetName
         assetSelectionView.subtitle = viewModel.balanceViewModel?.value(for: selectedLocale)
 
@@ -523,11 +523,16 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func expandNetworkInfoView(_ isExpanded: Bool) {
-        networkInfoView.setExpanded(isExpanded, animated: false)
+        networkInfoView?.setExpanded(isExpanded, animated: false)
     }
 
     @objc func actionAssetSelection() {
         presenter?.performAssetSelection()
+    }
+
+    func didReceive(stories: LocalizableResource<StoriesModel>) {
+        storiesModel = stories
+        networkInfoView?.collectionView.reloadData()
     }
 }
 
@@ -548,7 +553,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
     func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
         let localKeyboardFrame = view.convert(frame, from: nil)
-        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY + UIConstants.actionHeight
         let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
 
         var contentInsets = scrollView.contentInset
@@ -563,7 +568,7 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             let updatedFrame = CGRect(
                 origin: CGPoint(
                     x: fieldFrame.origin.x,
-                    y: fieldFrame.origin.y + UIConstants.actionHeight + UIConstants.bigOffset
+                    y: fieldFrame.origin.y + UIConstants.actionHeight
                 ),
                 size: fieldFrame.size
             )
@@ -571,15 +576,16 @@ extension StakingMainViewController: KeyboardViewAdoptable {
             scrollView.scrollRectToVisible(updatedFrame, animated: true)
 
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom)
-                    .inset(updatedFrame.height + UIConstants.bigOffset)
+                make.bottom.equalTo(view.safeAreaLayoutGuide)
+                    .inset(updatedFrame.height + UIConstants.accessoryBarHeight)
             }
         } else {
             actionButton.snp.updateConstraints { make in
-                make.bottom.equalTo(view.safeAreaLayoutGuide.snp.bottom).inset(UIConstants.bigOffset)
+                make.bottom.equalTo(view.safeAreaLayoutGuide).inset(UIConstants.bigOffset)
             }
         }
 
+        changeActionButtonVisibility(!actionButton.isHidden)
         UIView.animate(withDuration: Constants.keyboardAnimateDuration) {
             self.view.layoutIfNeeded()
         }
@@ -590,13 +596,21 @@ extension StakingMainViewController: KeyboardViewAdoptable {
 
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
-        storiesModel.value(for: selectedLocale).stories.count
+        guard let storiesModel = storiesModel else {
+            return 0
+        }
+
+        return storiesModel.value(for: selectedLocale).stories.count
     }
 
     func collectionView(
         _ collectionView: UICollectionView,
         cellForItemAt indexPath: IndexPath
     ) -> UICollectionViewCell {
+        guard let storiesModel = storiesModel else {
+            return UICollectionViewCell()
+        }
+
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
             for: indexPath

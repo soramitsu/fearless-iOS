@@ -74,7 +74,7 @@ class StakingRewardCalculatorView: UIView {
         return label
     }()
 
-    private var inputViewModel: AmountInputViewModelProtocol?
+    private var inputViewModel: IAmountInputViewModel?
     private var widgetViewModel: StakingEstimationViewModel?
     private var skeletonView: SkrullableView?
 
@@ -224,7 +224,6 @@ class StakingRewardCalculatorView: UIView {
         let newInputViewModel = AmountInputViewModel(
             symbol: assetInfo.symbol,
             amount: widgetViewModel.amount,
-            limit: widgetViewModel.inputLimit,
             formatter: formatter,
             precision: Int16(formatter.maximumFractionDigits)
         )

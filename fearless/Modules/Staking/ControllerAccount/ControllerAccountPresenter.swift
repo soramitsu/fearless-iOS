@@ -229,7 +229,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
                 let amount = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(asset.precision)
                 )
                 if address == stashItem?.stash {

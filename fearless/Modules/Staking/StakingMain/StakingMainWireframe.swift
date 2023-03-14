@@ -62,8 +62,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int) {
-        guard let storiesView = StoriesViewFactory.createView(with: index) else {
+    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int, chainAsset: ChainAsset) {
+        guard let storiesView = StoriesViewFactory.createView(with: index, chainAsset: chainAsset) else {
             return
         }
 
@@ -184,17 +184,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showAccountsSelection(from view: StakingMainViewProtocol?) {
-        guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
+    func showAccountsSelection(
+        from view: StakingMainViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    ) {
+        guard
+            let module = WalletsManagmentAssembly.configureModule(
+                shouldSaveSelected: true,
+                moduleOutput: moduleOutput
+            )
+        else {
             return
         }
 
-        accountsView.controller.hidesBottomBarWhenPushed = true
-
-        view?.controller.navigationController?.pushViewController(
-            accountsView.controller,
-            animated: true
-        )
+        view?.controller.present(module.view.controller, animated: true)
     }
 
     func showRewardDestination(

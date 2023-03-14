@@ -11,7 +11,7 @@ protocol QREncoderProtocol {
 }
 
 protocol QRDecoderProtocol {
-    func decode(data: Data) throws -> AddressQRInfo
+    func decode(data: Data) throws -> QRInfo
 }
 
 enum QRType {
@@ -46,12 +46,12 @@ final class QRDecoder: QRDecoderProtocol {
         CexQRDecoder()
     ]
 
-    func decode(data: Data) throws -> AddressQRInfo {
+    func decode(data: Data) throws -> QRInfo {
         let info = qrDecoders.compactMap {
             try? $0.decode(data: data)
         }.first
 
-        guard let info = info as? AddressQRInfo else {
+        guard let info = info else {
             throw QRDecoderError.wrongDecoder
         }
 
@@ -65,6 +65,20 @@ struct SoraQRInfo: QRInfo, Equatable {
     public let rawPublicKey: Data
     public let username: String?
     public let assetId: String
+
+    init(
+        prefix: String = SubstrateQR.prefix,
+        address: String,
+        rawPublicKey: Data,
+        username: String?,
+        assetId: String
+    ) {
+        self.prefix = prefix
+        self.address = address
+        self.rawPublicKey = rawPublicKey
+        self.username = username
+        self.assetId = assetId
+    }
 }
 
 final class CexQREncoder {
@@ -84,7 +98,7 @@ final class SoraQREncoder {
     }
 
     public func encode(addressInfo: SoraQRInfo) throws -> Data {
-        var fields: [String] = [
+        let fields: [String] = [
             addressInfo.prefix,
             addressInfo.address,
             addressInfo.rawPublicKey.toHex(includePrefix: true),
@@ -116,20 +130,23 @@ final class SoraQRDecoder: QRDecodable {
         let address = fields[1]
         let publicKey = try Data(hexString: fields[2])
         let username = fields.count > 3 ? fields[3] : nil
+        let assetId = fields[4]
 
         if address.hasPrefix("0x") {
-            return AddressQRInfo(
+            return SoraQRInfo(
                 address: address,
                 rawPublicKey: publicKey,
-                username: username
+                username: username,
+                assetId: assetId
             )
         }
 
-        return AddressQRInfo(
+        return SoraQRInfo(
             prefix: prefix,
             address: address,
             rawPublicKey: publicKey,
-            username: username
+            username: username,
+            assetId: assetId
         )
     }
 }

@@ -9,6 +9,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveStakingState(viewModel: StakingViewState)
     func expandNetworkInfoView(_ isExpanded: Bool)
     func didReceive(stakingEstimationViewModel: StakingEstimationViewModel)
+    func didReceive(stories: LocalizableResource<StoriesModel>)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
@@ -87,7 +88,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveBottomDelegations(delegations: [AccountAddress: ParachainStakingDelegations]?)
 }
 
-protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, StakingErrorPresentable, AccountManagementPresentable {
     func showSetupAmount(
         from view: StakingMainViewProtocol?,
         amount: Decimal?,
@@ -113,7 +114,8 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
 
     func showStories(
         from view: ControllerBackedProtocol?,
-        startingFrom index: Int
+        startingFrom index: Int,
+        chainAsset: ChainAsset
     )
 
     func showRewardDetails(
@@ -165,7 +167,10 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
         selectedAccount: MetaAccountModel
     )
 
-    func showAccountsSelection(from view: StakingMainViewProtocol?)
+    func showAccountsSelection(
+        from view: StakingMainViewProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    )
 
     func showBondMore(
         from view: ControllerBackedProtocol?,

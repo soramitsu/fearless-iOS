@@ -6,6 +6,7 @@ class WalletTransactionHistoryCell: UITableViewCell {
     private enum LayoutConstants {
         static let accountImageViewSize = CGSize(width: 32, height: 32)
         static let accountImageSize: CGFloat = 32
+        static let statusImageViewSize = CGSize(width: 16, height: 16)
     }
 
     let accountIconImageView: UIImageView = {
@@ -34,8 +35,6 @@ class WalletTransactionHistoryCell: UITableViewCell {
         return label
     }()
 
-    let transactionStatusIconImageView = UIImageView()
-
     let transactionTypeLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
@@ -49,6 +48,13 @@ class WalletTransactionHistoryCell: UITableViewCell {
         label.textColor = R.color.colorAlmostWhite()
         label.textAlignment = .right
         return label
+    }()
+
+    let transactionStatusIconImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconTxFailed()
+        imageView.contentMode = .scaleAspectFit
+        return imageView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -87,6 +93,8 @@ class WalletTransactionHistoryCell: UITableViewCell {
         secondlineStackView.addArrangedSubview(transactionTypeLabel)
         secondlineStackView.addArrangedSubview(transactionTimeLabel)
 
+        firstlineStackView.setCustomSpacing(UIConstants.defaultOffset, after: transactionAmountLabel)
+
         transactionAmountLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
         transactionAmountLabel.setContentCompressionResistancePriority(.required, for: .horizontal)
         transactionTypeLabel.setContentHuggingPriority(.defaultLow, for: .horizontal)
@@ -102,6 +110,10 @@ class WalletTransactionHistoryCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalToSuperview().offset(UIConstants.defaultOffset)
             make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+        }
+
+        transactionStatusIconImageView.snp.makeConstraints { make in
+            make.size.equalTo(LayoutConstants.statusImageViewSize)
         }
     }
 

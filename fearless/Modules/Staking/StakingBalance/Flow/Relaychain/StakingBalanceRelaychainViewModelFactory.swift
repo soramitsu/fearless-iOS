@@ -161,11 +161,6 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                     ) ?? .zero
                 let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
                 let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-                let timeLeft = timeLeftAttributedString(
-                    unbondingEra: unbondingItem.era,
-                    eraCountdown: balanceData.eraCountdown,
-                    locale: locale
-                )
 
                 return UnbondingItemViewModel(
                     addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),

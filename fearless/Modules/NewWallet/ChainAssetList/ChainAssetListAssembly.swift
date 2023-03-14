@@ -76,7 +76,8 @@ final class ChainAssetListAssembly {
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
-            assetBalanceFormatterFactory: AssetBalanceFormatterFactory()
+            assetBalanceFormatterFactory: AssetBalanceFormatterFactory(),
+            settings: SettingsManager.shared
         )
 
         let presenter = ChainAssetListPresenter(

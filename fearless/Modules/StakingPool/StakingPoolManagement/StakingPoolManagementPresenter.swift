@@ -353,7 +353,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            if let balance = accountInfo?.data.available {
+            if let balance = accountInfo?.data.stakingAvailable {
                 self.balance = Decimal.fromSubstrateAmount(
                     balance,
                     precision: Int16(chainAsset.asset.precision)

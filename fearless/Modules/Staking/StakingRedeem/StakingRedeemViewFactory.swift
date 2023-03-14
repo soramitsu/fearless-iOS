@@ -59,7 +59,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     ) -> StakingRedeemPresenter {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
             selectedMetaAccount: wallet
         )
 
@@ -126,9 +125,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -164,7 +160,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
             selectedMetaAccount: wallet
         )
 

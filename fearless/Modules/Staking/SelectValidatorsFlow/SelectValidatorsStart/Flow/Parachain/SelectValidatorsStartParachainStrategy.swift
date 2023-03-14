@@ -64,8 +64,9 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                 let selectedCandidates: [ParachainStakingCandidateInfo]? = allSelectedCollators.filter { candidate in
                     !usedCollatorsIds.contains(candidate.owner)
                 }
-                self?.output?.didReceiveSelectedCandidates(selectedCandidates: selectedCandidates ?? [])
-
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveSelectedCandidates(selectedCandidates: selectedCandidates ?? [])
+                }
                 if let collators = selectedCandidates {
                     self?.requestTopDelegationsForEachCollator(collators: collators)
                 }
@@ -92,7 +93,9 @@ final class SelectValidatorsStartParachainStrategy: RuntimeConstantFetching {
                     return
                 }
 
-                self?.output?.didReceiveTopDelegations(delegations: delegations)
+                DispatchQueue.main.async {
+                    self?.output?.didReceiveTopDelegations(delegations: delegations)
+                }
             } catch {
                 print("SelectValidatorsStartParachainStrategy.requestTopDelegationsForEachCollator error: ", error)
             }

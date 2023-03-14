@@ -66,7 +66,7 @@ final class StakingPoolMainPresenter {
     // MARK: - Private methods
 
     private func provideBalanceViewModel() {
-        if let availableValue = accountInfo?.data.available {
+        if let availableValue = accountInfo?.data.stakingAvailable {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
                 precision: Int16(chainAsset.asset.precision)
@@ -114,7 +114,7 @@ final class StakingPoolMainPresenter {
             stakeInfo: stakeInfo,
             priceData: priceData,
             chainAsset: chainAsset,
-            era: eraStakersInfo?.activeEra,
+            era: era,
             poolInfo: poolInfo,
             nomination: nomination,
             pendingRewards: pendingRewards
@@ -176,6 +176,14 @@ final class StakingPoolMainPresenter {
 
         return poolAccountId[0 ... 31]
     }
+
+    private func performChangeValidatorsAction() {
+        router.showPoolValidators(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
 }
 
 // MARK: - StakingPoolMainViewOutput
@@ -206,7 +214,7 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
     }
 
     func didTapAccountSelection() {
-        router.showAccountsSelection(from: view)
+        router.showAccountsSelection(from: view, moduleOutput: self)
     }
 
     func performRewardInfoAction() {
@@ -252,6 +260,19 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
         )
         stakingManagmentModuleInput = input
     }
+
+    func didTapStatusView() {
+        switch poolInfo?.info.state {
+        case .open:
+            if (nomination?.targets).isNullOrEmpty != false {
+                performChangeValidatorsAction()
+            }
+        case .blocked, .destroying:
+            break
+        case .none:
+            break
+        }
+    }
 }
 
 // MARK: - StakingPoolMainInteractorOutput
@@ -280,7 +301,7 @@ extension StakingPoolMainPresenter: StakingPoolMainInteractorOutput {
         provideStakeInfoViewModel()
     }
 
-    func didReceive(era: EraIndex) {
+    func didReceive(era: EraIndex?) {
         self.era = era
 
         provideStakeInfoViewModel()
@@ -420,5 +441,15 @@ extension StakingPoolMainPresenter: AssetSelectionDelegate {
         case .pool:
             break
         }
+    }
+}
+
+extension StakingPoolMainPresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        router.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        router.showImportWallet(from: view)
     }
 }

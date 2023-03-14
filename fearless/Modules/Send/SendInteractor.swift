@@ -8,13 +8,13 @@ final class SendInteractor: RuntimeConstantFetching {
     private weak var output: SendInteractorOutput?
 
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
-    private let wallet: MetaAccountModel
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let operationManager: OperationManagerProtocol
     private let scamServiceOperationFactory: ScamServiceOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
-    private let chainModelRepository: AnyDataProviderRepository<ChainModel>
+    private let addressChainDefiner: AddressChainDefiner
+    private var equilibriumTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
 
     let dependencyContainer: SendDepencyContainer
 
@@ -25,7 +25,6 @@ final class SendInteractor: RuntimeConstantFetching {
     private(set) lazy var callFactory = SubstrateCallFactory()
 
     init(
-        wallet: MetaAccountModel,
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -33,9 +32,8 @@ final class SendInteractor: RuntimeConstantFetching {
         scamServiceOperationFactory: ScamServiceOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         dependencyContainer: SendDepencyContainer,
-        chainModelRepository: AnyDataProviderRepository<ChainModel>
+        addressChainDefiner: AddressChainDefiner
     ) {
-        self.wallet = wallet
         self.feeProxy = feeProxy
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -43,12 +41,12 @@ final class SendInteractor: RuntimeConstantFetching {
         self.scamServiceOperationFactory = scamServiceOperationFactory
         self.chainAssetFetching = chainAssetFetching
         self.dependencyContainer = dependencyContainer
-        self.chainModelRepository = chainModelRepository
+        self.addressChainDefiner = addressChainDefiner
     }
-}
 
-private extension SendInteractor {
-    func provideConstants(for chainAsset: ChainAsset) {
+    // MARK: - Private methods
+
+    private func provideConstants(for chainAsset: ChainAsset) {
         guard let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else {
             return
         }
@@ -67,20 +65,20 @@ private extension SendInteractor {
                 self?.output?.didReceiveTip(result: result)
             }
         }
+        if chainAsset.chain.isEquilibrium {
+            equilibriumTotalBalanceService = dependencies.equilibruimTotalBalanceService
+        }
     }
 
-    func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
-        var chainAssets: [ChainAsset] = [chainAsset]
-        if let utilityAsset = utilityAsset {
-            chainAssets.append(utilityAsset)
-        }
+    private func subscribeToAccountInfo(for chainAsset: ChainAsset, utilityAsset: ChainAsset? = nil) {
+        let chainAssets: [ChainAsset] = [chainAsset, utilityAsset].compactMap { $0 }
         accountInfoSubscriptionAdapter.subscribe(
             chainsAssets: chainAssets,
             handler: self
         )
     }
 
-    func subscribeToPrice(for chainAsset: ChainAsset) {
+    private func subscribeToPrice(for chainAsset: ChainAsset) {
         priceProvider?.removeObserver(self)
         utilityPriceProvider?.removeObserver(self)
         if let priceId = chainAsset.asset.priceId {
@@ -89,7 +87,7 @@ private extension SendInteractor {
             output?.didReceivePriceData(result: .success(nil), for: nil)
         }
         if chainAsset.chain.isSora, !chainAsset.isUtility,
-           let utilityAsset = getUtilityAsset(for: chainAsset),
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset),
            let priceId = utilityAsset.asset.priceId {
             utilityPriceProvider = subscribeToPrice(for: priceId)
         }
@@ -104,7 +102,8 @@ extension SendInteractor: SendInteractorInput {
 
     func updateSubscriptions(for chainAsset: ChainAsset) {
         subscribeToPrice(for: chainAsset)
-        if chainAsset.chain.isSora, !chainAsset.isUtility, let utilityAsset = getUtilityAsset(for: chainAsset) {
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
+           let utilityAsset = getFeePaymentChainAsset(for: chainAsset) {
             subscribeToAccountInfo(for: chainAsset, utilityAsset: utilityAsset)
             provideConstants(for: utilityAsset)
         } else {
@@ -161,10 +160,6 @@ extension SendInteractor: SendInteractorInput {
         }
     }
 
-    func validate(address: String, for chain: ChainModel) -> Bool {
-        ((try? AddressFactory.accountId(from: address, chain: chain)) != nil)
-    }
-
     func fetchScamInfo(for address: String) {
         let allOperation = scamServiceOperationFactory.fetchScamInfoOperation(for: address)
 
@@ -185,29 +180,31 @@ extension SendInteractor: SendInteractorInput {
         operationManager.enqueue(operations: [allOperation], in: .transient)
     }
 
-    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
+    func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isSora, !chainAsset.isUtility,
+        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
            let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }
         return chainAsset
     }
 
-    func getPossibleChains(for address: String) {
-        let fetchOperation = chainModelRepository.fetchAllOperation(with: RepositoryFetchOptions())
-
-        fetchOperation.completionBlock = {
-            let chains = try? fetchOperation.extractNoCancellableResultData()
-            let posssibleChains = chains?.filter { [weak self] chain in
-                guard let strongSelf = self else { return false }
-                return strongSelf.validate(address: address, for: chain)
-            }
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceive(possibleChains: posssibleChains)
-            }
+    func getPossibleChains(for address: String, completion: @escaping ([ChainModel]?) -> Void) {
+        addressChainDefiner.getPossibleChains(for: address) { chains in
+            completion(chains)
         }
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+    }
+
+    func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
+        addressChainDefiner.validate(address: address, for: chain)
+    }
+
+    func calculateEquilibriumBalance(chainAsset: ChainAsset, amount: Decimal) {
+        if chainAsset.chain.isEquilibrium {
+            let totalBalanceAfterTransfer = equilibriumTotalBalanceService?
+                .totalBalanceAfterTransfer(chainAsset: chainAsset, amount: amount) ?? .zero
+            output?.didReceive(eqTotalBalance: totalBalanceAfterTransfer)
+        }
     }
 }
 

@@ -18,6 +18,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let currencyId: String?
     let displayName: String?
     let existentialDeposit: String?
+    let color: String?
 
     var name: String {
         displayName?.uppercased() ?? symbol.uppercased()
@@ -35,7 +36,8 @@ struct AssetModel: Equatable, Codable, Hashable {
         transfersEnabled: Bool,
         currencyId: String?,
         displayName: String?,
-        existentialDeposit: String?
+        existentialDeposit: String?,
+        color: String?
     ) {
         self.id = id
         self.symbol = symbol
@@ -49,6 +51,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.currencyId = currencyId
         self.displayName = displayName
         self.existentialDeposit = existentialDeposit
+        self.color = color
     }
 
     init(from decoder: Decoder) throws {
@@ -64,6 +67,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         currencyId = try? container.decode(String?.self, forKey: .currencyId)
         displayName = try? container.decode(String?.self, forKey: .displayName)
         existentialDeposit = try? container.decode(String?.self, forKey: .existentialDeposit)
+        color = try? container.decode(String.self, forKey: .color)
 
         price = nil
         fiatDayChange = nil
@@ -82,7 +86,8 @@ struct AssetModel: Equatable, Codable, Hashable {
             transfersEnabled: transfersEnabled,
             currencyId: currencyId,
             displayName: displayName,
-            existentialDeposit: existentialDeposit
+            existentialDeposit: existentialDeposit,
+            color: color
         )
     }
 
@@ -95,7 +100,9 @@ struct AssetModel: Equatable, Codable, Hashable {
             lhs.symbol == rhs.symbol &&
             lhs.transfersEnabled == rhs.transfersEnabled &&
             lhs.currencyId == rhs.currencyId &&
-            lhs.displayName == rhs.displayName
+            lhs.displayName == rhs.displayName &&
+            lhs.existentialDeposit == rhs.existentialDeposit &&
+            lhs.color == rhs.color
     }
 }
 

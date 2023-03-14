@@ -48,7 +48,7 @@ final class RewardEstimationView: LocalizableView {
         }
     }
 
-    private var inputViewModel: AmountInputViewModelProtocol?
+    private var inputViewModel: IAmountInputViewModel?
     private var widgetViewModel: StakingEstimationViewModel?
 
     override func awakeFromNib() {
@@ -127,7 +127,6 @@ final class RewardEstimationView: LocalizableView {
         let newInputViewModel = AmountInputViewModel(
             symbol: assetInfo.symbol,
             amount: widgetViewModel.amount,
-            limit: widgetViewModel.inputLimit,
             formatter: formatter,
             precision: Int16(formatter.maximumFractionDigits)
         )
@@ -314,7 +313,9 @@ extension RewardEstimationView: AmountInputViewModelObserver {
 
         amountInputView.fieldText = inputViewModel.displayAmount
 
-        let amount = inputViewModel.decimalAmount
+        guard let amount = inputViewModel.decimalAmount else {
+            return
+        }
 
         delegate?.rewardEstimationView(self, didChange: amount)
     }

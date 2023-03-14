@@ -16,7 +16,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: selectedAccount
         )
 
@@ -79,13 +79,13 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     ) -> StakingAmountPresenter? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: selectedAccount
         )
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: selectedAccount
         )
 
@@ -154,7 +154,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -292,7 +292,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let subqueryRewardOperationFactory = SubqueryRewardOperationFactory(url: chain.externalApi?.staking?.url)
+        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -300,7 +300,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: subqueryRewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory
         )
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
@@ -313,14 +313,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
         else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()

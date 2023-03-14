@@ -56,17 +56,20 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
         view?.controller.present(infoVew, animated: true, completion: nil)
     }
 
-    func showAccountsSelection(from view: ControllerBackedProtocol?) {
-        guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
+    func showAccountsSelection(
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput
+    ) {
+        guard
+            let module = WalletsManagmentAssembly.configureModule(
+                shouldSaveSelected: true,
+                moduleOutput: moduleOutput
+            )
+        else {
             return
         }
 
-        accountsView.controller.hidesBottomBarWhenPushed = true
-
-        view?.controller.navigationController?.pushViewController(
-            accountsView.controller,
-            animated: true
-        )
+        view?.controller.present(module.view.controller, animated: true)
     }
 
     func showStakingManagement(
@@ -88,5 +91,25 @@ final class StakingPoolMainRouter: StakingPoolMainRouterInput {
         view?.controller.present(navigationController, animated: true)
 
         return module.input
+    }
+
+    func showPoolValidators(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let validatorsView = YourValidatorListViewFactory.createView(
+            chainAsset: chainAsset,
+            wallet: wallet,
+            flow: .pool
+        ) else {
+            return
+        }
+
+        let navigationController = ImportantFlowViewFactory.createNavigation(
+            from: validatorsView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }

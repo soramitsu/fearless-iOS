@@ -23,14 +23,16 @@ class RuntimePoolTests: XCTestCase {
         }
 
         stub(factory) { stub in
-            stub.createRuntimeProvider(for: any()).thenReturn(
+            stub.createRuntimeProvider(for: any(),
+                                       chainTypes: any(),
+                                       usedRuntimePaths: any()).thenReturn(
                 expectedRuntimeProvider,
                 MockRuntimeProviderProtocol()
             )
         }
 
-        let newProvider = runtimePool.setupRuntimeProvider(for: chain)
-        let cachedProvider = runtimePool.setupRuntimeProvider(for: chain)
+        let newProvider = runtimePool.setupRuntimeProvider(for: chain, chainTypes: nil)
+        let cachedProvider = runtimePool.setupRuntimeProvider(for: chain, chainTypes: nil)
         let fetchedProvider = runtimePool.getRuntimeProvider(for: chain.chainId)
 
         runtimePool.destroyRuntimeProvider(for: chain.chainId)
@@ -44,7 +46,7 @@ class RuntimePoolTests: XCTestCase {
         XCTAssertTrue(expectedRuntimeProvider === fetchedProvider)
         XCTAssertNil(removedProvider)
 
-        verify(factory, times(1)).createRuntimeProvider(for: any())
+        verify(factory, times(1)).createRuntimeProvider(for: any(), chainTypes: any(), usedRuntimePaths: any())
         verify(expectedRuntimeProvider, times(1)).setup()
         verify(expectedRuntimeProvider, times(1)).replaceTypesUsage(any())
         verify(expectedRuntimeProvider, times(1)).cleanup()

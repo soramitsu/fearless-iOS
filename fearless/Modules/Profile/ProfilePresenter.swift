@@ -73,13 +73,15 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     func activateOption(_ option: ProfileOption) {
         switch option {
         case .accountList:
-            wireframe.showAccountSelection(from: view)
+            wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .soraCard:
             wireframe.showSoraCard(from: view)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
             wireframe.showLanguageSelection(from: view)
+        case .polkaswapDisclaimer:
+            wireframe.showPolkaswapDisclaimer(from: view)
         case .about:
             wireframe.showAbout(from: view)
         case .currency:
@@ -87,11 +89,22 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             wireframe.showSelectCurrency(from: view, with: selectedWallet)
         case .biometry:
             break
+        case .zeroBalances:
+            break
         }
     }
 
-    func switcherValueChanged(isOn: Bool) {
-        settings.biometryEnabled = isOn
+    func switcherValueChanged(isOn: Bool, index: Int) {
+        let option = ProfileOption(rawValue: UInt(index))
+        switch option {
+        case .biometry:
+            settings.biometryEnabled = isOn
+        case .zeroBalances:
+            settings.shouldHideZeroBalanceAssets = isOn
+            eventCenter.notify(with: ZeroBalancesSettingChanged())
+        default:
+            break
+        }
     }
 
     func logout() {
@@ -193,5 +206,15 @@ extension ProfilePresenter: EventVisitorProtocol {
         let currency = event.account.selectedCurrency
         selectedWallet = event.account
         interactor.update(currency: currency)
+    }
+}
+
+extension ProfilePresenter: WalletsManagmentModuleOutput {
+    func showAddNewWallet() {
+        wireframe.showCreateNewWallet(from: view)
+    }
+
+    func showImportWallet() {
+        wireframe.showImportWallet(from: view)
     }
 }

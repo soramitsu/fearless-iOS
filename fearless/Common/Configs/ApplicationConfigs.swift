@@ -38,6 +38,7 @@ protocol ApplicationConfigProtocol {
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
+    var polkaswapSettingsURL: URL? { get }
 }
 
 final class ApplicationConfig {
@@ -116,7 +117,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var learnPayoutURL: URL {
-        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+        URL(string: "https://wiki.polkadot.network/docs/learn-staking-advanced#simple-payouts")!
     }
 
     var learnControllerAccountURL: URL {
@@ -202,6 +203,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #endif
     }
 
+    var polkaswapSettingsURL: URL? {
+        GitHubUrl.url(suffix: "polkaswapSettings.json")
+    }
+
     var fiatsURL: URL? {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/v2/fiat/fiats.json")
     }
@@ -220,7 +225,7 @@ private enum GitHubUrl {
         URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "ios/v3-jsonupd"
+    private static let defaultBranch = "v4"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)

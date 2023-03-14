@@ -67,40 +67,6 @@ final class AccountCreationHelper {
         try selectMetaAccount(accountItem, settings: settings)
     }
 
-    static func createMetaAccountFromKeystore(
-        substrateFilename: String,
-        ethereumFilename: String?,
-        substratePassword: String,
-        ethereumPassword: String?,
-        keychain: KeystoreProtocol,
-        settings: SelectedWalletSettings
-    ) throws {
-        guard let substrateUrl = Bundle(for: AccountCreationHelper.self)
-                .url(forResource: substrateFilename, withExtension: "json") else { return }
-        let substrateData = try Data(contentsOf: substrateUrl)
-        
-        let ethereumData: Data?
-        if let ethereumFilename = ethereumFilename,
-            let ethereumUrl = Bundle(for: AccountCreationHelper.self).url(forResource: ethereumFilename, withExtension: "json") {
-            ethereumData = try? Data(contentsOf: ethereumUrl)
-        } else {
-            ethereumData = nil
-        }
-
-        let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: substrateData)
-
-        let info = try AccountImportJsonFactory().createInfo(from: definition)
-        let cryptoType = CryptoType(rawValue: info.cryptoType?.rawValue ?? CryptoType.sr25519.rawValue)
-
-        return try createMetaAccountFromKeystoreData(substrateData: substrateData,
-                                                     ethereumData: ethereumData,
-                                                     substratePassword: substratePassword,
-                                                     ethereumPassword: ethereumPassword,
-                                                     keychain: keychain,
-                                                     settings: settings,
-                                                     cryptoType: cryptoType ?? .sr25519)
-    }
-
     static func createMetaAccountFromKeystoreData(
         substrateData: Data,
         ethereumData: Data?,

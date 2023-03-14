@@ -197,7 +197,7 @@ final class StorageFallbackDecodingListOperation<T: Decodable>: BaseOperation<[T
         }
 
         do {
-            guard var dataList = dataList, let factory = codingFactory else {
+            guard let dataList = dataList, let factory = codingFactory else {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 

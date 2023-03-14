@@ -19,9 +19,11 @@ enum ProfileOption: UInt, CaseIterable {
     case soraCard
     case currency
     case language
+    case polkaswapDisclaimer
     case changePincode
     case biometry
     case about
+    case zeroBalances
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -116,12 +118,16 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createChangePincode(for: locale)
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
+            case .polkaswapDisclaimer:
+                return createPolkaswapDisclaimer(locale: locale)
             case .about:
                 return createAboutViewModel(for: locale)
             case .biometry:
                 return createBiometryViewModel()
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
+            case .zeroBalances:
+                return createZeroBalancesViewModel(for: locale)
             }
         }
 
@@ -214,6 +220,20 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return viewModel
     }
 
+    private func createPolkaswapDisclaimer(locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .polkaswapDisclaimerSettings(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.pinkPolkaswap()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow,
+            option: .polkaswapDisclaimer
+        )
+
+        return viewModel
+    }
+
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
@@ -223,6 +243,18 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .arrow,
             option: .about
+        )
+    }
+
+    private func createZeroBalancesViewModel(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconZeroBalances()!,
+            accessoryTitle: nil,
+            accessoryType: .switcher(settings.shouldHideZeroBalanceAssets ?? false),
+            option: .zeroBalances
         )
     }
 

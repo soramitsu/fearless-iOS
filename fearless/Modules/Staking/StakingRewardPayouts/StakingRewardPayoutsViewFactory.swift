@@ -11,21 +11,17 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         selectedAccount: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let addressFactory = SS58AddressFactory()
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
-        guard let rewardsUrl = chain.externalApi?.history?.url else {
+        guard let validatorsResolutionFactory = PayoutValidatorsFactoryAssembly
+            .createPayoutValidatorsFactory(chainAsset: chainAsset) else {
             return nil
         }
-
-        let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
-            url: rewardsUrl,
-            addressFactory: addressFactory
-        )
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
             addressPrefix: chain.addressPrefix,
             precision: Int16(asset.precision),
-            addressFactory: addressFactory
+            chainAsset: chainAsset
         )
 
         return createView(
@@ -117,7 +113,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: selectedAccount
         )
 

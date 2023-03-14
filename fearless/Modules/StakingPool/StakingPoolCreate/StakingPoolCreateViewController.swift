@@ -12,7 +12,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
 
     private let output: StakingPoolCreateViewOutput
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var poolNameInputViewModel: InputViewModelProtocol?
 
     // MARK: - Constructor
@@ -71,7 +71,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true && (rootView.poolNameInputView.text?.isNotEmpty == true))
+        let isEnabled = (amountInputViewModel?.isValid == true && (poolNameInputViewModel?.inputHandler.value.isNotEmpty == true))
         rootView.feeView.actionButton.set(enabled: isEnabled)
     }
 
@@ -96,6 +96,11 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
             action: #selector(handleBackButtonTapped),
             for: .touchUpInside
         )
+        rootView.rootAccountView.addTarget(
+            self,
+            action: #selector(handleRootTapped),
+            for: .touchUpInside
+        )
     }
 
     // MARK: - Private actions
@@ -115,6 +120,10 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
     @objc private func handleBackButtonTapped() {
         output.backDidTapped()
     }
+
+    @objc private func handleRootTapped() {
+        output.rootDidTapped()
+    }
 }
 
 // MARK: - StakingPoolCreateViewInput
@@ -128,7 +137,7 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel) {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)
@@ -143,6 +152,7 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
 
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?) {
         rootView.feeView.bindBalance(viewModel: feeViewModel)
+        updateActionButton()
     }
 }
 
@@ -215,11 +225,13 @@ extension StakingPoolCreateViewController: AnimatedTextFieldDelegate {
 
         output.nameTextFieldInputValueChanged()
 
+        updateActionButton()
+
         return shouldApply
     }
 }
 
-// MARK: -
+// MARK: - KeyboardViewAdoptable
 
 extension StakingPoolCreateViewController: KeyboardViewAdoptable {
     var target: Constraint? { rootView.keyboardAdoptableConstraint }

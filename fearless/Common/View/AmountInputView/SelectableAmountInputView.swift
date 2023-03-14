@@ -1,11 +1,19 @@
 import UIKit
 import Kingfisher
 
+enum SelectableAmountInputViewType {
+    case send
+    case swapSend
+    case swapReceive
+}
+
 final class SelectableAmountInputView: UIView {
     enum LayoutConstants {
         static let iconSize: CGFloat = 28
         static let offset: CGFloat = 12
     }
+
+    private let type: SelectableAmountInputViewType
 
     private let triangularedBackgroundView: TriangularedView = {
         let view = TriangularedView()
@@ -102,8 +110,9 @@ final class SelectableAmountInputView: UIView {
 
     // MARK: - Constructor
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(type: SelectableAmountInputViewType) {
+        self.type = type
+        super.init(frame: .zero)
         configure()
         setupLayout()
         applyLocalization()
@@ -116,17 +125,19 @@ final class SelectableAmountInputView: UIView {
 
     // MARK: - Public methods
 
-    func bind(viewModel: AssetBalanceViewModelProtocol) {
-        iconView.isHidden = (viewModel.iconViewModel == nil)
+    func bind(viewModel: AssetBalanceViewModelProtocol?) {
+        guard let viewModel = viewModel else {
+            iconView.image = R.image.addressPlaceholder()
+            symbolLabel.text = R.string.localizable
+                .commonSelectAsset(preferredLanguages: locale.rLanguages)
+            return
+        }
         clearInputView()
 
         priceLabel.text = viewModel.price
 
         if let balance = viewModel.balance {
-            balanceLabel.text = R.string.localizable.commonBalanceFormat(
-                balance,
-                preferredLanguages: locale.rLanguages
-            )
+            applyType(for: balance)
         } else {
             balanceLabel.text = nil
         }
@@ -143,16 +154,35 @@ final class SelectableAmountInputView: UIView {
         iconView.kf.cancelDownloadTask()
     }
 
+    private func applyType(for balance: String) {
+        switch type {
+        case .send, .swapSend, .swapReceive:
+            balanceLabel.text = R.string.localizable.commonAvailableFormat(
+                balance,
+                preferredLanguages: locale.rLanguages
+            )
+        }
+    }
+
+    private func applyLocalization() {
+        switch type {
+        case .send:
+            titleLabel.text = R.string.localizable
+                .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        case .swapSend:
+            titleLabel.text = R.string.localizable
+                .walletSendTitle(preferredLanguages: locale.rLanguages)
+        case .swapReceive:
+            titleLabel.text = R.string.localizable
+                .walletAssetReceive(preferredLanguages: locale.rLanguages)
+        }
+    }
+
     private func configure() {
         let tapGesture = UITapGestureRecognizer(target: self, action: #selector(handleTapGesture))
         addGestureRecognizer(tapGesture)
 
         selectButton.addTarget(self, action: #selector(handleSelect), for: .touchUpInside)
-    }
-
-    private func applyLocalization() {
-        titleLabel.text = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -166,6 +196,9 @@ final class SelectableAmountInputView: UIView {
         symbolStackView.addArrangedSubview(iconSelect)
         addSubview(textField)
         addSubview(balanceLabel)
+
+        symbolLabel.setContentCompressionResistancePriority(.defaultHigh, for: .horizontal)
+        textField.setContentCompressionResistancePriority(.defaultLow, for: .horizontal)
 
         triangularedBackgroundView.snp.makeConstraints { make in
             make.edges.equalToSuperview()

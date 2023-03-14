@@ -56,11 +56,10 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
     }
 
     func getAvailableExportOptions(for address: String) {
-        fetchChainAccount(
+        fetchChainAccountFor(
+            meta: wallet,
             chain: chainAsset.chain,
-            address: address,
-            from: repository,
-            operationManager: operationManager
+            address: address
         ) { [weak self] result in
             switch result {
             case let .success(chainResponse):

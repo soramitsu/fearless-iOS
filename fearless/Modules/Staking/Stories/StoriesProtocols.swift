@@ -33,5 +33,5 @@ protocol StoriesWireframeProtocol: WebPresentable {
 }
 
 protocol StoriesViewFactoryProtocol: AnyObject {
-    static func createView(with index: Int) -> StoriesViewProtocol?
+    static func createView(with index: Int, chainAsset: ChainAsset) -> StoriesViewProtocol?
 }

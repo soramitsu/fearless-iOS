@@ -1,11 +1,12 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
+import BigInt
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
     func buildViewModel(
-        displayType: AssetListDisplayType,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -16,15 +17,27 @@ protocol ChainAssetListViewModelFactoryProtocol {
 }
 
 final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtocol {
-    private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    struct AssetChainAssets {
+        let chainAssets: [ChainAsset]
+        let mainChainAsset: ChainAsset
+        let totalBalance: Decimal
+        let totalFiatBalance: Decimal
+    }
 
-    init(assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol) {
+    private let assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol
+    private var polkadotChainId: String?
+    private let settings: SettingsManagerProtocol
+
+    init(
+        assetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.assetBalanceFormatterFactory = assetBalanceFormatterFactory
+        self.settings = settings
     }
 
     func buildViewModel(
-        displayType: AssetListDisplayType,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         chainAssets: [ChainAsset],
         locale: Locale,
         accountInfos: [ChainAssetKey: AccountInfo?],
@@ -35,7 +48,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         var fiatBalanceByChainAsset: [ChainAsset: Decimal] = [:]
 
         chainAssets.forEach { chainAsset in
-            guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
                 return
             }
             let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] ?? nil
@@ -48,22 +61,25 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
             )
         }
 
-        var utilityChainAssets = chainAssets
-        switch displayType {
-        case .chain:
-            break
-        case .assetChains:
-            utilityChainAssets = filteredUnique(chainAssets: chainAssets.filter { $0.isUtility == true })
+        if let polkadotId = chainAssets.first { chain in
+            chain.isUtility && chain.chain.name.lowercased() == "polkadot"
+        }?.chain.chainId {
+            self.polkadotChainId = polkadotId
         }
 
-        utilityChainAssets = sortAssetList(
-            wallet: selectedMetaAccount,
-            chainAssets: utilityChainAssets,
+        let assetChainAssetsArray = createAssetChainAssets(
+            from: chainAssets,
             accountInfos: accountInfos,
-            priceData: prices.pricesData
+            pricesData: prices.pricesData,
+            wallet: wallet
         )
 
-        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = utilityChainAssets.compactMap { chainAsset in
+        let sortedChainAssets = sortAssetList(
+            wallet: wallet,
+            chainAssets: assetChainAssetsArray
+        )
+
+        let chainAssetCellModels: [ChainAccountBalanceCellViewModel] = sortedChainAssets.compactMap { chainAsset in
             let priceId = chainAsset.asset.priceId ?? chainAsset.asset.id
             let priceData = prices.pricesData.first(where: { $0.priceId == priceId })
 
@@ -74,8 +90,8 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
                 priceDataUpdated: prices.updated,
                 accountInfos: accountInfos,
                 locale: locale,
-                currency: selectedMetaAccount.selectedCurrency,
-                selectedMetaAccount: selectedMetaAccount,
+                currency: wallet.selectedCurrency,
+                wallet: wallet,
                 chainsWithIssues: chainsWithIssues,
                 chainsWithMissingAccounts: chainsWithMissingAccounts
             )
@@ -88,7 +104,7 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         let enabledAccountsInfosKeys = accountInfos.keys.filter { key in
             chainAssets.contains { chainAsset in
                 guard
-                    let accountId = selectedMetaAccount.fetch(
+                    let accountId = wallet.fetch(
                         for: chainAsset.chain.accountRequest()
                     )?.accountId else {
                     return false
@@ -99,10 +115,14 @@ final class ChainAssetListViewModelFactory: ChainAssetListViewModelFactoryProtoc
         }
 
         let isColdBoot = enabledAccountsInfosKeys.count != fiatBalanceByChainAsset.count
-        let hiddenSectionIsOpen = selectedMetaAccount.assetFilterOptions.contains(.hiddenSectionOpen)
+        let hiddenSectionIsOpen = wallet.assetFilterOptions.contains(.hiddenSectionOpen)
         var hiddenSectionState: HiddenSectionState = hiddenSectionIsOpen
             ? .expanded
             : .hidden
+
+        if hiddenSectionCellModels.isEmpty {
+            hiddenSectionState = .empty
+        }
         return ChainAssetListViewModel(
             sections: [
                 .active,
@@ -137,12 +157,12 @@ private extension ChainAssetListViewModelFactory {
         accountInfos: [ChainAssetKey: AccountInfo?],
         locale: Locale,
         currency: Currency,
-        selectedMetaAccount: MetaAccountModel,
+        wallet: MetaAccountModel,
         chainsWithIssues: [ChainModel.Id],
         chainsWithMissingAccounts: [ChainModel.Id]
     ) -> ChainAccountBalanceCellViewModel? {
         var accountInfo: AccountInfo?
-        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let key = chainAsset.uniqueKey(accountId: accountId)
             accountInfo = accountInfos[key] ?? nil
         }
@@ -155,7 +175,7 @@ private extension ChainAssetListViewModelFactory {
         let options = buildChainOptionsViewModel(chainAsset: chainAsset)
 
         var isColdBoot = true
-        if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId {
+        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
             let key = chainAsset.uniqueKey(accountId: accountId)
             isColdBoot = !accountInfos.keys.contains(key)
         }
@@ -168,12 +188,12 @@ private extension ChainAssetListViewModelFactory {
         }) != nil
         let isMissingAccount = containsChainAssets.first(where: {
             chainsWithMissingAccounts.contains($0.chain.chainId)
-                || selectedMetaAccount.unusedChainIds.or([]).contains($0.chain.chainId)
+                || wallet.unusedChainIds.or([]).contains($0.chain.chainId)
         }) != nil
 
         if
             chainsWithMissingAccounts.contains(chainAsset.chain.chainId)
-            || selectedMetaAccount.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
+            || wallet.unusedChainIds.or([]).contains(chainAsset.chain.chainId) {
             isColdBoot = !isMissingAccount
         }
 
@@ -181,7 +201,7 @@ private extension ChainAssetListViewModelFactory {
             for: containsChainAssets,
             accountInfos: accountInfos,
             locale: locale,
-            selectedMetaAccount: selectedMetaAccount
+            wallet: wallet
         )
 
         let totalFiatBalance = getFiatBalanceString(
@@ -190,11 +210,11 @@ private extension ChainAssetListViewModelFactory {
             priceData: priceData,
             locale: locale,
             currency: currency,
-            selectedMetaAccount: selectedMetaAccount
+            wallet: wallet
         )
 
         var isUnused = false
-        if let unusedChainIds = selectedMetaAccount.unusedChainIds {
+        if let unusedChainIds = wallet.unusedChainIds {
             isUnused = unusedChainIds.contains(chainAsset.chain.chainId)
         }
 
@@ -221,13 +241,13 @@ private extension ChainAssetListViewModelFactory {
             priceDataWasUpdated: priceDataUpdated,
             isNetworkIssues: isNetworkIssues,
             isMissingAccount: isMissingAccount,
-            isHidden: checkForHide(chainAsset: chainAsset, selectedMetaAccount: selectedMetaAccount),
+            isHidden: checkForHide(chainAsset: chainAsset, wallet: wallet),
             isUnused: isUnused,
             locale: locale
         )
 
-        if selectedMetaAccount.assetFilterOptions.contains(.hideZeroBalance),
-           accountInfo == nil,
+        if settings.shouldHideZeroBalanceAssets == true,
+           accountInfo == nil || accountInfo?.data.free == BigUInt.zero,
            !isColdBoot {
             return nil
         } else {
@@ -237,9 +257,7 @@ private extension ChainAssetListViewModelFactory {
 
     func sortAssetList(
         wallet: MetaAccountModel,
-        chainAssets: [ChainAsset],
-        accountInfos: [ChainAssetKey: AccountInfo?],
-        priceData: [PriceData]
+        chainAssets: [AssetChainAssets]
     ) -> [ChainAsset] {
         func fetchAccountIds(
             for ca1: ChainAsset,
@@ -259,55 +277,38 @@ private extension ChainAssetListViewModelFactory {
         }
 
         func sortByOrderKey(
-            ca1: ChainAsset,
-            ca2: ChainAsset,
+            aca1: AssetChainAssets,
+            aca2: AssetChainAssets,
             orderByKey: [String: Int]
         ) -> Bool {
-            guard let accountIds = fetchAccountIds(for: ca1, for: ca2) else {
+            guard let accountIds = fetchAccountIds(for: aca1.mainChainAsset, for: aca2.mainChainAsset) else {
                 return false
             }
 
-            let ca1Order = orderByKey[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? Int.max
-            let ca2Order = orderByKey[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? Int.max
+            let aca1Order = orderByKey[aca1.mainChainAsset.uniqueKey(accountId: accountIds.ca1AccountId)] ?? Int.max
+            let aca2Order = orderByKey[aca2.mainChainAsset.uniqueKey(accountId: accountIds.ca2AccountId)] ?? Int.max
 
-            return ca1Order < ca2Order
+            return aca1Order < aca2Order
         }
 
         func sortByDefaultList(
-            ca1: ChainAsset,
-            ca2: ChainAsset
+            aca1: AssetChainAssets,
+            aca2: AssetChainAssets
         ) -> Bool {
-            guard let accountIds = fetchAccountIds(for: ca1, for: ca2) else {
-                return false
-            }
-
-            let ca1AccountInfo = accountInfos[ca1.uniqueKey(accountId: accountIds.ca1AccountId)] ?? nil
-            let ca2AccountInfo = accountInfos[ca2.uniqueKey(accountId: accountIds.ca2AccountId)] ?? nil
-
-            let ca1PriceId = ca1.asset.priceId ?? ca1.asset.id
-            let ca1PriceData = priceData.first(where: { $0.priceId == ca1PriceId })
-
-            let ca2PriceId = ca2.asset.priceId ?? ca2.asset.id
-            let ca2PriceData = priceData.first(where: { $0.priceId == ca2PriceId })
-
-            let fiatBalanceCa1 = getFiatBalance(for: ca1, accountInfo: ca1AccountInfo, priceData: ca1PriceData)
-            let fiatBalanceCa2 = getFiatBalance(for: ca2, accountInfo: ca2AccountInfo, priceData: ca2PriceData)
-
-            let balanceCa1 = getBalance(for: ca1, accountInfo: ca1AccountInfo)
-            let balanceCa2 = getBalance(for: ca2, accountInfo: ca2AccountInfo)
-
-            return (
-                fiatBalanceCa1,
-                balanceCa1,
-                ca1.chain.isTestnet.intValue,
-                ca1.chain.isPolkadotOrKusama.intValue,
-                ca1.chain.name
+            (
+                aca1.totalFiatBalance,
+                aca1.totalBalance,
+                aca1.mainChainAsset.chain.isTestnet.invert().intValue,
+                aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
+                aca1.mainChainAsset.chain.name,
+                aca1.mainChainAsset.asset.name
             ) > (
-                fiatBalanceCa2,
-                balanceCa2,
-                ca2.chain.isTestnet.intValue,
-                ca2.chain.isPolkadotOrKusama.intValue,
-                ca2.chain.name
+                aca2.totalFiatBalance,
+                aca2.totalBalance,
+                aca2.mainChainAsset.chain.isTestnet.invert().intValue,
+                aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
+                aca2.mainChainAsset.chain.name,
+                aca2.mainChainAsset.asset.name
             )
         }
 
@@ -319,39 +320,51 @@ private extension ChainAssetListViewModelFactory {
                 orderByKey?[key] = index
             }
         }
+        let chainAssetsDivide = chainAssets.divide(predicate: {
+            wallet.fetch(for: $0.mainChainAsset.chain.accountRequest())?.accountId != nil
+        })
+        let chainAssetsWithAccount: [AssetChainAssets] = chainAssetsDivide.slice
+        let chainAssetsWithoutAccount: [AssetChainAssets] = chainAssetsDivide.remainder
 
-        let chainAssetsDivide = chainAssets.divide(predicate: { wallet.fetch(for: $0.chain.accountRequest())?.accountId != nil })
-        let chainAssetsWithAccount: [ChainAsset] = chainAssetsDivide.slice
-        let chainAssetsWithoutAccount: [ChainAsset] = chainAssetsDivide.remainder
-
-        var chainAssetsSorted = chainAssetsWithAccount
-            .sorted { ca1, ca2 in
-                if let orderByKey = orderByKey {
-                    return sortByOrderKey(ca1: ca1, ca2: ca2, orderByKey: orderByKey)
-                } else {
-                    return sortByDefaultList(ca1: ca1, ca2: ca2)
-                }
+        var chainAssetsSorted: [AssetChainAssets] = chainAssetsWithAccount.sorted(by: { aca1, aca2 in
+            if let orderByKey = orderByKey {
+                return sortByOrderKey(aca1: aca1, aca2: aca2, orderByKey: orderByKey)
+            } else {
+                return sortByDefaultList(aca1: aca1, aca2: aca2)
             }
+        })
 
         chainAssetsSorted.append(contentsOf: chainAssetsWithoutAccount)
 
-        return chainAssetsSorted
+        return chainAssetsSorted.compactMap { $0.mainChainAsset }
     }
 
-    func getBalanceString(
+    func getTotalBalance(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
-        locale: Locale,
-        selectedMetaAccount: MetaAccountModel
-    ) -> String? {
-        let totalAssetBalance = chainAssets.compactMap { chainAsset -> Decimal in
-            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+        wallet: MetaAccountModel
+    ) -> Decimal {
+        chainAssets.compactMap { chainAsset -> Decimal in
+            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
                 return getBalance(for: chainAsset, accountInfo: accountInfo)
             }
 
             return Decimal.zero
         }.reduce(0, +)
+    }
+
+    func getBalanceString(
+        for chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        locale: Locale,
+        wallet: MetaAccountModel
+    ) -> String? {
+        let totalAssetBalance = getTotalBalance(
+            for: chainAssets,
+            accountInfos: accountInfos,
+            wallet: wallet
+        )
 
         let digits = totalAssetBalance > 0 ? 4 : 0
         return totalAssetBalance.toString(locale: locale, digits: digits)
@@ -375,16 +388,14 @@ private extension ChainAssetListViewModelFactory {
         return balance
     }
 
-    func getFiatBalanceString(
+    func getTotalFiatBalance(
         for chainAssets: [ChainAsset],
         accountInfos: [ChainAssetKey: AccountInfo?],
         priceData: PriceData?,
-        locale: Locale,
-        currency: Currency,
-        selectedMetaAccount: MetaAccountModel
-    ) -> String? {
-        let totalFiatBalance = chainAssets.compactMap { chainAsset -> Decimal? in
-            if let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId,
+        wallet: MetaAccountModel
+    ) -> Decimal {
+        chainAssets.compactMap { chainAsset -> Decimal? in
+            if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId,
                let accountInfo = accountInfos[chainAsset.uniqueKey(accountId: accountId)] {
                 return getFiatBalance(
                     for: chainAsset,
@@ -395,6 +406,22 @@ private extension ChainAssetListViewModelFactory {
 
             return nil
         }.reduce(0, +)
+    }
+
+    func getFiatBalanceString(
+        for chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        priceData: PriceData?,
+        locale: Locale,
+        currency: Currency,
+        wallet: MetaAccountModel
+    ) -> String? {
+        let totalFiatBalance = getTotalFiatBalance(
+            for: chainAssets,
+            accountInfos: accountInfos,
+            priceData: priceData,
+            wallet: wallet
+        )
 
         guard totalFiatBalance != .zero else { return nil }
 
@@ -467,20 +494,66 @@ private extension ChainAssetListViewModelFactory {
         return priceWithChangeAttributed
     }
 
-    func filteredUnique(chainAssets: [ChainAsset]) -> [ChainAsset] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
-        let result = assetNamesSet.compactMap { name in
-            chainAssets.first { chainAsset in
-                chainAsset.asset.name == name && chainAsset.asset.chainId == chainAsset.chain.chainId
-            }
-        }
-        return result
+    func sortChainAssets(
+        ca1: ChainAsset,
+        ca2: ChainAsset
+    ) -> Bool {
+        (
+            ca1.chain.isTestnet.intValue,
+            ca1.isParentChain().invert().intValue,
+            ca1.isPolkadot(polkadotChainId).invert().intValue
+        ) < (
+            ca2.chain.isTestnet.intValue,
+            ca2.isParentChain().invert().intValue,
+            ca2.isPolkadot(polkadotChainId).invert().intValue
+        )
     }
 
-    func checkForHide(chainAsset: ChainAsset, selectedMetaAccount: MetaAccountModel) -> Bool {
-        let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId
+    func createAssetChainAssets(
+        from chainAssets: [ChainAsset],
+        accountInfos: [ChainAssetKey: AccountInfo?],
+        pricesData: [PriceData],
+        wallet: MetaAccountModel
+    ) -> [AssetChainAssets] {
+        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        return assetNamesSet.compactMap { name in
+            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
+            let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
+                sortChainAssets(ca1: ca1, ca2: ca2)
+            })
+            guard let mainChainAsset =
+                chainAssetsSorted.first(where: { $0.isUtility }) ??
+                chainAssetsSorted.first(where: { $0.isNative == true }) ??
+                chainAssetsSorted.first else {
+                return nil
+            }
+            let totalBalance = getTotalBalance(
+                for: assetChainAssets,
+                accountInfos: accountInfos,
+                wallet: wallet
+            )
+            let priceId = mainChainAsset.asset.priceId ?? mainChainAsset.asset.id
+            let priceData = pricesData.first(where: { $0.priceId == priceId })
+            let totalFiatBalance = getTotalFiatBalance(
+                for: assetChainAssets,
+                accountInfos: accountInfos,
+                priceData: priceData,
+                wallet: wallet
+            )
+            let assetCA = AssetChainAssets(
+                chainAssets: assetChainAssets,
+                mainChainAsset: mainChainAsset,
+                totalBalance: totalBalance,
+                totalFiatBalance: totalFiatBalance
+            )
+            return assetCA
+        }
+    }
 
-        if let assetIdsEnabled = selectedMetaAccount.assetIdsEnabled, let accountId = accountId {
+    func checkForHide(chainAsset: ChainAsset, wallet: MetaAccountModel) -> Bool {
+        let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+
+        if let assetIdsEnabled = wallet.assetIdsEnabled, let accountId = accountId {
             return assetIdsEnabled.contains { assetId in
                 assetId == chainAsset.uniqueKey(accountId: accountId)
             }
@@ -491,3 +564,13 @@ private extension ChainAssetListViewModelFactory {
 
 extension ChainAssetListViewModelFactory: RemoteImageViewModelFactoryProtocol {}
 extension ChainAssetListViewModelFactory: ChainOptionsViewModelFactoryProtocol {}
+
+private extension ChainAsset {
+    func isPolkadot(_ polkadotId: String?) -> Bool {
+        chain.parentId == polkadotId || chain.chainId == polkadotId
+    }
+
+    func isParentChain() -> Bool {
+        chain.parentId == nil
+    }
+}

@@ -10,7 +10,7 @@ typealias StakingPoolCreateModuleCreationResult = (
 
 protocol StakingPoolCreateViewInput: ControllerBackedProtocol {
     func didReceiveAssetBalanceViewModel(_ assetBalanceViewModel: AssetBalanceViewModelProtocol)
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol)
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel)
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?)
     func didReceiveViewModel(_ viewModel: StakingPoolCreateViewModel)
     func didReceive(nameViewModel: InputViewModelProtocol)
@@ -25,6 +25,7 @@ protocol StakingPoolCreateViewOutput: AnyObject {
     func createDidTapped()
     func backDidTapped()
     func nameTextFieldInputValueChanged()
+    func rootDidTapped()
 }
 
 protocol StakingPoolCreateInteractorInput: AnyObject {

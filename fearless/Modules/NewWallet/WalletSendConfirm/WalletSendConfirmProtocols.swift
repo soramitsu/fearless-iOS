@@ -17,16 +17,16 @@ protocol WalletSendConfirmInteractorInputProtocol: AnyObject {
     func setup()
     func submitExtrinsic(for transferAmount: BigUInt, tip: BigUInt?, receiverAddress: String)
     func estimateFee(for amount: BigUInt, tip: BigUInt?)
-    func getUtilityAsset(for chainAsset: ChainAsset?) -> ChainAsset?
+    func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset?
+    func fetchEquilibriumTotalBalance(chainAsset: ChainAsset, amount: Decimal)
 }
 
 protocol WalletSendConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset)
-    func didReceiveBlockDuration(result: Result<BlockTime, Error>)
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>, for priceId: AssetModel.PriceId?)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-
+    func didReceive(eqTotalBalance: Decimal)
     func didTransfer(result: Result<String, Error>)
 }
 
@@ -39,6 +39,7 @@ protocol WalletSendConfirmWireframeProtocol:
     func finish(view: ControllerBackedProtocol?)
     func complete(
         on view: ControllerBackedProtocol?,
-        title: String
+        title: String,
+        chainAsset: ChainAsset
     )
 }

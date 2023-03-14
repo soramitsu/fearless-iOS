@@ -12,7 +12,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     ) -> StakingPayoutConfirmationViewProtocol? {
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 
@@ -117,12 +117,11 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
 
         let keystore = Keychain()
@@ -149,7 +148,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
-            limit: StakingConstants.maxAmount,
+
             selectedMetaAccount: wallet
         )
 

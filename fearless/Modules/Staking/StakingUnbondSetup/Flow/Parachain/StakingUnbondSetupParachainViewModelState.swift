@@ -29,12 +29,15 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         return { [unowned self] builder in
             var newBuilder = builder
             if self.isRevoke {
-                newBuilder = try newBuilder.adding(call: self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner))
+                let call = self.callFactory.scheduleRevokeDelegation(candidate: self.candidate.owner)
+                newBuilder = try newBuilder.adding(call: call)
             } else {
                 if self.isCollator {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleCandidateBondLess(amount: amount))
+                    let call = self.callFactory.scheduleCandidateBondLess(amount: amount)
+                    newBuilder = try newBuilder.adding(call: call)
                 } else {
-                    newBuilder = try newBuilder.adding(call: self.callFactory.scheduleDelegatorBondLess(candidate: self.candidate.owner, amount: amount))
+                    let call = self.callFactory.scheduleDelegatorBondLess(candidate: candidate.owner, amount: amount)
+                    newBuilder = try newBuilder.adding(call: call)
                 }
             }
 
@@ -186,7 +189,7 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

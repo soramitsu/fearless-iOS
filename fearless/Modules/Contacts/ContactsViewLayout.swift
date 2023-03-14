@@ -4,7 +4,6 @@ final class ContactsViewLayout: UIView {
     let tableView: UITableView = {
         let view = UITableView()
         view.backgroundColor = R.color.colorBlack19()
-        view.refreshControl = UIRefreshControl()
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(
             top: 0,

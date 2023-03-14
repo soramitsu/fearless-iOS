@@ -19,7 +19,7 @@ final class StakingPoolJoinConfigPresenter {
     private var inputResult: AmountInputResult?
     private var balance: Decimal?
     private var priceData: PriceData?
-    private var amountViewModel: AmountInputViewModelProtocol?
+    private var amountViewModel: IAmountInputViewModel?
     private var fee: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var minJoinBond: Decimal?
@@ -203,11 +203,11 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigInteractorOutput 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            totalAmount = accountInfo?.data.available
+            totalAmount = accountInfo?.data.stakingAvailable
 
             if let accountInfo = accountInfo {
                 balance = Decimal.fromSubstrateAmount(
-                    accountInfo.data.available,
+                    accountInfo.data.stakingAvailable,
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {

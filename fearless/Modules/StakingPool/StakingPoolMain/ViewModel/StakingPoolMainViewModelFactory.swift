@@ -136,7 +136,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let balance = convertAmount(
-            accountInfo?.data.available,
+            accountInfo?.data.stakingAvailable,
             for: chainAsset,
             defaultValue: 0.0
         )

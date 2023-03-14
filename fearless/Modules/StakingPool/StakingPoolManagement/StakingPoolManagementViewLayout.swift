@@ -75,6 +75,7 @@ final class StakingPoolManagementViewLayout: UIView {
         view.valueLabel.textColor = R.color.colorWhite()
         view.borderView.isHidden = true
         view.valueLabel.isUserInteractionEnabled = true
+        view.valueImageView.contentMode = .center
         return view
     }()
 
@@ -162,11 +163,11 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol?) {
-        balanceView.bind(viewModel: balanceViewModel)
+        balanceView.bindBalance(viewModel: balanceViewModel)
     }
 
     func bind(unstakeBalanceViewModel: BalanceViewModelProtocol?) {
-        unstakingView.bind(viewModel: unstakeBalanceViewModel)
+        unstakingView.bindBalance(viewModel: unstakeBalanceViewModel)
     }
 
     func bind(stakedAmountString: NSAttributedString) {
@@ -336,8 +337,8 @@ final class StakingPoolManagementViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         )
 
-        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.poolStakingClaimAmountTitle(
-            "", preferredLanguages: locale.rLanguages
+        claimView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(
+            preferredLanguages: locale.rLanguages
         )
         redeemView.actionButton?.imageWithTitleView?.title = R.string.localizable.stakingRedeem(
             preferredLanguages: locale.rLanguages

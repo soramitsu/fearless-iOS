@@ -26,10 +26,11 @@ final class SheetAlertViewLayout: UIView {
     }()
 
     private let actionsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.verticalInset)
-
-    private let imageView: UIImageView = {
+    private let imageViewContainer = UIView()
+    private lazy var imageView: UIImageView = {
         let imageView = UIImageView()
-        imageView.image = R.image.iconWarningBig()
+        let image = viewModel.isInfo ? R.image.iconInfoGrayFill() : R.image.iconWarningBig()
+        imageView.image = image
         return imageView
     }()
 
@@ -63,6 +64,7 @@ final class SheetAlertViewLayout: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
         closeButton.rounded()
+        imageViewContainer.rounded()
     }
 
     private func bind(viewModel: SheetAlertPresentableViewModel) {
@@ -110,7 +112,7 @@ final class SheetAlertViewLayout: UIView {
     }
 
     private func setupLayout() {
-        backgroundColor = R.color.colorAlmostBlack()!
+        backgroundColor = R.color.colorBlack19()!
         layer.cornerRadius = Constants.cornerRadius
         clipsToBounds = true
 
@@ -122,20 +124,24 @@ final class SheetAlertViewLayout: UIView {
             make.centerX.equalToSuperview()
         }
 
-        addSubview(closeButton)
-        closeButton.snp.makeConstraints { make in
-            make.top.trailing.equalToSuperview().inset(20)
-            make.size.equalTo(Constants.closeButton)
+        if !viewModel.isInfo {
+            addSubview(closeButton)
+            closeButton.snp.makeConstraints { make in
+                make.top.trailing.equalToSuperview().inset(20)
+                make.size.equalTo(Constants.closeButton)
+            }
         }
 
-        let imageViewContainer = UIView()
-        imageViewContainer.backgroundColor = R.color.colorBlack()
-        imageViewContainer.layer.cornerRadius = Constants.imageViewContainerSize / 2
-        imageViewContainer.layer.shadowColor = R.color.colorOrange()!.cgColor
-        imageViewContainer.layer.shadowRadius = 12
-        imageViewContainer.layer.shadowOpacity = 0.5
+        let containerBackgroundColor = viewModel.isInfo ? R.color.colorWhite8() : R.color.colorBlack()
+        imageViewContainer.backgroundColor = containerBackgroundColor
+        if !viewModel.isInfo {
+            imageViewContainer.layer.shadowColor = R.color.colorOrange()!.cgColor
+            imageViewContainer.layer.shadowRadius = 12
+            imageViewContainer.layer.shadowOpacity = 0.5
+        }
+        let imageViewContainerSize = viewModel.isInfo ? 56 : 80
         imageViewContainer.snp.makeConstraints { make in
-            make.size.equalTo(80)
+            make.size.equalTo(imageViewContainerSize)
         }
 
         imageViewContainer.addSubview(imageView)
@@ -143,6 +149,12 @@ final class SheetAlertViewLayout: UIView {
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(-3)
             make.size.equalTo(Constants.imageViewSize)
+        }
+        if viewModel.isInfo {
+            imageView.snp.remakeConstraints { make in
+                make.center.equalToSuperview()
+                make.size.equalTo(32)
+            }
         }
 
         addSubview(contentStackView)
@@ -158,9 +170,12 @@ final class SheetAlertViewLayout: UIView {
         contentStackView.setCustomSpacing(16, after: titleLabel)
         contentStackView.addArrangedSubview(descriptionLabel)
         contentStackView.setCustomSpacing(24, after: descriptionLabel)
-        contentStackView.addArrangedSubview(actionsStackView)
-        actionsStackView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview()
+
+        if !viewModel.isInfo {
+            contentStackView.addArrangedSubview(actionsStackView)
+            actionsStackView.snp.makeConstraints { make in
+                make.leading.trailing.equalToSuperview()
+            }
         }
     }
 }

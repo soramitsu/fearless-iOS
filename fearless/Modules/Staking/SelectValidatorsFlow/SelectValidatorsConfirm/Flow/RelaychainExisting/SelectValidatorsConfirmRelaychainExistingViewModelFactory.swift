@@ -88,15 +88,12 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelFactory: SelectValid
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset _: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainExistingViewModelState,
               let state = viewModelState.confirmationModel else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
 
         let rewardViewModel: RewardDestinationTypeViewModel
 

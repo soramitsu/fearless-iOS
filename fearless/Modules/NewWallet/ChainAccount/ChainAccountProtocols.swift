@@ -14,6 +14,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapOptionsButton()
     func didTapSelectNetwork()
     func addressDidCopied()
+    func didTapPolkaswapButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -98,10 +99,15 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chainModels: [ChainModel]?,
         delegate: SelectNetworkDelegate?
     )
+    func showPolkaswap(
+        from view: ChainAccountViewProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
 }
 
 protocol ChainAccountModuleInput: AnyObject {}
 
 protocol ChainAccountModuleOutput: AnyObject {
-    func updateTransactionHistory()
+    func updateTransactionHistory(for chainAsset: ChainAsset?)
 }

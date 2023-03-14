@@ -87,11 +87,9 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         let webView = PurchaseViewFactory.createView(
             for: action
         )
-        view?.controller.dismiss(animated: true, completion: {
-            if let webViewController = webView?.controller {
-                view?.controller.present(webViewController, animated: true, completion: nil)
-            }
-        })
+        if let webViewController = webView?.controller {
+            view?.controller.present(webViewController, animated: true, completion: nil)
+        }
     }
 
     func presentNodeSelection(
@@ -183,6 +181,22 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         }
 
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func showPolkaswap(
+        from view: ChainAccountViewProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset, wallet: wallet) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.navigationController?.present(
+            navigationController,
+            animated: true
+        )
     }
 }
 
