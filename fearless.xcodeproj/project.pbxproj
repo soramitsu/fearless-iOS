@@ -576,7 +576,6 @@
 		843910B9253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910B8253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift */; };
 		843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910BA253F021E00E3C217 /* WalletStakingChanged.swift */; };
 		843910C1253F36F300E3C217 /* BaseStorageChildSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910C0253F36F300E3C217 /* BaseStorageChildSubscription.swift */; };
-		843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910C4253F561500E3C217 /* CompoundOperationWrapper+Result.swift */; };
 		843910C7253F56EA00E3C217 /* BaseOperation+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910C6253F56EA00E3C217 /* BaseOperation+Result.swift */; };
 		843910C9253F591D00E3C217 /* ScaleDecoderOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910C8253F591D00E3C217 /* ScaleDecoderOperation.swift */; };
 		843910CE253F7E8000E3C217 /* SubstrateDataStorageFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 843910CD253F7E8000E3C217 /* SubstrateDataStorageFacade.swift */; };
@@ -3134,7 +3133,6 @@
 		843910B8253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageKeyFactory+Implicit.swift"; sourceTree = "<group>"; };
 		843910BA253F021E00E3C217 /* WalletStakingChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStakingChanged.swift; sourceTree = "<group>"; };
 		843910C0253F36F300E3C217 /* BaseStorageChildSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseStorageChildSubscription.swift; sourceTree = "<group>"; };
-		843910C4253F561500E3C217 /* CompoundOperationWrapper+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CompoundOperationWrapper+Result.swift"; sourceTree = "<group>"; };
 		843910C6253F56EA00E3C217 /* BaseOperation+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BaseOperation+Result.swift"; sourceTree = "<group>"; };
 		843910C8253F591D00E3C217 /* ScaleDecoderOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleDecoderOperation.swift; sourceTree = "<group>"; };
 		843910CD253F7E8000E3C217 /* SubstrateDataStorageFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateDataStorageFacade.swift; sourceTree = "<group>"; };
@@ -8732,7 +8730,6 @@
 			isa = PBXGroup;
 			children = (
 				84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */,
-				843910C4253F561500E3C217 /* CompoundOperationWrapper+Result.swift */,
 				843910C6253F56EA00E3C217 /* BaseOperation+Result.swift */,
 				84BB3CFF267D364D00676FFE /* CompoundOperationWrapper+Dependency.swift */,
 			);
@@ -14642,7 +14639,6 @@
 				C63FE88A29000EB500E97E8E /* FearlessKeyboardHandler.swift in Sources */,
 				FAA0138D28DA1303000A5230 /* StakingPayoutConfirmationrelaychainStrategy.swift in Sources */,
 				FA256A24274CE7D600875A53 /* MoonbeamGuidinfoInfo.swift in Sources */,
-				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
 				FAA0137128DA12E3000A5230 /* StakingRedeemConfirmationParachainStrategy.swift in Sources */,
 				846042C02666E2C800CFFCFC /* KaruraResultData.swift in Sources */,
 				84BE20A825E8D93E00B4748C /* Data+StorageKey.swift in Sources */,
