@@ -10,14 +10,14 @@ protocol WalletLocalStorageSubscriber where Self: AnyObject {
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) -> StreamableProvider<ChainStorageItem>?
+    ) -> StreamableProvider<AccountInfoStorageWrapper>?
 }
 
 extension WalletLocalStorageSubscriber {
     func subscribeToAccountInfoProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) -> StreamableProvider<ChainStorageItem>? {
+    ) -> StreamableProvider<AccountInfoStorageWrapper>? {
         guard let accountInfoProvider = try? walletLocalSubscriptionFactory.getAccountProvider(
             for: accountId,
             chainAsset: chainAsset
@@ -25,8 +25,8 @@ extension WalletLocalStorageSubscriber {
             return nil
         }
 
-        let updateClosure = { [weak self] (changes: [DataProviderChange<ChainStorageItem>]) in
-            let finalValue: ChainStorageItem? = changes.reduceToLastChange()
+        let updateClosure = { [weak self] (changes: [DataProviderChange<AccountInfoStorageWrapper>]) in
+            let finalValue: AccountInfoStorageWrapper? = changes.reduceToLastChange()
             self?.handleChainStorageItem(for: accountId, chainAsset: chainAsset, item: finalValue)
         }
 
@@ -62,7 +62,7 @@ extension WalletLocalStorageSubscriber {
     private func handleChainStorageItem(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        item: ChainStorageItem?
+        item: AccountInfoStorageWrapper?
     ) {
         guard let item = item else {
             walletLocalSubscriptionHandler?.handleAccountInfo(
@@ -101,7 +101,7 @@ extension WalletLocalStorageSubscriber {
     private func handleOrmlAccountInfo(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        item: ChainStorageItem
+        item: AccountInfoStorageWrapper
     ) {
         guard
             let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
@@ -158,7 +158,7 @@ extension WalletLocalStorageSubscriber {
     private func handleAccountInfo(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        item: ChainStorageItem
+        item: AccountInfoStorageWrapper
     ) {
         guard
             let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
@@ -204,7 +204,7 @@ extension WalletLocalStorageSubscriber {
     private func handleEquilibrium(
         for accountId: AccountId,
         chainAsset: ChainAsset,
-        item: ChainStorageItem
+        item: AccountInfoStorageWrapper
     ) {
         guard
             let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(

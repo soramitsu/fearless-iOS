@@ -12,6 +12,7 @@ final class WalletMainContainerInteractor {
     private let operationQueue: OperationQueue
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
+    private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
 
     // MARK: - Constructor
 
@@ -21,7 +22,8 @@ final class WalletMainContainerInteractor {
         wallet: MetaAccountModel,
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
-        chainsIssuesCenter: ChainsIssuesCenter
+        chainsIssuesCenter: ChainsIssuesCenter,
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -29,6 +31,7 @@ final class WalletMainContainerInteractor {
         self.operationQueue = operationQueue
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
+        self.chainSettingsRepository = chainSettingsRepository
     }
 
     // MARK: - Private methods
@@ -91,6 +94,19 @@ final class WalletMainContainerInteractor {
 
         operationQueue.addOperation(saveOperation)
     }
+
+    private func fetchChainSettings() {
+        let fetchChainSettingsOperation = chainSettingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        fetchChainSettingsOperation.completionBlock = { [weak self] in
+            let chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? []
+            DispatchQueue.main.async {
+                self?.output?.didReceive(chainSettings: chainSettings)
+            }
+        }
+
+        operationQueue.addOperation(fetchChainSettingsOperation)
+    }
 }
 
 // MARK: - WalletMainContainerInteractorInput
@@ -113,6 +129,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
+        fetchChainSettings()
     }
 }
 

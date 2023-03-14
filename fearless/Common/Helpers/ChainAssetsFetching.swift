@@ -88,6 +88,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
                 var chainAssets = chains.map(\.chainAssets).reduce([], +)
 
                 chainAssets = strongSelf.filter(chainAssets: chainAssets, filters: filters)
+
                 strongSelf.prepareSortIfNeeded(
                     chainAssets: chainAssets,
                     sortDescriptors: sortDescriptors,
@@ -164,24 +165,24 @@ private extension ChainAssetsFetching {
         for chainAssets: [ChainAsset],
         completionBlock: @escaping ([ChainAssetKey: AccountInfo?]) -> Void
     ) {
-        let semaphore = DispatchSemaphore(value: chainAssets.count)
-        chainAssets.forEach { [weak self] chainAsset in
-            guard let strongSelf = self,
-                  let accountId = strongSelf.meta.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+        accountInfoFetching.fetch(for: chainAssets, wallet: meta) { [weak self] accountInfoByChainAsset in
+            guard let strongSelf = self else {
+                completionBlock([:])
                 return
             }
 
-            strongSelf.accountInfoFetching.fetch(
-                for: chainAsset,
-                accountId: accountId
-            ) { [weak self] chainAsset, accountInfo in
-                guard let strongSelf = self else { return }
-                strongSelf.accountInfos[chainAsset.uniqueKey(accountId: accountId)] = accountInfo
-                semaphore.signal()
+            self?.accountInfos = accountInfoByChainAsset.reduce(into: [ChainAssetKey: AccountInfo?]()) { newDict, initialDict in
+                let chainAsset = initialDict.key
+                guard let accountId = self?.meta.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                    return
+                }
+
+                let key = chainAsset.uniqueKey(accountId: accountId)
+                newDict[key] = initialDict.value
             }
+
+            completionBlock(strongSelf.accountInfos)
         }
-        semaphore.wait()
-        completionBlock(accountInfos)
     }
 
     private func sort(chainAssets: [ChainAsset], sorts: [Sort]) -> [ChainAsset] {

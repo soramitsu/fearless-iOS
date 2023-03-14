@@ -61,7 +61,7 @@ extension ServiceCoordinator {
         let polkaswapSettingsService = PolkaswapSettingsFactory.createService()
 
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        let repository = SubstrateRepositoryFactory().createChainStorageItemRepository()
+        let repository = SubstrateRepositoryFactory(storageFacade: UserDataStorageFacade.shared).createAccountInfoStorageItemRepository()
         let logger = Logger.shared
         let walletSettings = SelectedWalletSettings.shared
 

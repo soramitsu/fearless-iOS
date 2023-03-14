@@ -15,6 +15,8 @@ final class ChainAssetListInteractor {
     private let chainsIssuesCenter: ChainsIssuesCenterProtocol
     private var wallet: MetaAccountModel
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+    private let accountInfoFetching: AccountInfoFetchingProtocol
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -36,7 +38,9 @@ final class ChainAssetListInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenter,
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
+        accountInfoFetching: AccountInfoFetchingProtocol
     ) {
         self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
@@ -47,6 +51,8 @@ final class ChainAssetListInteractor {
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.accountRepository = accountRepository
+        self.chainSettingsRepository = chainSettingsRepository
+        self.accountInfoFetching = accountInfoFetching
     }
 
     // MARK: - Private methods
@@ -71,6 +77,19 @@ final class ChainAssetListInteractor {
 
         operationQueue.addOperation(saveOperation)
     }
+
+    private func fetchChainSettings() {
+        let fetchChainSettingsOperation = chainSettingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        fetchChainSettingsOperation.completionBlock = { [weak self] in
+            let chainSettings = (try? fetchChainSettingsOperation.extractNoCancellableResultData()) ?? []
+            DispatchQueue.main.async {
+                self?.output?.didReceive(chainSettings: chainSettings)
+            }
+        }
+
+        operationQueue.addOperation(fetchChainSettingsOperation)
+    }
 }
 
 // MARK: - ChainAssetListInteractorInput
@@ -81,6 +100,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
 
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
+        fetchChainSettings()
     }
 
     func updateChainAssets(
@@ -94,7 +114,8 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
             filters: filters,
             sortDescriptors: sorts
         ) { [weak self] result in
-            guard let result = result else {
+            guard let strongSelf = self,
+                  let result = result else {
                 return
             }
 
@@ -106,7 +127,10 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
                     self?.output?.updateViewModel()
                     return
                 }
-                self?.subscribeToAccountInfo(for: chainAssets)
+                self?.accountInfoFetching.fetch(for: chainAssets, wallet: strongSelf.wallet, completionBlock: { [weak self] accountInfosByChainAssets in
+                    self?.subscribeToAccountInfo(for: chainAssets)
+                    self?.output?.didReceive(accountInfosByChainAssets: accountInfosByChainAssets)
+                })
                 self?.subscribeToPrice(for: chainAssets)
             case let .failure(error):
                 self?.output?.didReceiveChainAssets(result: .failure(error))
