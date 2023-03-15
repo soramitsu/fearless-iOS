@@ -10,7 +10,6 @@ protocol RuntimeProviderPoolProtocol {
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
         chainTypes: Data
     ) -> RuntimeProviderProtocol
     func destroyRuntimeProvider(for chainId: ChainModel.Id)
@@ -35,13 +34,11 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
     func setupHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
         chainTypes: Data
     ) -> RuntimeProviderProtocol {
         let runtimeProvider = runtimeProviderFactory.createHotRuntimeProvider(
             for: chain,
             runtimeItem: runtimeItem,
-            commonTypes: commonTypes,
             chainTypes: chainTypes,
             usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
         )
@@ -64,23 +61,17 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
             mutex.unlock()
         }
 
-        if let runtimeProvider = runtimeProviders[chain.chainId] {
-            runtimeProvider.replaceTypesUsage(chain.typesUsage)
+        let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
+            for: chain,
+            chainTypes: chainTypes,
+            usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
+        )
 
-            return runtimeProvider
-        } else {
-            let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
-                for: chain,
-                chainTypes: chainTypes,
-                usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
-            )
+        runtimeProviders[chain.chainId] = runtimeProvider
 
-            runtimeProviders[chain.chainId] = runtimeProvider
+        runtimeProvider.setup()
 
-            runtimeProvider.setup()
-
-            return runtimeProvider
-        }
+        return runtimeProvider
     }
 
     func destroyRuntimeProvider(for chainId: ChainModel.Id) {
