@@ -68,8 +68,16 @@ class ChainModel: Codable {
         options?.contains(.tipRequired) ?? false
     }
 
+    var isPolkadot: Bool {
+        name.lowercased() == "polkadot"
+    }
+
+    var isKusama: Bool {
+        name.lowercased() == "kusama"
+    }
+
     var isPolkadotOrKusama: Bool {
-        name.lowercased() == "polkadot" || name.lowercased() == "kusama"
+        isPolkadot || isKusama
     }
 
     var isWestend: Bool {
