@@ -155,7 +155,7 @@ DEPENDENCIES:
   - "PayWingsOnboardingKYC (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS/archive/v5.1.2.tar.gz\"}`)"
   - R.swift (= 6.1.0)
   - ReachabilitySwift
-  - RobinHood
+  - RobinHood (~> 2.6.6)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
@@ -276,6 +276,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 08e334eb5d478fb10522e719415d50d3b1e34d56
+PODFILE CHECKSUM: 74fbe6107927168f30098b3c8df4a1cea27bedba
 
 COCOAPODS: 1.11.3
