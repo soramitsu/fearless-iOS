@@ -113,7 +113,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .accountList:
                 return createAccountListViewModel(for: locale)
             case .soraCard:
-                return nil
+                return createSoraCardViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
