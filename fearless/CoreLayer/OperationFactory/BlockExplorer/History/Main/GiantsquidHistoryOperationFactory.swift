@@ -285,7 +285,7 @@ final class GiantsquidHistoryOperationFactory {
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: [:]
+                context: nil
             )
         }
     }
