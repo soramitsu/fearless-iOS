@@ -10,7 +10,7 @@ final class ChainAssetListViewLayout: UIView {
             bottom: UIConstants.bigOffset,
             right: 0
         )
-        
+
         static let cardContainerHeight: CGFloat = 80
     }
 
@@ -32,7 +32,6 @@ final class ChainAssetListViewLayout: UIView {
 
     let tableView: SelfSizingTableView = {
         let view = SelfSizingTableView()
-        let view = UITableView(frame: .zero, style: .grouped)
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
@@ -76,7 +75,7 @@ final class ChainAssetListViewLayout: UIView {
         scrollView.addSubview(contentContainer)
         contentContainer.addSubview(tableView)
         contentContainer.addSubview(emptyView)
-        
+
         scrollView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
             make.width.equalToSuperview()
@@ -102,14 +101,14 @@ final class ChainAssetListViewLayout: UIView {
             make.edges.equalToSuperview()
         }
     }
-    
+
     func addChild(soraCardView: UIView) {
         cardContainer.addSubview(soraCardView)
         soraCardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
-    
+
     func changeSoraCardHiddenState(_ hidden: Bool) {
         cardContainer.isHidden = hidden
 

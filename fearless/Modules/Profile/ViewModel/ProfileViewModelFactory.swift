@@ -180,7 +180,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
         return viewModel
     }
-    
+
     private func createSoraCardViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable.profileSoraCardTitle(preferredLanguages: locale.rLanguages)
         let viewModel = ProfileOptionViewModel(

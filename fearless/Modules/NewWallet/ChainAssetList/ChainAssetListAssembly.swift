@@ -5,9 +5,9 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-         wallet: MetaAccountModel,
-         soraCardViewController: UIViewController? = nil
-     ) -> ChainAssetListModuleCreationResult? {
+        wallet: MetaAccountModel,
+        soraCardViewController: UIViewController? = nil
+    ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(

@@ -53,17 +53,17 @@ final class ChainAssetListViewController:
         guard let soraCardViewController = soraCardViewController else {
             return
         }
-        
+
         addChild(soraCardViewController)
-        
+
         guard let view = soraCardViewController.view else {
             return
         }
-        
+
         rootView.addChild(soraCardView: view)
         soraCardViewController.didMove(toParent: self)
     }
-    
+
     override func loadView() {
         view = ChainAssetListViewLayout()
     }
@@ -161,7 +161,7 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     func showEmptyState() {
         rootView.apply(state: .empty)
     }
-    
+
     func didReceive(soraCardHiddenState: Bool) {
         rootView.changeSoraCardHiddenState(soraCardHiddenState)
     }

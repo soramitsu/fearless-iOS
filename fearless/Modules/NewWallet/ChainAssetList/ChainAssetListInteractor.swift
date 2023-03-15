@@ -105,7 +105,7 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchChainSettings()
-        
+
         let soraCardHiddenState = settings.bool(for: SoraCardSettingsKey.settingsKey(for: wallet)) ?? false
         output.didReceive(soraCardHiddenState: soraCardHiddenState)
     }

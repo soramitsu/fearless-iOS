@@ -23,7 +23,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         view?.controller.present(navigationController, animated: true)
     }
-    
+
     func showPincodeChange(from view: ProfileViewProtocol?) {
         authorize(animated: true, cancellable: true, from: view) { [weak self] completed in
             if completed {

@@ -322,7 +322,7 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
         provideViewModel()
     }
-    
+
     func didReceive(soraCardHiddenState: Bool) {
         view?.didReceive(soraCardHiddenState: soraCardHiddenState)
     }

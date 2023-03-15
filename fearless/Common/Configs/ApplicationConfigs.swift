@@ -160,7 +160,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var crowdloanWiki: URL {
         URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
     }
-    
+
     var soraCardTerms: URL {
         URL(string: "https://soracard.com/terms/")!
     }

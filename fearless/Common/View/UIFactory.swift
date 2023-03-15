@@ -719,11 +719,11 @@ final class UIFactory: UIFactoryProtocol {
         view.valueBottom.textColor = R.color.colorStrokeGray()
         return view
     }
-    
+
     func createRoundedButton() -> UIButton {
-         let button = UIButton(type: .custom)
-         button.titleLabel?.font = .h6Title
-         button.layer.cornerRadius = 12
-         return button
-     }
+        let button = UIButton(type: .custom)
+        button.titleLabel?.font = .h6Title
+        button.layer.cornerRadius = 12
+        return button
+    }
 }

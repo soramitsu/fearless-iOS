@@ -25,18 +25,18 @@ extension RoundedButton {
 
         contentOpacityWhenDisabled = 1.0
     }
-    
+
     func applySoraSecondaryStyle() {
-         roundedBackgroundView?.shadowOpacity = 0
-         roundedBackgroundView?.fillColor = R.color.accentSecondary()!
-         roundedBackgroundView?.highlightedFillColor = R.color.accentSecondary()!
-         roundedBackgroundView?.strokeColor = .clear
-         roundedBackgroundView?.highlightedStrokeColor = .clear
-         roundedBackgroundView?.strokeWidth = 2
+        roundedBackgroundView?.shadowOpacity = 0
+        roundedBackgroundView?.fillColor = R.color.accentSecondary()!
+        roundedBackgroundView?.highlightedFillColor = R.color.accentSecondary()!
+        roundedBackgroundView?.strokeColor = .clear
+        roundedBackgroundView?.highlightedStrokeColor = .clear
+        roundedBackgroundView?.strokeWidth = 2
 
-         imageWithTitleView?.titleColor = R.color.fgInverted()!
-         imageWithTitleView?.titleFont = UIFont.h4Title
+        imageWithTitleView?.titleColor = R.color.fgInverted()!
+        imageWithTitleView?.titleFont = UIFont.h4Title
 
-         changesContentOpacityWhenHighlighted = true
-     }
+        changesContentOpacityWhenHighlighted = true
+    }
 }
