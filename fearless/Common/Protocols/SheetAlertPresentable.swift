@@ -1,20 +1,41 @@
 import Foundation
 import UIKit
 
+struct SheetAlertPresentableActionStyle {
+    let backgroundColor: UIColor
+    let titleColor: UIColor
+
+    static let defaultStyle: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: R.color.colorWhite8()!,
+            titleColor: R.color.colorWhite()!
+        )
+    }()
+
+    static let warningStyle: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: R.color.colorWhite8()!,
+            titleColor: R.color.colorPink()!
+        )
+    }()
+}
+
 struct SheetAlertPresentableAction {
     let title: String
     let button: TriangularedButton
-
     let handler: (() -> Void)?
+    let style: SheetAlertPresentableActionStyle
 
     init(
         title: String,
+        style: SheetAlertPresentableActionStyle = .defaultStyle,
         button: TriangularedButton = UIFactory.default.createMainActionButton(),
         handler: (() -> Void)? = nil
     ) {
         self.title = title
         self.button = button
         self.handler = handler
+        self.style = style
     }
 }
 
@@ -27,6 +48,7 @@ struct SheetAlertPresentableViewModel {
     let isInfo: Bool
     let closeAction: String?
     let dismissCompletion: (() -> Void)?
+    let icon: UIImage?
 
     init(
         title: String,
@@ -36,7 +58,8 @@ struct SheetAlertPresentableViewModel {
         actions: [SheetAlertPresentableAction],
         isInfo: Bool = false,
         closeAction: String?,
-        dismissCompletion: (() -> Void)? = nil
+        dismissCompletion: (() -> Void)? = nil,
+        icon: UIImage? = nil
     ) {
         self.title = title
         self.titleStyle = titleStyle
@@ -46,6 +69,7 @@ struct SheetAlertPresentableViewModel {
         self.isInfo = isInfo
         self.closeAction = closeAction
         self.dismissCompletion = dismissCompletion
+        self.icon = icon
     }
 }
 
@@ -127,7 +151,8 @@ extension SheetAlertPresentable {
             message: message,
             actions: [],
             isInfo: true,
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconInfoGrayFill()
         )
         let sheetController = SheetAletViewController(viewModel: viewModel)
         sheetController.modalPresentationStyle = .custom

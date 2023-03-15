@@ -18,7 +18,7 @@ protocol StakingRemoteSubscriptionServiceProtocol {
     )
 }
 
-final class StakingRemoteSubscriptionService: RemoteSubscriptionService,
+final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainStorageItem>,
     StakingRemoteSubscriptionServiceProtocol {
     private static func globalDataStoragePaths(stakingType: StakingType?) -> [StorageCodingPath] {
         switch stakingType {

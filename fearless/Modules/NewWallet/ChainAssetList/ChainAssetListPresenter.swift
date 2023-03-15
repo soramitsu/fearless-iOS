@@ -28,6 +28,7 @@ final class ChainAssetListPresenter {
     private var chainsWithNetworkIssues: [ChainModel.Id] = []
     private var chainsWithMissingAccounts: [ChainModel.Id] = []
     private var pricesFetched = false
+    private var chainSettings: [ChainSettings]?
 
     private lazy var factoryOperationQueue: OperationQueue = {
         OperationQueue()
@@ -60,6 +61,8 @@ final class ChainAssetListPresenter {
             return
         }
 
+        let chainSettings = chainSettings ?? []
+
         factoryOperationQueue.operations.forEach { $0.cancel() }
         factoryOperationQueue.cancelAllOperations()
 
@@ -78,7 +81,8 @@ final class ChainAssetListPresenter {
                 },
                 prices: self.prices,
                 chainsWithIssues: self.chainsWithNetworkIssues,
-                chainsWithMissingAccounts: self.chainsWithMissingAccounts
+                chainsWithMissingAccounts: self.chainsWithMissingAccounts,
+                chainSettings: chainSettings
             )
 
             DispatchQueue.main.async {
@@ -244,14 +248,19 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, for chainAsset: ChainAsset) {
         switch result {
         case let .success(accountInfo):
-
-            lock.exclusivelyWrite { [unowned self] in
-                guard let accountId = self.wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-                    return
-                }
-                let key = chainAsset.uniqueKey(accountId: accountId)
-                self.accountInfos[key] = accountInfo
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
             }
+            let key = chainAsset.uniqueKey(accountId: accountId)
+
+            let previousAccountInfo = accountInfos[key] ?? nil
+            let bothNil = (previousAccountInfo == nil && accountInfo == nil)
+
+            guard previousAccountInfo != accountInfo, !bothNil else {
+                return
+            }
+
+            accountInfos[key] = accountInfo
 
             provideViewModel()
 
@@ -292,6 +301,25 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
                 chainsWithMissingAccounts = chains.map { $0.chainId }
             }
         }
+        provideViewModel()
+    }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        self.chainSettings = chainSettings
+        provideViewModel()
+    }
+
+    func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?]) {
+        accountInfos = accountInfosByChainAssets.reduce(into: [ChainAssetKey: AccountInfo?]()) { newDict, initialDict in
+            let chainAsset = initialDict.key
+            guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+                return
+            }
+
+            let key = chainAsset.uniqueKey(accountId: accountId)
+            newDict[key] = initialDict.value
+        }
+
         provideViewModel()
     }
 }

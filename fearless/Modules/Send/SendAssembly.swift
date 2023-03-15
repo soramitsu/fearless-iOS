@@ -34,9 +34,9 @@ final class SendAssembly {
             sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
         )
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: repositoryFacade
+            storageFacade: UserDataStorageFacade.shared
         )
-        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,

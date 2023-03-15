@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct ChainStorageItem: Codable, Identifiable, Equatable {
+struct ChainStorageItem: StorageWrapper {
     enum CodingKeys: String, CodingKey {
         case identifier
         case data

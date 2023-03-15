@@ -12,6 +12,7 @@ final class NetworkIssuesNotificationPresenter {
     private let viewModelFactory: NetworkIssuesNotificationViewModelFactoryProtocol
 
     private var issues: [ChainIssue]
+    private var chainSettings: [ChainSettings]?
     private var viewModel: [NetworkIssuesNotificationCellViewModel] = []
 
     // MARK: - Constructors
@@ -35,7 +36,11 @@ final class NetworkIssuesNotificationPresenter {
     // MARK: - Private methods
 
     private func provideViewModel() {
-        let viewModel = viewModelFactory.buildViewModel(for: issues, locale: selectedLocale)
+        guard let chainSettings = chainSettings else {
+            return
+        }
+
+        let viewModel = viewModelFactory.buildViewModel(for: issues, locale: selectedLocale, chainSettings: chainSettings)
         self.viewModel = viewModel
 
         view?.didReceive(viewModel: viewModel)
@@ -65,10 +70,38 @@ final class NetworkIssuesNotificationPresenter {
         ].joined(separator: " ")
 
         let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .warningStyle) { [weak self] in
+            self?.interactor.mute(chain: chain)
+        }
         let sheetViewModel = SheetAlertPresentableViewModel(
             title: title,
             message: subtitle,
-            actions: [],
+            actions: [muteAction],
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+        )
+        router.present(viewModel: sheetViewModel, from: view)
+    }
+
+    private func showNodeSelectionAlert(viewModel: NetworkIssuesNotificationCellViewModel) {
+        let title = [
+            viewModel.chain.name,
+            R.string.localizable.commonNetwork(preferredLanguages: selectedLocale.rLanguages)
+        ].joined(separator: " ")
+
+        let subtitle = R.string.localizable.networkIssueUnavailable(preferredLanguages: selectedLocale.rLanguages)
+        let changeNodeAction = SheetAlertPresentableAction(title: R.string.localizable.switchNode(preferredLanguages: selectedLocale.rLanguages)) {
+            self.router.presentNodeSelection(
+                from: self.view,
+                chain: viewModel.chain
+            )
+        }
+        let muteAction = SheetAlertPresentableAction(title: R.string.localizable.networkIssuesHideActionTitle(preferredLanguages: selectedLocale.rLanguages), style: .warningStyle) { [weak self] in
+            self?.interactor.mute(chain: viewModel.chain)
+        }
+        let sheetViewModel = SheetAlertPresentableViewModel(
+            title: title,
+            message: subtitle,
+            actions: [changeNodeAction, muteAction],
             closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
         )
         router.present(viewModel: sheetViewModel, from: view)
@@ -91,10 +124,7 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationViewOutpu
 
         switch viewModel.buttonType {
         case .switchNode:
-            router.presentNodeSelection(
-                from: view,
-                chain: viewModel.chain
-            )
+            showNodeSelectionAlert(viewModel: viewModel)
         case .networkUnavailible:
             showSheetAlert(for: viewModel.chain)
         case .missingAccount:
@@ -119,6 +149,11 @@ extension NetworkIssuesNotificationPresenter: NetworkIssuesNotificationInteracto
 
     func didReceiveWallet(wallet: MetaAccountModel) {
         self.wallet = wallet
+    }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        self.chainSettings = chainSettings
+        provideViewModel()
     }
 }
 
