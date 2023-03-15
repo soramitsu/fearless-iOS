@@ -43,7 +43,7 @@ final class TermsAndConditionsViewController: UIViewController, ViewHolder {
         rootView.generalTermsButton.addTarget(self, action: #selector(termsButtonClicked), for: .touchUpInside)
         rootView.privacyButton.addTarget(self, action: #selector(privacyButtonClicked), for: .touchUpInside)
         rootView.acceptButton.addTarget(self, action: #selector(acceptButtonClicked), for: .touchUpInside)
-        rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
+        rootView.closeButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
     }
 
     @objc private func termsButtonClicked() {
