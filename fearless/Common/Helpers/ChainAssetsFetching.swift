@@ -17,6 +17,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case hasCrowdloans(Bool)
         case assetName(String)
         case search(String)
+        case ecosystem(ChainEcosystem)
     }
 
     enum SortDescriptor {
@@ -129,6 +130,10 @@ private extension ChainAssetsFetching {
             return chainAssets.filter {
                 $0.asset.name.lowercased().contains(name.lowercased())
                     || $0.chain.name.lowercased().contains(name.lowercased())
+            }
+        case let .ecosystem(ecosystem):
+            return chainAssets.filter {
+                return $0.defineEcosystem() == ecosystem
             }
         }
     }
