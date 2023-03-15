@@ -15,6 +15,15 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigationController, animated: true)
     }
 
+    func showSoraCard(from view: ProfileViewProtocol?) {
+        guard let module = TermsAndConditionsAssembly.configureModule() else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
+    
     func showPincodeChange(from view: ProfileViewProtocol?) {
         authorize(animated: true, cancellable: true, from: view) { [weak self] completed in
             if completed {

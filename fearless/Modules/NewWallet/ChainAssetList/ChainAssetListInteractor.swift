@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SoraKeystore
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
@@ -17,6 +18,7 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let accountInfoFetching: AccountInfoFetchingProtocol
+    private let settings: SettingsManagerProtocol
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -40,7 +42,8 @@ final class ChainAssetListInteractor {
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
-        accountInfoFetching: AccountInfoFetchingProtocol
+        accountInfoFetching: AccountInfoFetchingProtocol,
+        settings: SettingsManagerProtocol
     ) {
         self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
@@ -53,6 +56,7 @@ final class ChainAssetListInteractor {
         self.accountRepository = accountRepository
         self.chainSettingsRepository = chainSettingsRepository
         self.accountInfoFetching = accountInfoFetching
+        self.settings = settings
     }
 
     // MARK: - Private methods
@@ -101,6 +105,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchChainSettings()
+        
+        let soraCardHiddenState = settings.bool(for: SoraCardSettingsKey.settingsKey(for: wallet)) ?? false
+        output.didReceive(soraCardHiddenState: soraCardHiddenState)
     }
 
     func updateChainAssets(

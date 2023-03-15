@@ -1587,6 +1587,88 @@
 		C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BAB28BEB277001E31BF /* SearchTriangularedView.swift */; };
 		C6267BB228C3879A001E31BF /* BalanceInfoDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB128C3879A001E31BF /* BalanceInfoDependencyContainer.swift */; };
 		C6267BBA28D0A18D001E31BF /* AmountInputViewV2.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */; };
+		C633AD1A29C0B79300EA8C29 /* SCApiClientSwift.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD1929C0B79300EA8C29 /* SCApiClientSwift.swift */; };
+		C633AD1C29C0B7E100EA8C29 /* SCNetworkingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD1B29C0B7E100EA8C29 /* SCNetworkingError.swift */; };
+		C633AD1E29C0B81700EA8C29 /* SCNetwrokingLogLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD1D29C0B81700EA8C29 /* SCNetwrokingLogLevel.swift */; };
+		C633AD2029C0B86A00EA8C29 /* SCKYCUserDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD1F29C0B86A00EA8C29 /* SCKYCUserDataModel.swift */; };
+		C633AD2329C0B8B000EA8C29 /* SCKYCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */; };
+		C633AD2529C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */; };
+		C633AD2729C18D8F00EA8C29 /* SCKYCStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2629C18D8F00EA8C29 /* SCKYCStatus.swift */; };
+		C633AD2929C18DBA00EA8C29 /* SCStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2829C18DBA00EA8C29 /* SCStorage.swift */; };
+		C633AD2B29C1955000EA8C29 /* SmallButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2A29C1955000EA8C29 /* SmallButton.swift */; };
+		C633AD8529C19A4200EA8C29 /* PermissionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2F29C19A4200EA8C29 /* PermissionType.swift */; };
+		C633AD8629C19A4200EA8C29 /* KYCOnboardingPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3029C19A4200EA8C29 /* KYCOnboardingPresenter.swift */; };
+		C633AD8729C19A4200EA8C29 /* KYCOnboardingProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3129C19A4200EA8C29 /* KYCOnboardingProtocols.swift */; };
+		C633AD8829C19A4200EA8C29 /* KYCOnboardingRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3229C19A4200EA8C29 /* KYCOnboardingRouter.swift */; };
+		C633AD8929C19A4200EA8C29 /* KYCOnboardingViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3329C19A4200EA8C29 /* KYCOnboardingViewLayout.swift */; };
+		C633AD8A29C19A4200EA8C29 /* KYCOnboardingAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3429C19A4200EA8C29 /* KYCOnboardingAssembly.swift */; };
+		C633AD8B29C19A4200EA8C29 /* KYCOnboardingInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3529C19A4200EA8C29 /* KYCOnboardingInteractor.swift */; };
+		C633AD8C29C19A4200EA8C29 /* KYCOnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3629C19A4200EA8C29 /* KYCOnboardingViewController.swift */; };
+		C633AD8D29C19A4200EA8C29 /* SoraCardInfoBoardRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3829C19A4200EA8C29 /* SoraCardInfoBoardRouter.swift */; };
+		C633AD8E29C19A4200EA8C29 /* SoraCardStateViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3A29C19A4200EA8C29 /* SoraCardStateViewModelFactory.swift */; };
+		C633AD8F29C19A4200EA8C29 /* SoraCardInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3B29C19A4200EA8C29 /* SoraCardInfoViewModel.swift */; };
+		C633AD9029C19A4200EA8C29 /* SoraCardState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3C29C19A4200EA8C29 /* SoraCardState.swift */; };
+		C633AD9129C19A4200EA8C29 /* SoraCardInfoBoardViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3D29C19A4200EA8C29 /* SoraCardInfoBoardViewLayout.swift */; };
+		C633AD9229C19A4200EA8C29 /* SoraCardInfoBoardViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3E29C19A4200EA8C29 /* SoraCardInfoBoardViewController.swift */; };
+		C633AD9329C19A4200EA8C29 /* SoraCardInfoBoardAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3F29C19A4200EA8C29 /* SoraCardInfoBoardAssembly.swift */; };
+		C633AD9429C19A4200EA8C29 /* SoraCardInfoBoardPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4029C19A4200EA8C29 /* SoraCardInfoBoardPresenter.swift */; };
+		C633AD9529C19A4200EA8C29 /* SoraCardInfoBoardProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4129C19A4200EA8C29 /* SoraCardInfoBoardProtocols.swift */; };
+		C633AD9629C19A4200EA8C29 /* SoraCardInfoBoardInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4229C19A4200EA8C29 /* SoraCardInfoBoardInteractor.swift */; };
+		C633AD9729C19A4200EA8C29 /* SCKYCPhoneCodeState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4529C19A4200EA8C29 /* SCKYCPhoneCodeState.swift */; };
+		C633AD9829C19A4200EA8C29 /* PhoneVerificationCodeAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4629C19A4200EA8C29 /* PhoneVerificationCodeAssembly.swift */; };
+		C633AD9929C19A4200EA8C29 /* VerificationTimerState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4729C19A4200EA8C29 /* VerificationTimerState.swift */; };
+		C633AD9A29C19A4200EA8C29 /* PhoneVerificationCodeProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4829C19A4200EA8C29 /* PhoneVerificationCodeProtocols.swift */; };
+		C633AD9B29C19A4200EA8C29 /* PhoneVerificationCodeViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4929C19A4200EA8C29 /* PhoneVerificationCodeViewLayout.swift */; };
+		C633AD9C29C19A4200EA8C29 /* PhoneVerificationCodePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4A29C19A4200EA8C29 /* PhoneVerificationCodePresenter.swift */; };
+		C633AD9D29C19A4200EA8C29 /* PhoneVerificationCodeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4B29C19A4200EA8C29 /* PhoneVerificationCodeInteractor.swift */; };
+		C633AD9E29C19A4200EA8C29 /* PhoneVerificationCodeViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4C29C19A4200EA8C29 /* PhoneVerificationCodeViewController.swift */; };
+		C633AD9F29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4D29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift */; };
+		C633ADA029C19A4200EA8C29 /* TermsAndConditionsRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD4F29C19A4200EA8C29 /* TermsAndConditionsRouter.swift */; };
+		C633ADA129C19A4200EA8C29 /* TermsAndConditionsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5029C19A4200EA8C29 /* TermsAndConditionsViewLayout.swift */; };
+		C633ADA229C19A4200EA8C29 /* TermsAndConditionsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5129C19A4200EA8C29 /* TermsAndConditionsViewController.swift */; };
+		C633ADA329C19A4200EA8C29 /* TermsAndConditionsButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5329C19A4200EA8C29 /* TermsAndConditionsButton.swift */; };
+		C633ADA429C19A4200EA8C29 /* TermsAndConditionsProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5429C19A4200EA8C29 /* TermsAndConditionsProtocols.swift */; };
+		C633ADA529C19A4200EA8C29 /* TermsAndConditionsAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5529C19A4200EA8C29 /* TermsAndConditionsAssembly.swift */; };
+		C633ADA629C19A4200EA8C29 /* TermsAndConditionsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5629C19A4200EA8C29 /* TermsAndConditionsPresenter.swift */; };
+		C633ADA729C19A4300EA8C29 /* IntroduceAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5829C19A4200EA8C29 /* IntroduceAssembly.swift */; };
+		C633ADA829C19A4300EA8C29 /* IntroducePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5929C19A4200EA8C29 /* IntroducePresenter.swift */; };
+		C633ADA929C19A4300EA8C29 /* IntroduceProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5A29C19A4200EA8C29 /* IntroduceProtocols.swift */; };
+		C633ADAA29C19A4300EA8C29 /* IntroduceViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5B29C19A4200EA8C29 /* IntroduceViewLayout.swift */; };
+		C633ADAB29C19A4300EA8C29 /* IntroduceViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5C29C19A4200EA8C29 /* IntroduceViewController.swift */; };
+		C633ADAC29C19A4300EA8C29 /* IntroduceRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD5D29C19A4200EA8C29 /* IntroduceRouter.swift */; };
+		C633ADAD29C19A4300EA8C29 /* VerificationStatusViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6029C19A4200EA8C29 /* VerificationStatusViewModelFactory.swift */; };
+		C633ADAE29C19A4300EA8C29 /* VerificationStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6129C19A4200EA8C29 /* VerificationStatusViewModel.swift */; };
+		C633ADAF29C19A4300EA8C29 /* VerificationStatusPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6229C19A4200EA8C29 /* VerificationStatusPresenter.swift */; };
+		C633ADB029C19A4300EA8C29 /* VerificationStatusProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6329C19A4200EA8C29 /* VerificationStatusProtocols.swift */; };
+		C633ADB129C19A4300EA8C29 /* VerificationStatusViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6429C19A4200EA8C29 /* VerificationStatusViewLayout.swift */; };
+		C633ADB229C19A4300EA8C29 /* VerificationStatusRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6529C19A4200EA8C29 /* VerificationStatusRouter.swift */; };
+		C633ADB329C19A4300EA8C29 /* VerificationStatusInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6629C19A4200EA8C29 /* VerificationStatusInteractor.swift */; };
+		C633ADB429C19A4300EA8C29 /* VerificationStatusViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6729C19A4200EA8C29 /* VerificationStatusViewController.swift */; };
+		C633ADB529C19A4300EA8C29 /* VerificationStatusAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6829C19A4200EA8C29 /* VerificationStatusAssembly.swift */; };
+		C633ADB629C19A4300EA8C29 /* PreparationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6A29C19A4200EA8C29 /* PreparationAssembly.swift */; };
+		C633ADB729C19A4300EA8C29 /* PreparationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6B29C19A4200EA8C29 /* PreparationProtocols.swift */; };
+		C633ADB829C19A4300EA8C29 /* PreparationViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6C29C19A4200EA8C29 /* PreparationViewLayout.swift */; };
+		C633ADB929C19A4300EA8C29 /* PreparationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6D29C19A4200EA8C29 /* PreparationViewController.swift */; };
+		C633ADBA29C19A4300EA8C29 /* PreparationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6E29C19A4200EA8C29 /* PreparationPresenter.swift */; };
+		C633ADBB29C19A4300EA8C29 /* PreparationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD6F29C19A4200EA8C29 /* PreparationInteractor.swift */; };
+		C633ADBC29C19A4300EA8C29 /* PreparationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7029C19A4200EA8C29 /* PreparationRouter.swift */; };
+		C633ADBD29C19A4300EA8C29 /* SummaryStepView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7229C19A4200EA8C29 /* SummaryStepView.swift */; };
+		C633ADBE29C19A4300EA8C29 /* EmailVerificationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7429C19A4200EA8C29 /* EmailVerificationProtocols.swift */; };
+		C633ADBF29C19A4300EA8C29 /* EmailVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7529C19A4200EA8C29 /* EmailVerificationInteractor.swift */; };
+		C633ADC029C19A4300EA8C29 /* EmailVerificationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7629C19A4200EA8C29 /* EmailVerificationState.swift */; };
+		C633ADC129C19A4300EA8C29 /* EmailVerificationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7729C19A4200EA8C29 /* EmailVerificationAssembly.swift */; };
+		C633ADC229C19A4300EA8C29 /* EmailVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7829C19A4200EA8C29 /* EmailVerificationPresenter.swift */; };
+		C633ADC329C19A4300EA8C29 /* EmailVerificationViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7929C19A4200EA8C29 /* EmailVerificationViewLayout.swift */; };
+		C633ADC429C19A4300EA8C29 /* EmailVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7A29C19A4200EA8C29 /* EmailVerificationViewController.swift */; };
+		C633ADC529C19A4300EA8C29 /* EmailVerificationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7B29C19A4200EA8C29 /* EmailVerificationRouter.swift */; };
+		C633ADC629C19A4300EA8C29 /* PhoneVerificationViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7D29C19A4200EA8C29 /* PhoneVerificationViewLayout.swift */; };
+		C633ADC729C19A4300EA8C29 /* PhoneVerificationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7E29C19A4200EA8C29 /* PhoneVerificationProtocols.swift */; };
+		C633ADC829C19A4300EA8C29 /* PhoneVerificationState.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD7F29C19A4200EA8C29 /* PhoneVerificationState.swift */; };
+		C633ADC929C19A4300EA8C29 /* PhoneVerificationRouter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD8029C19A4200EA8C29 /* PhoneVerificationRouter.swift */; };
+		C633ADCA29C19A4300EA8C29 /* PhoneVerificationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD8129C19A4200EA8C29 /* PhoneVerificationViewController.swift */; };
+		C633ADCB29C19A4300EA8C29 /* PhoneVerificationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD8229C19A4200EA8C29 /* PhoneVerificationPresenter.swift */; };
+		C633ADCC29C19A4300EA8C29 /* PhoneVerificationAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD8329C19A4200EA8C29 /* PhoneVerificationAssembly.swift */; };
+		C633ADCD29C19A4300EA8C29 /* PhoneVerificationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD8429C19A4200EA8C29 /* PhoneVerificationInteractor.swift */; };
 		C63468D828E5BD9B005CB1F1 /* HiddenSectionHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */; };
 		C63468DA28E5E3A3005CB1F1 /* TableView+Scrolling.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */; };
 		C63468DD28EEF58A005CB1F1 /* ContactsTableCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */; };
@@ -4149,6 +4231,88 @@
 		C6267BB928D0A18D001E31BF /* AmountInputViewV2.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputViewV2.swift; sourceTree = "<group>"; };
 		C632F47128A21CCB00A2D434 /* ChainAssetListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModelFactory.swift; sourceTree = "<group>"; };
 		C632F47428A2225000A2D434 /* ChainAssetListViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetListViewModel.swift; sourceTree = "<group>"; };
+		C633AD1929C0B79300EA8C29 /* SCApiClientSwift.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCApiClientSwift.swift; sourceTree = "<group>"; };
+		C633AD1B29C0B7E100EA8C29 /* SCNetworkingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNetworkingError.swift; sourceTree = "<group>"; };
+		C633AD1D29C0B81700EA8C29 /* SCNetwrokingLogLevel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCNetwrokingLogLevel.swift; sourceTree = "<group>"; };
+		C633AD1F29C0B86A00EA8C29 /* SCKYCUserDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCUserDataModel.swift; sourceTree = "<group>"; };
+		C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCService.swift; sourceTree = "<group>"; };
+		C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCKYCService+ReferenceNumber.swift"; sourceTree = "<group>"; };
+		C633AD2629C18D8F00EA8C29 /* SCKYCStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCStatus.swift; sourceTree = "<group>"; };
+		C633AD2829C18DBA00EA8C29 /* SCStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCStorage.swift; sourceTree = "<group>"; };
+		C633AD2A29C1955000EA8C29 /* SmallButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallButton.swift; sourceTree = "<group>"; };
+		C633AD2F29C19A4200EA8C29 /* PermissionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermissionType.swift; sourceTree = "<group>"; };
+		C633AD3029C19A4200EA8C29 /* KYCOnboardingPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingPresenter.swift; sourceTree = "<group>"; };
+		C633AD3129C19A4200EA8C29 /* KYCOnboardingProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingProtocols.swift; sourceTree = "<group>"; };
+		C633AD3229C19A4200EA8C29 /* KYCOnboardingRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingRouter.swift; sourceTree = "<group>"; };
+		C633AD3329C19A4200EA8C29 /* KYCOnboardingViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingViewLayout.swift; sourceTree = "<group>"; };
+		C633AD3429C19A4200EA8C29 /* KYCOnboardingAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingAssembly.swift; sourceTree = "<group>"; };
+		C633AD3529C19A4200EA8C29 /* KYCOnboardingInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingInteractor.swift; sourceTree = "<group>"; };
+		C633AD3629C19A4200EA8C29 /* KYCOnboardingViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingViewController.swift; sourceTree = "<group>"; };
+		C633AD3829C19A4200EA8C29 /* SoraCardInfoBoardRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardRouter.swift; sourceTree = "<group>"; };
+		C633AD3A29C19A4200EA8C29 /* SoraCardStateViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardStateViewModelFactory.swift; sourceTree = "<group>"; };
+		C633AD3B29C19A4200EA8C29 /* SoraCardInfoViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoViewModel.swift; sourceTree = "<group>"; };
+		C633AD3C29C19A4200EA8C29 /* SoraCardState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardState.swift; sourceTree = "<group>"; };
+		C633AD3D29C19A4200EA8C29 /* SoraCardInfoBoardViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardViewLayout.swift; sourceTree = "<group>"; };
+		C633AD3E29C19A4200EA8C29 /* SoraCardInfoBoardViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardViewController.swift; sourceTree = "<group>"; };
+		C633AD3F29C19A4200EA8C29 /* SoraCardInfoBoardAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardAssembly.swift; sourceTree = "<group>"; };
+		C633AD4029C19A4200EA8C29 /* SoraCardInfoBoardPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardPresenter.swift; sourceTree = "<group>"; };
+		C633AD4129C19A4200EA8C29 /* SoraCardInfoBoardProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardProtocols.swift; sourceTree = "<group>"; };
+		C633AD4229C19A4200EA8C29 /* SoraCardInfoBoardInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraCardInfoBoardInteractor.swift; sourceTree = "<group>"; };
+		C633AD4529C19A4200EA8C29 /* SCKYCPhoneCodeState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SCKYCPhoneCodeState.swift; sourceTree = "<group>"; };
+		C633AD4629C19A4200EA8C29 /* PhoneVerificationCodeAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeAssembly.swift; sourceTree = "<group>"; };
+		C633AD4729C19A4200EA8C29 /* VerificationTimerState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationTimerState.swift; sourceTree = "<group>"; };
+		C633AD4829C19A4200EA8C29 /* PhoneVerificationCodeProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeProtocols.swift; sourceTree = "<group>"; };
+		C633AD4929C19A4200EA8C29 /* PhoneVerificationCodeViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeViewLayout.swift; sourceTree = "<group>"; };
+		C633AD4A29C19A4200EA8C29 /* PhoneVerificationCodePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodePresenter.swift; sourceTree = "<group>"; };
+		C633AD4B29C19A4200EA8C29 /* PhoneVerificationCodeInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeInteractor.swift; sourceTree = "<group>"; };
+		C633AD4C29C19A4200EA8C29 /* PhoneVerificationCodeViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeViewController.swift; sourceTree = "<group>"; };
+		C633AD4D29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationCodeRouter.swift; sourceTree = "<group>"; };
+		C633AD4F29C19A4200EA8C29 /* TermsAndConditionsRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsRouter.swift; sourceTree = "<group>"; };
+		C633AD5029C19A4200EA8C29 /* TermsAndConditionsViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsViewLayout.swift; sourceTree = "<group>"; };
+		C633AD5129C19A4200EA8C29 /* TermsAndConditionsViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsViewController.swift; sourceTree = "<group>"; };
+		C633AD5329C19A4200EA8C29 /* TermsAndConditionsButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsButton.swift; sourceTree = "<group>"; };
+		C633AD5429C19A4200EA8C29 /* TermsAndConditionsProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsProtocols.swift; sourceTree = "<group>"; };
+		C633AD5529C19A4200EA8C29 /* TermsAndConditionsAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsAssembly.swift; sourceTree = "<group>"; };
+		C633AD5629C19A4200EA8C29 /* TermsAndConditionsPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TermsAndConditionsPresenter.swift; sourceTree = "<group>"; };
+		C633AD5829C19A4200EA8C29 /* IntroduceAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroduceAssembly.swift; sourceTree = "<group>"; };
+		C633AD5929C19A4200EA8C29 /* IntroducePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroducePresenter.swift; sourceTree = "<group>"; };
+		C633AD5A29C19A4200EA8C29 /* IntroduceProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroduceProtocols.swift; sourceTree = "<group>"; };
+		C633AD5B29C19A4200EA8C29 /* IntroduceViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroduceViewLayout.swift; sourceTree = "<group>"; };
+		C633AD5C29C19A4200EA8C29 /* IntroduceViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroduceViewController.swift; sourceTree = "<group>"; };
+		C633AD5D29C19A4200EA8C29 /* IntroduceRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = IntroduceRouter.swift; sourceTree = "<group>"; };
+		C633AD6029C19A4200EA8C29 /* VerificationStatusViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewModelFactory.swift; sourceTree = "<group>"; };
+		C633AD6129C19A4200EA8C29 /* VerificationStatusViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewModel.swift; sourceTree = "<group>"; };
+		C633AD6229C19A4200EA8C29 /* VerificationStatusPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusPresenter.swift; sourceTree = "<group>"; };
+		C633AD6329C19A4200EA8C29 /* VerificationStatusProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusProtocols.swift; sourceTree = "<group>"; };
+		C633AD6429C19A4200EA8C29 /* VerificationStatusViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewLayout.swift; sourceTree = "<group>"; };
+		C633AD6529C19A4200EA8C29 /* VerificationStatusRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusRouter.swift; sourceTree = "<group>"; };
+		C633AD6629C19A4200EA8C29 /* VerificationStatusInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusInteractor.swift; sourceTree = "<group>"; };
+		C633AD6729C19A4200EA8C29 /* VerificationStatusViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusViewController.swift; sourceTree = "<group>"; };
+		C633AD6829C19A4200EA8C29 /* VerificationStatusAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VerificationStatusAssembly.swift; sourceTree = "<group>"; };
+		C633AD6A29C19A4200EA8C29 /* PreparationAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationAssembly.swift; sourceTree = "<group>"; };
+		C633AD6B29C19A4200EA8C29 /* PreparationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationProtocols.swift; sourceTree = "<group>"; };
+		C633AD6C29C19A4200EA8C29 /* PreparationViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationViewLayout.swift; sourceTree = "<group>"; };
+		C633AD6D29C19A4200EA8C29 /* PreparationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationViewController.swift; sourceTree = "<group>"; };
+		C633AD6E29C19A4200EA8C29 /* PreparationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationPresenter.swift; sourceTree = "<group>"; };
+		C633AD6F29C19A4200EA8C29 /* PreparationInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationInteractor.swift; sourceTree = "<group>"; };
+		C633AD7029C19A4200EA8C29 /* PreparationRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PreparationRouter.swift; sourceTree = "<group>"; };
+		C633AD7229C19A4200EA8C29 /* SummaryStepView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SummaryStepView.swift; sourceTree = "<group>"; };
+		C633AD7429C19A4200EA8C29 /* EmailVerificationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationProtocols.swift; sourceTree = "<group>"; };
+		C633AD7529C19A4200EA8C29 /* EmailVerificationInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationInteractor.swift; sourceTree = "<group>"; };
+		C633AD7629C19A4200EA8C29 /* EmailVerificationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationState.swift; sourceTree = "<group>"; };
+		C633AD7729C19A4200EA8C29 /* EmailVerificationAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationAssembly.swift; sourceTree = "<group>"; };
+		C633AD7829C19A4200EA8C29 /* EmailVerificationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationPresenter.swift; sourceTree = "<group>"; };
+		C633AD7929C19A4200EA8C29 /* EmailVerificationViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationViewLayout.swift; sourceTree = "<group>"; };
+		C633AD7A29C19A4200EA8C29 /* EmailVerificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationViewController.swift; sourceTree = "<group>"; };
+		C633AD7B29C19A4200EA8C29 /* EmailVerificationRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailVerificationRouter.swift; sourceTree = "<group>"; };
+		C633AD7D29C19A4200EA8C29 /* PhoneVerificationViewLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationViewLayout.swift; sourceTree = "<group>"; };
+		C633AD7E29C19A4200EA8C29 /* PhoneVerificationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationProtocols.swift; sourceTree = "<group>"; };
+		C633AD7F29C19A4200EA8C29 /* PhoneVerificationState.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationState.swift; sourceTree = "<group>"; };
+		C633AD8029C19A4200EA8C29 /* PhoneVerificationRouter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationRouter.swift; sourceTree = "<group>"; };
+		C633AD8129C19A4200EA8C29 /* PhoneVerificationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationViewController.swift; sourceTree = "<group>"; };
+		C633AD8229C19A4200EA8C29 /* PhoneVerificationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationPresenter.swift; sourceTree = "<group>"; };
+		C633AD8329C19A4200EA8C29 /* PhoneVerificationAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationAssembly.swift; sourceTree = "<group>"; };
+		C633AD8429C19A4200EA8C29 /* PhoneVerificationInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhoneVerificationInteractor.swift; sourceTree = "<group>"; };
 		C63468D728E5BD9B005CB1F1 /* HiddenSectionHeader.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HiddenSectionHeader.swift; sourceTree = "<group>"; };
 		C63468D928E5E3A3005CB1F1 /* TableView+Scrolling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TableView+Scrolling.swift"; sourceTree = "<group>"; };
 		C63468DC28EEF58A005CB1F1 /* ContactsTableCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsTableCellModel.swift; sourceTree = "<group>"; };
@@ -7759,6 +7923,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				C633AD2C29C19A4200EA8C29 /* SoraCard */,
 				FA8F6383298253ED004B8CD4 /* AddConnection */,
 				FAADC1AE2926597400DA9903 /* ScanQR */,
 				FAC0BBC4291D0EB000E6F106 /* SelectAsset */,
@@ -8223,6 +8388,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				C633AD2A29C1955000EA8C29 /* SmallButton.swift */,
 				FAFFAE3929AC84480074AF1F /* NumberedLabel.swift */,
 				FAFFAE3A29AC84480074AF1F /* SymbolView.swift */,
 				FAFFAE3B29AC84480074AF1F /* TappedLabel.swift */,
@@ -10201,6 +10367,237 @@
 			path = Views;
 			sourceTree = "<group>";
 		};
+		C633AD1729C0B76900EA8C29 /* SoraCard */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD2129C0B89200EA8C29 /* SCService */,
+				C633AD1829C0B77900EA8C29 /* SCApiClient */,
+				C633AD1F29C0B86A00EA8C29 /* SCKYCUserDataModel.swift */,
+				C633AD2829C18DBA00EA8C29 /* SCStorage.swift */,
+			);
+			path = SoraCard;
+			sourceTree = "<group>";
+		};
+		C633AD1829C0B77900EA8C29 /* SCApiClient */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD1929C0B79300EA8C29 /* SCApiClientSwift.swift */,
+				C633AD1B29C0B7E100EA8C29 /* SCNetworkingError.swift */,
+				C633AD1D29C0B81700EA8C29 /* SCNetwrokingLogLevel.swift */,
+			);
+			path = SCApiClient;
+			sourceTree = "<group>";
+		};
+		C633AD2129C0B89200EA8C29 /* SCService */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */,
+				C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */,
+				C633AD2629C18D8F00EA8C29 /* SCKYCStatus.swift */,
+			);
+			path = SCService;
+			sourceTree = "<group>";
+		};
+		C633AD2C29C19A4200EA8C29 /* SoraCard */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD2D29C19A4200EA8C29 /* KYCOnboarding */,
+				C633AD3729C19A4200EA8C29 /* SoraCardInfoBoard */,
+				C633AD4329C19A4200EA8C29 /* PhoneVerificationCode */,
+				C633AD4E29C19A4200EA8C29 /* TermsAndConditions */,
+				C633AD5729C19A4200EA8C29 /* Introduce */,
+				C633AD5E29C19A4200EA8C29 /* VerificationStatus */,
+				C633AD6929C19A4200EA8C29 /* Preparation */,
+				C633AD7329C19A4200EA8C29 /* EmailVerification */,
+				C633AD7C29C19A4200EA8C29 /* PhoneVerification */,
+			);
+			path = SoraCard;
+			sourceTree = "<group>";
+		};
+		C633AD2D29C19A4200EA8C29 /* KYCOnboarding */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD2E29C19A4200EA8C29 /* ViewModel */,
+				C633AD3029C19A4200EA8C29 /* KYCOnboardingPresenter.swift */,
+				C633AD3129C19A4200EA8C29 /* KYCOnboardingProtocols.swift */,
+				C633AD3229C19A4200EA8C29 /* KYCOnboardingRouter.swift */,
+				C633AD3329C19A4200EA8C29 /* KYCOnboardingViewLayout.swift */,
+				C633AD3429C19A4200EA8C29 /* KYCOnboardingAssembly.swift */,
+				C633AD3529C19A4200EA8C29 /* KYCOnboardingInteractor.swift */,
+				C633AD3629C19A4200EA8C29 /* KYCOnboardingViewController.swift */,
+			);
+			path = KYCOnboarding;
+			sourceTree = "<group>";
+		};
+		C633AD2E29C19A4200EA8C29 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD2F29C19A4200EA8C29 /* PermissionType.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C633AD3729C19A4200EA8C29 /* SoraCardInfoBoard */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD3829C19A4200EA8C29 /* SoraCardInfoBoardRouter.swift */,
+				C633AD3929C19A4200EA8C29 /* ViewModel */,
+				C633AD3D29C19A4200EA8C29 /* SoraCardInfoBoardViewLayout.swift */,
+				C633AD3E29C19A4200EA8C29 /* SoraCardInfoBoardViewController.swift */,
+				C633AD3F29C19A4200EA8C29 /* SoraCardInfoBoardAssembly.swift */,
+				C633AD4029C19A4200EA8C29 /* SoraCardInfoBoardPresenter.swift */,
+				C633AD4129C19A4200EA8C29 /* SoraCardInfoBoardProtocols.swift */,
+				C633AD4229C19A4200EA8C29 /* SoraCardInfoBoardInteractor.swift */,
+			);
+			path = SoraCardInfoBoard;
+			sourceTree = "<group>";
+		};
+		C633AD3929C19A4200EA8C29 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD3A29C19A4200EA8C29 /* SoraCardStateViewModelFactory.swift */,
+				C633AD3B29C19A4200EA8C29 /* SoraCardInfoViewModel.swift */,
+				C633AD3C29C19A4200EA8C29 /* SoraCardState.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C633AD4329C19A4200EA8C29 /* PhoneVerificationCode */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD4429C19A4200EA8C29 /* ViewModel */,
+				C633AD4629C19A4200EA8C29 /* PhoneVerificationCodeAssembly.swift */,
+				C633AD4729C19A4200EA8C29 /* VerificationTimerState.swift */,
+				C633AD4829C19A4200EA8C29 /* PhoneVerificationCodeProtocols.swift */,
+				C633AD4929C19A4200EA8C29 /* PhoneVerificationCodeViewLayout.swift */,
+				C633AD4A29C19A4200EA8C29 /* PhoneVerificationCodePresenter.swift */,
+				C633AD4B29C19A4200EA8C29 /* PhoneVerificationCodeInteractor.swift */,
+				C633AD4C29C19A4200EA8C29 /* PhoneVerificationCodeViewController.swift */,
+				C633AD4D29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift */,
+			);
+			path = PhoneVerificationCode;
+			sourceTree = "<group>";
+		};
+		C633AD4429C19A4200EA8C29 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD4529C19A4200EA8C29 /* SCKYCPhoneCodeState.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C633AD4E29C19A4200EA8C29 /* TermsAndConditions */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD4F29C19A4200EA8C29 /* TermsAndConditionsRouter.swift */,
+				C633AD5029C19A4200EA8C29 /* TermsAndConditionsViewLayout.swift */,
+				C633AD5129C19A4200EA8C29 /* TermsAndConditionsViewController.swift */,
+				C633AD5229C19A4200EA8C29 /* View */,
+				C633AD5429C19A4200EA8C29 /* TermsAndConditionsProtocols.swift */,
+				C633AD5529C19A4200EA8C29 /* TermsAndConditionsAssembly.swift */,
+				C633AD5629C19A4200EA8C29 /* TermsAndConditionsPresenter.swift */,
+			);
+			path = TermsAndConditions;
+			sourceTree = "<group>";
+		};
+		C633AD5229C19A4200EA8C29 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD5329C19A4200EA8C29 /* TermsAndConditionsButton.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C633AD5729C19A4200EA8C29 /* Introduce */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD5829C19A4200EA8C29 /* IntroduceAssembly.swift */,
+				C633AD5929C19A4200EA8C29 /* IntroducePresenter.swift */,
+				C633AD5A29C19A4200EA8C29 /* IntroduceProtocols.swift */,
+				C633AD5B29C19A4200EA8C29 /* IntroduceViewLayout.swift */,
+				C633AD5C29C19A4200EA8C29 /* IntroduceViewController.swift */,
+				C633AD5D29C19A4200EA8C29 /* IntroduceRouter.swift */,
+			);
+			path = Introduce;
+			sourceTree = "<group>";
+		};
+		C633AD5E29C19A4200EA8C29 /* VerificationStatus */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD5F29C19A4200EA8C29 /* ViewModel */,
+				C633AD6229C19A4200EA8C29 /* VerificationStatusPresenter.swift */,
+				C633AD6329C19A4200EA8C29 /* VerificationStatusProtocols.swift */,
+				C633AD6429C19A4200EA8C29 /* VerificationStatusViewLayout.swift */,
+				C633AD6529C19A4200EA8C29 /* VerificationStatusRouter.swift */,
+				C633AD6629C19A4200EA8C29 /* VerificationStatusInteractor.swift */,
+				C633AD6729C19A4200EA8C29 /* VerificationStatusViewController.swift */,
+				C633AD6829C19A4200EA8C29 /* VerificationStatusAssembly.swift */,
+			);
+			path = VerificationStatus;
+			sourceTree = "<group>";
+		};
+		C633AD5F29C19A4200EA8C29 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD6029C19A4200EA8C29 /* VerificationStatusViewModelFactory.swift */,
+				C633AD6129C19A4200EA8C29 /* VerificationStatusViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		C633AD6929C19A4200EA8C29 /* Preparation */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD6A29C19A4200EA8C29 /* PreparationAssembly.swift */,
+				C633AD6B29C19A4200EA8C29 /* PreparationProtocols.swift */,
+				C633AD6C29C19A4200EA8C29 /* PreparationViewLayout.swift */,
+				C633AD6D29C19A4200EA8C29 /* PreparationViewController.swift */,
+				C633AD6E29C19A4200EA8C29 /* PreparationPresenter.swift */,
+				C633AD6F29C19A4200EA8C29 /* PreparationInteractor.swift */,
+				C633AD7029C19A4200EA8C29 /* PreparationRouter.swift */,
+				C633AD7129C19A4200EA8C29 /* View */,
+			);
+			path = Preparation;
+			sourceTree = "<group>";
+		};
+		C633AD7129C19A4200EA8C29 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD7229C19A4200EA8C29 /* SummaryStepView.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		C633AD7329C19A4200EA8C29 /* EmailVerification */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD7429C19A4200EA8C29 /* EmailVerificationProtocols.swift */,
+				C633AD7529C19A4200EA8C29 /* EmailVerificationInteractor.swift */,
+				C633AD7629C19A4200EA8C29 /* EmailVerificationState.swift */,
+				C633AD7729C19A4200EA8C29 /* EmailVerificationAssembly.swift */,
+				C633AD7829C19A4200EA8C29 /* EmailVerificationPresenter.swift */,
+				C633AD7929C19A4200EA8C29 /* EmailVerificationViewLayout.swift */,
+				C633AD7A29C19A4200EA8C29 /* EmailVerificationViewController.swift */,
+				C633AD7B29C19A4200EA8C29 /* EmailVerificationRouter.swift */,
+			);
+			path = EmailVerification;
+			sourceTree = "<group>";
+		};
+		C633AD7C29C19A4200EA8C29 /* PhoneVerification */ = {
+			isa = PBXGroup;
+			children = (
+				C633AD7D29C19A4200EA8C29 /* PhoneVerificationViewLayout.swift */,
+				C633AD7E29C19A4200EA8C29 /* PhoneVerificationProtocols.swift */,
+				C633AD7F29C19A4200EA8C29 /* PhoneVerificationState.swift */,
+				C633AD8029C19A4200EA8C29 /* PhoneVerificationRouter.swift */,
+				C633AD8129C19A4200EA8C29 /* PhoneVerificationViewController.swift */,
+				C633AD8229C19A4200EA8C29 /* PhoneVerificationPresenter.swift */,
+				C633AD8329C19A4200EA8C29 /* PhoneVerificationAssembly.swift */,
+				C633AD8429C19A4200EA8C29 /* PhoneVerificationInteractor.swift */,
+			);
+			path = PhoneVerification;
+			sourceTree = "<group>";
+		};
 		C63468DB28EEF559005CB1F1 /* View Models */ = {
 			isa = PBXGroup;
 			children = (
@@ -11526,6 +11923,7 @@
 		FA38C9A227606FDD005C5577 /* ApplicationLayer */ = {
 			isa = PBXGroup;
 			children = (
+				C633AD1729C0B76900EA8C29 /* SoraCard */,
 				FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */,
 				FA2FC82C28B3816D00CC0A42 /* StorageKeyDataExtractor.swift */,
 				FA17B4D027E9CF21006E0735 /* FearlessApplication.swift */,
@@ -13359,6 +13757,7 @@
 				FA176BBA2851B59000258125 /* StakingBalanceParachainStrategy.swift in Sources */,
 				8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */,
 				AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */,
+				C633ADB729C19A4300EA8C29 /* PreparationProtocols.swift in Sources */,
 				FA5137AB29AC6F2F00560EBA /* PolkaswapDisclaimerRouter.swift in Sources */,
 				842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */,
 				FAFFAE9E29AC84B10074AF1F /* RewardOrSlashResponse.swift in Sources */,
@@ -13418,6 +13817,7 @@
 				FAA0134C28DA12D7000A5230 /* StakingUnbondConfirmPoolViewModelFactory.swift in Sources */,
 				FA38C9752758CD5D005C5577 /* ChainAccountViewState.swift in Sources */,
 				841494402604E71C000D8D1A /* TotalRewardItem.swift in Sources */,
+				C633ADC229C19A4300EA8C29 /* EmailVerificationPresenter.swift in Sources */,
 				C6264C292799A56E00FCA0DB /* WalletDetailsTableCell.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
 				FA176BB82851B42700258125 /* StakingBalanceParachainViewModelFactory.swift in Sources */,
@@ -13425,6 +13825,7 @@
 				843910C1253F36F300E3C217 /* BaseStorageChildSubscription.swift in Sources */,
 				84644AC52567EC05004EAA4B /* MultilineTriangularedView.swift in Sources */,
 				FA86443E2768439900956D8E /* ContainerProtocols.swift in Sources */,
+				C633AD2029C0B86A00EA8C29 /* SCKYCUserDataModel.swift in Sources */,
 				84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */,
 				84C74361251E4B5E009576C6 /* FeeType.swift in Sources */,
 				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
@@ -13444,6 +13845,7 @@
 				845BB8DB25E462B100E5FCDC /* SubstrateConstansts.swift in Sources */,
 				FA6D40812837A4A300A7A4C6 /* SelectedValidatorListRelaychainViewModelFactory.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
+				C633AD9629C19A4200EA8C29 /* SoraCardInfoBoardInteractor.swift in Sources */,
 				84690797264154E80030E693 /* SlashesOperationFactory.swift in Sources */,
 				8424A8C7262EC0E50091BFB1 /* PayoutInfo.swift in Sources */,
 				8428768C24AE046300D91AD8 /* AboutPresenter.swift in Sources */,
@@ -13547,6 +13949,7 @@
 				FA30D4EF28BF32EA00548C1E /* SortPickerTableViewCell.swift in Sources */,
 				84563CFF24EFE07E0055591D /* Storage+Identifiable.swift in Sources */,
 				FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */,
+				C633AD9D29C19A4200EA8C29 /* PhoneVerificationCodeInteractor.swift in Sources */,
 				FA2569BF274CE74100875A53 /* NetworkFeeView+Protocol.swift in Sources */,
 				843C49E124DFFC9500B71DDA /* AccountImportSource+ViewModel.swift in Sources */,
 				84038FF226FFBE1900C73F3F /* JsonLocalSubscriptionHandler.swift in Sources */,
@@ -13566,6 +13969,7 @@
 				FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */,
 				843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */,
 				84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */,
+				C633ADB329C19A4300EA8C29 /* VerificationStatusInteractor.swift in Sources */,
 				F43F934B26D76E8E00A6B529 /* AnalyticsRewardsBaseView.swift in Sources */,
 				84D8F17124D856D300AF43E9 /* SNAddressType+ViewModel.swift in Sources */,
 				84A617262625AF51007B75E1 /* RuntimeMetadata+Internal.swift in Sources */,
@@ -13587,6 +13991,7 @@
 				C67E781527B31FCB0053346B /* CheckPincodePresenter.swift in Sources */,
 				FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
+				C633AD2729C18D8F00EA8C29 /* SCKYCStatus.swift in Sources */,
 				842349C52624E98C0066ACFE /* MultiAddress+Query.swift in Sources */,
 				84155DED2539817200A27058 /* ApplicationService.swift in Sources */,
 				FA169FAB28BCBAF000E8D2DC /* PoolStakingAccountUpdatingService.swift in Sources */,
@@ -13616,6 +14021,7 @@
 				84F30EF1260001A600039D09 /* DataProviderChange+Helper.swift in Sources */,
 				F47BBD8026317B970087DA11 /* StakingBalanceViewModel.swift in Sources */,
 				FA2FC80028B3807C00CC0A42 /* StakingPoolJoinChoosePoolViewController.swift in Sources */,
+				C633AD1E29C0B81700EA8C29 /* SCNetwrokingLogLevel.swift in Sources */,
 				848919D926FB5F99004DBAD5 /* CrowdloanChainTableViewCell.swift in Sources */,
 				FA2569BD274CE74100875A53 /* NetworkFeeFooterView+Protocol.swift in Sources */,
 				07DFA4492899186B0035A8AB /* ModalSheetBlurPresentationFactory.swift in Sources */,
@@ -13663,8 +14069,10 @@
 				84DED3FC266651EB00A153BB /* ReferralCrowdloanViewModel.swift in Sources */,
 				FA2FC82328B380C500CC0A42 /* StakingPoolState.swift in Sources */,
 				8409C27025227C1E0049B5C8 /* WalletSingleActionAccessoryView.swift in Sources */,
+				C633AD9A29C19A4200EA8C29 /* PhoneVerificationCodeProtocols.swift in Sources */,
 				8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */,
 				F4871DEE26D63E3E00D27F23 /* AnalyticsRewardDetailsViewModel.swift in Sources */,
+				C633AD9C29C19A4200EA8C29 /* PhoneVerificationCodePresenter.swift in Sources */,
 				84563D0524F466470055591D /* ManagedAccountItem.swift in Sources */,
 				AEA0C8AA267B6B4300F9666F /* SelectedValidatorListViewController.swift in Sources */,
 				FA2FC81D28B3809600CC0A42 /* StakingPoolOperationFactory.swift in Sources */,
@@ -13674,6 +14082,7 @@
 				FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */,
 				AEA2C1C02681E9EC0069492E /* ValidatorSearchViewLayout.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
+				C633ADBD29C19A4300EA8C29 /* SummaryStepView.swift in Sources */,
 				84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */,
 				FA86442E27674D0500956D8E /* WalletTransactionHistoryChange.swift in Sources */,
 				843910D6253F8DAD00E3C217 /* NetworkAvailabilityLayerProtocols.swift in Sources */,
@@ -13703,11 +14112,13 @@
 				FAF5E9D827E46D77005A3448 /* AppVersion.swift in Sources */,
 				840DCBFB25E0703A00D45C6A /* RewardSelectionView.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
+				C633AD8D29C19A4200EA8C29 /* SoraCardInfoBoardRouter.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
 				84ACEBFA261E684A00AAE665 /* WalletHistoryFilter.swift in Sources */,
 				FA37AE432859E1E4001DCA96 /* ScheduleRevokeDelegationCall.swift in Sources */,
 				FAA0133128DA12B6000A5230 /* StakingPoolMainViewController.swift in Sources */,
 				FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */,
+				C633AD8729C19A4200EA8C29 /* KYCOnboardingProtocols.swift in Sources */,
 				FA93A30C2834FCAD0021330F /* ValidatorSearchRelaychainStrategy.swift in Sources */,
 				844CB56E26F9CB1500396E13 /* CrowdloanLocalStorageSubscriber.swift in Sources */,
 				073417B4298BA28300104F41 /* EquilibriumTotalWalletService.swift in Sources */,
@@ -13733,6 +14144,7 @@
 				84CFF1E826526FBC00DB7CF7 /* StakingBondMoreViewFactory.swift in Sources */,
 				FA38C9672758764B005C5577 /* VerticalContentButton.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
+				C633AD9E29C19A4200EA8C29 /* PhoneVerificationCodeViewController.swift in Sources */,
 				FA5137B129AC6F2F00560EBA /* PolkaswapDisclaimerInteractor.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
@@ -13741,11 +14153,14 @@
 				8423ADD026B2C38600057EDD /* ImportantFlowViewFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				FA38C9CD276305B6005C5577 /* WalletSendConfirmViewModel.swift in Sources */,
+				C633AD2529C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift in Sources */,
 				FA256A39274CE80200875A53 /* CrowdloanAddMemoParam.swift in Sources */,
 				FA99C938283B76F5007B1F83 /* SelectValidatorsConfirmRelaychainExistingStrategy.swift in Sources */,
 				84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */,
 				84F6B6432619A8480038F10D /* SubscanConcreteExtrinsicsData.swift in Sources */,
 				C61566852930A07900391BF3 /* QRCreationOperation.swift in Sources */,
+				C633AD8A29C19A4200EA8C29 /* KYCOnboardingAssembly.swift in Sources */,
+				C633AD9229C19A4200EA8C29 /* SoraCardInfoBoardViewController.swift in Sources */,
 				844EFB65265FD61D0090ACB1 /* CrowdloanContributeConfirmViewModel.swift in Sources */,
 				FAADC1B72926597400DA9903 /* ScanQRViewLayout.swift in Sources */,
 				AEE5FAFF26415E0C002B8FDC /* StakingRebondSetupPresenter.swift in Sources */,
@@ -13803,6 +14218,7 @@
 				07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */,
 				FAA0137E28DA12F0000A5230 /* StakingRedeemPoolViewModelFactory.swift in Sources */,
 				FAFFAE8529AC84B10074AF1F /* SubqueryRewardOrSlash.swift in Sources */,
+				C633ADB229C19A4300EA8C29 /* VerificationStatusRouter.swift in Sources */,
 				84CA68D926BE9E7F003B9453 /* SpecVersionSubscription.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
 				84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */,
@@ -13858,12 +14274,14 @@
 				84282FBD26D05A54002CA322 /* ChainRegistryFacade.swift in Sources */,
 				F4DCAE4F2620819000CCA6BF /* PayoutRewardsService.swift in Sources */,
 				8463A70325E2FCD0003B8160 /* WeakWrapper.swift in Sources */,
+				C633ADAF29C19A4300EA8C29 /* VerificationStatusPresenter.swift in Sources */,
 				8401620B25E144D50087A5F3 /* AmountInputAccessoryView.swift in Sources */,
 				FA4B92B82844D2360003BCEF /* CoingeckoPricesSource.swift in Sources */,
 				84D2F45F25EF0599008B914D /* RecommendedValidatorCell.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				C6663B22275F5F3500D699AF /* ReceiveAssetViewController.swift in Sources */,
 				84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */,
+				C633ADBF29C19A4300EA8C29 /* EmailVerificationInteractor.swift in Sources */,
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
@@ -13871,6 +14289,7 @@
 				FA9942722805524200D771E5 /* GetBalanceProvider.swift in Sources */,
 				84100F3826A6085C00A5054E /* YourValidatorListDescSectionView.swift in Sources */,
 				FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */,
+				C633AD2929C18DBA00EA8C29 /* SCStorage.swift in Sources */,
 				AE528E4F26852E410058935A /* ValidatorSearchViewModelFactory.swift in Sources */,
 				841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */,
 				07089AF528B64701001566CA /* ChainReconnectingEvent.swift in Sources */,
@@ -13885,6 +14304,7 @@
 				FA5137AA29AC6F2F00560EBA /* PolkaswapDisclaimerViewModel.swift in Sources */,
 				84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */,
 				FAC0BBD5291D0EB000E6F106 /* SendProtocols.swift in Sources */,
+				C633AD9329C19A4200EA8C29 /* SoraCardInfoBoardAssembly.swift in Sources */,
 				FA58ED7229B9A94F007C6AE3 /* CDAccountInfo+CoreDataCodable.swift in Sources */,
 				8472C5B1265CF9C500E2481B /* StakingRewardDestConfirmViewFactory.swift in Sources */,
 				F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */,
@@ -13923,6 +14343,7 @@
 				843461CB26E2590200DCE0CD /* SubscanHistoryOperationFactory.swift in Sources */,
 				84CFF1F226526FBC00DB7CF7 /* StakingBondMoreConfirmationVC.swift in Sources */,
 				84786E1F25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift in Sources */,
+				C633ADC529C19A4300EA8C29 /* EmailVerificationRouter.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
 				84FD3DB72540EF0700A234E3 /* TransactionSubscription.swift in Sources */,
 				2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */,
@@ -13931,6 +14352,7 @@
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				FA93A2D32832325C0021330F /* CustomValidatorListFlow.swift in Sources */,
 				8467F4C526B1E4E200C5B6F4 /* StakingDurationFetching.swift in Sources */,
+				C633AD8F29C19A4200EA8C29 /* SoraCardInfoViewModel.swift in Sources */,
 				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				071BC677292B21CC007685D1 /* UIImage.swift in Sources */,
 				FAC2175E293F41B600A8BA83 /* AllDonePresentable.swift in Sources */,
@@ -13975,6 +14397,7 @@
 				AEAC68FE26EA3C2A00346599 /* CoingeckoPriceSource.swift in Sources */,
 				8472C5B4265CF9C500E2481B /* StakingRewardDestConfirmPresenter.swift in Sources */,
 				FAA0133928DA12B6000A5230 /* StakingPoolManagementViewModel.swift in Sources */,
+				C633AD8629C19A4200EA8C29 /* KYCOnboardingPresenter.swift in Sources */,
 				2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */,
 				AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */,
 				843910D9253F8DFB00E3C217 /* StatusPresentable.swift in Sources */,
@@ -13991,12 +14414,14 @@
 				FA5137B829AC76EB00560EBA /* SubqueryHistoryOperationFactory.swift in Sources */,
 				8425EA9A25EA83FA00C307C9 /* ChainData+Value.swift in Sources */,
 				AEA2C1BA2681E9C50069492E /* ValidatorSearchInteractor.swift in Sources */,
+				C633AD8929C19A4200EA8C29 /* KYCOnboardingViewLayout.swift in Sources */,
 				84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */,
 				0761DEB428E1F57600B90D2C /* StakingPoolCreateViewModelFactory.swift in Sources */,
 				84C6801A24D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift in Sources */,
 				FA256A34274CE7D600875A53 /* MoonbeamJSONEncoder.swift in Sources */,
 				FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */,
 				FAAB998D27A7C79D00CD1A3B /* QRParser.swift in Sources */,
+				C633ADA229C19A4200EA8C29 /* TermsAndConditionsViewController.swift in Sources */,
 				FA93A2DB28323CCD0021330F /* CustomValidatorListParachainStrategy.swift in Sources */,
 				8430AAD42602285B005B1066 /* StakingStateCommonData.swift in Sources */,
 				F4F2296C260DBDCE00ACFDB8 /* StakingPayoutLabelTableCell.swift in Sources */,
@@ -14009,6 +14434,7 @@
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */,
 				84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */,
+				C633ADAB29C19A4300EA8C29 /* IntroduceViewController.swift in Sources */,
 				84100F3A26A60B0900A5054E /* YourValidatorListStatusSectionView.swift in Sources */,
 				84F30EEC25FFF40C00039D09 /* Nomination.swift in Sources */,
 				FA37AE3C2859CCD8001DCA96 /* StakingUnbondConfirmParachainViewModelFactory.swift in Sources */,
@@ -14018,6 +14444,7 @@
 				84DB4E5C25EA71C100A6DF41 /* StringScaleMapper.swift in Sources */,
 				843C49D824DD98CC00B71DDA /* DerivationPathConstants.swift in Sources */,
 				AEE5FB1A26457AE9002B8FDC /* StakingRewardDestSetupProtocols.swift in Sources */,
+				C633ADA729C19A4300EA8C29 /* IntroduceAssembly.swift in Sources */,
 				8436EDE225895804004D9E97 /* RampProvider.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */,
@@ -14128,6 +14555,7 @@
 				84378775264D2C6600E6AFD2 /* UsernameSetupModel.swift in Sources */,
 				84DB4E2325E945E000A6DF41 /* SlashingSpans.swift in Sources */,
 				FA93A2E42833B0520021330F /* RecommendedValidatorListFlow.swift in Sources */,
+				C633AD9429C19A4200EA8C29 /* SoraCardInfoBoardPresenter.swift in Sources */,
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				0713097D28C63893002B17D0 /* ScamSyncService.swift in Sources */,
 				C68130DF275FD0A0007B573A /* ReceiveAssetPresenter.swift in Sources */,
@@ -14165,6 +14593,7 @@
 				8460E12925422C5A00826F55 /* WalletCompoundDetailsViewModel.swift in Sources */,
 				FA99423528053C5000D771E5 /* ChainAccountInfo.swift in Sources */,
 				AEA0C8BE2681141700F9666F /* YourValidatorList+SelectedList.swift in Sources */,
+				C633ADCA29C19A4300EA8C29 /* PhoneVerificationViewController.swift in Sources */,
 				FA37AE4D28603C37001DCA96 /* StakingUpdatedEvent.swift in Sources */,
 				FA37AE3F2859DF94001DCA96 /* StakingRedeemParachainStrategy.swift in Sources */,
 				8430AAE926022F69005B1066 /* StashState.swift in Sources */,
@@ -14175,9 +14604,11 @@
 				F4A12BF7260B61E900392C33 /* StakingManageOption.swift in Sources */,
 				843A2C7726A86FD000266F53 /* TitleStatusView.swift in Sources */,
 				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
+				C633ADC629C19A4300EA8C29 /* PhoneVerificationViewLayout.swift in Sources */,
 				FA99426C28053CFA00D771E5 /* WalletDetailsFlow.swift in Sources */,
 				FAFFAEAC29AC90E50074AF1F /* SubqueryPayoutValidatorsForNominatorFactory.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
+				C633ADC729C19A4300EA8C29 /* PhoneVerificationProtocols.swift in Sources */,
 				FAA013B328DA1355000A5230 /* StakingPoolRewards.swift in Sources */,
 				FAA0139828DA1312000A5230 /* StakingBondMoreConfirmationPoolStrategy.swift in Sources */,
 				84CFF1E526526FBC00DB7CF7 /* StakingBondMoreViewController.swift in Sources */,
@@ -14225,6 +14656,7 @@
 				AEF505A92620249F0098574D /* UIColor+HEX.swift in Sources */,
 				84205897260C795B007D26C6 /* NominatorState+Status.swift in Sources */,
 				FA1A023E274F55D900DA07CB /* HorizontalKeyValueView.swift in Sources */,
+				C633AD9129C19A4200EA8C29 /* SoraCardInfoBoardViewLayout.swift in Sources */,
 				AE8B883226733BAD00AB0AA9 /* CustomValidatorListHeaderView.swift in Sources */,
 				FA256997274CE65100875A53 /* HTTPRequestBuilder.swift in Sources */,
 				FA99426928053C9300D771E5 /* ExportFlow.swift in Sources */,
@@ -14277,6 +14709,7 @@
 				FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */,
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
+				C633AD8829C19A4200EA8C29 /* KYCOnboardingRouter.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
@@ -14285,6 +14718,7 @@
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
 				FA4CC6642817C3AC00A7E85F /* StackedTableView.swift in Sources */,
+				C633ADA329C19A4200EA8C29 /* TermsAndConditionsButton.swift in Sources */,
 				FAA0138B28DA1303000A5230 /* StakingPayoutConfirmationFlow.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */,
 				C6267BAC28BEB277001E31BF /* SearchTriangularedView.swift in Sources */,
@@ -14336,9 +14770,11 @@
 				FAD0068027EA252400C97E09 /* AboutViewModelFactory.swift in Sources */,
 				FA37AE452859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift in Sources */,
 				84F30EE425FFAC0800039D09 /* StreamableProviderOptions+Substrate.swift in Sources */,
+				C633ADA029C19A4200EA8C29 /* TermsAndConditionsRouter.swift in Sources */,
 				FAC0BBDA291D0EB000E6F106 /* SendRouter.swift in Sources */,
 				FA402F3427CCCC19008CF986 /* ChainSubstrateV2MigrationPolicy.swift in Sources */,
 				FA2FC80D28B3807D00CC0A42 /* StakingPoolJoinConfirmRouter.swift in Sources */,
+				C633ADB829C19A4300EA8C29 /* PreparationViewLayout.swift in Sources */,
 				070B2C61289CFE0000F78F82 /* SelectedNetworkButton.swift in Sources */,
 				C6A8D6BD27EF0CF40080F81C /* UIView.swift in Sources */,
 				FAFFAE7B29AC84B10074AF1F /* SubqueryReferral.swift in Sources */,
@@ -14389,6 +14825,7 @@
 				AEE5FB1626457AA9002B8FDC /* StakingRewardDestSetupPresenter.swift in Sources */,
 				FA256987274CE5B700875A53 /* SHA256.swift in Sources */,
 				8468B86E24F63D1400B76BC6 /* AddAccount+OnboardingMainWireframe.swift in Sources */,
+				C633ADAC29C19A4300EA8C29 /* IntroduceRouter.swift in Sources */,
 				FAA0137028DA12E3000A5230 /* StakingRedeemConfirmationParachainViewModelState.swift in Sources */,
 				FAFFAE9C29AC84B10074AF1F /* ParachainSubsquidRewardResponse.swift in Sources */,
 				FAA013A328DA1328000A5230 /* TitleMultiValueViewModel.swift in Sources */,
@@ -14411,6 +14848,7 @@
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
 				845C407B27027AA000BFA50B /* SubscriptionStorageKeys.swift in Sources */,
 				076D9D4A29419745002762E3 /* PolkaswapRemoteSubscriptionService.swift in Sources */,
+				C633ADC929C19A4300EA8C29 /* PhoneVerificationRouter.swift in Sources */,
 				FA4B92B62844D0E60003BCEF /* SelectCurrencyViewLayout.swift in Sources */,
 				FA072C21277B19A900731718 /* ImageGalleryProtocols.swift in Sources */,
 				847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */,
@@ -14465,6 +14903,7 @@
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				F418E887264D308700699085 /* StakingAlert.swift in Sources */,
 				FAA0139E28DA131B000A5230 /* StakingBondMorePoolViewModelFactory.swift in Sources */,
+				C633AD8529C19A4200EA8C29 /* PermissionType.swift in Sources */,
 				8444D1742671372800AF6D8C /* BytesCodable.swift in Sources */,
 				84DD5F7C263DFEC600425ACF /* StakingDataValidatorFactory.swift in Sources */,
 				84E1CCF5260DCB91001E81B5 /* SwitchAccount+AccountManagementWireframe.swift in Sources */,
@@ -14472,6 +14911,7 @@
 				FAA0136828DA12E3000A5230 /* StakingRedeemConfirmationViewModel.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
 				FAFFAE7E29AC84B10074AF1F /* SubqueryDelegatorHistoryData.swift in Sources */,
+				C633ADBA29C19A4300EA8C29 /* PreparationPresenter.swift in Sources */,
 				FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */,
 				FAFFAE4029AC84850074AF1F /* AccountManagementPresentable.swift in Sources */,
 				FA15BC152823CB7B0037C023 /* ParachainCollatorOperationFactory.swift in Sources */,
@@ -14549,6 +14989,7 @@
 				FA256A37274CE7D600875A53 /* CrowdloanAgreementServiceError.swift in Sources */,
 				84E1CCFA260DCBF9001E81B5 /* SwitchAccount+UsernameSetupWireframe.swift in Sources */,
 				84CFF1E626526FBC00DB7CF7 /* StakingBondMoreInteractor.swift in Sources */,
+				C633ADB129C19A4300EA8C29 /* VerificationStatusViewLayout.swift in Sources */,
 				FAA0134028DA12B6000A5230 /* StakingPoolManagementAssembly.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
 				FAADC1BA2926597400DA9903 /* ScanQRPresenter.swift in Sources */,
@@ -14557,6 +14998,7 @@
 				AE7129BC2608C069000AA3F5 /* RelaychainStakingInfoOperationFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				076D9D4529405987002762E3 /* SlippageToleranceViewModelFactory.swift in Sources */,
+				C633ADA429C19A4200EA8C29 /* TermsAndConditionsProtocols.swift in Sources */,
 				AE2C84E425EF98C700986716 /* ValidatorInfoViewController.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				FAA013B128DA134B000A5230 /* PoolWithdrawUnbondedCall.swift in Sources */,
@@ -14565,6 +15007,7 @@
 				84F5107C263C0C11005D15AE /* AnyProviderCleaning.swift in Sources */,
 				C615668129309D3900391BF3 /* QRService.swift in Sources */,
 				FAA0134628DA12CD000A5230 /* StakingUnbondSetupPoolViewModelState.swift in Sources */,
+				C633ADAD29C19A4300EA8C29 /* VerificationStatusViewModelFactory.swift in Sources */,
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,
 				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
 				8439399C2636FAB40087658D /* YourValidatorViewModel.swift in Sources */,
@@ -14632,6 +15075,7 @@
 				8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
+				C633AD9B29C19A4200EA8C29 /* PhoneVerificationCodeViewLayout.swift in Sources */,
 				AE805FC526B3DF8B00007CE9 /* ValidatorInfoInteractorBase.swift in Sources */,
 				FA5137BA29AC76EB00560EBA /* SubsquidHistoryOperationFactory.swift in Sources */,
 				F4D96B712637FE8600B23D3D /* StakingBalanceWidgetViewModel.swift in Sources */,
@@ -14645,6 +15089,7 @@
 				FA256A24274CE7D600875A53 /* MoonbeamGuidinfoInfo.swift in Sources */,
 				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
 				FAA0137128DA12E3000A5230 /* StakingRedeemConfirmationParachainStrategy.swift in Sources */,
+				C633ADBB29C19A4300EA8C29 /* PreparationInteractor.swift in Sources */,
 				846042C02666E2C800CFFCFC /* KaruraResultData.swift in Sources */,
 				84BE20A825E8D93E00B4748C /* Data+StorageKey.swift in Sources */,
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
@@ -14665,6 +15110,7 @@
 				AE6DE7322627EA930018D5B5 /* PayoutCall.swift in Sources */,
 				FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */,
 				84DD5F26263D72C400425ACF /* ExtrinsicFeeProxy.swift in Sources */,
+				C633AD2B29C1955000EA8C29 /* SmallButton.swift in Sources */,
 				FA864440276843E100956D8E /* ViewModelObserver.swift in Sources */,
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */,
@@ -14680,10 +15126,12 @@
 				FAA0133528DA12B6000A5230 /* StakingPoolMainPresenter.swift in Sources */,
 				AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */,
 				845B821D26EF80DB00D25C72 /* ChainAccountModel.swift in Sources */,
+				C633ADA829C19A4300EA8C29 /* IntroducePresenter.swift in Sources */,
 				F4617415260E23E900E8FA3D /* StakingRewardStatusViewModel.swift in Sources */,
 				FA389B34283E22FC00FF16E9 /* ParachainStakingDelegation.swift in Sources */,
 				4A520B7081BE2D7604B69354 /* AccountImportWireframe.swift in Sources */,
 				F4433D5F26C166470002A91E /* AnalyticsValidatorsView.swift in Sources */,
+				C633AD1A29C0B79300EA8C29 /* SCApiClientSwift.swift in Sources */,
 				FA8ED43F28FD98C800EBB712 /* YourValidatorListPoolViewModelState.swift in Sources */,
 				FA2FC7FB28B3807C00CC0A42 /* StakingPoolJoinChoosePoolViewLayout.swift in Sources */,
 				FA256A45274CE8BD00875A53 /* StoriesCollectionItem.swift in Sources */,
@@ -14726,6 +15174,7 @@
 				84CFF1EF26526FBC00DB7CF7 /* StakingBondMoreConfirmationPresenter.swift in Sources */,
 				FA93A2F22833B1210021330F /* RecommendedValidatorListParachainStrategy.swift in Sources */,
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
+				C633ADB629C19A4300EA8C29 /* PreparationAssembly.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				42B79A8D0D9540C1D97D991C /* AccountConfirmWireframe.swift in Sources */,
 				0716C83C28853ACA004C8CB1 /* WalletBalanceSubscriptionAdapter.swift in Sources */,
@@ -14752,6 +15201,7 @@
 				AE9EF264260A82B80026910A /* StoriesWireframe.swift in Sources */,
 				848EAEB02659310A00676CEA /* CrowdloanStatus.swift in Sources */,
 				841185E7263F3B6D00E8A8B6 /* HintView.swift in Sources */,
+				C633ADB429C19A4300EA8C29 /* VerificationStatusViewController.swift in Sources */,
 				8494D87C252537E500614D8F /* SubscanError.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				07DFA452289A5C870035A8AB /* WalletsManagmentCellViewModel.swift in Sources */,
@@ -14764,6 +15214,7 @@
 				84754CA42513E6DC00854599 /* PrimitiveContextWrapper.swift in Sources */,
 				FA15BC0F2823AE4D0037C023 /* ParachainStakingCandidate.swift in Sources */,
 				84F47D4B2666EF1C00F7647A /* KaruraStatementData.swift in Sources */,
+				C633ADC429C19A4300EA8C29 /* EmailVerificationViewController.swift in Sources */,
 				8443FE24255586230092893D /* ExportMnemonicConfirmProtocols.swift in Sources */,
 				FA93A2E128323CF10021330F /* CustomValidatorListRelaychainStrategy.swift in Sources */,
 				84644A0C256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift in Sources */,
@@ -14775,6 +15226,7 @@
 				FAC0BBE3291D0EB000E6F106 /* SelectAssetPresenter.swift in Sources */,
 				843910B2253ED4D100E3C217 /* CDChainStorageItem+CoreDataDecodable.swift in Sources */,
 				84CFF1EE26526FBC00DB7CF7 /* StakingBondMoreConfirmationProtocols.swift in Sources */,
+				C633ADC329C19A4300EA8C29 /* EmailVerificationViewLayout.swift in Sources */,
 				07DFA46A289B8D8E0035A8AB /* EducationStoriesViewProtocol.swift in Sources */,
 				F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */,
 				F47BBD4C2630B78E0087DA11 /* StakingBalanceWireframe.swift in Sources */,
@@ -14831,6 +15283,7 @@
 				FA2FC81B28B3807D00CC0A42 /* StakingPoolStartViewLayout.swift in Sources */,
 				8460516D25536C4800A1F0B4 /* ExportOption+ViewModel.swift in Sources */,
 				84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */,
+				C633AD8E29C19A4200EA8C29 /* SoraCardStateViewModelFactory.swift in Sources */,
 				843461CF26E25AD400DCE0CD /* SubscanHistoryItem+Wallet.swift in Sources */,
 				F458D3982642911B0055CB75 /* ControllerAccountViewModel.swift in Sources */,
 				FA402F3627CCD14D008CF986 /* SubstrateStorageVersion.swift in Sources */,
@@ -14895,8 +15348,10 @@
 				074EB7AA290B9E20000A2A6A /* ApplicationStatusAlertEvent.swift in Sources */,
 				8448221C26B1850D007F4492 /* TitleIconViewModel.swift in Sources */,
 				F40966BC26B297D6008CD244 /* AnalyticsRewardsViewModelFactory.swift in Sources */,
+				C633ADC829C19A4300EA8C29 /* PhoneVerificationState.swift in Sources */,
 				C6264C2C2799C15C00FCA0DB /* WalletDetailsCellViewModel.swift in Sources */,
 				FAFFAE8A29AC84B10074AF1F /* SubqueryHistoryElement.swift in Sources */,
+				C633ADAE29C19A4300EA8C29 /* VerificationStatusViewModel.swift in Sources */,
 				2E57C70B27E9EC0F00AF075A /* ProfileViewState.swift in Sources */,
 				843A2C6F26A8548B00266F53 /* RowView.swift in Sources */,
 				84EBAB06265DC24C0015E446 /* CrowdloanContributionViewModelFactory.swift in Sources */,
@@ -14913,6 +15368,7 @@
 				C6992F10280836FA003BC769 /* AccountConfirmFlow.swift in Sources */,
 				845CB6FA26276326005F798B /* LongrunOperation.swift in Sources */,
 				84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */,
+				C633ADCD29C19A4300EA8C29 /* PhoneVerificationInteractor.swift in Sources */,
 				84CD357525264FA30081BC0B /* WalletAccountListConstants.swift in Sources */,
 				AE9EF269260A82C30026910A /* StoriesProtocols.swift in Sources */,
 				F47BBD852631888C0087DA11 /* StakingBalanceActionsWidgetView.swift in Sources */,
@@ -14945,6 +15401,7 @@
 				846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */,
 				AE528E4D26852C380058935A /* ValidatorSearchViewModel.swift in Sources */,
 				F408E9B626B807200043CFE0 /* AnalyticsRewardsHeaderView.swift in Sources */,
+				C633AD9F29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift in Sources */,
 				F4D6FF3926B3E33E002313AF /* AnalyticsContainerViewFactory.swift in Sources */,
 				843910C9253F591D00E3C217 /* ScaleDecoderOperation.swift in Sources */,
 				FAC0BBCF291D0EB000E6F106 /* SendViewModelFactory.swift in Sources */,
@@ -14974,6 +15431,7 @@
 				5DDD2206DF795CF205610455 /* AccountExportPasswordPresenter.swift in Sources */,
 				800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */,
 				076D9D5129484C8E002762E3 /* PolkaswapDexInfo.swift in Sources */,
+				C633ADCC29C19A4300EA8C29 /* PhoneVerificationAssembly.swift in Sources */,
 				C6A53DF128A5036400EFF190 /* Array + Unique.swift in Sources */,
 				7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */,
 				FA6DB7C92757C9B000233FBA /* ChainAccountProtocols.swift in Sources */,
@@ -15022,6 +15480,7 @@
 				FAA0134728DA12CD000A5230 /* StakingUnbondSetupPoolStrategy.swift in Sources */,
 				FA256A52274CEB9800875A53 /* RichAmountDisplayViewModel.swift in Sources */,
 				9A6A55297F41DAE45071BF57 /* ExportSeedInteractor.swift in Sources */,
+				C633ADBC29C19A4300EA8C29 /* PreparationRouter.swift in Sources */,
 				886E8CF81EF2566D98D9693E /* ExportSeedViewFactory.swift in Sources */,
 				C20ED4531583D0C8E38715E0 /* PurchaseProtocols.swift in Sources */,
 				3CA86739CB09801714B194BD /* PurchaseWireframe.swift in Sources */,
@@ -15046,6 +15505,7 @@
 				AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */,
 				C46EEF6A9A9A601694E72DB1 /* StakingMainWireframe.swift in Sources */,
 				07DFA44F289A37F50035A8AB /* ModalSheetBlurPresentationDismissAnimator.swift in Sources */,
+				C633AD9929C19A4200EA8C29 /* VerificationTimerState.swift in Sources */,
 				FAC0BBD6291D0EB000E6F106 /* SendFlow.swift in Sources */,
 				AEE5FB09264289FD002B8FDC /* RebondCall.swift in Sources */,
 				8406B5AD26FBE69200635B61 /* SelectableIconDetailsListViewModel.swift in Sources */,
@@ -15066,6 +15526,7 @@
 				FA93A2DF28323CE60021330F /* CustomValidatorListRelaychainViewModelFactory.swift in Sources */,
 				E5F3DF66415E54AE04D0C9A9 /* StakingMainViewController.swift in Sources */,
 				F44CCBEE26D38D1900A9E02E /* AnalyticsMagentaButton.swift in Sources */,
+				C633ADB929C19A4300EA8C29 /* PreparationViewController.swift in Sources */,
 				C6992F0D2807E796003BC769 /* ReplaceChainOption.swift in Sources */,
 				FAABC4792845DEF2002CF40E /* ValidatorListFilterParachainViewModels.swift in Sources */,
 				E2F9D7BDDE961B162EF100AB /* StakingMainViewFactory.swift in Sources */,
@@ -15084,9 +15545,11 @@
 				3250F2C0E12ED42A355853BE /* SelectValidatorsStartProtocols.swift in Sources */,
 				2E57C70D27E9ED5400AF075A /* ProfileViewModel.swift in Sources */,
 				EC978E6C4FBF39BE9ED10C86 /* SelectValidatorsStartWireframe.swift in Sources */,
+				C633ADC129C19A4300EA8C29 /* EmailVerificationAssembly.swift in Sources */,
 				FA2FC81828B3807D00CC0A42 /* StakingPoolStartRouter.swift in Sources */,
 				0713098128C6F7BB002B17D0 /* CDScamInfo+CoreDataCodable.swift in Sources */,
 				FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */,
+				C633ADAA29C19A4300EA8C29 /* IntroduceViewLayout.swift in Sources */,
 				FA8644512768A13400956D8E /* TwoLabelView.swift in Sources */,
 				F477CD3A262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift in Sources */,
 				849ABE7C2628116F00011A2A /* NominationsReducer.swift in Sources */,
@@ -15170,6 +15633,7 @@
 				F409673326B29C9B008CD244 /* RewardAnalyticsWidgetViewModel.swift in Sources */,
 				C63CB322285077640071AF26 /* DelegationInfoCellModel.swift in Sources */,
 				5869563D0EA593FBD02C169C /* StakingPayoutConfirmationProtocols.swift in Sources */,
+				C633AD9829C19A4200EA8C29 /* PhoneVerificationCodeAssembly.swift in Sources */,
 				A871B6ABACAE8A811010F792 /* StakingPayoutConfirmationWireframe.swift in Sources */,
 				F4D6FF1326B3DDDF002313AF /* AnalyticsRewardsViewController.swift in Sources */,
 				1795E946F1E386442E96E2BC /* StakingPayoutConfirmationPresenter.swift in Sources */,
@@ -15233,6 +15697,7 @@
 				FAADC19929261F6400DA9903 /* NominationPoolsUpdateRolesCall.swift in Sources */,
 				CCF5A7CED175D5E43B2C9971 /* StakingUnbondSetupViewController.swift in Sources */,
 				57E20F0723C4748D576C4882 /* StakingUnbondSetupViewFactory.swift in Sources */,
+				C633AD8B29C19A4200EA8C29 /* KYCOnboardingInteractor.swift in Sources */,
 				F40966CD26B297D6008CD244 /* AnalyticsStakePresenter.swift in Sources */,
 				0FB6781AB0186A1ED474CAD6 /* StakingUnbondConfirmProtocols.swift in Sources */,
 				07DE95C828A169A600E9C2CB /* AssetListSearchPresenter.swift in Sources */,
@@ -15243,9 +15708,11 @@
 				843A2C7326A8641400266F53 /* MultiValueView.swift in Sources */,
 				3FF8EE1158A273D0D50BC7A6 /* StakingUnbondConfirmPresenter.swift in Sources */,
 				FA99425728053C8800D771E5 /* SelectExportAccountPresenter.swift in Sources */,
+				C633AD2329C0B8B000EA8C29 /* SCKYCService.swift in Sources */,
 				FA2FC85A28B389EB00CC0A42 /* AssetSelectionTableViewCellModel.swift in Sources */,
 				F0C3DB0CEE1975626B0014A8 /* StakingUnbondConfirmInteractor.swift in Sources */,
 				FA936BEE2872E3540059B97A /* TitleSwitchTableViewCell.swift in Sources */,
+				C633ADC029C19A4300EA8C29 /* EmailVerificationState.swift in Sources */,
 				C6A53DEF28A4FB2C00EFF190 /* Array + Divide.swift in Sources */,
 				D3B48F82A875E301D749AC0B /* StakingUnbondConfirmViewController.swift in Sources */,
 				FAFFAE9429AC84B10074AF1F /* GiantsquidReward.swift in Sources */,
@@ -15254,6 +15721,7 @@
 				FAA0136D28DA12E3000A5230 /* StakingRedeemConfirmationPresenter.swift in Sources */,
 				3E1462D9E1C0D490E81FD288 /* StakingUnbondConfirmViewFactory.swift in Sources */,
 				FA402F3C27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift in Sources */,
+				C633ADB029C19A4300EA8C29 /* VerificationStatusProtocols.swift in Sources */,
 				9B4BE26140C63E07C256CC97 /* StakingRedeemProtocols.swift in Sources */,
 				078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */,
 				AEE5FB1C264A610C002B8FDC /* StakingRewardDestSetupLayout.swift in Sources */,
@@ -15286,7 +15754,9 @@
 				D886425A55425810AD070AB5 /* ControllerAccountConfirmationWireframe.swift in Sources */,
 				0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */,
 				135CEEC5363BE34130958578 /* ControllerAccountConfirmationInteractor.swift in Sources */,
+				C633ADB529C19A4300EA8C29 /* VerificationStatusAssembly.swift in Sources */,
 				F4D6FF5226B3ECEB002313AF /* AnalyticsViewState.swift in Sources */,
+				C633AD9029C19A4200EA8C29 /* SoraCardState.swift in Sources */,
 				4040F1394A73AC2FE598242C /* ControllerAccountConfirmationViewController.swift in Sources */,
 				FA2569B2274CE71700875A53 /* RemarkCall.swift in Sources */,
 				C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */,
@@ -15315,6 +15785,7 @@
 				7401E7CAEEE6890BE74ACCE1 /* CustomValidatorListViewLayout.swift in Sources */,
 				FA402F3A27CCD1DB008CF986 /* SubstrateStorageMigrator.swift in Sources */,
 				D83B47B07C0D40A327AC44F7 /* CustomValidatorListViewFactory.swift in Sources */,
+				C633ADA629C19A4200EA8C29 /* TermsAndConditionsPresenter.swift in Sources */,
 				07D05E5E28EF0A0A00B66C70 /* SelectValidatorsConfirmPoolInitiatedViewModelState.swift in Sources */,
 				FAFFAE8029AC84B10074AF1F /* SubqueryTransfer.swift in Sources */,
 				FA2569C0274CE74100875A53 /* EtheriumAddressForRewardView.swift in Sources */,
@@ -15347,8 +15818,10 @@
 				90A3F46EF181DC2B821CC80C /* CrowdloanContributionConfirmViewFactory.swift in Sources */,
 				FAA0133728DA12B6000A5230 /* StakingPoolMainAssembly.swift in Sources */,
 				07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */,
+				C633AD8C29C19A4200EA8C29 /* KYCOnboardingViewController.swift in Sources */,
 				EB9D8D22AA13BF12F845856B /* ReferralCrowdloanProtocols.swift in Sources */,
 				51FC48FA6FD4D2FB1781424D /* ReferralCrowdloanWireframe.swift in Sources */,
+				C633AD9729C19A4200EA8C29 /* SCKYCPhoneCodeState.swift in Sources */,
 				FAD7EADA2861AE60004BD139 /* UniversalIconGenerator.swift in Sources */,
 				0F3E58FC800ED8722589F89E /* ReferralCrowdloanPresenter.swift in Sources */,
 				9F4A48B1BE3A1110A0CF9F36 /* ReferralCrowdloanViewController.swift in Sources */,
@@ -15380,6 +15853,7 @@
 				31E260D462BF33CFCDFEBA6C /* AnalyticsRewardDetailsProtocols.swift in Sources */,
 				76F74188F16A370D79033A12 /* AnalyticsRewardDetailsWireframe.swift in Sources */,
 				F17C7FA0DB540A803558D1BB /* AnalyticsRewardDetailsPresenter.swift in Sources */,
+				C633ADA929C19A4300EA8C29 /* IntroduceProtocols.swift in Sources */,
 				EB544E8D26ABEE4ADE2F939F /* AnalyticsRewardDetailsInteractor.swift in Sources */,
 				FA17B4D227E9CF21006E0735 /* FearlessApplication.swift in Sources */,
 				EB7B660B0B1BAA915C004A8D /* AnalyticsRewardDetailsViewController.swift in Sources */,
@@ -15388,6 +15862,7 @@
 				FA93A2F92834AD630021330F /* ValidatorInfoRelaychainViewModelFactory.swift in Sources */,
 				69EF1DC4093AC9AF06D71CF4 /* AnalyticsRewardDetailsViewFactory.swift in Sources */,
 				93434E8E407A6C63D8862A21 /* AssetSelectionProtocols.swift in Sources */,
+				C633ADCB29C19A4300EA8C29 /* PhoneVerificationPresenter.swift in Sources */,
 				CDB78A5A733E4A4F1A2C48C8 /* AssetSelectionWireframe.swift in Sources */,
 				2FCB062A2D873BD72B795DB3 /* AssetSelectionPresenter.swift in Sources */,
 				BEA539EE97A287868FD8BE46 /* AssetSelectionViewFactory.swift in Sources */,
@@ -15403,6 +15878,7 @@
 				FAABC4702845BAEE002CF40E /* CustomValidatorParachainListComposer.swift in Sources */,
 				FA2E9BB027A118120023FAD2 /* FiltersViewModelFactory.swift in Sources */,
 				0DAA7B1B7DF576C761DEF046 /* WalletSendConfirmWireframe.swift in Sources */,
+				C633AD1C29C0B7E100EA8C29 /* SCNetworkingError.swift in Sources */,
 				06197BBE4299DC971C42DB92 /* WalletSendConfirmPresenter.swift in Sources */,
 				BDE80F08EBEE3B0C95598EA8 /* WalletSendConfirmInteractor.swift in Sources */,
 				EA16E259F0B0C1D3A6A1902A /* WalletSendConfirmViewController.swift in Sources */,
@@ -15441,6 +15917,7 @@
 				FA4B92B42844D0E60003BCEF /* SelectCurrencyViewController.swift in Sources */,
 				456BC580D5CCD0D115F412A2 /* WalletScanQRViewLayout.swift in Sources */,
 				8B40D7CE876BD08EA0355B88 /* WalletScanQRViewFactory.swift in Sources */,
+				C633AD9529C19A4200EA8C29 /* SoraCardInfoBoardProtocols.swift in Sources */,
 				FA30D4F428BF67DF00548C1E /* StakingPoolInfoViewModel.swift in Sources */,
 				3E053332BA9D170FB1569ABB /* WalletTransactionDetailsProtocols.swift in Sources */,
 				002561414AF1F8F3B4B65538 /* WalletTransactionDetailsWireframe.swift in Sources */,
@@ -15510,6 +15987,7 @@
 				23398AEC756086FEEEE91E65 /* WalletsManagmentRouter.swift in Sources */,
 				DA5B38EE4622B33AFCA11A50 /* WalletsManagmentPresenter.swift in Sources */,
 				F7B2663F06E07CD716236C6D /* WalletsManagmentInteractor.swift in Sources */,
+				C633ADA529C19A4200EA8C29 /* TermsAndConditionsAssembly.swift in Sources */,
 				0D05777212DFA8CFC5A692E3 /* WalletsManagmentViewController.swift in Sources */,
 				25A837D8E6138EDAFA9240CD /* WalletsManagmentViewLayout.swift in Sources */,
 				BEC406F19FA08B2AC6D8A352 /* WalletsManagmentAssembly.swift in Sources */,
@@ -15536,6 +16014,7 @@
 				992A5E2E06A9C0E603A10BF7 /* MainNftContainerInteractor.swift in Sources */,
 				F38273DB7A8B139B9FD8FBE2 /* MainNftContainerViewController.swift in Sources */,
 				E58F94758A6B8BCF3BE0EAEA /* MainNftContainerViewLayout.swift in Sources */,
+				C633ADBE29C19A4300EA8C29 /* EmailVerificationProtocols.swift in Sources */,
 				F865D752EBD2363E971BE267 /* MainNftContainerAssembly.swift in Sources */,
 				F3E88A15A597C7B9B92C097B /* NetworkIssuesNotificationProtocols.swift in Sources */,
 				7B7B34D621DC2FE76E0F5DB4 /* NetworkIssuesNotificationRouter.swift in Sources */,
@@ -15606,6 +16085,7 @@
 				54C8E20A8D7DD92AC92B8041 /* SelectMarketProtocols.swift in Sources */,
 				9F664DA212363F5F2C2B530B /* SelectMarketRouter.swift in Sources */,
 				A29F1452BF0AEB885E6460E2 /* SelectMarketPresenter.swift in Sources */,
+				C633ADA129C19A4200EA8C29 /* TermsAndConditionsViewLayout.swift in Sources */,
 				53DA09F488806FFE86C841AA /* SelectMarketInteractor.swift in Sources */,
 				503DFF0EFCAD0A8B526FEC3A /* SelectMarketViewController.swift in Sources */,
 				E40F3F3C0FE753970B8745DD /* SelectMarketAssembly.swift in Sources */,

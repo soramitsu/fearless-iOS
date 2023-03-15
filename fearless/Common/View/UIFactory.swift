@@ -40,6 +40,8 @@ struct UIConstants {
     static let validatorCellHeight: CGFloat = 77.0
     static let infoButtonSize: CGFloat = 14.0
     static let minButtonSize = CGSize(width: 44, height: 44)
+    static let soraCardButtonHeight: CGFloat = 56
+    static let roundedButtonHeight: CGFloat = 56.0
 }
 
 enum AccountViewMode {
@@ -98,6 +100,7 @@ protocol UIFactoryProtocol {
         locale: Locale
     ) -> UIToolbar
     func createDisabledButton() -> TriangularedButton
+    func createRoundedButton() -> UIButton
 }
 
 extension UIFactoryProtocol {
@@ -716,4 +719,11 @@ final class UIFactory: UIFactoryProtocol {
         view.valueBottom.textColor = R.color.colorStrokeGray()
         return view
     }
+    
+    func createRoundedButton() -> UIButton {
+         let button = UIButton(type: .custom)
+         button.titleLabel?.font = .h6Title
+         button.layer.cornerRadius = 12
+         return button
+     }
 }
