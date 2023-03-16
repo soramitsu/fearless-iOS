@@ -1114,7 +1114,6 @@
 		84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69E72566750D00559427 /* ByteLengthProcessor.swift */; };
 		84CE69ED25667A5600559427 /* ByteLengthEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */; };
 		84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */; };
-		84CE9AE726CA993900B4EF62 /* CommonTypesSyncTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */; };
 		84CE9AE926CAA83100B4EF62 /* RuntimeProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */; };
 		84CEAAEF26D6DF160021B881 /* SingleToMultiassetMigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CEAAEE26D6DF160021B881 /* SingleToMultiassetMigrationPolicy.swift */; };
 		84CEAAF326D6ED870021B881 /* KeystoreTag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CEAAF226D6ED870021B881 /* KeystoreTag.swift */; };
@@ -3679,7 +3678,6 @@
 		84CE69E72566750D00559427 /* ByteLengthProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteLengthProcessor.swift; sourceTree = "<group>"; };
 		84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteLengthEncodingTests.swift; sourceTree = "<group>"; };
 		84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ByteLengthProcessor+Username.swift"; sourceTree = "<group>"; };
-		84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonTypesSyncTests.swift; sourceTree = "<group>"; };
 		84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeProviderTests.swift; sourceTree = "<group>"; };
 		84CEAAEE26D6DF160021B881 /* SingleToMultiassetMigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleToMultiassetMigrationPolicy.swift; sourceTree = "<group>"; };
 		84CEAAF226D6ED870021B881 /* KeystoreTag.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreTag.swift; sourceTree = "<group>"; };
@@ -6758,7 +6756,6 @@
 				84443B9F26C121BA00C33B5D /* MockConnection.swift */,
 				840BF22426C2653100E3A955 /* ChainSyncServiceTests.swift */,
 				84AA004226C5DFD800BCB4DC /* RuntimeSyncServiceTests.swift */,
-				84CE9AE626CA993900B4EF62 /* CommonTypesSyncTests.swift */,
 				84CE9AE826CAA83100B4EF62 /* RuntimeProviderTests.swift */,
 				84BEE62F26CBFDBC00757009 /* ChainRegistryTests.swift */,
 				8469936A26CD1BBE002CC786 /* RuntimePoolTests.swift */,
@@ -15730,7 +15727,6 @@
 				840BF22526C2653100E3A955 /* ChainSyncServiceTests.swift in Sources */,
 				845C7F01263C44B70024E797 /* AnyProviderAutoClearTests.swift in Sources */,
 				76C5FD0685615E602696B23D /* SelectValidatorsConfirmTests.swift in Sources */,
-				84CE9AE726CA993900B4EF62 /* CommonTypesSyncTests.swift in Sources */,
 				AEA0C8CB26813AE400F9666F /* SelectedValidatorListTests.swift in Sources */,
 				84F13F1826F226F2006725FF /* EthereumAddressTests.swift in Sources */,
 				84443BA026C121BA00C33B5D /* MockConnection.swift in Sources */,
@@ -15860,7 +15856,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -15882,7 +15878,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -15904,7 +15900,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessIntegrationTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -16097,7 +16093,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -16122,7 +16118,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -16235,7 +16231,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				INFOPLIST_FILE = fearlessTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
