@@ -60,18 +60,20 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         defer {
             mutex.unlock()
         }
-
-        let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
-            for: chain,
-            chainTypes: chainTypes,
-            usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
-        )
+        
+        if let runtimeProvider = runtimeProviders[chain.chainId] {
+            return runtimeProvider
+        } else {
+            let runtimeProvider = runtimeProviderFactory.createRuntimeProvider(
+                for: chain,
+                chainTypes: chainTypes,
+                usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
+            )
 
         runtimeProviders[chain.chainId] = runtimeProvider
-
         runtimeProvider.setup()
-
         return runtimeProvider
+        }
     }
 
     func destroyRuntimeProvider(for chainId: ChainModel.Id) {
