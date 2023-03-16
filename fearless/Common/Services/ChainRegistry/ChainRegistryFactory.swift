@@ -86,14 +86,6 @@ final class ChainRegistryFactory {
             logger: Logger.shared
         )
 
-        let commonTypesSyncService = CommonTypesSyncService(
-            url: ApplicationConfig.shared.commonTypesURL,
-            filesOperationFactory: filesOperationFactory,
-            dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.syncQueue
-        )
-
         let chainsTypesSuncService = ChainsTypesSyncService(
             url: ApplicationConfig.shared.chainsTypesURL,
             filesOperationFactory: filesOperationFactory,
@@ -119,7 +111,6 @@ final class ChainRegistryFactory {
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
-            commonTypesSyncService: commonTypesSyncService,
             chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,
