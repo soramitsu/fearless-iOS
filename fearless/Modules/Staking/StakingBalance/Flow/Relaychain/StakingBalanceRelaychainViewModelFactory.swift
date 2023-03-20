@@ -28,6 +28,10 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                 balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
                 precision: precision
             ) ?? 0.0
+            let bondedDecimal = Decimal.fromSubstrateAmount(
+                balanceData.stakingLedger.active,
+                precision: precision
+            ) ?? 0.0
 
             let widgetViewModel = self.createWidgetViewModel(
                 from: balanceData,
@@ -47,7 +51,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             return StakingBalanceViewModel(
                 title: R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages),
                 widgetViewModel: widgetViewModel,
-                actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
+                actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, bondedDecimal: bondedDecimal, locale: locale),
                 unbondingViewModel: unbondingViewModel
             )
         }
@@ -110,6 +114,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
 
     func createActionsViewModel(
         redeemableDecimal: Decimal,
+        bondedDecimal: Decimal,
         locale: Locale
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
@@ -119,7 +124,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             redeemIcon: R.image.iconRedeem(),
             redeemActionIsAvailable: redeemableDecimal > 0,
             stakeMoreActionAvailable: true,
-            stakeLessActionAvailable: true
+            stakeLessActionAvailable: redeemableDecimal != bondedDecimal
         )
     }
 
