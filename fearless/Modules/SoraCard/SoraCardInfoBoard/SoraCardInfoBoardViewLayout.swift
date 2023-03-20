@@ -21,8 +21,8 @@ final class SoraCardInfoBoardViewLayout: UIView {
         return button
     }()
 
-    let hideButton: SmallButton = {
-        let button = SmallButton(type: .custom)
+    let hideButton: ExtendedTouchAreaButton = {
+        let button = ExtendedTouchAreaButton(type: .custom)
         button.setImage(R.image.iconCloseWhiteTransparent(), for: .normal)
         return button
     }()

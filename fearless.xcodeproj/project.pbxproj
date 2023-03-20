@@ -1604,7 +1604,7 @@
 		C633AD2329C0B8B000EA8C29 /* SCKYCService.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */; };
 		C633AD2529C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */; };
 		C633AD2929C18DBA00EA8C29 /* SCStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2829C18DBA00EA8C29 /* SCStorage.swift */; };
-		C633AD2B29C1955000EA8C29 /* SmallButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2A29C1955000EA8C29 /* SmallButton.swift */; };
+		C633AD2B29C1955000EA8C29 /* ExtendedTouchAreaButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2A29C1955000EA8C29 /* ExtendedTouchAreaButton.swift */; };
 		C633AD8529C19A4200EA8C29 /* PermissionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD2F29C19A4200EA8C29 /* PermissionType.swift */; };
 		C633AD8629C19A4200EA8C29 /* KYCOnboardingPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3029C19A4200EA8C29 /* KYCOnboardingPresenter.swift */; };
 		C633AD8729C19A4200EA8C29 /* KYCOnboardingProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C633AD3129C19A4200EA8C29 /* KYCOnboardingProtocols.swift */; };
@@ -4271,7 +4271,7 @@
 		C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCKYCService.swift; sourceTree = "<group>"; };
 		C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCKYCService+ReferenceNumber.swift"; sourceTree = "<group>"; };
 		C633AD2829C18DBA00EA8C29 /* SCStorage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCStorage.swift; sourceTree = "<group>"; };
-		C633AD2A29C1955000EA8C29 /* SmallButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SmallButton.swift; sourceTree = "<group>"; };
+		C633AD2A29C1955000EA8C29 /* ExtendedTouchAreaButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtendedTouchAreaButton.swift; sourceTree = "<group>"; };
 		C633AD2F29C19A4200EA8C29 /* PermissionType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PermissionType.swift; sourceTree = "<group>"; };
 		C633AD3029C19A4200EA8C29 /* KYCOnboardingPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingPresenter.swift; sourceTree = "<group>"; };
 		C633AD3129C19A4200EA8C29 /* KYCOnboardingProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCOnboardingProtocols.swift; sourceTree = "<group>"; };
@@ -8470,7 +8470,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
-				C633AD2A29C1955000EA8C29 /* SmallButton.swift */,
+				C633AD2A29C1955000EA8C29 /* ExtendedTouchAreaButton.swift */,
 				FAFFAE3929AC84480074AF1F /* NumberedLabel.swift */,
 				FAFFAE3A29AC84480074AF1F /* SymbolView.swift */,
 				FAFFAE3B29AC84480074AF1F /* TappedLabel.swift */,
@@ -15263,7 +15263,7 @@
 				AE6DE7322627EA930018D5B5 /* PayoutCall.swift in Sources */,
 				FAD0068127EA252400C97E09 /* AboutViewState.swift in Sources */,
 				84DD5F26263D72C400425ACF /* ExtrinsicFeeProxy.swift in Sources */,
-				C633AD2B29C1955000EA8C29 /* SmallButton.swift in Sources */,
+				C633AD2B29C1955000EA8C29 /* ExtendedTouchAreaButton.swift in Sources */,
 				FA864440276843E100956D8E /* ViewModelObserver.swift in Sources */,
 				F4433D7526C16BFB0002A91E /* AnalyticsValidatorItemViewModel.swift in Sources */,
 				C63CB3252851C5C90071AF26 /* StakingMainFlow.swift in Sources */,

@@ -1,6 +1,6 @@
 import UIKit
 
-class SmallButton: UIButton {
+class ExtendedTouchAreaButton: UIButton {
     private enum Constants {
         static let touchAreaIncreaseValue: CGFloat = 10
     }

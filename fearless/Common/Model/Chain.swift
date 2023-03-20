@@ -45,10 +45,8 @@ enum Chain: String, Codable, CaseIterable {
 
     var erasPerDay: Int {
         switch self {
-        case .polkadot: return 1
+        case .polkadot, .soraMain: return 1
         case .kusama, .westend, .rococo, .moonbeam: return 4
-//            Need to check
-        case .soraMain: return 4
         case .moonriver, .moonbaseAlpha: return 12
         }
     }

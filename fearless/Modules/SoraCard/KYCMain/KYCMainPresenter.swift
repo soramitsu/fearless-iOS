@@ -40,15 +40,15 @@ extension KYCMainPresenter: KYCMainViewOutput {
             title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages),
             style: .warningStyle
         ) { [weak self] in
-            guard let self = self, let chainAsset = self.interactor.xorChainAsset else { return }
-            self.router.showSwap(from: self.view, wallet: self.interactor.wallet, chainAsset: chainAsset)
+            guard let strongSelf = self, let chainAsset = strongSelf.interactor.xorChainAsset else { return }
+            strongSelf.router.showSwap(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
         }
 
         let buyAction = SheetAlertPresentableAction(
             title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages)
         ) { [weak self] in
-            guard let self = self, let chainAsset = self.interactor.xorChainAsset else { return }
-            self.router.showBuyXor(from: self.view, wallet: self.interactor.wallet, chainAsset: chainAsset)
+            guard let strongSelf = self, let chainAsset = strongSelf.interactor.xorChainAsset else { return }
+            strongSelf.router.showBuyXor(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
         }
 
         let viewModel = SheetAlertPresentableViewModel(

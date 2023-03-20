@@ -86,7 +86,7 @@ final class EmailVerificationViewLayout: UIView {
         case .enter:
             sendButton.imageWithTitleView?.title = R.string.localizable
                 .commonSendLink(preferredLanguages: locale.rLanguages)
-            sendButton.isEnabled = true
+            sendButton.applySoraSecondaryStyle()
             enterEmailLabel.isHidden = false
             emailInputField.isHidden = false
             verifyEmailLabel.isHidden = true
@@ -106,11 +106,11 @@ final class EmailVerificationViewLayout: UIView {
         case let .inProgress(timeRemaining):
             sendButton.imageWithTitleView?.title = R.string.localizable
                 .resendButtonTitle(timeRemaining)
-            sendButton.isEnabled = false
+            sendButton.applyDisabledStyle()
         case .finished:
             sendButton.imageWithTitleView?.title = R.string.localizable
                 .commonSendLink(preferredLanguages: locale.rLanguages)
-            sendButton.isEnabled = true
+            sendButton.applySoraSecondaryStyle()
         }
     }
 }

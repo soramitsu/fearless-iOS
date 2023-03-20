@@ -43,9 +43,19 @@ final class KYCOnboardingPresenter {
         case .denied:
             showPhoneSettings(type: PermissionType.camera.rawValue)
         case .restricted:
-            return
+            let alertViewModel = SheetAlertPresentableViewModel(
+                title: "Permission Error",
+                message: "Using the camera on your device is restricted, but it is necessary to create an application",
+                actions: [],
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+            )
         default:
-            fatalError(NSLocalizedString("Camera Authorization Status not handled!", comment: "Status: \(AVCaptureDevice.authorizationStatus(for: .video))"))
+            let alertViewModel = SheetAlertPresentableViewModel(
+                title: "Permission Error",
+                message: "Can't define camera permission on your phone",
+                actions: [],
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+            )
         }
     }
 
@@ -64,10 +74,12 @@ final class KYCOnboardingPresenter {
                 }
             }
         default:
-            fatalError(NSLocalizedString(
-                "Microphone Authorization Status not handled!",
-                comment: "Status: \(AVAudioSession.sharedInstance().recordPermission)"
-            ))
+            let alertViewModel = SheetAlertPresentableViewModel(
+                title: "Permission Error",
+                message: "Can't define microphone permission on your phone",
+                actions: [],
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+            )
         }
     }
 
