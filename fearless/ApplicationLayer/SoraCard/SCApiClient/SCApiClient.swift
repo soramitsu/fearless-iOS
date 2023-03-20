@@ -58,7 +58,6 @@ public class SCAPIClient {
         logger.logLevels = logLevels
     }
 
-    private let apiKey = ""
     private let baseAuth: String
     private var token: SCToken
     private let baseURL: URL
@@ -101,11 +100,7 @@ public class SCAPIClient {
         urlComponents.host = baseURL.host
         urlComponents.port = baseURL.port
         urlComponents.path = baseURL.path
-        if !apiKey.isEmpty {
-            urlComponents.queryItems = (request.queryItems ?? []) + [URLQueryItem(name: "api_key", value: apiKey)]
-        } else {
-            urlComponents.queryItems = request.queryItems
-        }
+        urlComponents.queryItems = request.queryItems
 
         guard let url = urlComponents.url?.appendingPathComponent(request.endpoint.path) else {
             return .failure(.init(status: .badURL))
