@@ -27,7 +27,7 @@ protocol EmailVerificationInteractorOutput: AnyObject {
 
 protocol EmailVerificationRouterInput: PushDismissable {
     func presentPreparation(from view: EmailVerificationViewInput?)
-    func close(from view: EmailVerificationViewInput?)
+    func close(from view: ControllerBackedProtocol?)
 }
 
 protocol EmailVerificationModuleInput: AnyObject {}

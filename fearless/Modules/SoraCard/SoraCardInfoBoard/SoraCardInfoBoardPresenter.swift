@@ -9,6 +9,7 @@ final class SoraCardInfoBoardPresenter {
     private let interactor: SoraCardInfoBoardInteractorInput
     private let logger: LoggerProtocol?
     private let viewModelFactory: SoraCardStateViewModelFactoryProtocol
+    private let wallet: MetaAccountModel
     private var moduleOutput: SoraCardInfoBoardModuleOutput?
 
     // MARK: - Constructors
@@ -18,12 +19,14 @@ final class SoraCardInfoBoardPresenter {
         router: SoraCardInfoBoardRouterInput,
         logger: LoggerProtocol?,
         viewModelFactory: SoraCardStateViewModelFactoryProtocol,
+        wallet: MetaAccountModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
         self.viewModelFactory = viewModelFactory
+        self.wallet = wallet
         self.localizationManager = localizationManager
     }
 
@@ -40,21 +43,17 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
     func didLoad(view: SoraCardInfoBoardViewInput) {
         self.view = view
         interactor.setup(with: self)
-
-        didTapRefresh()
+        Task {
+            let userStatus = await interactor.fetchStatus() ?? .notStarted
+            await MainActor.run { [weak self] in
+                guard let self = self else { return }
+                self.didReceive(status: userStatus)
+            }
+        }
     }
 
     func didTapGetSoraCard() {
-        router.presentTermsAndConditions(from: view)
-    }
-
-    func didTapKYCStatus() {}
-
-    func didTapBalance() {}
-
-    func didTapRefresh() {
-        view?.didStartLoading()
-        interactor.getKYCStatus()
+        router.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 
     func didTapHide() {
@@ -65,16 +64,7 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
 // MARK: - SoraCardInfoBoardInteractorOutput
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
-    func didReceive(error: Error) {
-        view?.didStopLoading()
-
-        logger?.error(error.localizedDescription)
-
-        let viewModel = viewModelFactory.buildEmptyViewModel()
-        view?.didReceive(stateViewModel: viewModel)
-    }
-
-    func didReceive(status: SCKYCStatusResponse?) {
+    func didReceive(status: SCKYCUserStatus) {
         view?.didStopLoading()
 
         let statusViewModel = viewModelFactory.buildViewModel(from: status)

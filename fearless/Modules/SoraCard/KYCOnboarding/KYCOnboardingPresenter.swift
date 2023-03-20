@@ -90,7 +90,7 @@ final class KYCOnboardingPresenter {
     }
 
     private func onAllPermissionsGranted() {
-        interactor.requestKYCSettings()
+        interactor.startKYC()
     }
 
     private func presentBreakingError(message: String) {

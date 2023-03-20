@@ -218,6 +218,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var scamListCsvURL: URL? {
         GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
     }
+
+    var soraCardCountriesBlacklist: URL? {
+        URL(string: "https://soracard.com/blacklist")
+    }
 }
 
 private enum GitHubUrl {

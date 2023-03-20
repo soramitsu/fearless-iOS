@@ -16,7 +16,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showSoraCard(from view: ProfileViewProtocol?) {
-        guard let module = TermsAndConditionsAssembly.configureModule() else {
+        guard let module = SCKYCTermsAndConditionsAssembly.configureModule() else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)

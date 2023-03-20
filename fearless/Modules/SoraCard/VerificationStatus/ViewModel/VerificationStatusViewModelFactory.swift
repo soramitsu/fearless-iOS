@@ -1,24 +1,24 @@
 import Foundation
 
 protocol VerificationStatusViewModelFactoryProtocol {
-    func buildStatusViewModel(from status: SCVerificationStatus?) -> SoraCardStatus
+    func buildStatusViewModel(from status: SCKYCUserStatus?, hasFreeAttempts: Bool) -> SoraCardStatus
 }
 
 final class VerificationStatusViewModelFactory: VerificationStatusViewModelFactoryProtocol {
-    func buildStatusViewModel(from status: SCVerificationStatus?) -> SoraCardStatus {
+    func buildStatusViewModel(from status: SCKYCUserStatus?, hasFreeAttempts: Bool) -> SoraCardStatus {
         guard let status = status else {
             return .failure
         }
 
         switch status {
-        case .none:
+        case .notStarted:
             return .failure
         case .pending:
             return .pending
-        case .accepted:
+        case .successful:
             return .success
         case .rejected:
-            return .rejected
+            return .rejected(hasFreeAttempts: hasFreeAttempts)
         }
     }
 }

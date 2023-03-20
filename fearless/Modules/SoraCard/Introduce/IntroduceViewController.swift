@@ -7,6 +7,8 @@ final class IntroduceViewController: UIViewController, ViewHolder {
     // MARK: Private properties
 
     private let output: IntroduceViewOutput
+    private var enteredName: String = ""
+    private var enteredLastName: String = ""
 
     // MARK: - Constructor
 
@@ -43,13 +45,26 @@ final class IntroduceViewController: UIViewController, ViewHolder {
         rootView.continueButton.addTarget(self, action: #selector(continueButtonClicked), for: .touchUpInside)
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
+        rootView.nameInputField.sora.addHandler(for: .editingChanged) { [weak self] in
+            self?.enteredName = self?.rootView.nameInputField.sora.text ?? ""
+            self?.updateContinueButton()
+        }
+        rootView.lastNameInputField.sora.addHandler(for: .editingChanged) { [weak self] in
+            self?.enteredLastName = self?.rootView.lastNameInputField.sora.text ?? ""
+            self?.updateContinueButton()
+        }
+    }
+
+    private func updateContinueButton() {
+        if !(enteredName.isEmpty || enteredLastName.isEmpty) {
+            rootView.continueButton.applySoraSecondaryStyle()
+        } else {
+            rootView.continueButton.applyDisabledStyle()
+        }
     }
 
     @objc private func continueButtonClicked() {
-        guard let name = rootView.nameInputField.textField.text,
-              let lastName = rootView.lastNameInputField.textField.text,
-              !name.isEmpty, !lastName.isEmpty else { return }
-        output.didTapContinueButton(name: name, lastName: lastName)
+        output.didTapContinueButton(name: enteredName, lastName: enteredLastName)
     }
 
     @objc private func backButtonClicked() {

@@ -19,7 +19,7 @@ protocol VerificationStatusInteractorInput: AnyObject {
 
 protocol VerificationStatusInteractorOutput: AnyObject {
     func didReceive(error: Error)
-    func didReceive(status: SCVerificationStatus?)
+    func didReceive(status: SCKYCUserStatus?, hasFreeAttempts: Bool)
 }
 
 protocol VerificationStatusRouterInput: PresentDismissable {}

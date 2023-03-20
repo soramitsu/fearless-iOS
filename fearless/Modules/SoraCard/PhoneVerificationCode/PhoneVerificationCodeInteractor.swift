@@ -72,12 +72,18 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
         codeState = .wrong("Incorrect or expired OTP")
     }
 
-    func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime _: Int64) {
-        SCStorage.shared.add(accessToken: accessToken)
-        SCStorage.shared.add(refreshToken: refreshToken)
-        SCAPIClient.shared.set(accessToken: accessToken, refreshToken: refreshToken)
-        codeState = .succeed
+    func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
+        let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
+        service.client.set(token: token)
 
+        Task { [weak self] in
+            await SCStorage.shared.add(token: token)
+            guard let self = self else { return }
+            self.service.getUserData(callback: GetUserDataCallback())
+            await MainActor.run {
+                self.codeState = .succeed
+            }
+        }
         output?.didReceiveSignInSuccessfulStep(data: data)
     }
 

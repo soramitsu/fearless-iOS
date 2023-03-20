@@ -51,7 +51,11 @@ final class EmailVerificationViewController: UIViewController, ViewHolder, Hidda
     @objc private func updateTimer() {
         if remainingTime != 0 {
             remainingTime -= 1
-            rootView.set(timerState: .inProgress(timeRemaining: timeFormatted(remainingTime)))
+            rootView.set(
+                timerState: .inProgress(
+                    timeRemaining: TimeFormatter.minutesSecondsString(from: remainingTime)
+                )
+            )
         } else {
             rootView.set(timerState: .finished)
             if let timer = self.timer {
@@ -61,17 +65,14 @@ final class EmailVerificationViewController: UIViewController, ViewHolder, Hidda
         }
     }
 
-    private func timeFormatted(_ totalSeconds: Int) -> String {
-        let seconds: Int = totalSeconds % 60
-        let minutes: Int = (totalSeconds / 60) % 60
-        return String(format: "%02d:%02d", minutes, seconds)
-    }
-
     @objc private func sendButtonClicked() {
         guard let email = rootView.emailInputField.textField.text, !email.isEmpty else { return }
 
         output.didTapSendButton(with: email)
+        resetTimer()
+    }
 
+    private func resetTimer() {
         remainingTime = 60
         timer?.invalidate()
         timer = Timer.scheduledTimer(

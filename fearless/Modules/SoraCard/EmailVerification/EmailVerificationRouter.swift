@@ -8,7 +8,7 @@ final class EmailVerificationRouter: EmailVerificationRouterInput {
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
     }
 
-    func close(from view: EmailVerificationViewInput?) {
+    func close(from view: ControllerBackedProtocol?) {
         view?.controller.dismiss(animated: true)
     }
 }

@@ -8,7 +8,6 @@ final class SoraCardInfoBoardAssembly {
         let service: SCKYCService = .init(client: .shared)
 
         let interactor = SoraCardInfoBoardInteractor(
-            data: SCKYCUserDataModel(),
             service: service,
             settings: SettingsManager.shared,
             wallet: wallet
@@ -20,6 +19,7 @@ final class SoraCardInfoBoardAssembly {
             router: router,
             logger: Logger.shared,
             viewModelFactory: SoraCardStateViewModelFactory(),
+            wallet: wallet,
             localizationManager: localizationManager
         )
 

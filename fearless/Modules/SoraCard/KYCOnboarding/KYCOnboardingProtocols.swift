@@ -13,7 +13,7 @@ protocol KYCOnboardingViewOutput: AnyObject {
 
 protocol KYCOnboardingInteractorInput: AnyObject {
     func setup(with output: KYCOnboardingInteractorOutput)
-    func requestKYCSettings()
+    func startKYC()
 }
 
 protocol KYCOnboardingInteractorOutput: AnyObject {

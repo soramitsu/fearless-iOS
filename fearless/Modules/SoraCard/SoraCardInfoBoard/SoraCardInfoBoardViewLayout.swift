@@ -33,7 +33,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
         }
     }
 
-    private var viewModel: LocalizableResource<SoraCardInfoViewModel>?
+    private var viewModel: SoraCardInfoViewModel?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -50,10 +50,10 @@ final class SoraCardInfoBoardViewLayout: UIView {
         statusButton.rounded()
     }
 
-    func bind(viewModel: LocalizableResource<SoraCardInfoViewModel>) {
+    func bind(viewModel: SoraCardInfoViewModel) {
         self.viewModel = viewModel
 
-        statusButton.setTitle(viewModel.value(for: locale).title?.uppercased(), for: .normal)
+        statusButton.setTitle(viewModel.userStatus.title(for: locale).uppercased(), for: .normal)
         statusButton.setNeedsLayout()
         statusButton.layoutIfNeeded()
     }
@@ -80,6 +80,6 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        statusButton.setTitle(viewModel?.value(for: locale).title?.uppercased(), for: .normal)
+        statusButton.setTitle(viewModel?.userStatus.title(for: locale).uppercased(), for: .normal)
     }
 }

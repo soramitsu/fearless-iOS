@@ -1,8 +1,8 @@
 import Foundation
 
 final class SoraCardInfoBoardRouter: SoraCardInfoBoardRouterInput {
-    func presentTermsAndConditions(from view: SoraCardInfoBoardViewInput?) {
-        guard let module = TermsAndConditionsAssembly.configureModule() else {
+    func startKYC(from view: SoraCardInfoBoardViewInput?, data: SCKYCUserDataModel, wallet: MetaAccountModel) {
+        guard let module = KYCMainAssembly.configureModule(data: data, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)

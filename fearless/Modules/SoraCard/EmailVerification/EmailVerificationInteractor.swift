@@ -73,14 +73,20 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
         timer.invalidate()
     }
 
-    func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime _: Int64) {
+    func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         timer.invalidate()
-
-        SCStorage.shared.add(accessToken: accessToken)
-        SCStorage.shared.add(refreshToken: refreshToken)
-        SCAPIClient.shared.set(accessToken: accessToken, refreshToken: refreshToken)
-
-        output?.didReceiveSignInSuccessfulStep(data: data)
+        Task { [weak self] in
+            let token = SCToken(
+                refreshToken: refreshToken,
+                accessToken: accessToken,
+                accessTokenExpirationTime: accessTokenExpirationTime
+            )
+            await SCStorage.shared.add(token: token)
+            guard let self = self else { return }
+            await MainActor.run {
+                self.output?.didReceiveSignInSuccessfulStep(data: data)
+            }
+        }
     }
 
     func onShowEmailConfirmationScreen(email _: String, autoEmailSent: Bool) {
@@ -94,6 +100,6 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
     }
 
     func onError(error: PayWingsOAuthSDK.OAuthErrorCode, errorMessage _: String?) {
-        print("onError:\(error)")
+        output?.didReceiveError(error: error)
     }
 }

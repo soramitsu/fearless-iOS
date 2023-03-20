@@ -37,7 +37,7 @@ final class IntroduceViewLayout: UIView {
 
     let continueButton: RoundedButton = {
         let button = RoundedButton()
-        button.applySoraSecondaryStyle()
+        button.applyDisabledStyle()
         return button
     }()
 

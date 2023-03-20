@@ -1,4 +1,5 @@
 import Foundation
+import SoraKeystore
 
 enum HTTPMethod: String {
     case get = "GET"
@@ -39,32 +40,27 @@ final class APIRequest {
 
 public class SCAPIClient {
     static let shared = SCAPIClient(
-        // TODO: SC credentials
         baseURL: URL(string: "https://sora-card.sc1.dev.sora2.soramitsu.co.jp/")!,
         baseAuth: "",
-        accessToken: SCStorage.shared.accessToken() ?? "",
-        refreshToken: SCStorage.shared.refreshToken() ?? "",
-        logLevels: .debug
+        token: .empty,
+        logLevels: .off
     )
 
     init(
         baseURL: URL,
         baseAuth: String,
-        accessToken: String,
-        refreshToken: String,
+        token: SCToken,
         logLevels: NetworkingLogLevel = .debug
     ) {
         self.baseURL = baseURL
         self.baseAuth = baseAuth
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
+        self.token = token
         logger.logLevels = logLevels
     }
 
     private let apiKey = ""
     private let baseAuth: String
-    private(set) var accessToken: String
-    private var refreshToken: String
+    private var token: SCToken
     private let baseURL: URL
 
     private let session = URLSession.shared
@@ -78,13 +74,8 @@ public class SCAPIClient {
         return jsonDecoder
     }()
 
-    func set(accessToken: String, refreshToken: String) {
-        self.accessToken = accessToken
-        self.refreshToken = refreshToken
-    }
-
-    func set(accessToken: String) {
-        self.accessToken = accessToken
+    func set(token: SCToken) {
+        self.token = token
     }
 
     func performDecodable<T: Decodable>(request: APIRequest) async -> Result<T, NetworkingError> {
@@ -124,7 +115,7 @@ public class SCAPIClient {
         urlRequest.httpMethod = request.method.rawValue
         urlRequest.httpBody = request.body
 
-        urlRequest.addValue("Bearer " + accessToken, forHTTPHeaderField: "Authorization")
+        urlRequest.addValue("Bearer " + token.accessToken, forHTTPHeaderField: "Authorization")
 
         request.headers?.forEach {
             urlRequest.addValue($0.value, forHTTPHeaderField: $0.field)
@@ -169,5 +160,33 @@ public class SCAPIClient {
         }
 
         return .success(data)
+    }
+}
+
+struct SCToken: Codable, SecretDataRepresentable {
+    static let empty: SCToken = .init(refreshToken: "", accessToken: "", accessTokenExpirationTime: 0)
+
+    let refreshToken: String
+    let accessToken: String
+    let accessTokenExpirationTime: Int64
+
+    init(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
+        self.refreshToken = refreshToken
+        self.accessToken = accessToken
+        self.accessTokenExpirationTime = accessTokenExpirationTime
+    }
+
+    init?(secretData: SecretDataRepresentable?) {
+        guard let secretUTF8String = secretData?.toUTF8String() else { return nil }
+        let secretPrts = secretUTF8String.split(separator: "@").map { String($0) }
+        guard secretPrts.count == 3 else { return nil }
+
+        refreshToken = secretPrts[0]
+        accessToken = secretPrts[1]
+        accessTokenExpirationTime = Int64(secretPrts[2]) ?? 0
+    }
+
+    func asSecretData() -> Data? {
+        "\(refreshToken)@\(accessToken)@\(accessTokenExpirationTime)".data(using: .utf8)
     }
 }

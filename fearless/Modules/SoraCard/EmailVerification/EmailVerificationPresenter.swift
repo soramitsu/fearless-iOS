@@ -63,7 +63,9 @@ extension EmailVerificationPresenter: EmailVerificationInteractorOutput {
         view?.didReceiveVerifyEmail(data.email)
     }
 
-    func didReceiveError(error _: PayWingsOAuthSDK.OAuthErrorCode) {}
+    func didReceiveError(error: PayWingsOAuthSDK.OAuthErrorCode) {
+        Logger.shared.error(error.description)
+    }
 }
 
 // MARK: - Localizable
