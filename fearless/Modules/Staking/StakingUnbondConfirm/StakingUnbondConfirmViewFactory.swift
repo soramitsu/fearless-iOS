@@ -149,13 +149,16 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
             accountResponse: accountResponse
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case let .relaychain(amount):
             let viewModelState = StakingUnbondConfirmRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
-                inputAmount: amount
+                inputAmount: amount,
+                callFactory: callFactory
             )
             let strategy = StakingUnbondConfirmRelaychainStrategy(
                 output: viewModelState,
@@ -168,7 +171,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 wallet: wallet,
                 connection: connection,
                 keystore: Keychain(),
-                accountRepository: AnyDataProviderRepository(accountRepository)
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondConfirmRelaychainViewModelFactory(
                 asset: chainAsset.asset,
@@ -187,7 +191,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 inputAmount: amount,
                 candidate: candidate,
                 delegation: delegation,
-                revoke: revoke
+                revoke: revoke,
+                callFactory: callFactory
             )
 
             let strategy = StakingUnbondConfirmParachainStrategy(
@@ -202,7 +207,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 keystore: Keychain(),
                 extrinsicService: extrinsicService,
                 signingWrapper: signingWrapper,
-                eventCenter: EventCenter.shared
+                eventCenter: EventCenter.shared,
+                callFactory: callFactory
             )
 
             let viewModelFactory = StakingUnbondConfirmParachainViewModelFactory(
@@ -221,7 +227,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
-                inputAmount: amount
+                inputAmount: amount,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondConfirmPoolViewModelFactory(
                 asset: chainAsset.asset,
@@ -240,7 +247,8 @@ struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol 
                 extrinsicService: extrinsicService,
                 signingWrapper: signingWrapper,
                 eventCenter: EventCenter.shared,
-                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory
+                stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
+                callFactory: callFactory
             )
 
             return StakingUnbondConfirmDependencyContainer(

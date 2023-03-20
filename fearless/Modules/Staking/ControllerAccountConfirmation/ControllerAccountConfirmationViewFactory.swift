@@ -113,6 +113,8 @@ struct ControllerAccountConfirmationViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         return ControllerAccountConfirmationInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -130,7 +132,8 @@ struct ControllerAccountConfirmationViewFactory {
             storageRequestFactory: storageRequestFactory,
             engine: connection,
             chainAsset: chainAsset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            callFactory: callFactory
         )
     }
 }

@@ -54,6 +54,8 @@ final class PoolRolesConfirmAssembly {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         let interactor = PoolRolesConfirmInteractor(
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
@@ -63,7 +65,8 @@ final class PoolRolesConfirmAssembly {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
             accountRepository: AnyDataProviderRepository(accountRepository),
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: OperationManagerFacade.sharedManager,
+            callFactory: callFactory
         )
 
         let router = PoolRolesConfirmRouter()

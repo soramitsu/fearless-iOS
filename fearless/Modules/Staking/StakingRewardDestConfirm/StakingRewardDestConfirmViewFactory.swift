@@ -112,6 +112,8 @@ struct StakingRewardDestConfirmViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         return StakingRewardDestConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -129,7 +131,8 @@ struct StakingRewardDestConfirmViewFactory {
             signingWrapper: signingWrapper,
             connection: connection,
             keystore: keystore,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            callFactory: callFactory
         )
     }
 }

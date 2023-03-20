@@ -18,10 +18,16 @@ final class BifrostBonusService {
 
     let paraId: ParaId
     let operationManager: OperationManagerProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
-    init(paraId: ParaId, operationManager: OperationManagerProtocol) {
+    init(
+        paraId: ParaId,
+        operationManager: OperationManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
+    ) {
         self.paraId = paraId
         self.operationManager = operationManager
+        self.callFactory = callFactory
     }
 
     func createVerifyOperation(
@@ -95,7 +101,7 @@ extension BifrostBonusService: CrowdloanBonusServiceProtocol {
             throw CrowdloanBonusServiceError.invalidReferral
         }
 
-        let addMemo = SubstrateCallFactory().addMemo(to: paraId, memo: memo)
+        let addMemo = callFactory.addMemo(to: paraId, memo: memo)
 
         return try builder.adding(call: addMemo)
     }

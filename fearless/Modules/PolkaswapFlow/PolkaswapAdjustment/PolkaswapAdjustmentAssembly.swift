@@ -64,6 +64,8 @@ final class PolkaswapAdjustmentAssembly {
                 mapper: AnyCoreDataMapper(mapper)
             )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         let interactor = PolkaswapAdjustmentInteractor(
             xorChainAsset: xorChainAsset,
             subscriptionService: subscriptionService,
@@ -74,7 +76,8 @@ final class PolkaswapAdjustmentAssembly {
             extrinsicService: extrinsicService,
             operationFactory: operationFactory,
             operationManager: operationManager,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: SettingsManager.shared,
+            callFactory: callFactory
         )
         let router = PolkaswapAdjustmentRouter()
 

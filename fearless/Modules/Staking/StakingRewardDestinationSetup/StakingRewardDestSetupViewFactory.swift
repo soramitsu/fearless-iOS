@@ -148,6 +148,8 @@ struct StakingRewardDestSetupViewFactory {
             validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         return StakingRewardDestSetupInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -163,7 +165,8 @@ struct StakingRewardDestSetupViewFactory {
             feeProxy: feeProxy,
             chainAsset: chainAsset,
             selectedAccount: selectedAccount,
-            connection: connection
+            connection: connection,
+            callFactory: callFactory
         )
     }
 }

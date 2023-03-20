@@ -48,13 +48,16 @@ final class StakingPoolCreateConfirmAssembly {
             logger: logger
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         let interactor = StakingPoolCreateConfirmInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             extrinsicService: extrinsicService,
             feeProxy: feeProxy,
             createData: createData,
-            signingWrapper: signingWrapper
+            signingWrapper: signingWrapper,
+            callFactory: callFactory
         )
         let router = StakingPoolCreateConfirmRouter()
 

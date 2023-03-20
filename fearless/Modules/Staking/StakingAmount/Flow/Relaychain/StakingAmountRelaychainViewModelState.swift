@@ -8,6 +8,8 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
+    private let callFactory: SubstrateCallFactoryProtocol
+
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -47,12 +49,14 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?
+        amount: Decimal?,
+        callFactory: SubstrateCallFactoryProtocol
 
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
+        self.callFactory = callFactory
         inputResult = .absolute(amount ?? 0)
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
@@ -128,7 +132,6 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
             }
 
             var modifiedBuilder = builder
-            let callFactory = SubstrateCallFactory()
             let accountRequest = strongSelf.chainAsset.chain.accountRequest()
 
             if
@@ -136,7 +139,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                     precision: Int16(strongSelf.chainAsset.asset.precision)
                 ),
                 let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress() {
-                let bondCall = try callFactory.bond(
+                let bondCall = try strongSelf.callFactory.bond(
                     amount: amount,
                     controller: controllerAddress,
                     rewardDestination: strongSelf.rewardDestination.accountAddress
@@ -153,7 +156,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                     count: maxNominators
                 )
 
-                let nominateCall = try callFactory.nominate(targets: targets)
+                let nominateCall = try strongSelf.callFactory.nominate(targets: targets)
                 modifiedBuilder = try modifiedBuilder
                     .adding(call: nominateCall)
             }

@@ -117,6 +117,8 @@ struct CrowdloanContributionConfirmViewFactory {
             engine: connection
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         return CrowdloanContributionConfirmInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
@@ -131,7 +133,8 @@ struct CrowdloanContributionConfirmViewFactory {
             signingWrapper: signingWrapper,
             bonusService: bonusService,
             operationManager: operationManager,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            callFactory: callFactory
         )
     }
 }

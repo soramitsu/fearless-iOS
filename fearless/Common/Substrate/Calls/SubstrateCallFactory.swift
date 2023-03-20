@@ -77,8 +77,8 @@ protocol SubstrateCallFactoryProtocol {
         amount: BigUInt,
         root: MultiAddress,
         nominator: MultiAddress,
-        stateToggler: MultiAddress
-    ) -> RuntimeCall<CreatePoolCall>
+        bouncer: MultiAddress
+    ) -> any RuntimeCallable
     func setPoolMetadata(
         poolId: String,
         metadata: Data
@@ -99,11 +99,24 @@ protocol SubstrateCallFactoryProtocol {
         type: [[String?]],
         filter: Int
     ) -> RuntimeCall<SwapCall>
+    func poolUnbondOld(
+        accountId: AccountId,
+        amount: BigUInt
+    ) -> RuntimeCall<PoolUnbondCallOld>
+    func setRewardDestination(
+        _ rewardDestination: RewardDestination<AccountAddress>,
+        stashItem: StashItem
+    ) throws -> RuntimeCall<SetPayeeCall>
 }
 
 // swiftlint:disable type_body_length file_length
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
+    private let runtimeSpecVersion: RuntimeSpecVersion
+
+    init(runtimeSpecVersion: RuntimeSpecVersion) {
+        self.runtimeSpecVersion = runtimeSpecVersion
+    }
 
     // MARK: - Public methods
 
@@ -475,19 +488,34 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         amount: BigUInt,
         root: MultiAddress,
         nominator: MultiAddress,
-        stateToggler: MultiAddress
-    ) -> RuntimeCall<CreatePoolCall> {
-        let args = CreatePoolCall(
-            amount: amount,
-            root: root,
-            nominator: nominator,
-            stateToggler: stateToggler
-        )
+        bouncer: MultiAddress
+    ) -> any RuntimeCallable {
+        switch runtimeSpecVersion {
+        case .v9370, .v9380:
+            let args = CreatePoolCall(
+                amount: amount,
+                root: root,
+                nominator: nominator,
+                stateToggler: bouncer
+            )
 
-        return RuntimeCall(
-            callCodingPath: .createNominationPool,
-            args: args
-        )
+            return RuntimeCall(
+                callCodingPath: .createNominationPool,
+                args: args
+            )
+        default:
+            let args = CreatePoolCallV2(
+                amount: amount,
+                root: root,
+                nominator: nominator,
+                bouncer: bouncer
+            )
+
+            return RuntimeCall(
+                callCodingPath: .createNominationPool,
+                args: args
+            )
+        }
     }
 
     func setPoolMetadata(
@@ -565,7 +593,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     ) -> RuntimeCall<NominationPoolsUpdateRolesCall> {
         var rootRoleUpdate: UpdateRoleCase
         var nominatorRoleUpdate: UpdateRoleCase
-        var stateTogglerRoleUpdate: UpdateRoleCase
+        var bouncerRoleUpdate: UpdateRoleCase
 
         if let rootAccountId = roles.root {
             rootRoleUpdate = .set(rootAccountId)
@@ -579,17 +607,17 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             nominatorRoleUpdate = .remove
         }
 
-        if let stateTogglerAccountId = roles.stateToggler {
-            stateTogglerRoleUpdate = .set(stateTogglerAccountId)
+        if let bouncerAccountId = roles.bouncer {
+            bouncerRoleUpdate = .set(bouncerAccountId)
         } else {
-            stateTogglerRoleUpdate = .remove
+            bouncerRoleUpdate = .remove
         }
 
         let args = NominationPoolsUpdateRolesCall(
             poolId: poolId,
             newRoot: rootRoleUpdate,
             newNominator: nominatorRoleUpdate,
-            newStateToggler: stateTogglerRoleUpdate
+            newBouncer: bouncerRoleUpdate
         )
 
         return RuntimeCall(callCodingPath: .nominationPoolUpdateRoles, args: args)

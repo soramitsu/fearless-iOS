@@ -14,7 +14,7 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     private(set) var controller: ChainAccountResponse?
     private(set) var stashItem: StashItem?
     private let dataValidatingFactory: StakingDataValidatingFactory
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard
@@ -48,11 +48,13 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {

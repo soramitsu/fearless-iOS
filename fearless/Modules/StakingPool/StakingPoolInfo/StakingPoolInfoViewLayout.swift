@@ -146,13 +146,13 @@ final class StakingPoolInfoViewLayout: UIView {
     let roleDepositorView: DetailsTriangularedView = createRoleView()
     let roleRootView: DetailsTriangularedView = createRoleView()
     let roleNominatorView: DetailsTriangularedView = createRoleView()
-    let roleStateTogglerView: DetailsTriangularedView = createRoleView()
+    let roleBouncerView: DetailsTriangularedView = createRoleView()
 
     lazy var roleViews: [DetailsTriangularedView] = [
         roleDepositorView,
         roleRootView,
         roleNominatorView,
-        roleStateTogglerView
+        roleBouncerView
     ]
 
     let saveRolesButton: TriangularedButton = {
@@ -197,13 +197,13 @@ final class StakingPoolInfoViewLayout: UIView {
         roleDepositorView.subtitle = viewModel.depositorName
         roleRootView.subtitle = viewModel.rootName
         roleNominatorView.subtitle = viewModel.nominatorName
-        roleStateTogglerView.subtitle = viewModel.stateTogglerName
+        roleBouncerView.subtitle = viewModel.bouncerName
 
         saveRolesButton.isHidden = !viewModel.rolesChanged
 
         applySelectableStyle(selectable: viewModel.userIsRoot, for: roleRootView)
         applySelectableStyle(selectable: viewModel.userIsRoot, for: roleNominatorView)
-        applySelectableStyle(selectable: viewModel.userIsRoot, for: roleStateTogglerView)
+        applySelectableStyle(selectable: viewModel.userIsRoot, for: roleBouncerView)
 
         if !viewModel.userIsRoot {
             roleViews.forEach {
@@ -320,7 +320,7 @@ final class StakingPoolInfoViewLayout: UIView {
         contentView.stackView.addArrangedSubview(roleDepositorView)
         contentView.stackView.addArrangedSubview(roleRootView)
         contentView.stackView.addArrangedSubview(roleNominatorView)
-        contentView.stackView.addArrangedSubview(roleStateTogglerView)
+        contentView.stackView.addArrangedSubview(roleBouncerView)
 
         contentView.stackView.addArrangedSubview(saveRolesButton)
 
@@ -389,7 +389,7 @@ final class StakingPoolInfoViewLayout: UIView {
             make.height.equalTo(LayoutConstants.roleViewHeight)
         }
 
-        roleStateTogglerView.snp.makeConstraints { make in
+        roleBouncerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(LayoutConstants.roleViewHeight)
         }
@@ -437,7 +437,7 @@ final class StakingPoolInfoViewLayout: UIView {
         roleNominatorView.title = R.string.localizable.poolStakingNominator(
             preferredLanguages: locale.rLanguages
         )
-        roleStateTogglerView.title = R.string.localizable.poolStakingStateToggler(
+        roleBouncerView.title = R.string.localizable.poolStakingBouncer(
             preferredLanguages: locale.rLanguages
         )
         navigationBar.setTitle(R.string.localizable.stakingPoolInfoTitle(

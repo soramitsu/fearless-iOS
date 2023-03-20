@@ -10,6 +10,7 @@ struct SendDependencies {
     let existentialDepositService: ExistentialDepositServiceProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let equilibruimTotalBalanceService: EquilibriumTotalBalanceServiceProtocol?
+    let callFactory: SubstrateCallFactoryProtocol
 }
 
 final class SendDepencyContainer {
@@ -67,6 +68,8 @@ final class SendDepencyContainer {
 
             let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
+            let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
             currentDependecies = SendDependencies(
                 wallet: wallet,
                 chainAsset: chainAsset,
@@ -74,7 +77,8 @@ final class SendDepencyContainer {
                 extrinsicService: extrinsicService,
                 existentialDepositService: existentialDepositService,
                 balanceViewModelFactory: balanceViewModelFactory,
-                equilibruimTotalBalanceService: equilibruimTotalBalanceService
+                equilibruimTotalBalanceService: equilibruimTotalBalanceService,
+                callFactory: callFactory
             )
         }
         return currentDependecies

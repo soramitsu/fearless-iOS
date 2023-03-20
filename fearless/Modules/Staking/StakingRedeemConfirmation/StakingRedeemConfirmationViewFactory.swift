@@ -166,12 +166,15 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             selectedMetaAccount: wallet
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case .relaychain:
             let viewModelState = StakingRedeemConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingRedeemConfirmationRelaychainStrategy(
                 output: viewModelState,
@@ -206,7 +209,8 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
                 dataValidatingFactory: dataValidatingFactory,
                 delegation: delegation,
                 collator: collator,
-                readyForRevoke: readyForRevoke
+                readyForRevoke: readyForRevoke,
+                callFactory: callFactory
             )
 
             let strategy = StakingRedeemConfirmationParachainStrategy(
@@ -239,7 +243,8 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             let viewModelState = StakingRedeemConfirmationPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingRedeemConfirmationPoolViewModelFactory(
                 asset: chainAsset.asset,

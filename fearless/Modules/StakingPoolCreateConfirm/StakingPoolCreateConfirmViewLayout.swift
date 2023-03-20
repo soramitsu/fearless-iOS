@@ -70,7 +70,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         createMultiView()
     }()
 
-    lazy var stateTogglerView: TitleMultiValueView = {
+    lazy var bouncerView: TitleMultiValueView = {
         createMultiView()
     }()
 
@@ -105,7 +105,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
             depositorView,
             rootView,
             nominatorView,
-            stateTogglerView
+            bouncerView
         ]
     }()
 
@@ -139,7 +139,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         depositorView.valueTop.text = confirmViewModel.rootName
         rootView.valueTop.text = confirmViewModel.rootName
         nominatorView.valueTop.text = confirmViewModel.nominatorName
-        stateTogglerView.valueTop.text = confirmViewModel.stateTogglerName
+        bouncerView.valueTop.text = confirmViewModel.bouncerName
     }
 
     private func configure() {
@@ -180,7 +180,7 @@ final class StakingPoolCreateConfirmViewLayout: UIView {
         nominatorView.titleLabel.text = R.string.localizable.stakingPoolCreateNominator(
             preferredLanguages: locale.rLanguages
         )
-        stateTogglerView.titleLabel.text = R.string.localizable.stakingPoolCreateStateToggler(
+        bouncerView.titleLabel.text = R.string.localizable.stakingPoolCreateBouncer(
             preferredLanguages: locale.rLanguages
         )
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(

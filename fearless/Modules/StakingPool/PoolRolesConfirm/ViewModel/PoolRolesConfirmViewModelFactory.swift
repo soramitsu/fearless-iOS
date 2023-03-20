@@ -20,7 +20,7 @@ final class PoolRolesConfirmViewModelFactory: PoolRolesConfirmViewModelFactoryPr
     ) -> PoolRolesConfirmViewModel {
         let rootAddress = try? roles.root?.toAddress(using: chainAsset.chain.chainFormat)
         let nominatorAddress = try? roles.nominator?.toAddress(using: chainAsset.chain.chainFormat)
-        let stateTogglerAddress = try? roles.stateToggler?.toAddress(using: chainAsset.chain.chainFormat)
+        let bouncerAddress = try? roles.bouncer?.toAddress(using: chainAsset.chain.chainFormat)
 
         let rootAccount = accounts?.first(where: {
             $0.fetch(for: chainAsset.chain.accountRequest())?.toAddress() == rootAddress
@@ -28,8 +28,8 @@ final class PoolRolesConfirmViewModelFactory: PoolRolesConfirmViewModelFactoryPr
         let nominatorAccount = accounts?.first(where: {
             $0.fetch(for: chainAsset.chain.accountRequest())?.toAddress() == nominatorAddress
         })
-        let stateTogglerAccount = accounts?.first(where: {
-            $0.fetch(for: chainAsset.chain.accountRequest())?.toAddress() == stateTogglerAddress
+        let bouncerAccount = accounts?.first(where: {
+            $0.fetch(for: chainAsset.chain.accountRequest())?.toAddress() == bouncerAddress
         })
 
         let rootTitle = rootAccount != nil ? rootAccount?.name : rootAddress
@@ -38,8 +38,8 @@ final class PoolRolesConfirmViewModelFactory: PoolRolesConfirmViewModelFactoryPr
         let nominatorTitle = nominatorAccount != nil ? nominatorAccount?.name : nominatorAddress
         let nominatorSubtitle = nominatorAccount != nil ? nominatorAddress : nil
 
-        let stateTogglerTitle = stateTogglerAccount != nil ? stateTogglerAccount?.name : stateTogglerAddress
-        let stateTogglerSubtitle = stateTogglerAccount != nil ? stateTogglerAddress : nil
+        let bouncerTitle = bouncerAccount != nil ? bouncerAccount?.name : bouncerAddress
+        let bouncerSubtitle = bouncerAccount != nil ? bouncerAddress : nil
 
         let rootViewModel = TitleMultiValueViewModel(
             title: rootTitle,
@@ -49,15 +49,15 @@ final class PoolRolesConfirmViewModelFactory: PoolRolesConfirmViewModelFactoryPr
             title: nominatorTitle,
             subtitle: nominatorSubtitle
         )
-        let stateTogglerViewModel = TitleMultiValueViewModel(
-            title: stateTogglerTitle,
-            subtitle: stateTogglerSubtitle
+        let bouncerViewModel = TitleMultiValueViewModel(
+            title: bouncerTitle,
+            subtitle: bouncerSubtitle
         )
 
         return PoolRolesConfirmViewModel(
             rootViewModel: rootViewModel,
             nominatorViewModel: nominatorViewModel,
-            stateTogglerViewModel: stateTogglerViewModel
+            bouncerViewModel: bouncerViewModel
         )
     }
 }

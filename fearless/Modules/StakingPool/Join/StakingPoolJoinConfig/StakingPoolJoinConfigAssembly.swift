@@ -65,6 +65,8 @@ final class StakingPoolJoinConfigAssembly {
             engine: connection
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         let interactor = StakingPoolJoinConfigInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
@@ -74,7 +76,8 @@ final class StakingPoolJoinConfigAssembly {
             feeProxy: feeProxy,
             stakingPoolOperationFactory: stakingPoolOperationFactory,
             operationManager: operationManager,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            callFactory: callFactory
         )
         let router = StakingPoolJoinConfigRouter()
 

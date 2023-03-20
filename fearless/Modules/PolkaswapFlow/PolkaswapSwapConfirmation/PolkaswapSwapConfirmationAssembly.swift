@@ -33,10 +33,13 @@ final class PolkaswapSwapConfirmationAssembly {
             operationManager: operationManager
         )
 
+        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+
         let interactor = PolkaswapSwapConfirmationInteractor(
             params: params,
             signingWrapper: signingWrapper,
-            extrinsicService: extrinsicService
+            extrinsicService: extrinsicService,
+            callFactory: callFactory
         )
         let router = PolkaswapSwapConfirmationRouter()
 
