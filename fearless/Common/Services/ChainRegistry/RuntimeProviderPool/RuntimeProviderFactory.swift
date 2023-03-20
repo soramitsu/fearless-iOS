@@ -10,7 +10,6 @@ protocol RuntimeProviderFactoryProtocol {
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
         chainTypes: Data,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol
@@ -70,7 +69,6 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
     func createHotRuntimeProvider(
         for chain: ChainModel,
         runtimeItem: RuntimeMetadataItem,
-        commonTypes: Data,
         chainTypes: Data,
         usedRuntimePaths: [String: [String]]
     ) -> RuntimeProviderProtocol {
@@ -83,7 +81,6 @@ extension RuntimeProviderFactory: RuntimeProviderFactoryProtocol {
         let snapshotHotOperationFactory = RuntimeHotBootSnapshotFactory(
             chainId: chain.chainId,
             runtimeItem: runtimeItem,
-            commonTypes: commonTypes,
             filesOperationFactory: fileOperationFactory
         )
 

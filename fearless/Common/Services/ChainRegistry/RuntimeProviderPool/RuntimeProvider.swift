@@ -10,7 +10,6 @@ protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
 
     func setup()
     func setupHot()
-    func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage)
     func cleanup()
     func fetchCoderFactoryOperation(
         with timeout: TimeInterval,
@@ -30,7 +29,6 @@ final class RuntimeProvider {
 
     internal let chainId: ChainModel.Id
     private let chainName: String
-    private var typesUsage: ChainModel.TypesUsage
     private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
@@ -53,7 +51,6 @@ final class RuntimeProvider {
     private(set) var currentWrapper: BaseOperation<RuntimeSnapshot?>?
     private var mutex = NSLock()
 
-    private var commonTypes: Data?
     private var chainTypes: Data?
     private var chainMetadata: RuntimeMetadataItem?
 
@@ -71,7 +68,6 @@ final class RuntimeProvider {
         chainTypes: Data?
     ) {
         chainId = chainModel.chainId
-        typesUsage = chainModel.typesUsage
         chainName = chainModel.name
         self.snapshotOperationFactory = snapshotOperationFactory
         self.snapshotHotOperationFactory = snapshotHotOperationFactory
@@ -89,9 +85,8 @@ final class RuntimeProvider {
         eventCenter.add(observer: self, dispatchIn: DispatchQueue.global())
     }
 
-    private func buildSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
+    private func buildSnapshot() {
         guard
-            commonTypes != nil || typesUsage == .onlyOwn,
             let chainTypes = chainTypes,
             let chainMetadata = chainMetadata,
             compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
@@ -102,9 +97,6 @@ final class RuntimeProvider {
         logger?.debug("Will start building snapshot for \(chainName)")
 
         let wrapper = snapshotOperationFactory.createRuntimeSnapshotWrapper(
-            for: typesUsage,
-            dataHasher: dataHasher,
-            commonTypes: commonTypes,
             chainTypes: chainTypes,
             chainMetadata: chainMetadata,
             usedRuntimePaths: usedRuntimePaths
@@ -133,7 +125,7 @@ final class RuntimeProvider {
         return localJson != remoteJson
     }
 
-    private func buildHotSnapshot(with typesUsage: ChainModel.TypesUsage, dataHasher: StorageHasher) {
+    private func buildHotSnapshot() {
         logger?.debug("Will start building hot snapshot for \(chainName)")
 
         guard let snapshotHotOperationFactory = snapshotHotOperationFactory,
@@ -143,8 +135,6 @@ final class RuntimeProvider {
         }
 
         let wrapper = snapshotHotOperationFactory.createRuntimeSnapshotWrapper(
-            for: typesUsage,
-            dataHasher: dataHasher,
             usedRuntimePaths: usedRuntimePaths,
             chainTypes: chainTypes
         )
@@ -297,7 +287,7 @@ extension RuntimeProvider: RuntimeProviderProtocol {
             return
         }
 
-        buildHotSnapshot(with: typesUsage, dataHasher: dataHasher)
+        buildHotSnapshot()
     }
 
     var runtimeSnapshot: RuntimeSnapshot? {
@@ -319,26 +309,7 @@ extension RuntimeProvider: RuntimeProviderProtocol {
             return
         }
 
-        buildSnapshot(with: typesUsage, dataHasher: dataHasher)
-    }
-
-    func replaceTypesUsage(_ newTypeUsage: ChainModel.TypesUsage) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        guard typesUsage != newTypeUsage else {
-            return
-        }
-
-        currentWrapper?.cancel()
-        currentWrapper = nil
-
-        typesUsage = newTypeUsage
-
-        buildSnapshot(with: newTypeUsage, dataHasher: dataHasher)
+        buildSnapshot()
     }
 
     func cleanup() {
@@ -374,7 +345,7 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         self.chainTypes = chainTypes
 
-        buildSnapshot(with: typesUsage, dataHasher: dataHasher)
+        buildSnapshot()
     }
 
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted) {
@@ -393,29 +364,6 @@ extension RuntimeProvider: EventVisitorProtocol {
 
         chainMetadata = event.metadata
 
-        buildSnapshot(with: typesUsage, dataHasher: dataHasher)
-    }
-
-    func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted) {
-        guard typesUsage != .onlyOwn else {
-            return
-        }
-
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        guard snapshot?.localCommonHash != event.fileHash else {
-            return
-        }
-
-        currentWrapper?.cancel()
-        currentWrapper = nil
-
-        commonTypes = event.data
-
-        buildSnapshot(with: typesUsage, dataHasher: dataHasher)
+        buildSnapshot()
     }
 }
