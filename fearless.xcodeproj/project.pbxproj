@@ -1009,7 +1009,7 @@
 		849ABE862628154900011A2A /* SubscanRawExtrinsicData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849ABE852628154900011A2A /* SubscanRawExtrinsicData.swift */; };
 		849ABE8A262833C000011A2A /* PayoutRewardsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CD8F826244EC3005DDF23 /* PayoutRewardsServiceTests.swift */; };
 		849DEBD425ED015C00C64C19 /* SelectValidatorsConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBD325ED015C00C64C19 /* SelectValidatorsConfirmViewModel.swift */; };
-		849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */; };
+		849DEC5925ED756F00C64C19 /* SubstrateCallFactoryDefault.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* SubstrateCallFactoryDefault.swift */; };
 		849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */; };
 		849DF02D26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DF02C26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift */; };
 		849DF02F26C53DB900B702F4 /* RuntimeSyncEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */; };
@@ -2043,6 +2043,10 @@
 		FA30D4F128BF32F500548C1E /* SortPickerTableViewCellModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F028BF32F500548C1E /* SortPickerTableViewCellModel.swift */; };
 		FA30D4F428BF67DF00548C1E /* StakingPoolInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */; };
 		FA30D4F628BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */; };
+		FA335AAC29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */; };
+		FA335AAF29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */; };
+		FA335AB129C81B060003DBDD /* SubstrateCallFactoryV9390.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */; };
+		FA335AB429C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */; };
 		FA3430EE285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */; };
 		FA3430F0285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */; };
 		FA3430F2285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */; };
@@ -3575,7 +3579,7 @@
 		849ABE80262811CF00011A2A /* NominationsListReducer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominationsListReducer.swift; sourceTree = "<group>"; };
 		849ABE852628154900011A2A /* SubscanRawExtrinsicData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanRawExtrinsicData.swift; sourceTree = "<group>"; };
 		849DEBD325ED015C00C64C19 /* SelectValidatorsConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsConfirmViewModel.swift; sourceTree = "<group>"; };
-		849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactory.swift; sourceTree = "<group>"; };
+		849DEC5825ED756F00C64C19 /* SubstrateCallFactoryDefault.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryDefault.swift; sourceTree = "<group>"; };
 		849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOptionsPresentable.swift; sourceTree = "<group>"; };
 		849DF02C26C40B7900B702F4 /* RuntimeFilesOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeFilesOperationFactory.swift; sourceTree = "<group>"; };
 		849DF02E26C53DB900B702F4 /* RuntimeSyncEvents.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeSyncEvents.swift; sourceTree = "<group>"; };
@@ -4628,6 +4632,10 @@
 		FA30D4F028BF32F500548C1E /* SortPickerTableViewCellModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SortPickerTableViewCellModel.swift; sourceTree = "<group>"; };
 		FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModel.swift; sourceTree = "<group>"; };
 		FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModelFactory.swift; sourceTree = "<group>"; };
+		FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryProtocol.swift; sourceTree = "<group>"; };
+		FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9380.swift; sourceTree = "<group>"; };
+		FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9390.swift; sourceTree = "<group>"; };
+		FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryAssembly.swift; sourceTree = "<group>"; };
 		FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainStrategy.swift; sourceTree = "<group>"; };
 		FA3430EF285065AD002B5975 /* StakingUnbondConfirmRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA3430F1285065BD002B5975 /* StakingUnbondConfirmRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
@@ -7203,7 +7211,6 @@
 				F441BE0D263984DD0096B67B /* BondExtraCall.swift */,
 				84DD5F20263CB6BE00425ACF /* UnbondCall.swift */,
 				84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */,
-				849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */,
 				84690782264132AB0030E693 /* WithdrawUnbondedCall.swift */,
 				AEE5FB08264289FD002B8FDC /* RebondCall.swift */,
 				F4B06BF9264509E8003214D5 /* SetControllerCall.swift */,
@@ -8477,6 +8484,7 @@
 		8490154E24ACD521008F705E /* Substrate */ = {
 			isa = PBXGroup;
 			children = (
+				FA335AAA29C81AC90003DBDD /* CallFactory */,
 				FAFDB2C429112A0F003971FB /* UsedRuntimeModules.swift */,
 				845BB8C725E45D0600E5FCDC /* Calls */,
 				8438E1DC24C18F11001BDB13 /* Types */,
@@ -11379,6 +11387,34 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		FA335AAA29C81AC90003DBDD /* CallFactory */ = {
+			isa = PBXGroup;
+			children = (
+				FA335AB229C8294D0003DBDD /* SubstrateCallFactoryAssembly */,
+				FA335AAD29C81AEA0003DBDD /* Updates */,
+				849DEC5825ED756F00C64C19 /* SubstrateCallFactoryDefault.swift */,
+				FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */,
+			);
+			path = CallFactory;
+			sourceTree = "<group>";
+		};
+		FA335AAD29C81AEA0003DBDD /* Updates */ = {
+			isa = PBXGroup;
+			children = (
+				FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */,
+				FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */,
+			);
+			path = Updates;
+			sourceTree = "<group>";
+		};
+		FA335AB229C8294D0003DBDD /* SubstrateCallFactoryAssembly */ = {
+			isa = PBXGroup;
+			children = (
+				FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */,
+			);
+			path = SubstrateCallFactoryAssembly;
+			sourceTree = "<group>";
+		};
 		FA3430EB285064C7002B5975 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
@@ -13567,6 +13603,7 @@
 				FA9278A827C382C600FF7B5B /* MultiassetV2.xcmappingmodel in Sources */,
 				FA38C99B275F384E005C5577 /* ChainOptionsViewModel.swift in Sources */,
 				84CD3570252620FB0081BC0B /* CryptoType+Extrinsic.swift in Sources */,
+				FA335AAF29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift in Sources */,
 				FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */,
 				843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */,
 				84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */,
@@ -14408,6 +14445,7 @@
 				F40966C326B297D6008CD244 /* AnalyticsContainerViewLayout.swift in Sources */,
 				84E1CD02260DCC62001E81B5 /* SwitchAccount+OnboardingMainWireframe.swift in Sources */,
 				FAFFAE8D29AC84B10074AF1F /* SubqueryDelegationAction.swift in Sources */,
+				FA335AB129C81B060003DBDD /* SubstrateCallFactoryV9390.swift in Sources */,
 				84D1111326B932C40016D962 /* ChainNodeModel.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
 				845C407B27027AA000BFA50B /* SubscriptionStorageKeys.swift in Sources */,
@@ -14493,6 +14531,7 @@
 				F40966CC26B297D6008CD244 /* AnalyticsStakeWireframe.swift in Sources */,
 				AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
+				FA335AAC29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift in Sources */,
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
 				8472974D260A9CDF009B86D0 /* SelectValidatorsConfirmationModel.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
@@ -14588,7 +14627,7 @@
 				84963D6E26F91826003FE8E4 /* RemoteSubscriptionRequests.swift in Sources */,
 				FA402F2F27C7C646008CF986 /* ExportAction.swift in Sources */,
 				FAB0EDDE27AA6DDC003D93C2 /* NodeSelectionViewModel.swift in Sources */,
-				849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */,
+				849DEC5925ED756F00C64C19 /* SubstrateCallFactoryDefault.swift in Sources */,
 				FA93A2F02833B11A0021330F /* RecommendedValidatorListParachainViewModelFactory.swift in Sources */,
 				84DBEA42265E80DD00FDF73C /* LearnMoreViewModel.swift in Sources */,
 				FAF5E9D127E46D6A005A3448 /* AppVersionObserver.swift in Sources */,
@@ -15581,6 +15620,7 @@
 				E29066A3781333DF890E8F9B /* ContactsAssembly.swift in Sources */,
 				9E2D97A489E8F84A8A0916A8 /* CreateContactProtocols.swift in Sources */,
 				D3C2414CAC720D2D08F0CC4F /* CreateContactRouter.swift in Sources */,
+				FA335AB429C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift in Sources */,
 				4641B3CABB5FE1DCFBEDA379 /* CreateContactPresenter.swift in Sources */,
 				152AC909C26E809ACCA55B35 /* CreateContactInteractor.swift in Sources */,
 				DBBD1651F45FECA1B17AAF40 /* CreateContactViewController.swift in Sources */,

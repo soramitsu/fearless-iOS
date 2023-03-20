@@ -135,7 +135,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
             accountResponse: accountResponse
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         switch flow {
         case let .relaychainInitiated(targets, maxTargets, bonding):

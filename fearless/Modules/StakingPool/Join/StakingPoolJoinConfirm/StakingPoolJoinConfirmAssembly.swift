@@ -104,7 +104,7 @@ final class StakingPoolJoinConfirmAssembly {
             identityOperationFactory: identityOperationFactory
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         let interactor = StakingPoolJoinConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,

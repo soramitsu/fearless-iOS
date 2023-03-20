@@ -7,7 +7,7 @@
 //class ExtrinsicServiceTests: XCTestCase {
 //
 //    private func createExtrinsicBuilderClosure(amount: BigUInt) -> ExtrinsicBuilderClosure {
-//        let callFactory = SubstrateCallFactory()
+//        let callFactory = SubstrateCallFactoryDefault)
 //
 //        let closure: ExtrinsicBuilderClosure = { builder in
 //            let call = callFactory.bondExtra(amount: amount)
@@ -19,7 +19,7 @@
 //    }
 //
 //    private func createExtrinsicBuilderClosure(for batch: [PayoutInfo]) -> ExtrinsicBuilderClosure {
-//        let callFactory = SubstrateCallFactory()
+//        let callFactory = SubstrateCallFactoryDefault)
 //
 //        let closure: ExtrinsicBuilderClosure = { builder in
 //            try batch.forEach { payout in
@@ -153,7 +153,7 @@
 //        )
 //
 //        let feeExpectation = XCTestExpectation()
-//        let callFactory = SubstrateCallFactory()
+//        let callFactory = SubstrateCallFactoryDefault)
 //        
 //        let randomBytes = (0...1000).map { _ in UInt8.random(in: 0...UInt8.max) }
 //        let data = Data(randomBytes)

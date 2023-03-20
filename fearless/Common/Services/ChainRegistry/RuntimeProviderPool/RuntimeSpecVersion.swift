@@ -19,4 +19,14 @@ enum RuntimeSpecVersion: UInt32 {
             self = RuntimeSpecVersion.defaultVersion
         }
     }
+
+    // Helper methods
+
+    func higherOrEqualThan(_ version: RuntimeSpecVersion) -> Bool {
+        rawValue >= version.rawValue
+    }
+
+    func lowerOrEqualThan(_ version: RuntimeSpecVersion) -> Bool {
+        rawValue <= version.rawValue
+    }
 }

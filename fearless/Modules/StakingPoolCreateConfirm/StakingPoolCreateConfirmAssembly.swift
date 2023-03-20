@@ -48,7 +48,7 @@ final class StakingPoolCreateConfirmAssembly {
             logger: logger
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         let interactor = StakingPoolCreateConfirmInteractor(
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

@@ -154,7 +154,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let feeProxy = ExtrinsicFeeProxy()
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         switch flow {
         case let .relaychain(payouts):

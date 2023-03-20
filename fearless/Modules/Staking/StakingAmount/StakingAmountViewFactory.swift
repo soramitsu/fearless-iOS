@@ -146,7 +146,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
             for: chainAsset.chain

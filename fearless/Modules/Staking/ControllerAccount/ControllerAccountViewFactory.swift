@@ -104,7 +104,7 @@ struct ControllerAccountViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         return ControllerAccountInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(

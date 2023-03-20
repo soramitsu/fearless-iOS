@@ -166,7 +166,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             selectedMetaAccount: wallet
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         switch flow {
         case .relaychain:

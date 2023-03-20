@@ -68,7 +68,7 @@ final class SendDepencyContainer {
 
             let equilibruimTotalBalanceService = createEqTotalBalanceService(chainAsset: chainAsset)
 
-            let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+            let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
             currentDependecies = SendDependencies(
                 wallet: wallet,

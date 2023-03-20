@@ -63,7 +63,7 @@ final class StakingPoolCreateAssembly {
             engine: connection
         )
 
-        let callFactory = SubstrateCallFactory(runtimeSpecVersion: runtimeService.runtimeSpecVersion)
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         let interactor = StakingPoolCreateInteractor(
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
