@@ -5,6 +5,7 @@ typealias ChainAssetListModuleCreationResult = (view: ChainAssetListViewInput, i
 protocol ChainAssetListViewInput: ControllerBackedProtocol {
     func didReceive(viewModel: ChainAssetListViewModel)
     func showEmptyState()
+    func didReceive(soraCardHiddenState: Bool)
 }
 
 protocol ChainAssetListViewOutput: AnyObject {
@@ -36,6 +37,7 @@ protocol ChainAssetListInteractorOutput: AnyObject {
     func updateViewModel()
     func didReceive(chainSettings: [ChainSettings])
     func didReceive(accountInfosByChainAssets: [ChainAsset: AccountInfo?])
+    func didReceive(soraCardHiddenState: Bool)
 }
 
 protocol ChainAssetListRouterInput:
@@ -73,7 +75,7 @@ protocol ChainAssetListRouterInput:
     )
 }
 
-protocol ChainAssetListModuleInput: AnyObject {
+protocol ChainAssetListModuleInput: AnyObject, SoraCardInfoBoardModuleOutput {
     func updateChainAssets(
         using filters: [ChainAssetsFetching.Filter],
         sorts: [ChainAssetsFetching.SortDescriptor]

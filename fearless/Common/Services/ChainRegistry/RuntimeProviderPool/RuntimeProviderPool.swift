@@ -60,7 +60,7 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
         defer {
             mutex.unlock()
         }
-        
+
         if let runtimeProvider = runtimeProviders[chain.chainId] {
             return runtimeProvider
         } else {
@@ -70,9 +70,9 @@ extension RuntimeProviderPool: RuntimeProviderPoolProtocol {
                 usedRuntimePaths: usedRuntimeModules.usedRuntimePaths
             )
 
-        runtimeProviders[chain.chainId] = runtimeProvider
-        runtimeProvider.setup()
-        return runtimeProvider
+            runtimeProviders[chain.chainId] = runtimeProvider
+            runtimeProvider.setup()
+            return runtimeProvider
         }
     }
 
