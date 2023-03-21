@@ -7,7 +7,9 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
         _ amount: Decimal
     ) -> LocalizableResource<NSAttributedString>
     func buildUnstakeViewModel(
-        unstakePeriod: TimeInterval?
+        stakingInfo: StakingPoolMember?,
+        activeEra: EraIndex?,
+        stakingDuration: StakingDuration?
     ) -> LocalizableResource<String>?
     func buildViewModel(
         stakeInfo: StakingPoolMember?,
@@ -50,13 +52,24 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
     }
 
     func buildUnstakeViewModel(
-        unstakePeriod: TimeInterval?
+        stakingInfo: StakingPoolMember?,
+        activeEra: EraIndex?,
+        stakingDuration: StakingDuration?
     ) -> LocalizableResource<String>? {
-        guard let unstakePeriod = unstakePeriod else {
+        guard let stakingInfo = stakingInfo,
+              let activeEra = activeEra,
+              let stakingDuration = stakingDuration,
+              let unbondingEra = stakingInfo.unbondingEras.map({ $0.era }).min(),
+              unbondingEra > activeEra else {
             return nil
         }
 
-        return unstakePeriod.localizedReadableValue()
+        let erasLeft = unbondingEra - activeEra
+        let secondsLeft = TimeInterval(erasLeft) * stakingDuration.era
+
+        return LocalizableResource { locale in
+            secondsLeft.readableValue(locale: locale)
+        }
     }
 
     func buildViewModel(
