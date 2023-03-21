@@ -54,7 +54,6 @@ final class VerificationStatusViewLayout: UIView {
     let cardImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.soraCardFront()
-        imageView.isHidden = true
         return imageView
     }()
 
@@ -72,7 +71,7 @@ final class VerificationStatusViewLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .black
+        backgroundColor = R.color.colorBlack()
         setupLayout()
     }
 
@@ -83,8 +82,6 @@ final class VerificationStatusViewLayout: UIView {
 
     func bind(status: SoraCardStatus) {
         self.status = status
-
-        cardImageView.isHidden = false
 
         titleLabel.text = status.title(with: locale)
         statusLabel.text = status.description(with: locale)

@@ -15,15 +15,18 @@ final class SoraCardInfoBoardInteractor {
     private let settings: SettingsManagerProtocol
     private let wallet: MetaAccountModel
     private let service: SCKYCService
+    private let storage: SCStorage
 
     init(
         service: SCKYCService,
         settings: SettingsManagerProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        storage: SCStorage
     ) {
         self.service = service
         self.settings = settings
         self.wallet = wallet
+        self.storage = storage
     }
 }
 
@@ -47,5 +50,31 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
     func fetchStatus() async -> SCKYCUserStatus? {
         await service.userStatus()
+    }
+
+    func prepareStart() async {
+        if await storage.token() != nil {
+            try? await service.refreshAccessTokenIfNeeded()
+            let response = await service.kycStatuses()
+
+            switch response {
+            case let .success(statuses):
+                await MainActor.run { [weak self] in
+                    self?.output?.didReceive(kycStatuses: statuses)
+                }
+            case let .failure(error):
+                await MainActor.run { [weak self] in
+                    self?.output?.didReceive(error: error)
+                }
+                await storage.removeToken()
+                await MainActor.run { [weak self] in
+                    self?.output?.restartKYC()
+                }
+            }
+        } else {
+            await MainActor.run { [weak self] in
+                self?.output?.restartKYC()
+            }
+        }
     }
 }

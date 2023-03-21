@@ -10,8 +10,12 @@ enum SoraCardStatus {
         switch self {
         case .pending:
             return R.image.soraCardStatusPending()
-        case .rejected:
-            return R.image.soraCardStatusFailure()
+        case let .rejected(hasFreeAttempts):
+            if hasFreeAttempts {
+                return R.image.soraCardStatusFailure()
+            } else {
+                return R.image.soraCardStatusPending()
+            }
         case .success:
             return R.image.soraCardStatusSuccess()
         case .failure:

@@ -46,7 +46,7 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
         )
         rootView.statusButton.addTarget(
             self,
-            action: #selector(getSoraCardButtonClicked),
+            action: #selector(statusButtonClicked),
             for: .touchUpInside
         )
     }
@@ -55,8 +55,8 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
         output.didTapHide()
     }
 
-    @objc private func getSoraCardButtonClicked() {
-        output.didTapGetSoraCard()
+    @objc private func statusButtonClicked() {
+        output.didTapStart()
     }
 }
 

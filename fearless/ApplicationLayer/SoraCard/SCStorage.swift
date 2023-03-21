@@ -21,7 +21,7 @@ final class SCStorage {
         case kycId = "SCKycId"
         case accessToken = "SCAccessToken"
         case isHidden = "SCIsHidden"
-        case isRety = "SCIsRety"
+        case isRetry = "SCIsRetry"
         case isAppStarted = "SCIsAppStarted"
     }
 
@@ -41,12 +41,12 @@ final class SCStorage {
         UserDefaults.standard.set(isHidden, forKey: Key.isHidden.rawValue)
     }
 
-    func isKYCRety() -> Bool {
-        UserDefaults.standard.bool(forKey: Key.isRety.rawValue)
+    func isKYCRetry() -> Bool {
+        UserDefaults.standard.bool(forKey: Key.isRetry.rawValue)
     }
 
-    func set(isRety: Bool) {
-        UserDefaults.standard.set(isRety, forKey: Key.isRety.rawValue)
+    func set(isRetry: Bool) {
+        UserDefaults.standard.set(isRetry, forKey: Key.isRetry.rawValue)
     }
 
     private func isFirstLaunch() -> Bool {

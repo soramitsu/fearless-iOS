@@ -36,8 +36,8 @@ final class SoraCardInfoBoardPresenter {
 // MARK: - SoraCardInfoBoardViewOutput
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
-    func didTapStartKyc() {
-        router.presentPreparation(from: view)
+    func didTapStart() {
+        router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 
     func didLoad(view: SoraCardInfoBoardViewInput) {
@@ -50,10 +50,6 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
                 self.didReceive(status: userStatus)
             }
         }
-    }
-
-    func didTapGetSoraCard() {
-        router.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 
     func didTapHide() {
@@ -73,6 +69,22 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
 
     func didReceive(hiddenState: Bool) {
         moduleOutput?.didChanged(soraCardHiddenState: hiddenState)
+    }
+
+    func didReceive(kycStatuses: [SCKYCStatusResponse]) {
+        if kycStatuses.isEmpty {
+            router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+        } else {
+            router.showVerificationStatus(from: view)
+        }
+    }
+
+    func didReceive(error: NetworkingError) {
+        router.present(error: error, from: view, locale: selectedLocale)
+    }
+
+    func restartKYC() {
+        router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 }
 

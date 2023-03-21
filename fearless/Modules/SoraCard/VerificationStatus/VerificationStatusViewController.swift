@@ -41,12 +41,12 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
 
     // MARK: - Private methods
 
-    @objc private func closeButtonClicked() {
-        output.didTapCloseButton()
+    @objc private func actionButtonClicked() {
+        output.didTapActionButton()
     }
 
-    @objc private func tryAgainButtonClicked() {
-        output.didTapTryAgainButton()
+    @objc private func closeButtonClicked() {
+        output.didTapCloseButton()
     }
 
     private func configureButtons() {
@@ -55,25 +55,11 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
             action: #selector(closeButtonClicked),
             for: .touchUpInside
         )
-    }
-
-    private func configureActions(for status: SoraCardStatus) {
-        rootView.actionButton.removeTarget(self, action: nil, for: .touchUpInside)
-
-        switch status {
-        case .success, .failure, .pending:
-            rootView.actionButton.addTarget(
-                self,
-                action: #selector(closeButtonClicked),
-                for: .touchUpInside
-            )
-        case .rejected:
-            rootView.actionButton.addTarget(
-                self,
-                action: #selector(tryAgainButtonClicked),
-                for: .touchUpInside
-            )
-        }
+        rootView.actionButton.addTarget(
+            self,
+            action: #selector(actionButtonClicked),
+            for: .touchUpInside
+        )
     }
 }
 
@@ -84,7 +70,6 @@ extension VerificationStatusViewController: VerificationStatusViewInput {
         error = nil
 
         rootView.bind(status: status)
-        configureActions(for: status)
 
         reloadEmptyState(animated: true)
     }

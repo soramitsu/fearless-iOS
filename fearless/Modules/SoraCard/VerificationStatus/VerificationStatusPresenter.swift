@@ -9,6 +9,7 @@ final class VerificationStatusPresenter {
     private let interactor: VerificationStatusInteractorInput
     private let logger: LoggerProtocol
     private let viewModelFactory: VerificationStatusViewModelFactoryProtocol
+    private var status: SCKYCUserStatus?
 
     // MARK: - Constructors
 
@@ -45,7 +46,14 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
         router.dismiss(view: view)
     }
 
-    func didTapTryAgainButton() {}
+    func didTapActionButton() {
+        switch status {
+        case .rejected:
+            break
+        default:
+            router.dismiss(view: view)
+        }
+    }
 
     func didTapRefresh() {
         view?.didStartLoading()

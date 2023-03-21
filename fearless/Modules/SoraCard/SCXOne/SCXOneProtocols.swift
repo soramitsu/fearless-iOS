@@ -9,8 +9,10 @@ protocol SCXOneViewOutput: AnyObject {
 }
 
 protocol SCXOneInteractorInput: AnyObject {
+    var paymentId: String { get }
+    
     func setup(with output: SCXOneInteractorOutput)
-    func checkStatus(paymentId: String)
+    func checkStatus()
 }
 
 protocol SCXOneInteractorOutput: AnyObject {}

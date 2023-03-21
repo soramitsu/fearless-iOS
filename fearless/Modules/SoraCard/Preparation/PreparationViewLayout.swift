@@ -61,46 +61,6 @@ final class PreparationViewLayout: UIView {
 }
 
 private extension PreparationViewLayout {
-    private func createSteps() -> [UIView] {
-        [
-            SummaryStepView(
-                step: "1",
-                title: R.string.localizable
-                    .soraCardPreparationStep1Title(preferredLanguages: locale.rLanguages),
-                subtitle: R.string.localizable
-                    .soraCardPreparationStep1Description(preferredLanguages: locale.rLanguages)
-            ),
-            SummaryStepView(
-                step: "2",
-                title: R.string.localizable
-                    .soraCardPreparationStep2Title(preferredLanguages: locale.rLanguages),
-                subtitle: R.string.localizable
-                    .soraCardPreparationStep2Description(preferredLanguages: locale.rLanguages)
-            ),
-            SummaryStepView(
-                step: "3",
-                title: R.string.localizable
-                    .soraCardPreparationStep3Title(preferredLanguages: locale.rLanguages),
-                subtitle: R.string.localizable
-                    .soraCardPreparationStep3Description(preferredLanguages: locale.rLanguages)
-            ),
-            SummaryStepView(
-                step: "4",
-                title: R.string.localizable
-                    .soraCardPreparationStep4Title(preferredLanguages: locale.rLanguages),
-                subtitle: R.string.localizable
-                    .soraCardPreparationStep4Description(preferredLanguages: locale.rLanguages)
-            ),
-            SummaryStepView(
-                step: "5",
-                title: R.string.localizable
-                    .soraCardPreparationStep5Title(preferredLanguages: locale.rLanguages),
-                subtitle: R.string.localizable
-                    .soraCardPreparationStep5Description(preferredLanguages: locale.rLanguages)
-            )
-        ]
-    }
-
     private func setupLayout() {
         addSubview(navigationBar)
         addSubview(contentView)

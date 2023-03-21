@@ -10,7 +10,8 @@ final class SoraCardInfoBoardAssembly {
         let interactor = SoraCardInfoBoardInteractor(
             service: service,
             settings: SettingsManager.shared,
-            wallet: wallet
+            wallet: wallet,
+            storage: .shared
         )
         let router = SoraCardInfoBoardRouter()
 

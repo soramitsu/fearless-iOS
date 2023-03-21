@@ -7,7 +7,7 @@ final class TermsAndConditionsPresenter {
     private weak var view: TermsAndConditionsViewInput?
     private let router: TermsAndConditionsRouterInput
     private let termsUrl: URL
-    private let privacyURL: URL
+    private let privacyUrl: URL
 
     // MARK: - Constructors
 
@@ -19,7 +19,7 @@ final class TermsAndConditionsPresenter {
     ) {
         self.router = router
         self.termsUrl = termsUrl
-        privacyURL = privacyUrl
+        self.privacyUrl = privacyUrl
 
         self.localizationManager = localizationManager
     }
@@ -46,7 +46,7 @@ extension TermsAndConditionsPresenter: TermsAndConditionsViewOutput {
     func didTapPrivacyButton() {
         guard let view = view else { return }
         router.showWeb(
-            url: privacyURL,
+            url: privacyUrl,
             from: view,
             style: .automatic
         )

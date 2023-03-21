@@ -34,10 +34,12 @@ extension SCXOnePresenter: SCXOneViewOutput {
         self.view = view
         interactor.setup(with: self)
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
-            let paymentId = UUID().uuidString
-            let htmlString = XOneHtmlStringBuilder.build(with: address, paymentId: paymentId)
+            let htmlString = XOneHtmlStringBuilder.build(
+                with: address,
+                paymentId: interactor.paymentId
+            )
             view.startLoading(with: htmlString)
-            interactor.checkStatus(paymentId: paymentId)
+            interactor.checkStatus()
         }
     }
 }

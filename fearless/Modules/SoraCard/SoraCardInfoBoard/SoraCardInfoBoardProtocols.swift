@@ -8,7 +8,7 @@ protocol SoraCardInfoBoardViewInput: ControllerBackedProtocol, LoadableViewProto
 
 protocol SoraCardInfoBoardViewOutput: AnyObject {
     func didLoad(view: SoraCardInfoBoardViewInput)
-    func didTapGetSoraCard()
+    func didTapStart()
     func didTapHide()
 }
 
@@ -21,11 +21,14 @@ protocol SoraCardInfoBoardInteractorInput: AnyObject {
 protocol SoraCardInfoBoardInteractorOutput: AnyObject {
     func didReceive(status: SCKYCUserStatus)
     func didReceive(hiddenState: Bool)
+    func didReceive(kycStatuses: [SCKYCStatusResponse])
+    func didReceive(error: NetworkingError)
+    func restartKYC()
 }
 
-protocol SoraCardInfoBoardRouterInput: AnyObject, SheetAlertPresentable {
-    func startKYC(from view: SoraCardInfoBoardViewInput?, data: SCKYCUserDataModel, wallet: MetaAccountModel)
-    func presentPreparation(from view: ControllerBackedProtocol?)
+protocol SoraCardInfoBoardRouterInput: SheetAlertPresentable, ErrorPresentable {
+    func start(from view: SoraCardInfoBoardViewInput?, data: SCKYCUserDataModel, wallet: MetaAccountModel)
+    func showVerificationStatus(from view: SoraCardInfoBoardViewInput?)
 }
 
 protocol SoraCardInfoBoardModuleInput: AnyObject {

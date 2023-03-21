@@ -7,8 +7,8 @@ protocol VerificationStatusViewInput: ControllerBackedProtocol, LoadableViewProt
 
 protocol VerificationStatusViewOutput: AnyObject {
     func didLoad(view: VerificationStatusViewInput)
+    func didTapActionButton()
     func didTapCloseButton()
-    func didTapTryAgainButton()
     func didTapRefresh()
 }
 
