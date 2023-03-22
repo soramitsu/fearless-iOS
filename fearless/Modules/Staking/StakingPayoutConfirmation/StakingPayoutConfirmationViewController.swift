@@ -170,6 +170,8 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
     func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>]) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+
+        rootView.bind(viewModel: viewModel)
     }
 
     func didReceive(singleViewModel: StakingPayoutConfirmationViewModel?) {

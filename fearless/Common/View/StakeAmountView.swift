@@ -8,7 +8,7 @@ class StakeAmountView: UIView {
 
     let iconBackground: ShadowRoundedBackground = {
         let view = ShadowRoundedBackground()
-        view.shadowColor = R.color.colorPink1()!
+        view.shadowColor = .clear
         view.backgroundColor = R.color.colorBlack19()
         return view
     }()

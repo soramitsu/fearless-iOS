@@ -160,7 +160,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 chainAsset: chainAsset,
                 wallet: wallet,
                 logger: logger,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: SubstrateCallFactory()
             )
 
             let viewModelFactory = StakingPayoutConfirmationRelaychainViewModelFactory(

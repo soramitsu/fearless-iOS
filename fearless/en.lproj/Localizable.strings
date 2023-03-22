@@ -1065,3 +1065,4 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "get.more.xor.buy.action.title" = "Buy XOR with fiat";
 "details.need.xor.desription" = "You need %@ more XOR (€%@)";
 "details.enough.xor.desription" = "You have enough XOR";
+"pool.staking.management.claim.button.title" = "Claim";
