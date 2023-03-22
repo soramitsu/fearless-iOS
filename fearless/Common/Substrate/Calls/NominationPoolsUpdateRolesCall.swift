@@ -22,5 +22,5 @@ struct NominationPoolsUpdateRolesCall: Codable {
     let poolId: String
     let newRoot: UpdateRoleCase?
     let newNominator: UpdateRoleCase?
-    let newStateToggler: UpdateRoleCase?
+    let newBouncer: UpdateRoleCase?
 }

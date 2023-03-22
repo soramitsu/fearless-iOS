@@ -8,4 +8,8 @@ struct RuntimeSnapshot {
     let specVersion: UInt32
     let txVersion: UInt32
     let metadata: RuntimeMetadata
+
+    var runtimeSpecVersion: RuntimeSpecVersion {
+        RuntimeSpecVersion(rawValue: specVersion) ?? RuntimeSpecVersion.defaultVersion
+    }
 }

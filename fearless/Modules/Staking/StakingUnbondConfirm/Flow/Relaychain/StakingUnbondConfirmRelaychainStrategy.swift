@@ -38,7 +38,7 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         output: StakingUnbondConfirmRelaychainStrategyOutput?,
@@ -51,7 +51,8 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
         wallet: MetaAccountModel,
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.output = output
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -64,6 +65,7 @@ final class StakingUnbondConfirmRelaychainStrategy: AccountFetching, RuntimeCons
         self.connection = connection
         self.keystore = keystore
         self.accountRepository = accountRepository
+        self.callFactory = callFactory
     }
 
     private func handleController(accountItem: ChainAccountResponse) {

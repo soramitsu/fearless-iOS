@@ -172,9 +172,9 @@ extension StakingPoolInfoPresenter: StakingPoolInfoViewOutput {
         )
     }
 
-    func stateTogglerDidTapped() {
+    func bouncerDidTapped() {
         router.showWalletManagment(
-            contextTag: StakingPoolInfoContextTag.stateToggler.rawValue,
+            contextTag: StakingPoolInfoContextTag.bouncer.rawValue,
             from: view,
             moduleOutput: self
         )
@@ -296,7 +296,7 @@ extension StakingPoolInfoPresenter: StakingPoolInfoModuleInput {
 extension StakingPoolInfoPresenter: WalletsManagmentModuleOutput {
     private enum StakingPoolInfoContextTag: Int {
         case nominator = 0
-        case stateToggler
+        case bouncer
         case root
     }
 
@@ -309,8 +309,8 @@ extension StakingPoolInfoPresenter: WalletsManagmentModuleOutput {
         switch contextTag {
         case .nominator:
             editedRoles?.nominator = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
-        case .stateToggler:
-            editedRoles?.stateToggler = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+        case .bouncer:
+            editedRoles?.bouncer = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         case .root:
             editedRoles?.root = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
         }

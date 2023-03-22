@@ -10,18 +10,18 @@ final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {
     private var params: PolkaswapPreviewParams
     private let signingWrapper: SigningWrapperProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
-    private lazy var callFactory: SubstrateCallFactoryProtocol = {
-        SubstrateCallFactory()
-    }()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         params: PolkaswapPreviewParams,
         signingWrapper: SigningWrapperProtocol,
-        extrinsicService: ExtrinsicServiceProtocol
+        extrinsicService: ExtrinsicServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.params = params
         self.signingWrapper = signingWrapper
         self.extrinsicService = extrinsicService
+        self.callFactory = callFactory
     }
 
     private func builderClosure() -> ExtrinsicBuilderClosure? {

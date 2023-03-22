@@ -19,7 +19,7 @@ final class ControllerAccountConfirmationInteractor {
     private let engine: JSONRPCEngine
     private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private lazy var addressFactory = SS58AddressFactory()
 
     private var stashItemProvider: StreamableProvider<StashItem>?
@@ -42,7 +42,8 @@ final class ControllerAccountConfirmationInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
         chainAsset: ChainAsset,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -58,6 +59,7 @@ final class ControllerAccountConfirmationInteractor {
         self.selectedAccount = selectedAccount
         self.engine = engine
         self.chainAsset = chainAsset
+        self.callFactory = callFactory
     }
 
     private func createLedgerFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<StakingLedger?> {

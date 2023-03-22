@@ -17,10 +17,12 @@ final class AstarBonusService {
 
     let paraId: ParaId
     let operationManager: OperationManagerProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
-    init(paraId: ParaId, operationManager: OperationManagerProtocol) {
+    init(paraId: ParaId, operationManager: OperationManagerProtocol, callFactory: SubstrateCallFactoryProtocol) {
         self.paraId = paraId
         self.operationManager = operationManager
+        self.callFactory = callFactory
     }
 }
 
@@ -49,7 +51,7 @@ extension AstarBonusService: CrowdloanBonusServiceProtocol {
             throw CrowdloanBonusServiceError.invalidReferral
         }
 
-        let addMemo = SubstrateCallFactory().addMemo(to: paraId, memo: memoData)
+        let addMemo = callFactory.addMemo(to: paraId, memo: memoData)
 
         return try builder.adding(call: addMemo)
     }

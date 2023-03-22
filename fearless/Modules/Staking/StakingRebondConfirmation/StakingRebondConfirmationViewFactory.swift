@@ -151,6 +151,8 @@ struct StakingRebondConfirmationViewFactory {
             accountResponse: accountResponse
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case let .relaychain(variant):
             let viewModelState = StakingRebondConfirmationRelaychainViewModelState(
@@ -158,7 +160,8 @@ struct StakingRebondConfirmationViewFactory {
                 wallet: wallet,
                 logger: logger,
                 variant: variant,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingRebondConfirmationRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
@@ -177,7 +180,8 @@ struct StakingRebondConfirmationViewFactory {
                 keystore: keystore,
                 connection: connection,
                 accountRepository: AnyDataProviderRepository(accountRepository),
-                output: viewModelState
+                output: viewModelState,
+                callFactory: callFactory
             )
 
             return StakingRebondConfirmationDependencyContainer(
@@ -192,7 +196,8 @@ struct StakingRebondConfirmationViewFactory {
                 wallet: wallet,
                 chainAsset: chainAsset,
                 dataValidatingFactory: dataValidatingFactory,
-                logger: logger
+                logger: logger,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingRebondConfirmationParachainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,

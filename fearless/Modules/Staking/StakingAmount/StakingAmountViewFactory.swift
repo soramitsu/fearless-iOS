@@ -146,6 +146,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
             for: chainAsset.chain
         ) else {
@@ -191,7 +193,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
                 chainAsset: chainAsset,
-                amount: amount
+                amount: amount,
+                callFactory: callFactory
             )
 
             let strategy = StakingAmountRelaychainStrategy(
@@ -228,7 +231,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
                 chainAsset: chainAsset,
-                amount: amount
+                amount: amount,
+                callFactory: callFactory
             )
 
             let strategy = StakingAmountParachainStrategy(
