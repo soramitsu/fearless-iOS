@@ -28,7 +28,7 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
@@ -41,7 +41,8 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -54,6 +55,7 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.callFactory = callFactory
 
         self.feeProxy.delegate = self
     }

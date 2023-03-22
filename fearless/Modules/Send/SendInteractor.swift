@@ -22,8 +22,6 @@ final class SendInteractor: RuntimeConstantFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
-    private(set) lazy var callFactory = SubstrateCallFactory()
-
     init(
         feeProxy: ExtrinsicFeeProxyProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -145,7 +143,7 @@ extension SendInteractor: SendInteractorInput {
         else { return }
 
         let accountId = accountId(from: address, chain: chainAsset.chain)
-        let call = callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
+        let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
         var identifier = String(amount)
         if let tip = tip {
             identifier += "_\(String(tip))"

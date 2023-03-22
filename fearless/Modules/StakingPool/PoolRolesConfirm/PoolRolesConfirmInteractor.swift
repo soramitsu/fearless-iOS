@@ -12,7 +12,7 @@ final class PoolRolesConfirmInteractor: AccountFetching {
     private let poolId: String
     private let roles: StakingPoolRoles
     private let signingWrapper: SigningWrapperProtocol
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let operationManager: OperationManagerProtocol
@@ -26,7 +26,8 @@ final class PoolRolesConfirmInteractor: AccountFetching {
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         chainAsset: ChainAsset,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.extrinsicService = extrinsicService
         self.feeProxy = feeProxy
@@ -37,6 +38,7 @@ final class PoolRolesConfirmInteractor: AccountFetching {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
         self.operationManager = operationManager
+        self.callFactory = callFactory
     }
 
     private func builderClosure() -> ExtrinsicBuilderClosure {

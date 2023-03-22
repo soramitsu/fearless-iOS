@@ -6,6 +6,7 @@ import FearlessUtils
 protocol RuntimeProviderProtocol: AnyObject, RuntimeCodingServiceProtocol {
     var chainId: ChainModel.Id { get }
     var snapshot: RuntimeSnapshot? { get }
+    var runtimeSpecVersion: RuntimeSpecVersion { get }
 
     func setup()
     func setupHot()
@@ -291,6 +292,10 @@ extension RuntimeProvider: RuntimeProviderProtocol {
 
     var runtimeSnapshot: RuntimeSnapshot? {
         snapshot
+    }
+
+    var runtimeSpecVersion: RuntimeSpecVersion {
+        snapshot?.runtimeSpecVersion ?? RuntimeSpecVersion.defaultVersion
     }
 
     func setup() {

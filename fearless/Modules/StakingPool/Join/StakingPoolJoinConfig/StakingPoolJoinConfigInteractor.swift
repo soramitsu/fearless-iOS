@@ -10,7 +10,7 @@ final class StakingPoolJoinConfigInteractor {
     private weak var output: StakingPoolJoinConfigInteractorOutput?
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    private let callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let operationManager: OperationManagerProtocol
@@ -28,7 +28,8 @@ final class StakingPoolJoinConfigInteractor {
         feeProxy: ExtrinsicFeeProxyProtocol,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
@@ -39,6 +40,7 @@ final class StakingPoolJoinConfigInteractor {
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.operationManager = operationManager
         self.existentialDepositService = existentialDepositService
+        self.callFactory = callFactory
     }
 
     private var feeReuseIdentifier: String? {

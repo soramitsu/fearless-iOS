@@ -3,7 +3,7 @@ import BigInt
 
 final class StakingBondMorePoolViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
@@ -14,11 +14,13 @@ final class StakingBondMorePoolViewModelState {
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     var accountAddress: AccountAddress? {

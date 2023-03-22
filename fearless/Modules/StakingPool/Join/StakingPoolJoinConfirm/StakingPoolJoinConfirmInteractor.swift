@@ -8,7 +8,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
-    private let callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let amount: Decimal
@@ -30,7 +30,8 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
         signingWrapper: SigningWrapperProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        validatorOperationFactory: ValidatorOperationFactoryProtocol
+        validatorOperationFactory: ValidatorOperationFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.chainAsset = chainAsset
@@ -43,6 +44,7 @@ final class StakingPoolJoinConfirmInteractor: RuntimeConstantFetching {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.validatorOperationFactory = validatorOperationFactory
+        self.callFactory = callFactory
     }
 
     private var feeReuseIdentifier: String? {

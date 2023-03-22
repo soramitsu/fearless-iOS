@@ -11,7 +11,7 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactory
     let inputAmount: Decimal
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -84,7 +84,8 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
         inputAmount: Decimal,
         candidate: ParachainStakingCandidateInfo,
         delegation: ParachainStakingDelegation,
-        revoke: Bool
+        revoke: Bool,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -98,6 +99,7 @@ final class StakingUnbondConfirmParachainViewModelState: StakingUnbondConfirmVie
             delegation.amount,
             precision: Int16(chainAsset.asset.precision)
         )
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
