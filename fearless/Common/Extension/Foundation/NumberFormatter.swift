@@ -93,4 +93,21 @@ extension NumberFormatter {
         numberFormatter.usesGroupingSeparator = true
         return numberFormatter
     }
+
+    static var fiat: NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+        formatter.usesSignificantDigits = true
+        return formatter
+    }
+
+    static var polkaswapBalance: NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 4
+        return formatter
+    }
 }

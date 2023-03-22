@@ -4,7 +4,10 @@ import RobinHood
 import SoraKeystore
 
 final class ChainAssetListAssembly {
-    static func configureModule(wallet: MetaAccountModel) -> ChainAssetListModuleCreationResult? {
+    static func configureModule(
+        wallet: MetaAccountModel,
+        soraCardViewController: UIViewController? = nil
+    ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -74,7 +77,8 @@ final class ChainAssetListAssembly {
             chainsIssuesCenter: chainsIssuesCenter,
             accountRepository: AnyDataProviderRepository(accountRepository),
             chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepository),
-            accountInfoFetching: accountInfoFetching
+            accountInfoFetching: accountInfoFetching,
+            settings: SettingsManager.shared
         )
         let router = ChainAssetListRouter()
         let viewModelFactory = ChainAssetListViewModelFactory(
@@ -92,6 +96,7 @@ final class ChainAssetListAssembly {
 
         let view = ChainAssetListViewController(
             output: presenter,
+            soraCardViewController: soraCardViewController,
             localizationManager: localizationManager
         )
 
