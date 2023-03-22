@@ -8,6 +8,7 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
     private(set) var rewardAmount: Decimal = 0.0
     private(set) var account: ChainAccountResponse?
     private(set) var rewardDestination: RewardDestination<DisplayAddress>?
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private let logger: LoggerProtocol?
     private let chainAsset: ChainAsset
@@ -41,20 +42,24 @@ final class StakingPayoutConfirmationRelaychainViewModelState: StakingPayoutConf
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         logger: LoggerProtocol?,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.logger = logger
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderIndexedClosure? {
-        let callFactory = SubstrateCallFactory()
+        let closure: ExtrinsicBuilderIndexedClosure = { [weak self] builder, _ in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-        let closure: ExtrinsicBuilderIndexedClosure = { builder, _ in
             try payouts.forEach { payout in
-                let payoutCall = try callFactory.payout(
+                let payoutCall = try strongSelf.callFactory.payout(
                     validatorId: payout.validator,
                     era: payout.era
                 )

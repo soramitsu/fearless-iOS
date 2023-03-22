@@ -16,6 +16,7 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
     let wallet: MetaAccountModel
     let operationManager: OperationManagerProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private(set) var confirmationModel: SelectValidatorsConfirmRelaychainModel?
     private(set) var priceData: PriceData?
@@ -48,7 +49,8 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         operationManager: OperationManagerProtocol,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
 
     ) {
         self.poolId = poolId
@@ -59,6 +61,7 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
         self.wallet = wallet
         self.operationManager = operationManager
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
@@ -85,10 +88,12 @@ final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsC
         let targets = targets
         let poolId = poolId
 
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let callFactory = SubstrateCallFactory()
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-            let nominateCall = try callFactory.poolNominate(poolId: poolId, targets: targets)
+            let nominateCall = try strongSelf.callFactory.poolNominate(poolId: poolId, targets: targets)
 
             return try builder
                 .adding(call: nominateCall)

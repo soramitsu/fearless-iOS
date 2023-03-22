@@ -10,7 +10,7 @@ final class StakingBondMoreConfirmationPoolViewModelState: StakingBondMoreConfir
     private var priceData: PriceData?
     private let chainAsset: ChainAsset
     private var wallet: MetaAccountModel
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var accountAddress: String? {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
@@ -20,12 +20,14 @@ final class StakingBondMoreConfirmationPoolViewModelState: StakingBondMoreConfir
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         amount: Decimal,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.amount = amount
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func validators(using locale: Locale) -> [DataValidating] {

@@ -32,7 +32,7 @@ final class StakingUnbondConfirmPoolStrategy: AccountFetching, RuntimeConstantFe
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
 
     init(
@@ -48,7 +48,8 @@ final class StakingUnbondConfirmPoolStrategy: AccountFetching, RuntimeConstantFe
         extrinsicService: ExtrinsicServiceProtocol?,
         signingWrapper: SigningWrapperProtocol?,
         eventCenter: EventCenterProtocol,
-        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
+        stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.output = output
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -63,6 +64,7 @@ final class StakingUnbondConfirmPoolStrategy: AccountFetching, RuntimeConstantFe
         self.signingWrapper = signingWrapper
         self.eventCenter = eventCenter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
+        self.callFactory = callFactory
     }
 }
 
