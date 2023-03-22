@@ -131,11 +131,13 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
         shouldChangeCharactersIn range: NSRange,
         replacementString string: String
     ) -> Bool {
-        if string.isEmpty {
+        let fixedString = string.replacingOccurrences(of: ",", with: ".")
+
+        if fixedString.isEmpty {
             return true
         }
         let oldString = (textField.text ?? "") as NSString
-        let candidate = oldString.replacingCharacters(in: range, with: string)
+        let candidate = oldString.replacingCharacters(in: range, with: fixedString)
         let regex = try? NSRegularExpression(pattern: "^[0-9]{1}([.]{0,1})?([0-9]{0,2})?$", options: [])
         if regex?.firstMatch(in: candidate, options: [], range: NSRange(location: 0, length: candidate.count)) != nil {
             NSObject.cancelPreviousPerformRequests(
@@ -144,7 +146,8 @@ extension PolkaswapTransaktionSettingsViewController: UITextFieldDelegate {
                 object: nil
             )
             perform(#selector(didChangeSlider), with: nil, afterDelay: 0.7)
-            return true
+            textField.text = candidate
+            return false
         }
         return false
     }
