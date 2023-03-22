@@ -10,7 +10,7 @@ final class StakingPoolCreateConfirmInteractor {
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private weak var output: StakingPoolCreateConfirmInteractorOutput?
     private let chainAsset: ChainAsset
-    private let callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let createData: StakingPoolCreateData
@@ -24,7 +24,8 @@ final class StakingPoolCreateConfirmInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         createData: StakingPoolCreateData,
-        signingWrapper: SigningWrapperProtocol
+        signingWrapper: SigningWrapperProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         chainAsset = createData.chainAsset
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -33,19 +34,20 @@ final class StakingPoolCreateConfirmInteractor {
         self.feeProxy = feeProxy
         self.createData = createData
         self.signingWrapper = signingWrapper
+        self.callFactory = callFactory
     }
 
     private var feeReuseIdentifier: String? {
         let rootRequest = chainAsset.chain.accountRequest()
         let nominatorRequest = chainAsset.chain.accountRequest()
-        let stateTogglerRequest = chainAsset.chain.accountRequest()
+        let bouncerRequest = chainAsset.chain.accountRequest()
         let precision = Int16(chainAsset.asset.precision)
 
         guard
             let substrateAmountValue = createData.amount.toSubstrateAmount(precision: precision),
             let rootAccount = createData.root.fetch(for: rootRequest)?.accountId,
             let nominationAccount = createData.nominator.fetch(for: nominatorRequest)?.accountId,
-            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId
+            let bouncerAccount = createData.bouncer.fetch(for: bouncerRequest)?.accountId
         else {
             return nil
         }
@@ -54,7 +56,7 @@ final class StakingPoolCreateConfirmInteractor {
             amount: substrateAmountValue,
             root: .accoundId(rootAccount),
             nominator: .accoundId(nominationAccount),
-            stateToggler: .accoundId(stateTogglerAccount)
+            bouncer: .accoundId(bouncerAccount)
         )
 
         return createPool.callName
@@ -63,14 +65,14 @@ final class StakingPoolCreateConfirmInteractor {
     private var feeBuilderClosure: ExtrinsicBuilderClosure? {
         let rootRequest = chainAsset.chain.accountRequest()
         let nominatorRequest = chainAsset.chain.accountRequest()
-        let stateTogglerRequest = chainAsset.chain.accountRequest()
+        let bouncerRequest = chainAsset.chain.accountRequest()
         let precision = Int16(chainAsset.asset.precision)
 
         guard
             let substrateAmountValue = createData.amount.toSubstrateAmount(precision: precision),
             let rootAccount = createData.root.fetch(for: rootRequest)?.accountId,
             let nominationAccount = createData.nominator.fetch(for: nominatorRequest)?.accountId,
-            let stateTogglerAccount = createData.stateToggler.fetch(for: stateTogglerRequest)?.accountId,
+            let bouncerAccount = createData.bouncer.fetch(for: bouncerRequest)?.accountId,
             let metadata = createData.poolName.data(using: .ascii)
         else {
             return nil
@@ -80,7 +82,7 @@ final class StakingPoolCreateConfirmInteractor {
             amount: substrateAmountValue,
             root: .accoundId(rootAccount),
             nominator: .accoundId(nominationAccount),
-            stateToggler: .accoundId(stateTogglerAccount)
+            bouncer: .accoundId(bouncerAccount)
         )
 
         let setMetadataCall = callFactory.setPoolMetadata(

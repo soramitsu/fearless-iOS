@@ -13,6 +13,7 @@ final class StakingPayoutConfirmationPoolViewModelState: StakingPayoutConfirmati
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     func setStateListener(_ stateListener: StakingPayoutConfirmationModelStateListener?) {
         self.stateListener = stateListener
@@ -42,16 +43,17 @@ final class StakingPayoutConfirmationPoolViewModelState: StakingPayoutConfirmati
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         logger: LoggerProtocol?,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.logger = logger
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     var builderClosure: ExtrinsicBuilderClosure? {
-        let callFactory = SubstrateCallFactory()
         let call = callFactory.claimPoolRewards()
         let closure: ExtrinsicBuilderClosure = { builder in
             try builder.adding(call: call)

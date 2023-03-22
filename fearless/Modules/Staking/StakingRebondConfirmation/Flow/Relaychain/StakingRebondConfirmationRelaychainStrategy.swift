@@ -33,7 +33,7 @@ final class StakingRebondConfirmationRelaychainStrategy: AccountFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
@@ -47,7 +47,8 @@ final class StakingRebondConfirmationRelaychainStrategy: AccountFetching {
         keystore: KeystoreProtocol,
         connection: JSONRPCEngine,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        output: StakingRebondConfirmationRelaychainStrategyOutput?
+        output: StakingRebondConfirmationRelaychainStrategyOutput?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -61,6 +62,7 @@ final class StakingRebondConfirmationRelaychainStrategy: AccountFetching {
         self.wallet = wallet
         self.accountRepository = accountRepository
         self.output = output
+        self.callFactory = callFactory
     }
 
     private func handleController(accountItem: ChainAccountResponse) {

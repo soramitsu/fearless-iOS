@@ -3,7 +3,7 @@ import BigInt
 
 final class StakingBondMoreRelaychainViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     let chainAsset: ChainAsset
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     var amount: Decimal = 0
@@ -12,9 +12,14 @@ final class StakingBondMoreRelaychainViewModelState {
     private var stashItem: StashItem?
     private var stashAccount: ChainAccountResponse?
 
-    init(chainAsset: ChainAsset, dataValidatingFactory: StakingDataValidatingFactoryProtocol) {
+    init(
+        chainAsset: ChainAsset,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
+    ) {
         self.chainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 }
 

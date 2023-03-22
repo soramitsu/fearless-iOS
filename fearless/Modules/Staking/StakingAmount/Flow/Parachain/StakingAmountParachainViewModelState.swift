@@ -6,6 +6,8 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 
     var stateListener: StakingAmountModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
+
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
     private var networkStakingInfo: NetworkStakingInfo?
@@ -20,11 +22,13 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?
+        amount: Decimal?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
+        self.callFactory = callFactory
         inputResult = .absolute(amount ?? 0)
     }
 
@@ -51,7 +55,7 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
                 return builder
             }
 
-            let call = SubstrateCallFactory().delegate(
+            let call = callFactory.delegate(
                 candidate: accountId,
                 amount: amount,
                 candidateDelegationCount: UInt32.max,
