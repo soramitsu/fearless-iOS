@@ -23,7 +23,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private weak var output: StakingUnbondSetupPoolStrategyOutput?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
 
@@ -38,7 +38,8 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         extrinsicService: ExtrinsicServiceProtocol?,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -51,6 +52,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.stakingDurationOperationFactory = stakingDurationOperationFactory
         self.runtimeService = runtimeService
+        self.callFactory = callFactory
     }
 
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?

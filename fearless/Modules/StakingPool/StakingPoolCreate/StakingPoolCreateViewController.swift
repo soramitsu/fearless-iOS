@@ -81,9 +81,9 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
             action: #selector(handleNominationTapped),
             for: .touchUpInside
         )
-        rootView.stateTogglerView.addTarget(
+        rootView.bouncerView.addTarget(
             self,
-            action: #selector(handleStateTogglerTapped),
+            action: #selector(handleBouncerTapped),
             for: .touchUpInside
         )
         rootView.feeView.actionButton.addTarget(
@@ -109,8 +109,8 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
         output.nominatorDidTapped()
     }
 
-    @objc private func handleStateTogglerTapped() {
-        output.stateTogglerDidTapped()
+    @objc private func handleBouncerTapped() {
+        output.bouncerDidTapped()
     }
 
     @objc private func handleCreateButtonTapped() {

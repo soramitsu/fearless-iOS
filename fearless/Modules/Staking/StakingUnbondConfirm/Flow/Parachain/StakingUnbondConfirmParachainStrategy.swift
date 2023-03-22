@@ -29,7 +29,7 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         output: StakingUnbondConfirmParachainStrategyOutput?,
@@ -43,7 +43,8 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
         keystore: KeystoreProtocol,
         extrinsicService: ExtrinsicServiceProtocol?,
         signingWrapper: SigningWrapperProtocol?,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.output = output
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -57,6 +58,7 @@ final class StakingUnbondConfirmParachainStrategy: AccountFetching, RuntimeConst
         self.extrinsicService = extrinsicService
         self.signingWrapper = signingWrapper
         self.eventCenter = eventCenter
+        self.callFactory = callFactory
     }
 }
 

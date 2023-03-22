@@ -8,7 +8,7 @@ final class StakingUnbondConfirmPoolViewModelState: StakingUnbondConfirmViewMode
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactory
     let inputAmount: Decimal
-    let callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -68,12 +68,14 @@ final class StakingUnbondConfirmPoolViewModelState: StakingUnbondConfirmViewMode
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactory,
-        inputAmount: Decimal
+        inputAmount: Decimal,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.inputAmount = inputAmount
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {

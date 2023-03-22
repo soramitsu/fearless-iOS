@@ -776,7 +776,7 @@
 "pool.staking.depositor" = "Вкладчик";
 "pool.staking.root" = "Root";
 "pool.staking.nominator" = "Nominator";
-"pool.staking.state.toggler" = "State toggler";
+"pool.staking.bouncer" = "Bouncer";
 "pool.staking.title" = "Pool staking";
 "common.watch" = "Смотреть";
 "hidden.assets" = "Скрытые активы";
@@ -829,7 +829,7 @@
 "staking.pool.create.depositor" = "Вкладчик";
 "staking.pool.create.root" = "Root";
 "staking.pool.create.nominator" = "Nominator";
-"staking.pool.create.stateToggler" = "State toggler";
+"staking.pool.create.bouncer" = "State toggler";
 "common.create" = "Создать";
 "staking.pool.create.creating.pool" = "Создать пул\n%@";
 "staking.pool.create.management.account" = "Pool management account";
