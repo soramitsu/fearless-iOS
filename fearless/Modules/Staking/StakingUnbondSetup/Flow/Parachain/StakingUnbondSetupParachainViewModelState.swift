@@ -8,7 +8,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactory
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var inputAmount: Decimal?
@@ -119,13 +119,15 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactory,
         candidate: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
+        delegation: ParachainStakingDelegation,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.candidate = candidate
         self.delegation = delegation
+        self.callFactory = callFactory
 
         bonded = Decimal.fromSubstrateAmount(
             delegation.amount,

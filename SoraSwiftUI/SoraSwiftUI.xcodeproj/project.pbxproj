@@ -1,0 +1,1511 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 55;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		3613BBCE288702BD009F3E5A /* SoraSwiftUI.docc in Sources */ = {isa = PBXBuildFile; fileRef = 3613BBCD288702BD009F3E5A /* SoraSwiftUI.docc */; };
+		3613BBD4288702BD009F3E5A /* SoraSwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3613BBC9288702BD009F3E5A /* SoraSwiftUI.framework */; };
+		3613BBD9288702BD009F3E5A /* SoraSwiftUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613BBD8288702BD009F3E5A /* SoraSwiftUITests.swift */; };
+		3613BBDA288702BD009F3E5A /* SoraSwiftUI.h in Headers */ = {isa = PBXBuildFile; fileRef = 3613BBCC288702BD009F3E5A /* SoraSwiftUI.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		3613BBEB288702E6009F3E5A /* Fonts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613BBE5288702E6009F3E5A /* Fonts.swift */; };
+		3613BBEC288702E6009F3E5A /* Colors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613BBE6288702E6009F3E5A /* Colors.swift */; };
+		3613BBEE288702E6009F3E5A /* Config.json in Resources */ = {isa = PBXBuildFile; fileRef = 3613BBE9288702E6009F3E5A /* Config.json */; };
+		3613BBEF288702E6009F3E5A /* main.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613BBEA288702E6009F3E5A /* main.swift */; };
+		3613D6A8290EF05900B0D027 /* HistoryTransactionView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613D6A6290EF05900B0D027 /* HistoryTransactionView.swift */; };
+		3613D6A9290EF05900B0D027 /* HistoryTransactionViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3613D6A7290EF05900B0D027 /* HistoryTransactionViewConfiguration.swift */; };
+		361EF58E2913031B00D0DCCF /* SoramitsuOverlayDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 361EF58D2913031A00D0DCCF /* SoramitsuOverlayDecorator.swift */; };
+		3622A1E328DDF05900FE36CD /* InputField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3622A1E228DDF05900FE36CD /* InputField.swift */; };
+		3622A1E528DDF09B00FE36CD /* InputFieldConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3622A1E428DDF09B00FE36CD /* InputFieldConfiguration.swift */; };
+		3622A1E928DF636700FE36CD /* SoramitsuTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3622A1E728DF636700FE36CD /* SoramitsuTextField.swift */; };
+		3622A1EA28DF636700FE36CD /* SoramitsuTextFieldConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3622A1E828DF636700FE36CD /* SoramitsuTextFieldConfiguration.swift */; };
+		3625F35A28880B260028139A /* CornerRadius.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3625F35928880B260028139A /* CornerRadius.swift */; };
+		3625F3692888671E0028139A /* SoramitsuColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3625F3662888671E0028139A /* SoramitsuColor.swift */; };
+		36286026291FE80C0000A561 /* NSObject+SoramitsuColorable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36286025291FE80C0000A561 /* NSObject+SoramitsuColorable.swift */; };
+		36356B522919384200CD3E9E /* PoolView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36356B4F2919384100CD3E9E /* PoolView.swift */; };
+		36356B542919384200CD3E9E /* PoolViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36356B512919384200CD3E9E /* PoolViewConfiguration.swift */; };
+		3662632828D2704700C1A669 /* info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3662632728D2704700C1A669 /* info.plist */; };
+		36754C0B28D710F300FC080A /* FontData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C0A28D710F300FC080A /* FontData.swift */; };
+		36754C2828D718A900FC080A /* SoramitsuUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2728D718A900FC080A /* SoramitsuUI.swift */; };
+		36754C2F28D7198100FC080A /* SoramitsuStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2A28D7198100FC080A /* SoramitsuStyle.swift */; };
+		36754C3028D7198100FC080A /* ObservationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2B28D7198100FC080A /* ObservationProtocols.swift */; };
+		36754C3128D7198100FC080A /* ThemeStorage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2C28D7198100FC080A /* ThemeStorage.swift */; };
+		36754C3228D7198100FC080A /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2D28D7198100FC080A /* ThemeManager.swift */; };
+		36754C3328D7198100FC080A /* UpdateOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C2E28D7198100FC080A /* UpdateOptions.swift */; };
+		36754C3528D71A2300FC080A /* SoramitsuThemeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C3428D71A2300FC080A /* SoramitsuThemeType.swift */; };
+		36754C3728D71D3100FC080A /* StatusBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C3628D71D3100FC080A /* StatusBarStyle.swift */; };
+		36754C3928D71DEA00FC080A /* Palette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C3828D71DEA00FC080A /* Palette.swift */; };
+		36754C4828D7259A00FC080A /* LightPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C4628D7259A00FC080A /* LightPalette.swift */; };
+		36754C4928D7259A00FC080A /* DarkPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C4728D7259A00FC080A /* DarkPalette.swift */; };
+		36754C8E28D7346000FC080A /* DefaultRadii.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C8B28D7345F00FC080A /* DefaultRadii.swift */; };
+		36754C8F28D7346000FC080A /* DefaultLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C8C28D7346000FC080A /* DefaultLayout.swift */; };
+		36754C9028D7346000FC080A /* DefaultShady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754C8D28D7346000FC080A /* DefaultShady.swift */; };
+		36754D1228D75A1000FC080A /* Radii.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD028D75A0F00FC080A /* Radii.swift */; };
+		36754D1328D75A1000FC080A /* Margin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD228D75A0F00FC080A /* Margin.swift */; };
+		36754D1428D75A1000FC080A /* Gap.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD328D75A0F00FC080A /* Gap.swift */; };
+		36754D1528D75A1000FC080A /* SoramitsuLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD428D75A0F00FC080A /* SoramitsuLayout.swift */; };
+		36754D1628D75A1000FC080A /* Padding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD528D75A0F00FC080A /* Padding.swift */; };
+		36754D1728D75A1000FC080A /* ShadowData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD728D75A0F00FC080A /* ShadowData.swift */; };
+		36754D1828D75A1000FC080A /* Shadow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD828D75A0F00FC080A /* Shadow.swift */; };
+		36754D1928D75A1000FC080A /* Shady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CD928D75A0F00FC080A /* Shady.swift */; };
+		36754D1A28D75A1000FC080A /* States.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CDB28D75A0F00FC080A /* States.swift */; };
+		36754D1B28D75A1000FC080A /* SoramitsuTextItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CDD28D75A0F00FC080A /* SoramitsuTextItem.swift */; };
+		36754D1C28D75A1000FC080A /* SoramitsuTextAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CDE28D75A0F00FC080A /* SoramitsuTextAttributes.swift */; };
+		36754D1D28D75A1000FC080A /* SoramitsuAttributedText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CDF28D75A0F00FC080A /* SoramitsuAttributedText.swift */; };
+		36754D1E28D75A1000FC080A /* LightStatusBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE128D75A0F00FC080A /* LightStatusBarStyle.swift */; };
+		36754D1F28D75A1000FC080A /* DarkStatusBarStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE228D75A0F00FC080A /* DarkStatusBarStyle.swift */; };
+		36754D2028D75A1000FC080A /* Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE428D75A0F00FC080A /* Helpers.swift */; };
+		36754D2128D75A1000FC080A /* SoramitsuSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE628D75A0F00FC080A /* SoramitsuSize.swift */; };
+		36754D2228D75A1000FC080A /* SoramitsuPosition.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE728D75A0F00FC080A /* SoramitsuPosition.swift */; };
+		36754D2328D75A1000FC080A /* SoramitsuInsets.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE828D75A0F00FC080A /* SoramitsuInsets.swift */; };
+		36754D2428D75A1000FC080A /* ScreenSizeMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CE928D75A0F00FC080A /* ScreenSizeMapper.swift */; };
+		36754D2528D75A1000FC080A /* SoramitsuHapticType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CEB28D75A0F00FC080A /* SoramitsuHapticType.swift */; };
+		36754D2628D75A1000FC080A /* SoramitsuHapticable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CEC28D75A0F00FC080A /* SoramitsuHapticable.swift */; };
+		36754D2728D75A1000FC080A /* SoramitsuHaptic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CED28D75A0F00FC080A /* SoramitsuHaptic.swift */; };
+		36754D2828D75A1000FC080A /* Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CEE28D75A0F00FC080A /* Utils.swift */; };
+		36754D2928D75A1000FC080A /* MainThreadChecker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CEF28D75A0F00FC080A /* MainThreadChecker.swift */; };
+		36754D2A28D75A1000FC080A /* Organism.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF128D75A0F00FC080A /* Organism.swift */; };
+		36754D2B28D75A1000FC080A /* Element.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF228D75A0F00FC080A /* Element.swift */; };
+		36754D2C28D75A1000FC080A /* Molecule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF328D75A0F00FC080A /* Molecule.swift */; };
+		36754D2D28D75A1000FC080A /* Atom.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF428D75A0F00FC080A /* Atom.swift */; };
+		36754D2E28D75A1000FC080A /* SoramitsuConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF528D75A0F00FC080A /* SoramitsuConfiguration.swift */; };
+		36754D2F28D75A1000FC080A /* SoramitsuStateDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF728D75A0F00FC080A /* SoramitsuStateDecorator.swift */; };
+		36754D3028D75A1000FC080A /* ViewControllerObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CF928D75A0F00FC080A /* ViewControllerObserver.swift */; };
+		36754D3128D75A1000FC080A /* ViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CFA28D75A0F00FC080A /* ViewObserver.swift */; };
+		36754D3228D75A1000FC080A /* ObservableViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CFB28D75A0F00FC080A /* ObservableViewController.swift */; };
+		36754D3328D75A1000FC080A /* SoramitsuBlurDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754CFC28D75A0F00FC080A /* SoramitsuBlurDecorator.swift */; };
+		36754D3428D75A1000FC080A /* AssetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0028D75A0F00FC080A /* AssetView.swift */; };
+		36754D3528D75A1000FC080A /* WalletViewMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0128D75A0F00FC080A /* WalletViewMode.swift */; };
+		36754D3628D75A1000FC080A /* SoramitsuButtonConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0328D75A0F00FC080A /* SoramitsuButtonConfiguration.swift */; };
+		36754D3728D75A1000FC080A /* SoramitsuButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0428D75A0F00FC080A /* SoramitsuButtonStyle.swift */; };
+		36754D3828D75A1000FC080A /* SoramitsuButtonType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0528D75A0F00FC080A /* SoramitsuButtonType.swift */; };
+		36754D3928D75A1000FC080A /* SoramitsuBaseButtonConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0628D75A0F00FC080A /* SoramitsuBaseButtonConfiguration.swift */; };
+		36754D3A28D75A1000FC080A /* SoramitsuButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0728D75A0F00FC080A /* SoramitsuButton.swift */; };
+		36754D3B28D75A1000FC080A /* SoramitsuLabelConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0A28D75A1000FC080A /* SoramitsuLabelConfiguration.swift */; };
+		36754D3C28D75A1000FC080A /* SoramitsuLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0B28D75A1000FC080A /* SoramitsuLabel.swift */; };
+		36754D3D28D75A1000FC080A /* SoramitsuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0D28D75A1000FC080A /* SoramitsuView.swift */; };
+		36754D3E28D75A1000FC080A /* SoramitsuViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D0E28D75A1000FC080A /* SoramitsuViewConfiguration.swift */; };
+		36754D3F28D75A1000FC080A /* SoramitsuControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D1028D75A1000FC080A /* SoramitsuControl.swift */; };
+		36754D4028D75A1000FC080A /* SoramitsuControlConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D1128D75A1000FC080A /* SoramitsuControlConfiguration.swift */; };
+		36754D4228D7AAD600FC080A /* AssetViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D4128D7AAD600FC080A /* AssetViewConfiguration.swift */; };
+		36754D4828D7BA3500FC080A /* ImageButtonConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D4628D7BA3400FC080A /* ImageButtonConfiguration.swift */; };
+		36754D4928D7BA3500FC080A /* ImageButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36754D4728D7BA3500FC080A /* ImageButton.swift */; };
+		3677732828DB8BCB00D235B3 /* CustomVisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3677732728DB8BCB00D235B3 /* CustomVisualEffectView.swift */; };
+		3677732D28DB8D0100D235B3 /* BlurViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3677732C28DB8D0100D235B3 /* BlurViewController.swift */; };
+		36B4187128E379270045FF39 /* SoramitsuStatusBarManaging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4186C28E379270045FF39 /* SoramitsuStatusBarManaging.swift */; };
+		36B4187228E379270045FF39 /* SoramitsuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4186D28E379270045FF39 /* SoramitsuViewController.swift */; };
+		36B4187328E379270045FF39 /* SoramitsuViewControllerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4186E28E379270045FF39 /* SoramitsuViewControllerConfiguration.swift */; };
+		36B4187428E379270045FF39 /* SoramitsuBaseViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4187028E379270045FF39 /* SoramitsuBaseViewController.swift */; };
+		36B4187728E37F870045FF39 /* TabBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4187628E37F870045FF39 /* TabBar.swift */; };
+		36B4188D28E9E2CC0045FF39 /* SoramitsuImageViewImageView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4188B28E9E2CC0045FF39 /* SoramitsuImageViewImageView.swift */; };
+		36B4188E28E9E2CC0045FF39 /* SoramitsuImageViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4188C28E9E2CC0045FF39 /* SoramitsuImageViewConfiguration.swift */; };
+		36B4189128E9E3AE0045FF39 /* Picture.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189028E9E3AE0045FF39 /* Picture.swift */; };
+		36B4189528E9E4E80045FF39 /* SoramitsuStackView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189328E9E4E80045FF39 /* SoramitsuStackView.swift */; };
+		36B4189628E9E4E80045FF39 /* SoramitsuStackViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189428E9E4E80045FF39 /* SoramitsuStackViewConfiguration.swift */; };
+		36B418B828EA1C330045FF39 /* SoramitsuTableViewPaginationHandlerProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189928EA1C330045FF39 /* SoramitsuTableViewPaginationHandlerProtocol.swift */; };
+		36B418B928EA1C330045FF39 /* SoramitsuTableViewBasicPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189A28EA1C330045FF39 /* SoramitsuTableViewBasicPagination.swift */; };
+		36B418BA28EA1C330045FF39 /* SoramitsuTableViewPaginator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189B28EA1C330045FF39 /* SoramitsuTableViewPaginator.swift */; };
+		36B418BB28EA1C330045FF39 /* SoramitsuTableViewTopPagination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189C28EA1C330045FF39 /* SoramitsuTableViewTopPagination.swift */; };
+		36B418BC28EA1C330045FF39 /* SoramitsuTableViewFoldableSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189D28EA1C330045FF39 /* SoramitsuTableViewFoldableSection.swift */; };
+		36B418BD28EA1C330045FF39 /* SoramitsuLoadingTableViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4189F28EA1C330045FF39 /* SoramitsuLoadingTableViewItem.swift */; };
+		36B418BE28EA1C330045FF39 /* SoramitsuLoadingTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A028EA1C330045FF39 /* SoramitsuLoadingTableViewCell.swift */; };
+		36B418BF28EA1C330045FF39 /* SoramitsuLoadingTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A128EA1C330045FF39 /* SoramitsuLoadingTableViewSection.swift */; };
+		36B418C028EA1C330045FF39 /* SoramitsuTableViewType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A228EA1C330045FF39 /* SoramitsuTableViewType.swift */; };
+		36B418C128EA1C330045FF39 /* SoramitsuTableViewSectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A328EA1C330045FF39 /* SoramitsuTableViewSectionProtocol.swift */; };
+		36B418C228EA1C330045FF39 /* SoramitsuTableViewObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A428EA1C330045FF39 /* SoramitsuTableViewObserver.swift */; };
+		36B418C328EA1C330045FF39 /* SoramitsuTableViewTitledHeaderCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A728EA1C330045FF39 /* SoramitsuTableViewTitledHeaderCell.swift */; };
+		36B418C428EA1C330045FF39 /* SoramitsuTableViewTitledHeader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418A828EA1C330045FF39 /* SoramitsuTableViewTitledHeader.swift */; };
+		36B418C528EA1C330045FF39 /* SoramitsuPlainTableViewDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418AA28EA1C330045FF39 /* SoramitsuPlainTableViewDescriptor.swift */; };
+		36B418C628EA1C330045FF39 /* SoramitsuGroupedTableViewDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418AB28EA1C330045FF39 /* SoramitsuGroupedTableViewDescriptor.swift */; };
+		36B418C728EA1C330045FF39 /* SoramitsuTableViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418AC28EA1C330045FF39 /* SoramitsuTableViewConfiguration.swift */; };
+		36B418C828EA1C330045FF39 /* SoramitsuTableViewSection.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418AD28EA1C330045FF39 /* SoramitsuTableViewSection.swift */; };
+		36B418C928EA1C330045FF39 /* SoramitsuMenuItemAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418AE28EA1C330045FF39 /* SoramitsuMenuItemAction.swift */; };
+		36B418CA28EA1C330045FF39 /* SoramitsuTableViewSpacerItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B128EA1C330045FF39 /* SoramitsuTableViewSpacerItem.swift */; };
+		36B418CB28EA1C330045FF39 /* SoramitsuTableViewSpaceView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B228EA1C330045FF39 /* SoramitsuTableViewSpaceView.swift */; };
+		36B418CC28EA1C330045FF39 /* SoramitsuTableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B328EA1C330045FF39 /* SoramitsuTableView.swift */; };
+		36B418CD28EA1C330045FF39 /* SoramitsuScrollViewContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B428EA1C330045FF39 /* SoramitsuScrollViewContext.swift */; };
+		36B418CE28EA1C330045FF39 /* SoramitsuTableViewCellProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B528EA1C330045FF39 /* SoramitsuTableViewCellProtocol.swift */; };
+		36B418CF28EA1C330045FF39 /* SoramitsuCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B628EA1C330045FF39 /* SoramitsuCell.swift */; };
+		36B418D028EA1C330045FF39 /* SoramitsuTableViewItemProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418B728EA1C330045FF39 /* SoramitsuTableViewItemProtocol.swift */; };
+		36B418D428EA24410045FF39 /* SoramitsuLoadingIndicatable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418D228EA24410045FF39 /* SoramitsuLoadingIndicatable.swift */; };
+		36B418D528EA24410045FF39 /* SoramitsuLoadingPlaceholderDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418D328EA24410045FF39 /* SoramitsuLoadingPlaceholderDecorator.swift */; };
+		36B418D928EA25710045FF39 /* SoramitsuShimmerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418D728EA25710045FF39 /* SoramitsuShimmerView.swift */; };
+		36B418DA28EA25710045FF39 /* SoramitsuShimmerViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418D828EA25710045FF39 /* SoramitsuShimmerViewConfiguration.swift */; };
+		36B418DD28EA26690045FF39 /* DispatchQueue+Gecko.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418DC28EA26690045FF39 /* DispatchQueue+Gecko.swift */; };
+		36B418E028EA26AD0045FF39 /* GElementDescriptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418DF28EA26AD0045FF39 /* GElementDescriptor.swift */; };
+		36B418E228EA27A20045FF39 /* Array+SoramitsuUI.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418E128EA27A20045FF39 /* Array+SoramitsuUI.swift */; };
+		36B418E628EA2B770045FF39 /* SoramitsuScrollViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418E428EA2B770045FF39 /* SoramitsuScrollViewConfiguration.swift */; };
+		36B418E728EA2B770045FF39 /* SoramitsuScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418E528EA2B770045FF39 /* SoramitsuScrollView.swift */; };
+		36B418EB28EA2C720045FF39 /* SoramitsuTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418E928EA2C720045FF39 /* SoramitsuTableViewCell.swift */; };
+		36B418EC28EA2C720045FF39 /* SoramitsuTableViewCellConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418EA28EA2C720045FF39 /* SoramitsuTableViewCellConfiguration.swift */; };
+		36B418EE28EA2D6B0045FF39 /* Array+SoramitsuTableViewSectionProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418ED28EA2D6B0045FF39 /* Array+SoramitsuTableViewSectionProtocol.swift */; };
+		36B418F028EA2D9B0045FF39 /* ScrollViewContentInsetsHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418EF28EA2D9B0045FF39 /* ScrollViewContentInsetsHelper.swift */; };
+		36B418F228EA2E120045FF39 /* KeyboardEventsListnerHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418F128EA2E120045FF39 /* KeyboardEventsListnerHelper.swift */; };
+		36B418F828EA2EA60045FF39 /* SoramitsuActivityIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418F528EA2EA50045FF39 /* SoramitsuActivityIndicatorView.swift */; };
+		36B418F928EA2EA60045FF39 /* SoramitsuActivityIndicatorViewConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418F628EA2EA50045FF39 /* SoramitsuActivityIndicatorViewConfiguration.swift */; };
+		36B418FB28EA2FE10045FF39 /* Math.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418FA28EA2FE10045FF39 /* Math.swift */; };
+		36B418FF28EA30660045FF39 /* SoramitsuTapGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418FD28EA30660045FF39 /* SoramitsuTapGestureRecognizer.swift */; };
+		36B4190028EA30660045FF39 /* SoramitsuPanGestureRecognizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B418FE28EA30660045FF39 /* SoramitsuPanGestureRecognizer.swift */; };
+		36B4190228EA31A20045FF39 /* CABasicAnimation+Convenience.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36B4190128EA31A20045FF39 /* CABasicAnimation+Convenience.swift */; };
+		36F94EE2291E727900E211FE /* InputAssetField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F94EE0291E727900E211FE /* InputAssetField.swift */; };
+		36F94EE3291E727900E211FE /* InputAssetFieldConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 36F94EE1291E727900E211FE /* InputAssetFieldConfiguration.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		3613BBD5288702BD009F3E5A /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 3613BBC0288702BD009F3E5A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 3613BBC8288702BD009F3E5A;
+			remoteInfo = SoraSwiftUI;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		3613BBC9288702BD009F3E5A /* SoraSwiftUI.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SoraSwiftUI.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		3613BBCC288702BD009F3E5A /* SoraSwiftUI.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SoraSwiftUI.h; sourceTree = "<group>"; };
+		3613BBCD288702BD009F3E5A /* SoraSwiftUI.docc */ = {isa = PBXFileReference; lastKnownFileType = folder.documentationcatalog; path = SoraSwiftUI.docc; sourceTree = "<group>"; };
+		3613BBD3288702BD009F3E5A /* SoraSwiftUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SoraSwiftUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3613BBD8288702BD009F3E5A /* SoraSwiftUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraSwiftUITests.swift; sourceTree = "<group>"; };
+		3613BBE5288702E6009F3E5A /* Fonts.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Fonts.swift; sourceTree = "<group>"; };
+		3613BBE6288702E6009F3E5A /* Colors.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Colors.swift; sourceTree = "<group>"; };
+		3613BBE9288702E6009F3E5A /* Config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = Config.json; sourceTree = "<group>"; };
+		3613BBEA288702E6009F3E5A /* main.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = main.swift; sourceTree = "<group>"; };
+		3613D6A6290EF05900B0D027 /* HistoryTransactionView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoryTransactionView.swift; sourceTree = "<group>"; };
+		3613D6A7290EF05900B0D027 /* HistoryTransactionViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HistoryTransactionViewConfiguration.swift; sourceTree = "<group>"; };
+		361EF58D2913031A00D0DCCF /* SoramitsuOverlayDecorator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuOverlayDecorator.swift; sourceTree = "<group>"; };
+		3622A1E228DDF05900FE36CD /* InputField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputField.swift; sourceTree = "<group>"; };
+		3622A1E428DDF09B00FE36CD /* InputFieldConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InputFieldConfiguration.swift; sourceTree = "<group>"; };
+		3622A1E728DF636700FE36CD /* SoramitsuTextField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTextField.swift; sourceTree = "<group>"; };
+		3622A1E828DF636700FE36CD /* SoramitsuTextFieldConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTextFieldConfiguration.swift; sourceTree = "<group>"; };
+		3625F35928880B260028139A /* CornerRadius.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CornerRadius.swift; sourceTree = "<group>"; };
+		3625F3662888671E0028139A /* SoramitsuColor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuColor.swift; sourceTree = "<group>"; };
+		36286025291FE80C0000A561 /* NSObject+SoramitsuColorable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSObject+SoramitsuColorable.swift"; sourceTree = "<group>"; };
+		36356B4F2919384100CD3E9E /* PoolView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolView.swift; sourceTree = "<group>"; };
+		36356B512919384200CD3E9E /* PoolViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PoolViewConfiguration.swift; sourceTree = "<group>"; };
+		3662632728D2704700C1A669 /* info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = info.plist; sourceTree = "<group>"; };
+		36754C0A28D710F300FC080A /* FontData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FontData.swift; sourceTree = "<group>"; };
+		36754C2728D718A900FC080A /* SoramitsuUI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoramitsuUI.swift; sourceTree = "<group>"; };
+		36754C2A28D7198100FC080A /* SoramitsuStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuStyle.swift; sourceTree = "<group>"; };
+		36754C2B28D7198100FC080A /* ObservationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservationProtocols.swift; sourceTree = "<group>"; };
+		36754C2C28D7198100FC080A /* ThemeStorage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeStorage.swift; sourceTree = "<group>"; };
+		36754C2D28D7198100FC080A /* ThemeManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
+		36754C2E28D7198100FC080A /* UpdateOptions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UpdateOptions.swift; sourceTree = "<group>"; };
+		36754C3428D71A2300FC080A /* SoramitsuThemeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuThemeType.swift; sourceTree = "<group>"; };
+		36754C3628D71D3100FC080A /* StatusBarStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StatusBarStyle.swift; sourceTree = "<group>"; };
+		36754C3828D71DEA00FC080A /* Palette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Palette.swift; sourceTree = "<group>"; };
+		36754C4628D7259A00FC080A /* LightPalette.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LightPalette.swift; sourceTree = "<group>"; };
+		36754C4728D7259A00FC080A /* DarkPalette.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DarkPalette.swift; sourceTree = "<group>"; };
+		36754C8B28D7345F00FC080A /* DefaultRadii.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultRadii.swift; sourceTree = "<group>"; };
+		36754C8C28D7346000FC080A /* DefaultLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultLayout.swift; sourceTree = "<group>"; };
+		36754C8D28D7346000FC080A /* DefaultShady.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DefaultShady.swift; sourceTree = "<group>"; };
+		36754CD028D75A0F00FC080A /* Radii.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Radii.swift; sourceTree = "<group>"; };
+		36754CD228D75A0F00FC080A /* Margin.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Margin.swift; sourceTree = "<group>"; };
+		36754CD328D75A0F00FC080A /* Gap.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Gap.swift; sourceTree = "<group>"; };
+		36754CD428D75A0F00FC080A /* SoramitsuLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLayout.swift; sourceTree = "<group>"; };
+		36754CD528D75A0F00FC080A /* Padding.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Padding.swift; sourceTree = "<group>"; };
+		36754CD728D75A0F00FC080A /* ShadowData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ShadowData.swift; sourceTree = "<group>"; };
+		36754CD828D75A0F00FC080A /* Shadow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shadow.swift; sourceTree = "<group>"; };
+		36754CD928D75A0F00FC080A /* Shady.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Shady.swift; sourceTree = "<group>"; };
+		36754CDB28D75A0F00FC080A /* States.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = States.swift; sourceTree = "<group>"; };
+		36754CDD28D75A0F00FC080A /* SoramitsuTextItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTextItem.swift; sourceTree = "<group>"; };
+		36754CDE28D75A0F00FC080A /* SoramitsuTextAttributes.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTextAttributes.swift; sourceTree = "<group>"; };
+		36754CDF28D75A0F00FC080A /* SoramitsuAttributedText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuAttributedText.swift; sourceTree = "<group>"; };
+		36754CE128D75A0F00FC080A /* LightStatusBarStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LightStatusBarStyle.swift; sourceTree = "<group>"; };
+		36754CE228D75A0F00FC080A /* DarkStatusBarStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DarkStatusBarStyle.swift; sourceTree = "<group>"; };
+		36754CE428D75A0F00FC080A /* Helpers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helpers.swift; sourceTree = "<group>"; };
+		36754CE628D75A0F00FC080A /* SoramitsuSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuSize.swift; sourceTree = "<group>"; };
+		36754CE728D75A0F00FC080A /* SoramitsuPosition.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuPosition.swift; sourceTree = "<group>"; };
+		36754CE828D75A0F00FC080A /* SoramitsuInsets.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuInsets.swift; sourceTree = "<group>"; };
+		36754CE928D75A0F00FC080A /* ScreenSizeMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenSizeMapper.swift; sourceTree = "<group>"; };
+		36754CEB28D75A0F00FC080A /* SoramitsuHapticType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuHapticType.swift; sourceTree = "<group>"; };
+		36754CEC28D75A0F00FC080A /* SoramitsuHapticable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuHapticable.swift; sourceTree = "<group>"; };
+		36754CED28D75A0F00FC080A /* SoramitsuHaptic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuHaptic.swift; sourceTree = "<group>"; };
+		36754CEE28D75A0F00FC080A /* Utils.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Utils.swift; sourceTree = "<group>"; };
+		36754CEF28D75A0F00FC080A /* MainThreadChecker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainThreadChecker.swift; sourceTree = "<group>"; };
+		36754CF128D75A0F00FC080A /* Organism.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Organism.swift; sourceTree = "<group>"; };
+		36754CF228D75A0F00FC080A /* Element.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Element.swift; sourceTree = "<group>"; };
+		36754CF328D75A0F00FC080A /* Molecule.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Molecule.swift; sourceTree = "<group>"; };
+		36754CF428D75A0F00FC080A /* Atom.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Atom.swift; sourceTree = "<group>"; };
+		36754CF528D75A0F00FC080A /* SoramitsuConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuConfiguration.swift; sourceTree = "<group>"; };
+		36754CF728D75A0F00FC080A /* SoramitsuStateDecorator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuStateDecorator.swift; sourceTree = "<group>"; };
+		36754CF928D75A0F00FC080A /* ViewControllerObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewControllerObserver.swift; sourceTree = "<group>"; };
+		36754CFA28D75A0F00FC080A /* ViewObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewObserver.swift; sourceTree = "<group>"; };
+		36754CFB28D75A0F00FC080A /* ObservableViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ObservableViewController.swift; sourceTree = "<group>"; };
+		36754CFC28D75A0F00FC080A /* SoramitsuBlurDecorator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuBlurDecorator.swift; sourceTree = "<group>"; };
+		36754D0028D75A0F00FC080A /* AssetView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetView.swift; sourceTree = "<group>"; };
+		36754D0128D75A0F00FC080A /* WalletViewMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletViewMode.swift; sourceTree = "<group>"; };
+		36754D0328D75A0F00FC080A /* SoramitsuButtonConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuButtonConfiguration.swift; sourceTree = "<group>"; };
+		36754D0428D75A0F00FC080A /* SoramitsuButtonStyle.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuButtonStyle.swift; sourceTree = "<group>"; };
+		36754D0528D75A0F00FC080A /* SoramitsuButtonType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuButtonType.swift; sourceTree = "<group>"; };
+		36754D0628D75A0F00FC080A /* SoramitsuBaseButtonConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuBaseButtonConfiguration.swift; sourceTree = "<group>"; };
+		36754D0728D75A0F00FC080A /* SoramitsuButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuButton.swift; sourceTree = "<group>"; };
+		36754D0A28D75A1000FC080A /* SoramitsuLabelConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLabelConfiguration.swift; sourceTree = "<group>"; };
+		36754D0B28D75A1000FC080A /* SoramitsuLabel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLabel.swift; sourceTree = "<group>"; };
+		36754D0D28D75A1000FC080A /* SoramitsuView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuView.swift; sourceTree = "<group>"; };
+		36754D0E28D75A1000FC080A /* SoramitsuViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuViewConfiguration.swift; sourceTree = "<group>"; };
+		36754D1028D75A1000FC080A /* SoramitsuControl.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuControl.swift; sourceTree = "<group>"; };
+		36754D1128D75A1000FC080A /* SoramitsuControlConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuControlConfiguration.swift; sourceTree = "<group>"; };
+		36754D4128D7AAD600FC080A /* AssetViewConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetViewConfiguration.swift; sourceTree = "<group>"; };
+		36754D4628D7BA3400FC080A /* ImageButtonConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageButtonConfiguration.swift; sourceTree = "<group>"; };
+		36754D4728D7BA3500FC080A /* ImageButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageButton.swift; sourceTree = "<group>"; };
+		3677732728DB8BCB00D235B3 /* CustomVisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomVisualEffectView.swift; sourceTree = "<group>"; };
+		3677732C28DB8D0100D235B3 /* BlurViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BlurViewController.swift; sourceTree = "<group>"; };
+		36B4186C28E379270045FF39 /* SoramitsuStatusBarManaging.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuStatusBarManaging.swift; sourceTree = "<group>"; };
+		36B4186D28E379270045FF39 /* SoramitsuViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuViewController.swift; sourceTree = "<group>"; };
+		36B4186E28E379270045FF39 /* SoramitsuViewControllerConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuViewControllerConfiguration.swift; sourceTree = "<group>"; };
+		36B4187028E379270045FF39 /* SoramitsuBaseViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuBaseViewController.swift; sourceTree = "<group>"; };
+		36B4187628E37F870045FF39 /* TabBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBar.swift; sourceTree = "<group>"; };
+		36B4188B28E9E2CC0045FF39 /* SoramitsuImageViewImageView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuImageViewImageView.swift; sourceTree = "<group>"; };
+		36B4188C28E9E2CC0045FF39 /* SoramitsuImageViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuImageViewConfiguration.swift; sourceTree = "<group>"; };
+		36B4189028E9E3AE0045FF39 /* Picture.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Picture.swift; sourceTree = "<group>"; };
+		36B4189328E9E4E80045FF39 /* SoramitsuStackView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuStackView.swift; sourceTree = "<group>"; };
+		36B4189428E9E4E80045FF39 /* SoramitsuStackViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuStackViewConfiguration.swift; sourceTree = "<group>"; };
+		36B4189928EA1C330045FF39 /* SoramitsuTableViewPaginationHandlerProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewPaginationHandlerProtocol.swift; sourceTree = "<group>"; };
+		36B4189A28EA1C330045FF39 /* SoramitsuTableViewBasicPagination.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewBasicPagination.swift; sourceTree = "<group>"; };
+		36B4189B28EA1C330045FF39 /* SoramitsuTableViewPaginator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewPaginator.swift; sourceTree = "<group>"; };
+		36B4189C28EA1C330045FF39 /* SoramitsuTableViewTopPagination.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewTopPagination.swift; sourceTree = "<group>"; };
+		36B4189D28EA1C330045FF39 /* SoramitsuTableViewFoldableSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewFoldableSection.swift; sourceTree = "<group>"; };
+		36B4189F28EA1C330045FF39 /* SoramitsuLoadingTableViewItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLoadingTableViewItem.swift; sourceTree = "<group>"; };
+		36B418A028EA1C330045FF39 /* SoramitsuLoadingTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLoadingTableViewCell.swift; sourceTree = "<group>"; };
+		36B418A128EA1C330045FF39 /* SoramitsuLoadingTableViewSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLoadingTableViewSection.swift; sourceTree = "<group>"; };
+		36B418A228EA1C330045FF39 /* SoramitsuTableViewType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewType.swift; sourceTree = "<group>"; };
+		36B418A328EA1C330045FF39 /* SoramitsuTableViewSectionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewSectionProtocol.swift; sourceTree = "<group>"; };
+		36B418A428EA1C330045FF39 /* SoramitsuTableViewObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewObserver.swift; sourceTree = "<group>"; };
+		36B418A728EA1C330045FF39 /* SoramitsuTableViewTitledHeaderCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewTitledHeaderCell.swift; sourceTree = "<group>"; };
+		36B418A828EA1C330045FF39 /* SoramitsuTableViewTitledHeader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewTitledHeader.swift; sourceTree = "<group>"; };
+		36B418AA28EA1C330045FF39 /* SoramitsuPlainTableViewDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuPlainTableViewDescriptor.swift; sourceTree = "<group>"; };
+		36B418AB28EA1C330045FF39 /* SoramitsuGroupedTableViewDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuGroupedTableViewDescriptor.swift; sourceTree = "<group>"; };
+		36B418AC28EA1C330045FF39 /* SoramitsuTableViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewConfiguration.swift; sourceTree = "<group>"; };
+		36B418AD28EA1C330045FF39 /* SoramitsuTableViewSection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewSection.swift; sourceTree = "<group>"; };
+		36B418AE28EA1C330045FF39 /* SoramitsuMenuItemAction.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuMenuItemAction.swift; sourceTree = "<group>"; };
+		36B418B128EA1C330045FF39 /* SoramitsuTableViewSpacerItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewSpacerItem.swift; sourceTree = "<group>"; };
+		36B418B228EA1C330045FF39 /* SoramitsuTableViewSpaceView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewSpaceView.swift; sourceTree = "<group>"; };
+		36B418B328EA1C330045FF39 /* SoramitsuTableView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableView.swift; sourceTree = "<group>"; };
+		36B418B428EA1C330045FF39 /* SoramitsuScrollViewContext.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuScrollViewContext.swift; sourceTree = "<group>"; };
+		36B418B528EA1C330045FF39 /* SoramitsuTableViewCellProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewCellProtocol.swift; sourceTree = "<group>"; };
+		36B418B628EA1C330045FF39 /* SoramitsuCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuCell.swift; sourceTree = "<group>"; };
+		36B418B728EA1C330045FF39 /* SoramitsuTableViewItemProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewItemProtocol.swift; sourceTree = "<group>"; };
+		36B418D228EA24410045FF39 /* SoramitsuLoadingIndicatable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLoadingIndicatable.swift; sourceTree = "<group>"; };
+		36B418D328EA24410045FF39 /* SoramitsuLoadingPlaceholderDecorator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuLoadingPlaceholderDecorator.swift; sourceTree = "<group>"; };
+		36B418D728EA25710045FF39 /* SoramitsuShimmerView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuShimmerView.swift; sourceTree = "<group>"; };
+		36B418D828EA25710045FF39 /* SoramitsuShimmerViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuShimmerViewConfiguration.swift; sourceTree = "<group>"; };
+		36B418DC28EA26690045FF39 /* DispatchQueue+Gecko.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchQueue+Gecko.swift"; sourceTree = "<group>"; };
+		36B418DF28EA26AD0045FF39 /* GElementDescriptor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GElementDescriptor.swift; sourceTree = "<group>"; };
+		36B418E128EA27A20045FF39 /* Array+SoramitsuUI.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+SoramitsuUI.swift"; sourceTree = "<group>"; };
+		36B418E428EA2B770045FF39 /* SoramitsuScrollViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuScrollViewConfiguration.swift; sourceTree = "<group>"; };
+		36B418E528EA2B770045FF39 /* SoramitsuScrollView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuScrollView.swift; sourceTree = "<group>"; };
+		36B418E928EA2C720045FF39 /* SoramitsuTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewCell.swift; sourceTree = "<group>"; };
+		36B418EA28EA2C720045FF39 /* SoramitsuTableViewCellConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTableViewCellConfiguration.swift; sourceTree = "<group>"; };
+		36B418ED28EA2D6B0045FF39 /* Array+SoramitsuTableViewSectionProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Array+SoramitsuTableViewSectionProtocol.swift"; sourceTree = "<group>"; };
+		36B418EF28EA2D9B0045FF39 /* ScrollViewContentInsetsHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollViewContentInsetsHelper.swift; sourceTree = "<group>"; };
+		36B418F128EA2E120045FF39 /* KeyboardEventsListnerHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeyboardEventsListnerHelper.swift; sourceTree = "<group>"; };
+		36B418F528EA2EA50045FF39 /* SoramitsuActivityIndicatorView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuActivityIndicatorView.swift; sourceTree = "<group>"; };
+		36B418F628EA2EA50045FF39 /* SoramitsuActivityIndicatorViewConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuActivityIndicatorViewConfiguration.swift; sourceTree = "<group>"; };
+		36B418FA28EA2FE10045FF39 /* Math.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Math.swift; sourceTree = "<group>"; };
+		36B418FD28EA30660045FF39 /* SoramitsuTapGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuTapGestureRecognizer.swift; sourceTree = "<group>"; };
+		36B418FE28EA30660045FF39 /* SoramitsuPanGestureRecognizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoramitsuPanGestureRecognizer.swift; sourceTree = "<group>"; };
+		36B4190128EA31A20045FF39 /* CABasicAnimation+Convenience.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "CABasicAnimation+Convenience.swift"; sourceTree = "<group>"; };
+		36F94EE0291E727900E211FE /* InputAssetField.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputAssetField.swift; sourceTree = "<group>"; };
+		36F94EE1291E727900E211FE /* InputAssetFieldConfiguration.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InputAssetFieldConfiguration.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		3613BBC6288702BD009F3E5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3613BBD0288702BD009F3E5A /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3613BBD4288702BD009F3E5A /* SoraSwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		3613BBBF288702BD009F3E5A = {
+			isa = PBXGroup;
+			children = (
+				3613BBCB288702BD009F3E5A /* SoraSwiftUI */,
+				3613BBD7288702BD009F3E5A /* SoraSwiftUITests */,
+				3613BBCA288702BD009F3E5A /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		3613BBCA288702BD009F3E5A /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3613BBC9288702BD009F3E5A /* SoraSwiftUI.framework */,
+				3613BBD3288702BD009F3E5A /* SoraSwiftUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		3613BBCB288702BD009F3E5A /* SoraSwiftUI */ = {
+			isa = PBXGroup;
+			children = (
+				3613BBE3288702E6009F3E5A /* Sources */,
+				3613BBCC288702BD009F3E5A /* SoraSwiftUI.h */,
+				3613BBCD288702BD009F3E5A /* SoraSwiftUI.docc */,
+				3662632728D2704700C1A669 /* info.plist */,
+			);
+			path = SoraSwiftUI;
+			sourceTree = "<group>";
+		};
+		3613BBD7288702BD009F3E5A /* SoraSwiftUITests */ = {
+			isa = PBXGroup;
+			children = (
+				3613BBD8288702BD009F3E5A /* SoraSwiftUITests.swift */,
+			);
+			path = SoraSwiftUITests;
+			sourceTree = "<group>";
+		};
+		3613BBE3288702E6009F3E5A /* Sources */ = {
+			isa = PBXGroup;
+			children = (
+				36B418DB28EA265A0045FF39 /* Utils */,
+				3677732928DB8BD200D235B3 /* Blur */,
+				3625F361288864030028139A /* Core */,
+				3613BBFC28871A3B009F3E5A /* Components */,
+				3613BBE4288702E6009F3E5A /* Codegen */,
+				3613BBE8288702E6009F3E5A /* Scripts */,
+			);
+			path = Sources;
+			sourceTree = "<group>";
+		};
+		3613BBE4288702E6009F3E5A /* Codegen */ = {
+			isa = PBXGroup;
+			children = (
+				36754C4728D7259A00FC080A /* DarkPalette.swift */,
+				36754C4628D7259A00FC080A /* LightPalette.swift */,
+				3625F3662888671E0028139A /* SoramitsuColor.swift */,
+				3625F35928880B260028139A /* CornerRadius.swift */,
+				3613BBE5288702E6009F3E5A /* Fonts.swift */,
+				3613BBE6288702E6009F3E5A /* Colors.swift */,
+			);
+			path = Codegen;
+			sourceTree = "<group>";
+		};
+		3613BBE8288702E6009F3E5A /* Scripts */ = {
+			isa = PBXGroup;
+			children = (
+				3613BBE9288702E6009F3E5A /* Config.json */,
+				3613BBEA288702E6009F3E5A /* main.swift */,
+			);
+			path = Scripts;
+			sourceTree = "<group>";
+		};
+		3613BBFC28871A3B009F3E5A /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				36B418DE28EA269C0045FF39 /* Descriptors */,
+				3677732B28DB8CF400D235B3 /* Organisms */,
+				36754CF028D75A0F00FC080A /* Protocols */,
+				36754CF628D75A0F00FC080A /* Decorators */,
+				36754CCE28D75A0F00FC080A /* Quarks */,
+				36754D0828D75A1000FC080A /* Atoms */,
+				36754CFE28D75A0F00FC080A /* Molecules */,
+				36754CE328D75A0F00FC080A /* Utils */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
+		3613D6A5290EF02E00B0D027 /* History */ = {
+			isa = PBXGroup;
+			children = (
+				3613D6A6290EF05900B0D027 /* HistoryTransactionView.swift */,
+				3613D6A7290EF05900B0D027 /* HistoryTransactionViewConfiguration.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		3622A1E128DDEF2700FE36CD /* InputField */ = {
+			isa = PBXGroup;
+			children = (
+				3622A1E228DDF05900FE36CD /* InputField.swift */,
+				3622A1E428DDF09B00FE36CD /* InputFieldConfiguration.swift */,
+			);
+			path = InputField;
+			sourceTree = "<group>";
+		};
+		3622A1E628DF634B00FE36CD /* TextField */ = {
+			isa = PBXGroup;
+			children = (
+				3622A1E728DF636700FE36CD /* SoramitsuTextField.swift */,
+				3622A1E828DF636700FE36CD /* SoramitsuTextFieldConfiguration.swift */,
+			);
+			path = TextField;
+			sourceTree = "<group>";
+		};
+		3625F361288864030028139A /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				36754C8A28D7344900FC080A /* Configuration */,
+				36754C2928D7198100FC080A /* Style */,
+				36754C0A28D710F300FC080A /* FontData.swift */,
+				36754C2728D718A900FC080A /* SoramitsuUI.swift */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		36356B4E2919380400CD3E9E /* Pool */ = {
+			isa = PBXGroup;
+			children = (
+				36356B4F2919384100CD3E9E /* PoolView.swift */,
+				36356B512919384200CD3E9E /* PoolViewConfiguration.swift */,
+			);
+			path = Pool;
+			sourceTree = "<group>";
+		};
+		36754C2928D7198100FC080A /* Style */ = {
+			isa = PBXGroup;
+			children = (
+				36754C3628D71D3100FC080A /* StatusBarStyle.swift */,
+				36754C3428D71A2300FC080A /* SoramitsuThemeType.swift */,
+				36754C2A28D7198100FC080A /* SoramitsuStyle.swift */,
+				36754C2B28D7198100FC080A /* ObservationProtocols.swift */,
+				36754C2C28D7198100FC080A /* ThemeStorage.swift */,
+				36754C2D28D7198100FC080A /* ThemeManager.swift */,
+				36754C2E28D7198100FC080A /* UpdateOptions.swift */,
+				36754C3828D71DEA00FC080A /* Palette.swift */,
+			);
+			path = Style;
+			sourceTree = "<group>";
+		};
+		36754C8A28D7344900FC080A /* Configuration */ = {
+			isa = PBXGroup;
+			children = (
+				36754C8C28D7346000FC080A /* DefaultLayout.swift */,
+				36754C8B28D7345F00FC080A /* DefaultRadii.swift */,
+				36754C8D28D7346000FC080A /* DefaultShady.swift */,
+			);
+			path = Configuration;
+			sourceTree = "<group>";
+		};
+		36754CCE28D75A0F00FC080A /* Quarks */ = {
+			isa = PBXGroup;
+			children = (
+				36286025291FE80C0000A561 /* NSObject+SoramitsuColorable.swift */,
+				36B4188F28E9E38E0045FF39 /* Album */,
+				36754CCF28D75A0F00FC080A /* Radii */,
+				36754CD128D75A0F00FC080A /* Layout */,
+				36754CD628D75A0F00FC080A /* Shadow */,
+				36754CDA28D75A0F00FC080A /* States */,
+				36754CDC28D75A0F00FC080A /* AttributedText */,
+				36754CE028D75A0F00FC080A /* StatusBarStyle */,
+			);
+			path = Quarks;
+			sourceTree = "<group>";
+		};
+		36754CCF28D75A0F00FC080A /* Radii */ = {
+			isa = PBXGroup;
+			children = (
+				36754CD028D75A0F00FC080A /* Radii.swift */,
+			);
+			path = Radii;
+			sourceTree = "<group>";
+		};
+		36754CD128D75A0F00FC080A /* Layout */ = {
+			isa = PBXGroup;
+			children = (
+				36754CD228D75A0F00FC080A /* Margin.swift */,
+				36754CD328D75A0F00FC080A /* Gap.swift */,
+				36754CD428D75A0F00FC080A /* SoramitsuLayout.swift */,
+				36754CD528D75A0F00FC080A /* Padding.swift */,
+			);
+			path = Layout;
+			sourceTree = "<group>";
+		};
+		36754CD628D75A0F00FC080A /* Shadow */ = {
+			isa = PBXGroup;
+			children = (
+				36754CD728D75A0F00FC080A /* ShadowData.swift */,
+				36754CD828D75A0F00FC080A /* Shadow.swift */,
+				36754CD928D75A0F00FC080A /* Shady.swift */,
+			);
+			path = Shadow;
+			sourceTree = "<group>";
+		};
+		36754CDA28D75A0F00FC080A /* States */ = {
+			isa = PBXGroup;
+			children = (
+				36754CDB28D75A0F00FC080A /* States.swift */,
+			);
+			path = States;
+			sourceTree = "<group>";
+		};
+		36754CDC28D75A0F00FC080A /* AttributedText */ = {
+			isa = PBXGroup;
+			children = (
+				36754CDD28D75A0F00FC080A /* SoramitsuTextItem.swift */,
+				36754CDE28D75A0F00FC080A /* SoramitsuTextAttributes.swift */,
+				36754CDF28D75A0F00FC080A /* SoramitsuAttributedText.swift */,
+			);
+			path = AttributedText;
+			sourceTree = "<group>";
+		};
+		36754CE028D75A0F00FC080A /* StatusBarStyle */ = {
+			isa = PBXGroup;
+			children = (
+				36754CE128D75A0F00FC080A /* LightStatusBarStyle.swift */,
+				36754CE228D75A0F00FC080A /* DarkStatusBarStyle.swift */,
+			);
+			path = StatusBarStyle;
+			sourceTree = "<group>";
+		};
+		36754CE328D75A0F00FC080A /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				36754CE428D75A0F00FC080A /* Helpers.swift */,
+				36754CE528D75A0F00FC080A /* Models */,
+				36754CE928D75A0F00FC080A /* ScreenSizeMapper.swift */,
+				36754CEA28D75A0F00FC080A /* Haptic */,
+				36754CEE28D75A0F00FC080A /* Utils.swift */,
+				36754CEF28D75A0F00FC080A /* MainThreadChecker.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		36754CE528D75A0F00FC080A /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				36754CE628D75A0F00FC080A /* SoramitsuSize.swift */,
+				36754CE728D75A0F00FC080A /* SoramitsuPosition.swift */,
+				36754CE828D75A0F00FC080A /* SoramitsuInsets.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		36754CEA28D75A0F00FC080A /* Haptic */ = {
+			isa = PBXGroup;
+			children = (
+				36754CEB28D75A0F00FC080A /* SoramitsuHapticType.swift */,
+				36754CEC28D75A0F00FC080A /* SoramitsuHapticable.swift */,
+				36754CED28D75A0F00FC080A /* SoramitsuHaptic.swift */,
+			);
+			path = Haptic;
+			sourceTree = "<group>";
+		};
+		36754CF028D75A0F00FC080A /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				36754CF128D75A0F00FC080A /* Organism.swift */,
+				36754CF228D75A0F00FC080A /* Element.swift */,
+				36754CF328D75A0F00FC080A /* Molecule.swift */,
+				36754CF428D75A0F00FC080A /* Atom.swift */,
+				36754CF528D75A0F00FC080A /* SoramitsuConfiguration.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		36754CF628D75A0F00FC080A /* Decorators */ = {
+			isa = PBXGroup;
+			children = (
+				361EF58D2913031A00D0DCCF /* SoramitsuOverlayDecorator.swift */,
+				36B418D128EA24410045FF39 /* Loading */,
+				36754CF728D75A0F00FC080A /* SoramitsuStateDecorator.swift */,
+				36754CF828D75A0F00FC080A /* Observing */,
+				36754CFC28D75A0F00FC080A /* SoramitsuBlurDecorator.swift */,
+			);
+			path = Decorators;
+			sourceTree = "<group>";
+		};
+		36754CF828D75A0F00FC080A /* Observing */ = {
+			isa = PBXGroup;
+			children = (
+				36754CF928D75A0F00FC080A /* ViewControllerObserver.swift */,
+				36754CFA28D75A0F00FC080A /* ViewObserver.swift */,
+				36754CFB28D75A0F00FC080A /* ObservableViewController.swift */,
+			);
+			path = Observing;
+			sourceTree = "<group>";
+		};
+		36754CFE28D75A0F00FC080A /* Molecules */ = {
+			isa = PBXGroup;
+			children = (
+				36F94EDF291E724700E211FE /* InputAssetField */,
+				3613D6A5290EF02E00B0D027 /* History */,
+				36B418D628EA25710045FF39 /* ShimmerView */,
+				36B4189728EA1C330045FF39 /* TableView */,
+				36B4187528E37F700045FF39 /* Tabbar */,
+				3622A1E128DDEF2700FE36CD /* InputField */,
+				36754D4528D7B99400FC080A /* ImageButton */,
+				36356B4E2919380400CD3E9E /* Pool */,
+				36754CFF28D75A0F00FC080A /* Asset */,
+				36754D0228D75A0F00FC080A /* Button */,
+			);
+			path = Molecules;
+			sourceTree = "<group>";
+		};
+		36754CFF28D75A0F00FC080A /* Asset */ = {
+			isa = PBXGroup;
+			children = (
+				36754D0028D75A0F00FC080A /* AssetView.swift */,
+				36754D0128D75A0F00FC080A /* WalletViewMode.swift */,
+				36754D4128D7AAD600FC080A /* AssetViewConfiguration.swift */,
+			);
+			path = Asset;
+			sourceTree = "<group>";
+		};
+		36754D0228D75A0F00FC080A /* Button */ = {
+			isa = PBXGroup;
+			children = (
+				36754D0628D75A0F00FC080A /* SoramitsuBaseButtonConfiguration.swift */,
+				36754D0428D75A0F00FC080A /* SoramitsuButtonStyle.swift */,
+				36754D0328D75A0F00FC080A /* SoramitsuButtonConfiguration.swift */,
+				36754D0528D75A0F00FC080A /* SoramitsuButtonType.swift */,
+				36754D0728D75A0F00FC080A /* SoramitsuButton.swift */,
+			);
+			path = Button;
+			sourceTree = "<group>";
+		};
+		36754D0828D75A1000FC080A /* Atoms */ = {
+			isa = PBXGroup;
+			children = (
+				36B418F328EA2EA50045FF39 /* ActivityIndicatorView */,
+				36B418E828EA2C720045FF39 /* TableViewCell */,
+				36B418E328EA2B770045FF39 /* ScrollView */,
+				36B4189228E9E4E80045FF39 /* StackView */,
+				36B4188A28E9E2CC0045FF39 /* ImageView */,
+				3622A1E628DF634B00FE36CD /* TextField */,
+				36754D0928D75A1000FC080A /* Label */,
+				36754D0C28D75A1000FC080A /* View */,
+				36754D0F28D75A1000FC080A /* Control */,
+			);
+			path = Atoms;
+			sourceTree = "<group>";
+		};
+		36754D0928D75A1000FC080A /* Label */ = {
+			isa = PBXGroup;
+			children = (
+				36754D0A28D75A1000FC080A /* SoramitsuLabelConfiguration.swift */,
+				36754D0B28D75A1000FC080A /* SoramitsuLabel.swift */,
+			);
+			path = Label;
+			sourceTree = "<group>";
+		};
+		36754D0C28D75A1000FC080A /* View */ = {
+			isa = PBXGroup;
+			children = (
+				36754D0D28D75A1000FC080A /* SoramitsuView.swift */,
+				36754D0E28D75A1000FC080A /* SoramitsuViewConfiguration.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		36754D0F28D75A1000FC080A /* Control */ = {
+			isa = PBXGroup;
+			children = (
+				36754D1028D75A1000FC080A /* SoramitsuControl.swift */,
+				36754D1128D75A1000FC080A /* SoramitsuControlConfiguration.swift */,
+			);
+			path = Control;
+			sourceTree = "<group>";
+		};
+		36754D4528D7B99400FC080A /* ImageButton */ = {
+			isa = PBXGroup;
+			children = (
+				36754D4728D7BA3500FC080A /* ImageButton.swift */,
+				36754D4628D7BA3400FC080A /* ImageButtonConfiguration.swift */,
+			);
+			path = ImageButton;
+			sourceTree = "<group>";
+		};
+		3677732928DB8BD200D235B3 /* Blur */ = {
+			isa = PBXGroup;
+			children = (
+				3677732728DB8BCB00D235B3 /* CustomVisualEffectView.swift */,
+			);
+			path = Blur;
+			sourceTree = "<group>";
+		};
+		3677732B28DB8CF400D235B3 /* Organisms */ = {
+			isa = PBXGroup;
+			children = (
+				36B4186F28E379270045FF39 /* BaseViewController */,
+				36B4186B28E379270045FF39 /* ViewController */,
+				3677732C28DB8D0100D235B3 /* BlurViewController.swift */,
+			);
+			path = Organisms;
+			sourceTree = "<group>";
+		};
+		36B4186B28E379270045FF39 /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				36B4186C28E379270045FF39 /* SoramitsuStatusBarManaging.swift */,
+				36B4186D28E379270045FF39 /* SoramitsuViewController.swift */,
+				36B4186E28E379270045FF39 /* SoramitsuViewControllerConfiguration.swift */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		36B4186F28E379270045FF39 /* BaseViewController */ = {
+			isa = PBXGroup;
+			children = (
+				36B4187028E379270045FF39 /* SoramitsuBaseViewController.swift */,
+			);
+			path = BaseViewController;
+			sourceTree = "<group>";
+		};
+		36B4187528E37F700045FF39 /* Tabbar */ = {
+			isa = PBXGroup;
+			children = (
+				36B4187628E37F870045FF39 /* TabBar.swift */,
+			);
+			path = Tabbar;
+			sourceTree = "<group>";
+		};
+		36B4188A28E9E2CC0045FF39 /* ImageView */ = {
+			isa = PBXGroup;
+			children = (
+				36B4188B28E9E2CC0045FF39 /* SoramitsuImageViewImageView.swift */,
+				36B4188C28E9E2CC0045FF39 /* SoramitsuImageViewConfiguration.swift */,
+			);
+			path = ImageView;
+			sourceTree = "<group>";
+		};
+		36B4188F28E9E38E0045FF39 /* Album */ = {
+			isa = PBXGroup;
+			children = (
+				36B4189028E9E3AE0045FF39 /* Picture.swift */,
+			);
+			path = Album;
+			sourceTree = "<group>";
+		};
+		36B4189228E9E4E80045FF39 /* StackView */ = {
+			isa = PBXGroup;
+			children = (
+				36B4189328E9E4E80045FF39 /* SoramitsuStackView.swift */,
+				36B4189428E9E4E80045FF39 /* SoramitsuStackViewConfiguration.swift */,
+			);
+			path = StackView;
+			sourceTree = "<group>";
+		};
+		36B4189728EA1C330045FF39 /* TableView */ = {
+			isa = PBXGroup;
+			children = (
+				36B4189828EA1C330045FF39 /* Pagination */,
+				36B4189D28EA1C330045FF39 /* SoramitsuTableViewFoldableSection.swift */,
+				36B4189E28EA1C330045FF39 /* Loading */,
+				36B418A228EA1C330045FF39 /* SoramitsuTableViewType.swift */,
+				36B418A328EA1C330045FF39 /* SoramitsuTableViewSectionProtocol.swift */,
+				36B418A428EA1C330045FF39 /* SoramitsuTableViewObserver.swift */,
+				36B418A528EA1C330045FF39 /* Headers */,
+				36B418A928EA1C330045FF39 /* Descriptors */,
+				36B418AC28EA1C330045FF39 /* SoramitsuTableViewConfiguration.swift */,
+				36B418AD28EA1C330045FF39 /* SoramitsuTableViewSection.swift */,
+				36B418AE28EA1C330045FF39 /* SoramitsuMenuItemAction.swift */,
+				36B418AF28EA1C330045FF39 /* Items */,
+				36B418B328EA1C330045FF39 /* SoramitsuTableView.swift */,
+				36B418B428EA1C330045FF39 /* SoramitsuScrollViewContext.swift */,
+				36B418B528EA1C330045FF39 /* SoramitsuTableViewCellProtocol.swift */,
+				36B418B628EA1C330045FF39 /* SoramitsuCell.swift */,
+				36B418B728EA1C330045FF39 /* SoramitsuTableViewItemProtocol.swift */,
+			);
+			path = TableView;
+			sourceTree = "<group>";
+		};
+		36B4189828EA1C330045FF39 /* Pagination */ = {
+			isa = PBXGroup;
+			children = (
+				36B4189928EA1C330045FF39 /* SoramitsuTableViewPaginationHandlerProtocol.swift */,
+				36B4189A28EA1C330045FF39 /* SoramitsuTableViewBasicPagination.swift */,
+				36B4189B28EA1C330045FF39 /* SoramitsuTableViewPaginator.swift */,
+				36B4189C28EA1C330045FF39 /* SoramitsuTableViewTopPagination.swift */,
+			);
+			path = Pagination;
+			sourceTree = "<group>";
+		};
+		36B4189E28EA1C330045FF39 /* Loading */ = {
+			isa = PBXGroup;
+			children = (
+				36B4189F28EA1C330045FF39 /* SoramitsuLoadingTableViewItem.swift */,
+				36B418A028EA1C330045FF39 /* SoramitsuLoadingTableViewCell.swift */,
+				36B418A128EA1C330045FF39 /* SoramitsuLoadingTableViewSection.swift */,
+			);
+			path = Loading;
+			sourceTree = "<group>";
+		};
+		36B418A528EA1C330045FF39 /* Headers */ = {
+			isa = PBXGroup;
+			children = (
+				36B418A628EA1C330045FF39 /* TitledHeader */,
+			);
+			path = Headers;
+			sourceTree = "<group>";
+		};
+		36B418A628EA1C330045FF39 /* TitledHeader */ = {
+			isa = PBXGroup;
+			children = (
+				36B418A728EA1C330045FF39 /* SoramitsuTableViewTitledHeaderCell.swift */,
+				36B418A828EA1C330045FF39 /* SoramitsuTableViewTitledHeader.swift */,
+			);
+			path = TitledHeader;
+			sourceTree = "<group>";
+		};
+		36B418A928EA1C330045FF39 /* Descriptors */ = {
+			isa = PBXGroup;
+			children = (
+				36B418AA28EA1C330045FF39 /* SoramitsuPlainTableViewDescriptor.swift */,
+				36B418AB28EA1C330045FF39 /* SoramitsuGroupedTableViewDescriptor.swift */,
+			);
+			path = Descriptors;
+			sourceTree = "<group>";
+		};
+		36B418AF28EA1C330045FF39 /* Items */ = {
+			isa = PBXGroup;
+			children = (
+				36B418B028EA1C330045FF39 /* SpaceItem */,
+			);
+			path = Items;
+			sourceTree = "<group>";
+		};
+		36B418B028EA1C330045FF39 /* SpaceItem */ = {
+			isa = PBXGroup;
+			children = (
+				36B418B128EA1C330045FF39 /* SoramitsuTableViewSpacerItem.swift */,
+				36B418B228EA1C330045FF39 /* SoramitsuTableViewSpaceView.swift */,
+			);
+			path = SpaceItem;
+			sourceTree = "<group>";
+		};
+		36B418D128EA24410045FF39 /* Loading */ = {
+			isa = PBXGroup;
+			children = (
+				36B418D228EA24410045FF39 /* SoramitsuLoadingIndicatable.swift */,
+				36B418D328EA24410045FF39 /* SoramitsuLoadingPlaceholderDecorator.swift */,
+			);
+			path = Loading;
+			sourceTree = "<group>";
+		};
+		36B418D628EA25710045FF39 /* ShimmerView */ = {
+			isa = PBXGroup;
+			children = (
+				36B418D728EA25710045FF39 /* SoramitsuShimmerView.swift */,
+				36B418D828EA25710045FF39 /* SoramitsuShimmerViewConfiguration.swift */,
+			);
+			path = ShimmerView;
+			sourceTree = "<group>";
+		};
+		36B418DB28EA265A0045FF39 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				36B4190128EA31A20045FF39 /* CABasicAnimation+Convenience.swift */,
+				36B418FC28EA30660045FF39 /* Gestures */,
+				36B418FA28EA2FE10045FF39 /* Math.swift */,
+				36B418F128EA2E120045FF39 /* KeyboardEventsListnerHelper.swift */,
+				36B418EF28EA2D9B0045FF39 /* ScrollViewContentInsetsHelper.swift */,
+				36B418ED28EA2D6B0045FF39 /* Array+SoramitsuTableViewSectionProtocol.swift */,
+				36B418E128EA27A20045FF39 /* Array+SoramitsuUI.swift */,
+				36B418DC28EA26690045FF39 /* DispatchQueue+Gecko.swift */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		36B418DE28EA269C0045FF39 /* Descriptors */ = {
+			isa = PBXGroup;
+			children = (
+				36B418DF28EA26AD0045FF39 /* GElementDescriptor.swift */,
+			);
+			path = Descriptors;
+			sourceTree = "<group>";
+		};
+		36B418E328EA2B770045FF39 /* ScrollView */ = {
+			isa = PBXGroup;
+			children = (
+				36B418E428EA2B770045FF39 /* SoramitsuScrollViewConfiguration.swift */,
+				36B418E528EA2B770045FF39 /* SoramitsuScrollView.swift */,
+			);
+			path = ScrollView;
+			sourceTree = "<group>";
+		};
+		36B418E828EA2C720045FF39 /* TableViewCell */ = {
+			isa = PBXGroup;
+			children = (
+				36B418E928EA2C720045FF39 /* SoramitsuTableViewCell.swift */,
+				36B418EA28EA2C720045FF39 /* SoramitsuTableViewCellConfiguration.swift */,
+			);
+			path = TableViewCell;
+			sourceTree = "<group>";
+		};
+		36B418F328EA2EA50045FF39 /* ActivityIndicatorView */ = {
+			isa = PBXGroup;
+			children = (
+				36B418F528EA2EA50045FF39 /* SoramitsuActivityIndicatorView.swift */,
+				36B418F628EA2EA50045FF39 /* SoramitsuActivityIndicatorViewConfiguration.swift */,
+			);
+			path = ActivityIndicatorView;
+			sourceTree = "<group>";
+		};
+		36B418FC28EA30660045FF39 /* Gestures */ = {
+			isa = PBXGroup;
+			children = (
+				36B418FD28EA30660045FF39 /* SoramitsuTapGestureRecognizer.swift */,
+				36B418FE28EA30660045FF39 /* SoramitsuPanGestureRecognizer.swift */,
+			);
+			path = Gestures;
+			sourceTree = "<group>";
+		};
+		36F94EDF291E724700E211FE /* InputAssetField */ = {
+			isa = PBXGroup;
+			children = (
+				36F94EE0291E727900E211FE /* InputAssetField.swift */,
+				36F94EE1291E727900E211FE /* InputAssetFieldConfiguration.swift */,
+			);
+			path = InputAssetField;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		3613BBC4288702BD009F3E5A /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3613BBDA288702BD009F3E5A /* SoraSwiftUI.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		3613BBC8288702BD009F3E5A /* SoraSwiftUI */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3613BBDD288702BD009F3E5A /* Build configuration list for PBXNativeTarget "SoraSwiftUI" */;
+			buildPhases = (
+				3613BBF7288715CE009F3E5A /* CodeGen */,
+				3613BBC4288702BD009F3E5A /* Headers */,
+				3613BBC5288702BD009F3E5A /* Sources */,
+				3613BBC6288702BD009F3E5A /* Frameworks */,
+				3613BBC7288702BD009F3E5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SoraSwiftUI;
+			productName = SoraSwiftUI;
+			productReference = 3613BBC9288702BD009F3E5A /* SoraSwiftUI.framework */;
+			productType = "com.apple.product-type.framework";
+		};
+		3613BBD2288702BD009F3E5A /* SoraSwiftUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 3613BBE0288702BD009F3E5A /* Build configuration list for PBXNativeTarget "SoraSwiftUITests" */;
+			buildPhases = (
+				3613BBCF288702BD009F3E5A /* Sources */,
+				3613BBD0288702BD009F3E5A /* Frameworks */,
+				3613BBD1288702BD009F3E5A /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				3613BBD6288702BD009F3E5A /* PBXTargetDependency */,
+			);
+			name = SoraSwiftUITests;
+			productName = SoraSwiftUITests;
+			productReference = 3613BBD3288702BD009F3E5A /* SoraSwiftUITests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		3613BBC0288702BD009F3E5A /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1330;
+				LastUpgradeCheck = 1330;
+				TargetAttributes = {
+					3613BBC8288702BD009F3E5A = {
+						CreatedOnToolsVersion = 13.3;
+					};
+					3613BBD2288702BD009F3E5A = {
+						CreatedOnToolsVersion = 13.3;
+					};
+				};
+			};
+			buildConfigurationList = 3613BBC3288702BD009F3E5A /* Build configuration list for PBXProject "SoraSwiftUI" */;
+			compatibilityVersion = "Xcode 13.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 3613BBBF288702BD009F3E5A;
+			productRefGroup = 3613BBCA288702BD009F3E5A /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				3613BBC8288702BD009F3E5A /* SoraSwiftUI */,
+				3613BBD2288702BD009F3E5A /* SoraSwiftUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		3613BBC7288702BD009F3E5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3662632828D2704700C1A669 /* info.plist in Resources */,
+				3613BBEE288702E6009F3E5A /* Config.json in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3613BBD1288702BD009F3E5A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		3613BBF7288715CE009F3E5A /* CodeGen */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = CodeGen;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "SoraSwiftUI/Sources/Scripts/main.swift \"SoraSwiftUI/Sources/Scripts/Config.json\" \"SoraSwiftUI/Sources/\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3613BBC5288702BD009F3E5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				36B418B928EA1C330045FF39 /* SoramitsuTableViewBasicPagination.swift in Sources */,
+				36B418C228EA1C330045FF39 /* SoramitsuTableViewObserver.swift in Sources */,
+				36754C3528D71A2300FC080A /* SoramitsuThemeType.swift in Sources */,
+				36B418CC28EA1C330045FF39 /* SoramitsuTableView.swift in Sources */,
+				36754D3F28D75A1000FC080A /* SoramitsuControl.swift in Sources */,
+				3613D6A9290EF05900B0D027 /* HistoryTransactionViewConfiguration.swift in Sources */,
+				36754C2828D718A900FC080A /* SoramitsuUI.swift in Sources */,
+				3622A1E928DF636700FE36CD /* SoramitsuTextField.swift in Sources */,
+				36754D2D28D75A1000FC080A /* Atom.swift in Sources */,
+				36754D2B28D75A1000FC080A /* Element.swift in Sources */,
+				36B418DD28EA26690045FF39 /* DispatchQueue+Gecko.swift in Sources */,
+				3613BBEB288702E6009F3E5A /* Fonts.swift in Sources */,
+				36B418C428EA1C330045FF39 /* SoramitsuTableViewTitledHeader.swift in Sources */,
+				36754D1E28D75A1000FC080A /* LightStatusBarStyle.swift in Sources */,
+				36B418C528EA1C330045FF39 /* SoramitsuPlainTableViewDescriptor.swift in Sources */,
+				36754D4028D75A1000FC080A /* SoramitsuControlConfiguration.swift in Sources */,
+				36B4190028EA30660045FF39 /* SoramitsuPanGestureRecognizer.swift in Sources */,
+				36754D3328D75A1000FC080A /* SoramitsuBlurDecorator.swift in Sources */,
+				36356B522919384200CD3E9E /* PoolView.swift in Sources */,
+				36B418EB28EA2C720045FF39 /* SoramitsuTableViewCell.swift in Sources */,
+				36754D2128D75A1000FC080A /* SoramitsuSize.swift in Sources */,
+				36B418B828EA1C330045FF39 /* SoramitsuTableViewPaginationHandlerProtocol.swift in Sources */,
+				36754C3128D7198100FC080A /* ThemeStorage.swift in Sources */,
+				36B418C928EA1C330045FF39 /* SoramitsuMenuItemAction.swift in Sources */,
+				36B418D428EA24410045FF39 /* SoramitsuLoadingIndicatable.swift in Sources */,
+				36754D3028D75A1000FC080A /* ViewControllerObserver.swift in Sources */,
+				36B4190228EA31A20045FF39 /* CABasicAnimation+Convenience.swift in Sources */,
+				36286026291FE80C0000A561 /* NSObject+SoramitsuColorable.swift in Sources */,
+				36B4188E28E9E2CC0045FF39 /* SoramitsuImageViewConfiguration.swift in Sources */,
+				36B418C828EA1C330045FF39 /* SoramitsuTableViewSection.swift in Sources */,
+				3613BBEF288702E6009F3E5A /* main.swift in Sources */,
+				36754D1B28D75A1000FC080A /* SoramitsuTextItem.swift in Sources */,
+				36754D1D28D75A1000FC080A /* SoramitsuAttributedText.swift in Sources */,
+				36B418CD28EA1C330045FF39 /* SoramitsuScrollViewContext.swift in Sources */,
+				36754D2228D75A1000FC080A /* SoramitsuPosition.swift in Sources */,
+				36754D2428D75A1000FC080A /* ScreenSizeMapper.swift in Sources */,
+				36B418BD28EA1C330045FF39 /* SoramitsuLoadingTableViewItem.swift in Sources */,
+				36754D1328D75A1000FC080A /* Margin.swift in Sources */,
+				3622A1E528DDF09B00FE36CD /* InputFieldConfiguration.swift in Sources */,
+				36B418F828EA2EA60045FF39 /* SoramitsuActivityIndicatorView.swift in Sources */,
+				3613BBEC288702E6009F3E5A /* Colors.swift in Sources */,
+				3622A1E328DDF05900FE36CD /* InputField.swift in Sources */,
+				36754C8E28D7346000FC080A /* DefaultRadii.swift in Sources */,
+				36754D4828D7BA3500FC080A /* ImageButtonConfiguration.swift in Sources */,
+				36754D3728D75A1000FC080A /* SoramitsuButtonStyle.swift in Sources */,
+				36B418E028EA26AD0045FF39 /* GElementDescriptor.swift in Sources */,
+				36754D1F28D75A1000FC080A /* DarkStatusBarStyle.swift in Sources */,
+				36754D1C28D75A1000FC080A /* SoramitsuTextAttributes.swift in Sources */,
+				3625F3692888671E0028139A /* SoramitsuColor.swift in Sources */,
+				36754C3028D7198100FC080A /* ObservationProtocols.swift in Sources */,
+				36754C3928D71DEA00FC080A /* Palette.swift in Sources */,
+				36754D3628D75A1000FC080A /* SoramitsuButtonConfiguration.swift in Sources */,
+				36B418D028EA1C330045FF39 /* SoramitsuTableViewItemProtocol.swift in Sources */,
+				36754D1A28D75A1000FC080A /* States.swift in Sources */,
+				36754D3228D75A1000FC080A /* ObservableViewController.swift in Sources */,
+				36B418BC28EA1C330045FF39 /* SoramitsuTableViewFoldableSection.swift in Sources */,
+				36B418E728EA2B770045FF39 /* SoramitsuScrollView.swift in Sources */,
+				36754D3928D75A1000FC080A /* SoramitsuBaseButtonConfiguration.swift in Sources */,
+				36754D3A28D75A1000FC080A /* SoramitsuButton.swift in Sources */,
+				36B418C028EA1C330045FF39 /* SoramitsuTableViewType.swift in Sources */,
+				36B418C128EA1C330045FF39 /* SoramitsuTableViewSectionProtocol.swift in Sources */,
+				36754D2828D75A1000FC080A /* Utils.swift in Sources */,
+				36754D1928D75A1000FC080A /* Shady.swift in Sources */,
+				36754D2928D75A1000FC080A /* MainThreadChecker.swift in Sources */,
+				36754D1628D75A1000FC080A /* Padding.swift in Sources */,
+				36754D3528D75A1000FC080A /* WalletViewMode.swift in Sources */,
+				36754D2328D75A1000FC080A /* SoramitsuInsets.swift in Sources */,
+				36B418D528EA24410045FF39 /* SoramitsuLoadingPlaceholderDecorator.swift in Sources */,
+				36754D2F28D75A1000FC080A /* SoramitsuStateDecorator.swift in Sources */,
+				36754C3728D71D3100FC080A /* StatusBarStyle.swift in Sources */,
+				36754D3128D75A1000FC080A /* ViewObserver.swift in Sources */,
+				3622A1EA28DF636700FE36CD /* SoramitsuTextFieldConfiguration.swift in Sources */,
+				36B418EC28EA2C720045FF39 /* SoramitsuTableViewCellConfiguration.swift in Sources */,
+				36B4187728E37F870045FF39 /* TabBar.swift in Sources */,
+				36B418FF28EA30660045FF39 /* SoramitsuTapGestureRecognizer.swift in Sources */,
+				36F94EE2291E727900E211FE /* InputAssetField.swift in Sources */,
+				36754D4228D7AAD600FC080A /* AssetViewConfiguration.swift in Sources */,
+				36754D2528D75A1000FC080A /* SoramitsuHapticType.swift in Sources */,
+				36B418F028EA2D9B0045FF39 /* ScrollViewContentInsetsHelper.swift in Sources */,
+				36B418BF28EA1C330045FF39 /* SoramitsuLoadingTableViewSection.swift in Sources */,
+				36754D1228D75A1000FC080A /* Radii.swift in Sources */,
+				36754C4928D7259A00FC080A /* DarkPalette.swift in Sources */,
+				36754D2628D75A1000FC080A /* SoramitsuHapticable.swift in Sources */,
+				36B418CB28EA1C330045FF39 /* SoramitsuTableViewSpaceView.swift in Sources */,
+				36754D3D28D75A1000FC080A /* SoramitsuView.swift in Sources */,
+				36B418FB28EA2FE10045FF39 /* Math.swift in Sources */,
+				36B4187428E379270045FF39 /* SoramitsuBaseViewController.swift in Sources */,
+				36754D1428D75A1000FC080A /* Gap.swift in Sources */,
+				36754D3828D75A1000FC080A /* SoramitsuButtonType.swift in Sources */,
+				36754D2C28D75A1000FC080A /* Molecule.swift in Sources */,
+				36754C2F28D7198100FC080A /* SoramitsuStyle.swift in Sources */,
+				36B4187328E379270045FF39 /* SoramitsuViewControllerConfiguration.swift in Sources */,
+				36754C0B28D710F300FC080A /* FontData.swift in Sources */,
+				36B418BB28EA1C330045FF39 /* SoramitsuTableViewTopPagination.swift in Sources */,
+				36754D1728D75A1000FC080A /* ShadowData.swift in Sources */,
+				36B418CA28EA1C330045FF39 /* SoramitsuTableViewSpacerItem.swift in Sources */,
+				36B4189128E9E3AE0045FF39 /* Picture.swift in Sources */,
+				36B418C728EA1C330045FF39 /* SoramitsuTableViewConfiguration.swift in Sources */,
+				36754D3B28D75A1000FC080A /* SoramitsuLabelConfiguration.swift in Sources */,
+				36B418EE28EA2D6B0045FF39 /* Array+SoramitsuTableViewSectionProtocol.swift in Sources */,
+				36B418F928EA2EA60045FF39 /* SoramitsuActivityIndicatorViewConfiguration.swift in Sources */,
+				36754C8F28D7346000FC080A /* DefaultLayout.swift in Sources */,
+				36B418BA28EA1C330045FF39 /* SoramitsuTableViewPaginator.swift in Sources */,
+				36754D3428D75A1000FC080A /* AssetView.swift in Sources */,
+				36754C3228D7198100FC080A /* ThemeManager.swift in Sources */,
+				36754C4828D7259A00FC080A /* LightPalette.swift in Sources */,
+				36F94EE3291E727900E211FE /* InputAssetFieldConfiguration.swift in Sources */,
+				36754D2028D75A1000FC080A /* Helpers.swift in Sources */,
+				3613BBCE288702BD009F3E5A /* SoraSwiftUI.docc in Sources */,
+				36B418C628EA1C330045FF39 /* SoramitsuGroupedTableViewDescriptor.swift in Sources */,
+				36754C9028D7346000FC080A /* DefaultShady.swift in Sources */,
+				36754D3E28D75A1000FC080A /* SoramitsuViewConfiguration.swift in Sources */,
+				36754D1828D75A1000FC080A /* Shadow.swift in Sources */,
+				361EF58E2913031B00D0DCCF /* SoramitsuOverlayDecorator.swift in Sources */,
+				36B418DA28EA25710045FF39 /* SoramitsuShimmerViewConfiguration.swift in Sources */,
+				36B418D928EA25710045FF39 /* SoramitsuShimmerView.swift in Sources */,
+				36B4189528E9E4E80045FF39 /* SoramitsuStackView.swift in Sources */,
+				36B418CE28EA1C330045FF39 /* SoramitsuTableViewCellProtocol.swift in Sources */,
+				36B418C328EA1C330045FF39 /* SoramitsuTableViewTitledHeaderCell.swift in Sources */,
+				36754D2A28D75A1000FC080A /* Organism.swift in Sources */,
+				36754D4928D7BA3500FC080A /* ImageButton.swift in Sources */,
+				36B4187228E379270045FF39 /* SoramitsuViewController.swift in Sources */,
+				36B418F228EA2E120045FF39 /* KeyboardEventsListnerHelper.swift in Sources */,
+				3677732D28DB8D0100D235B3 /* BlurViewController.swift in Sources */,
+				36754D3C28D75A1000FC080A /* SoramitsuLabel.swift in Sources */,
+				36754D2728D75A1000FC080A /* SoramitsuHaptic.swift in Sources */,
+				36B4189628E9E4E80045FF39 /* SoramitsuStackViewConfiguration.swift in Sources */,
+				3613D6A8290EF05900B0D027 /* HistoryTransactionView.swift in Sources */,
+				36754D1528D75A1000FC080A /* SoramitsuLayout.swift in Sources */,
+				36754D2E28D75A1000FC080A /* SoramitsuConfiguration.swift in Sources */,
+				36754C3328D7198100FC080A /* UpdateOptions.swift in Sources */,
+				36B4188D28E9E2CC0045FF39 /* SoramitsuImageViewImageView.swift in Sources */,
+				36B418BE28EA1C330045FF39 /* SoramitsuLoadingTableViewCell.swift in Sources */,
+				36B4187128E379270045FF39 /* SoramitsuStatusBarManaging.swift in Sources */,
+				36B418CF28EA1C330045FF39 /* SoramitsuCell.swift in Sources */,
+				36B418E628EA2B770045FF39 /* SoramitsuScrollViewConfiguration.swift in Sources */,
+				36356B542919384200CD3E9E /* PoolViewConfiguration.swift in Sources */,
+				3677732828DB8BCB00D235B3 /* CustomVisualEffectView.swift in Sources */,
+				3625F35A28880B260028139A /* CornerRadius.swift in Sources */,
+				36B418E228EA27A20045FF39 /* Array+SoramitsuUI.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		3613BBCF288702BD009F3E5A /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3613BBD9288702BD009F3E5A /* SoraSwiftUITests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		3613BBD6288702BD009F3E5A /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 3613BBC8288702BD009F3E5A /* SoraSwiftUI */;
+			targetProxy = 3613BBD5288702BD009F3E5A /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		3613BBDB288702BD009F3E5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Debug;
+		};
+		3613BBDC288702BD009F3E5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++17";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.4;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+				VERSIONING_SYSTEM = "apple-generic";
+				VERSION_INFO_PREFIX = "";
+			};
+			name = Release;
+		};
+		3613BBDE288702BD009F3E5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 7URXSYJSYF;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoraSwiftUI/info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.jp.soramitsu.SoraSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3613BBDF288702BD009F3E5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEFINES_MODULE = YES;
+				DEVELOPMENT_TEAM = 7URXSYJSYF;
+				DYLIB_COMPATIBILITY_VERSION = 1;
+				DYLIB_CURRENT_VERSION = 1;
+				DYLIB_INSTALL_NAME_BASE = "@rpath";
+				EMBED_ASSET_PACKS_IN_PRODUCT_BUNDLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = SoraSwiftUI/info.plist;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.jp.soramitsu.SoraSwiftUI;
+				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
+				SKIP_INSTALL = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		3613BBE1288702BD009F3E5A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.jp.soramitsu.SoraSwiftUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3613BBE2288702BD009F3E5A /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = co.jp.soramitsu.SoraSwiftUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		3613BBC3288702BD009F3E5A /* Build configuration list for PBXProject "SoraSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3613BBDB288702BD009F3E5A /* Debug */,
+				3613BBDC288702BD009F3E5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3613BBDD288702BD009F3E5A /* Build configuration list for PBXNativeTarget "SoraSwiftUI" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3613BBDE288702BD009F3E5A /* Debug */,
+				3613BBDF288702BD009F3E5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		3613BBE0288702BD009F3E5A /* Build configuration list for PBXNativeTarget "SoraSwiftUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3613BBE1288702BD009F3E5A /* Debug */,
+				3613BBE2288702BD009F3E5A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 3613BBC0288702BD009F3E5A /* Project object */;
+}

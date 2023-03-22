@@ -11,7 +11,7 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
     private var priceData: PriceData?
     private let chainAsset: ChainAsset
     private var wallet: MetaAccountModel
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var accountAddress: String? {
         wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress()
@@ -24,13 +24,15 @@ final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreC
         wallet: MetaAccountModel,
         amount: Decimal,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: ParachainStakingCandidateInfo
+        candidate: ParachainStakingCandidateInfo,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.amount = amount
         self.dataValidatingFactory = dataValidatingFactory
         self.candidate = candidate
+        self.callFactory = callFactory
     }
 
     func validators(using locale: Locale) -> [DataValidating] {

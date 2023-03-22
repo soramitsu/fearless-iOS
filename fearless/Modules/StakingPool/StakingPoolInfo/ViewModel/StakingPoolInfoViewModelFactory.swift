@@ -67,7 +67,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             depositorName: try? roles.depositor.toAddress(using: chainAsset.chain.chainFormat),
             rootName: try? roles.root?.toAddress(using: chainAsset.chain.chainFormat),
             nominatorName: try? roles.nominator?.toAddress(using: chainAsset.chain.chainFormat),
-            stateTogglerName: try? roles.stateToggler?.toAddress(using: chainAsset.chain.chainFormat),
+            bouncerName: try? roles.bouncer?.toAddress(using: chainAsset.chain.chainFormat),
             rolesChanged: roles != stakingPool.info.roles,
             userIsRoot: currentAccountId == stakingPool.info.roles.root
         )

@@ -24,7 +24,7 @@ final class StakingBondMorePoolStrategy {
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -35,7 +35,8 @@ final class StakingBondMorePoolStrategy {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.output = output
@@ -46,6 +47,7 @@ final class StakingBondMorePoolStrategy {
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.callFactory = callFactory
 
         self.feeProxy.delegate = self
     }

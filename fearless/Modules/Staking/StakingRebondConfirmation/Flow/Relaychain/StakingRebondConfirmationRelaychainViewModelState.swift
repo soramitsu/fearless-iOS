@@ -2,12 +2,12 @@ import Foundation
 import BigInt
 
 final class StakingRebondConfirmationRelaychainViewModelState: StakingRebondConfirmationViewModelState {
-    let callFactory = SubstrateCallFactory()
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let logger: LoggerProtocol?
     let variant: SelectedRebondVariant
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private(set) var stakingLedger: StakingLedger?
     private(set) var activeEra: UInt32?
@@ -21,13 +21,15 @@ final class StakingRebondConfirmationRelaychainViewModelState: StakingRebondConf
         wallet: MetaAccountModel,
         logger: LoggerProtocol?,
         variant: SelectedRebondVariant,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.logger = logger
         self.variant = variant
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     var inputAmount: Decimal? {

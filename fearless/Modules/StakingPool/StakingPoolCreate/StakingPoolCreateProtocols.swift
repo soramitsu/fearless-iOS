@@ -21,7 +21,7 @@ protocol StakingPoolCreateViewOutput: AnyObject {
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ newValue: Decimal)
     func nominatorDidTapped()
-    func stateTogglerDidTapped()
+    func bouncerDidTapped()
     func createDidTapped()
     func backDidTapped()
     func nameTextFieldInputValueChanged()
