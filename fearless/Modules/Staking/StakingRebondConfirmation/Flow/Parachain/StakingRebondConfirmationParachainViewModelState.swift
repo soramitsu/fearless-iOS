@@ -8,7 +8,7 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    let callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     let logger: LoggerProtocol?
 
     private(set) var balance: Decimal?
@@ -83,7 +83,8 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        logger: LoggerProtocol?
+        logger: LoggerProtocol?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.delegation = delegation
         self.request = request
@@ -91,6 +92,7 @@ final class StakingRebondConfirmationParachainViewModelState: StakingRebondConfi
         self.chainAsset = chainAsset
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingRebondConfirmationModelStateListener?) {

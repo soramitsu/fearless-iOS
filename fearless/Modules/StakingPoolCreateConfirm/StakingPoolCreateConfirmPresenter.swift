@@ -48,7 +48,7 @@ final class StakingPoolCreateConfirmPresenter {
             rootName: createData.root.name,
             poolId: "\(createData.poolId)",
             nominatorName: createData.nominator.name,
-            stateTogglerName: createData.stateToggler.name
+            bouncerName: createData.bouncer.name
         )
 
         let viewModel = viewModelFactory.buildViewModel(

@@ -154,6 +154,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case let .relaychain(payouts):
             let viewModelState = StakingPayoutConfirmationRelaychainViewModelState(
@@ -161,7 +163,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 wallet: wallet,
                 logger: logger,
                 dataValidatingFactory: dataValidatingFactory,
-                callFactory: SubstrateCallFactory()
+                callFactory: callFactory
             )
 
             let viewModelFactory = StakingPayoutConfirmationRelaychainViewModelFactory(
@@ -183,7 +185,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 payouts: payouts,
                 chainAsset: chainAsset,
                 accountRepository: AnyDataProviderRepository(accountRepository),
-                output: viewModelState
+                output: viewModelState,
+                callFactory: callFactory
             )
 
             return StakingPayoutConfirmationDependencyContainer(
@@ -196,7 +199,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 chainAsset: chainAsset,
                 wallet: wallet,
                 logger: logger,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
 
             let viewModelFactory = StakingPayoutConfirmationPoolViewModelFactory(

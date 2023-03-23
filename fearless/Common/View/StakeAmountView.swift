@@ -62,5 +62,9 @@ class StakeAmountView: UIView {
     func bind(viewModel: StakeAmountViewModel) {
         amountLabel.attributedText = viewModel.amountTitle
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconImageView, animated: true)
+
+        if let color = HexColorConverter.hexStringToUIColor(hex: viewModel.color) {
+            iconBackground.shadowColor = color
+        }
     }
 }

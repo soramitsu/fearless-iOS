@@ -183,13 +183,16 @@ struct StakingBondMoreConfirmViewFactory {
             selectedMetaAccount: wallet
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case let .relaychain(amount):
             let viewModelState = StakingBondMoreConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 amount: amount,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingBondMoreConfirmationRelaychainStrategy(
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -204,7 +207,8 @@ struct StakingBondMoreConfirmViewFactory {
                 connection: connection,
                 keystore: keystore,
                 signingWrapper: signingWrapper,
-                output: viewModelState
+                output: viewModelState,
+                callFactory: callFactory
             )
 
             return StakingBondMoreConfirmationDependencyContainer(
@@ -217,7 +221,8 @@ struct StakingBondMoreConfirmViewFactory {
                 wallet: wallet,
                 amount: amount,
                 dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate
+                candidate: candidate,
+                callFactory: callFactory
             )
 
             let strategy = StakingBondMoreConfirmationParachainStrategy(
@@ -233,7 +238,8 @@ struct StakingBondMoreConfirmViewFactory {
                 signingWrapper: signingWrapper,
                 output: viewModelState,
                 eventCenter: EventCenter.shared,
-                logger: Logger.shared
+                logger: Logger.shared,
+                callFactory: callFactory
             )
 
             return StakingBondMoreConfirmationDependencyContainer(
@@ -245,7 +251,8 @@ struct StakingBondMoreConfirmViewFactory {
                 chainAsset: chainAsset,
                 wallet: wallet,
                 amount: amount,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
 
             let strategy = StakingBondMoreConfirmationPoolStrategy(
@@ -261,7 +268,8 @@ struct StakingBondMoreConfirmViewFactory {
                 signingWrapper: signingWrapper,
                 output: viewModelState,
                 eventCenter: EventCenter.shared,
-                logger: Logger.shared
+                logger: Logger.shared,
+                callFactory: callFactory
             )
 
             return StakingBondMoreConfirmationDependencyContainer(

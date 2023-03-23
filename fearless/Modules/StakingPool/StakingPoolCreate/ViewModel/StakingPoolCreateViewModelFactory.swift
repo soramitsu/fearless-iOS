@@ -4,7 +4,7 @@ protocol StakingPoolCreateViewModelFactoryProtocol {
     func buildViewModel(
         wallet: MetaAccountModel,
         nominatorWallet: MetaAccountModel,
-        stateToggler: MetaAccountModel,
+        bouncer: MetaAccountModel,
         rootWallet: MetaAccountModel,
         lastPoolId: UInt32?
     ) -> StakingPoolCreateViewModel
@@ -14,7 +14,7 @@ final class StakingPoolCreateViewModelFactory: StakingPoolCreateViewModelFactory
     func buildViewModel(
         wallet: MetaAccountModel,
         nominatorWallet: MetaAccountModel,
-        stateToggler: MetaAccountModel,
+        bouncer: MetaAccountModel,
         rootWallet: MetaAccountModel,
         lastPoolId: UInt32?
     ) -> StakingPoolCreateViewModel {
@@ -27,7 +27,7 @@ final class StakingPoolCreateViewModelFactory: StakingPoolCreateViewModelFactory
             depositor: wallet.name,
             root: rootWallet.name,
             naminator: nominatorWallet.name,
-            stateToggler: stateToggler.name
+            bouncer: bouncer.name
         )
     }
 }

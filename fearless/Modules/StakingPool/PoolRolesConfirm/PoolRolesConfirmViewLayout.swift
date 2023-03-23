@@ -57,7 +57,7 @@ final class PoolRolesConfirmViewLayout: UIView {
         createMultiView()
     }()
 
-    lazy var stateTogglerView: TitleMultiValueView = {
+    lazy var bouncerView: TitleMultiValueView = {
         createMultiView()
     }()
 
@@ -96,7 +96,7 @@ final class PoolRolesConfirmViewLayout: UIView {
         [
             rootView,
             nominatorView,
-            stateTogglerView
+            bouncerView
         ]
     }()
 
@@ -124,7 +124,7 @@ final class PoolRolesConfirmViewLayout: UIView {
     func bind(viewModel: PoolRolesConfirmViewModel) {
         rootView.bind(viewModel: viewModel.rootViewModel)
         nominatorView.bind(viewModel: viewModel.nominatorViewModel)
-        stateTogglerView.bind(viewModel: viewModel.stateTogglerViewModel)
+        bouncerView.bind(viewModel: viewModel.bouncerViewModel)
     }
 
     private func configure() {
@@ -152,7 +152,7 @@ final class PoolRolesConfirmViewLayout: UIView {
         nominatorView.titleLabel.text = R.string.localizable.poolStakingNominator(
             preferredLanguages: locale.rLanguages
         )
-        stateTogglerView.titleLabel.text = R.string.localizable.poolStakingStateToggler(
+        bouncerView.titleLabel.text = R.string.localizable.poolStakingBouncer(
             preferredLanguages: locale.rLanguages
         )
         feeView.titleLabel.text = R.string.localizable.commonNetworkFee(

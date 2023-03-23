@@ -21,7 +21,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     let color: String?
 
     var name: String {
-        displayName?.uppercased() ?? symbol.uppercased()
+        symbol.uppercased()
     }
 
     init(
@@ -52,6 +52,20 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.displayName = displayName
         self.existentialDeposit = existentialDeposit
         self.color = color
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case symbol
+        case chainId
+        case precision
+        case icon
+        case priceId
+        case transfersEnabled
+        case currencyId
+        case displayName = "name"
+        case existentialDeposit
+        case color
     }
 
     init(from decoder: Decoder) throws {

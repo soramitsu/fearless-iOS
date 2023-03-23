@@ -112,6 +112,8 @@ struct CrowdloanContributionSetupViewFactory {
             engine: connection
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedMetaAccount: selectedMetaAccount,
@@ -127,7 +129,8 @@ struct CrowdloanContributionSetupViewFactory {
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            callFactory: callFactory
         )
     }
 }

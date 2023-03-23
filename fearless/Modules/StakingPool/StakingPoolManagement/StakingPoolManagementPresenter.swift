@@ -113,7 +113,12 @@ final class StakingPoolManagementPresenter {
     }
 
     private func provideRedeemDelayViewModel() {
-        let viewModel = viewModelFactory.buildUnstakeViewModel(unstakePeriod: stakingDuration?.unlocking)
+        let viewModel = viewModelFactory.buildUnstakeViewModel(
+            stakingInfo: stakeInfo,
+            activeEra: eraStakersInfo?.activeEra,
+            stakingDuration: stakingDuration
+        )
+
         view?.didReceive(redeemDelayViewModel: viewModel)
     }
 
@@ -381,6 +386,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         provideRedeemableViewModel()
         provideClaimableViewModel()
         provideViewModel()
+        provideRedeemDelayViewModel()
     }
 
     func didReceive(stakeInfoError _: Error) {}
@@ -391,6 +397,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         provideRedeemableViewModel()
         provideClaimableViewModel()
         provideViewModel()
+        provideRedeemDelayViewModel()
     }
 
     func didReceive(eraCountdownResult _: Result<EraCountdown, Error>) {}

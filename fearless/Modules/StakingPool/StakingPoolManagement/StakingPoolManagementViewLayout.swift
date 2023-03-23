@@ -175,6 +175,7 @@ final class StakingPoolManagementViewLayout: UIView {
     }
 
     func bind(redeemDelayViewModel: LocalizableResource<String>?) {
+        reedeemDelayView.isHidden = redeemDelayViewModel == nil
         reedeemDelayView.bind(viewModel: redeemDelayViewModel?.value(for: locale))
     }
 

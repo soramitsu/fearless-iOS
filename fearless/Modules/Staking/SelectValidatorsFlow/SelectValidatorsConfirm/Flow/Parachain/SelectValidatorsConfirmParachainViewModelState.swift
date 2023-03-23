@@ -10,6 +10,8 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
     let wallet: MetaAccountModel
     var stateListener: SelectValidatorsConfirmModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
+
     private(set) var confirmationModel: SelectValidatorsConfirmParachainModel?
     private(set) var priceData: PriceData?
     private(set) var fee: Decimal?
@@ -33,7 +35,8 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         initiatedBonding: InitiatedBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.target = target
         self.maxTargets = maxTargets
@@ -41,6 +44,7 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
@@ -89,7 +93,7 @@ final class SelectValidatorsConfirmParachainViewModelState: SelectValidatorsConf
                 return builder
             }
 
-            let call = SubstrateCallFactory().delegate(
+            let call = strongSelf.callFactory.delegate(
                 candidate: strongSelf.target.owner,
                 amount: amount,
                 candidateDelegationCount: candidateDelegationCount,
