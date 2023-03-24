@@ -8,8 +8,8 @@ class MultiassetV9MigrationPolicy: NSEntityMigrationPolicy {
         in mapping: NSEntityMapping,
         manager: NSMigrationManager
     ) throws {
-        try super.createDestinationInstances(forSource: wallet, in: mapping, manager: manager)\
-        
+        try super.createDestinationInstances(forSource: wallet, in: mapping, manager: manager)
+
         guard let assetIdsEnabled = wallet.value(forKey: "assetIdsEnabled") as? [String] else {
             return
         }
@@ -17,13 +17,13 @@ class MultiassetV9MigrationPolicy: NSEntityMigrationPolicy {
         guard let updatedWallet = manager.destinationInstances(
             forEntityMappingName: mapping.name,
             sourceInstances: [wallet]
-        ).first else {
+        ).first as? CDMetaAccount else {
             return
         }
 
         let assetsVisibility = assetIdsEnabled.compactMap { AssetVisibility(assetId: $0, hidden: false) }
         let assetsVisibilitySet = Set(assetsVisibility) as NSSet
 
-        updatedWallet.setValue(assetsVisibilitySet, forKey: "assetsVisibility")
+        updatedWallet.assetsVisibility = assetsVisibilitySet
     }
 }
