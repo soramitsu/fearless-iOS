@@ -46,6 +46,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexString: $0) }
         let assetFilterOptions = entity.assetFilterOptions as? [String]
+        let assetsVisibility = entity.assetsVisibility?.allObjects as? [AssetVisibility]
 
         return DataProviderModel(
             metaId: entity.metaId!,
@@ -62,7 +63,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
-            chainIdForFilter: entity.chainIdForFilter
+            chainIdForFilter: entity.chainIdForFilter,
+            assetsVisibility: assetsVisibility ?? []
         )
     }
 
@@ -85,6 +87,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.unusedChainIds = model.unusedChainIds as? NSArray
         entity.assetFilterOptions = assetFilterOptions
         entity.chainIdForFilter = model.chainIdForFilter
+        entity.assetsVisibility = Set(model.assetsVisibility) as? NSSet
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {

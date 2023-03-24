@@ -19,6 +19,7 @@ struct MetaAccountModel: Equatable, Codable {
     let unusedChainIds: [String]?
     let selectedCurrency: Currency
     let chainIdForFilter: ChainModel.Id?
+    let assetsVisibility: [AssetVisibility]
 }
 
 extension MetaAccountModel {
@@ -54,7 +55,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -74,7 +76,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -94,7 +97,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -114,7 +118,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -134,7 +139,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -154,7 +160,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -174,7 +181,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: newUnusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -194,7 +202,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: currency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -214,7 +223,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainIdForFilter
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility
         )
     }
 
@@ -234,7 +244,8 @@ extension MetaAccountModel {
             canExportEthereumMnemonic: canExportEthereumMnemonic,
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
-            chainIdForFilter: chainId
+            chainIdForFilter: chainId,
+            assetsVisibility: assetsVisibility
         )
     }
 }

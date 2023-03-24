@@ -3,7 +3,7 @@ import RobinHood
 import CoreData
 
 enum UserStorageParams {
-    static let modelVersion: UserStorageVersion = .version9
+    static let modelVersion: UserStorageVersion = .version10
     static let modelDirectory: String = "UserDataModel.momd"
     static let databaseName = "UserDataModel.sqlite"
 
@@ -56,6 +56,8 @@ class UserDataStorageFacade: StorageFacadeProtocol {
         )
 
         databaseService = CoreDataService(configuration: configuration)
+
+        print("User Storage URL: ", UserStorageParams.storageURL)
     }
 
     func createRepository<T, U>(

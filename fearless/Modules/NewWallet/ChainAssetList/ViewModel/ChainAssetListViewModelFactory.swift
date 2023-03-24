@@ -226,6 +226,12 @@ private extension ChainAssetListViewModelFactory {
             isUnused = unusedChainIds.contains(chainAsset.chain.chainId)
         }
 
+        let balance = getTotalBalance(
+            for: chainAssets,
+            accountInfos: accountInfos,
+            wallet: wallet
+        )
+
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: chainAssets,
             shownChainAssets: notUtilityChainsWithBalance,
@@ -250,24 +256,17 @@ private extension ChainAssetListViewModelFactory {
             priceDataWasUpdated: priceDataUpdated,
             isNetworkIssues: isNetworkIssues,
             isMissingAccount: isMissingAccount,
-            isHidden: checkForHide(chainAsset: chainAsset, wallet: wallet),
+            isHidden: checkForHide(
+                chainAsset: chainAsset,
+                wallet: wallet,
+                balance: balance,
+                shouldHideZeroBalanceAssets: settings.shouldHideZeroBalanceAssets == true
+            ),
             isUnused: isUnused,
             locale: locale
         )
 
-        let balance = getTotalBalance(
-            for: chainAssets,
-            accountInfos: accountInfos,
-            wallet: wallet
-        )
-
-        if settings.shouldHideZeroBalanceAssets == true,
-           balance == 0,
-           !isColdBoot {
-            return nil
-        } else {
-            return viewModel
-        }
+        return viewModel
     }
 
     func sortAssetList(
@@ -566,15 +565,27 @@ private extension ChainAssetListViewModelFactory {
         }
     }
 
-    func checkForHide(chainAsset: ChainAsset, wallet: MetaAccountModel) -> Bool {
+    func checkForHide(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        balance: Decimal,
+        shouldHideZeroBalanceAssets: Bool
+    ) -> Bool {
         let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
+        var isHidden = false
+
         if let assetIdsEnabled = wallet.assetIdsEnabled, let accountId = accountId {
-            return assetIdsEnabled.contains { assetId in
+            isHidden = assetIdsEnabled.contains { assetId in
                 assetId == chainAsset.uniqueKey(accountId: accountId)
             }
         }
-        return false
+
+        if isHidden {
+            return true
+        }
+
+        return shouldHideZeroBalanceAssets && balance == .zero
     }
 }
 
