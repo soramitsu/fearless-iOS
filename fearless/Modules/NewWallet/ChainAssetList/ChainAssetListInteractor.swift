@@ -266,7 +266,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             pricesProvider?.refresh()
         }
 
-        if wallet.assetIdsEnabled != event.account.assetIdsEnabled {
+        if wallet.assetsVisibility != event.account.assetsVisibility {
             output?.updateViewModel()
         }
 
