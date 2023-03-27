@@ -29,11 +29,14 @@ final class SCXOneViewController: UIViewController {
     override func loadView() {
         super.loadView()
         view = WKWebView()
+        view.isOpaque = false
+        view.backgroundColor = UIColor.clear
     }
 
     override func viewDidLoad() {
         super.viewDidLoad()
         rootView.navigationDelegate = self
+        rootView.backgroundColor = .black
         output.didLoad(view: self)
     }
 
