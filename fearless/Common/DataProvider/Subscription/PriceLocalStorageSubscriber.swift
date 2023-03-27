@@ -7,12 +7,17 @@ protocol PriceLocalStorageSubscriber where Self: AnyObject {
     var priceLocalSubscriptionHandler: PriceLocalSubscriptionHandler { get }
 
     func subscribeToPrice(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData>
+    func subscribeToPrice(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>
     func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]>
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]>
 }
 
 extension PriceLocalStorageSubscriber {
-    func subscribeToPrice(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData> {
-        let priceProvider = priceLocalSubscriptionFactory.getPriceProvider(for: priceId)
+    func subscribeToPrice(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData> {
+        let priceProvider = priceLocalSubscriptionFactory.getPriceProvider(
+            for: priceId,
+            currency: currency
+        )
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
             guard let finalValue = changes.reduceToLastChange() else { return }
@@ -40,8 +45,15 @@ extension PriceLocalStorageSubscriber {
         return priceProvider
     }
 
-    func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
-        let priceProvider = priceLocalSubscriptionFactory.getPricesProvider(for: pricesIds)
+    func subscribeToPrice(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData> {
+        subscribeToPrice(for: priceId, currency: nil)
+    }
+
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]> {
+        let priceProvider = priceLocalSubscriptionFactory.getPricesProvider(
+            for: pricesIds,
+            currency: currency
+        )
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<[PriceData]>]) in
             guard let finalValue = changes.reduceToLastChange() else { return }
@@ -67,6 +79,10 @@ extension PriceLocalStorageSubscriber {
         )
 
         return priceProvider
+    }
+
+    func subscribeToPrices(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
+        subscribeToPrices(for: pricesIds, currency: nil)
     }
 }
 
