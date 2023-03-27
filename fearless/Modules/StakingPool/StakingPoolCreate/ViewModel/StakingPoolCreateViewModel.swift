@@ -5,5 +5,5 @@ struct StakingPoolCreateViewModel {
     let depositor: String
     let root: String
     let naminator: String
-    let stateToggler: String
+    let bouncer: String
 }

@@ -309,6 +309,8 @@ extension PolkaswapAdjustmentViewController: AmountInputViewModelObserver {
     @objc private func updateAmounts() {
         if rootView.swapFromInputView.textField.isFirstResponder {
             guard let amountFrom = amountFromInputViewModel?.decimalAmount else {
+                output.updateFromAmount(0)
+
                 return
             }
             output.updateFromAmount(amountFrom)
@@ -316,6 +318,8 @@ extension PolkaswapAdjustmentViewController: AmountInputViewModelObserver {
 
         if rootView.swapToInputView.textField.isFirstResponder {
             guard let amountTo = amountToInputViewModel?.decimalAmount else {
+                output.updateToAmount(0)
+
                 return
             }
             output.updateToAmount(amountTo)

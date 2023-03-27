@@ -774,7 +774,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "pool.staking.depositor" = "Depositor";
 "pool.staking.root" = "Root";
 "pool.staking.nominator" = "Nominator";
-"pool.staking.state.toggler" = "State toggler";
+"pool.staking.bouncer" = "Bouncer";
 "pool.staking.title" = "Pool staking";
 "common.watch" = "Watch";
 "hidden.assets" = "Hidden assets";
@@ -827,7 +827,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "staking.pool.create.depositor" = "Depositor";
 "staking.pool.create.root" = "Root";
 "staking.pool.create.nominator" = "Nominator";
-"staking.pool.create.stateToggler" = "State toggler";
+"staking.pool.create.bouncer" = "State toggler";
 "common.create" = "Create";
 "staking.pool.create.creating.pool" = "Creating pool\n%@";
 "staking.pool.create.management.account" = "Pool management account";

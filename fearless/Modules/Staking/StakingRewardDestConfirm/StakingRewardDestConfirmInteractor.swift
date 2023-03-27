@@ -27,7 +27,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
@@ -44,7 +44,8 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         signingWrapper: SigningWrapperProtocol,
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -60,6 +61,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         self.keystore = keystore
         self.connection = connection
         self.accountRepository = accountRepository
+        self.callFactory = callFactory
     }
 
     private func setupExtrinsicService(_ account: ChainAccountResponse) {

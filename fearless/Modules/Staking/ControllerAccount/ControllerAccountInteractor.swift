@@ -17,7 +17,7 @@ final class ControllerAccountInteractor {
     private let engine: JSONRPCEngine
     private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private lazy var addressFactory = SS58AddressFactory()
 
     private var stashItemProvider: StreamableProvider<StashItem>?
@@ -36,7 +36,8 @@ final class ControllerAccountInteractor {
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
         chainAsset: ChainAsset,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -49,6 +50,7 @@ final class ControllerAccountInteractor {
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
         self.chainAsset = chainAsset
+        self.callFactory = callFactory
     }
 }
 

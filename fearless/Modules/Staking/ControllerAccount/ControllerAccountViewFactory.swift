@@ -104,6 +104,8 @@ struct ControllerAccountViewFactory {
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         return ControllerAccountInteractor(
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
                 walletLocalSubscriptionFactory: WalletLocalSubscriptionFactory.shared,
@@ -118,7 +120,8 @@ struct ControllerAccountViewFactory {
             storageRequestFactory: storageRequestFactory,
             engine: connection,
             chainAsset: chainAsset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            callFactory: callFactory
         )
     }
 }

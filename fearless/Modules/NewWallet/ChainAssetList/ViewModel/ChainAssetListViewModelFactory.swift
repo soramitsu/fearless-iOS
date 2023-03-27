@@ -230,7 +230,7 @@ private extension ChainAssetListViewModelFactory {
             assetContainsChainAssets: chainAssets,
             shownChainAssets: notUtilityChainsWithBalance,
             chainAsset: chainAsset,
-            assetName: chainAsset.chain.name,
+            assetName: chainAsset.asset.displayName,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
             balanceString: .init(

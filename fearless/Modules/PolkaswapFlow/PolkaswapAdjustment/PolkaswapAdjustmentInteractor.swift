@@ -18,9 +18,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     private let xorChainAsset: ChainAsset
     private let extrinsicService: ExtrinsicServiceProtocol
     private let userDefaultsStorage: SettingsManagerProtocol
-    private lazy var callFactory: SubstrateCallFactoryProtocol = {
-        SubstrateCallFactory()
-    }()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private var dexIds: [UInt32] = []
@@ -39,7 +37,8 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         extrinsicService: ExtrinsicServiceProtocol,
         operationFactory: PolkaswapOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        userDefaultsStorage: SettingsManagerProtocol
+        userDefaultsStorage: SettingsManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.xorChainAsset = xorChainAsset
         self.subscriptionService = subscriptionService
@@ -51,6 +50,7 @@ final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.userDefaultsStorage = userDefaultsStorage
+        self.callFactory = callFactory
     }
 
     // MARK: - Private methods

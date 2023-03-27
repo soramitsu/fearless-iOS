@@ -12,7 +12,7 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
     private(set) var minimalBalance: Decimal?
     private(set) var fee: Decimal?
     private let dataValidatingFactory: StakingDataValidatingFactory
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private var networkInfo: StakingPoolNetworkInfo?
     private var stakingPool: StakingPool?
 
@@ -66,11 +66,13 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {
