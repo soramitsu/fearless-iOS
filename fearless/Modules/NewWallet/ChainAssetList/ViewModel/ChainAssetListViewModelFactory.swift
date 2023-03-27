@@ -573,16 +573,14 @@ private extension ChainAssetListViewModelFactory {
     ) -> Bool {
         let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
 
-        var isHidden = false
+        if let accountId = accountId {
+            let manuallyHidden = wallet.assetsVisibility.first(where: { assetVisibility in
+                assetVisibility.assetId == chainAsset.uniqueKey(accountId: accountId)
+            })?.hidden
 
-        if let assetIdsEnabled = wallet.assetIdsEnabled, let accountId = accountId {
-            isHidden = assetIdsEnabled.contains { assetId in
-                assetId == chainAsset.uniqueKey(accountId: accountId)
+            if let manuallyHidden = manuallyHidden {
+                return manuallyHidden
             }
-        }
-
-        if isHidden {
-            return true
         }
 
         return shouldHideZeroBalanceAssets && balance == .zero

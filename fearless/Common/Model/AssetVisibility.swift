@@ -1,6 +1,11 @@
 import Foundation
+import RobinHood
 
-struct AssetVisibility: Codable, Equatable, Hashable {
+struct AssetVisibility: Codable, Equatable, Hashable, Identifiable {
+    var identifier: String {
+        assetId
+    }
+
     let assetId: String
-    let hidden: Bool
+    var hidden: Bool
 }

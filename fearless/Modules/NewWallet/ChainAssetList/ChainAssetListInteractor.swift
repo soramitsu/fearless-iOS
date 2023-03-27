@@ -152,10 +152,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var enabledAssets = wallet.assetIdsEnabled ?? []
-        enabledAssets.append(chainAssetKey)
+        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAssetKey }
+        let assetVisibility = AssetVisibility(assetId: chainAssetKey, hidden: true)
+        assetsVisibility.append(assetVisibility)
 
-        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
+        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
         save(updatedWallet)
     }
 
@@ -166,11 +167,12 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var enabledAssets = wallet.assetIdsEnabled {
-            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
-            save(updatedWallet)
-        }
+        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAssetKey }
+        let assetVisibility = AssetVisibility(assetId: chainAssetKey, hidden: false)
+        assetsVisibility.append(assetVisibility)
+
+        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
+        save(updatedWallet)
     }
 
     func markUnused(chain: ChainModel) {
