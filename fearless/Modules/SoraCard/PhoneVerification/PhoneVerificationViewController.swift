@@ -53,6 +53,11 @@ final class PhoneVerificationViewController: UIViewController, ViewHolder {
         rootView.phoneInputField.sora.addHandler(for: .touchUpInside) { [weak self] in
             self?.set(state: (self?.rootView.phoneInputField.textField.text?.isEmpty ?? true) ? .disabled(errorMessage: "Empty") : .enabled)
         }
+        rootView.phoneInputField.sora.addHandler(for: .editingDidBegin) { [weak self] in
+            if self?.rootView.phoneInputField.sora.text?.isEmpty ?? true {
+                self?.rootView.phoneInputField.sora.text = "+"
+            }
+        }
         rootView.phoneInputField.sora.addHandler(for: .editingChanged) { [weak self] in
             self?.rootView.resetTextFieldState()
         }

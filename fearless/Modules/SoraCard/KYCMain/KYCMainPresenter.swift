@@ -34,20 +34,23 @@ extension KYCMainPresenter: KYCMainViewOutput {
     }
 
     func didTapGetMoreXor() {
-        let languages = localizationManager?.selectedLocale.rLanguages
+        guard let chainAsset = interactor.xorChainAssets.first(where: { chainAsset in
+            chainAsset.chain.chainId == Chain.soraMain.genesisHash
+        }) else { return }
 
+        let languages = localizationManager?.selectedLocale.rLanguages
         let swapAction = SheetAlertPresentableAction(
             title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages),
             style: .warningStyle
         ) { [weak self] in
-            guard let strongSelf = self, let chainAsset = strongSelf.interactor.xorChainAsset else { return }
+            guard let strongSelf = self else { return }
             strongSelf.router.showSwap(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
         }
 
         let buyAction = SheetAlertPresentableAction(
             title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages)
         ) { [weak self] in
-            guard let strongSelf = self, let chainAsset = strongSelf.interactor.xorChainAsset else { return }
+            guard let strongSelf = self else { return }
             strongSelf.router.showBuyXor(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
         }
 

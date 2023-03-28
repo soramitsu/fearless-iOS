@@ -44,11 +44,8 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
             action: #selector(hideButtonClicked),
             for: .touchUpInside
         )
-        rootView.statusButton.addTarget(
-            self,
-            action: #selector(statusButtonClicked),
-            for: .touchUpInside
-        )
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(statusButtonClicked))
+        rootView.addGestureRecognizer(tapGesture)
     }
 
     @objc private func hideButtonClicked() {
