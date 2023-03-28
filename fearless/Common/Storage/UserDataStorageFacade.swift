@@ -57,7 +57,9 @@ class UserDataStorageFacade: StorageFacadeProtocol {
 
         databaseService = CoreDataService(configuration: configuration)
 
-        print("User Storage URL: ", UserStorageParams.storageURL)
+        #if DEBUG
+            Logger.shared.debug("User Storage URL: \(UserStorageParams.storageURL)")
+        #endif
     }
 
     func createRepository<T, U>(
