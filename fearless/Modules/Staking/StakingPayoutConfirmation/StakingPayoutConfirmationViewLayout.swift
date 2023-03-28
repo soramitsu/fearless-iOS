@@ -1,15 +1,22 @@
 import UIKit
 import SnapKit
+import SoraFoundation
 
 final class StakingPayoutConfirmationViewLayout: UIView {
     private enum Constants {
         static let bottomViewHeight: CGFloat = 164.0
     }
 
+    private var mainColor: UIColor? {
+        didSet {
+            applyMainColor()
+        }
+    }
+
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
+        tableView.backgroundColor = R.color.colorBlack19()
         tableView.separatorColor = R.color.colorDarkGray()
         return tableView
     }()
@@ -150,6 +157,7 @@ final class StakingPayoutConfirmationViewLayout: UIView {
     }
 
     func bind(feeViewModel: BalanceViewModelProtocol?) {
+        networkFeeFooterView.bindBalance(viewModel: feeViewModel)
         feeView.bindBalance(viewModel: feeViewModel)
 
         setNeedsLayout()
@@ -163,10 +171,14 @@ final class StakingPayoutConfirmationViewLayout: UIView {
     }
 
     func bind(singleViewModel: StakingPayoutConfirmationViewModel?) {
+        if singleViewModel != nil {
+            mainColor = R.color.colorBlack19()
+        }
+
         tableView.isHidden = singleViewModel != nil
         contentView.isHidden = singleViewModel == nil
         collatorView.isHidden = true
-        networkFeeFooterView.networkFeeView?.isHidden = true
+        networkFeeFooterView.networkFeeView?.isHidden = singleViewModel != nil
 
         if let senderName = singleViewModel?.senderName {
             accountView.valueTop.lineBreakMode = .byTruncatingTail
@@ -185,14 +197,27 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         setNeedsLayout()
     }
 
+    func bind(viewModel _: [LocalizableResource<PayoutConfirmViewModel>]) {
+        mainColor = R.color.colorBlack()
+    }
+
+    private func applyMainColor() {
+        backgroundColor = mainColor
+        tableView.backgroundColor = mainColor
+        contentView.backgroundColor = mainColor
+        navigationBar.backgroundColor = mainColor
+    }
+
     private func setupLayout() {
         addSubview(tableView)
         addSubview(contentView)
         addSubview(navigationBar)
+        addSubview(networkFeeFooterView)
 
         tableView.snp.makeConstraints { make in
             make.top.equalTo(navigationBar.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(networkFeeFooterView.snp.top)
         }
 
         navigationBar.snp.makeConstraints { make in
@@ -233,8 +258,6 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(UIConstants.cellHeight)
         }
-
-        addSubview(networkFeeFooterView)
 
         networkFeeFooterView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
