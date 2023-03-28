@@ -88,7 +88,8 @@ extension NominatorState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 
@@ -119,7 +120,8 @@ extension NominatorState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 
@@ -134,7 +136,8 @@ extension NominatorState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 
@@ -150,7 +153,8 @@ extension NominatorState {
             title: title,
             message: nil,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 }

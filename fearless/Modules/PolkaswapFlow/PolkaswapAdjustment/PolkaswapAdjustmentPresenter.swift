@@ -423,7 +423,8 @@ final class PolkaswapAdjustmentPresenter {
             message: alertMessage,
             actions: [chooseAssetAction],
             closeAction: closeTitle,
-            dismissCompletion: nil
+            dismissCompletion: nil,
+            icon: R.image.iconWarningBig()
         )
         router.present(
             viewModel: viewModel,
