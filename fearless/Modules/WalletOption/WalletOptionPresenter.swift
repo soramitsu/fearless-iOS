@@ -50,7 +50,8 @@ final class WalletOptionPresenter {
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         router.present(viewModel: viewModel, from: view)

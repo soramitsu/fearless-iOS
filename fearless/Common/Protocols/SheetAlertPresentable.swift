@@ -59,7 +59,7 @@ struct SheetAlertPresentableViewModel {
         isInfo: Bool = false,
         closeAction: String?,
         dismissCompletion: (() -> Void)? = nil,
-        icon: UIImage? = nil
+        icon: UIImage? = R.image.iconWarning()
     ) {
         self.title = title
         self.titleStyle = titleStyle

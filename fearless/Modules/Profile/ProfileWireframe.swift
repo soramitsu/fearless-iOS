@@ -15,8 +15,11 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         view?.controller.present(navigationController, animated: true)
     }
 
-    func showSoraCard(from view: ProfileViewProtocol?) {
-        guard let module = SCKYCTermsAndConditionsAssembly.configureModule() else {
+    func showSoraCard(from view: ProfileViewProtocol?, wallet: MetaAccountModel) {
+        guard let module = KYCMainAssembly.configureModule(
+            data: SCKYCUserDataModel(),
+            wallet: wallet
+        ) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)

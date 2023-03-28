@@ -14,8 +14,8 @@ final class KYCMainViewModelFactory: KYCMainViewModelFactoryProtocol {
                 balanceText = R.string.localizable.detailsEnoughXorDesription(preferredLanguages: locale.rLanguages)
                 hasEnoughBalance = true
             case let .missingBalance(xor, fiat):
-                let fiatBalanceLeftText = NumberFormatter.fiat.stringFromDecimal(xor) ?? ""
-                let xorBalanceLeftText = NumberFormatter.polkaswapBalance.stringFromDecimal(fiat) ?? ""
+                let fiatBalanceLeftText = NumberFormatter.fiat.stringFromDecimal(fiat) ?? ""
+                let xorBalanceLeftText = NumberFormatter.polkaswapBalance.stringFromDecimal(xor) ?? ""
                 balanceText = R.string.localizable.detailsNeedXorDesription(
                     xorBalanceLeftText,
                     fiatBalanceLeftText,

@@ -75,7 +75,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .accountList:
             wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .soraCard:
-            wireframe.showSoraCard(from: view)
+            guard let selectedWallet = selectedWallet else { return }
+            wireframe.showSoraCard(from: view, wallet: selectedWallet)
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -136,7 +137,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)
