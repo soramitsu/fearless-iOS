@@ -1,5 +1,7 @@
 import UIKit
 import RobinHood
+import Foundation
+import FearlessUtils
 
 enum KYCConstants {
     static let requiredAmountOfEuro = 100
@@ -30,10 +32,10 @@ final class KYCMainInteractor {
     private let accountInfoFetching: AccountInfoFetchingProtocol
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var xorPrice: PriceData?
-    private var xorAccountInfo: AccountInfo?
+    private var chainAssetsAccountInfo: [ChainAsset: AccountInfo?] = [:]
     private var kycAttempts: SCKYCAtempts?
     let wallet: MetaAccountModel
-    var xorChainAsset: ChainAsset?
+    var xorChainAssets: [ChainAsset] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -85,54 +87,56 @@ private extension KYCMainInteractor {
 
     func getSoraChainAsset() {
         chainAssetFetching.fetch(
-            filters: [.assetName("XOR"), .chainId(Chain.soraMain.genesisHash)],
+            filters: [.assetName("XOR")],
             sortDescriptors: []
         ) { [weak self] result in
-            guard let result = result,
-                  case let .success(chainAssets) = result,
-                  let xorChainAsset = chainAssets.first
+            guard let strongSelf = self,
+                  let result = result,
+                  case let .success(chainAssets) = result
             else {
                 return
             }
-            self?.xorChainAsset = xorChainAsset
-            self?.getXorBalance(for: xorChainAsset)
-            self?.subscribeToPrice(for: xorChainAsset)
+            #if DEBUG
+                strongSelf.xorChainAssets = chainAssets
+            #else
+                strongSelf.xorChainAssets = chainAssets.filter { chainAsset in
+                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
+                }
+            #endif
+            strongSelf.getXorBalance(for: strongSelf.xorChainAssets)
+            strongSelf.subscribeToPrice(for: strongSelf.xorChainAssets.first)
         }
     }
 
-    func getXorBalance(for chainAsset: ChainAsset) {
-        guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
-        else {
-            return
-        }
-        accountInfoFetching.fetch(
-            for: chainAsset,
-            accountId: accountId
-        ) { [weak self] _, accountInfo in
-            self?.xorAccountInfo = accountInfo
+    func getXorBalance(for chainAssets: [ChainAsset]) {
+        accountInfoFetching.fetch(for: chainAssets, wallet: wallet) { [weak self] chainAssetsAccInfo in
+            guard let strongSelf = self else { return }
+            strongSelf.chainAssetsAccountInfo = chainAssetsAccInfo
             self?.checkEnoughtAmount()
         }
     }
 
-    func subscribeToPrice(for chainAsset: ChainAsset) {
+    func subscribeToPrice(for chainAsset: ChainAsset?) {
         priceProvider?.removeObserver(self)
-        if let priceId = chainAsset.asset.priceId {
+        if let priceId = chainAsset?.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
     }
 
     func checkEnoughtAmount() {
-        guard let chainAsset = xorChainAsset,
-              let accountInfo = xorAccountInfo,
-              let priceData = xorPrice
-        else {
+        guard let priceData = xorPrice else {
             return
         }
-        let assetInfo = chainAsset.asset.displayInfo
-        let balance = Decimal.fromSubstrateAmount(
-            accountInfo.data.total,
-            precision: assetInfo.assetPrecision
-        ) ?? 0
+        let balance: Decimal = xorChainAssets.compactMap { chainAsset in
+            let assetInfo = chainAsset.asset.displayInfo
+            guard let accountInfoKeyValue = chainAssetsAccountInfo[chainAsset],
+                  let accountInfo = accountInfoKeyValue else { return Decimal.zero }
+            return Decimal.fromSubstrateAmount(
+                accountInfo.data.total,
+                precision: assetInfo.assetPrecision
+            )
+        }.max() ?? Decimal.zero
+
         let price = priceData.price
         guard let priceDecimal = Decimal(string: price) else { return }
 
