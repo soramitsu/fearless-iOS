@@ -1070,3 +1070,4 @@
 "get.more.xor.buy.action.title" = "Buy XOR with fiat";
 "details.need.xor.desription" = "You need %@ more XOR (€%@)";
 "details.enough.xor.desription" = "You have enough XOR";
+"pool.staking.management.claim.button.title" = "Claim";

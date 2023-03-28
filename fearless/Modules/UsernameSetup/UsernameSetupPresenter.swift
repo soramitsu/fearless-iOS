@@ -69,7 +69,8 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
             title: title,
             message: message,
             actions: [action],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

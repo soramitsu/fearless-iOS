@@ -48,7 +48,8 @@ extension ImportantFlowNavigationController: UIAdaptivePresentationControllerDel
             title: R.string.localizable.commonCancelOperationMessage(preferredLanguages: languages),
             message: nil,
             actions: [action],
-            closeAction: R.string.localizable.commonKeepEditingAction(preferredLanguages: languages)
+            closeAction: R.string.localizable.commonKeepEditingAction(preferredLanguages: languages),
+            icon: R.image.iconWarningBig()
         )
 
         present(viewModel: viewModel, from: self)

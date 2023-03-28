@@ -36,7 +36,8 @@ final class ExportSeedPresenter {
             title: title,
             message: message,
             actions: [exportAction],
-            closeAction: cancelTitle
+            closeAction: cancelTitle,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)
@@ -69,7 +70,8 @@ extension ExportSeedPresenter: ExportGenericPresenterProtocol {
             title: title,
             message: message,
             actions: [exportAction, cancelAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

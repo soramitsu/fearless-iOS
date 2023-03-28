@@ -18,6 +18,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
         button.backgroundColor = R.color.colorBlack19()
         button.titleLabel?.font = .capsTitle
         button.contentEdgeInsets = UIEdgeInsets(top: 0, left: 8, bottom: 0, right: 8)
+        button.isEnabled = false
         return button
     }()
 

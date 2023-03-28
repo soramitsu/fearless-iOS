@@ -64,7 +64,8 @@ final class ChainAssetListRouter: ChainAssetListRouterInput {
             title: title,
             message: nil,
             actions: actions,
-            closeAction: cancelTitle
+            closeAction: cancelTitle,
+            icon: nil
         )
 
         present(

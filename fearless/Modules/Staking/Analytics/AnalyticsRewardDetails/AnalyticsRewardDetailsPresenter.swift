@@ -84,7 +84,8 @@ extension AnalyticsRewardDetailsPresenter: AnalyticsRewardDetailsPresenterProtoc
             title: R.string.localizable.commonChooseAction(preferredLanguages: locale.rLanguages),
             message: nil,
             actions: actions,
-            closeAction: R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+            closeAction: R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages),
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(

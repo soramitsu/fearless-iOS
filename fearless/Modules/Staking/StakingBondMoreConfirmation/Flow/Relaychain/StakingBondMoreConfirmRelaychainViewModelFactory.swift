@@ -55,7 +55,7 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
             let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
                 amountString,
@@ -68,7 +68,11 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
                 range: (stakedString as NSString).range(of: amountString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }
