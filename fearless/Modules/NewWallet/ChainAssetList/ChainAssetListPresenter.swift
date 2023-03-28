@@ -207,7 +207,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 if viewModel.isMissingAccount {
                     self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
                 }
-            }
+            },
+            icon: nil
         )
         router.present(viewModel: sheetViewModel, from: view)
     }

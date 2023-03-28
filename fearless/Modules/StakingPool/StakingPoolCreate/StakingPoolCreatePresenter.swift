@@ -134,7 +134,8 @@ final class StakingPoolCreatePresenter {
             title: R.string.localizable.stakingPoolCreateMissingNameTitle(preferredLanguages: languages),
             message: nil,
             actions: [action],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         DispatchQueue.main.async { [weak self] in
