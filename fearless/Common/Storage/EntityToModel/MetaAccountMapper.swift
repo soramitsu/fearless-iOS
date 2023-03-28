@@ -93,13 +93,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.chainIdForFilter = model.chainIdForFilter
 
         for assetVisibility in model.assetsVisibility {
-            var assetVisibilityEntity = entity.assetsVisibility?.first {
-                if let entity = $0 as? CDAssetVisibility,
-                   entity.assetId == assetVisibility.assetId {
-                    return true
-                } else {
-                    return false
-                }
+            var assetVisibilityEntity = entity.assetsVisibility?.first { entity in
+                return (entity as? CDAssetVisibility)?.assetId == assetVisibility.assetId
             } as? CDAssetVisibility
 
             if assetVisibilityEntity == nil {
