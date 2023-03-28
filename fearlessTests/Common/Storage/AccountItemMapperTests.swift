@@ -28,12 +28,12 @@ class AccountItemMapperTests: XCTestCase {
             ethereumPublicKey: keypair.publicKey().rawData(),
             chainAccounts: [],
             assetKeysOrder: nil,
-            assetIdsEnabled: nil,
             assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil
+            chainIdForFilter: nil,
+            assetsVisibility: []
         )
 
         settings.save(value: metaAccountItem)

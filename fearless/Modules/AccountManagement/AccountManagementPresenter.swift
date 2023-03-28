@@ -182,7 +182,8 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

@@ -47,14 +47,16 @@ final class KYCOnboardingPresenter {
                 title: "Permission Error",
                 message: "Using the camera on your device is restricted, but it is necessary to create an application",
                 actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                icon: R.image.iconWarningBig()
             )
         default:
             let alertViewModel = SheetAlertPresentableViewModel(
                 title: "Permission Error",
                 message: "Can't define camera permission on your phone",
                 actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                icon: R.image.iconWarningBig()
             )
         }
     }
@@ -78,7 +80,8 @@ final class KYCOnboardingPresenter {
                 title: "Permission Error",
                 message: "Can't define microphone permission on your phone",
                 actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                icon: R.image.iconWarningBig()
             )
         }
     }
@@ -95,7 +98,8 @@ final class KYCOnboardingPresenter {
             title: "Permission Error",
             message: "Permission for \(type) access denied, please allow our app permission through Settings in your phone if you want to use our service.",
             actions: [settingsAction],
-            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages)
+            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+            icon: R.image.iconWarningBig()
         )
 
         router.present(viewModel: alertViewModel, from: view)
@@ -116,7 +120,8 @@ final class KYCOnboardingPresenter {
             title: "KYC Failed",
             message: message,
             actions: [closeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         router.present(viewModel: viewModel, from: view)

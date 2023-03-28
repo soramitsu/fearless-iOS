@@ -70,7 +70,8 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
             title: title,
             message: message,
             actions: [exportAction, cancelAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

@@ -45,7 +45,8 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
             title: title,
             message: message,
             actions: [cancelAction, proceedAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

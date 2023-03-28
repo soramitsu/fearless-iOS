@@ -240,12 +240,12 @@ private extension MetaAccountOperationFactory {
             ethereumPublicKey: ethereumPublicKey,
             chainAccounts: [],
             assetKeysOrder: nil,
-            assetIdsEnabled: nil,
             assetFilterOptions: [],
             canExportEthereumMnemonic: true,
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
-            chainIdForFilter: nil
+            chainIdForFilter: nil,
+            assetsVisibility: []
         )
     }
 }
@@ -410,12 +410,12 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 ethereumPublicKey: ethereumPublicKey?.rawData(),
                 chainAccounts: [],
                 assetKeysOrder: nil,
-                assetIdsEnabled: nil,
                 assetFilterOptions: [],
                 canExportEthereumMnemonic: true,
                 unusedChainIds: nil,
                 selectedCurrency: Currency.defaultCurrency(),
-                chainIdForFilter: nil
+                chainIdForFilter: nil,
+                assetsVisibility: []
             )
         }
     }
