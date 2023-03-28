@@ -17,6 +17,7 @@ final class ProfileInteractor {
     private let operationQueue: OperationQueue
     private let selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+    private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
 
     private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
@@ -31,7 +32,8 @@ final class ProfileInteractor {
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         selectedMetaAccount: MetaAccountModel,
-        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -39,6 +41,7 @@ final class ProfileInteractor {
         self.operationQueue = operationQueue
         self.selectedMetaAccount = selectedMetaAccount
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
+        self.walletRepository = walletRepository
     }
 
     // MARK: - Private methods
@@ -99,6 +102,31 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     func update(currency: Currency) {
         currentCurrency = currency
         provideSelectedCurrency()
+    }
+
+    func update(zeroBalanceAssetsHidden: Bool) {
+        guard let wallet = selectedWalletSettings.value else {
+            return
+        }
+
+        let updatedWallet = wallet.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
+
+        let saveOperation = walletRepository.saveOperation {
+            [updatedWallet]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                self?.presenter?.didReceive(wallet: wallet)
+
+                let event = MetaAccountModelChangedEvent(account: updatedWallet)
+                self?.eventCenter.notify(with: event)
+            }
+        }
+
+        operationQueue.addOperation(saveOperation)
     }
 }
 
