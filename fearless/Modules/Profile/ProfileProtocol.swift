@@ -40,7 +40,7 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
         from view: ProfileViewProtocol?,
         moduleOutput: WalletsManagmentModuleOutput
     )
-    func showSoraCard(from view: ProfileViewProtocol?)
+    func showSoraCard(from view: ProfileViewProtocol?, wallet: MetaAccountModel)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
