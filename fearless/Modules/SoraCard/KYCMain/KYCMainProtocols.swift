@@ -31,6 +31,13 @@ protocol KYCMainRouterInput: SheetAlertPresentable, WebPresentable {
     func showSwap(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset)
     func showBuyXor(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset)
     func showTermsAndConditions(from view: ControllerBackedProtocol?)
+    func showSelectAsset(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        selectedAssetId: AssetModel.Id?,
+        chainAssets: [ChainAsset]?,
+        output: SelectAssetModuleOutput
+    )
 }
 
 protocol KYCMainModuleInput: AnyObject {}

@@ -24,20 +24,8 @@ final class KYCMainPresenter {
     }
 
     // MARK: - Private methods
-}
 
-// MARK: - KYCMainViewOutput
-
-extension KYCMainPresenter: KYCMainViewOutput {
-    func didTapIssueCardForFree() {
-        router.showTermsAndConditions(from: view)
-    }
-
-    func didTapGetMoreXor() {
-        guard let chainAsset = interactor.xorChainAssets.first(where: { chainAsset in
-            chainAsset.chain.chainId == Chain.soraMain.genesisHash
-        }) else { return }
-
+    private func showMoreXorSources(for chainAsset: ChainAsset) {
         let languages = localizationManager?.selectedLocale.rLanguages
         let swapAction = SheetAlertPresentableAction(
             title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages),
@@ -64,6 +52,23 @@ extension KYCMainPresenter: KYCMainViewOutput {
 
         DispatchQueue.main.async { [weak self] in
             self?.router.present(viewModel: viewModel, from: self?.view)
+        }
+    }
+}
+
+// MARK: - KYCMainViewOutput
+
+extension KYCMainPresenter: KYCMainViewOutput {
+    func didTapIssueCardForFree() {
+        router.showTermsAndConditions(from: view)
+    }
+
+    func didTapGetMoreXor() {
+        if interactor.xorChainAssets.count > 1 {
+            router.showSelectAsset(from: view, wallet: interactor.wallet, selectedAssetId: nil, chainAssets: interactor.xorChainAssets, output: self)
+        } else {
+            guard let chainAsset = interactor.xorChainAssets.first else { return }
+            showMoreXorSources(for: chainAsset)
         }
     }
 
@@ -110,3 +115,11 @@ extension KYCMainPresenter: Localizable {
 }
 
 extension KYCMainPresenter: KYCMainModuleInput {}
+
+extension KYCMainPresenter: SelectAssetModuleOutput {
+    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
+        if let chainAsset = chainAsset {
+            showMoreXorSources(for: chainAsset)
+        }
+    }
+}

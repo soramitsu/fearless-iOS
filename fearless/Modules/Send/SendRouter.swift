@@ -79,7 +79,7 @@ final class SendRouter: SendRouterInput {
     }
 
     func showSelectAsset(
-        from view: SendViewInput?,
+        from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,
