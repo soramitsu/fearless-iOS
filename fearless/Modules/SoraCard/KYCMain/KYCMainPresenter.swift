@@ -101,6 +101,12 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
         let viewModel = viewModelFactory.buildViewModel(from: data, locale: selectedLocale)
         view?.set(viewModel: viewModel)
     }
+
+    func showKeyAlert(key: String) {
+        DispatchQueue.main.async { [weak self] in
+            self?.router.present(message: nil, title: key, closeAction: nil, from: self?.view, actions: [])
+        }
+    }
 }
 
 // MARK: - Localizable
