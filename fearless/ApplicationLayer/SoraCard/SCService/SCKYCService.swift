@@ -29,14 +29,12 @@ final class SCKYCService {
 
     internal let client: SCAPIClient
     private let payWingsOAuthClient: PayWingsOAuthSDK.OAuthServiceProtocol
-    let apiKey: String
 
     init(client: SCAPIClient) {
         self.client = client
 
         let domain = "soracard.com"
         let apiKey = SoraCardKeys.apiKey
-        self.apiKey = apiKey
         PayWingsOAuthClient.initialize(environmentType: .TEST, apiKey: apiKey, domain: domain)
 
         payWingsOAuthClient = PayWingsOAuthClient.instance()!
