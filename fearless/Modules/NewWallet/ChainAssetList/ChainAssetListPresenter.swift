@@ -207,7 +207,8 @@ extension ChainAssetListPresenter: ChainAssetListViewOutput {
                 if viewModel.isMissingAccount {
                     self?.showMissingAccountOptions(chain: viewModel.chainAsset.chain)
                 }
-            }
+            },
+            icon: nil
         )
         router.present(viewModel: sheetViewModel, from: view)
     }
@@ -322,6 +323,10 @@ extension ChainAssetListPresenter: ChainAssetListInteractorOutput {
 
         provideViewModel()
     }
+
+    func didReceive(soraCardHiddenState: Bool) {
+        view?.didReceive(soraCardHiddenState: soraCardHiddenState)
+    }
 }
 
 // MARK: - Localizable
@@ -365,5 +370,11 @@ extension ChainAssetListPresenter: ChainAssetListModuleInput {
         }
 
         interactor.updateChainAssets(using: filters, sorts: sorts)
+    }
+}
+
+extension ChainAssetListPresenter: SoraCardInfoBoardModuleOutput {
+    func didChanged(soraCardHiddenState: Bool) {
+        view?.didReceive(soraCardHiddenState: soraCardHiddenState)
     }
 }

@@ -14,7 +14,7 @@ final class StakingRedeemPoolViewModelState: StakingRedeemViewModelState {
     private(set) var numberOfSlashingSpans: Int?
     private(set) var stakeInfo: StakingPoolMember?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard let numberOfSlashingSpans = numberOfSlashingSpans,
@@ -43,11 +43,13 @@ final class StakingRedeemPoolViewModelState: StakingRedeemViewModelState {
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingRedeemModelStateListener?) {

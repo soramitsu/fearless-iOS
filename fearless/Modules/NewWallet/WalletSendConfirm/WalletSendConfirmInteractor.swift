@@ -22,8 +22,6 @@ final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var utilityPriceProvider: AnySingleValueProvider<PriceData>?
 
-    private(set) lazy var callFactory = SubstrateCallFactory()
-
     init(
         selectedMetaAccount: MetaAccountModel,
         chainAsset: ChainAsset,
@@ -102,7 +100,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
         ),
             let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
 
-        let call = callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
+        let call = dependencies.callFactory.transfer(to: accountId, amount: amount, chainAsset: chainAsset)
         var identifier = String(amount)
         if let tip = tip {
             identifier += "_\(String(tip))"
@@ -123,7 +121,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
         ),
             let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset) else { return }
 
-        let call = callFactory.transfer(
+        let call = dependencies.callFactory.transfer(
             to: accountId,
             amount: transferAmount,
             chainAsset: chainAsset

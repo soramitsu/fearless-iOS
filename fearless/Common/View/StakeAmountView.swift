@@ -8,7 +8,7 @@ class StakeAmountView: UIView {
 
     let iconBackground: ShadowRoundedBackground = {
         let view = ShadowRoundedBackground()
-        view.shadowColor = R.color.colorPink1()!
+        view.shadowColor = .clear
         view.backgroundColor = R.color.colorBlack19()
         return view
     }()
@@ -62,5 +62,9 @@ class StakeAmountView: UIView {
     func bind(viewModel: StakeAmountViewModel) {
         amountLabel.attributedText = viewModel.amountTitle
         viewModel.iconViewModel?.loadAmountInputIcon(on: iconImageView, animated: true)
+
+        if let color = HexColorConverter.hexStringToUIColor(hex: viewModel.color) {
+            iconBackground.shadowColor = color
+        }
     }
 }

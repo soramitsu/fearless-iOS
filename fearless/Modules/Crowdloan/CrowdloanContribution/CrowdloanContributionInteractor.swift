@@ -25,7 +25,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     private var crowdloanProvider: AnyDataProvider<DecodedCrowdloanFunds>?
     private var displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>?
 
-    private(set) lazy var callFactory = SubstrateCallFactory()
+    let callFactory: SubstrateCallFactoryProtocol
 
     init(
         paraId: ParaId,
@@ -39,7 +39,8 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
         jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.paraId = paraId
         self.selectedMetaAccount = selectedMetaAccount
@@ -53,6 +54,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         self.jsonLocalSubscriptionFactory = jsonLocalSubscriptionFactory
         self.existentialDepositService = existentialDepositService
         self.operationManager = operationManager
+        self.callFactory = callFactory
     }
 
     private func provideConstants() {
@@ -141,7 +143,7 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
     }
 
     func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?) {
-        let call = callFactory.contribute(to: paraId, amount: amount)
+        let call = callFactory.contribute(to: paraId, amount: amount, multiSignature: nil)
 
         let identifier = String(amount)
 

@@ -25,7 +25,8 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
         connection: JSONRPCEngine,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         output: StakingUnbondSetupRelaychainStrategyOutput?,
-        extrinsicService: ExtrinsicServiceProtocol?
+        extrinsicService: ExtrinsicServiceProtocol?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -38,6 +39,7 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
         self.accountRepository = accountRepository
         self.output = output
         self.extrinsicService = extrinsicService
+        self.callFactory = callFactory
     }
 
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
@@ -51,7 +53,7 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
     private let connection: JSONRPCEngine
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private weak var output: StakingUnbondSetupRelaychainStrategyOutput?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?

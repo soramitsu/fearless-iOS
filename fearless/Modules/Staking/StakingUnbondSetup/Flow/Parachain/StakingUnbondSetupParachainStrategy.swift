@@ -26,7 +26,7 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
     private let delegation: ParachainStakingDelegation
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -40,7 +40,8 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
         extrinsicService: ExtrinsicServiceProtocol?,
         operationFactory: ParachainCollatorOperationFactory,
         candidate: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
+        delegation: ParachainStakingDelegation,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.runtimeService = runtimeService
@@ -54,6 +55,7 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
         self.operationFactory = operationFactory
         self.candidate = candidate
         self.delegation = delegation
+        self.callFactory = callFactory
     }
 }
 

@@ -276,7 +276,8 @@ private extension ChainAccountWireframe {
             title: title,
             message: nil,
             actions: actions,
-            closeAction: cancelTitle
+            closeAction: cancelTitle,
+            icon: nil
         )
 
         present(

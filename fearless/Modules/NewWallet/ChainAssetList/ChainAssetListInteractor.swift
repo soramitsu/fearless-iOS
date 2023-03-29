@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SoraKeystore
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
@@ -17,6 +18,7 @@ final class ChainAssetListInteractor {
     private let accountRepository: AnyDataProviderRepository<MetaAccountModel>
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
     private let accountInfoFetching: AccountInfoFetchingProtocol
+    private let settings: SettingsManagerProtocol
 
     private var chainAssets: [ChainAsset]?
     private var filters: [ChainAssetsFetching.Filter] = []
@@ -40,7 +42,8 @@ final class ChainAssetListInteractor {
         chainsIssuesCenter: ChainsIssuesCenterProtocol,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
         chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
-        accountInfoFetching: AccountInfoFetchingProtocol
+        accountInfoFetching: AccountInfoFetchingProtocol,
+        settings: SettingsManagerProtocol
     ) {
         self.wallet = wallet
         self.chainAssetFetching = chainAssetFetching
@@ -53,6 +56,7 @@ final class ChainAssetListInteractor {
         self.accountRepository = accountRepository
         self.chainSettingsRepository = chainSettingsRepository
         self.accountInfoFetching = accountInfoFetching
+        self.settings = settings
     }
 
     // MARK: - Private methods
@@ -101,6 +105,9 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchChainSettings()
+
+        let soraCardHiddenState = settings.bool(for: SoraCardSettingsKey.settingsKey(for: wallet)) ?? false
+        output.didReceive(soraCardHiddenState: soraCardHiddenState)
     }
 
     func updateChainAssets(
@@ -145,10 +152,11 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        var enabledAssets = wallet.assetIdsEnabled ?? []
-        enabledAssets.append(chainAssetKey)
+        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAssetKey }
+        let assetVisibility = AssetVisibility(assetId: chainAssetKey, hidden: true)
+        assetsVisibility.append(assetVisibility)
 
-        let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
+        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
         save(updatedWallet)
     }
 
@@ -159,11 +167,12 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         }
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
 
-        if var enabledAssets = wallet.assetIdsEnabled {
-            enabledAssets = enabledAssets.filter { $0 != chainAssetKey }
-            let updatedWallet = wallet.replacingAssetIdsEnabled(enabledAssets)
-            save(updatedWallet)
-        }
+        var assetsVisibility = wallet.assetsVisibility.filter { $0.assetId != chainAssetKey }
+        let assetVisibility = AssetVisibility(assetId: chainAssetKey, hidden: false)
+        assetsVisibility.append(assetVisibility)
+
+        let updatedWallet = wallet.replacingAssetsVisibility(assetsVisibility)
+        save(updatedWallet)
     }
 
     func markUnused(chain: ChainModel) {
@@ -257,7 +266,7 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             pricesProvider?.refresh()
         }
 
-        if wallet.assetIdsEnabled != event.account.assetIdsEnabled {
+        if wallet.assetsVisibility != event.account.assetsVisibility {
             output?.updateViewModel()
         }
 

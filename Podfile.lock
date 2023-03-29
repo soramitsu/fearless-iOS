@@ -17,6 +17,7 @@ PODS:
   - Cuckoo (1.9.1):
     - Cuckoo/Swift (= 1.9.1)
   - Cuckoo/Swift (1.9.1)
+  - eIDRTC (1.1.34)
   - FearlessUtils (0.14.1):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
@@ -30,6 +31,7 @@ PODS:
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
+  - IdensicMobileSDK (1.19.6)
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
     - IrohaCrypto/blake2 (= 0.10.0)
@@ -59,7 +61,10 @@ PODS:
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - keccak.c (0.1.3)
-  - Kingfisher (7.4.0)
+  - Kingfisher (7.6.2)
+  - PayWingsOAuthSDK (1.2.1)
+  - PayWingsOnboardingKYC (5.1.2):
+    - VideoID (= 7.1.31)
   - R.swift (6.1.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -87,6 +92,7 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (1.0.0)
   - SoraKeystore (1.0.1)
+  - SoraSwiftUI (0.0.1)
   - SoraUI (1.10.3):
     - SoraUI/AdaptiveDesign (= 1.10.3)
     - SoraUI/Animator (= 1.10.3)
@@ -119,17 +125,19 @@ PODS:
   - SoraUI/PinView (1.10.3):
     - SoraUI/Controls
   - SoraUI/Skrull (1.10.3)
-  - Sourcery (1.9.0):
-    - Sourcery/CLI-Only (= 1.9.0)
-  - Sourcery/CLI-Only (1.9.0)
+  - Sourcery (1.9.2):
+    - Sourcery/CLI-Only (= 1.9.2)
+  - Sourcery/CLI-Only (1.9.2)
   - Starscream (4.0.8)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
   - SwiftAlgorithms (1.0.0)
   - SwiftFormat/CLI (0.47.13)
-  - SwiftLint (0.49.1)
+  - SwiftLint (0.50.3)
   - SwiftyBeaver (1.9.5)
   - TweetNacl (1.0.2)
+  - VideoID (7.1.31):
+    - eIDRTC (= 1.1.34)
   - XNetworking (0.0.37)
   - xxHash-Swift (1.0.13)
 
@@ -137,17 +145,21 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, tag `0.14.1`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, tag `0.14.3`)
   - FireMock
+  - "IdensicMobileSDK (from `{:http=>\"https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz\"}`)"
   - IrohaCrypto
   - keccak.c
   - Kingfisher
+  - "PayWingsOAuthSDK (from `{:http=>\"https://github.com/PayWings/PayWingsOAuthSDK-iOS/archive/v1.2.1.tar.gz\"}`)"
+  - "PayWingsOnboardingKYC (from `{:http=>\"https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS/archive/v5.1.2.tar.gz\"}`)"
   - R.swift (= 6.1.0)
   - ReachabilitySwift
-  - RobinHood
+  - RobinHood (~> 2.6.6)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 1.0.0)
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
+  - SoraSwiftUI (from `./SoraSwiftUI`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
@@ -164,6 +176,7 @@ SPEC REPOS:
     - CocoaLumberjack
     - CommonWallet
     - Cuckoo
+    - eIDRTC
     - FireMock
     - IrohaCrypto
     - keccak.c
@@ -184,15 +197,24 @@ SPEC REPOS:
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
+    - VideoID
     - xxHash-Swift
 
 EXTERNAL SOURCES:
   FearlessUtils:
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.1
+    :tag: 0.14.3
+  IdensicMobileSDK:
+    :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz
+  PayWingsOAuthSDK:
+    :http: https://github.com/PayWings/PayWingsOAuthSDK-iOS/archive/v1.2.1.tar.gz
+  PayWingsOnboardingKYC:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS/archive/v5.1.2.tar.gz
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SoraSwiftUI:
+    :path: "./SoraSwiftUI"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -202,7 +224,13 @@ EXTERNAL SOURCES:
 CHECKOUT OPTIONS:
   FearlessUtils:
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.1
+    :tag: 0.14.3
+  IdensicMobileSDK:
+    :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz
+  PayWingsOAuthSDK:
+    :http: https://github.com/PayWings/PayWingsOAuthSDK-iOS/archive/v1.2.1.tar.gz
+  PayWingsOnboardingKYC:
+    :http: https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS/archive/v5.1.2.tar.gz
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -216,11 +244,15 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
+  eIDRTC: debca63e4c367be509c77292df65b9527d695f10
   FearlessUtils: 47b213751f68810c81cd684f857ad53595967b69
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
+  IdensicMobileSDK: 03ade0371c3b579ca7e6129dc59cf43341b74e98
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
-  Kingfisher: 596b207973051aae5e4c54a1c1cb39837ea10d36
+  Kingfisher: 6c5449c6450c5239166510ba04afe374a98afc4f
+  PayWingsOAuthSDK: c6df50b0767cc3803011331b8cbacd2eafa52224
+  PayWingsOnboardingKYC: a9b2d0118c950a915cd464fa45db2a628d70fd52
   R.swift: ec98ff71c4ab2f6fd01dd077e5afd15e63a4834c
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -230,18 +262,20 @@ SPEC CHECKSUMS:
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 988d90ee3159311b02e42aeba0cf7e85d8bc724c
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
+  SoraSwiftUI: f7fc9f8fe4b2d8937e42ceef28574d5c344b95fb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
-  Sourcery: d7c59d100e55bf59123c8ae7d65a24cf30748979
+  Sourcery: 179539341c2261068528cd15a31837b7238fd901
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
-  SwiftLint: 32ee33ded0636d0905ef6911b2b67bbaeeedafa5
+  SwiftLint: 77f7cb2b9bb81ab4a12fcc86448ba3f11afa50c6
   SwiftyBeaver: 84069991dd5dca07d7069100985badaca7f0ce82
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
+  VideoID: d48d4f30f79f12229421a09e65692561960dc5b5
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1e5bbdc7adaec0de9c35ae694906c3444b1c270f
+PODFILE CHECKSUM: 5ff0e9d9ae49b48dce7d628d1541645c8e78dfd7
 
 COCOAPODS: 1.11.3

@@ -77,7 +77,8 @@ final class NetworkIssuesNotificationPresenter {
             title: title,
             message: subtitle,
             actions: [muteAction],
-            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            icon: nil
         )
         router.present(viewModel: sheetViewModel, from: view)
     }
@@ -102,7 +103,8 @@ final class NetworkIssuesNotificationPresenter {
             title: title,
             message: subtitle,
             actions: [changeNodeAction, muteAction],
-            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            icon: nil
         )
         router.present(viewModel: sheetViewModel, from: view)
     }

@@ -127,7 +127,8 @@ final class StakingBalancePresenter {
             title: title,
             message: nil,
             actions: actions,
-            closeAction: closeTitle
+            closeAction: closeTitle,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

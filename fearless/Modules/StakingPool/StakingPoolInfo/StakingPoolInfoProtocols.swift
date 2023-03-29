@@ -13,7 +13,7 @@ protocol StakingPoolInfoViewOutput: AnyObject {
     func didTapValidators()
     func willAppear(view: StakingPoolInfoViewInput)
     func nominatorDidTapped()
-    func stateTogglerDidTapped()
+    func bouncerDidTapped()
     func rootDidTapped()
     func saveRolesDidTapped()
     func copyAddressTapped()

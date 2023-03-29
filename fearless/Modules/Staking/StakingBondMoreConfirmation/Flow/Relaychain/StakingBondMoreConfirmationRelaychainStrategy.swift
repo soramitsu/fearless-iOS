@@ -30,7 +30,7 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var signingWrapper: SigningWrapperProtocol
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
@@ -45,7 +45,8 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
         signingWrapper: SigningWrapperProtocol,
-        output: StakingBondMoreConfirmationRelaychainStrategyOutput?
+        output: StakingBondMoreConfirmationRelaychainStrategyOutput?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -60,6 +61,7 @@ final class StakingBondMoreConfirmationRelaychainStrategy: AccountFetching {
         self.keystore = keystore
         self.signingWrapper = signingWrapper
         self.output = output
+        self.callFactory = callFactory
     }
 
     func handleStashAccountItem(_ accountItem: ChainAccountResponse) {

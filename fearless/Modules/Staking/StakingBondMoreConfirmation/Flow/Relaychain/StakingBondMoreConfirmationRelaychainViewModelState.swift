@@ -10,7 +10,7 @@ final class StakingBondMoreConfirmationRelaychainViewModelState: StakingBondMore
     let amount: Decimal
     let chainAsset: ChainAsset
     private var priceData: PriceData?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private var stashItem: StashItem?
     private var wallet: MetaAccountModel
 
@@ -43,11 +43,18 @@ final class StakingBondMoreConfirmationRelaychainViewModelState: StakingBondMore
         return bondExtra.callName
     }
 
-    init(chainAsset: ChainAsset, wallet: MetaAccountModel, amount: Decimal, dataValidatingFactory: StakingDataValidatingFactoryProtocol) {
+    init(
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel,
+        amount: Decimal,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
+    ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.amount = amount
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingBondMoreConfirmationModelStateListener?) {

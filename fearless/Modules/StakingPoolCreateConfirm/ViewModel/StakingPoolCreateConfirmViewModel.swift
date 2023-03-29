@@ -7,5 +7,5 @@ struct StakingPoolCreateConfirmViewModel {
     let rootName: String
     let poolId: String
     let nominatorName: String
-    let stateTogglerName: String
+    let bouncerName: String
 }

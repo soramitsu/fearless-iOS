@@ -15,7 +15,7 @@ final class StakingRedeemConfirmationParachainViewModelState: StakingRedeemConfi
     private(set) var minimalBalance: BigUInt?
     private(set) var fee: Decimal?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var builderClosure: ExtrinsicBuilderClosure? {
         guard let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
@@ -44,7 +44,8 @@ final class StakingRedeemConfirmationParachainViewModelState: StakingRedeemConfi
         dataValidatingFactory: StakingDataValidatingFactory,
         delegation: ParachainStakingDelegation,
         collator: ParachainStakingCandidateInfo,
-        readyForRevoke: BigUInt
+        readyForRevoke: BigUInt,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
@@ -52,6 +53,7 @@ final class StakingRedeemConfirmationParachainViewModelState: StakingRedeemConfi
         self.delegation = delegation
         self.collator = collator
         self.readyForRevoke = readyForRevoke
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingRedeemConfirmationModelStateListener?) {

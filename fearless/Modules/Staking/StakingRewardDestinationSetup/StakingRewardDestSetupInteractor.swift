@@ -31,7 +31,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private var stashItem: StashItem?
     private var rewardDestination: RewardDestination<AccountAddress>?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private lazy var addressFactory = SS58AddressFactory()
 
     init(
@@ -46,7 +46,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         feeProxy: ExtrinsicFeeProxyProtocol,
         chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
-        connection: JSONRPCEngine
+        connection: JSONRPCEngine,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -60,6 +61,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         self.selectedAccount = selectedAccount
         self.accountRepository = accountRepository
         self.connection = connection
+        self.callFactory = callFactory
     }
 
     private func provideRewardCalculator() {

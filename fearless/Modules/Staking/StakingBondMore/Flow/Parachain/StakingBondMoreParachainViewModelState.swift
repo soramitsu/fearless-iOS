@@ -3,7 +3,7 @@ import BigInt
 
 final class StakingBondMoreParachainViewModelState {
     var stateListener: StakingBondMoreModelStateListener?
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let candidate: ParachainStakingCandidateInfo
@@ -16,12 +16,14 @@ final class StakingBondMoreParachainViewModelState {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        candidate: ParachainStakingCandidateInfo
+        candidate: ParachainStakingCandidateInfo,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.candidate = candidate
+        self.callFactory = callFactory
     }
 
     var accountAddress: AccountAddress? {

@@ -26,7 +26,7 @@ final class StakingBondMoreConfirmationPoolStrategy {
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var signingWrapper: SigningWrapperProtocol
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let logger: LoggerProtocol
     private var submitAndWatchExtrinsicSubscriptionId: UInt16?
 
@@ -43,7 +43,8 @@ final class StakingBondMoreConfirmationPoolStrategy {
         signingWrapper: SigningWrapperProtocol,
         output: StakingBondMoreConfirmationPoolStrategyOutput?,
         eventCenter: EventCenterProtocol,
-        logger: LoggerProtocol
+        logger: LoggerProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.chainAsset = chainAsset
@@ -58,6 +59,7 @@ final class StakingBondMoreConfirmationPoolStrategy {
         self.output = output
         self.eventCenter = eventCenter
         self.logger = logger
+        self.callFactory = callFactory
     }
 }
 
