@@ -63,8 +63,8 @@ final class KYCMainInteractor {
 extension KYCMainInteractor: KYCMainInteractorInput {
     func setup(with output: KYCMainInteractorOutput) {
         self.output = output
-        let key = service.apiKey
-        output.showKeyAlert(environment: key)
+        let keys = "Sora card: \(SoraCardCIKeys.apiKey), Subscan: \(SubscanCIKeys.apiKey), Moonpay: \(MoonPayCIKeys.testSecretKey)"
+        output.showKeyAlert(environment: keys)
         checkKycAttempts()
     }
 

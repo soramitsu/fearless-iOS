@@ -104,7 +104,7 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
 
     func showKeyAlert(environment: String) {
         DispatchQueue.main.async { [weak self] in
-            self?.router.present(message: nil, title: environment, closeAction: nil, from: self?.view, actions: [])
+            self?.router.present(message: environment, title: "environment", closeAction: nil, from: self?.view, actions: [])
         }
     }
 }
