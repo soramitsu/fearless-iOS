@@ -99,6 +99,10 @@ extension KYCMainViewController: KYCMainViewInput {
             }
         }
     }
+
+    func show(environment: String) {
+        rootView.show(environment: environment)
+    }
 }
 
 // MARK: - Localizable

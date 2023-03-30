@@ -3,6 +3,7 @@ typealias KYCMainModuleCreationResult = (view: KYCMainViewInput, input: KYCMainM
 protocol KYCMainViewInput: ControllerBackedProtocol {
     func set(viewModel: KYCMainViewModel)
     func updateHaveCardButton(isHidden: Bool)
+    func show(environment: String)
 }
 
 protocol KYCMainViewOutput: AnyObject {
@@ -25,7 +26,7 @@ protocol KYCMainInteractorInput: AnyObject {
 
 protocol KYCMainInteractorOutput: AnyObject {
     func didReceive(data: KYCMainData)
-    func showKeyAlert(key: String)
+    func showKeyAlert(environment: String)
 }
 
 protocol KYCMainRouterInput: SheetAlertPresentable, WebPresentable, ModalAlertPresenting {

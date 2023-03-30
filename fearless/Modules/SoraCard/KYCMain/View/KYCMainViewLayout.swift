@@ -182,6 +182,17 @@ final class KYCMainViewLayout: UIView {
         titleLabel.sora.text = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale.rLanguages)
         textLabel.sora.text = "\(error)"
     }
+
+    func show(environment: String) {
+        let debugTextView = UITextView()
+        debugTextView.isScrollEnabled = true
+        debugTextView.isEditable = false
+        debugTextView.text = environment
+        addSubview(debugTextView)
+        debugTextView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+        }
+    }
 }
 
 private extension KYCMainViewLayout {
