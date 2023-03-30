@@ -63,8 +63,8 @@ final class KYCMainInteractor {
 extension KYCMainInteractor: KYCMainInteractorInput {
     func setup(with output: KYCMainInteractorOutput) {
         self.output = output
-        let environment = ProcessInfo.processInfo.environment.description
-        output.showKeyAlert(environment: environment)
+        let key = service.apiKey
+        output.showKeyAlert(environment: key)
         checkKycAttempts()
     }
 
