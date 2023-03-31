@@ -24,6 +24,12 @@ final class KYCMainPresenter {
     }
 
     // MARK: - Private methods
+
+    func showCIKeys() {
+        DispatchQueue.main.async { [weak self] in
+            self?.router.present(message: "SC api: \(SoraCardCIKeys.apiKey), SC domain: \(SoraCardCIKeys.domain), SC endpoint: \(SoraCardCIKeys.endpoint), SC username: \(SoraCardCIKeys.username), SC password: \(SoraCardCIKeys.password), PW  url: \(PayWingsCIKeys.repositoryUrl), PW username: \(PayWingsCIKeys.username), PW password: \(PayWingsCIKeys.password), X1 endpointRelease: \(XOneCIKeys.endpointRelease), X1 widgetRelease: \(XOneCIKeys.widgetRelease), X1 endpointDebug: \(XOneCIKeys.endpointDebug), X1 widgetDebug: \(XOneCIKeys.widgetDebug)", title: "CI Keys", closeAction: nil, from: self?.view, actions: [])
+        }
+    }
 }
 
 // MARK: - KYCMainViewOutput
@@ -86,6 +92,7 @@ extension KYCMainPresenter: KYCMainViewOutput {
     func didLoad(view: KYCMainViewInput) {
         self.view = view
         view.updateHaveCardButton(isHidden: SCStorage.shared.hasToken())
+        showCIKeys()
         interactor.setup(with: self)
     }
 
