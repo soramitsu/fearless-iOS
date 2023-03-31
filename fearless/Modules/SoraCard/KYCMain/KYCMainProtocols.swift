@@ -26,7 +26,6 @@ protocol KYCMainInteractorInput: AnyObject {
 
 protocol KYCMainInteractorOutput: AnyObject {
     func didReceive(data: KYCMainData)
-    func showKeyAlert(environment: String)
 }
 
 protocol KYCMainRouterInput: SheetAlertPresentable, WebPresentable, ModalAlertPresenting {

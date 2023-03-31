@@ -9,4 +9,22 @@ enum SubscanCIKeys {
 
 enum SoraCardCIKeys {
     static var apiKey: String = "{{ argument.soraCardApiKey }}"
+    static var domain: String = "{{ argument.soraCardDomain }}"
+    static var endpoint: String = "{{ argument.soraCardEndpoint }}"
+    static var username: String = "{{ argument.soraCardUsername }}"
+    static var password: String = "{{ argument.soraCardPassword }}"
 }
+
+enum PayWingsCIKeys {
+    static var repositoryUrl: String = "{{ argument.payWingsRepositoryUrl }}"
+    static var username: String = "{{ argument.payWingsUsername }}"
+    static var password: String = "{{ argument.payWingsPassword }}"
+}
+
+enum XOneCIKeys {
+    static let endpointRelease: String = "{{ argument.xOneEndpointRelease }}"
+    static let widgetRelease: String = "{{ argument.xOneWidgetRelease }}"
+    static let endpointDebug: String = "{{ argument.xOneEndpointDebug }}"
+    static let widgetDebug: String = "{{ argument.xOneWidgetDebug }}"
+}
+
