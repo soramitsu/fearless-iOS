@@ -38,7 +38,7 @@ extension ElectedValidatorInfo {
         stakeReturn: Decimal,
         hasSlashes: Bool,
         maxNominatorsRewarded: UInt32,
-        addressType: UInt16,
+        chainFormat: ChainFormat,
         blocked: Bool,
         precision: Int16
     ) throws {
@@ -46,13 +46,14 @@ extension ElectedValidatorInfo {
         self.identity = identity
         self.stakeReturn = stakeReturn
 
-        let addressFactory = SS58AddressFactory()
-
-        address = try addressFactory.addressFromAccountId(data: validator.accountId, addressPrefix: addressType)
+        address = try AddressFactory.address(
+            for: validator.accountId,
+            chainFormat: chainFormat
+        )
         nominators = try validator.exposure.others.map { nominator in
-            let nominatorAddress = try addressFactory.addressFromAccountId(
-                data: nominator.who,
-                addressPrefix: addressType
+            let nominatorAddress = try AddressFactory.address(
+                for: nominator.who,
+                chainFormat: chainFormat
             )
             let stake = Decimal.fromSubstrateAmount(nominator.value, precision: precision) ?? 0.0
             return NominatorInfo(address: nominatorAddress, stake: stake)

@@ -18,8 +18,6 @@ final class ControllerAccountInteractor {
     private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
-    private lazy var addressFactory = SS58AddressFactory()
-
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
@@ -74,7 +72,7 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     func estimateFee(for account: ChainAccountResponse) {
         guard let extrinsicService = extrinsicService, let address = account.toAddress() else { return }
         do {
-            let setController = try callFactory.setController(address)
+            let setController = try callFactory.setController(address, chainAsset: chainAsset)
             let identifier = setController.callName + account.name
 
             feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
@@ -87,9 +85,9 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
     func fetchControllerAccountInfo(controllerAddress: AccountAddress) {
         do {
-            let accountId = try addressFactory.accountId(
-                fromAddress: controllerAddress,
-                addressPrefix: chainAsset.chain.addressPrefix
+            let accountId = try AddressFactory.accountId(
+                from: controllerAddress,
+                chain: chainAsset.chain
             )
 
             let accountInfoOperation = createAccountInfoFetchOperation(accountId)
@@ -111,9 +109,9 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
     func fetchLedger(controllerAddress: AccountAddress) {
         do {
-            let accountId = try addressFactory.accountId(
-                fromAddress: controllerAddress,
-                addressPrefix: chainAsset.chain.addressPrefix
+            let accountId = try AddressFactory.accountId(
+                from: controllerAddress,
+                chain: chainAsset.chain
             )
 
             let ledgerOperataion = createLedgerFetchOperation(accountId)
@@ -185,11 +183,9 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 
     private func handle(stashItem: StashItem) {
-        let addressFactory = SS58AddressFactory()
-
-        if let accountId = try? addressFactory.accountId(
-            fromAddress: stashItem.stash,
-            type: chainAsset.chain.addressPrefix
+        if let accountId = try? AddressFactory.accountId(
+            from: stashItem.stash,
+            chain: chainAsset.chain
         ) {
             accountInfoSubscriptionAdapter.subscribe(
                 chainAsset: chainAsset,
@@ -246,10 +242,9 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
 extension ControllerAccountInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(result: Result<AccountInfo?, Error>, accountId: AccountId, chainAsset: ChainAsset) {
-        let addressFactory = SS58AddressFactory()
-        guard let address = try? addressFactory.address(
-            fromAccountId: accountId,
-            type: chainAsset.chain.addressPrefix
+        guard let address = try? AddressFactory.address(
+            for: accountId,
+            chainFormat: chainAsset.chain.chainFormat
         ) else {
             return
         }

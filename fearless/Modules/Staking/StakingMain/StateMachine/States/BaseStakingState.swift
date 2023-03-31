@@ -26,7 +26,7 @@ class BaseStakingState: StakingStateProtocol {
 
             let newState: BaseStakingState
             switch chainAsset?.stakingType {
-            case .relayChain:
+            case .relayChain, .sora:
                 newState = InitialRelaychainStakingState(
                     stateMachine: stateMachine,
                     commonData: commonData
@@ -122,6 +122,18 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(maxNominatorsCount: UInt32?) {
         commonData = commonData.byReplacing(maxNominatorsCount: maxNominatorsCount)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(rewardChainAsset: ChainAsset?) {
+        commonData = commonData.byReplacing(rewardChainAsset: rewardChainAsset)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(rewardAssetPrice: PriceData?) {
+        commonData = commonData.byReplacing(rewardAssetPrice: rewardAssetPrice)
 
         stateMachine?.transit(to: self)
     }

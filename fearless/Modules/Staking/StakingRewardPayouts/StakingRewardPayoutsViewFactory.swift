@@ -40,12 +40,11 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         selectedAccount: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory()
+        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory(chainAsset: ChainAsset(chain: chain, asset: asset))
 
         let payoutInfoFactory = ValidatorPayoutInfoFactory(
             chain: chain,
-            asset: asset,
-            addressFactory: SS58AddressFactory()
+            asset: asset
         )
 
         return createView(

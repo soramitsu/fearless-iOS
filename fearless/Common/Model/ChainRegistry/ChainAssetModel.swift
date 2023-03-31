@@ -71,4 +71,23 @@ enum PurchaseProvider: String, Codable {
 enum StakingType: String, Codable {
     case relayChain = "relaychain"
     case paraChain = "parachain"
+    case sora
+
+    var isRelaychain: Bool {
+        switch self {
+        case .relayChain, .sora:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isParachain: Bool {
+        switch self {
+        case .paraChain:
+            return true
+        default:
+            return false
+        }
+    }
 }

@@ -7,7 +7,8 @@ protocol SlashesOperationFactoryProtocol {
     func createSlashingSpansOperationForStash(
         _ stashAddress: AccountAddress,
         engine: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        chainAsset: ChainAsset
     )
         -> CompoundOperationWrapper<SlashingSpans?>
 }
@@ -26,13 +27,14 @@ extension SlashesOperationFactory: SlashesOperationFactoryProtocol {
     func createSlashingSpansOperationForStash(
         _ stashAddress: AccountAddress,
         engine: JSONRPCEngine,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        chainAsset: ChainAsset
     )
         -> CompoundOperationWrapper<SlashingSpans?> {
         let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
 
         let keyParams: () throws -> [AccountId] = {
-            let accountId: AccountId = try SS58AddressFactory().accountId(from: stashAddress)
+            let accountId: AccountId = try AddressFactory.accountId(from: stashAddress, chain: chainAsset.chain)
             return [accountId]
         }
 

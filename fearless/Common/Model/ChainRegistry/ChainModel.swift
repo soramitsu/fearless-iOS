@@ -127,6 +127,16 @@ class ChainModel: Codable {
         }
     }
 
+    var stakingSettings: ChainStakingSettings? {
+        let oldChainModel = Chain(rawValue: name)
+        switch oldChainModel {
+        case .soraMain:
+            return SoraChainStakingSettings()
+        default:
+            return nil
+        }
+    }
+
     var emptyURL: URL {
         URL(string: "")!
     }

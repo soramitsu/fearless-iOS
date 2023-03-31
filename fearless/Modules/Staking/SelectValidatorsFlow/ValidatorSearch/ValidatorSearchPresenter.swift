@@ -15,8 +15,6 @@ final class ValidatorSearchPresenter {
 
     private var isSearching: Bool = false
 
-    private lazy var addressFactory = SS58AddressFactory()
-
     init(
         wireframe: ValidatorSearchWireframeProtocol,
         interactor: ValidatorSearchInteractorInputProtocol,
@@ -69,7 +67,10 @@ final class ValidatorSearchPresenter {
             return
         }
 
-        if let accountId = try? addressFactory.accountId(from: viewModelState.searchString) {
+        if let accountId = try? AddressFactory.accountId(
+            from: viewModelState.searchString,
+            chain: chainAsset.chain
+        ) {
             performFullAddressSearch(by: viewModelState.searchString, accountId: accountId)
             return
         }

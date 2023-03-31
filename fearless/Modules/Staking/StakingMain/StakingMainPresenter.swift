@@ -222,7 +222,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 amount: self?.amount,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: selectedAccount
+                selectedAccount: selectedAccount,
+                rewardChainAsset: commonData.rewardChainAsset
             )
         }
     }
@@ -342,8 +343,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
-        let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+        let maxReward = rewardCalculator.calculatorReturn(isCompound: true, period: .year, type: .max())
+        let avgReward = rewardCalculator.calculatorReturn(isCompound: true, period: .year, type: .avg)
         let maxRewardTitle = rewardCalculator.maxEarningsTitle(locale: locale)
         let avgRewardTitle = rewardCalculator.avgEarningTitle(locale: locale)
 
@@ -458,7 +459,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             return nomination != nil ? .includeValidatorsTab : .none
         }()
 
-        let flow: AnalyticsRewardsFlow = chainAsset.stakingType == .paraChain ? .parachain : .relaychain
+        let flow: AnalyticsRewardsFlow = chainAsset.stakingType?.isParachain == true ? .parachain : .relaychain
 
         wireframe.showAnalytics(
             from: view,
@@ -749,6 +750,14 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceiveCurrentBlock(currentBlock: UInt32?) {
         stateMachine.state.process(currentBlock: currentBlock)
     }
+
+    func didReceive(rewardChainAsset: ChainAsset?) {
+        stateMachine.state.process(rewardChainAsset: rewardChainAsset)
+    }
+
+    func didReceive(rewardAssetPrice: PriceData?) {
+        stateMachine.state.process(rewardAssetPrice: rewardAssetPrice)
+    }
 }
 
 // MARK: - ModalPickerViewControllerDelegate
@@ -760,7 +769,9 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             let manageStakingItems = context as? [StakingManageOption],
             index >= 0,
             index < manageStakingItems.count,
-            let chainAsset = chainAsset
+            let chainAsset = chainAsset,
+            let commonData = stateMachine
+            .viewState(using: { (state: BaseStakingState) in state })?.commonData
         else {
             return
         }
@@ -797,7 +808,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 from: view,
                 chain: chainAsset.chain,
                 asset: chainAsset.asset,
-                selectedAccount: selectedAccount
+                selectedAccount: selectedAccount,
+                rewardChainAsset: commonData.rewardChainAsset
             )
         case .stakingBalance:
             wireframe.showStakingBalance(

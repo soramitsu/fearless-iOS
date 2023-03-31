@@ -22,7 +22,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.stakingType == .paraChain
+        eraInfoOperationFactory = selectedChainAsset?.stakingType?.isParachain == true
             ? ParachainStakingInfoOperationFactory()
             : RelaychainStakingInfoOperationFactory()
 
@@ -91,7 +91,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         }
 
         switch newSelectedChainAsset.stakingType {
-        case .relayChain:
+        case .relayChain, .sora:
             eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
         case .paraChain:
             eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
@@ -103,6 +103,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         selectedChainAsset.map { clearChainRemoteSubscription(for: $0.chain.chainId) }
 
         selectedChainAsset = newSelectedChainAsset
+
+        provideRewardChainAsset()
 
         setupChainRemoteSubscription()
 
