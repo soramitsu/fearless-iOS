@@ -104,8 +104,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         selectedChainAsset = newSelectedChainAsset
 
-        provideRewardChainAsset()
-
         setupChainRemoteSubscription()
 
         updateSharedState()
@@ -113,9 +111,11 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
+        clear(singleValueProvider: &rewardAssetPriceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
         performPriceSubscription()
+        provideRewardChainAsset()
 
         clearNominatorsLimitProviders()
         performNominatorLimitsSubscripion()
