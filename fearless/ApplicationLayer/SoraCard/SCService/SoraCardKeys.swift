@@ -2,13 +2,13 @@ import Foundation
 
 enum SoraCardKeys {
     static var apiKey: String =
-        SoraCardKeys.variable(named: "SORA_CARD_API_KEY") ?? ""
+        SoraCardKeys.variable(named: "SORA_CARD_API_KEY") ?? "6974528a-ee11-4509-b549-a8d02c1aec0d"
     static var domain: String =
-        SoraCardKeys.variable(named: "SORA_CARD_DOMAIN") ?? ""
+        SoraCardKeys.variable(named: "SORA_CARD_DOMAIN") ?? "soracard.com"
 
-    static var endpoint: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_ENDPOINT_URL") ?? ""
-    static var username: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_USERNAME") ?? ""
-    static var password: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_PASSWORD") ?? ""
+    static var endpoint: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_ENDPOINT_URL") ?? "https://kyc-test.soracard.com/mobile"
+    static var username: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_USERNAME") ?? "E7A6CB83-630E-4D24-88C5-18AAF96032A4"
+    static var password: String = SoraCardKeys.variable(named: "SORA_CARD_KYC_PASSWORD") ?? "75A55B7E-A18F-4498-9092-58C7D6BDB333"
 
     static func variable(named name: String) -> String? {
         let processInfo = ProcessInfo.processInfo

@@ -33,8 +33,8 @@ final class KYCOnboardingInteractor {
         let language = LocalizationManager.shared.selectedLanguage.code
 
         let settings = KycSettings(
-            referenceID: data.referenceId,
-            referenceNumber: data.referenceNumber,
+            referenceID: referenceId,
+            referenceNumber: referenceNumber,
             language: language
         )
 
