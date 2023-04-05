@@ -156,7 +156,8 @@ extension WalletMainContainerPresenter: WalletsManagmentModuleOutput {
 extension WalletMainContainerPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         interactor.saveChainIdForFilter(chain?.chainId)
     }

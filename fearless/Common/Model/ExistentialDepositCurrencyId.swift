@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum ExistentialDepositCurrencyId {
     case token(tokenSymbol: String)
@@ -9,7 +10,7 @@ enum ExistentialDepositCurrencyId {
     case vsToken(tokenSymbol: String)
     case stable(tokenSymbol: String)
 
-    init?(from currencyId: CurrencyId?) {
+    init?(from currencyId: SSFModels.CurrencyId?) {
         guard let currencyId = currencyId else {
             return nil
         }

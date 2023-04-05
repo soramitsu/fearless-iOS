@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 protocol SubstrateCallFactoryProtocol {
     func transfer(
@@ -629,7 +630,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private func ormlChainTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .ormlChainTransfer
@@ -643,7 +644,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private func ormlAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
+        currencyId: SSFModels.CurrencyId?,
         path: SubstrateCallPath
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
@@ -657,7 +658,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private func equilibriumAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .equilibriumAssetTransfer

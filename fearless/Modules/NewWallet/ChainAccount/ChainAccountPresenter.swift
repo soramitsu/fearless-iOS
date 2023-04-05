@@ -252,7 +252,8 @@ extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
 extension ChainAccountPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         guard let chain = chain else {
             return

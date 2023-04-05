@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import BigInt
+import SSFModels
 
 struct TokenSymbol: Equatable {
     let symbol: String
@@ -87,9 +88,9 @@ struct TransferCall: Codable {
 
     var dest: MultiAddress
     @StringCodable var value: BigUInt
-    let currencyId: CurrencyId?
+    let currencyId: SSFModels.CurrencyId?
 
-    init(dest: MultiAddress, value: BigUInt, currencyId: CurrencyId?) {
+    init(dest: MultiAddress, value: BigUInt, currencyId: SSFModels.CurrencyId?) {
         self.dest = dest
         self.value = value
         self.currencyId = currencyId

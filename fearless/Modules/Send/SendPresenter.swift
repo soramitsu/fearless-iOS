@@ -449,7 +449,8 @@ extension SendPresenter: SelectAssetModuleOutput {
 extension SendPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         handle(selectedChain: chain)
     }

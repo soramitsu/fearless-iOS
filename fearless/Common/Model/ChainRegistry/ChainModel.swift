@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import RobinHood
 
 enum BlockExplorerType: String, Codable {
@@ -8,7 +9,7 @@ enum BlockExplorerType: String, Codable {
     case sora
 }
 
-class ChainModel: Codable {
+class ChainModel: Codable, ChainModelProtocol {
     // swiftlint:disable:next type_name
     typealias Id = String
 
@@ -182,6 +183,24 @@ class ChainModel: Codable {
             iosMinAppVersion: iosMinAppVersion
         )
     }
+
+    // MARK: - ChainModelProtocol
+
+    var assetsModels: [any ChainAssetModelProtocol] {
+        Array(assets)
+    }
+
+    var isRelaychain: Bool {
+        parentId == nil
+    }
+
+    public lazy var nodesUrls: [URL] = {
+        nodes.map { $0.url }
+    }()
+
+    public lazy var selectedNodeUrl: URL? = {
+        selectedNode?.url
+    }()
 }
 
 extension ChainModel: Hashable {

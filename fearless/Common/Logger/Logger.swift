@@ -7,6 +7,7 @@ protocol LoggerProtocol {
     func info(message: String, file: String, function: String, line: Int)
     func warning(message: String, file: String, function: String, line: Int)
     func error(message: String, file: String, function: String, line: Int)
+    func customError(error: Error, file: String, function: String, line: Int)
 }
 
 extension LoggerProtocol {
@@ -28,6 +29,10 @@ extension LoggerProtocol {
 
     func error(_ message: String, file: String = #file, function: String = #function, line: Int = #line) {
         error(message: message, file: file, function: function, line: line)
+    }
+
+    func customError(_ error: Error, file: String = #file, function: String = #function, line: Int = #line) {
+        customError(error: error, file: file, function: function, line: line)
     }
 }
 
@@ -110,6 +115,16 @@ extension Logger: LoggerProtocol {
         log.custom(
             level: .error,
             message: message,
+            file: file,
+            function: function,
+            line: line
+        )
+    }
+
+    func customError(error: Error, file: String, function: String, line: Int) {
+        log.custom(
+            level: .error,
+            message: "\(error)",
             file: file,
             function: function,
             line: line

@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 struct AssetModel: Equatable, Codable, Hashable {
     // swiftlint:disable:next type_name
@@ -109,3 +110,5 @@ struct AssetModel: Equatable, Codable, Hashable {
 extension AssetModel: Identifiable {
     var identifier: String { id }
 }
+
+extension AssetModel: AssetModelProtocol {}
