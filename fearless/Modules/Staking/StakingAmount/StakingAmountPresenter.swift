@@ -320,8 +320,4 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
 
         view?.didReceiveYourRewardDestination(viewModel: viewModel)
     }
-
-    func provideSelectRewardDestinationViewModel(viewModelState _: StakingAmountViewModelState) {
-        provideRewardDestination()
-    }
 }

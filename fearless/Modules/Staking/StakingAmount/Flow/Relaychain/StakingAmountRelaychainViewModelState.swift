@@ -85,13 +85,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func selectRestakeDestination() {
         rewardDestination = .restake
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?) {
@@ -115,7 +115,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func updateBalance(_ balance: Decimal?) {
@@ -232,7 +232,7 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
     func didReceive(rewardAssetPrice: PriceData?) {
         self.rewardAssetPrice = rewardAssetPrice
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 
