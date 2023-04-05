@@ -110,15 +110,11 @@ final class StakingStateViewModelFactory {
                 totalReward.amount.decimalValue,
                 priceData: commonData.price
             )
-        } else if chainAsset.stakingType == .sora {
-            //TODO: remove when subquery project will be ready
-            reward = rewardBalanceViewModelFactory.balanceFromPrice(
-                .zero,
-                priceData: commonData.rewardAssetPrice ?? commonData.price
-            )
         } else {
             reward = nil
         }
+
+        let defaultReward: String = (chainAsset.stakingType == .sora) ? "N/A" : ""
 
         return LocalizableResource { locale in
             let stakedViewModel = staked.value(for: locale)
@@ -127,7 +123,7 @@ final class StakingStateViewModelFactory {
             return NominationViewModel(
                 totalStakedAmount: stakedViewModel.amount,
                 totalStakedPrice: stakedViewModel.price ?? "",
-                totalRewardAmount: rewardViewModel?.amount ?? "",
+                totalRewardAmount: rewardViewModel?.amount ?? defaultReward,
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
                 hasPrice: commonData.price != nil,
