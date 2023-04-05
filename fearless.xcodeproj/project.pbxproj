@@ -1991,6 +1991,8 @@
 		FA004899282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */; };
 		FA00489B282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */; };
 		FA0066E92935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0066E82935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift */; };
+		FA04F8D929DD002500DB76E7 /* ConnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA04F8D829DD002500DB76E7 /* ConnectOperation.swift */; };
+		FA04F8DB29DD002E00DB76E7 /* DisconnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA04F8DA29DD002E00DB76E7 /* DisconnectOperation.swift */; };
 		FA072C14277AE2FE00731718 /* QRCaptureService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C13277AE2FE00731718 /* QRCaptureService.swift */; };
 		FA072C16277B023D00731718 /* QRExtractionService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C15277B023D00731718 /* QRExtractionService.swift */; };
 		FA072C1F277B0F6400731718 /* InvoiceScanMatcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA072C1E277B0F6400731718 /* InvoiceScanMatcher.swift */; };
@@ -4691,6 +4693,8 @@
 		FA004898282CCFCD0032FF49 /* SelectValidatorsStartParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA00489A282CCFDC0032FF49 /* SelectValidatorsStartRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsStartRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FA0066E82935D07D0068FC61 /* RecommendedValidatorListPoolStrategy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorListPoolStrategy.swift; sourceTree = "<group>"; };
+		FA04F8D829DD002500DB76E7 /* ConnectOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectOperation.swift; sourceTree = "<group>"; };
+		FA04F8DA29DD002E00DB76E7 /* DisconnectOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisconnectOperation.swift; sourceTree = "<group>"; };
 		FA072C13277AE2FE00731718 /* QRCaptureService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRCaptureService.swift; sourceTree = "<group>"; };
 		FA072C15277B023D00731718 /* QRExtractionService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRExtractionService.swift; sourceTree = "<group>"; };
 		FA072C1E277B0F6400731718 /* InvoiceScanMatcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanMatcher.swift; sourceTree = "<group>"; };
@@ -6800,6 +6804,8 @@
 			children = (
 				84D1110B26B922D50016D962 /* ConnectionPool.swift */,
 				84CA68DC26BEA60A003B9453 /* ConnectionFactory.swift */,
+				FA04F8D829DD002500DB76E7 /* ConnectOperation.swift */,
+				FA04F8DA29DD002E00DB76E7 /* DisconnectOperation.swift */,
 			);
 			path = ConnectionPool;
 			sourceTree = "<group>";
@@ -14415,6 +14421,7 @@
 				84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				84F98D8A25E3DD3F0040418E /* StorageCodingPath.swift in Sources */,
+				FA04F8DB29DD002E00DB76E7 /* DisconnectOperation.swift in Sources */,
 				F4D6FF4D26B3EB65002313AF /* AnalyticsHistoryCell.swift in Sources */,
 				84F43C0F25DF016600AEDA56 /* DispatchQueueHelper.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
@@ -16227,6 +16234,7 @@
 				C8C32CC78C058E9F277AB625 /* StakingPoolInfoRouter.swift in Sources */,
 				DE1CFE599177A7A296EAF463 /* StakingPoolInfoPresenter.swift in Sources */,
 				B15D513381B7626AB90018F0 /* StakingPoolInfoInteractor.swift in Sources */,
+				FA04F8D929DD002500DB76E7 /* ConnectOperation.swift in Sources */,
 				89C8A9B990B08016A70ED336 /* StakingPoolInfoViewController.swift in Sources */,
 				281D17EF8C45A1FC49FD1523 /* StakingPoolInfoViewLayout.swift in Sources */,
 				39DA5795FB9DBF626B72B5C6 /* StakingPoolInfoAssembly.swift in Sources */,
@@ -16740,7 +16748,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = "AppIcon$(ICON_SUFFIX)";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -16766,7 +16774,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -16776,6 +16784,7 @@
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				MARKETING_VERSION = 2.1.0;
+				ONLY_ACTIVE_ARCH = NO;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -16903,7 +16912,7 @@
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
-				ENABLE_BITCODE = NO;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				LD_RUNPATH_SEARCH_PATHS = (
