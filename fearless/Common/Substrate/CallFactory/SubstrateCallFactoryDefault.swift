@@ -194,7 +194,9 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 
     func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
-        let args = SetControllerCall(controller: .accoundId(controllerId))
+        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+
+        let args = SetControllerCall(controller: accountIdParam)
         let path: SubstrateCallPath = .setController
         return RuntimeCall(
             moduleName: path.moduleName,

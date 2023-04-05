@@ -63,10 +63,6 @@ final class StakingStateViewModelFactory {
     }
 
     private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
-        if let factory = balanceViewModelFactory {
-            return factory
-        }
-
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: selectedMetaAccount
@@ -100,6 +96,7 @@ final class StakingStateViewModelFactory {
         viewStatus: NominationViewStatus
     ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+        let rewardBalanceViewModelFactory = getBalanceViewModelFactory(for: commonData.rewardChainAsset ?? chainAsset)
 
         let stakedAmount = convertAmount(ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
@@ -109,9 +106,15 @@ final class StakingStateViewModelFactory {
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
-            reward = balanceViewModelFactory.balanceFromPrice(
+            reward = rewardBalanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
                 priceData: commonData.price
+            )
+        } else if chainAsset.stakingType == .sora {
+            //TODO: remove when subquery project will be ready
+            reward = rewardBalanceViewModelFactory.balanceFromPrice(
+                .zero,
+                priceData: commonData.rewardAssetPrice ?? commonData.price
             )
         } else {
             reward = nil
