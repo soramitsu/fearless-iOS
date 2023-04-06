@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 
 final class StakingRedeemConfirmationRelaychainViewModelState: StakingRedeemConfirmationViewModelState {
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     var stateListener: StakingRedeemConfirmationModelStateListener?
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
@@ -38,11 +38,13 @@ final class StakingRedeemConfirmationRelaychainViewModelState: StakingRedeemConf
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingRedeemConfirmationModelStateListener?) {

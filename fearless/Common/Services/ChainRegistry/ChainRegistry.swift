@@ -27,7 +27,6 @@ final class ChainRegistry {
     private let connectionPool: ConnectionPoolProtocol
     private let chainSyncService: ChainSyncServiceProtocol
     private let runtimeSyncService: RuntimeSyncServiceProtocol
-    private let commonTypesSyncService: CommonTypesSyncServiceProtocol
     private let chainsTypesSyncService: ChainsTypesSyncServiceProtocol
     private let chainProvider: StreamableProvider<ChainModel>
     private let specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol
@@ -50,7 +49,6 @@ final class ChainRegistry {
         connectionPool: ConnectionPoolProtocol,
         chainSyncService: ChainSyncServiceProtocol,
         runtimeSyncService: RuntimeSyncServiceProtocol,
-        commonTypesSyncService: CommonTypesSyncServiceProtocol,
         chainsTypesSyncService: ChainsTypesSyncServiceProtocol,
         chainProvider: StreamableProvider<ChainModel>,
         specVersionSubscriptionFactory: SpecVersionSubscriptionFactoryProtocol,
@@ -63,7 +61,6 @@ final class ChainRegistry {
         self.connectionPool = connectionPool
         self.chainSyncService = chainSyncService
         self.runtimeSyncService = runtimeSyncService
-        self.commonTypesSyncService = commonTypesSyncService
         self.chainsTypesSyncService = chainsTypesSyncService
         self.chainProvider = chainProvider
         self.specVersionSubscriptionFactory = specVersionSubscriptionFactory
@@ -145,7 +142,6 @@ final class ChainRegistry {
 
     private func syncUpServices() {
         chainSyncService.syncUp()
-        commonTypesSyncService.syncUp()
         chainsTypesSyncService.syncUp()
     }
 }

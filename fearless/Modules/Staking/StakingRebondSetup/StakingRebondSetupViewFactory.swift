@@ -113,6 +113,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             mapper: AnyCoreDataMapper(mapper)
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         return StakingRebondSetupInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapter(
@@ -127,7 +129,8 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             selectedAccount: selectedAccount,
             connection: connection,
             extrinsicService: extrinsicService,
-            accountRepository: AnyDataProviderRepository(accountRepository)
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            callFactory: callFactory
         )
     }
 }

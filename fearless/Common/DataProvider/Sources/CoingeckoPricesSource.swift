@@ -6,21 +6,20 @@ final class CoingeckoPricesSource: SingleValueProviderSourceProtocol {
     typealias Model = [PriceData]
 
     private let pricesIds: [AssetModel.PriceId]
-    private lazy var currency: Currency? = {
-        SelectedWalletSettings.shared.value?.selectedCurrency
-    }()
+    private var currency: Currency?
 
     private let eventCenter: EventCenterProtocol = {
         EventCenter.shared
     }()
 
-    init(pricesIds: [AssetModel.PriceId]) {
+    init(pricesIds: [AssetModel.PriceId], currency: Currency? = nil) {
         self.pricesIds = pricesIds
+        self.currency = currency
         setup()
     }
 
     func fetchOperation() -> CompoundOperationWrapper<[PriceData]?> {
-        if let currency = currency {
+        if let currency = self.currency ?? SelectedWalletSettings.shared.value?.selectedCurrency {
             let priceOperation = CoingeckoOperationFactory().fetchPriceOperation(
                 for: pricesIds,
                 currency: currency

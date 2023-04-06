@@ -6,6 +6,22 @@ enum InMemoryDataProviderRepositoryError: Error {
 }
 
 final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderRepositoryProtocol {
+    func fetchOperation(
+        by modelIdsClosure: @escaping () throws -> [String],
+        options _: RobinHood.RepositoryFetchOptions
+    ) -> RobinHood.BaseOperation<[T]> {
+        ClosureOperation { [weak self] in
+            self?.lock.lock()
+
+            defer {
+                self?.lock.unlock()
+            }
+
+            let modelIds = try modelIdsClosure()
+            return self?.itemsById.filter { modelIds.contains($0.key) }.compactMap { $0.value } ?? []
+        }
+    }
+
     typealias Model = T
 
     private var itemsById: [String: Model] = [:]

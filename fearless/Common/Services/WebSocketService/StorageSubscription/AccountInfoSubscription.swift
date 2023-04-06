@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class AccountInfoSubscription: BaseStorageChildSubscription {
+final class AccountInfoSubscription: BaseStorageChildSubscription<AccountInfoStorageWrapper> {
     let transactionSubscription: TransactionSubscription
     let eventCenter: EventCenterProtocol
 
@@ -9,7 +9,7 @@ final class AccountInfoSubscription: BaseStorageChildSubscription {
         transactionSubscription: TransactionSubscription,
         remoteStorageKey: Data,
         localStorageKey: String,
-        storage: AnyDataProviderRepository<ChainStorageItem>,
+        storage: AnyDataProviderRepository<AccountInfoStorageWrapper>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol,
         eventCenter: EventCenterProtocol
@@ -26,7 +26,7 @@ final class AccountInfoSubscription: BaseStorageChildSubscription {
         )
     }
 
-    override func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash: Data?) {
+    override func handle(result: Result<DataProviderChange<AccountInfoStorageWrapper>?, Error>, blockHash: Data?) {
         logger.debug("Did account info update")
 
         if case let .success(optionalChange) = result, optionalChange != nil {

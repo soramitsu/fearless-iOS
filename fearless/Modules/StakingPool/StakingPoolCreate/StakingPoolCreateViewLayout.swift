@@ -76,7 +76,7 @@ final class StakingPoolCreateViewLayout: UIView {
 
     let rootAccountView: DetailsTriangularedView = createRoleView()
     let nominatorView: DetailsTriangularedView = createRoleView()
-    let stateTogglerView: DetailsTriangularedView = createRoleView()
+    let bouncerView: DetailsTriangularedView = createRoleView()
 
     // MARK: - Lifecycle
 
@@ -110,7 +110,7 @@ final class StakingPoolCreateViewLayout: UIView {
         depositorView.text = viewModel.depositor
         rootAccountView.subtitle = viewModel.root
         nominatorView.subtitle = viewModel.naminator
-        stateTogglerView.subtitle = viewModel.stateToggler
+        bouncerView.subtitle = viewModel.bouncer
     }
 
     // MARK: - Private actions
@@ -191,7 +191,7 @@ final class StakingPoolCreateViewLayout: UIView {
         nominatorView.title = R.string.localizable.stakingPoolCreateNominator(
             preferredLanguages: locale.rLanguages
         )
-        stateTogglerView.title = R.string.localizable.stakingPoolCreateStateToggler(
+        bouncerView.title = R.string.localizable.stakingPoolCreateBouncer(
             preferredLanguages: locale.rLanguages
         )
     }
@@ -282,8 +282,8 @@ final class StakingPoolCreateViewLayout: UIView {
             make.height.equalTo(LayoutConstants.rawHeight)
         }
 
-        vStackView.addArrangedSubview(stateTogglerView)
-        stateTogglerView.snp.makeConstraints { make in
+        vStackView.addArrangedSubview(bouncerView)
+        bouncerView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(LayoutConstants.rawHeight)
         }

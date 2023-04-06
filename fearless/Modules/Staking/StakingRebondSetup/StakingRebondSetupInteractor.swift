@@ -24,7 +24,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -37,7 +37,8 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         selectedAccount: MetaAccountModel,
         connection: JSONRPCEngine,
         extrinsicService: ExtrinsicServiceProtocol,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -50,6 +51,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.connection = connection
         self.extrinsicService = extrinsicService
         self.accountRepository = accountRepository
+        self.callFactory = callFactory
     }
 
     private func handleController(accountItem: ChainAccountResponse) {

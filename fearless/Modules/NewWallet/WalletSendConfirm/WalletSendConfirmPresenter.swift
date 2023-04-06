@@ -166,7 +166,8 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             title: title,
             message: message,
             actions: [],
-            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages)
+            closeAction: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages),
+            icon: R.image.iconWarningBig()
         )
         wireframe.present(
             viewModel: sheetViewModel,

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class BalanceLockSubscription: BaseStorageChildSubscription {
+final class BalanceLockSubscription: BaseStorageChildSubscription<ChainStorageItem> {
     let eventCenter: EventCenterProtocol
 
     init(

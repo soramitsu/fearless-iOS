@@ -1,14 +1,5 @@
 import Foundation
 
-struct RuntimeCommonTypesSyncCompleted: EventProtocol {
-    let fileHash: String
-    let data: Data
-
-    func accept(visitor: EventVisitorProtocol) {
-        visitor.processRuntimeCommonTypesSyncCompleted(event: self)
-    }
-}
-
 struct RuntimeChainsTypesSyncCompleted: EventProtocol {
     let versioningMap: [String: Data]
 

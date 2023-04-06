@@ -140,7 +140,7 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
     private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let stakedString = R.string.localizable.stakingStake(
                 preferredLanguages: locale.rLanguages
             )
@@ -151,7 +151,11 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
                 range: (stakedString as NSString).range(of: stakedString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

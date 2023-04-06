@@ -27,12 +27,13 @@ protocol ApplicationConfigProtocol {
     var fearlessAnnouncements: URL { get }
     var fearlessHappiness: URL { get }
     var crowdloanWiki: URL { get }
+    var soraCardTerms: URL { get }
+    var soraCardPrivacy: URL { get }
 
     // MARK: - GitHub
 
     var chainListURL: URL? { get }
     var assetListURL: URL? { get }
-    var commonTypesURL: URL? { get }
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
@@ -159,6 +160,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
     }
 
+    var soraCardTerms: URL {
+        URL(string: "https://soracard.com/terms/")!
+    }
+
+    var soraCardPrivacy: URL {
+        URL(string: "https://soracard.com/privacy/")!
+    }
+
     // MARK: - GitHub
 
     var chainListURL: URL? {
@@ -175,10 +184,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         #else
             GitHubUrl.url(suffix: "chains/assets.json")
         #endif
-    }
-
-    var commonTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/default.json")
     }
 
     var chainsTypesURL: URL? {
@@ -207,6 +212,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var scamListCsvURL: URL? {
         GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+    }
+
+    var soraCardCountriesBlacklist: URL? {
+        URL(string: "https://soracard.com/blacklist")
     }
 }
 

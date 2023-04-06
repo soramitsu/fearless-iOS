@@ -69,8 +69,16 @@ class ChainModel: Codable, ChainModelProtocol {
         options?.contains(.tipRequired) ?? false
     }
 
+    var isPolkadot: Bool {
+        name.lowercased() == "polkadot"
+    }
+
+    var isKusama: Bool {
+        name.lowercased() == "kusama"
+    }
+
     var isPolkadotOrKusama: Bool {
-        name.lowercased() == "polkadot" || name.lowercased() == "kusama"
+        isPolkadot || isKusama
     }
 
     var isWestend: Bool {
@@ -107,14 +115,6 @@ class ChainModel: Codable, ChainModelProtocol {
 
     func utilityAssets() -> Set<ChainAssetModel> {
         assets.filter { $0.isUtility }
-    }
-
-    var typesUsage: TypesUsage {
-        if let types = types {
-            return types.overridesCommon ? .onlyOwn : .both
-        } else {
-            return .onlyCommon
-        }
     }
 
     var erasPerDay: UInt32 {
@@ -308,12 +308,6 @@ extension ChainModel {
         let history: BlockExplorer?
         let crowdloans: ExternalResource?
         let explorers: [ExternalApiExplorer]?
-    }
-
-    enum TypesUsage {
-        case onlyCommon
-        case both
-        case onlyOwn
     }
 
     func polkascanAddressURL(_ address: String) -> URL? {

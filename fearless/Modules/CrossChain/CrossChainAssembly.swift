@@ -26,7 +26,7 @@ final class CrossChainAssembly {
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
             storageFacade: repositoryFacade
         )
-        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
             chainRegistry: ChainRegistryFacade.sharedRegistry,

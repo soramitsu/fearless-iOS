@@ -12,6 +12,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private(set) var confirmationModel: SelectValidatorsConfirmRelaychainModel?
     private(set) var priceData: PriceData?
@@ -36,7 +37,8 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
         initiatedBonding: InitiatedBonding,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.targets = targets
         self.maxTargets = maxTargets
@@ -44,6 +46,7 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
@@ -84,16 +87,18 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
         let rewardDestination = initiatedBonding.rewardDestination.accountAddress
         let targets = targets
 
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let callFactory = SubstrateCallFactory()
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-            let bondCall = try callFactory.bond(
+            let bondCall = try strongSelf.callFactory.bond(
                 amount: amount,
                 controller: address,
                 rewardDestination: rewardDestination
             )
 
-            let nominateCall = try callFactory.nominate(targets: targets)
+            let nominateCall = try strongSelf.callFactory.nominate(targets: targets)
 
             return try builder
                 .adding(call: bondCall)

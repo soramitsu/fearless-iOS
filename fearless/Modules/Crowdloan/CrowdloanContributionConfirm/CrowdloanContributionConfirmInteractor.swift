@@ -24,7 +24,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         signingWrapper: SigningWrapperProtocol,
         bonusService: CrowdloanBonusServiceProtocol?,
         operationManager: OperationManagerProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.signingWrapper = signingWrapper
         self.bonusService = bonusService
@@ -44,7 +45,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             jsonLocalSubscriptionFactory: jsonLocalSubscriptionFactory,
             operationManager: operationManager,
-            existentialDepositService: existentialDepositService
+            existentialDepositService: existentialDepositService,
+            callFactory: callFactory
         )
     }
 
@@ -66,7 +68,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     }
 
     private func submitExtrinsic(for contribution: BigUInt) {
-        let call = callFactory.contribute(to: paraId, amount: contribution)
+        let call = callFactory.contribute(to: paraId, amount: contribution, multiSignature: nil)
 
         let builderClosure: ExtrinsicBuilderClosure = { builder in
             let nextBuilder = try builder.adding(call: call)

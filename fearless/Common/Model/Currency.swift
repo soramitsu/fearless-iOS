@@ -16,4 +16,14 @@ struct Currency: Codable, Equatable {
             isSelected: true
         )
     }
+
+    static func euro() -> Currency {
+        Currency(
+            id: "eur",
+            symbol: "€",
+            name: "Euro",
+            icon: "https://raw.githubusercontent.com/soramitsu/fearless-utils/android/2.0.2/icons/fiat/eur.svg",
+            isSelected: false
+        )
+    }
 }

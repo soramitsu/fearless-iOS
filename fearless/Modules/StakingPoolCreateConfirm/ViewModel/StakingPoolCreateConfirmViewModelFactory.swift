@@ -8,7 +8,7 @@ struct CreatePoolConfirmData {
     let rootName: String
     let poolId: String
     let nominatorName: String
-    let stateTogglerName: String
+    let bouncerName: String
 }
 
 protocol StakingPoolCreateConfirmViewModelFactoryProtocol {
@@ -64,7 +64,7 @@ final class StakingPoolCreateConfirmViewModelFactory: StakingPoolCreateConfirmVi
             rootName: data.rootName,
             poolId: "\(data.poolId)",
             nominatorName: data.nominatorName,
-            stateTogglerName: data.stateTogglerName
+            bouncerName: data.bouncerName
         )
     }
 }

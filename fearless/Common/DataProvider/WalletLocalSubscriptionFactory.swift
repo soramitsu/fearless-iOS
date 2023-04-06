@@ -8,7 +8,7 @@ protocol WalletLocalSubscriptionFactoryProtocol {
     func getAccountProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) throws -> StreamableProvider<ChainStorageItem>
+    ) throws -> StreamableProvider<AccountInfoStorageWrapper>
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
 }
@@ -45,7 +45,7 @@ final class WalletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtoc
     func getAccountProvider(
         for accountId: AccountId,
         chainAsset: ChainAsset
-    ) throws -> StreamableProvider<ChainStorageItem> {
+    ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
         let codingPath = chainAsset.storagePath
 
         let localKey = try LocalStorageKeyFactory().createFromStoragePath(
@@ -60,16 +60,16 @@ final class WalletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtoc
         chainRegistry.getRuntimeProvider(for: chainId)
     }
 
-    private func getProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
-        let facade = SubstrateDataStorageFacade.shared
+    private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
+        let facade = UserDataStorageFacade.shared
 
-        let mapper: CodableCoreDataMapper<ChainStorageItem, CDChainStorageItem> =
-            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDChainStorageItem.identifier))
+        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
 
         let filter = NSPredicate.filterStorageItemsBy(identifier: key)
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let storage: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
             facade.createRepository(filter: filter)
-        let source = EmptyStreamableSource<ChainStorageItem>()
+        let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
         let observable = CoreDataContextObservable(
             service: facade.databaseService,
             mapper: AnyCoreDataMapper(mapper),

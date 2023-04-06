@@ -70,13 +70,14 @@ final class SheetAlertViewLayout: UIView {
     private func bind(viewModel: SheetAlertPresentableViewModel) {
         titleLabel.text = viewModel.title
         descriptionLabel.text = viewModel.message
+        imageView.image = viewModel.icon
+        imageViewContainer.isHidden = viewModel.icon == nil
 
         bindActions(actions: viewModel.actions)
 
         if let closeAction = viewModel.closeAction {
             let action = SheetAlertPresentableAction(
-                title: closeAction,
-                button: UIFactory.default.createAccessoryButton()
+                title: closeAction
             )
             bindActions(actions: [action])
         }
@@ -103,6 +104,9 @@ final class SheetAlertViewLayout: UIView {
 
     private func createButton(with action: SheetAlertPresentableAction) -> TriangularedButton {
         let button = action.button
+        button.triangularedView?.fillColor = action.style.backgroundColor
+        button.imageWithTitleView?.titleColor = action.style.titleColor
+
         button.imageWithTitleView?.title = action.title
         button.addAction { [unowned self] in
             self.closeButton.sendActions(for: .touchUpInside)
@@ -130,6 +134,12 @@ final class SheetAlertViewLayout: UIView {
                 make.top.trailing.equalToSuperview().inset(20)
                 make.size.equalTo(Constants.closeButton)
             }
+        }
+
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.top.equalToSuperview().inset(20)
         }
 
         let containerBackgroundColor = viewModel.isInfo ? R.color.colorWhite8() : R.color.colorBlack()
@@ -166,8 +176,6 @@ final class SheetAlertViewLayout: UIView {
 
         contentStackView.addArrangedSubview(imageViewContainer)
         contentStackView.setCustomSpacing(24, after: imageViewContainer)
-        contentStackView.addArrangedSubview(titleLabel)
-        contentStackView.setCustomSpacing(16, after: titleLabel)
         contentStackView.addArrangedSubview(descriptionLabel)
         contentStackView.setCustomSpacing(24, after: descriptionLabel)
 

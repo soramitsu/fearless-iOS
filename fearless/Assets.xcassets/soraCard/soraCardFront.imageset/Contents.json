@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "01-sora_card_front.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

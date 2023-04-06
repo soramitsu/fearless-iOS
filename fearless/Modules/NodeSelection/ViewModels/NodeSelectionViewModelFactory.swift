@@ -79,7 +79,8 @@ class NodeSelectionViewModelFactory: NodeSelectionViewModelFactoryProtocol {
             title: R.string.localizable.nodeSelectionDeleteNodeTitle(preferredLanguages: locale.rLanguages),
             message: node.name,
             actions: [deleteAction],
-            closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
+            closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            icon: R.image.iconWarningBig()
         )
     }
 }

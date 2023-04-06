@@ -1,8 +1,14 @@
 import Foundation
 import FearlessUtils
 import BigInt
+import RobinHood
 
 // MARK: - Normal
+
+struct AccountInfoStorageWrapper: StorageWrapper {
+    let identifier: String
+    let data: Data
+}
 
 struct AccountInfo: Codable, Equatable {
     @StringCodable var nonce: UInt32
@@ -47,6 +53,14 @@ struct AccountInfo: Codable, Equatable {
             miscFrozen: BigUInt.zero,
             feeFrozen: BigUInt.zero
         )
+    }
+
+    func nonZero() -> Bool {
+        data.total > 0
+    }
+
+    func zero() -> Bool {
+        data.total == BigUInt.zero
     }
 }
 

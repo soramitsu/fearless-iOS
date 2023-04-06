@@ -3,7 +3,7 @@ import RobinHood
 
 typealias EventEmittingFactoryClosure = (DataProviderChange<ChainStorageItem>) -> EventProtocol
 
-final class EventEmittingStorageSubscription: BaseStorageChildSubscription {
+final class EventEmittingStorageSubscription: BaseStorageChildSubscription<ChainStorageItem> {
     let eventCenter: EventCenterProtocol
 
     let eventFactory: EventEmittingFactoryClosure

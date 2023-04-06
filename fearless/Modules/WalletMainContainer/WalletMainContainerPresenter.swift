@@ -12,6 +12,7 @@ final class WalletMainContainerPresenter {
 
     private var wallet: MetaAccountModel
     private let viewModelFactory: WalletMainContainerViewModelFactoryProtocol
+    private var chainSettings: [ChainSettings]?
 
     // MARK: - State
 
@@ -44,7 +45,8 @@ final class WalletMainContainerPresenter {
             selectedChain: selectedChain,
             selectedMetaAccount: wallet,
             chainsIssues: issues,
-            locale: selectedLocale
+            locale: selectedLocale,
+            chainSettings: chainSettings ?? []
         )
 
         view?.didReceiveViewModel(viewModel)
@@ -129,6 +131,11 @@ extension WalletMainContainerPresenter: WalletMainContainerInteractorOutput {
 
     func didReceiveChainsIssues(chainsIssues: [ChainIssue]) {
         issues = chainsIssues
+        provideViewModel()
+    }
+
+    func didReceive(chainSettings: [ChainSettings]) {
+        self.chainSettings = chainSettings
         provideViewModel()
     }
 }
