@@ -40,7 +40,7 @@ final class APIRequest {
 
 public class SCAPIClient {
     static let shared = SCAPIClient(
-        baseURL: URL(string: "https://sora-card.sc1.dev.sora2.soramitsu.co.jp/")!,
+        baseURL: URL(string: "https://backend.dev.sora-card.tachi.soramitsu.co.jp/")!,
         baseAuth: "",
         token: .empty,
         logLevels: .off
