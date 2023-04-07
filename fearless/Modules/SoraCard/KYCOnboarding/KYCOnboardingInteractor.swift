@@ -22,9 +22,9 @@ final class KYCOnboardingInteractor {
     }
 
     private func getKycConfig() async {
-        let sdkUserName = SoraCardKeys.username
-        let sdkPassword = SoraCardKeys.password
-        let sdkEndpoint = SoraCardKeys.endpoint
+        let sdkUserName = SoraCardCIKeys.username
+        let sdkPassword = SoraCardCIKeys.password
+        let sdkEndpoint = SoraCardCIKeys.endpoint
 
         let credentials = KycCredentials(username: sdkUserName, password: sdkPassword, endpointUrl: sdkEndpoint)
 
