@@ -6,3 +6,8 @@ enum MoonPayCIKeys {
 enum SubscanCIKeys {
     static var apiKey: String = "{{ argument.subscanAPIKey }}"
 }
+
+enum SoraCardCIKeys {
+    static var apiKey: String = "{{ argument.soraCardAPIKey }}"
+    static var domain: String = "{{ argument.soraCardDomain }}"
+}

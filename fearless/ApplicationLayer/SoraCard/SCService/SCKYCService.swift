@@ -34,8 +34,8 @@ final class SCKYCService {
     init(client: SCAPIClient) {
         self.client = client
 
-        let domain = SoraCardKeys.domain
-        let apiKey = SoraCardKeys.apiKey
+        let domain = SoraCardCIKeys.domain
+        let apiKey = SoraCardCIKeys.apiKey
         let alert = UIAlertView(title: "Sora Card api key", message: apiKey, delegate: nil, cancelButtonTitle: "OK")
         alert.show()
         PayWingsOAuthClient.initialize(environmentType: .TEST, apiKey: apiKey, domain: domain)
