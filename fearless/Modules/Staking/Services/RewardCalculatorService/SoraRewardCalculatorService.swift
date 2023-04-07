@@ -164,7 +164,7 @@ final class SoraRewardCalculatorService {
                     remoteSettings: settings
                 )
 
-                self?.marketSource?.didLoad([.tbc])
+                self?.marketSource?.didLoad([.smart])
 
                 self?.fetchQuotes()
             } catch {

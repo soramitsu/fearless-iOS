@@ -387,7 +387,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             commission: medianCommission,
             isCompound: isCompound,
             period: period,
-            rewardAssetType: .value
+            rewardAssetType: .percent
         )
     }
 
