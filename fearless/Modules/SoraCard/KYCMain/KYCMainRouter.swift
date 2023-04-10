@@ -34,24 +34,25 @@ final class KYCMainRouter: KYCMainRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
-    func showSelectAsset(
+    func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
-        selectedAssetId: AssetModel.Id?,
-        chainAssets: [ChainAsset]?,
-        output: SelectAssetModuleOutput
+        chainModels: [ChainModel]?,
+        delegate: SelectNetworkDelegate?
     ) {
         guard
-            let module = SelectAssetAssembly.configureModule(
+            let module = SelectNetworkAssembly.configureModule(
                 wallet: wallet,
-                selectedAssetId: selectedAssetId,
-                chainAssets: chainAssets,
-                searchTextsViewModel: .searchAssetPlaceholder,
-                output: output
+                selectedChainId: nil,
+                chainModels: chainModels,
+                includingAllNetworks: false,
+                searchTextsViewModel: nil,
+                delegate: delegate
             )
         else {
             return
         }
+
         view?.controller.present(module.view.controller, animated: true)
     }
 }

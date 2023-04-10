@@ -65,7 +65,13 @@ extension KYCMainPresenter: KYCMainViewOutput {
 
     func didTapGetMoreXor() {
         if interactor.xorChainAssets.count > 1 {
-            router.showSelectAsset(from: view, wallet: interactor.wallet, selectedAssetId: nil, chainAssets: interactor.xorChainAssets, output: self)
+            let chains = interactor.xorChainAssets.map { $0.chain }
+            router.showSelectNetwork(
+                from: view,
+                wallet: interactor.wallet,
+                chainModels: chains,
+                delegate: self
+            )
         } else {
             guard let chainAsset = interactor.xorChainAssets.first else { return }
             showMoreXorSources(for: chainAsset)
@@ -116,9 +122,12 @@ extension KYCMainPresenter: Localizable {
 
 extension KYCMainPresenter: KYCMainModuleInput {}
 
-extension KYCMainPresenter: SelectAssetModuleOutput {
-    func assetSelection(didCompleteWith chainAsset: ChainAsset?, contextTag _: Int?) {
-        if let chainAsset = chainAsset {
+extension KYCMainPresenter: SelectNetworkDelegate {
+    func chainSelection(
+        view _: SelectNetworkViewInput,
+        didCompleteWith chain: ChainModel?
+    ) {
+        if let chainAsset = interactor.xorChainAssets.first(where: { $0.chain == chain }) {
             showMoreXorSources(for: chainAsset)
         }
     }
