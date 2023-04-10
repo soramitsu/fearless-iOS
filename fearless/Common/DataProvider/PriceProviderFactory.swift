@@ -2,8 +2,8 @@ import Foundation
 import RobinHood
 
 protocol PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData>
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]>
+    func getPriceProvider(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData>
+    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]>
 }
 
 class PriceProviderFactory {
@@ -32,7 +32,7 @@ class PriceProviderFactory {
 }
 
 extension PriceProviderFactory: PriceProviderFactoryProtocol {
-    func getPriceProvider(for priceId: AssetModel.PriceId) -> AnySingleValueProvider<PriceData> {
+    func getPriceProvider(for priceId: AssetModel.PriceId, currency: Currency?) -> AnySingleValueProvider<PriceData> {
         clearIfNeeded()
 
         let identifier = Self.localIdentifier(for: priceId)
@@ -44,7 +44,7 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
             storageFacade.createRepository()
 
-        let source = CoingeckoPriceSource(priceId: priceId)
+        let source = CoingeckoPriceSource(priceId: priceId, currency: currency)
 
         let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
         let provider = SingleValueProvider(
@@ -59,13 +59,13 @@ extension PriceProviderFactory: PriceProviderFactoryProtocol {
         return AnySingleValueProvider(provider)
     }
 
-    func getPricesProvider(for pricesIds: [AssetModel.PriceId]) -> AnySingleValueProvider<[PriceData]> {
+    func getPricesProvider(for pricesIds: [AssetModel.PriceId], currency: Currency?) -> AnySingleValueProvider<[PriceData]> {
         let identifier = pricesIds.sorted().joined(separator: ",")
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
             storageFacade.createRepository()
 
-        let source = CoingeckoPricesSource(pricesIds: pricesIds)
+        let source = CoingeckoPricesSource(pricesIds: pricesIds, currency: currency)
 
         let trigger: DataProviderEventTrigger = [.onAddObserver]
         let provider = SingleValueProvider(

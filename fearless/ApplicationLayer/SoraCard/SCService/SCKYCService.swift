@@ -1,5 +1,6 @@
 import Foundation
 import PayWingsOAuthSDK
+import UIKit
 
 enum SCEndpoint: Endpoint {
     case getReferenceNumber
@@ -33,8 +34,8 @@ final class SCKYCService {
     init(client: SCAPIClient) {
         self.client = client
 
-        let domain = "soracard.com"
-        let apiKey = SoraCardKeys.apiKey
+        let domain = SoraCardCIKeys.domain
+        let apiKey = SoraCardCIKeys.apiKey
         PayWingsOAuthClient.initialize(environmentType: .TEST, apiKey: apiKey, domain: domain)
 
         payWingsOAuthClient = PayWingsOAuthClient.instance()!
