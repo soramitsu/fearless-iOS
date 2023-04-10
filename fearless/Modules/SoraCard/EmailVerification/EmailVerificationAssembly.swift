@@ -6,7 +6,10 @@ final class EmailVerificationAssembly {
         let localizationManager = LocalizationManager.shared
 
         let service: SCKYCService = .init(client: .shared)
-        let interactor = EmailVerificationInteractor(service: service, data: data)
+        let interactor = EmailVerificationInteractor(
+            service: service,
+            data: data
+        )
         let router = EmailVerificationRouter()
 
         let presenter = EmailVerificationPresenter(

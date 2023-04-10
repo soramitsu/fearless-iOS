@@ -52,7 +52,7 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
         service.sendNewVerificationEmail(callback: sendNewVerificationEmailCallback)
     }
 
-    private func checkEmail() {
+    private func startEmailVerificationChecks() {
         timer.invalidate()
         timer = Timer.scheduledTimer(
             timeInterval: 5,
@@ -69,9 +69,7 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
 }
 
 extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, RegisterUserCallbackDelegate, SendNewVerificationEmailCallbackDelegate, CheckEmailVerifiedCallbackDelegate {
-    func onEmailNotVerified() {
-        timer.invalidate()
-    }
+    func onEmailNotVerified() {}
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         timer.invalidate()
@@ -90,7 +88,7 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
     }
 
     func onShowEmailConfirmationScreen(email _: String, autoEmailSent: Bool) {
-        checkEmail()
+        startEmailVerificationChecks()
 
         output?.didReceiveConfirmationRequired(data: data, autoEmailSent: autoEmailSent)
     }
