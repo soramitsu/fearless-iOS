@@ -98,13 +98,12 @@ private extension KYCMainInteractor {
             }
             #if DEBUG
                 strongSelf.xorChainAssets = chainAssets
-                strongSelf.output?.didReceive(xorChainAssets: chainAssets)
             #else
                 strongSelf.xorChainAssets = chainAssets.filter { chainAsset in
                     chainAsset.chain.chainId == Chain.soraMain.genesisHash
                 }
-                strongSelf.output?.didReceive(xorChainAssets: strongSelf.xorChainAssets)
             #endif
+            strongSelf.output?.didReceive(xorChainAssets: chainAssets)
             strongSelf.getXorBalance(for: strongSelf.xorChainAssets)
             strongSelf.subscribeToPrice(for: strongSelf.xorChainAssets.first)
         }
