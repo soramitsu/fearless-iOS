@@ -34,8 +34,8 @@ final class KYCMainInteractor {
     private var xorPrice: PriceData?
     private var chainAssetsAccountInfo: [ChainAsset: AccountInfo?] = [:]
     private var kycAttempts: SCKYCAtempts?
+    private var xorChainAssets: [ChainAsset] = []
     let wallet: MetaAccountModel
-    var xorChainAssets: [ChainAsset] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -98,10 +98,12 @@ private extension KYCMainInteractor {
             }
             #if DEBUG
                 strongSelf.xorChainAssets = chainAssets
+                strongSelf.output?.didReceive(xorChainAssets: chainAssets)
             #else
                 strongSelf.xorChainAssets = chainAssets.filter { chainAsset in
                     chainAsset.chain.chainId == Chain.soraMain.genesisHash
                 }
+                strongSelf.output?.didReceive(xorChainAssets: strongSelf.xorChainAssets)
             #endif
             strongSelf.getXorBalance(for: strongSelf.xorChainAssets)
             strongSelf.subscribeToPrice(for: strongSelf.xorChainAssets.first)

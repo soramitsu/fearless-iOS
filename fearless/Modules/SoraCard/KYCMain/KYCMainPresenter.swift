@@ -8,6 +8,7 @@ final class KYCMainPresenter {
     private let router: KYCMainRouterInput
     private let interactor: KYCMainInteractorInput
     private let viewModelFactory: KYCMainViewModelFactoryProtocol
+    private var xorChainAssets: [ChainAsset] = []
 
     // MARK: - Constructors
 
@@ -64,8 +65,8 @@ extension KYCMainPresenter: KYCMainViewOutput {
     }
 
     func didTapGetMoreXor() {
-        if interactor.xorChainAssets.count > 1 {
-            let chains = interactor.xorChainAssets.map { $0.chain }
+        if xorChainAssets.count > 1 {
+            let chains = xorChainAssets.map { $0.chain }
             router.showSelectNetwork(
                 from: view,
                 wallet: interactor.wallet,
@@ -73,7 +74,7 @@ extension KYCMainPresenter: KYCMainViewOutput {
                 delegate: self
             )
         } else {
-            guard let chainAsset = interactor.xorChainAssets.first else { return }
+            guard let chainAsset = xorChainAssets.first else { return }
             showMoreXorSources(for: chainAsset)
         }
     }
@@ -112,6 +113,10 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
         let viewModel = viewModelFactory.buildViewModel(from: data, locale: selectedLocale)
         view?.set(viewModel: viewModel)
     }
+
+    func didReceive(xorChainAssets: [ChainAsset]) {
+        self.xorChainAssets = xorChainAssets
+    }
 }
 
 // MARK: - Localizable
@@ -127,7 +132,7 @@ extension KYCMainPresenter: SelectNetworkDelegate {
         view _: SelectNetworkViewInput,
         didCompleteWith chain: ChainModel?
     ) {
-        if let chainAsset = interactor.xorChainAssets.first(where: { $0.chain == chain }) {
+        if let chainAsset = xorChainAssets.first(where: { $0.chain == chain }) {
             showMoreXorSources(for: chainAsset)
         }
     }
