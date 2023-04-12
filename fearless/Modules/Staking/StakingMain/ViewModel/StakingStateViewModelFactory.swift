@@ -114,7 +114,7 @@ final class StakingStateViewModelFactory {
             reward = nil
         }
 
-        let defaultReward: String = (chainAsset.stakingType == .sora) ? "N/A" : ""
+        let defaultReward: String = (chainAsset.chain.externalApi?.staking == nil) ? "N/A" : ""
 
         return LocalizableResource { locale in
             let stakedViewModel = staked.value(for: locale)
