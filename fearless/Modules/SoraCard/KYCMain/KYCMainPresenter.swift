@@ -29,15 +29,15 @@ final class KYCMainPresenter {
     private func showMoreXorSources(for chainAsset: ChainAsset) {
         let languages = localizationManager?.selectedLocale.rLanguages
         let swapAction = SheetAlertPresentableAction(
-            title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages),
-            style: .warningStyle
+            title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages)
         ) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.router.showSwap(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
         }
 
         let buyAction = SheetAlertPresentableAction(
-            title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages)
+            title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages),
+            style: .warningStyle
         ) { [weak self] in
             guard let strongSelf = self else { return }
             strongSelf.router.showBuyXor(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
@@ -46,7 +46,7 @@ final class KYCMainPresenter {
         let viewModel = SheetAlertPresentableViewModel(
             title: R.string.localizable.detailsGetMoreXor(preferredLanguages: languages),
             message: R.string.localizable.detailsGetMoreXorDescription(preferredLanguages: languages),
-            actions: [swapAction, buyAction],
+            actions: [buyAction, swapAction],
             closeAction: nil,
             icon: R.image.iconWarningBig()
         )
