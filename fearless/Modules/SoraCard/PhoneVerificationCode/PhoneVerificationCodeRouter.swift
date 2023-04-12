@@ -22,9 +22,10 @@ final class PhoneVerificationCodeRouter: PhoneVerificationCodeRouterInput {
     }
 
     func presentPreparation(
-        from view: PhoneVerificationCodeViewInput?
+        from view: PhoneVerificationCodeViewInput?,
+        data: SCKYCUserDataModel
     ) {
-        guard let module = PreparationAssembly.configureModule() else {
+        guard let module = PreparationAssembly.configureModule(data: data) else {
             return
         }
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
