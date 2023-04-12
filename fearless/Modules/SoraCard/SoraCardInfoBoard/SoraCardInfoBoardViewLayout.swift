@@ -39,6 +39,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -81,6 +82,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        statusButton.setTitle(viewModel?.userStatus.title(for: locale).uppercased(), for: .normal)
+        let status = viewModel?.userStatus ?? .notStarted
+        statusButton.setTitle(status.title(for: locale).uppercased(), for: .normal)
     }
 }
