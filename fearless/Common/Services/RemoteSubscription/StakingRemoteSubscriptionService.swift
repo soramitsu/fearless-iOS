@@ -22,7 +22,7 @@ final class StakingRemoteSubscriptionService: RemoteSubscriptionService<ChainSto
     StakingRemoteSubscriptionServiceProtocol {
     private static func globalDataStoragePaths(stakingType: StakingType?) -> [StorageCodingPath] {
         switch stakingType {
-        case .relayChain, .sora:
+        case .relayChain:
             return [
                 .activeEra,
                 .currentEra,

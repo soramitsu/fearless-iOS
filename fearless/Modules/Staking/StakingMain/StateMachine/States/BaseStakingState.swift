@@ -26,7 +26,7 @@ class BaseStakingState: StakingStateProtocol {
 
             let newState: BaseStakingState
             switch chainAsset?.stakingType {
-            case .relayChain, .sora:
+            case .relayChain:
                 newState = InitialRelaychainStakingState(
                     stateMachine: stateMachine,
                     commonData: commonData

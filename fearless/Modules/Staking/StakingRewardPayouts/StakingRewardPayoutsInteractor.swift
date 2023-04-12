@@ -81,8 +81,7 @@ extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputPro
     }
 
     func reload() {
-        // TODO: remove when subquery project will be ready
-        if chainAsset.stakingType == .sora {
+        if chainAsset.chain.externalApi?.staking == nil {
             presenter.didReceive(result: .success(PayoutsInfo(activeEra: 0, historyDepth: 0, payouts: [])))
             return
         }

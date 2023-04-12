@@ -133,7 +133,7 @@ class ChainModel: Codable {
         case .soraMain:
             return SoraChainStakingSettings()
         default:
-            return nil
+            return DefaultRelaychainChainStakingSettings()
         }
     }
 

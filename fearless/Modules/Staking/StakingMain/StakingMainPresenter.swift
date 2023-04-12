@@ -765,6 +765,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
+            let view = view,
             let selectedAccount = SelectedWalletSettings.shared.value,
             let manageStakingItems = context as? [StakingManageOption],
             index >= 0,
