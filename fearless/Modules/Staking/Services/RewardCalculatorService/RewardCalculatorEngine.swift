@@ -7,6 +7,11 @@ enum RewardCalculationResultType {
     case value
     case percent
 
+     /*
+     Rate for reward calculation. Some networks have different reward tokens than user stakes. (e.g. SORA - user stakes XOR, but receives VAL)
+     For these cases we need to calculate APR, APY with a rate equal to RewardTokenPrice / StakedTokenPrice.
+     For the common cases, the givenRate is equal to 1.0
+     */
     func calculateRate(givenRate: Decimal) -> Decimal {
         switch self {
         case .percent:
@@ -15,6 +20,11 @@ enum RewardCalculationResultType {
             return 1.0
         }
     }
+}
+
+struct RewardCalculatorConstants {
+    static let percentCalculationAmount: Decimal = 1.0
+    static let defaultRewardAssetRate: Decimal = 1.0
 }
 
 enum RewardReturnType {
@@ -160,7 +170,7 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     func calculatorReturn(isCompound: Bool, period: CalculationPeriod, type _: RewardReturnType) -> Decimal {
-        calculateAvgEarnings(amount: 1.0, isCompound: isCompound, period: period)
+        calculateAvgEarnings(amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: isCompound, period: period)
     }
 
     private func dailyPercentReward() -> Decimal {
@@ -307,8 +317,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     private lazy var maxValidator: EraValidatorInfo? = {
         validators.max {
-            calculateEarningsForValidator($0, amount: 1.0, isCompound: false, period: .year, resultType: .percent) <
-                calculateEarningsForValidator($1, amount: 1.0, isCompound: false, period: .year, resultType: .percent)
+            calculateEarningsForValidator($0, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent) <
+                calculateEarningsForValidator($1, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent)
         }
     }()
 
@@ -318,7 +328,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         totalIssuance: BigUInt,
         validators: [EraValidatorInfo],
         eraDurationInSeconds: TimeInterval,
-        rewardAssetRate: Decimal = 1.0
+        rewardAssetRate: Decimal = RewardCalculatorConstants.defaultRewardAssetRate
     ) {
         self.chainId = chainId
         self.assetPrecision = assetPrecision
@@ -400,14 +410,14 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
             return calculateEarningsForValidator(
                 validator,
-                amount: 1.0,
+                amount: RewardCalculatorConstants.percentCalculationAmount,
                 isCompound: isCompound,
                 period: period,
                 resultType: .percent
             )
         case .avg:
             return calculateAvgEarnings(
-                amount: 1.0,
+                amount: RewardCalculatorConstants.percentCalculationAmount,
                 isCompound: isCompound,
                 period: period
             )
