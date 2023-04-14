@@ -1,5 +1,6 @@
 import Foundation
 import FearlessUtils
+import SSFXCM
 
 protocol CrossChainViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel

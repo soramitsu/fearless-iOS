@@ -1,16 +1,21 @@
 import Foundation
 import SoraFoundation
+import SSFXCM
+import BigInt
 
 protocol CrossChainViewInput: ControllerBackedProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
     func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(originalSelectNetworkViewModel: SelectNetworkViewModel)
     func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel)
+    func didReceive(originFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceive(destinationFeeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
 protocol CrossChainInteractorInput: AnyObject {
     func setup(with output: CrossChainInteractorOutput)
     func didReceive(originalChainAsset: ChainAsset?, destChainAsset: ChainAsset?)
+    func estimateFee(originalChainId: String, destinationChainId: String)
 }
 
 final class CrossChainPresenter {
@@ -246,6 +251,25 @@ extension CrossChainPresenter: CrossChainViewOutput {
 // MARK: - CrossChainInteractorOutput
 
 extension CrossChainPresenter: CrossChainInteractorOutput {
+    func didReceiveFee(result: Result<XcmFeeResponse, Error>) {
+        switch result {
+        case let .success(response):
+            originalNetworkFee = Decimal.fromSubstrateAmount(
+                response.originalChainFee.origXcmFee,
+                precision: Int16(selectedAmountChainAsset.asset.precision)
+            )
+            destNetworkFee = Decimal.fromSubstrateAmount(
+                response.destinationChainFee.destXcmFee,
+                precision: Int16(selectedAmountChainAsset.asset.precision)
+            )
+
+            provideOriginalNetworkFeeViewModel()
+            provideDestNetworkFeeViewModel()
+        case let .failure(error):
+            logger.error(error.localizedDescription)
+        }
+    }
+
     func didReceivePricesData(
         result: Result<PriceData?, Error>,
         priceId: AssetModel.PriceId?

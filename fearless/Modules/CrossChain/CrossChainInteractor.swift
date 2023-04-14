@@ -1,4 +1,5 @@
 import UIKit
+import SSFXCM
 
 protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAccountInfo(
@@ -11,6 +12,7 @@ protocol CrossChainInteractorOutput: AnyObject {
         priceId: AssetModel.PriceId?
     )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
+    func didReceiveFee(result: Result<XcmFeeResponse, Error>)
 }
 
 final class CrossChainInteractor {
@@ -22,16 +24,19 @@ final class CrossChainInteractor {
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
+    private let xcmFeeService: XcmFeeFetching
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        xcmFeeService: XcmFeeFetching
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.xcmFeeService = xcmFeeService
     }
 
     // MARK: - Private methods
@@ -85,6 +90,21 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             return
         }
         getAvailableDestChainAssets(for: originalChainAsset)
+
+        guard let destinationChainAsset = destChainAsset else {
+            return
+        }
+
+        estimateFee(originalChainId: originalChainAsset.chain.chainId, destinationChainId: destinationChainAsset.chain.chainId)
+    }
+
+    func estimateFee(originalChainId: String, destinationChainId: String) {
+        xcmFeeService.estimateFee(
+            originChainId: originalChainId,
+            destinationChainId: destinationChainId
+        ) { [weak self] result in
+            self?.output?.didReceiveFee(result: result)
+        }
     }
 }
 

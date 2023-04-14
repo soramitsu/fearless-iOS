@@ -217,6 +217,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var soraCardCountriesBlacklist: URL? {
         URL(string: "https://soracard.com/blacklist")
     }
+
+    var xcmFeesURL: URL? {
+        GitHubUrl.url(suffix: "xcmFees.json", branch: "master")
+    }
 }
 
 private enum GitHubUrl {

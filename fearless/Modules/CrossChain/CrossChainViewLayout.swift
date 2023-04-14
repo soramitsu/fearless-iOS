@@ -43,6 +43,9 @@ final class CrossChainViewLayout: UIView {
     let originalSelectNetworkView = UIFactory.default.createNetworkView(selectable: true)
     let destSelectNetworkView = UIFactory.default.createNetworkView(selectable: true)
 
+    let originNetworkFeeView = UIFactory.default.createMultiView()
+    let destinationNetworkFeeView = UIFactory.default.createMultiView()
+
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDisabledStyle()
@@ -67,6 +70,16 @@ final class CrossChainViewLayout: UIView {
     }
 
     // MARK: - Public methods
+
+    func bind(originFeeViewModel: BalanceViewModelProtocol?) {
+        originNetworkFeeView.valueTop.text = originFeeViewModel?.amount
+        originNetworkFeeView.valueBottom.text = originFeeViewModel?.price
+    }
+
+    func bind(destinationFeeViewModel: BalanceViewModelProtocol?) {
+        destinationNetworkFeeView.valueTop.text = destinationFeeViewModel?.amount
+        destinationNetworkFeeView.valueBottom.text = destinationFeeViewModel?.price
+    }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
         amountView.bind(viewModel: assetViewModel)

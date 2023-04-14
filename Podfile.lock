@@ -161,6 +161,8 @@ PODS:
     - SwiftyBeaver
   - SSFModels (0.1.0):
     - IrohaCrypto
+  - SSFNetwork (0.1.0):
+    - RobinHood
   - SSFRuntimeCodingService (0.1.0):
     - FearlessUtils
     - RobinHood
@@ -185,6 +187,7 @@ PODS:
     - SSFCrypto
     - SSFExtrinsicKit
     - SSFModels
+    - SSFNetwork
     - SSFRuntimeCodingService
     - SSFSigner
     - SSFStorageQueryKit
@@ -228,6 +231,7 @@ DEPENDENCIES:
   - SSFExtrinsicKit (from `../soramitsu-shared-features-ios/SSFExtrinsicKit`)
   - SSFLogger (from `../soramitsu-shared-features-ios/SSFLogger`)
   - SSFModels (from `../soramitsu-shared-features-ios/SSFModels`)
+  - SSFNetwork (from `../soramitsu-shared-features-ios/SSFNetwork`)
   - SSFRuntimeCodingService (from `../soramitsu-shared-features-ios/SSFRuntimeCodingService`)
   - SSFSigner (from `../soramitsu-shared-features-ios/SSFSigner`)
   - SSFStorageQueryKit (from `../soramitsu-shared-features-ios/SSFStorageQueryKit`)
@@ -297,6 +301,8 @@ EXTERNAL SOURCES:
     :path: "../soramitsu-shared-features-ios/SSFLogger"
   SSFModels:
     :path: "../soramitsu-shared-features-ios/SSFModels"
+  SSFNetwork:
+    :path: "../soramitsu-shared-features-ios/SSFNetwork"
   SSFRuntimeCodingService:
     :path: "../soramitsu-shared-features-ios/SSFRuntimeCodingService"
   SSFSigner:
@@ -361,10 +367,11 @@ SPEC CHECKSUMS:
   SSFExtrinsicKit: 575e762c68538ce75a94aad6a9518c2c1380d4a9
   SSFLogger: 7236667f0934ffa1928cf818a509c4224ea01b64
   SSFModels: 0f1c159d87352f57c787af8c9d6d7ebe9a62e3ab
+  SSFNetwork: 92b985ffe2670afdaf6db9f7af84890dc16523fd
   SSFRuntimeCodingService: c04aeb01f5e39d8a4a8d353c6a1f856a330fe65e
   SSFSigner: fdd10bb636a971c44949cdc62f463adf95a45b93
   SSFStorageQueryKit: 7be2a08649b615b211002b5e0ebfe92dfd40941c
-  SSFXCM: ae8fe59c26e083777943ee6159c34d23db591039
+  SSFXCM: 926015fb688e3adf80d4588be597a6c65d435cb6
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -376,6 +383,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 255aaa7dac1251905989f39d18e47a579d9891a1
+PODFILE CHECKSUM: 3d991a2d844b0f0bae96751e9567efe5dc17e5b5
 
 COCOAPODS: 1.11.3

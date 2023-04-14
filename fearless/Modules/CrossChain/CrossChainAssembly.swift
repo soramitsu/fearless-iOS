@@ -2,6 +2,8 @@ import UIKit
 import SoraFoundation
 import FearlessUtils
 import RobinHood
+import SSFXCM
+import SSFNetwork
 
 final class CrossChainAssembly {
     static func configureModule(
@@ -40,11 +42,19 @@ final class CrossChainAssembly {
             operationQueue: operationQueue,
             meta: wallet
         )
+        let networkOperationFactory = NetworkOperationFactory()
+        let xcmFeeService = XcmFeeFetcher(
+            sourceUrl: ApplicationConfig.shared.xcmFeesURL!,
+            networkOperationFactory: networkOperationFactory,
+            operationQueue: operationQueue,
+            useCache: true
+        )
 
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            xcmFeeService: xcmFeeService
         )
         let router = CrossChainRouter()
 

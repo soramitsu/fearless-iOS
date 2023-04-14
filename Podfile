@@ -39,6 +39,7 @@ abstract_target 'fearlessAll' do
   pod 'SSFRuntimeCodingService', :path => '../soramitsu-shared-features-ios/SSFRuntimeCodingService'
   pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
   pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
+  pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
 
   target 'fearlessTests' do
     inherit! :search_paths
