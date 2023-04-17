@@ -8,8 +8,7 @@ protocol CrossChainInteractorOutput: AnyObject {
         chainAsset: ChainAsset
     )
     func didReceivePricesData(
-        result: Result<PriceData?, Error>,
-        priceId: AssetModel.PriceId?
+        result: Result<[PriceData], Error>
     )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveFee(result: Result<XcmFeeResponse, Error>)
@@ -52,7 +51,7 @@ final class CrossChainInteractor {
     private func fetchPrices(for chainAssets: [ChainAsset]) {
         let pricesIds = chainAssets.compactMap(\.asset.priceId).uniq(predicate: { $0 })
         guard pricesIds.isNotEmpty else {
-            output?.didReceivePricesData(result: .success(nil), priceId: nil)
+            output?.didReceivePricesData(result: .success([]))
             return
         }
         pricesProvider = subscribeToPrices(for: pricesIds)
@@ -90,12 +89,6 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             return
         }
         getAvailableDestChainAssets(for: originalChainAsset)
-
-        guard let destinationChainAsset = destChainAsset else {
-            return
-        }
-
-        estimateFee(originalChainId: originalChainAsset.chain.chainId, destinationChainId: destinationChainAsset.chain.chainId)
     }
 
     func estimateFee(originalChainId: String, destinationChainId: String) {
@@ -127,13 +120,7 @@ extension CrossChainInteractor: AccountInfoSubscriptionAdapterHandler {
 // MARK: - PriceLocalStorageSubscriber
 
 extension CrossChainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(
-        result: Result<PriceData?, Error>,
-        priceId: AssetModel.PriceId
-    ) {
-        output?.didReceivePricesData(
-            result: result,
-            priceId: priceId
-        )
+    func handlePrices(result: Result<[PriceData], Error>) {
+        output?.didReceivePricesData(result: result)
     }
 }

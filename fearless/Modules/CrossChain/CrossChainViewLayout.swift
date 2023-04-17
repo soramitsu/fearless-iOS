@@ -5,6 +5,8 @@ final class CrossChainViewLayout: UIView {
     enum LayoutConstants {
         static let verticalOffset: CGFloat = 25
         static let stackSubviewHeight: CGFloat = 64
+        static let networkFeeViewHeight: CGFloat = 50
+
 //        static let stackActionHeight: CGFloat = 32
 //        static let stackViewSpacing: CGFloat = 12
 //        static let bottomContainerHeight: CGFloat = 120
@@ -61,6 +63,7 @@ final class CrossChainViewLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
+        applyLocalization()
         backgroundColor = R.color.colorBlack02()
     }
 
@@ -147,6 +150,18 @@ final class CrossChainViewLayout: UIView {
             make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
         }
+
+        contentView.stackView.addArrangedSubview(originNetworkFeeView)
+        originNetworkFeeView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(LayoutConstants.networkFeeViewHeight)
+        }
+        contentView.stackView.addArrangedSubview(destinationNetworkFeeView)
+        destinationNetworkFeeView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(LayoutConstants.networkFeeViewHeight)
+        }
+        contentView.stackView.setCustomSpacing(0, after: originNetworkFeeView)
     }
 
     private func applyLocalization() {
@@ -154,8 +169,10 @@ final class CrossChainViewLayout: UIView {
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
-        navigationTitleLabel.text = "Cross-Chain"
-        originalSelectNetworkView.title = "Original network"
-        destSelectNetworkView.title = "Destination network"
+        navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
+        originalSelectNetworkView.title = R.string.localizable.xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
+        destSelectNetworkView.title = R.string.localizable.xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
+        originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        destinationNetworkFeeView.titleLabel.text = R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
     }
 }

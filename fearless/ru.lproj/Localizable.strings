@@ -1071,3 +1071,8 @@
 "details.need.xor.desription" = "You need %@ more XOR (€%@)";
 "details.enough.xor.desription" = "You have enough XOR";
 "pool.staking.management.claim.button.title" = "Claim";
+"xcm.origin.network.fee.title" = "Original Network Fee";
+"xcm.destination.network.fee.title" = "Destination Network Fee";
+"xcm.original.network.title" = "Original network";
+"xcm.destination.network.title" = "Destination network";
+"xcm.title" = "Cross-Chain";

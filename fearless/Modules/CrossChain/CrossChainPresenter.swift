@@ -42,6 +42,7 @@ final class CrossChainPresenter {
     private var originalNetworkBalance: Decimal?
     private var destNetworkUtilityTokenPriceData: PriceData?
     private var destNetworkUtilityTokenBalance: Decimal?
+    private var prices: [PriceData] = []
 
     private var selectedDestChainModel: ChainModel?
     private var availableDestChainModel: [ChainModel] = []
@@ -127,9 +128,11 @@ final class CrossChainPresenter {
         let viewModel = viewModelFactory?.balanceFromPrice(
             originalNetworkFee ?? .zero,
             priceData: originalNetworkPriceData
-        ).value(for: selectedLocale)
+        )
 
-        originalNetworkFeeViewModel = viewModel
+        originalNetworkFeeViewModel = viewModel?.value(for: selectedLocale)
+
+        view?.didReceive(originFeeViewModel: viewModel)
     }
 
     private func provideDestNetworkFeeViewModel() {
@@ -142,9 +145,11 @@ final class CrossChainPresenter {
         let viewModel = viewModelFactory?.balanceFromPrice(
             destNetworkFee ?? .zero,
             priceData: originalNetworkPriceData
-        ).value(for: selectedLocale)
+        )
 
-        destNetworkFeeViewModel = viewModel
+        destNetworkFeeViewModel = viewModel?.value(for: selectedLocale)
+
+        view?.didReceive(destinationFeeViewModel: viewModel)
     }
 
     private func buildBalanceViewModelFactory(
@@ -161,6 +166,22 @@ final class CrossChainPresenter {
             selectedMetaAccount: wallet
         )
         return balanceViewModelFactory
+    }
+
+    private func providePrices() {
+        let destUtilituChainAsset = selectedDestChainModel?.chainAssets.first(where: { $0.isUtility })
+        if let price = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId }) {
+            originalNetworkPriceData = price
+            provideAssetViewModel()
+        }
+
+        if let price = prices.first(where: { $0.priceId == destUtilituChainAsset?.asset.priceId }) {
+            destNetworkUtilityTokenPriceData = price
+            provideAssetViewModel()
+        }
+
+        provideOriginalNetworkFeeViewModel()
+        provideDestNetworkFeeViewModel()
     }
 }
 
@@ -270,23 +291,14 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         }
     }
 
-    func didReceivePricesData(
-        result: Result<PriceData?, Error>,
-        priceId: AssetModel.PriceId?
-    ) {
+    func didReceivePricesData(result: Result<[PriceData], Error>) {
         switch result {
-        case let .success(success):
-            let destUtilituChainAsset = selectedDestChainModel?.chainAssets.first(where: { $0.isUtility })
-            if priceId == selectedAmountChainAsset.asset.priceId {
-                originalNetworkPriceData = success
-                provideAssetViewModel()
-            } else if priceId == destUtilituChainAsset?.asset.priceId {
-                destNetworkUtilityTokenPriceData = success
-            }
-            provideOriginalNetworkFeeViewModel()
-            provideDestNetworkFeeViewModel()
-        case let .failure(failure):
-            logger.error("\(failure)")
+        case let .success(prices):
+            self.prices = self.prices.filter { !prices.map { $0.priceId }.contains($0.priceId) }
+            self.prices.append(contentsOf: prices)
+            providePrices()
+        case let .failure(error):
+            logger.error("\(error)")
         }
     }
 
@@ -336,6 +348,11 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
         if let destUtilityChainAsset = filtredChainAssets.first(where: { $0.isUtility }) {
             interactor.didReceive(originalChainAsset: nil, destChainAsset: destUtilityChainAsset)
+
+            interactor.estimateFee(
+                originalChainId: selectedAmountChainAsset.chain.chainId,
+                destinationChainId: destUtilityChainAsset.chain.chainId
+            )
         }
     }
 }
@@ -361,6 +378,13 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
         selectedAmountChainAsset = chainAsset
         let destUtilityChainAsset = selectedDestChainModel?.utilityChainAssets().first(where: { $0.isUtility })
         interactor.didReceive(originalChainAsset: chainAsset, destChainAsset: destUtilityChainAsset)
+
+        if let destUtilityChainAsset = destUtilityChainAsset {
+            interactor.estimateFee(
+                originalChainId: selectedAmountChainAsset.chain.chainId,
+                destinationChainId: destUtilityChainAsset.chain.chainId
+            )
+        }
     }
 }
 
@@ -386,6 +410,13 @@ extension CrossChainPresenter: SelectNetworkDelegate {
                 let destUtilityChainAsset = chain.utilityChainAssets().first(where: { $0.isUtility })
                 selectedAmountChainAsset = originalUtilityChainAsset
                 interactor.didReceive(originalChainAsset: originalUtilityChainAsset, destChainAsset: destUtilityChainAsset)
+
+                if let destUtilityChainAsset = destUtilityChainAsset {
+                    interactor.estimateFee(
+                        originalChainId: selectedAmountChainAsset.chain.chainId,
+                        destinationChainId: destUtilityChainAsset.chain.chainId
+                    )
+                }
             }
             provideOriginalSelectNetworkViewModel()
         case .selectDest:
@@ -394,6 +425,11 @@ extension CrossChainPresenter: SelectNetworkDelegate {
 
             if let destUtilityChainAsset = chain.utilityChainAssets().first(where: { $0.isUtility }) {
                 interactor.didReceive(originalChainAsset: selectedAmountChainAsset, destChainAsset: destUtilityChainAsset)
+
+                interactor.estimateFee(
+                    originalChainId: selectedAmountChainAsset.chain.chainId,
+                    destinationChainId: destUtilityChainAsset.chain.chainId
+                )
             }
         }
     }
