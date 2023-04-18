@@ -29,6 +29,7 @@ protocol StakingUnbondSetupViewModelState: StakingUnbondSetupUserInputHandler {
     var fee: Decimal? { get }
     var builderClosure: ExtrinsicBuilderClosure? { get }
     var confirmationFlow: StakingUnbondConfirmFlow? { get }
+    var reuseIdentifier: String { get }
 
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?)
     func validators(using locale: Locale) -> [DataValidating]
@@ -66,7 +67,7 @@ protocol StakingUnbondSetupViewModelFactoryProtocol {
 
 protocol StakingUnbondSetupStrategy {
     func setup()
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String)
 }
 
 protocol StakingUnbondSetupUserInputHandler {

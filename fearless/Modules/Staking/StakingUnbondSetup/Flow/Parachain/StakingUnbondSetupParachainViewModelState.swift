@@ -45,12 +45,12 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         }
     }
 
-    var reuseIdentifier: String? {
+    var reuseIdentifier: String {
         guard
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
                 precision: Int16(chainAsset.asset.precision)
             ) else {
-            return nil
+            return ""
         }
 
         var identifier = ""

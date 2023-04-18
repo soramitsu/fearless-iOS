@@ -7,7 +7,7 @@ enum RewardCalculationResultType {
     case value
     case percent
 
-     /*
+    /*
      Rate for reward calculation. Some networks have different reward tokens than user stakes. (e.g. SORA - user stakes XOR, but receives VAL)
      For these cases we need to calculate APR, APY with a rate equal to RewardTokenPrice / StakedTokenPrice.
      For the common cases, the givenRate is equal to 1.0
@@ -22,7 +22,7 @@ enum RewardCalculationResultType {
     }
 }
 
-struct RewardCalculatorConstants {
+enum RewardCalculatorConstants {
     static let percentCalculationAmount: Decimal = 1.0
     static let defaultRewardAssetRate: Decimal = 1.0
 }
