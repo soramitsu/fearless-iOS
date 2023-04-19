@@ -22,7 +22,7 @@ final class VerificationStatusAssembly {
             interactor: interactor,
             router: router,
             logger: logger,
-            supportUrl: ApplicationConfig.shared.supportURL,
+            supportUrl: ApplicationConfig.shared.soraCardSupportUrl,
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory
         )
