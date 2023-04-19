@@ -45,7 +45,7 @@ final class ApplicationConfig {
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol {
-    var supportURL: URL {
+    var soraCardSupportUrl: URL {
         URL(string: "https://t.me/SORAhappiness")!
     }
 
