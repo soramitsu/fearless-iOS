@@ -1704,6 +1704,7 @@
 		C661B3B227DF99A8005F1F7D /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */; };
 		C661B3B427DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */; };
 		C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */; };
+		C66258C929EFB72A00751F67 /* KYCSShouldRestart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */; };
 		C665E4F029C35801001946D1 /* TimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4EF29C35801001946D1 /* TimeFormatter.swift */; };
 		C665E4F229C40DE1001946D1 /* IntroduceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4F129C40DE1001946D1 /* IntroduceViewModel.swift */; };
 		C665E4F429C46AFC001946D1 /* SCKYCService+KYCStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */; };
@@ -4379,6 +4380,7 @@
 		C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewController.swift; sourceTree = "<group>"; };
 		C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionProviderWrapper.swift; sourceTree = "<group>"; };
 		C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateChainType.swift; sourceTree = "<group>"; };
+		C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCSShouldRestart.swift; sourceTree = "<group>"; };
 		C665E4EF29C35801001946D1 /* TimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatter.swift; sourceTree = "<group>"; };
 		C665E4F129C40DE1001946D1 /* IntroduceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroduceViewModel.swift; sourceTree = "<group>"; };
 		C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCKYCService+KYCStatus.swift"; sourceTree = "<group>"; };
@@ -9480,6 +9482,7 @@
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
+				C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -14893,6 +14896,7 @@
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
 				07D05E6628EF0BE500B66C70 /* SelectValidatorsConfirmPoolStrategy.swift in Sources */,
+				C66258C929EFB72A00751F67 /* KYCSShouldRestart.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,

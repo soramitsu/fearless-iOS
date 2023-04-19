@@ -36,6 +36,8 @@ final class ScanQRAssembly {
             localizationManager: localizationManager
         )
 
+        view.controller.navigationController?.presentingViewController
+
         return (view, presenter)
     }
 }

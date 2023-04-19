@@ -45,6 +45,10 @@ final class ApplicationConfig {
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol {
+    var supportURL: URL {
+        URL(string: "https://t.me/SORAhappiness")!
+    }
+
     var termsURL: URL {
         URL(string: "https://fearlesswallet.io/terms")!
     }

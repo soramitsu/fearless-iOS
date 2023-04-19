@@ -7,7 +7,12 @@ final class VerificationStatusAssembly {
 
         let service: SCKYCService = .init(client: .shared)
 
-        let interactor = VerificationStatusInteractor(data: SCKYCUserDataModel(), service: service)
+        let interactor = VerificationStatusInteractor(
+            data: SCKYCUserDataModel(),
+            service: service,
+            storage: SCStorage.shared,
+            eventCenter: EventCenter.shared
+        )
         let router = VerificationStatusRouter()
 
         let logger: LoggerProtocol = Logger.shared
@@ -17,6 +22,7 @@ final class VerificationStatusAssembly {
             interactor: interactor,
             router: router,
             logger: logger,
+            supportUrl: ApplicationConfig.shared.supportURL,
             localizationManager: localizationManager,
             viewModelFactory: viewModelFactory
         )
