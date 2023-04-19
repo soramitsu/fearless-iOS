@@ -219,7 +219,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var xcmFeesURL: URL? {
-        GitHubUrl.url(suffix: "xcmFees.json", branch: "master")
+        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/develop/xcm_fees.json")
     }
 }
 

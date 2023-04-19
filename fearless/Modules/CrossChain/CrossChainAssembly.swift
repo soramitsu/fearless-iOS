@@ -11,6 +11,7 @@ final class CrossChainAssembly {
         wallet: MetaAccountModel
     ) -> CrossChainModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -50,11 +51,23 @@ final class CrossChainAssembly {
             useCache: true
         )
 
+        let depsContainer = CrossChainDepsContainer(
+            wallet: wallet,
+            chainsTypesMap: chainRegistry.chainsTypesMap
+        )
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
-            xcmFeeService: xcmFeeService
+            xcmFeeService: xcmFeeService,
+            depsContainer: depsContainer,
+            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            logger: Logger.shared,
+            wallet: wallet
         )
         let router = CrossChainRouter()
 

@@ -17,6 +17,7 @@ final class CrossChainDepsContainer {
         let xcmService: XcmExtrinsicServiceProtocol
     }
 
+    private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
     private let wallet: MetaAccountModel
     private let chainsTypesMap: [String: Data]
     private lazy var operationQueue: OperationQueue = {
@@ -39,6 +40,11 @@ final class CrossChainDepsContainer {
         originalRuntimeMetadataItem: RuntimeMetadataItemProtocol,
         destRuntimeMetadataItem: RuntimeMetadataItemProtocol
     ) throws -> CrossChainConfirmationDeps {
+        let key = generateCacheKey(for: originalChainAsset, destinationChain: destChainModel)
+        if let cached = cachedDependencies[key] {
+            return cached
+        }
+
         let xcmService = try createXcmService(
             wallet: wallet,
             originalChainAsset: originalChainAsset,
@@ -49,10 +55,17 @@ final class CrossChainDepsContainer {
         let deps = CrossChainConfirmationDeps(
             xcmService: xcmService
         )
+
+        cachedDependencies[key] = deps
+
         return deps
     }
 
     // MARK: - Private methods
+
+    private func generateCacheKey(for originalChainAsset: ChainAsset, destinationChain: ChainModel) -> String {
+        "\(originalChainAsset.chain.chainId)-\(destinationChain.chainId)"
+    }
 
     private func createXcmService(
         wallet: MetaAccountModel,
