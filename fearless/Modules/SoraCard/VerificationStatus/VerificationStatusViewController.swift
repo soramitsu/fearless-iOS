@@ -45,19 +45,20 @@ final class VerificationStatusViewController: UIViewController, ViewHolder {
         output.didTapActionButton()
     }
 
-    @objc private func closeButtonClicked() {
-        output.didTapCloseButton()
+    @objc private func supportButtonClicked() {
+        output.didTapSupportButton()
     }
 
     private func configureButtons() {
-        rootView.closeButton.addTarget(
-            self,
-            action: #selector(closeButtonClicked),
-            for: .touchUpInside
-        )
         rootView.actionButton.addTarget(
             self,
             action: #selector(actionButtonClicked),
+            for: .touchUpInside
+        )
+
+        rootView.supportButton.addTarget(
+            self,
+            action: #selector(supportButtonClicked),
             for: .touchUpInside
         )
     }
@@ -120,3 +121,5 @@ extension VerificationStatusViewController: ErrorStateViewDelegate {
         output.didTapRefresh()
     }
 }
+
+extension VerificationStatusViewController: HiddableBarWhenPushed {}

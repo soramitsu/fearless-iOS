@@ -163,7 +163,8 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
     }
 
     func didReceive(soraCardHiddenState: Bool) {
-        rootView.changeSoraCardHiddenState(soraCardHiddenState)
+        let soraCardIsHidden = soraCardViewController == nil ? true : soraCardHiddenState
+        rootView.changeSoraCardHiddenState(soraCardIsHidden)
     }
 }
 

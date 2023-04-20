@@ -159,7 +159,9 @@ extension KYCOnboardingPresenter: KYCOnboardingInteractorOutput {
         logger.error("kycError: \(kycError.StatusCode), description: \(kycError.StatusDescription)")
     }
 
-    func didReceive(result _: PayWingsOnboardingKYC.SuccessEvent) {}
+    func didReceive(result _: PayWingsOnboardingKYC.SuccessEvent) {
+        router.showStatus(from: view)
+    }
 
     func didReceive(oAuthError: OAuthErrorCode, message: String?) {
         let errorMessage = "\(message ?? "") (\(oAuthError.description))"
