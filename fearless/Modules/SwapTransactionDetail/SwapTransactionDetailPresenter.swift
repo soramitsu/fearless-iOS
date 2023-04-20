@@ -14,6 +14,7 @@ final class SwapTransactionDetailPresenter {
     private let chainAsset: ChainAsset
     private let transaction: AssetTransactionData
     private var priceData: PriceData?
+    private var subscanExplorer: ChainModel.ExternalApiExplorer?
 
     // MARK: - Constructors
 
@@ -49,6 +50,14 @@ final class SwapTransactionDetailPresenter {
             self.view?.didReceive(viewModel: viewModel)
         }
     }
+
+    private func prepareSubscanExplorer() {
+        let subscanExplorer = chainAsset.chain.externalApi?.explorers?.first(where: {
+            $0.type == .subscan
+        })
+        view?.didReceive(explorer: subscanExplorer)
+        self.subscanExplorer = subscanExplorer
+    }
 }
 
 // MARK: - SwapTransactionDetailViewOutput
@@ -58,10 +67,35 @@ extension SwapTransactionDetailPresenter: SwapTransactionDetailViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideViewModel()
+        prepareSubscanExplorer()
     }
 
     func didTapDismiss() {
         router.dismiss(view: view)
+    }
+
+    func didTapCopyTxHash() {
+        UIPasteboard.general.string = transaction.transactionId
+        let copyEvent = HashCopiedEvent(locale: selectedLocale)
+        router.presentStatus(with: copyEvent, animated: true)
+    }
+
+    func didTapSubscan() {
+        guard let subscanExplorer = self.subscanExplorer,
+              let subscanUrl = subscanExplorer.explorerUrl(for: transaction.transactionId, type: .extrinsic)
+        else {
+            return
+        }
+        router.presentSubscan(from: view, url: subscanUrl)
+    }
+
+    func didTapShare() {
+        guard let subscanExplorer = self.subscanExplorer,
+              let subscanUrl = subscanExplorer.explorerUrl(for: transaction.transactionId, type: .extrinsic)
+        else {
+            return
+        }
+        router.share(sources: [subscanUrl], from: view, with: nil)
     }
 }
 

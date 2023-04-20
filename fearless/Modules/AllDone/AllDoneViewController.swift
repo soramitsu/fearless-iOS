@@ -77,6 +77,7 @@ extension AllDoneViewController: AllDoneViewInput {
 
     func didReceive(explorer: ChainModel.ExternalApiExplorer?) {
         rootView.subscanButton.isHidden = explorer == nil
+        rootView.shareButton.isHidden = explorer == nil
     }
 }
 
