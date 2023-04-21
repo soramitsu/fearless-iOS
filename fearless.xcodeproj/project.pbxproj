@@ -1694,6 +1694,7 @@
 		C640416028F5191100845780 /* CreateContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640415F28F5191100845780 /* CreateContactViewModel.swift */; };
 		C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */; };
 		C648FFC828DC43A70072951B /* EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C648FFC728DC43A70072951B /* EmptyView.swift */; };
+		C64C2FE029F27C5F00F32FC0 /* KYCUserStatusChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64C2FDF29F27C5F00F32FC0 /* KYCUserStatusChanged.swift */; };
 		C64ECCE328873F2500CFF434 /* ChainAssetsFetching.swift in Sources */ = {isa = PBXBuildFile; fileRef = C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */; };
 		C65817D128DA70FC00988FC4 /* QRView.swift in Sources */ = {isa = PBXBuildFile; fileRef = C65817D028DA70FC00988FC4 /* QRView.swift */; };
 		C6584E352982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6584E342982524700592A92 /* WalletTransactionHistoryDependencyContainer.swift */; };
@@ -4369,6 +4370,7 @@
 		C640415F28F5191100845780 /* CreateContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModel.swift; sourceTree = "<group>"; };
 		C640416128F51F9900845780 /* CreateContactViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateContactViewModelFactory.swift; sourceTree = "<group>"; };
 		C648FFC728DC43A70072951B /* EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyView.swift; sourceTree = "<group>"; };
+		C64C2FDF29F27C5F00F32FC0 /* KYCUserStatusChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCUserStatusChanged.swift; sourceTree = "<group>"; };
 		C64ECCE228873F2500CFF434 /* ChainAssetsFetching.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetsFetching.swift; sourceTree = "<group>"; };
 		C650892E2927A88400440227 /* QRService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QRService.swift; sourceTree = "<group>"; };
 		C65089302927A92D00440227 /* QROperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QROperationFactory.swift; sourceTree = "<group>"; };
@@ -9487,6 +9489,7 @@
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
 				C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */,
+				C64C2FDF29F27C5F00F32FC0 /* KYCUserStatusChanged.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -14598,6 +14601,7 @@
 				FA5137B829AC76EB00560EBA /* SubqueryHistoryOperationFactory.swift in Sources */,
 				C665E4F929C6E8DF001946D1 /* SCBalanceProgressView.swift in Sources */,
 				8425EA9A25EA83FA00C307C9 /* ChainData+Value.swift in Sources */,
+				C64C2FE029F27C5F00F32FC0 /* KYCUserStatusChanged.swift in Sources */,
 				AEA2C1BA2681E9C50069492E /* ValidatorSearchInteractor.swift in Sources */,
 				C633AD8929C19A4200EA8C29 /* KYCOnboardingViewLayout.swift in Sources */,
 				84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */,

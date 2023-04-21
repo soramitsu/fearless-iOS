@@ -30,6 +30,7 @@ final class SCKYCService {
 
     internal let client: SCAPIClient
     private let payWingsOAuthClient: PayWingsOAuthSDK.OAuthServiceProtocol
+    private let eventCenter = EventCenter.shared
 
     init(client: SCAPIClient) {
         self.client = client
@@ -49,6 +50,7 @@ final class SCKYCService {
         AsyncStream<SCKYCUserStatus> { [weak self] continuation in
             self?.userStatusYield = { status in
                 continuation.yield(status)
+                self?.eventCenter.notify(with: KYCUserStatusChanged())
             }
         }
     }()
