@@ -92,7 +92,7 @@ final class StakingRedeemConfirmationPoolViewModelFactory: StakingRedeemConfirma
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = asset.displayInfo.icon.map { RemoteImageViewModel(url: $0) }
 

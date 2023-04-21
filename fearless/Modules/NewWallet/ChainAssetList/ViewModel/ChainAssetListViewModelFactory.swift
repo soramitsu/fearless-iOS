@@ -150,7 +150,7 @@ private extension ChainAssetListViewModelFactory {
         locale: Locale
     ) -> TokenFormatter {
         let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .fiat)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
     }
@@ -380,8 +380,10 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
-        let digits = totalAssetBalance > 0 ? 4 : 0
-        return totalAssetBalance.toString(locale: locale, digits: digits)
+        let minDigits = totalAssetBalance > 0 ? 3 : 0
+        let maxDigits = totalAssetBalance > 0 ? 8 : 0
+
+        return totalAssetBalance.toString(locale: locale, minimumDigits: minDigits, maximumDigits: maxDigits)
     }
 
     func getBalance(

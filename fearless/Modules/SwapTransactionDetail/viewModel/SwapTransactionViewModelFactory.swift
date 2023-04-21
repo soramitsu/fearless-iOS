@@ -98,13 +98,13 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         toChainAsset: ChainAsset?,
         locale: Locale
     ) -> NSMutableAttributedString {
-        let fromAmount = fromAmount.toString(locale: locale, digits: 4)
+        let fromAmount = fromAmount.toString(locale: locale, maximumDigits: 4)
         let fromName = fromChainAsset?.asset.name
         let leftText = [fromAmount, fromName]
             .compactMap { $0 }
             .joined(separator: " ")
 
-        let rightAmount = toAmount.toString(locale: locale, digits: 4)
+        let rightAmount = toAmount.toString(locale: locale, maximumDigits: 4)
         let rightName = toChainAsset?.asset.name
         let rightText = [rightAmount, rightName]
             .compactMap { $0 }

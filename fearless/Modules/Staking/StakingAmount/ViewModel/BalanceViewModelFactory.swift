@@ -49,7 +49,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
         let targetAmount = rate * amount
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
-        let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
+        let localizableFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
@@ -58,7 +58,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String> {
-        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
@@ -71,9 +71,9 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         priceData: PriceData?,
         isApproximately: Bool
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)
@@ -118,9 +118,9 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         balance: Decimal?,
         priceData: PriceData?
     ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         let symbol = targetAssetInfo.symbol
 

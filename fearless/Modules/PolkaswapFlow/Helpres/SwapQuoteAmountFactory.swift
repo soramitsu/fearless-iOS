@@ -172,9 +172,9 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             minMaxReceiveValue: minMaxReceiveVieModel.1,
             route: route,
             fromPerToTitle: fromPerToTitle,
-            fromPerToValue: fromPerToValue.toString(locale: locale, digits: .max) ?? "",
+            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: .max) ?? "",
             toPerFromTitle: toPerFromTitle,
-            toPerFromValue: toPerFromValue.toString(locale: locale, digits: .max) ?? "",
+            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: .max) ?? "",
             liqudityProviderFeeVieModel: liqudityProviderFeeVieModel
         )
 
