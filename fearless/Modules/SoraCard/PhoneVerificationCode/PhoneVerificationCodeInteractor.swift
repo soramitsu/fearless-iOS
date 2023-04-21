@@ -51,7 +51,7 @@ final class PhoneVerificationCodeInteractor {
                     }
                     output?.didReceiveUserStatus()
                 case .failure:
-                    Task { [weak self] in await self?.resetKYC() }
+                    Task { await resetKYC() }
                 }
             }
         }
@@ -119,9 +119,8 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
         service.client.set(token: token)
 
-        Task { [weak self] in
+        Task {
             await SCStorage.shared.add(token: token)
-            guard let self = self else { return }
             self.service.getUserData(callback: GetUserDataCallback())
             await MainActor.run {
                 self.codeState = .succeed

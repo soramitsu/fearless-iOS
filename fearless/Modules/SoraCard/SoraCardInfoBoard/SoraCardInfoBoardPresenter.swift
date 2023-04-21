@@ -37,7 +37,7 @@ final class SoraCardInfoBoardPresenter {
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
     func didTapStart() {
-        Task { [weak self] in await self?.interactor.prepareStart() }
+        Task { await self.interactor.prepareStart() }
     }
 
     func didLoad(view: SoraCardInfoBoardViewInput) {
