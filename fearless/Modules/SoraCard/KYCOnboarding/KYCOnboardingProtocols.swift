@@ -24,7 +24,9 @@ protocol KYCOnboardingInteractorOutput: AnyObject {
     func didReceive(result: PayWingsOnboardingKYC.SuccessEvent)
 }
 
-protocol KYCOnboardingRouterInput: AnyObject, SheetAlertPresentable, PresentDismissable {}
+protocol KYCOnboardingRouterInput: AnyObject, SheetAlertPresentable, PresentDismissable {
+    func showStatus(from view: ControllerBackedProtocol?)
+}
 
 protocol KYCOnboardingModuleInput: AnyObject {}
 

@@ -1,7 +1,7 @@
 import Foundation
 
 final class TermsAndConditionsRouter: TermsAndConditionsRouterInput {
-    func presentPhoneVerification(from view: TermsAndConditionsViewInput?) {
+    func presentPhoneVerification(from view: ControllerBackedProtocol?) {
         guard let module = PhoneVerificationAssembly.configureModule() else {
             return
         }

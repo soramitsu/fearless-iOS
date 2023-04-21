@@ -24,6 +24,7 @@ enum ProfileOption: UInt, CaseIterable {
     case biometry
     case about
     case zeroBalances
+    case resetToken
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -108,7 +109,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         currency: Currency,
         locale: Locale
     ) -> [ProfileOptionViewModelProtocol] {
-        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
+        var options: [ProfileOption] = []
+        #if F_DEV
+            options = ProfileOption.allCases
+        #else
+            options = ProfileOption.allCases.filter { $0 != .resetToken }
+        #endif
+        let optionViewModels = options.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
                 return createAccountListViewModel(for: locale)
@@ -128,6 +135,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .zeroBalances:
                 return createZeroBalancesViewModel(for: locale)
+            case .resetToken:
+                return createResetTokenViewModel()
             }
         }
 
@@ -255,6 +264,17 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .switcher(settings.shouldHideZeroBalanceAssets ?? false),
             option: .zeroBalances
+        )
+    }
+
+//    Only dev testing option
+    private func createResetTokenViewModel() -> ProfileOptionViewModel {
+        ProfileOptionViewModel(
+            title: "Reset token",
+            icon: R.image.iconSoraCard()!,
+            accessoryTitle: nil,
+            accessoryType: .arrow,
+            option: .resetToken
         )
     }
 
