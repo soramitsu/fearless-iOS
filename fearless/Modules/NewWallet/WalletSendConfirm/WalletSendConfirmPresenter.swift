@@ -125,7 +125,7 @@ final class WalletSendConfirmPresenter {
               .prepareDepencies(chainAsset: utilityAsset)?
               .balanceViewModelFactory else { return nil }
         return tip
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 
@@ -136,7 +136,7 @@ final class WalletSendConfirmPresenter {
               .prepareDepencies(chainAsset: utilityAsset)?
               .balanceViewModelFactory else { return nil }
         return fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
     }
 

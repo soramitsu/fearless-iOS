@@ -50,7 +50,7 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     func buildYourRewardDestinationViewModel(

@@ -105,6 +105,6 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 }

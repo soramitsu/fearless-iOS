@@ -45,7 +45,7 @@ extension StakingStateViewModelFactory {
                 precision: precision
             ),
             redeemable > 0,
-            let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable)
+            let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable, usageCase: .listCrypto)
         else { return nil }
 
         let localizedString = LocalizableResource<String> { locale in
@@ -72,7 +72,7 @@ extension StakingStateViewModelFactory {
                 minStake,
                 precision: chainAsset.assetDisplayInfo.assetPrecision
             ),
-            let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
+            let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal, usageCase: .listCrypto)
         else {
             return nil
         }
@@ -104,7 +104,7 @@ extension StakingStateViewModelFactory {
                     minStake,
                     precision: chainAsset.assetDisplayInfo.assetPrecision
                 ),
-                let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
+                let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal, usageCase: .listCrypto)
             else {
                 return nil
             }

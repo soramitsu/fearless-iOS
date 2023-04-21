@@ -27,7 +27,8 @@ final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<Subq
 
         let totalReceivedTokens = balanceViewModelFactory.balanceFromPrice(
             totalReceived,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale)
 
         return totalReceivedTokens

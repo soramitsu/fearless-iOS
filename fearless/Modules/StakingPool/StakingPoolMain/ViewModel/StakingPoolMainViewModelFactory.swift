@@ -176,7 +176,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                precision: Int16(chainAsset.asset.precision)
            ) {
             let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
-                let minJoinBondValueString = self.balanceViewModelFactory?.amountFromValue(minJoinBondDecimal)
+                let minJoinBondValueString = self.balanceViewModelFactory?.amountFromValue(minJoinBondDecimal, usageCase: .listCrypto)
                     .value(for: locale) ?? ""
 
                 return NetworkInfoContentViewModel(
@@ -195,7 +195,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                precision: Int16(chainAsset.asset.precision)
            ) {
             let localizableViewModel = LocalizableResource { locale -> NetworkInfoContentViewModel in
-                let minCreateBondValueString = self.balanceViewModelFactory?.amountFromValue(minCreateBondDecimal)
+                let minCreateBondValueString = self.balanceViewModelFactory?.amountFromValue(minCreateBondDecimal, usageCase: .listCrypto)
                     .value(for: locale) ?? ""
 
                 return NetworkInfoContentViewModel(
@@ -299,8 +299,8 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
 
         let pendingReward = Decimal.fromSubstrateAmount(pendingRewards, precision: Int16(chainAsset.asset.precision)) ?? Decimal.zero
 
-        guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData),
-              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData)
+        guard let totalStake = balanceViewModelFactory?.balanceFromPrice(totalStakeAmount, priceData: priceData, usageCase: .listCrypto),
+              let totalReward = balanceViewModelFactory?.balanceFromPrice(pendingReward, priceData: priceData, usageCase: .listCrypto)
         else {
             return nil
         }
@@ -313,7 +313,8 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                 ) ?? 0
                 let redeemable = self?.balanceViewModelFactory?.balanceFromPrice(
                     redeemableAmount,
-                    priceData: priceData
+                    priceData: priceData,
+                    usageCase: .listCrypto
                 )
                 redeemableViewModel = StakingUnitInfoViewModel(
                     value: redeemable?.value(for: locale).amount,
@@ -324,7 +325,7 @@ extension StakingPoolMainViewModelFactory: StakingPoolMainViewModelFactoryProtoc
                     stakeInfo.unbonding(inEra: era),
                     precision: Int16(chainAsset.asset.precision)
                 ) ?? 0
-                let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData)
+                let unstaking = self?.balanceViewModelFactory?.balanceFromPrice(unstakingAmount, priceData: priceData, usageCase: .listCrypto)
                 unstakingViewModel = StakingUnitInfoViewModel(
                     value: unstaking?.value(for: locale).amount,
                     subtitle: unstaking?.value(for: locale).price

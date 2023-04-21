@@ -127,7 +127,7 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {

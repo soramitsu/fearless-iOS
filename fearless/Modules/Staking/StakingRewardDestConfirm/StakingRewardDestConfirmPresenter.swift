@@ -42,7 +42,7 @@ final class StakingRewardDestConfirmPresenter {
     }
 
     private func provideFeeViewModel() {
-        let viewModel = fee.map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }
+        let viewModel = fee.map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }
         view?.didReceiveFee(viewModel: viewModel)
     }
 

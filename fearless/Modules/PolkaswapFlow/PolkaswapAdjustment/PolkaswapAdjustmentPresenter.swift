@@ -331,7 +331,8 @@ final class PolkaswapAdjustmentPresenter {
             priceData: prices?.first(where: { price in
                 price.priceId == xorChainAsset.asset.priceId
             }),
-            isApproximately: true
+            isApproximately: true,
+            usageCase: .detailsCrypto
         ).value(for: selectedLocale)
         DispatchQueue.main.async {
             self.view?.didReceiveNetworkFee(fee: feeViewModel)

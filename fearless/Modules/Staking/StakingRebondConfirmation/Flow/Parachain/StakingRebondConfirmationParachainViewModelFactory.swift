@@ -54,7 +54,7 @@ final class StakingRebondConfirmationParachainViewModelFactory: StakingRebondCon
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     func createAssetBalanceViewModel(

@@ -88,7 +88,7 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
             let title = R.string.localizable
                 .stakingReward(preferredLanguages: locale.rLanguages)
 
-            let priceData = self.balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+            let priceData = self.balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
 
             let reward = priceData.value(for: locale)
 

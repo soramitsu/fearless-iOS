@@ -14,14 +14,22 @@ public extension NumberFormatter {
     static func formatter(
         for usageCase: NumberFormatterUsageCase,
         locale: Locale,
-        rounding _: NumberFormatter.RoundingMode = .down,
-        usesIntGrouping _: Bool = false
+        rounding: NumberFormatter.RoundingMode = .down,
+        usesIntGrouping: Bool = false
     ) -> NumberFormatter {
         switch usageCase {
         case .listCrypto:
-            return NumberFormatter.defaultListCryptoFormatter(locale: locale)
+            return NumberFormatter.defaultListCryptoFormatter(
+                locale: locale,
+                rounding: rounding,
+                usesIntGrouping: usesIntGrouping
+            )
         case .detailsCrypto:
-            return NumberFormatter.defaultDetailsCryptoFormatter(locale: locale)
+            return NumberFormatter.defaultDetailsCryptoFormatter(
+                locale: locale,
+                rounding: rounding,
+                usesIntGrouping: usesIntGrouping
+            )
         case .fiat:
             return NumberFormatter.defaultFiatFormatter(locale: locale)
         case .percent:

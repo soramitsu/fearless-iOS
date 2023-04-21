@@ -36,7 +36,7 @@ final class StakingBondMoreConfirmParachainViewModelFactory: StakingBondMoreConf
         let senderIcon = try? iconGenerator.generateFromAddress(address)
         let collatorIcon = try? iconGenerator.generateFromAddress(state.candidate.address)
 
-        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
         let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
         let amountViewModel = TitleMultiValueViewModel(
             title: balanceViewModel.value(for: locale).amount,

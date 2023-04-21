@@ -66,7 +66,8 @@ extension RecommendedValidatorListRelaychainViewModelFactory: RecommendedValidat
 
                 let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
                     validator.totalStake,
-                    priceData: nil
+                    priceData: nil,
+                    usageCase: .listCrypto
                 ).value(for: locale)
 
                 let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(

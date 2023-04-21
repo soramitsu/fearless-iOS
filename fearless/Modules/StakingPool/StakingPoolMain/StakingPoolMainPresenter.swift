@@ -77,7 +77,8 @@ final class StakingPoolMainPresenter {
 
         let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
             balance ?? 0.0,
-            priceData: nil
+            priceData: nil,
+            usageCase: .listCrypto
         ).value(for: selectedLocale)
 
         DispatchQueue.main.async {

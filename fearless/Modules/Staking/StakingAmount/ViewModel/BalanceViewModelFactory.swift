@@ -6,8 +6,8 @@ import SoraKeystore
 
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
-    func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool)
+    func amountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String>
+    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?, isApproximately: Bool, usageCase: NumberFormatterUsageCase)
         -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<IAmountInputViewModel>
     func createAssetBalanceViewModel(_ amount: Decimal?, balance: Decimal?, priceData: PriceData?)
@@ -17,9 +17,10 @@ protocol BalanceViewModelFactoryProtocol {
 extension BalanceViewModelFactoryProtocol {
     func balanceFromPrice(
         _ amount: Decimal,
-        priceData: PriceData?
+        priceData: PriceData?,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        balanceFromPrice(amount, priceData: priceData, isApproximately: false)
+        balanceFromPrice(amount, priceData: priceData, isApproximately: false, usageCase: usageCase)
     }
 }
 
@@ -57,8 +58,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func amountFromValue(_ value: Decimal) -> LocalizableResource<String> {
-        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
+    func amountFromValue(_ value: Decimal, usageCase: NumberFormatterUsageCase) -> LocalizableResource<String> {
+        let localizableFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: usageCase)
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
@@ -69,9 +70,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func balanceFromPrice(
         _ amount: Decimal,
         priceData: PriceData?,
-        isApproximately: Bool
+        isApproximately: Bool,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<BalanceViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: usageCase)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 

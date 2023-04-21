@@ -128,7 +128,7 @@ extension StakingBondMorePresenter: StakingBondMoreModelStateListener {
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             let viewModel = networkFeeViewModelFactory.createViewModel(
                 from: balanceViewModel
             )

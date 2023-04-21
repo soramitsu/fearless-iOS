@@ -380,10 +380,8 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
-        let minDigits = totalAssetBalance > 0 ? 3 : 0
-        let maxDigits = totalAssetBalance > 0 ? 8 : 0
-
-        return totalAssetBalance.toString(locale: locale, minimumDigits: minDigits, maximumDigits: maxDigits)
+        let digits = totalAssetBalance > 0 ? 3 : 0
+        return totalAssetBalance.toString(locale: locale, minimumDigits: digits, maximumDigits: digits)
     }
 
     func getBalance(

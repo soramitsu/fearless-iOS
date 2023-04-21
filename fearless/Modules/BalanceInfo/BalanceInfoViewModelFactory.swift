@@ -104,7 +104,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         )
 
         let displayInfo = chainAsset.asset.displayInfo
-        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .detailsCrypto).value(for: locale)
+        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto).value(for: locale)
 
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
         guard

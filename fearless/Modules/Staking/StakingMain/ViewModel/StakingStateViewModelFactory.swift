@@ -106,14 +106,16 @@ final class StakingStateViewModelFactory {
         let stakedAmount = convertAmount(ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
-            priceData: commonData.price
+            priceData: commonData.price,
+            usageCase: .listCrypto
         )
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
             reward = balanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
-                priceData: commonData.price
+                priceData: commonData.price,
+                usageCase: .listCrypto
             )
         } else {
             reward = nil
@@ -147,14 +149,16 @@ final class StakingStateViewModelFactory {
         let stakedAmount = convertAmount(state.ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
-            priceData: commonData.price
+            priceData: commonData.price,
+            usageCase: .listCrypto
         )
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
             reward = balanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
-                priceData: commonData.price
+                priceData: commonData.price,
+                usageCase: .listCrypto
             )
         } else {
             reward = nil
@@ -241,10 +245,11 @@ final class StakingStateViewModelFactory {
                 let apyFormatter = NumberFormatter.percentPlain.localizableResource().value(for: locale)
 
                 return DelegationViewModel(
-                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount).value(for: locale),
+                    totalStakedAmount: balanceViewModelFactory.amountFromValue(amount, usageCase: .listCrypto).value(for: locale),
                     totalStakedPrice: balanceViewModelFactory.balanceFromPrice(
                         amount,
-                        priceData: state.commonData.price
+                        priceData: state.commonData.price,
+                        usageCase: .listCrypto
                     ).value(for: locale).price ?? "",
                     apr: apyFormatter.string(from: (collator.subqueryData?.apr ?? 0.0) as NSNumber) ?? "",
                     status: status,

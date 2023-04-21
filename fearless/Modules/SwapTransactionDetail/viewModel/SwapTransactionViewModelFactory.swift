@@ -178,7 +178,8 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         let feeViewModel = balanceViewModelFactory.balanceFromPrice(
             totalFee,
             priceData: priceData,
-            isApproximately: true
+            isApproximately: true,
+            usageCase: .detailsCrypto
         ).value(for: locale)
 
         return feeViewModel

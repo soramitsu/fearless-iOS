@@ -90,7 +90,7 @@ final class StakingPoolJoinConfigPresenter {
             return
         }
 
-        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
         view?.didReceiveFeeViewModel(feeViewModel.value(for: selectedLocale))
     }
 
