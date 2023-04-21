@@ -165,7 +165,7 @@ final class KYCMainViewLayout: UIView {
             if viewModel.hasEnoughBalance {
                 detailsTitleLabel.iconView.sora.picture = .icon(image: R.image.listCheckmarkIcon()!, color: .statusSuccess)
                 detailsTitleLabel.titleLabel.sora.text = R.string.localizable.soraCardFreeCardIssuance(preferredLanguages: locale.rLanguages)
-                actionButton.sora.title = R.string.localizable.detailsIssueCard(preferredLanguages: locale.rLanguages)
+                actionButton.sora.title = R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
             } else {
                 actionButton.sora.title = R.string.localizable.detailsGetMoreXor(preferredLanguages: locale.rLanguages)
             }
@@ -248,7 +248,7 @@ private extension KYCMainViewLayout {
             underline: .single
         )
         actionButton.sora.title = R.string.localizable.detailsGetMoreXor(preferredLanguages: locale.rLanguages)
-        issueCardButton.sora.title = R.string.localizable.soraCardIssueCardTitle(preferredLanguages: locale.rLanguages)
+        issueCardButton.sora.title = R.string.localizable.commonContinue(preferredLanguages: locale.rLanguages)
         haveCardButton.sora.title =
             R.string.localizable.detailsAlreadyHaveCard(preferredLanguages: locale.rLanguages)
     }

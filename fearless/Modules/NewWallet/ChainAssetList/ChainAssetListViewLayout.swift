@@ -21,17 +21,13 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    private let scrollView = UIScrollView()
-    private let contentContainer = UIView()
-
-    private let cardContainer: UIView = {
+    private var cardContainer: UIView? = {
         let view = UIView()
-        view.isHidden = true
         return view
     }()
 
-    let tableView: SelfSizingTableView = {
-        let view = SelfSizingTableView()
+    let tableView: UITableView = {
+        let view = UITableView()
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
@@ -70,27 +66,14 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(scrollView)
-        scrollView.addSubview(cardContainer)
-        scrollView.addSubview(contentContainer)
-        contentContainer.addSubview(tableView)
-        contentContainer.addSubview(emptyView)
+        addSubview(tableView)
+        addSubview(emptyView)
+        tableView.tableHeaderView = cardContainer
 
-        scrollView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-            make.width.equalToSuperview()
-        }
-
-        cardContainer.snp.makeConstraints { make in
+        cardContainer?.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalTo(self).inset(UIConstants.bigOffset)
             make.height.equalTo(Constants.cardContainerHeight)
-        }
-
-        contentContainer.snp.makeConstraints { make in
-            make.top.equalTo(cardContainer.snp.bottom)
-            make.leading.trailing.equalTo(self)
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
         }
 
         emptyView.snp.makeConstraints { make in
@@ -102,21 +85,23 @@ final class ChainAssetListViewLayout: UIView {
         }
     }
 
+    private func cardContainerView(for isHiddenState: Bool) -> UIView? {
+        if isHiddenState {
+            return nil
+        }
+
+        return cardContainer
+    }
+
     func addChild(soraCardView: UIView) {
-        cardContainer.addSubview(soraCardView)
+        cardContainer?.addSubview(soraCardView)
         soraCardView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
     }
 
     func changeSoraCardHiddenState(_ hidden: Bool) {
-        cardContainer.isHidden = hidden
-
-        let height = hidden ? 0 : Constants.cardContainerHeight
-        cardContainer.snp.updateConstraints { make in
-            make.height.equalTo(height)
-        }
-
-        layoutIfNeeded()
+        let view = cardContainerView(for: hidden)
+        tableView.tableHeaderView = view
     }
 }

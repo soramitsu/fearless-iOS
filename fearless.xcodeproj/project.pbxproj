@@ -1704,7 +1704,7 @@
 		C661B3B227DF99A8005F1F7D /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */; };
 		C661B3B427DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */; };
 		C661B3B627E2E7AB005F1F7D /* AccountCreateChainType.swift in Sources */ = {isa = PBXBuildFile; fileRef = C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */; };
-		C665E4EE29C32691001946D1 /* SoraCardKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4ED29C32691001946D1 /* SoraCardKeys.swift */; };
+		C66258C929EFB72A00751F67 /* KYCSShouldRestart.swift in Sources */ = {isa = PBXBuildFile; fileRef = C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */; };
 		C665E4F029C35801001946D1 /* TimeFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4EF29C35801001946D1 /* TimeFormatter.swift */; };
 		C665E4F229C40DE1001946D1 /* IntroduceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4F129C40DE1001946D1 /* IntroduceViewModel.swift */; };
 		C665E4F429C46AFC001946D1 /* SCKYCService+KYCStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */; };
@@ -4382,7 +4382,7 @@
 		C661B3B127DF99A8005F1F7D /* AccountCreateViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateViewController.swift; sourceTree = "<group>"; };
 		C661B3B327DFBA41005F1F7D /* AccountInfoSubscriptionProviderWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoSubscriptionProviderWrapper.swift; sourceTree = "<group>"; };
 		C661B3B527E2E7AB005F1F7D /* AccountCreateChainType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateChainType.swift; sourceTree = "<group>"; };
-		C665E4ED29C32691001946D1 /* SoraCardKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraCardKeys.swift; sourceTree = "<group>"; };
+		C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCSShouldRestart.swift; sourceTree = "<group>"; };
 		C665E4EF29C35801001946D1 /* TimeFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeFormatter.swift; sourceTree = "<group>"; };
 		C665E4F129C40DE1001946D1 /* IntroduceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroduceViewModel.swift; sourceTree = "<group>"; };
 		C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SCKYCService+KYCStatus.swift"; sourceTree = "<group>"; };
@@ -9486,6 +9486,7 @@
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
+				C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -10484,7 +10485,6 @@
 			children = (
 				C633AD2229C0B8B000EA8C29 /* SCKYCService.swift */,
 				C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */,
-				C665E4ED29C32691001946D1 /* SoraCardKeys.swift */,
 				C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */,
 				C665E51129C80720001946D1 /* SCKYCService+XOne.swift */,
 			);
@@ -13847,7 +13847,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY,soraCardAPIKey=$SORA_CARD_API_KEY,soraCardDomain=$SORA_CARD_DOMAIN,soraCardKycEndpoint=$SORA_CARD_KYC_ENDPOINT_URL,soraCardKycUsername=$SORA_CARD_KYC_USERNAME,soraCardKycPassword=$SORA_CARD_KYC_PASSWORD,paywingsRepositoryUrl=$PAY_WINGS_REPOSITORY_URL,paywingsUsername=$PAY_WINGS_USERNAME,paywingsPassword=$PAY_WINGS_PASSWORD,x1EndpointUrlRelease=$X1_ENDPOINT_URL_RELEASE,x1WidgetIdRelease=$X1_WIDGET_ID_RELEASE,x1EndpointUrlDebug=$X1_ENDPOINT_URL_DEBUG,x1WidgetIdDebug=$X1_WIDGET_ID_DEBUG\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -14902,6 +14902,7 @@
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				F409672626B29B04008CD244 /* UIScrollView+ScrollToPage.swift in Sources */,
 				07D05E6628EF0BE500B66C70 /* SelectValidatorsConfirmPoolStrategy.swift in Sources */,
+				C66258C929EFB72A00751F67 /* KYCSShouldRestart.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				F4F65C3326D8B81A002EE838 /* FWChartViewProtocol.swift in Sources */,
 				84DED410266659EC00A153BB /* CustomCrowdloanDelegate.swift in Sources */,
@@ -15099,7 +15100,6 @@
 				8444D1742671372800AF6D8C /* BytesCodable.swift in Sources */,
 				84DD5F7C263DFEC600425ACF /* StakingDataValidatorFactory.swift in Sources */,
 				84E1CCF5260DCB91001E81B5 /* SwitchAccount+AccountManagementWireframe.swift in Sources */,
-				C665E4EE29C32691001946D1 /* SoraCardKeys.swift in Sources */,
 				8467F4C926B2943A00C5B6F4 /* ImportantFlowNavigationController.swift in Sources */,
 				FAA0136828DA12E3000A5230 /* StakingRedeemConfirmationViewModel.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
