@@ -8,21 +8,24 @@ protocol VerificationStatusViewInput: ControllerBackedProtocol, LoadableViewProt
 protocol VerificationStatusViewOutput: AnyObject {
     func didLoad(view: VerificationStatusViewInput)
     func didTapActionButton()
-    func didTapCloseButton()
+    func didTapSupportButton()
     func didTapRefresh()
 }
 
 protocol VerificationStatusInteractorInput: AnyObject {
     func setup(with output: VerificationStatusInteractorOutput)
     func getKYCStatus()
+    func retryKYC() async
+    func resetKYC() async
 }
 
 protocol VerificationStatusInteractorOutput: AnyObject {
     func didReceive(error: Error)
     func didReceive(status: SCKYCUserStatus?, hasFreeAttempts: Bool)
+    func resetKYC()
 }
 
-protocol VerificationStatusRouterInput: PresentDismissable {}
+protocol VerificationStatusRouterInput: PresentDismissable, WebPresentable {}
 
 protocol VerificationStatusModuleInput: AnyObject {}
 
