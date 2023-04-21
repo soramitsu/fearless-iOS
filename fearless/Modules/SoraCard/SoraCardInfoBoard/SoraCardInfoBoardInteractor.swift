@@ -16,17 +16,20 @@ final class SoraCardInfoBoardInteractor {
     private let wallet: MetaAccountModel
     private let service: SCKYCService
     private let storage: SCStorage
+    private let eventCenter: EventCenterProtocol
 
     init(
         service: SCKYCService,
         settings: SettingsManagerProtocol,
         wallet: MetaAccountModel,
-        storage: SCStorage
+        storage: SCStorage,
+        eventCenter: EventCenterProtocol
     ) {
         self.service = service
         self.settings = settings
         self.wallet = wallet
         self.storage = storage
+        self.eventCenter = eventCenter
     }
 }
 
@@ -38,6 +41,7 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
         let key = SoraCardSettingsKey.settingsKey(for: wallet)
         settings.set(value: false, for: key)
+        eventCenter.add(observer: self)
     }
 
     func hideCard() {
@@ -72,6 +76,16 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
                 }
             }
         } else {
+            await MainActor.run { [weak self] in
+                self?.output?.restartKYC()
+            }
+        }
+    }
+}
+
+extension SoraCardInfoBoardInteractor: EventVisitorProtocol {
+    func processKYCShouldRestart() {
+        Task {
             await MainActor.run { [weak self] in
                 self?.output?.restartKYC()
             }

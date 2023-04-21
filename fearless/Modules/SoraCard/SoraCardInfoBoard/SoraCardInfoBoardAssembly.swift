@@ -11,7 +11,8 @@ final class SoraCardInfoBoardAssembly {
             service: service,
             settings: SettingsManager.shared,
             wallet: wallet,
-            storage: .shared
+            storage: .shared,
+            eventCenter: EventCenter.shared
         )
         let router = SoraCardInfoBoardRouter()
 

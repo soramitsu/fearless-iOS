@@ -4,35 +4,34 @@ final class VerificationStatusViewLayout: UIView {
     private enum LayoutConstants {
         static let cardImageSize: CGSize = CGSizeMake(257, 155)
         static let statusIconSize: CGSize = CGSizeMake(80, 80)
-        static let closeButtonSize: CGSize = CGSizeMake(40, 40)
+        static let cardImageTopSpacing: CGFloat = 56
+        static let cardImageBottomSpacing: CGFloat = 80
+        static let supportButtonHeight: CGFloat = 30
     }
-
-    let navigationBar: BaseNavigationBar = {
-        let bar = BaseNavigationBar()
-        bar.backgroundColor = R.color.colorBlack()
-        bar.backButton.setImage(R.image.iconBackPinkBold(), for: .normal)
-        return bar
-    }()
-
-    let closeButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconClosePinkBold(), for: .normal)
-        return button
-    }()
 
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
         view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
-        view.stackView.spacing = UIConstants.hugeOffset
+        view.stackView.spacing = UIConstants.bigOffset
         return view
     }()
 
+    let titleContainerView = UIView()
+
     let titleLabel: UILabel = {
         let label = UILabel()
-        label.font = .h1Title
+        label.font = .h3Title
         label.textColor = R.color.colorWhite()
         return label
+    }()
+
+    let supportButton: UIButton = {
+        let button = UIButton()
+        button.setTitleColor(R.color.colorPink1(), for: .normal)
+        button.titleLabel?.font = .h5Title
+        button.isHidden = true
+        return button
     }()
 
     let statusLabel: UILabel = {
@@ -87,6 +86,11 @@ final class VerificationStatusViewLayout: UIView {
         statusLabel.text = status.description(with: locale)
         statusImageView.image = status.iconImage
         actionButton.setTitle(status.buttonTitle(with: locale).uppercased(), for: .normal)
+        supportButton.isHidden = true
+
+        if case let .rejected(hasFreeAttempts) = status, hasFreeAttempts == false {
+            supportButton.isHidden = false
+        }
 
         switch status {
         case .rejected:
@@ -102,64 +106,75 @@ final class VerificationStatusViewLayout: UIView {
         if let status = status {
             bind(status: status)
         }
+        supportButton.setTitle("Support", for: .normal)
     }
 
     private func setupLayout() {
-        addSubview(navigationBar)
         addSubview(contentView)
-        addSubview(actionButton)
 
-        navigationBar.setRightViews([closeButton])
+        titleContainerView.addSubview(titleLabel)
+        titleContainerView.addSubview(supportButton)
 
-        contentView.stackView.addArrangedSubview(titleLabel)
+        contentView.stackView.addArrangedSubview(titleContainerView)
         contentView.stackView.addArrangedSubview(statusLabel)
         contentView.stackView.addArrangedSubview(infoLabel)
         contentView.stackView.addArrangedSubview(cardImageContainerView)
+        contentView.stackView.addArrangedSubview(actionButton)
+
+        contentView.stackView.setCustomSpacing(
+            LayoutConstants.cardImageTopSpacing,
+            after: infoLabel
+        )
+        contentView.stackView.setCustomSpacing(
+            LayoutConstants.cardImageBottomSpacing,
+            after: cardImageContainerView
+        )
 
         cardImageContainerView.addSubview(cardImageView)
         cardImageContainerView.addSubview(statusImageView)
 
-        navigationBar.snp.makeConstraints { make in
-            make.leading.top.trailing.equalToSuperview()
-        }
-
         contentView.snp.makeConstraints { make in
-            make.top.equalTo(navigationBar.snp.bottom)
+            make.top.equalToSuperview()
             make.leading.trailing.equalToSuperview()
-        }
-
-        closeButton.snp.makeConstraints { make in
-            make.size.equalTo(LayoutConstants.closeButtonSize)
+            make.bottom.equalToSuperview()
         }
 
         actionButton.snp.makeConstraints { make in
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.hugeOffset)
-            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
-            make.top.equalTo(contentView.snp.bottom).inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.roundedButtonHeight)
         }
 
+        titleContainerView.snp.makeConstraints { make in
+            make.width.equalTo(contentView)
+        }
+
+        supportButton.snp.makeConstraints { make in
+            make.trailing.top.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(LayoutConstants.supportButtonHeight)
+        }
+
         titleLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
+            make.leading.top.equalToSuperview().offset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.trailing.lessThanOrEqualTo(supportButton.snp.leading)
         }
 
         statusLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         infoLabel.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         cardImageContainerView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.hugeOffset)
-            make.top.equalTo(infoLabel.snp.bottom).offset(UIConstants.bigOffset)
-            make.bottom.equalTo(actionButton.snp.top).inset(UIConstants.bigOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
         }
 
         cardImageView.snp.makeConstraints { make in
             make.size.equalTo(LayoutConstants.cardImageSize)
-            make.center.equalToSuperview()
+            make.centerX.equalToSuperview()
+            make.top.bottom.equalToSuperview()
         }
 
         statusImageView.snp.makeConstraints { make in

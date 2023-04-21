@@ -7,10 +7,19 @@ final class VerificationStatusInteractor {
     private weak var output: VerificationStatusInteractorOutput?
     private let service: SCKYCService
     private let data: SCKYCUserDataModel
+    private let storage: SCStorage
+    private let eventCenter: EventCenterProtocol
 
-    init(data: SCKYCUserDataModel, service: SCKYCService) {
+    init(
+        data: SCKYCUserDataModel,
+        service: SCKYCService,
+        storage: SCStorage,
+        eventCenter: EventCenterProtocol
+    ) {
         self.data = data
         self.service = service
+        self.storage = storage
+        self.eventCenter = eventCenter
     }
 }
 
@@ -49,6 +58,21 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
                     )
                 }
             }
+        }
+    }
+
+    func retryKYC() async {
+        storage.set(isRetry: true)
+        await resetKYC()
+    }
+
+    func resetKYC() async {
+        await storage.removeToken()
+        storage.set(isRetry: false)
+
+        await MainActor.run { [weak self] in
+            self?.output?.resetKYC()
+            self?.eventCenter.notify(with: KYCShouldRestart())
         }
     }
 }
