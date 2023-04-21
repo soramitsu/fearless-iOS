@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct SubscanRawExtrinsicsData: Decodable {
     let count: Int

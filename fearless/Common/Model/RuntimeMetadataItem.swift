@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import SSFModels
 
 struct RuntimeMetadataItem: Codable & Equatable {

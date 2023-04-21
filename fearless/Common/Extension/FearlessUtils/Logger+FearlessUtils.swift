@@ -1,3 +1,3 @@
-import FearlessUtils
+import SSFUtils
 
 extension Logger: SDKLoggerProtocol {}

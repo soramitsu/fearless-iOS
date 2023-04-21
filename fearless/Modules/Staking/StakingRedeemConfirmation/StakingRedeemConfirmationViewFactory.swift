@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewFactoryProtocol {
     static func createView(

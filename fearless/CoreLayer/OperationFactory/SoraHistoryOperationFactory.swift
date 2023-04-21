@@ -1,7 +1,7 @@
 import CommonWallet
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 import XNetworking
 import BigInt
 

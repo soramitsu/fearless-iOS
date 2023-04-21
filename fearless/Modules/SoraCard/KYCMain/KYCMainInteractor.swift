@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 enum KYCConstants {
     static let requiredAmountOfEuro = 100

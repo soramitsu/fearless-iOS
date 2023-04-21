@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol EraValidatorServiceProtocol: ApplicationServiceProtocol {
     func fetchInfoOperation() -> BaseOperation<EraStakersInfo>

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol RuntimeCoderFactoryProtocol {
     var specVersion: UInt32 { get }

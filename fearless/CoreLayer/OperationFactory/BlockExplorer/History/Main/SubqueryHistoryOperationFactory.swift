@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import CommonWallet
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 class SubqueryHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>

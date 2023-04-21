@@ -4,7 +4,7 @@ import SSFXCM
 import SSFModels
 import SSFCrypto
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 final class CrossChainDepsContainer {
     enum DepsError: Error {

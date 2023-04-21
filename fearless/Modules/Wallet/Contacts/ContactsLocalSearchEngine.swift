@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 import RobinHood
 import SoraFoundation
 

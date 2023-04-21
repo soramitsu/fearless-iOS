@@ -40,6 +40,7 @@ abstract_target 'fearlessAll' do
   pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
   pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
   pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
+  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 
   target 'fearlessTests' do
     inherit! :search_paths

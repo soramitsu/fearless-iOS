@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 protocol RecommendedValidatorCellDelegate: AnyObject {
     func didTapInfoButton(in cell: RecommendedValidatorCell)

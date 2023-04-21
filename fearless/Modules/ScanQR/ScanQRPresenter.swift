@@ -3,7 +3,7 @@ import SoraFoundation
 import CommonWallet
 import RobinHood
 import AVFoundation
-import FearlessUtils
+import SSFUtils
 
 final class ScanQRPresenter: NSObject {
     enum ScanState {

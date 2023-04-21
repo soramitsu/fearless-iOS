@@ -1,6 +1,6 @@
 import UIKit
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 
 final class WalletTransactionDetailsViewLayout: UIView {
     lazy var navigationBar: BaseNavigationBar = {

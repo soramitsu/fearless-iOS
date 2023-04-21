@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 
 struct SelectedValidatorCellViewModel {
     let icon: DrawableIcon?

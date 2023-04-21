@@ -2,7 +2,7 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 final class StakingRewardDestConfirmInteractor: AccountFetching {
     weak var presenter: StakingRewardDestConfirmInteractorOutputProtocol!

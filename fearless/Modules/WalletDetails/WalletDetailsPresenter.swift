@@ -1,5 +1,5 @@
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import UIKit
 final class WalletDetailsPresenter {
     weak var view: WalletDetailsViewProtocol?

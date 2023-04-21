@@ -1,6 +1,6 @@
 import RobinHood
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 
 final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetching {

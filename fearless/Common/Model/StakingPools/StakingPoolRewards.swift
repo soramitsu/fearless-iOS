@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 struct StakingPoolRewards: Decodable {
     @StringCodable var lastRecordedRewardCounter: BigUInt

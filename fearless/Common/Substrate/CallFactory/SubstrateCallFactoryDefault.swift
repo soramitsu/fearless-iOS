@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 import BigInt
 import SSFModels

@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 protocol CrowdloanBonusServiceProtocol: AnyObject {
     var bonusRate: Decimal { get }

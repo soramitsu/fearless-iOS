@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 
 protocol QRScanMatcherProtocol: QRMatcherProtocol {
     var qrInfo: QRInfo? { get }

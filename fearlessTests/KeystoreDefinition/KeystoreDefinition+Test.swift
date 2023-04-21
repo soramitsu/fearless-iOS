@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension KeystoreDefinition {
     static var validURL: URL {

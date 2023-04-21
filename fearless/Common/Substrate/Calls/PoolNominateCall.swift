@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 // swiftlint:disable identifier_name
 struct PoolNominateCall: Codable {
