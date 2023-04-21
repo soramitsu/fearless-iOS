@@ -7,7 +7,7 @@ protocol ChainAccountViewDelegate: AnyObject {
 
 final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
-        static let actionsViewHeight: CGFloat = 80
+        static let actionsViewHeight: CGFloat = 60
         static let accessoryButtonSize: CGFloat = 32.0
         static let addressLabelWidth: CGFloat = 135
         static let addressLabelHeight: CGFloat = 24
@@ -88,14 +88,6 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
-    let receiveContainer: BorderedContainerView = {
-        let container = BorderedContainerView()
-        container.backgroundColor = .clear
-        container.strokeWidth = 1.0
-        container.strokeColor = R.color.colorDarkGray()!
-        return container
-    }()
-
     let chainOptionsContentView = UIView()
 
     let actionsView: TriangularedView = {
@@ -128,6 +120,28 @@ final class ChainAccountViewLayout: UIView {
         return stackView
     }()
 
+    private let separatorView: UIView = UIFactory.default.createSeparatorView()
+
+    private let balanceInfoStackView = UIFactory.default.createVerticalStackView()
+
+    let transferableBalanceView: TitleMultiValueView = {
+        let view = UIFactory.default.createMultiView()
+        view.titleLabel.font = R.font.soraRc0040417Bold(size: 12)
+        return view
+    }()
+
+    let balanceLocksView: TitleMultiValueView = {
+        let view = UIFactory.default.createMultiView()
+        view.titleLabel.font = R.font.soraRc0040417Bold(size: 12)
+        return view
+    }()
+
+    let infoButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconInfoGrayFilled(), for: .normal)
+        return button
+    }()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -149,6 +163,13 @@ final class ChainAccountViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(balanceViewModel: ChainAccountBalanceViewModel?) {
+        balanceInfoStackView.isHidden = balanceViewModel == nil
+
+        transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
+        balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))
+    }
+
     func bind(viewModel: ChainAccountViewModel) {
         walletNameTitle.text = viewModel.walletName
         selectNetworkButton.setTitle(viewModel.selectedChainName, for: .normal)
@@ -160,9 +181,6 @@ final class ChainAccountViewLayout: UIView {
         }
         buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
         polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
-
-        let borderType: BorderType = (buyButton.isHidden && polkaswapButton.isHidden) ? .left : [.left, .right]
-        receiveContainer.borderType = borderType
     }
 }
 
@@ -187,24 +205,50 @@ private extension ChainAccountViewLayout {
         contentView.addArrangedSubview(actionsView)
         actionsView.snp.makeConstraints { make in
             make.width.equalToSuperview().inset(UIConstants.bigOffset)
-            make.height.equalTo(LayoutConstants.actionsViewHeight)
         }
 
+        actionsView.addSubview(balanceInfoStackView)
+        actionsView.addSubview(separatorView)
         actionsView.addSubview(actionsContentStackView)
+        balanceInfoStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        }
+        separatorView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(1)
+            make.top.equalTo(balanceInfoStackView.snp.bottom).offset(UIConstants.defaultOffset)
+        }
         actionsContentStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview()
-            make.top.equalToSuperview().offset(UIConstants.defaultOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(LayoutConstants.actionsViewHeight)
+            make.top.equalTo(separatorView.snp.bottom).offset(UIConstants.defaultOffset)
+        }
+
+        balanceInfoStackView.addArrangedSubview(transferableBalanceView)
+        balanceInfoStackView.addArrangedSubview(balanceLocksView)
+
+        transferableBalanceView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        balanceLocksView.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.cellHeight)
+            make.leading.trailing.equalToSuperview()
         }
 
         actionsContentStackView.addArrangedSubview(sendButton)
-        actionsContentStackView.addArrangedSubview(receiveContainer)
+        actionsContentStackView.addArrangedSubview(receiveButton)
         actionsContentStackView.addArrangedSubview(buyButton)
         actionsContentStackView.addArrangedSubview(polkaswapButton)
 
-        receiveContainer.addSubview(receiveButton)
-        receiveButton.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
+        balanceLocksView.addSubview(infoButton)
+
+        infoButton.snp.makeConstraints { make in
+            make.leading.equalTo(balanceLocksView.titleLabel.snp.trailing).offset(UIConstants.defaultOffset)
+            make.centerY.equalToSuperview()
         }
     }
 
@@ -264,7 +308,6 @@ private extension ChainAccountViewLayout {
 
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.height.equalTo(LayoutConstants.balanceViewHeight)
-            make.width.equalTo(LayoutConstants.balanceViewWidth)
         }
 
         walletBalanceVStackView.distribution = .fill
@@ -284,5 +327,7 @@ private extension ChainAccountViewLayout {
         receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
         buyButton.setTitle(R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages), for: .normal)
         polkaswapButton.setTitle(R.string.localizable.polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages), for: .normal)
+        transferableBalanceView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
+        balanceLocksView.titleLabel.text = R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
     }
 }

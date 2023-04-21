@@ -3,7 +3,7 @@ import SoraFoundation
 
 final class ChainAccountViewController: UIViewController, ViewHolder {
     enum Constants {
-        static let defaultContentHeight: CGFloat = 270
+        static let defaultContentHeight: CGFloat = 374
     }
 
     typealias RootViewType = ChainAccountViewLayout
@@ -60,6 +60,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
             self?.presenter.addressDidCopied()
         }
         rootView.polkaswapButton.addTarget(self, action: #selector(polkaswapButtonClicked), for: .touchUpInside)
+        rootView.infoButton.addTarget(self, action: #selector(lockedInfoButtonClicked), for: .touchUpInside)
         presenter.setup()
     }
 
@@ -88,6 +89,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         case .error:
             break
         }
+    }
+
+    @objc private func lockedInfoButtonClicked() {
+        presenter.didTapLockedInfoButton()
     }
 
     @objc private func backButtonClicked() {
@@ -123,6 +128,10 @@ extension ChainAccountViewController: ChainAccountViewProtocol {
     func didReceiveState(_ state: ChainAccountViewState) {
         self.state = state
         applyState()
+    }
+
+    func didReceive(balanceViewModel: ChainAccountBalanceViewModel?) {
+        rootView.bind(balanceViewModel: balanceViewModel)
     }
 }
 
