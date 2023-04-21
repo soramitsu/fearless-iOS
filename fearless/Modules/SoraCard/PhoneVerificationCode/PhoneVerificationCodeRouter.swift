@@ -31,6 +31,16 @@ final class PhoneVerificationCodeRouter: PhoneVerificationCodeRouterInput {
         view?.controller.navigationController?.pushViewController(module.view.controller, animated: true)
     }
 
+    func showStatus(from view: ControllerBackedProtocol?) {
+        guard let module = VerificationStatusAssembly.configureModule() else {
+            return
+        }
+        view?.controller.navigationController?.pushViewController(
+            module.view.controller,
+            animated: true
+        )
+    }
+
     func close(from view: PhoneVerificationCodeViewInput?) {
         view?.controller.dismiss(animated: true)
     }

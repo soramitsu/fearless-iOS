@@ -7,6 +7,9 @@ final class PhoneVerificationCodeInteractor {
     private weak var output: PhoneVerificationCodeInteractorOutput?
     private let data: SCKYCUserDataModel
     private let service: SCKYCService
+    private let storage: SCStorage = .shared
+    private let eventCenter: EventCenterProtocol
+
     private var callback = SignInWithPhoneNumberVerifyOtpCallback()
     private let requestOtpCallback = SignInWithPhoneNumberRequestOtpCallback()
     private let otpLength: Int
@@ -16,12 +19,52 @@ final class PhoneVerificationCodeInteractor {
         }
     }
 
-    init(data: SCKYCUserDataModel, service: SCKYCService, otpLength: Int) {
+    init(
+        data: SCKYCUserDataModel,
+        service: SCKYCService,
+        otpLength: Int,
+        eventCenter: EventCenterProtocol
+    ) {
         self.service = service
         self.data = data
         self.otpLength = otpLength
+        self.eventCenter = eventCenter
         callback.delegate = self
         requestOtpCallback.delegate = self
+    }
+
+    private func checkUserStatus(with data: SCKYCUserDataModel) {
+        Task {
+            var hasFreeAttempts = false
+            if case let .success(atempts) = await service.kycAttempts() {
+                hasFreeAttempts = atempts.hasFreeAttempts
+            }
+            let response = await service.kycStatuses()
+            await MainActor.run { [weak self, hasFreeAttempts] in
+                guard let self else { return }
+                switch response {
+                case let .success(statuses):
+                    let statusesToShow = statuses.filter { $0.userStatus != .userCanceled }
+                    if statusesToShow.isEmpty || self.storage.isKYCRetry() && hasFreeAttempts {
+                        output?.didReceiveSignInSuccessfulStep(data: data)
+                        return
+                    }
+                    output?.didReceiveUserStatus()
+                case .failure:
+                    Task { [weak self] in await self?.resetKYC() }
+                }
+            }
+        }
+    }
+
+    private func resetKYC() async {
+        await storage.removeToken()
+        storage.set(isRetry: false)
+
+        await MainActor.run { [weak self] in
+            self?.output?.resetKYC()
+            self?.eventCenter.notify(with: KYCShouldRestart())
+        }
     }
 }
 
