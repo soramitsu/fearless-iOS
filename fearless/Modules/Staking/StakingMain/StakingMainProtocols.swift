@@ -72,6 +72,8 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
     func didReceive(eraCountdownResult: Result<EraCountdown, Error>)
+    func didReceive(rewardChainAsset: ChainAsset?)
+    func didReceive(rewardAssetPrice: PriceData?)
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
@@ -94,7 +96,8 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
         amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     )
 
     func showManageStaking(
@@ -157,7 +160,8 @@ protocol StakingMainWireframeProtocol: SheetAlertPresentable, ErrorPresentable, 
         from view: ControllerBackedProtocol?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     )
 
     func showControllerAccount(

@@ -222,8 +222,8 @@ extension StakingPoolMainPresenter: StakingPoolMainViewOutput {
             return
         }
 
-        let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
-        let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+        let maxReward = rewardCalculator.calculatorReturn(isCompound: true, period: .year, type: .max())
+        let avgReward = rewardCalculator.calculatorReturn(isCompound: true, period: .year, type: .avg)
         let maxRewardTitle = rewardCalculator.maxEarningsTitle(locale: selectedLocale)
         let avgRewardTitle = rewardCalculator.avgEarningTitle(locale: selectedLocale)
 

@@ -92,7 +92,10 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
                 return builder
             }
 
-            let nominateCall = try strongSelf.callFactory.nominate(targets: targets)
+            let nominateCall = try strongSelf.callFactory.nominate(
+                targets: targets,
+                chainAsset: strongSelf.chainAsset
+            )
 
             return try builder
                 .adding(call: nominateCall)

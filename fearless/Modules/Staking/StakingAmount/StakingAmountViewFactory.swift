@@ -9,14 +9,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         with amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountViewProtocol? {
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
         let wireframe = StakingAmountWireframe()
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-
             selectedMetaAccount: selectedAccount
         )
 
@@ -29,7 +29,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             chainAsset: ChainAsset(chain: chain, asset: asset),
             dataValidatingFactory: dataValidatingFactory,
             wallet: selectedAccount,
-            amount: amount
+            amount: amount,
+            rewardChainAsset: rewardChainAsset
         ) else {
             return nil
         }
@@ -125,7 +126,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         chainAsset: ChainAsset,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
-        amount: Decimal?
+        amount: Decimal?,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
@@ -156,12 +158,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
+        )
 
+        let rewardChainAsset = rewardChainAsset ?? chainAsset
+        let rewardBalanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: rewardChainAsset.asset.displayInfo,
             selectedMetaAccount: wallet
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory,
+            balanceViewModelFactory: rewardBalanceViewModelFactory,
             iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
         )
 
@@ -197,6 +204,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 callFactory: callFactory
             )
 
+            let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
+
             let strategy = StakingAmountRelaychainStrategy(
                 chainAsset: chainAsset,
                 runtimeService: runtimeService,
@@ -206,7 +215,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 output: viewModelState,
                 eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
                 eraValidatorService: eraValidatorService,
-                existentialDepositService: existentialDepositService
+                existentialDepositService: existentialDepositService,
+                rewardChainAsset: rewardChainAsset,
+                priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
@@ -311,7 +322,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: selectedAccount
         ) else {
             return nil
         }

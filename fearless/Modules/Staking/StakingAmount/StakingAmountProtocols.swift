@@ -66,6 +66,7 @@ protocol StakingAmountViewFactoryProtocol: AnyObject {
         with amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountViewProtocol?
 }

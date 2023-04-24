@@ -8,16 +8,17 @@ import BigInt
 
 // swiftlint:disable type_body_length file_length
 class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
-    private let addressFactory = SS58AddressFactory()
-
     // MARK: - Public methods
 
     func bond(
         amount: BigUInt,
         controller: String,
-        rewardDestination: RewardDestination<String>
+        rewardDestination: RewardDestination<String>,
+        chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {
-        let controllerId = try addressFactory.accountId(from: controller)
+        let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
+
+        let controllerIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
 
         let destArg: RewardDestinationArg
 
@@ -25,12 +26,12 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         case .restake:
             destArg = .staked
         case let .payout(address):
-            let accountId = try addressFactory.accountId(from: address)
+            let accountId = try AddressFactory.accountId(from: address, chain: chainAsset.chain)
             destArg = .account(accountId)
         }
 
         let args = BondCall(
-            controller: .accoundId(controllerId),
+            controller: controllerIdParam,
             value: amount,
             payee: destArg
         )
@@ -73,10 +74,11 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
-    func nominate(targets: [SelectedValidatorInfo]) throws -> any RuntimeCallable {
+    func nominate(targets: [SelectedValidatorInfo], chainAsset: ChainAsset) throws -> any RuntimeCallable {
         let addresses: [MultiAddress] = try targets.map { info in
-            let accountId = try addressFactory.accountId(from: info.address)
-            return MultiAddress.accoundId(accountId)
+            let accountId = try AddressFactory.accountId(from: info.address, chain: chainAsset.chain)
+            let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: accountId) ?? .accoundId(accountId)
+            return accountIdParam
         }
 
         let args = NominateCall(targets: addresses)
@@ -190,9 +192,11 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
-    func setController(_ controller: AccountAddress) throws -> any RuntimeCallable {
-        let controllerId = try addressFactory.accountId(from: controller)
-        let args = SetControllerCall(controller: .accoundId(controllerId))
+    func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable {
+        let controllerId = try AddressFactory.accountId(from: controller, chain: chainAsset.chain)
+        let accountIdParam = chainAsset.chain.stakingSettings?.accountIdParam(accountId: controllerId) ?? .accoundId(controllerId)
+
+        let args = SetControllerCall(controller: accountIdParam)
         let path: SubstrateCallPath = .setController
         return RuntimeCall(
             moduleName: path.moduleName,
@@ -592,7 +596,8 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
 extension SubstrateCallFactoryDefault {
     func setRewardDestination(
         _ rewardDestination: RewardDestination<AccountAddress>,
-        stashItem: StashItem
+        stashItem: StashItem,
+        chainAsset: ChainAsset
     ) throws -> any RuntimeCallable {
         let arg: RewardDestinationArg = try {
             switch rewardDestination {
@@ -607,7 +612,7 @@ extension SubstrateCallFactoryDefault {
                     return .controller
                 }
 
-                let accountId = try SS58AddressFactory().accountId(from: accountAddress)
+                let accountId = try AddressFactory.accountId(from: accountAddress, chain: chainAsset.chain)
 
                 return .account(accountId)
             }

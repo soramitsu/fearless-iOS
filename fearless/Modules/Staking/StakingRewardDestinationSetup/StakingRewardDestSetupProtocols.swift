@@ -34,6 +34,7 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     func didReceiveAccounts(result: Result<[ChainAccountResponse], Error>)
     func didReceiveNomination(result: Result<Nomination?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveRewardAssetPriceData(result: Result<PriceData?, Error>)
 }
 
 protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, SheetAlertPresentable, ErrorPresentable,
