@@ -81,12 +81,14 @@ extension SwapTransactionDetailPresenter: SwapTransactionDetailViewOutput {
     }
 
     func didTapSubscan() {
-        guard let subscanExplorer = self.subscanExplorer,
+        guard let view = view,
+              let subscanExplorer = self.subscanExplorer,
               let subscanUrl = subscanExplorer.explorerUrl(for: transaction.transactionId, type: .extrinsic)
         else {
             return
         }
-        router.presentSubscan(from: view, url: subscanUrl)
+
+        router.showWeb(url: subscanUrl, from: view, style: .automatic)
     }
 
     func didTapShare() {

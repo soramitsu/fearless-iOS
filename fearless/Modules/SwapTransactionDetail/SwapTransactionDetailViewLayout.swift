@@ -122,6 +122,13 @@ final class SwapTransactionDetailViewLayout: UIView {
         closeButton.rounded()
     }
 
+    // MARK: - Public methods
+
+    func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
+        subscanButton.isHidden = explorer == nil
+        shareButton.isHidden = explorer == nil
+    }
+
     func bind(viewModel: SwapTransactionViewModel) {
         amountsLabel.attributedText = viewModel.amountsText
         doubleImageView.bind(viewModel: viewModel.doubleImageViewViewModel)
@@ -180,6 +187,7 @@ final class SwapTransactionDetailViewLayout: UIView {
     private func setupLayout() {
         func makeCommonConstraints(for view: UIView) {
             view.snp.makeConstraints { make in
+                make.height.equalTo(Constants.multiViewHeight)
                 make.leading.trailing.equalToSuperview()
             }
         }
@@ -218,7 +226,9 @@ final class SwapTransactionDetailViewLayout: UIView {
         contentView.stackView.addArrangedSubview(infoBackground)
 
         infoBackground.addSubview(infoViewsStackView)
-        makeCommonConstraints(for: infoBackground)
+        infoBackground.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
         infoViewsStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
@@ -227,26 +237,6 @@ final class SwapTransactionDetailViewLayout: UIView {
         multiViews.forEach { view in
             infoViewsStackView.addArrangedSubview(view)
             makeCommonConstraints(for: view)
-        }
-
-        transactionHashView.snp.makeConstraints { make in
-            make.height.equalTo(Constants.multiViewHeight)
-        }
-
-        statusView.snp.makeConstraints { make in
-            make.height.equalTo(Constants.multiViewHeight)
-        }
-
-        fromView.snp.makeConstraints { make in
-            make.height.equalTo(Constants.multiViewHeight)
-        }
-
-        dateView.snp.makeConstraints { make in
-            make.height.equalTo(Constants.multiViewHeight)
-        }
-
-        networkFeeView.snp.makeConstraints { make in
-            make.height.equalTo(Constants.multiViewHeight)
         }
 
         subscanButton.snp.makeConstraints { make in

@@ -23,9 +23,7 @@ protocol SwapTransactionDetailInteractorOutput: AnyObject {
     func didReceive(priceData: PriceData?)
 }
 
-protocol SwapTransactionDetailRouterInput: PresentDismissable, SharingPresentable, ApplicationStatusPresentable {
-    func presentSubscan(from view: ControllerBackedProtocol?, url: URL)
-}
+protocol SwapTransactionDetailRouterInput: PresentDismissable, SharingPresentable, ApplicationStatusPresentable, WebPresentable {}
 
 protocol SwapTransactionDetailModuleInput: AnyObject {}
 

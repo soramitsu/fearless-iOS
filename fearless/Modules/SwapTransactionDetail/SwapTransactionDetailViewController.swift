@@ -68,8 +68,7 @@ extension SwapTransactionDetailViewController: SwapTransactionDetailViewInput {
     }
 
     func didReceive(explorer: ChainModel.ExternalApiExplorer?) {
-        rootView.subscanButton.isHidden = explorer == nil
-        rootView.shareButton.isHidden = explorer == nil
+        rootView.updateState(for: explorer)
     }
 }
 
