@@ -383,7 +383,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         chainAssetFetching.fetch(filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)], sortDescriptors: []) { [weak self] result in
             switch result {
             case let .success(chainAssets):
-                let rewardChainAsset = chainAssets.first(where: { $0.asset.name.lowercased() == assetName.lowercased() }) ?? chainAsset
+                let rewardChainAsset = chainAssets.first ?? chainAsset
                 self?.rewardChainAsset = rewardChainAsset
             case let .failure(error):
                 self?.logger?.error(error.localizedDescription)

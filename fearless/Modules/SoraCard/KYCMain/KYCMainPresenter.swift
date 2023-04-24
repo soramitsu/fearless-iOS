@@ -35,7 +35,7 @@ extension KYCMainPresenter: KYCMainViewOutput {
 
     func didTapGetMoreXor() {
         guard let chainAsset = interactor.xorChainAssets.first(where: { chainAsset in
-            chainAsset.chain.chainId == Chain.soraMain.genesisHash
+            chainAsset.chain.chainId == Chain.soraMain.genesisHash || chainAsset.chain.chainId == Chain.soraTest.genesisHash
         }) else { return }
 
         let languages = localizationManager?.selectedLocale.rLanguages

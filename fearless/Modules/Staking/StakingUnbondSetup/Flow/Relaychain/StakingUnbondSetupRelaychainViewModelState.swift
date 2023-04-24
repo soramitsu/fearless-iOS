@@ -31,7 +31,7 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     var amount: Decimal? {
         inputAmount
     }
-    
+
     var reuseIdentifier: String {
         var identifier = ""
         let amountValue = inputAmount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? BigUInt.zero
@@ -52,6 +52,7 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
 
         return identifier
     }
+
     var builderClosure: ExtrinsicBuilderClosure? {
         { [weak self] builder in
             guard let strongSelf = self else {
@@ -132,7 +133,6 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
         return resultBuilder
     }
 
-    
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {
         self.stateListener = stateListener
     }
