@@ -91,4 +91,8 @@ extension SoraCardInfoBoardInteractor: EventVisitorProtocol {
             }
         }
     }
+
+    func processKYCUserStatusChanged() {
+        Task { await fetchStatus() }
+    }
 }

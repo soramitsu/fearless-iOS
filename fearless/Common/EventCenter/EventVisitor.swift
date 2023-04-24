@@ -28,6 +28,7 @@ protocol EventVisitorProtocol: AnyObject {
     func processZeroBalancesSettingChanged()
 
     func processKYCShouldRestart()
+    func processKYCUserStatusChanged()
 }
 
 extension EventVisitorProtocol {
@@ -58,4 +59,5 @@ extension EventVisitorProtocol {
     func processZeroBalancesSettingChanged() {}
 
     func processKYCShouldRestart() {}
+    func processKYCUserStatusChanged() {}
 }
