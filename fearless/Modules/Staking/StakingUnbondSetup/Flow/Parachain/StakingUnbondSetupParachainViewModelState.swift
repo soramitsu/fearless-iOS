@@ -50,7 +50,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
                 precision: Int16(chainAsset.asset.precision)
             ) else {
-            return ""
+            return UUID().uuidString
         }
 
         var identifier = ""

@@ -80,7 +80,7 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
                 precision: Int16(chainAsset.asset.precision)
             ), let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
-            return ""
+            return UUID().uuidString
         }
 
         let unbondCall = callFactory.poolUnbond(accountId: accountId, amount: amount)
