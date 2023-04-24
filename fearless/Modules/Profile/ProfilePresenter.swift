@@ -104,8 +104,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .biometry:
             settings.biometryEnabled = isOn
         case .zeroBalances:
-            settings.shouldHideZeroBalanceAssets = isOn
-            eventCenter.notify(with: ZeroBalancesSettingChanged())
+            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }
