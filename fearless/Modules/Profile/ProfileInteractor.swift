@@ -105,11 +105,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     }
 
     func update(zeroBalanceAssetsHidden: Bool) {
-        guard let wallet = selectedWalletSettings.value else {
-            return
-        }
-
-        let updatedWallet = wallet.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
+        let updatedWallet = selectedMetaAccount.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
 
         let saveOperation = walletRepository.saveOperation {
             [updatedWallet]
@@ -118,11 +114,11 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         }
 
         saveOperation.completionBlock = { [weak self] in
+            let event = MetaAccountModelChangedEvent(account: updatedWallet)
+            self?.eventCenter.notify(with: event)
+            
             DispatchQueue.main.async {
-                self?.presenter?.didReceive(wallet: wallet)
-
-                let event = MetaAccountModelChangedEvent(account: updatedWallet)
-                self?.eventCenter.notify(with: event)
+                self?.presenter?.didReceive(wallet: updatedWallet)
             }
         }
 
