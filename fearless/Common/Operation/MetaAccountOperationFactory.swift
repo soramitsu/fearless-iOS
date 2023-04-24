@@ -245,7 +245,8 @@ private extension MetaAccountOperationFactory {
             unusedChainIds: nil,
             selectedCurrency: Currency.defaultCurrency(),
             chainIdForFilter: nil,
-            assetsVisibility: []
+            assetsVisibility: [],
+            zeroBalanceAssetsHidden: false
         )
     }
 }
@@ -415,7 +416,8 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
                 unusedChainIds: nil,
                 selectedCurrency: Currency.defaultCurrency(),
                 chainIdForFilter: nil,
-                assetsVisibility: []
+                assetsVisibility: [],
+                zeroBalanceAssetsHidden: false
             )
         }
     }

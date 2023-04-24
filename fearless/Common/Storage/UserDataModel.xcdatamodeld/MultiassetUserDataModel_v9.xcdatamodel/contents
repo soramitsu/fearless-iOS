@@ -48,6 +48,7 @@
         <attribute name="substrateCryptoType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="substratePublicKey" attributeType="Binary"/>
         <attribute name="unusedChainIds" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData"/>
+        <attribute name="zeroBalanceAssetsHidden" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="assetsVisibility" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDAssetVisibility" inverseName="wallet" inverseEntity="CDAssetVisibility"/>
         <relationship name="chainAccounts" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="CDChainAccount" inverseName="metaAccount" inverseEntity="CDChainAccount"/>
         <relationship name="selectedCurrency" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="CDCurrency"/>
