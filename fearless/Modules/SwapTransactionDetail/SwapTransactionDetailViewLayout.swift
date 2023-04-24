@@ -3,18 +3,14 @@ import UIKit
 final class SwapTransactionDetailViewLayout: UIView {
     private enum Constants {
         static let navigationBarHeight: CGFloat = 56.0
-        static let backButtonSize = CGSize(width: 32, height: 32)
+        static let closeButtonSize = CGSize(width: 32, height: 32)
+        static let imageVerticalPosition: CGFloat = 3
+        static let imageWidth: CGFloat = 15
+        static let imageHeight: CGFloat = 15
+        static let multiViewHeight: CGFloat = 60
     }
 
     let navigationViewContainer = UIView()
-
-    let backButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconBack(), for: .normal)
-        button.layer.masksToBounds = true
-        button.backgroundColor = R.color.colorWhite8()
-        return button
-    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -50,6 +46,18 @@ final class SwapTransactionDetailViewLayout: UIView {
     let infoBackground = UIFactory.default.createInfoBackground()
     let infoViewsStackView = UIFactory.default.createVerticalStackView()
 
+    private let transactionHashView: TitleValueView = {
+        let view = TitleValueView()
+        view.titleLabel.font = .h5Title
+        view.titleLabel.textColor = R.color.colorStrokeGray()
+        view.valueLabel.font = .h5Title
+        view.valueLabel.textColor = R.color.colorWhite()
+        view.valueLabel.lineBreakMode = .byTruncatingMiddle
+        view.borderView.isHidden = true
+        view.equalsLabelsWidth = true
+        return view
+    }()
+
     let statusView = UIFactory.default.createConfirmationMultiView()
     let fromView: TitleMultiValueView = {
         let view = UIFactory.default.createConfirmationMultiView()
@@ -62,15 +70,30 @@ final class SwapTransactionDetailViewLayout: UIView {
     let networkFeeView = UIFactory.default.createConfirmationMultiView()
 
     private lazy var multiViews = [
+        transactionHashView,
         statusView,
         fromView,
         dateView,
         networkFeeView
     ]
 
-    let closeButton: TriangularedButton = {
+    let closeButton: UIButton = {
+        let button = UIButton()
+        button.setImage(R.image.iconClose(), for: .normal)
+        button.layer.masksToBounds = true
+        button.backgroundColor = R.color.colorWhite8()
+        return button
+    }()
+
+    let shareButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyEnabledStyle()
+        return button
+    }()
+
+    let subscanButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDisabledStyle()
         return button
     }()
 
@@ -80,10 +103,13 @@ final class SwapTransactionDetailViewLayout: UIView {
         }
     }
 
+    var copyOnTap: (() -> Void)?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = R.color.colorBlack19()
         setupLayout()
+        setupCopyHashTap()
     }
 
     @available(*, unavailable)
@@ -93,7 +119,14 @@ final class SwapTransactionDetailViewLayout: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        backButton.rounded()
+        closeButton.rounded()
+    }
+
+    // MARK: - Public methods
+
+    func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
+        subscanButton.isHidden = explorer == nil
+        shareButton.isHidden = explorer == nil
     }
 
     func bind(viewModel: SwapTransactionViewModel) {
@@ -104,9 +137,33 @@ final class SwapTransactionDetailViewLayout: UIView {
         fromView.valueTop.text = viewModel.walletName
         fromView.valueBottom.text = viewModel.address
         networkFeeView.bindBalance(viewModel: viewModel.networkFee)
+
+        let hashString = NSMutableAttributedString(string: viewModel.txHash + "  ")
+
+        let imageAttachment = NSTextAttachment()
+        imageAttachment.bounds = CGRect(
+            x: 0,
+            y: -Constants.imageVerticalPosition,
+            width: Constants.imageWidth,
+            height: Constants.imageHeight
+        )
+        if let iconAboutArrowImage = R.image.iconCopy() {
+            imageAttachment.image = iconAboutArrowImage
+        }
+
+        let imageString = NSAttributedString(attachment: imageAttachment)
+        hashString.append(imageString)
+        transactionHashView.valueLabel.attributedText = hashString
     }
 
     // MARK: - Private methods
+
+    private func setupCopyHashTap() {
+        let tapGesture = UITapGestureRecognizer()
+        tapGesture.addTarget(self, action: #selector(handleHashCopyTapped))
+        transactionHashView.valueLabel.addGestureRecognizer(tapGesture)
+        transactionHashView.valueLabel.isUserInteractionEnabled = true
+    }
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
@@ -117,17 +174,20 @@ final class SwapTransactionDetailViewLayout: UIView {
             .commonAccount(preferredLanguages: locale.rLanguages)
         networkFeeView.titleLabel.text = R.string.localizable
             .commonNetworkFee(preferredLanguages: locale.rLanguages)
-        closeButton.imageWithTitleView?.title = R.string.localizable
-            .commonClose(preferredLanguages: locale.rLanguages)
+        shareButton.imageWithTitleView?.title = R.string.localizable
+            .commonShare(preferredLanguages: locale.rLanguages)
         swapStubTitle.text = R.string.localizable
             .polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages)
         dateView.titleLabel.text = R.string.localizable
             .transactionDetailDate(preferredLanguages: locale.rLanguages)
+        transactionHashView.titleLabel.text = R.string.localizable.allDoneAlertHashStub(preferredLanguages: locale.rLanguages)
+        subscanButton.imageWithTitleView?.title = R.string.localizable.allDoneSubscanButtonTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
         func makeCommonConstraints(for view: UIView) {
             view.snp.makeConstraints { make in
+                make.height.equalTo(Constants.multiViewHeight)
                 make.leading.trailing.equalToSuperview()
             }
         }
@@ -138,11 +198,11 @@ final class SwapTransactionDetailViewLayout: UIView {
             make.height.equalTo(Constants.navigationBarHeight)
         }
 
-        navigationViewContainer.addSubview(backButton)
-        backButton.snp.makeConstraints { make in
+        navigationViewContainer.addSubview(closeButton)
+        closeButton.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
-            make.leading.equalTo(UIConstants.bigOffset)
-            make.size.equalTo(Constants.backButtonSize)
+            make.trailing.equalTo(UIConstants.bigOffset).inset(UIConstants.bigOffset)
+            make.size.equalTo(Constants.closeButtonSize)
         }
 
         navigationViewContainer.addSubview(titleLabel)
@@ -151,12 +211,13 @@ final class SwapTransactionDetailViewLayout: UIView {
         }
 
         addSubview(contentView)
-        addSubview(closeButton)
+        addSubview(shareButton)
+        addSubview(subscanButton)
 
         contentView.snp.makeConstraints { make in
             make.top.equalTo(navigationViewContainer.snp.bottom)
             make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
-            make.bottom.equalTo(closeButton.snp.bottom).offset(UIConstants.bigOffset)
+            make.bottom.equalTo(shareButton.snp.bottom).offset(UIConstants.bigOffset)
         }
 
         contentView.stackView.addArrangedSubview(doubleImageView)
@@ -165,7 +226,9 @@ final class SwapTransactionDetailViewLayout: UIView {
         contentView.stackView.addArrangedSubview(infoBackground)
 
         infoBackground.addSubview(infoViewsStackView)
-        makeCommonConstraints(for: infoBackground)
+        infoBackground.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+        }
         infoViewsStackView.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.accessoryItemsSpacing)
             make.top.bottom.equalToSuperview().inset(UIConstants.defaultOffset)
@@ -176,10 +239,24 @@ final class SwapTransactionDetailViewLayout: UIView {
             makeCommonConstraints(for: view)
         }
 
-        closeButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+        subscanButton.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.bigOffset)
             make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        shareButton.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
+            make.bottom.equalToSuperview().inset(UIConstants.bigOffset)
+            make.height.equalTo(UIConstants.actionHeight)
+            make.width.equalTo(subscanButton.snp.width)
+            make.leading.equalTo(subscanButton.snp.trailing).offset(UIConstants.bigOffset)
+        }
+    }
+
+    // MARK: - Private actions
+
+    @objc private func handleHashCopyTapped() {
+        copyOnTap?()
     }
 }

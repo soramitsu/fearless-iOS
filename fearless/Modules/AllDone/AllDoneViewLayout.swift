@@ -142,6 +142,11 @@ final class AllDoneViewLayout: UIView {
         hashView.valueLabel.attributedText = hashString
     }
 
+    func updateState(for explorer: ChainModel.ExternalApiExplorer?) {
+        subscanButton.isHidden = explorer == nil
+        shareButton.isHidden = explorer == nil
+    }
+
     // MARK: - Private methods
 
     private func setupCopyHashTap() {
