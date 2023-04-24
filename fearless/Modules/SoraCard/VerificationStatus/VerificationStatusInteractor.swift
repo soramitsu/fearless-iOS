@@ -32,15 +32,6 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
 
     func getKYCStatus() {
         Task {
-            do {
-                try await service.refreshAccessTokenIfNeeded()
-            } catch {
-                DispatchQueue.main.async { [weak self] in
-                    self?.output?.didReceive(error: error)
-                }
-                return
-            }
-
             let response = await service.kycStatuses()
             switch response {
             case let .failure(error):
@@ -71,7 +62,7 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
     }
 
     func resetKYC() async {
-        await storage.removeToken()
+        SCTokenHolder.shared.removeToken()
         storage.set(isRetry: false)
 
         await MainActor.run { [weak self] in

@@ -44,11 +44,7 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
         self.view = view
         interactor.setup(with: self)
         Task {
-            let userStatus = await interactor.fetchStatus() ?? .notStarted
-            await MainActor.run { [weak self] in
-                guard let self = self else { return }
-                self.didReceive(status: userStatus)
-            }
+            await interactor.fetchStatus()
         }
     }
 

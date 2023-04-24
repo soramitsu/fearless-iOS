@@ -9,7 +9,6 @@ extension SCKYCService {
     }
 
     func kycStatuses() async -> Result<[SCKYCStatusResponse], NetworkingError> {
-        try? await refreshAccessTokenIfNeeded()
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycStatuses)
         let response: Result<[SCKYCStatusResponse], NetworkingError> = await client.performDecodable(request: request)
         if case let .success(statuses) = response, let userStatus = statuses.sorted.last?.userStatus {
@@ -19,7 +18,6 @@ extension SCKYCService {
     }
 
     func kycAttempts() async -> Result<SCKYCAtempts, NetworkingError> {
-        try? await refreshAccessTokenIfNeeded()
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycAttemptCount)
         return await client.performDecodable(request: request)
     }
@@ -27,7 +25,22 @@ extension SCKYCService {
 
 extension Array where Element == SCKYCStatusResponse {
     var sorted: [Element] {
-        self.sorted(by: { $0.updateTime < $1.updateTime })
+        self.sorted(by: { sr1, sr2 in
+            sort(sr1: sr1, sr2: sr2)
+        })
+    }
+
+    func sort(
+        sr1: SCKYCStatusResponse,
+        sr2: SCKYCStatusResponse
+    ) -> Bool {
+        (
+            sr1.userStatus.priority,
+            sr1.updateTime
+        ) < (
+            sr2.userStatus.priority,
+            sr2.updateTime
+        )
     }
 }
 
@@ -81,6 +94,15 @@ enum SCKYCUserStatus {
     case rejected
     case successful
     case userCanceled
+
+    var priority: Int {
+        switch self {
+        case .notStarted, .userCanceled:
+            return 0
+        default:
+            return 1
+        }
+    }
 
     func title(for locale: Locale) -> String {
         switch self {

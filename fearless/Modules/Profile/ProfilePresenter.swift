@@ -94,7 +94,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .zeroBalances:
             break
         case .resetToken:
-            Task { await SCStorage.shared.removeToken() }
+            SCTokenHolder.shared.removeToken()
         }
     }
 
