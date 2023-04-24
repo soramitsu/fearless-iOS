@@ -55,7 +55,9 @@ extension EmailVerificationPresenter: EmailVerificationViewOutput {
 // MARK: - EmailVerificationInteractorOutput
 
 extension EmailVerificationPresenter: EmailVerificationInteractorOutput {
-    func didReceiveSignInSuccessfulStep(data _: SCKYCUserDataModel) {}
+    func didReceiveSignInSuccessfulStep(data: SCKYCUserDataModel) {
+        router.presentPreparation(from: view, data: data)
+    }
 
     func didReceiveSignInRequired() {}
 

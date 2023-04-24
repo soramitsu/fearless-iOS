@@ -7,16 +7,19 @@ final class PreparationPresenter {
     private weak var view: PreparationViewInput?
     private let router: PreparationRouterInput
     private let interactor: PreparationInteractorInput
+    private let data: SCKYCUserDataModel
 
     // MARK: - Constructors
 
     init(
         interactor: PreparationInteractorInput,
         router: PreparationRouterInput,
+        data: SCKYCUserDataModel,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.interactor = interactor
         self.router = router
+        self.data = data
         self.localizationManager = localizationManager
     }
 
@@ -36,7 +39,7 @@ extension PreparationPresenter: PreparationViewOutput {
     }
 
     func didTapConfirmButton() {
-        router.presentKYC(from: view)
+        router.presentKYC(from: view, data: data)
     }
 }
 

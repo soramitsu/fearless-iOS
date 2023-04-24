@@ -19,6 +19,7 @@ struct MetaAccountModel: Equatable, Codable {
     let selectedCurrency: Currency
     let chainIdForFilter: ChainModel.Id?
     let assetsVisibility: [AssetVisibility]
+    let zeroBalanceAssetsHidden: Bool
 }
 
 extension MetaAccountModel {
@@ -54,7 +55,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -74,7 +76,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -94,7 +97,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -114,7 +118,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -134,7 +139,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -154,7 +160,8 @@ extension MetaAccountModel {
             unusedChainIds: newUnusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -174,7 +181,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: currency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -194,7 +202,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -214,7 +223,8 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainId,
-            assetsVisibility: assetsVisibility
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
         )
     }
 
@@ -234,7 +244,29 @@ extension MetaAccountModel {
             unusedChainIds: unusedChainIds,
             selectedCurrency: selectedCurrency,
             chainIdForFilter: chainIdForFilter,
-            assetsVisibility: newAssetsVisibility
+            assetsVisibility: newAssetsVisibility,
+            zeroBalanceAssetsHidden: zeroBalanceAssetsHidden
+        )
+    }
+
+    func replacingZeroBalanceAssetsHidden(_ newZeroBalanceAssetsHidden: Bool) -> MetaAccountModel {
+        MetaAccountModel(
+            metaId: metaId,
+            name: name,
+            substrateAccountId: substrateAccountId,
+            substrateCryptoType: substrateCryptoType,
+            substratePublicKey: substratePublicKey,
+            ethereumAddress: ethereumAddress,
+            ethereumPublicKey: ethereumPublicKey,
+            chainAccounts: chainAccounts,
+            assetKeysOrder: assetKeysOrder,
+            assetFilterOptions: assetFilterOptions,
+            canExportEthereumMnemonic: canExportEthereumMnemonic,
+            unusedChainIds: unusedChainIds,
+            selectedCurrency: selectedCurrency,
+            chainIdForFilter: chainIdForFilter,
+            assetsVisibility: assetsVisibility,
+            zeroBalanceAssetsHidden: newZeroBalanceAssetsHidden
         )
     }
 }

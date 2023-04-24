@@ -63,6 +63,10 @@ struct SCKYCStatusResponse: Codable {
             return .rejected
         }
 
+        if kycStatus == .failed {
+            return .userCanceled
+        }
+
         if verificationStatus == .accepted {
             return .successful
         }
@@ -76,10 +80,11 @@ enum SCKYCUserStatus {
     case pending
     case rejected
     case successful
+    case userCanceled
 
     func title(for locale: Locale) -> String {
         switch self {
-        case .notStarted:
+        case .notStarted, .userCanceled:
             return R.string.localizable.soraCardStateNoneTitle(preferredLanguages: locale.rLanguages)
         case .pending:
             return R.string.localizable.soraCardStateVerificationTitle(preferredLanguages: locale.rLanguages)

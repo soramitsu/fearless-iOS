@@ -119,7 +119,7 @@ final class WalletTransactionHistoryViewLayout: UIView {
         }
 
         stripeIconImageView.snp.makeConstraints { make in
-            make.top.equalToSuperview().offset(Constants.stripeTopOffset)
+            make.top.equalTo(backgroundView.snp.top).offset(Constants.stripeTopOffset)
             make.centerX.equalToSuperview()
             make.size.equalTo(Constants.stripeSize)
         }

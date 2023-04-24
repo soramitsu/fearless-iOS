@@ -10,6 +10,7 @@ final class ProfilePresenter {
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
     private let eventCenter: EventCenter
+    private let soraCardStorage = SCStorage.shared
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -92,6 +93,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
+        case .resetToken:
+            Task { await SCStorage.shared.removeToken() }
         }
     }
 
@@ -101,8 +104,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .biometry:
             settings.biometryEnabled = isOn
         case .zeroBalances:
-            settings.shouldHideZeroBalanceAssets = isOn
-            eventCenter.notify(with: ZeroBalancesSettingChanged())
+            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }
