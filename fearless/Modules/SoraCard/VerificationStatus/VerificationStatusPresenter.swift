@@ -58,12 +58,12 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
     func didTapActionButton() {
         switch status {
         case .none:
-            Task { [weak self] in await self?.interactor.resetKYC() }
+            Task { await self.interactor.resetKYC() }
         case .notStarted, .userCanceled:
-            Task { [weak self] in await self?.interactor.retryKYC() }
+            Task { await self.interactor.retryKYC() }
         case .rejected:
             if hasFreeAttempts {
-                Task { [weak self] in await self?.interactor.retryKYC() }
+                Task { await self.interactor.retryKYC() }
             } else {
                 router.dismiss(view: view)
             }
