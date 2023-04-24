@@ -3,12 +3,12 @@ import RobinHood
 import FearlessUtils
 import BigInt
 
-enum RewardCalculatorServiceError: Error {
+enum SoraCalculatorServiceError: Error {
     case timedOut
     case unexpectedInfo
 }
 
-final class RelaychainRewardCalculatorService {
+final class SoraRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
@@ -23,19 +23,31 @@ final class RelaychainRewardCalculatorService {
 
     private var isActive: Bool = false
     private var snapshot: BigUInt?
+    private var rewardChainAsset: ChainAsset?
+    private var polkaswapRemoteSettings: PolkaswapRemoteSettings?
+    private var dexIds: [UInt32] = []
+    private var marketSource: SwapMarketSourceProtocol?
+
+    private var swapValues: [SwapValues] = []
+    private var swapValueErrors: [Error] = []
+    private var dexInfos: [PolkaswapDexInfo] = []
+    private var rewardAssetRate: Decimal?
 
     private var totalIssuanceDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
 
-    let chainAsset: ChainAsset
-    let assetPrecision: Int16
-    let eraValidatorsService: EraValidatorServiceProtocol
-    let logger: LoggerProtocol?
-    let operationManager: OperationManagerProtocol
-    let providerFactory: SubstrateDataProviderFactoryProtocol
-    let storageFacade: StorageFacadeProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
-    let stakingDurationFactory: StakingDurationOperationFactoryProtocol
+    private let chainAsset: ChainAsset
+    private let assetPrecision: Int16
+    private let eraValidatorsService: EraValidatorServiceProtocol
+    private let logger: LoggerProtocol?
+    private let operationManager: OperationManagerProtocol
+    private let providerFactory: SubstrateDataProviderFactoryProtocol
+    private let storageFacade: StorageFacadeProtocol
+    private let runtimeCodingService: RuntimeCodingServiceProtocol
+    private let stakingDurationFactory: StakingDurationOperationFactoryProtocol
+    private let polkaswapOperationFactory: PolkaswapOperationFactoryProtocol
+    private let chainAssetFetching: ChainAssetFetchingProtocol
+    private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
 
     init(
         chainAsset: ChainAsset,
@@ -46,6 +58,9 @@ final class RelaychainRewardCalculatorService {
         runtimeCodingService: RuntimeCodingServiceProtocol,
         stakingDurationFactory: StakingDurationOperationFactoryProtocol,
         storageFacade: StorageFacadeProtocol,
+        polkaswapOperationFactory: PolkaswapOperationFactoryProtocol,
+        chainAssetFetching: ChainAssetFetchingProtocol,
+        settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
         logger: LoggerProtocol? = nil
     ) {
         self.chainAsset = chainAsset
@@ -56,7 +71,128 @@ final class RelaychainRewardCalculatorService {
         self.eraValidatorsService = eraValidatorsService
         self.stakingDurationFactory = stakingDurationFactory
         self.runtimeCodingService = runtimeCodingService
+        self.polkaswapOperationFactory = polkaswapOperationFactory
+        self.chainAssetFetching = chainAssetFetching
+        self.settingsRepository = settingsRepository
         self.logger = logger
+    }
+
+    // MARK: - Polkaswap quoutes
+
+    private func fetchQuotes() {
+        guard let swapToChainAsset = rewardChainAsset,
+              let swapFromAssetId = chainAsset.asset.currencyId,
+              let swapToAssetId = swapToChainAsset.asset.currencyId,
+              let marketSourcer = marketSource
+        else {
+            return
+        }
+
+        let amount: BigUInt = 1_000_000_000_000_000_000
+        let amountString = String(amount)
+
+        let quoteParams = PolkaswapQuoteParams(
+            fromAssetId: swapFromAssetId,
+            toAssetId: swapToAssetId,
+            amount: amountString,
+            swapVariant: .desiredInput,
+            liquiditySources: marketSourcer.getRemoteMarketSources(),
+            filterMode: LiquiditySourceType.smart.filterMode
+        )
+
+        swapValues.removeAll()
+        swapValueErrors.removeAll()
+        dexInfos.removeAll()
+        var allOperations: [Operation] = []
+        let group = DispatchGroup()
+
+        dexIds.forEach { dexId in
+            group.enter()
+            let quotesOperation = polkaswapOperationFactory
+                .createPolkaswapQuoteOperation(dexId: dexId, params: quoteParams)
+
+            quotesOperation.completionBlock = { [weak self, dexId, group] in
+                guard let strongSelf = self else { return }
+                DispatchQueue.global().sync(flags: .barrier) {
+                    do {
+                        var result = try quotesOperation.extractNoCancellableResultData()
+                        result.dexId = dexId
+                        strongSelf.swapValues.append(result)
+                    } catch {
+                        strongSelf.swapValueErrors.append(error)
+                    }
+                    group.leave()
+                }
+            }
+            allOperations.append(quotesOperation)
+        }
+        operationManager.enqueue(operations: allOperations, in: .blockAfter)
+
+        let workItem = DispatchWorkItem(flags: .barrier) { [weak self] in
+            let rewardAssetAmount = self?.swapValues.compactMap { BigUInt($0.amount) }.max()
+            guard
+                let rewardAssetAmount = rewardAssetAmount,
+                let rewardChainAsset = self?.rewardChainAsset,
+                let stakingChainAsset = self?.chainAsset,
+                let stakingAmountDecimal = Decimal.fromSubstrateAmount(amount, precision: Int16(stakingChainAsset.asset.precision)),
+                let receivedAmountDecimal = Decimal.fromSubstrateAmount(rewardAssetAmount, precision: Int16(rewardChainAsset.asset.precision))
+            else {
+                return
+            }
+
+            self?.rewardAssetRate = stakingAmountDecimal / receivedAmountDecimal
+        }
+
+        group.notify(queue: .main, work: workItem)
+    }
+
+    private func fetchPolkaswapSettings() {
+        let operation = settingsRepository.fetchAllOperation(with: RepositoryFetchOptions())
+
+        operation.completionBlock = { [weak self] in
+            do {
+                guard let settings = try operation.extractNoCancellableResultData().first else {
+                    return
+                }
+
+                self?.polkaswapRemoteSettings = settings
+                self?.dexIds = settings.availableDexIds.map { $0.code }
+
+                self?.marketSource = SwapMarketSource(
+                    fromAssetId: self?.chainAsset.asset.currencyId,
+                    toAssetId: self?.rewardChainAsset?.asset.currencyId,
+                    remoteSettings: settings
+                )
+
+                self?.marketSource?.didLoad([.smart])
+
+                self?.fetchQuotes()
+            } catch {
+                self?.logger?.error(error.localizedDescription)
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
+
+    private func fetchRewardChainAsset() {
+        guard let assetName = chainAsset.chain.stakingSettings?.rewardAssetName else {
+            return
+        }
+
+        chainAssetFetching.fetch(filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)], sortDescriptors: []) { [weak self] result in
+            switch result {
+            case let .success(chainAssets):
+                let rewardChainAsset = chainAssets.first(where: { $0.asset.name.lowercased() == assetName.lowercased() })
+                self?.rewardChainAsset = rewardChainAsset
+
+                self?.fetchPolkaswapSettings()
+            case let .failure(error):
+                self?.logger?.error(error.localizedDescription)
+            case .none:
+                break
+            }
+        }
     }
 
     // MARK: - Private
@@ -86,7 +222,7 @@ final class RelaychainRewardCalculatorService {
 
         let eraOperation = eraValidatorsService.fetchInfoOperation()
 
-        let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> {
+        let mapOperation = ClosureOperation<RewardCalculatorEngineProtocol> { [weak self] in
             let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
             let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
 
@@ -95,7 +231,8 @@ final class RelaychainRewardCalculatorService {
                 assetPrecision: assetPrecision,
                 totalIssuance: snapshot,
                 validators: eraStakersInfo.validators,
-                eraDurationInSeconds: stakingDuration.era
+                eraDurationInSeconds: stakingDuration.era,
+                rewardAssetRate: self?.rewardAssetRate ?? 1.0
             )
         }
 
@@ -237,9 +374,10 @@ final class RelaychainRewardCalculatorService {
     }
 }
 
-extension RelaychainRewardCalculatorService: RewardCalculatorServiceProtocol {
+extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
     func setup() {
         eraValidatorsService.setup()
+        fetchRewardChainAsset()
 
         syncQueue.async {
             guard !self.isActive else {

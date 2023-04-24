@@ -50,7 +50,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             repository: repository,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             selectedMetaAccount: selectedMetaAccount,
-            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
+            walletRepository: accountRepository
         )
 
         let presenter = ProfilePresenter(

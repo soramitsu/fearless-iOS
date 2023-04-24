@@ -20,6 +20,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let chainAsset: ChainAsset
     let selectedAccount: MetaAccountModel
     let connection: JSONRPCEngine
+    private let rewardChainAsset: ChainAsset?
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -27,12 +28,12 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var rewardPriceProvider: AnySingleValueProvider<PriceData>?
 
     private var stashItem: StashItem?
     private var rewardDestination: RewardDestination<AccountAddress>?
 
     private let callFactory: SubstrateCallFactoryProtocol
-    private lazy var addressFactory = SS58AddressFactory()
 
     init(
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
@@ -47,7 +48,8 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         chainAsset: ChainAsset,
         selectedAccount: MetaAccountModel,
         connection: JSONRPCEngine,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        rewardChainAsset: ChainAsset?
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -62,6 +64,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
         self.accountRepository = accountRepository
         self.connection = connection
         self.callFactory = callFactory
+        self.rewardChainAsset = rewardChainAsset
     }
 
     private func provideRewardCalculator() {
@@ -113,7 +116,11 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
             return
         }
         do {
-            let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
+            let setPayeeCall = try callFactory.setRewardDestination(
+                rewardDestination,
+                stashItem: stashItem,
+                chainAsset: chainAsset
+            )
 
             feeProxy.estimateFee(
                 using: extrinsicService,
@@ -135,6 +142,10 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
 
         if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
+        }
+
+        if let priceId = rewardChainAsset?.asset.priceId {
+            rewardPriceProvider = subscribeToPrice(for: priceId)
         }
 
         provideRewardCalculator()
@@ -160,8 +171,14 @@ extension StakingRewardDestSetupInteractor: AccountInfoSubscriptionAdapterHandle
 }
 
 extension StakingRewardDestSetupInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
-        presenter.didReceivePriceData(result: result)
+    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+        if priceId == chainAsset.asset.priceId {
+            presenter.didReceivePriceData(result: result)
+        }
+
+        if priceId == rewardChainAsset?.asset.priceId {
+            presenter.didReceiveRewardAssetPriceData(result: result)
+        }
     }
 }
 
@@ -179,13 +196,13 @@ extension StakingRewardDestSetupInteractor: RelaychainStakingLocalStorageSubscri
 
             if
                 let stashItem = stashItem,
-                let stashAccountId = try? addressFactory.accountId(
-                    fromAddress: stashItem.stash,
-                    type: chainAsset.chain.addressPrefix
+                let stashAccountId = try? AddressFactory.accountId(
+                    from: stashItem.stash,
+                    chain: chainAsset.chain
                 ),
-                let controllerAccountId = try? addressFactory.accountId(
-                    fromAddress: stashItem.controller,
-                    type: chainAsset.chain.addressPrefix
+                let controllerAccountId = try? AddressFactory.accountId(
+                    from: stashItem.controller,
+                    chain: chainAsset.chain
                 ) {
                 ledgerProvider = subscribeLedgerInfo(for: controllerAccountId, chainAsset: chainAsset)
                 payeeProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)

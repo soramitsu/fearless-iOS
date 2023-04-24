@@ -3,6 +3,7 @@ import UIKit
 enum AmountInputViewV2Type {
     case balance
     case available
+    case bonded
 }
 
 final class AmountInputViewV2: UIView {
@@ -127,6 +128,11 @@ final class AmountInputViewV2: UIView {
                 )
             case .available:
                 balanceLabel.text = R.string.localizable.commonAvailableFormat(
+                    balance,
+                    preferredLanguages: locale.rLanguages
+                )
+            case .bonded:
+                balanceLabel.text = R.string.localizable.stakingBondedFormat(
                     balance,
                     preferredLanguages: locale.rLanguages
                 )

@@ -156,7 +156,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
 }
 
 extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?) {
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
               let extrinsicService = extrinsicService,
               let amount = StakingConstants.maxAmount.toSubstrateAmount(
@@ -167,11 +167,9 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
             return
         }
 
-        let unbondCall = callFactory.poolUnbond(accountId: accountId, amount: amount)
-
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: unbondCall.callName,
+            reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
     }

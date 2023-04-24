@@ -25,7 +25,7 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
 
 protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String)
 }
 
 protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {

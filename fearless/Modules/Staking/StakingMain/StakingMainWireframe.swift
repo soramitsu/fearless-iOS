@@ -6,13 +6,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) {
         guard let amountView = StakingAmountViewFactory.createView(
             with: amount,
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            rewardChainAsset: rewardChainAsset
         ) else {
             return
         }
@@ -204,12 +206,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         from view: ControllerBackedProtocol?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) {
         guard let displayView = StakingRewardDestSetupViewFactory.createView(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            rewardChainAsset: rewardChainAsset
         ) else {
             return
         }
