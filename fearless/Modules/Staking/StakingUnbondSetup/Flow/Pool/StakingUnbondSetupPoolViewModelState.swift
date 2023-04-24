@@ -75,6 +75,19 @@ final class StakingUnbondSetupPoolViewModelState: StakingUnbondSetupViewModelSta
         self.callFactory = callFactory
     }
 
+    var reuseIdentifier: String {
+        guard
+            let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                precision: Int16(chainAsset.asset.precision)
+            ), let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return UUID().uuidString
+        }
+
+        let unbondCall = callFactory.poolUnbond(accountId: accountId, amount: amount)
+
+        return "\(unbondCall.callName)-\(amount)"
+    }
+
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {
         self.stateListener = stateListener
     }

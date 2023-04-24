@@ -3,6 +3,35 @@ import RobinHood
 import BigInt
 import IrohaCrypto
 
+enum RewardCalculationResultType {
+    case value
+    case percent
+
+    /*
+     Rate for reward calculation. Some networks have different reward tokens than user stakes. (e.g. SORA - user stakes XOR, but receives VAL)
+     For these cases we need to calculate APR, APY with a rate equal to RewardTokenPrice / StakedTokenPrice.
+     For the common cases, the givenRate is equal to 1.0
+     */
+    func calculateRate(givenRate: Decimal) -> Decimal {
+        switch self {
+        case .percent:
+            return givenRate
+        case .value:
+            return 1.0
+        }
+    }
+}
+
+enum RewardCalculatorConstants {
+    static let percentCalculationAmount: Decimal = 1.0
+    static let defaultRewardAssetRate: Decimal = 1.0
+}
+
+enum RewardReturnType {
+    case max(_ validatorId: AccountId? = nil)
+    case avg
+}
+
 enum CalculationPeriod {
     case day
     case month
@@ -31,11 +60,23 @@ protocol RewardCalculatorEngineProtocol {
         period: CalculationPeriod
     ) throws -> Decimal
 
-    func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal
+    func calculateMaxEarnings(
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal
 
-    func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal
+    func calculateAvgEarnings(
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal
 
-    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal
+    func calculatorReturn(
+        isCompound: Bool,
+        period: CalculationPeriod,
+        type: RewardReturnType
+    ) -> Decimal
 
     func maxEarningsTitle(locale: Locale) -> String
     func avgEarningTitle(locale: Locale) -> String
@@ -53,14 +94,6 @@ extension RewardCalculatorEngineProtocol {
             isCompound: isCompound,
             period: period
         )
-    }
-
-    func calculateMaxReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        calculateMaxEarnings(amount: 1.0, isCompound: isCompound, period: period)
-    }
-
-    func calculateAvgReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        calculateAvgEarnings(amount: 1.0, isCompound: isCompound, period: period)
     }
 }
 
@@ -136,8 +169,8 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         dailyPercentReward() * Decimal(period.inDays)
     }
 
-    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        calculateAvgEarnings(amount: 1.0, isCompound: isCompound, period: period)
+    func calculatorReturn(isCompound: Bool, period: CalculationPeriod, type _: RewardReturnType) -> Decimal {
+        calculateAvgEarnings(amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: isCompound, period: period)
     }
 
     private func dailyPercentReward() -> Decimal {
@@ -210,6 +243,7 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal
     private var validators: [EraValidatorInfo] = []
+    private var rewardAssetRate: Decimal
 
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
@@ -283,8 +317,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     private lazy var maxValidator: EraValidatorInfo? = {
         validators.max {
-            calculateEarningsForValidator($0, amount: 1.0, isCompound: false, period: .year) <
-                calculateEarningsForValidator($1, amount: 1.0, isCompound: false, period: .year)
+            calculateEarningsForValidator($0, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent) <
+                calculateEarningsForValidator($1, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent)
         }
     }()
 
@@ -293,7 +327,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         assetPrecision: Int16,
         totalIssuance: BigUInt,
         validators: [EraValidatorInfo],
-        eraDurationInSeconds: TimeInterval
+        eraDurationInSeconds: TimeInterval,
+        rewardAssetRate: Decimal = RewardCalculatorConstants.defaultRewardAssetRate
     ) {
         self.chainId = chainId
         self.assetPrecision = assetPrecision
@@ -303,6 +338,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         ) ?? 0.0
         self.validators = validators
         self.eraDurationInSeconds = eraDurationInSeconds
+        self.rewardAssetRate = rewardAssetRate
     }
 
     func avgEarningTitle(locale: Locale) -> String {
@@ -323,10 +359,20 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             throw RewardCalculatorEngineError.unexpectedValidator(accountId: validatorAccountId)
         }
 
-        return calculateEarningsForValidator(validator, amount: amount, isCompound: isCompound, period: period)
+        return calculateEarningsForValidator(
+            validator,
+            amount: amount,
+            isCompound: isCompound,
+            period: period,
+            resultType: .value
+        )
     }
 
-    func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
+    func calculateMaxEarnings(
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal {
         guard let validator = maxValidator else {
             return 0.0
         }
@@ -335,22 +381,47 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             validator,
             amount: amount,
             isCompound: isCompound,
-            period: period
+            period: period,
+            resultType: .value
         )
     }
 
-    func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
+    func calculateAvgEarnings(
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) -> Decimal {
         calculateEarningsForAmount(
             amount,
             stake: averageStake,
             commission: medianCommission,
             isCompound: isCompound,
-            period: period
+            period: period,
+            rewardAssetType: .percent
         )
     }
 
-    func calculatorReturn(isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        calculateMaxEarnings(amount: 1.0, isCompound: isCompound, period: period)
+    func calculatorReturn(isCompound: Bool, period: CalculationPeriod, type: RewardReturnType) -> Decimal {
+        switch type {
+        case .max:
+            guard let validator = maxValidator else {
+                return 0.0
+            }
+
+            return calculateEarningsForValidator(
+                validator,
+                amount: RewardCalculatorConstants.percentCalculationAmount,
+                isCompound: isCompound,
+                period: period,
+                resultType: .percent
+            )
+        case .avg:
+            return calculateAvgEarnings(
+                amount: RewardCalculatorConstants.percentCalculationAmount,
+                isCompound: isCompound,
+                period: period
+            )
+        }
     }
 
     private func calculateReturnForStake(_ stake: Decimal, commission: Decimal) -> Decimal {
@@ -361,7 +432,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         _ validator: EraValidatorInfo,
         amount: Decimal,
         isCompound: Bool,
-        period: CalculationPeriod
+        period: CalculationPeriod,
+        resultType: RewardCalculationResultType
     ) -> Decimal {
         let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
         let stake = Decimal.fromSubstrateAmount(
@@ -374,7 +446,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             stake: stake,
             commission: commission,
             isCompound: isCompound,
-            period: period
+            period: period,
+            rewardAssetType: resultType
         )
     }
 
@@ -383,20 +456,23 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         stake: Decimal,
         commission: Decimal,
         isCompound: Bool,
-        period: CalculationPeriod
+        period: CalculationPeriod,
+        rewardAssetType: RewardCalculationResultType
     ) -> Decimal {
+        let rate = rewardAssetType.calculateRate(givenRate: rewardAssetRate)
+
         let annualReturn = calculateReturnForStake(stake, commission: commission)
 
         let dailyReturn = annualReturn / 365.0
 
         if isCompound {
             return calculateCompoundReward(
-                initialAmount: amount,
+                initialAmount: amount * rate,
                 period: period,
                 dailyInterestRate: dailyReturn
             )
         } else {
-            return amount * dailyReturn * Decimal(period.inDays)
+            return amount * rate * dailyReturn * Decimal(period.inDays)
         }
     }
 

@@ -1071,3 +1071,4 @@
 "details.need.xor.desription" = "You need %@ more XOR (€%@)";
 "details.enough.xor.desription" = "You have enough XOR";
 "pool.staking.management.claim.button.title" = "Claim";
+"common.not.available.short" = "N/A";

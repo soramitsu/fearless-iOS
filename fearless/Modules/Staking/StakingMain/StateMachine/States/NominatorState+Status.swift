@@ -4,12 +4,12 @@ import BigInt
 
 extension NominatorState {
     var status: NominationViewStatus {
-        guard let eraStakers = commonData.eraStakersInfo else {
+        guard let eraStakers = commonData.eraStakersInfo, let chainAsset = commonData.chainAsset else {
             return .undefined
         }
 
         do {
-            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+            let accountId = try AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain)
 
             let allNominators = eraStakers.validators.map(\.exposure.others)
                 .flatMap { (nominators) -> [IndividualExposure] in
@@ -39,12 +39,13 @@ extension NominatorState {
     var allValidatorsWithoutReward: Bool {
         guard
             let eraStakers = commonData.eraStakersInfo,
-            let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator else {
+            let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator,
+            let chainAsset = commonData.chainAsset else {
             return false
         }
 
         do {
-            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+            let accountId = try AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain)
             let nominatorPositions = eraStakers.validators.compactMap { validator in
                 validator.exposure.others.firstIndex(where: { $0.who == accountId })
             }
