@@ -116,7 +116,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         saveOperation.completionBlock = { [weak self] in
             let event = MetaAccountModelChangedEvent(account: updatedWallet)
             self?.eventCenter.notify(with: event)
-            
+
             DispatchQueue.main.async {
                 self?.presenter?.didReceive(wallet: updatedWallet)
             }

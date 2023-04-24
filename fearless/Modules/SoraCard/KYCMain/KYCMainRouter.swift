@@ -2,7 +2,7 @@ import Foundation
 
 final class KYCMainRouter: KYCMainRouterInput {
     func showSwap(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset, wallet: wallet) else {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapChainAsset: chainAsset, swapVariant: .desiredOutput, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
