@@ -2289,7 +2289,6 @@
 		FA74359B29C073650085A47E /* ChainSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359A29C073650085A47E /* ChainSettings.swift */; };
 		FA74359D29C0736F0085A47E /* StorageWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359C29C0736F0085A47E /* StorageWrapper.swift */; };
 		FA74359F29C073790085A47E /* ChainSettingsMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA74359E29C073790085A47E /* ChainSettingsMapper.swift */; };
-		FA7435AA29C0744B0085A47E /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA7435A029C0744B0085A47E /* UserDataModel.xcdatamodeld */; };
 		FA80391528DC2DA2007365E8 /* StakingPoolPalletID.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */; };
 		FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */; };
 		FA8122E329CC374B00F43560 /* AssetVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8122E229CC374B00F43560 /* AssetVisibility.swift */; };
@@ -2515,6 +2514,7 @@
 		FAB0EDDE27AA6DDC003D93C2 /* NodeSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDD27AA6DDC003D93C2 /* NodeSelectionViewModel.swift */; };
 		FAB0EDE027AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */; };
 		FAB0EDE227AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */; };
+		FAB7950429F647A100453BE3 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FAB794F929F647A100453BE3 /* UserDataModel.xcdatamodeld */; };
 		FAB8B96E29F23FCB002E5F04 /* ChainAccountBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB8B96D29F23FCA002E5F04 /* ChainAccountBalanceViewModel.swift */; };
 		FAB8B97029F23FD1002E5F04 /* ChainAccountDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB8B96F29F23FD1002E5F04 /* ChainAccountDependencyContainer.swift */; };
 		FAB8B97229F23FE9002E5F04 /* KYCSShouldRestart.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAB8B97129F23FE9002E5F04 /* KYCSShouldRestart.swift */; };
@@ -4999,19 +4999,9 @@
 		FA74359A29C073650085A47E /* ChainSettings.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettings.swift; sourceTree = "<group>"; };
 		FA74359C29C0736F0085A47E /* StorageWrapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StorageWrapper.swift; sourceTree = "<group>"; };
 		FA74359E29C073790085A47E /* ChainSettingsMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainSettingsMapper.swift; sourceTree = "<group>"; };
-		FA7435A129C0744B0085A47E /* MultiassetUserDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A229C0744B0085A47E /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A329C0744B0085A47E /* MultiassetUserDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A429C0744B0085A47E /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A529C0744B0085A47E /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A629C0744B0085A47E /* MultiassetUserDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A729C0744B0085A47E /* MultiassetUserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A829C0744B0085A47E /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
-		FA7435A929C0744B0085A47E /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolPalletID.swift; sourceTree = "<group>"; };
 		FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
 		FA8122E229CC374B00F43560 /* AssetVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetVisibility.swift; sourceTree = "<group>"; };
-		FA8122E429CC59A500F43560 /* MultiassetUserDataModel_v9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v9.xcdatamodel; sourceTree = "<group>"; };
 		FA8122E529CC605C00F43560 /* MultiassetV9MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiassetV9MigrationPolicy.swift; sourceTree = "<group>"; };
 		FA851FF027917494004F5979 /* WalletTransactionDetailsViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransactionDetailsViewState.swift; sourceTree = "<group>"; };
 		FA85373527EC874500918A1E /* InactiveBondAlertConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InactiveBondAlertConfig.swift; sourceTree = "<group>"; };
@@ -5247,6 +5237,16 @@
 		FAB0EDDD27AA6DDC003D93C2 /* NodeSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewModel.swift; sourceTree = "<group>"; };
 		FAB0EDDF27AA6E5F003D93C2 /* NodeSelectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewModelFactory.swift; sourceTree = "<group>"; };
 		FAB0EDE127AA9C94003D93C2 /* NodeSelectionTableCellViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionTableCellViewModel.swift; sourceTree = "<group>"; };
+		FAB794FA29F647A100453BE3 /* MultiassetUserDataModel_v8.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v8.xcdatamodel; sourceTree = "<group>"; };
+		FAB794FB29F647A100453BE3 /* MultiassetUserDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		FAB794FC29F647A100453BE3 /* MultiassetUserDataModel_v7.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v7.xcdatamodel; sourceTree = "<group>"; };
+		FAB794FD29F647A100453BE3 /* UserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = UserDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FAB794FE29F647A100453BE3 /* MultiassetUserDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		FAB794FF29F647A100453BE3 /* MultiassetUserDataModel_v5.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v5.xcdatamodel; sourceTree = "<group>"; };
+		FAB7950029F647A100453BE3 /* MultiassetUserDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FAB7950129F647A100453BE3 /* MultiassetUserDataModel_v9.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v9.xcdatamodel; sourceTree = "<group>"; };
+		FAB7950229F647A100453BE3 /* MultiassetUserDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		FAB7950329F647A100453BE3 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		FAB8B96D29F23FCA002E5F04 /* ChainAccountBalanceViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountBalanceViewModel.swift; sourceTree = "<group>"; };
 		FAB8B96F29F23FD1002E5F04 /* ChainAccountDependencyContainer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChainAccountDependencyContainer.swift; sourceTree = "<group>"; };
 		FAB8B97129F23FE9002E5F04 /* KYCSShouldRestart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KYCSShouldRestart.swift; sourceTree = "<group>"; };
@@ -7663,7 +7663,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				FA7435A029C0744B0085A47E /* UserDataModel.xcdatamodeld */,
+				FAB794F929F647A100453BE3 /* UserDataModel.xcdatamodeld */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				FA2569A7274CE70700875A53 /* SubstrateDataModel.xcdatamodeld */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -15429,7 +15429,6 @@
 				844CB57226F9EB2000396E13 /* RuntimeCodingService.swift in Sources */,
 				076D9D53294AC0A6002762E3 /* PolkaswapJSON.swift in Sources */,
 				FA17B4D427E9CF2D006E0735 /* UtilityConstants.swift in Sources */,
-				FA7435AA29C0744B0085A47E /* UserDataModel.xcdatamodeld in Sources */,
 				FA256984274CE5A500875A53 /* BalanceLockType.swift in Sources */,
 				FAC0BBE3291D0EB000E6F106 /* SelectAssetPresenter.swift in Sources */,
 				843910B2253ED4D100E3C217 /* CDChainStorageItem+CoreDataDecodable.swift in Sources */,
@@ -15613,6 +15612,7 @@
 				07DE95D428A225A100E9C2CB /* WalletMainContainerViewModelFactory.swift in Sources */,
 				846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */,
 				AE528E4D26852C380058935A /* ValidatorSearchViewModel.swift in Sources */,
+				FAB7950429F647A100453BE3 /* UserDataModel.xcdatamodeld in Sources */,
 				F408E9B626B807200043CFE0 /* AnalyticsRewardsHeaderView.swift in Sources */,
 				C633AD9F29C19A4200EA8C29 /* PhoneVerificationCodeRouter.swift in Sources */,
 				F4D6FF3926B3E33E002313AF /* AnalyticsContainerViewFactory.swift in Sources */,
@@ -17029,21 +17029,21 @@
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
-		FA7435A029C0744B0085A47E /* UserDataModel.xcdatamodeld */ = {
+		FAB794F929F647A100453BE3 /* UserDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA8122E429CC59A500F43560 /* MultiassetUserDataModel_v9.xcdatamodel */,
-				FA7435A129C0744B0085A47E /* MultiassetUserDataModel_v8.xcdatamodel */,
-				FA7435A229C0744B0085A47E /* MultiassetUserDataModel_v4.xcdatamodel */,
-				FA7435A329C0744B0085A47E /* MultiassetUserDataModel_v7.xcdatamodel */,
-				FA7435A429C0744B0085A47E /* UserDataModel.xcdatamodel */,
-				FA7435A529C0744B0085A47E /* MultiassetUserDataModel_v2.xcdatamodel */,
-				FA7435A629C0744B0085A47E /* MultiassetUserDataModel_v5.xcdatamodel */,
-				FA7435A729C0744B0085A47E /* MultiassetUserDataModel.xcdatamodel */,
-				FA7435A829C0744B0085A47E /* MultiassetUserDataModel_v3.xcdatamodel */,
-				FA7435A929C0744B0085A47E /* MultiassetUserDataModel_v6.xcdatamodel */,
+				FAB794FA29F647A100453BE3 /* MultiassetUserDataModel_v8.xcdatamodel */,
+				FAB794FB29F647A100453BE3 /* MultiassetUserDataModel_v4.xcdatamodel */,
+				FAB794FC29F647A100453BE3 /* MultiassetUserDataModel_v7.xcdatamodel */,
+				FAB794FD29F647A100453BE3 /* UserDataModel.xcdatamodel */,
+				FAB794FE29F647A100453BE3 /* MultiassetUserDataModel_v2.xcdatamodel */,
+				FAB794FF29F647A100453BE3 /* MultiassetUserDataModel_v5.xcdatamodel */,
+				FAB7950029F647A100453BE3 /* MultiassetUserDataModel.xcdatamodel */,
+				FAB7950129F647A100453BE3 /* MultiassetUserDataModel_v9.xcdatamodel */,
+				FAB7950229F647A100453BE3 /* MultiassetUserDataModel_v3.xcdatamodel */,
+				FAB7950329F647A100453BE3 /* MultiassetUserDataModel_v6.xcdatamodel */,
 			);
-			currentVersion = FA8122E429CC59A500F43560 /* MultiassetUserDataModel_v9.xcdatamodel */;
+			currentVersion = FAB7950129F647A100453BE3 /* MultiassetUserDataModel_v9.xcdatamodel */;
 			path = UserDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
