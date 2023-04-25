@@ -9,6 +9,7 @@ extension SCKYCService {
     }
 
     func kycStatuses() async -> Result<[SCKYCStatusResponse], NetworkingError> {
+        try? await refreshAccessTokenIfNeeded()
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycStatuses)
         let response: Result<[SCKYCStatusResponse], NetworkingError> = await client.performDecodable(request: request)
         if case let .success(statuses) = response, let userStatus = statuses.sorted.last?.userStatus {
@@ -18,6 +19,7 @@ extension SCKYCService {
     }
 
     func kycAttempts() async -> Result<SCKYCAtempts, NetworkingError> {
+        try? await refreshAccessTokenIfNeeded()
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycAttemptCount)
         return await client.performDecodable(request: request)
     }
@@ -99,8 +101,10 @@ enum SCKYCUserStatus {
         switch self {
         case .notStarted, .userCanceled:
             return 0
-        default:
+        case .pending:
             return 1
+        case .successful, .rejected:
+            return 2
         }
     }
 

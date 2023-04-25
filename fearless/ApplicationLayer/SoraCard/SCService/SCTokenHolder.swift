@@ -2,12 +2,18 @@ import SoraKeystore
 
 final class SCTokenHolder {
     private let eventCenter = EventCenter.shared
+    private let storage = SCStorage.shared
 
-    private var token: SCToken = .empty
+    var token: SCToken = .empty
 
     static let shared = SCTokenHolder()
 
     private init() {}
+
+    func loadToken() async {
+        let token = await storage.token() ?? .empty
+        set(token: token)
+    }
 
     func set(token: SCToken) {
         if token.isEmpty {

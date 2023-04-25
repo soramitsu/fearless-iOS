@@ -30,7 +30,6 @@ protocol EventVisitorProtocol: AnyObject {
     func processKYCShouldRestart()
     func processKYCUserStatusChanged()
     func processKYCTokenChanged(token: SCToken)
-    func processKYCTokenNeedRefresh(token: SCToken)
 }
 
 extension EventVisitorProtocol {
@@ -63,5 +62,4 @@ extension EventVisitorProtocol {
     func processKYCShouldRestart() {}
     func processKYCUserStatusChanged() {}
     func processKYCTokenChanged(token _: SCToken) {}
-    func processKYCTokenNeedRefresh(token _: SCToken) {}
 }
