@@ -134,21 +134,21 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
 
             switch response {
             case let .success(statuses):
-                await MainActor.run { [weak self] in
-                    self?.presenter?.didReceive(kycStatuses: statuses)
+                await MainActor.run {
+                    self.presenter?.didReceive(kycStatuses: statuses)
                 }
             case let .failure(error):
-                await MainActor.run { [weak self] in
-                    self?.presenter?.didReceive(error: error)
+                await MainActor.run {
+                    self.presenter?.didReceive(error: error)
                 }
                 SCTokenHolder.shared.removeToken()
-                await MainActor.run { [weak self] in
-                    self?.presenter?.restartKYC()
+                await MainActor.run {
+                    self.presenter?.restartKYC()
                 }
             }
         } else {
-            await MainActor.run { [weak self] in
-                self?.presenter?.restartKYC()
+            await MainActor.run {
+                self.presenter?.restartKYC()
             }
         }
     }
