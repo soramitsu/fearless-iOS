@@ -7,7 +7,7 @@ final class SCTokenHolder {
 
     static let shared = SCTokenHolder()
 
-    init() {}
+    private init() {}
 
     func set(token: SCToken) {
         if token.isEmpty {
