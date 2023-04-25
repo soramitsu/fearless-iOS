@@ -52,13 +52,15 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
         output?.didReceive(hiddenState: hidden)
     }
 
-    func fetchStatus() async -> SCKYCUserStatus? {
-        await service.userStatus()
+    func fetchStatus() async {
+        let status = await service.userStatus() ?? .notStarted
+        await MainActor.run { [weak self] in
+            self?.output?.didReceive(status: status)
+        }
     }
 
     func prepareStart() async {
         if await storage.token() != nil {
-            try? await service.refreshAccessTokenIfNeeded()
             let response = await service.kycStatuses()
 
             switch response {
@@ -70,7 +72,7 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
                 await MainActor.run { [weak self] in
                     self?.output?.didReceive(error: error)
                 }
-                await storage.removeToken()
+                SCTokenHolder.shared.removeToken()
                 await MainActor.run { [weak self] in
                     self?.output?.restartKYC()
                 }

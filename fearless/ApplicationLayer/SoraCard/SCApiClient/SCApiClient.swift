@@ -1,5 +1,4 @@
 import Foundation
-import SoraKeystore
 
 enum HTTPMethod: String {
     case get = "GET"
@@ -56,6 +55,8 @@ public class SCAPIClient {
         self.baseAuth = baseAuth
         self.token = token
         logger.logLevels = logLevels
+
+        EventCenter.shared.add(observer: self)
     }
 
     private let baseAuth: String
@@ -72,10 +73,6 @@ public class SCAPIClient {
         jsonDecoder.dateDecodingStrategy = .formatted(dateFormatter)
         return jsonDecoder
     }()
-
-    func set(token: SCToken) {
-        self.token = token
-    }
 
     func performDecodable<T: Decodable>(request: APIRequest) async -> Result<T, NetworkingError> {
         let result = await perform(request: request)
@@ -158,30 +155,8 @@ public class SCAPIClient {
     }
 }
 
-struct SCToken: Codable, SecretDataRepresentable {
-    static let empty: SCToken = .init(refreshToken: "", accessToken: "", accessTokenExpirationTime: 0)
-
-    let refreshToken: String
-    let accessToken: String
-    let accessTokenExpirationTime: Int64
-
-    init(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
-        self.refreshToken = refreshToken
-        self.accessToken = accessToken
-        self.accessTokenExpirationTime = accessTokenExpirationTime
-    }
-
-    init?(secretData: SecretDataRepresentable?) {
-        guard let secretUTF8String = secretData?.toUTF8String() else { return nil }
-        let secretPrts = secretUTF8String.split(separator: "@").map { String($0) }
-        guard secretPrts.count == 3 else { return nil }
-
-        refreshToken = secretPrts[0]
-        accessToken = secretPrts[1]
-        accessTokenExpirationTime = Int64(secretPrts[2]) ?? 0
-    }
-
-    func asSecretData() -> Data? {
-        "\(refreshToken)@\(accessToken)@\(accessTokenExpirationTime)".data(using: .utf8)
+extension SCAPIClient: EventVisitorProtocol {
+    func processKYCTokenChanged(token: SCToken) {
+        self.token = token
     }
 }

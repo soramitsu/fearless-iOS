@@ -58,7 +58,7 @@ final class PhoneVerificationCodeInteractor {
     }
 
     private func resetKYC() async {
-        await storage.removeToken()
+        SCTokenHolder.shared.removeToken()
         storage.set(isRetry: false)
 
         await MainActor.run { [weak self] in
@@ -117,15 +117,10 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
-        service.client.set(token: token)
+        SCTokenHolder.shared.set(token: token)
 
-        Task {
-            await SCStorage.shared.add(token: token)
-            self.service.getUserData(callback: GetUserDataCallback())
-            await MainActor.run {
-                self.codeState = .succeed
-            }
-        }
+        service.getUserData(callback: GetUserDataCallback())
+        codeState = .succeed
         output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
