@@ -18,6 +18,7 @@ final class ProfileInteractor {
     private let selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let scService: SCKYCService
 
     private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
@@ -33,7 +34,8 @@ final class ProfileInteractor {
         operationQueue: OperationQueue,
         selectedMetaAccount: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        walletRepository: AnyDataProviderRepository<MetaAccountModel>
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>,
+        scService: SCKYCService
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -42,6 +44,7 @@ final class ProfileInteractor {
         self.selectedMetaAccount = selectedMetaAccount
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
+        self.scService = scService
     }
 
     // MARK: - Private methods
@@ -123,6 +126,31 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         }
 
         operationQueue.addOperation(saveOperation)
+    }
+
+    func prepareStartSoraCard() async {
+        if await SCStorage.shared.token() != nil {
+            let response = await scService.kycStatuses()
+
+            switch response {
+            case let .success(statuses):
+                await MainActor.run { [weak self] in
+                    self?.presenter?.didReceive(kycStatuses: statuses)
+                }
+            case let .failure(error):
+                await MainActor.run { [weak self] in
+                    self?.presenter?.didReceive(error: error)
+                }
+                SCTokenHolder.shared.removeToken()
+                await MainActor.run { [weak self] in
+                    self?.presenter?.restartKYC()
+                }
+            }
+        } else {
+            await MainActor.run { [weak self] in
+                self?.presenter?.restartKYC()
+            }
+        }
     }
 }
 
