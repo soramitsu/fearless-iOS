@@ -101,10 +101,8 @@ enum SCKYCUserStatus {
         switch self {
         case .notStarted, .userCanceled:
             return 0
-        case .pending:
+        default:
             return 1
-        case .successful, .rejected:
-            return 2
         }
     }
 

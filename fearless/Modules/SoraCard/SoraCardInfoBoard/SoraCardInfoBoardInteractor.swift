@@ -65,8 +65,9 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
             switch response {
             case let .success(statuses):
+                let statusesToShow = statuses.filter { $0.userStatus != .userCanceled }
                 await MainActor.run {
-                    self.output?.didReceive(kycStatuses: statuses)
+                    self.output?.didReceive(kycStatuses: statusesToShow)
                 }
             case let .failure(error):
                 await MainActor.run {
