@@ -59,8 +59,12 @@ enum SoraCardStatus {
 
     func buttonTitle(with locale: Locale) -> String {
         switch self {
-        case .rejected:
-            return R.string.localizable.tryAgainCommon(preferredLanguages: locale.rLanguages)
+        case let .rejected(hasFreeAttempts):
+            if hasFreeAttempts {
+                return R.string.localizable.tryAgainCommon(preferredLanguages: locale.rLanguages)
+            } else {
+                return R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
+            }
         default:
             return R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
         }

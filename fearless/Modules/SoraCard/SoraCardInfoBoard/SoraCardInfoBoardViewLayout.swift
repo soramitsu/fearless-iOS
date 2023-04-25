@@ -34,7 +34,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
         }
     }
 
-    private var viewModel: SoraCardInfoViewModel?
+    private var status: SoraCardStatus?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -52,10 +52,10 @@ final class SoraCardInfoBoardViewLayout: UIView {
         statusButton.rounded()
     }
 
-    func bind(viewModel: SoraCardInfoViewModel) {
-        self.viewModel = viewModel
+    func bind(status: SoraCardStatus) {
+        self.status = status
 
-        statusButton.setTitle(viewModel.userStatus.title(for: locale).uppercased(), for: .normal)
+        statusButton.setTitle(status.title(with: locale).uppercased(), for: .normal)
         statusButton.setNeedsLayout()
         statusButton.layoutIfNeeded()
     }
@@ -82,7 +82,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        let status = viewModel?.userStatus ?? .notStarted
-        statusButton.setTitle(status.title(for: locale).uppercased(), for: .normal)
+        let status = self.status ?? .pending
+        statusButton.setTitle(status.title(with: locale).uppercased(), for: .normal)
     }
 }

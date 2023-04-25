@@ -3,7 +3,7 @@ import SoraFoundation
 typealias SoraCardInfoBoardModuleCreationResult = (view: SoraCardInfoBoardViewInput, input: SoraCardInfoBoardModuleInput)
 
 protocol SoraCardInfoBoardViewInput: ControllerBackedProtocol, LoadableViewProtocol {
-    func didReceive(stateViewModel: SoraCardInfoViewModel)
+    func didReceive(status: SoraCardStatus)
 }
 
 protocol SoraCardInfoBoardViewOutput: AnyObject {
@@ -20,7 +20,7 @@ protocol SoraCardInfoBoardInteractorInput: AnyObject {
 }
 
 protocol SoraCardInfoBoardInteractorOutput: AnyObject {
-    func didReceive(status: SCKYCUserStatus)
+    func didReceive(status: SCKYCUserStatus?, hasFreeAttempts: Bool)
     func didReceive(hiddenState: Bool)
     func didReceive(kycStatuses: [SCKYCStatusResponse])
     func didReceive(error: NetworkingError)
