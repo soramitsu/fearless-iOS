@@ -51,7 +51,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             selectedMetaAccount: selectedMetaAccount,
             walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
-            walletRepository: accountRepository
+            walletRepository: accountRepository,
+            scService: SCKYCService.shared
         )
 
         let presenter = ProfilePresenter(

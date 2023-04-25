@@ -65,21 +65,21 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
             switch response {
             case let .success(statuses):
-                await MainActor.run { [weak self] in
-                    self?.output?.didReceive(kycStatuses: statuses)
+                await MainActor.run {
+                    self.output?.didReceive(kycStatuses: statuses)
                 }
             case let .failure(error):
-                await MainActor.run { [weak self] in
-                    self?.output?.didReceive(error: error)
+                await MainActor.run {
+                    self.output?.didReceive(error: error)
                 }
                 SCTokenHolder.shared.removeToken()
-                await MainActor.run { [weak self] in
-                    self?.output?.restartKYC()
+                await MainActor.run {
+                    self.output?.restartKYC()
                 }
             }
         } else {
-            await MainActor.run { [weak self] in
-                self?.output?.restartKYC()
+            await MainActor.run {
+                self.output?.restartKYC()
             }
         }
     }
