@@ -82,7 +82,7 @@ final class SoraCardInfoBoardViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        let status = self.status ?? .pending
+        let status = self.status ?? .notStarted
         statusButton.setTitle(status.title(with: locale).uppercased(), for: .normal)
     }
 }

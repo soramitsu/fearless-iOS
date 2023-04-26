@@ -4,7 +4,7 @@ enum SoraCardStatus {
     case pending
     case rejected(hasFreeAttempts: Bool)
     case success
-    case failure
+    case notStarted
 
     var iconImage: UIImage? {
         switch self {
@@ -18,7 +18,7 @@ enum SoraCardStatus {
             }
         case .success:
             return R.image.soraCardStatusSuccess()
-        case .failure:
+        case .notStarted:
             return R.image.soraCardStatusFailure()
         }
     }
@@ -35,8 +35,8 @@ enum SoraCardStatus {
             }
         case .success:
             return R.string.localizable.soraCardStatusSuccessTitle(preferredLanguages: locale.rLanguages)
-        case .failure:
-            return R.string.localizable.soraCardStatusFailureTitle(preferredLanguages: locale.rLanguages)
+        case .notStarted:
+            return R.string.localizable.soraCardStateNoneTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -52,7 +52,7 @@ enum SoraCardStatus {
             }
         case .success:
             return R.string.localizable.soraCardStatusSuccessText(preferredLanguages: locale.rLanguages)
-        case .failure:
+        case .notStarted:
             return R.string.localizable.soraCardStatusFailureText(preferredLanguages: locale.rLanguages)
         }
     }

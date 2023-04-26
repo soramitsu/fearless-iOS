@@ -96,10 +96,10 @@ final class SCKYCService {
 
     func getUserData(callback: GetUserDataCallback) {
         Task {
-            guard let token = await SCStorage.shared.token() else {
+            guard !tokenHolder.token.isEmpty else {
                 return
             }
-            payWingsOAuthClient.getUserData(accessToken: token.accessToken, callback: callback)
+            payWingsOAuthClient.getUserData(accessToken: tokenHolder.token.accessToken, callback: callback)
         }
     }
 

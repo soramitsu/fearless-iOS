@@ -76,6 +76,7 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
     }
 
     func didReceive(error: NetworkingError) {
+        view?.didReceive(status: .notStarted)
         router.present(error: error, from: view, locale: selectedLocale)
     }
 

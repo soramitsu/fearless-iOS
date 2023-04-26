@@ -56,8 +56,8 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
         let status = await service.userStatus() ?? .notStarted
         switch await service.kycAttempts() {
         case let .failure(error):
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceive(error: error)
+            await MainActor.run {
+                self.output?.didReceive(error: error)
             }
         case let .success(kycAttempts):
             await MainActor.run {
