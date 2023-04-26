@@ -55,4 +55,8 @@ final class KYCMainRouter: KYCMainRouterInput {
 
         view?.controller.present(module.view.controller, animated: true)
     }
+
+    func dismiss(view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: true)
+    }
 }

@@ -35,6 +35,7 @@ final class KYCMainInteractor {
     private var chainAssetsAccountInfo: [ChainAsset: AccountInfo?] = [:]
     private var kycAttempts: SCKYCAtempts?
     private var xorChainAssets: [ChainAsset] = []
+    private let eventCenter = EventCenter.shared
     let wallet: MetaAccountModel
 
     private lazy var accountInfosDeliveryQueue = {
@@ -55,6 +56,8 @@ final class KYCMainInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoFetching = accountInfoFetching
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+
+        eventCenter.add(observer: self)
     }
 }
 
@@ -170,5 +173,11 @@ extension KYCMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscription
             self.xorPrice = price
             checkEnoughtAmount()
         }
+    }
+}
+
+extension KYCMainInteractor: EventVisitorProtocol {
+    func processKYCReceivedFinalStatus() {
+        output?.didReceiveFinalStatus()
     }
 }

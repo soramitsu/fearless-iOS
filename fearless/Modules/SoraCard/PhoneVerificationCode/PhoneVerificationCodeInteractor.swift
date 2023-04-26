@@ -5,12 +5,13 @@ final class PhoneVerificationCodeInteractor {
     // MARK: - Private properties
 
     private weak var output: PhoneVerificationCodeInteractorOutput?
-    private let data: SCKYCUserDataModel
     private let service: SCKYCService
     private let storage: SCStorage = .shared
     private let eventCenter: EventCenterProtocol
 
-    private var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    var data: SCKYCUserDataModel
+    var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    var getUserDataCallback = GetUserDataCallback()
     private let requestOtpCallback = SignInWithPhoneNumberRequestOtpCallback()
     private let otpLength: Int
     private var codeState: SCKYCPhoneCodeState = .editing {
@@ -30,6 +31,7 @@ final class PhoneVerificationCodeInteractor {
         self.otpLength = otpLength
         self.eventCenter = eventCenter
         callback.delegate = self
+        getUserDataCallback.delegate = self
         requestOtpCallback.delegate = self
     }
 
@@ -113,18 +115,36 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
 
     func onVerificationFailed() {
         codeState = .wrong("Incorrect or expired OTP")
+        output?.didReceive(state: codeState)
     }
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
         SCTokenHolder.shared.set(token: token)
 
-        service.getUserData(callback: GetUserDataCallback())
+        service.getUserData(callback: getUserDataCallback)
         codeState = .succeed
-        output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
     func onError(error: PayWingsOAuthSDK.OAuthErrorCode, errorMessage: String?) {
         codeState = .wrong(errorMessage ?? error.description)
+    }
+}
+
+extension PhoneVerificationCodeInteractor: GetUserDataCallbackDelegate {
+    func onUserData(
+        userId: String,
+        firstName: String?,
+        lastName: String?,
+        email: String?,
+        emailConfirmed _: Bool,
+        phoneNumber _: String?
+    ) {
+        data.userId = userId
+        data.name = firstName ?? ""
+        data.lastname = lastName ?? ""
+        data.email = email ?? ""
+
+        checkUserStatus(with: data)
     }
 }

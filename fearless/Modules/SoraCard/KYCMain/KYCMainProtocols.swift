@@ -25,9 +25,10 @@ protocol KYCMainInteractorInput: AnyObject {
 protocol KYCMainInteractorOutput: AnyObject {
     func didReceive(data: KYCMainData)
     func didReceive(xorChainAssets: [ChainAsset])
+    func didReceiveFinalStatus()
 }
 
-protocol KYCMainRouterInput: SheetAlertPresentable, WebPresentable {
+protocol KYCMainRouterInput: SheetAlertPresentable, WebPresentable, Dismissable {
     func showSwap(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset)
     func showBuyXor(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset)
     func showTermsAndConditions(from view: ControllerBackedProtocol?)

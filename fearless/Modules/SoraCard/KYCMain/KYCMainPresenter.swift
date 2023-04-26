@@ -117,6 +117,10 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
     func didReceive(xorChainAssets: [ChainAsset]) {
         self.xorChainAssets = xorChainAssets
     }
+
+    func didReceiveFinalStatus() {
+        router.dismiss(view: view)
+    }
 }
 
 // MARK: - Localizable

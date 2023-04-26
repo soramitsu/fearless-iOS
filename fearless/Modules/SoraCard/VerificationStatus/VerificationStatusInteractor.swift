@@ -57,8 +57,8 @@ extension VerificationStatusInteractor: VerificationStatusInteractorInput {
     }
 
     func retryKYC() async {
-        storage.set(isRetry: true)
         await resetKYC()
+        storage.set(isRetry: true)
     }
 
     func resetKYC() async {
