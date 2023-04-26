@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class KaruraBonusService {
     static let defaultReferralCode = "0x9642d0db9f3b301b44df74b63b0b930011e3f52154c5ca24b4dc67b3c7322f15"

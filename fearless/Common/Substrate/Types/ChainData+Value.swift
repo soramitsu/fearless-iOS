@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 extension ChainData {
     var stringValue: String? {

@@ -1,5 +1,5 @@
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import BigInt
 import IrohaCrypto
 

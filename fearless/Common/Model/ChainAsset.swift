@@ -140,14 +140,14 @@ enum ChainAssetType: String, Codable {
     case soraAsset
 }
 
-// MARK: - ChainAssetProtocol
-
-extension ChainAsset: ChainAssetProtocol {
-    var chainModel: ChainModelProtocol {
-        chain
-    }
-
-    var assetModel: AssetModelProtocol {
-        asset
-    }
-}
+//// MARK: - ChainAssetProtocol
+//
+// extension ChainAsset: ChainAssetProtocol {
+//    var chainModel: ChainModelProtocol {
+//        chain
+//    }
+//
+//    var assetModel: AssetModelProtocol {
+//        asset
+//    }
+// }

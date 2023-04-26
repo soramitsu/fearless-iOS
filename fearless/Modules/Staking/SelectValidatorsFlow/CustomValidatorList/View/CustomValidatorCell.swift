@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 protocol CustomValidatorCellDelegate: AnyObject {
     func didTapInfoButton(in cell: CustomValidatorCell)

@@ -1,5 +1,5 @@
 import UIKit.UIImage
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 struct StakingPayoutConfirmationViewModel {

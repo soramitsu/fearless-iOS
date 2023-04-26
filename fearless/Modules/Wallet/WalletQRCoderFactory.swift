@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class WalletQREncoder: WalletQREncoderProtocol {
     let username: String?

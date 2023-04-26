@@ -27,7 +27,6 @@ final class CrossChainInteractor {
 
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
-    private let xcmFeeService: XcmFeeFetching
     private var pricesProvider: AnySingleValueProvider<[PriceData]>?
     private let depsContainer: CrossChainDepsContainer
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
@@ -35,14 +34,14 @@ final class CrossChainInteractor {
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
 
-    private var deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
     private var runtimeItems: [RuntimeMetadataItem] = []
+
+    var xcmServices: XcmExtrinsicServices?
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
-        xcmFeeService: XcmFeeFetching,
         depsContainer: CrossChainDepsContainer,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         operationQueue: OperationQueue,
@@ -52,7 +51,6 @@ final class CrossChainInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
-        self.xcmFeeService = xcmFeeService
         self.depsContainer = depsContainer
         self.runtimeItemRepository = runtimeItemRepository
         self.operationQueue = operationQueue
@@ -78,28 +76,16 @@ final class CrossChainInteractor {
     }
 
     private func prepareDeps(
-        originalChainAsset: ChainAsset?,
-        destinationChainAsset: ChainAsset?
+        originalChainAsset: ChainAsset
     ) -> CrossChainDepsContainer.CrossChainConfirmationDeps? {
-        guard
-            let originalChainAsset = originalChainAsset,
-            let destinationChainAsset = destinationChainAsset
-        else {
-            return nil
-        }
-
         do {
-            guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }),
-                  let destRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == destinationChainAsset.chain.chainId })
-            else {
+            guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }) else {
                 throw ConvenienceError(error: "missing runtime item")
             }
 
             return try depsContainer.prepareDepsFor(
                 originalChainAsset: originalChainAsset,
-                destChainModel: destinationChainAsset.chain,
-                originalRuntimeMetadataItem: originalRuntimeMetadataItem,
-                destRuntimeMetadataItem: destRuntimeMetadataItem
+                originalRuntimeMetadataItem: nil
             )
         } catch {
             return nil
@@ -137,6 +123,14 @@ final class CrossChainInteractor {
                 }
             }
         }
+
+//        Task {
+//            let chainsFetcher = depsContainer.createRemoteChainsFetcher()
+//            let availableDestChains = await chainsFetcher.getAvailableDestinationChains(
+//                originalChain: chainAsset.chain,
+//                assetSymbol: nil
+//            )
+//        }
     }
 }
 
@@ -147,27 +141,17 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         let inputAmount = amount ?? .zero
         let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originalChainAsset.asset.precision)) ?? BigUInt.zero
 
-        xcmFeeService.estimateFee(
-            originChainId: originalChainAsset.chain.chainId,
-            destinationChainId: destinationChainAsset.chain.chainId
-        ) { [weak self] result in
-            DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceiveDestinationFee(result: result)
-            }
-        }
-
-        let deps = prepareDeps(
-            originalChainAsset: originalChainAsset,
-            destinationChainAsset: destinationChainAsset
-        )
+        let deps = prepareDeps(originalChainAsset: originalChainAsset)
+        xcmServices = deps?.xcmServices
 
         guard let destAccountId = wallet.fetch(for: destinationChainAsset.chain.accountRequest())?.accountId else {
             return
         }
         Task {
-            guard let fee = await deps?.xcmService.estimateFee(
-                fromChainAsset: originalChainAsset,
-                destChainModel: destinationChainAsset.chain,
+            guard let originalFee = await deps?.xcmServices.extrinsic.estimateOriginalFee(
+                fromChainId: originalChainAsset.chain.chainId,
+                assetSymbol: originalChainAsset.asset.name,
+                destChainId: destinationChainAsset.chain.chainId,
                 destAccountId: destAccountId,
                 amount: substrateAmout
             ) else {
@@ -175,7 +159,21 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             }
 
             DispatchQueue.main.async { [weak self] in
-                self?.output?.didReceiveOriginFee(result: fee)
+                self?.output?.didReceiveOriginFee(result: originalFee)
+            }
+
+            guard let destinationFee = await deps?
+                .xcmServices
+                .destinationFeeFetcher
+                .estimateFee(
+                    originChainId: originalChainAsset.chain.chainId,
+                    destinationChainId: destinationChainAsset.chain.chainId
+                )
+            else {
+                return
+            }
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceiveDestinationFee(result: destinationFee)
             }
         }
     }

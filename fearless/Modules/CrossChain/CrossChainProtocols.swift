@@ -1,3 +1,6 @@
+import Foundation
+import SSFXCM
+
 typealias CrossChainModuleCreationResult = (
     view: CrossChainViewInput,
     input: CrossChainModuleInput
@@ -23,7 +26,8 @@ protocol CrossChainRouterInput: PresentDismissable {
 
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        data: CrossChainConfirmationData
+        data: CrossChainConfirmationData,
+        xcmServices: XcmExtrinsicServices
     )
 }
 

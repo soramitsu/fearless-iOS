@@ -1,7 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {

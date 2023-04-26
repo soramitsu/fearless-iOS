@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol SubstrateOperationFactoryProtocol: AnyObject {
     func fetchChainOperation(_ url: URL) -> BaseOperation<String>

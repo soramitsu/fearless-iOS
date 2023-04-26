@@ -3,7 +3,6 @@ platform :ios, '13.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.4'
   pod 'SwiftLint'
   pod 'R.swift', '6.1.0', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
@@ -40,12 +39,13 @@ abstract_target 'fearlessAll' do
   pod 'SSFStorageQueryKit', :path => '../soramitsu-shared-features-ios/SSFStorageQueryKit'
   pod 'SSFChainConnection', :path => '../soramitsu-shared-features-ios/SSFChainConnection'
   pod 'SSFNetwork', :path => '../soramitsu-shared-features-ios/SSFNetwork'
+  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
+  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 
   target 'fearlessTests' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.4'
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', '6.1.0', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct BlockWeights: Codable {
     @StringCodable var maxBlock: UInt64

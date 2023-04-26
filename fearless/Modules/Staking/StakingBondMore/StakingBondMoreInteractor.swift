@@ -2,7 +2,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 final class StakingBondMoreInteractor: AccountFetching {
     weak var presenter: StakingBondMoreInteractorOutputProtocol?

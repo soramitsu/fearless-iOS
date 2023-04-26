@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 struct YourValidatorListViewFactory {
     static func createView(

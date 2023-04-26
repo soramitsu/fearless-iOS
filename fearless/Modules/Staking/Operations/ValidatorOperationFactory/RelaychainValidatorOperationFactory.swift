@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 // swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {

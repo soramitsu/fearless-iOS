@@ -1,7 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(

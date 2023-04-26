@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     private let chainAsset: ChainAsset

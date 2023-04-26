@@ -1,25 +1,18 @@
 import Foundation
 import SoraFoundation
 import RobinHood
+import SSFXCM
 
 final class CrossChainConfirmationAssembly {
     static func configureModule(
-        with data: CrossChainConfirmationData
+        with data: CrossChainConfirmationData,
+        xcmServices: XcmExtrinsicServices
     ) -> CrossChainConfirmationModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        let depsContainer = CrossChainDepsContainer(
-            wallet: data.wallet,
-            chainsTypesMap: chainRegistry.chainsTypesMap
-        )
-        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
 
         let interactor = CrossChainConfirmationInteractor(
             teleportData: data,
-            depsContainer: depsContainer,
-            runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
+            xcmServices: xcmServices,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             logger: Logger.shared
         )

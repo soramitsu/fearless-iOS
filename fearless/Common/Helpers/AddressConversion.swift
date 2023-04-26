@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SSFCrypto
+import SSFModels
 
 enum ChainFormat {
     case ethereum

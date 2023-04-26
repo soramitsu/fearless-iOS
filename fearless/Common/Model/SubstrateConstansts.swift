@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct SubstrateConstants {
     static let accountIdLength = 32

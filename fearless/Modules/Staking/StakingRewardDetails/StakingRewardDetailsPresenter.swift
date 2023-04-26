@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class StakingRewardDetailsPresenter {
     weak var view: StakingRewardDetailsViewProtocol?

@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 
 struct BalanceInfoDependencies {
     let connection: JSONRPCEngine

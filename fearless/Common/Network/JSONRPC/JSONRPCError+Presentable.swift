@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension JSONRPCError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {

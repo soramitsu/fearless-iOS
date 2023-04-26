@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class SendAssembly {
     static func configureModule(

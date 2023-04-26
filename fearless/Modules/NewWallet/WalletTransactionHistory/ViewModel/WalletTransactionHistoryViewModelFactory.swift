@@ -1,6 +1,6 @@
 import CommonWallet
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import UIKit
 
 enum TransactionHistoryViewModelFactoryError: Error {
