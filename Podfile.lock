@@ -18,18 +18,6 @@ PODS:
     - Cuckoo/Swift (= 1.9.1)
   - Cuckoo/Swift (1.9.1)
   - eIDRTC (1.1.34)
-  - FearlessUtils (0.14.1):
-    - BigInt (~> 5.0)
-    - IrohaCrypto/ed25519
-    - IrohaCrypto/Scrypt
-    - IrohaCrypto/secp256k1
-    - IrohaCrypto/sr25519
-    - IrohaCrypto/ss58
-    - ReachabilitySwift (~> 5.0)
-    - RobinHood
-    - Starscream
-    - TweetNacl (~> 1.0.0)
-    - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
   - IdensicMobileSDK (1.19.6)
   - IrohaCrypto (0.10.0):
@@ -220,7 +208,6 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, tag `0.14.4`)
   - FireMock
   - "IdensicMobileSDK (from `{:http=>\"https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz\"}`)"
   - IrohaCrypto
@@ -288,9 +275,6 @@ SPEC REPOS:
     - xxHash-Swift
 
 EXTERNAL SOURCES:
-  FearlessUtils:
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.4
   IdensicMobileSDK:
     :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz
   PayWingsOAuthSDK:
@@ -333,9 +317,6 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec
 
 CHECKOUT OPTIONS:
-  FearlessUtils:
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.4
   IdensicMobileSDK:
     :http: https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz
   PayWingsOAuthSDK:
@@ -356,7 +337,6 @@ SPEC CHECKSUMS:
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
   eIDRTC: debca63e4c367be509c77292df65b9527d695f10
-  FearlessUtils: 9ec62687bda73c4c3b2d879389e72bad13571f1d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IdensicMobileSDK: 03ade0371c3b579ca7e6129dc59cf43341b74e98
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
@@ -399,6 +379,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: c633273a7bbd70ef06dab610a0d2dac3d3168fbb
+PODFILE CHECKSUM: bfcca804c84e43f61af2aaf4c139722f959b627c
 
 COCOAPODS: 1.11.3

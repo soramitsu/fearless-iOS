@@ -130,7 +130,7 @@ final class CrossChainDepsContainer {
             destRuntimeData: destRuntimeData
         )
 
-        return service
+        return service.extrinsic
     }
 
     private func fetchSecretKey(

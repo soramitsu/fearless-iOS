@@ -77,6 +77,20 @@ final class CrossChainPresenter {
 
     // MARK: - Private methods
 
+    private func provideInputViewModel() {
+        let balanceViewModelFactory = buildBalanceViewModelFactory(
+            wallet: wallet,
+            for: selectedAmountChainAsset
+        )
+        let inputAmount = amountInputResult?
+            .absoluteValue(from: originalNetworkBalance ?? .zero)
+        let inputViewModel = balanceViewModelFactory?
+            .createBalanceInputViewModel(inputAmount)
+            .value(for: selectedLocale)
+
+        view?.didReceive(amountInputViewModel: inputViewModel)
+    }
+
     private func provideAssetViewModel() {
         let balanceViewModelFactory = buildBalanceViewModelFactory(
             wallet: wallet,
@@ -98,12 +112,7 @@ final class CrossChainPresenter {
         ).value(for: selectedLocale)
         self.balanceViewModel = balanceViewModel
 
-        let inputViewModel = balanceViewModelFactory?
-            .createBalanceInputViewModel(inputAmount)
-            .value(for: selectedLocale)
-
         view?.didReceive(assetBalanceViewModel: assetBalanceViewModel)
-        view?.didReceive(amountInputViewModel: inputViewModel)
     }
 
     private func provideOriginalSelectNetworkViewModel() {
@@ -121,34 +130,46 @@ final class CrossChainPresenter {
     }
 
     private func provideOriginalNetworkFeeViewModel() {
-        let viewModelFactory = buildBalanceViewModelFactory(
-            wallet: wallet,
-            for: selectedAmountChainAsset
-        )
+        guard
+            let originalNetworkFee = originalNetworkFee,
+            let viewModelFactory = buildBalanceViewModelFactory(
+                wallet: wallet,
+                for: selectedAmountChainAsset
+            )
+        else {
+            view?.didReceive(originFeeViewModel: nil)
+            return
+        }
 
-        let viewModel = viewModelFactory?.balanceFromPrice(
-            originalNetworkFee ?? .zero,
+        let viewModel = viewModelFactory.balanceFromPrice(
+            originalNetworkFee,
             priceData: originalNetworkPriceData
         )
 
-        originalNetworkFeeViewModel = viewModel?.value(for: selectedLocale)
+        originalNetworkFeeViewModel = viewModel.value(for: selectedLocale)
 
         view?.didReceive(originFeeViewModel: viewModel)
     }
 
     private func provideDestNetworkFeeViewModel() {
-        let utilituDestChainAsset = selectedDestChainModel?.chainAssets.first(where: { $0.isUtility })
-        let viewModelFactory = buildBalanceViewModelFactory(
-            wallet: wallet,
-            for: utilituDestChainAsset
-        )
+        guard
+            let destNetworkFee = destNetworkFee,
+            let utilituDestChainAsset = selectedDestChainModel?.chainAssets.first(where: { $0.isUtility }),
+            let viewModelFactory = buildBalanceViewModelFactory(
+                wallet: wallet,
+                for: utilituDestChainAsset
+            )
+        else {
+            view?.didReceive(destinationFeeViewModel: nil)
+            return
+        }
 
-        let viewModel = viewModelFactory?.balanceFromPrice(
-            destNetworkFee ?? .zero,
+        let viewModel = viewModelFactory.balanceFromPrice(
+            destNetworkFee,
             priceData: originalNetworkPriceData
         )
 
-        destNetworkFeeViewModel = viewModel?.value(for: selectedLocale)
+        destNetworkFeeViewModel = viewModel.value(for: selectedLocale)
 
         view?.didReceive(destinationFeeViewModel: viewModel)
     }
@@ -192,6 +213,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
         amountInputResult = .rate(Decimal(Double(percentage)))
         provideAssetViewModel()
+        provideInputViewModel()
 
         let destUtilityChainAsset = selectedDestChainModel?.utilityChainAssets().first(where: { $0.isUtility })
         if let destUtilityChainAsset = destUtilityChainAsset {
@@ -262,6 +284,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         interactor.setup(with: self)
         provideOriginalSelectNetworkViewModel()
         interactor.didReceive(originalChainAsset: selectedAmountChainAsset, destChainAsset: nil)
+        provideInputViewModel()
     }
 
     func didTapBackButton() {
@@ -318,6 +341,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 originalNetworkFee = feeDecimal
 
                 provideOriginalNetworkFeeViewModel()
+                provideInputViewModel()
             }
         case let .failure(error):
             logger.error(error.localizedDescription)
@@ -424,6 +448,8 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
                 destinationChainAsset: destUtilityChainAsset,
                 amount: inputAmount
             )
+
+            provideInputViewModel()
         }
     }
 }
@@ -460,6 +486,8 @@ extension CrossChainPresenter: SelectNetworkDelegate {
                         destinationChainAsset: destUtilityChainAsset,
                         amount: inputAmount
                     )
+
+                    provideInputViewModel()
                 }
             }
             provideOriginalSelectNetworkViewModel()
@@ -476,6 +504,8 @@ extension CrossChainPresenter: SelectNetworkDelegate {
                     destinationChainAsset: destUtilityChainAsset,
                     amount: inputAmount
                 )
+
+                provideInputViewModel()
             }
         }
     }

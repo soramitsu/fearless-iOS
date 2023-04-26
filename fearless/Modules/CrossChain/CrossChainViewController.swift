@@ -117,9 +117,15 @@ extension CrossChainViewController: CrossChainViewInput {
 
     func didReceive(amountInputViewModel: IAmountInputViewModel?) {
         self.amountInputViewModel = amountInputViewModel
-        self.amountInputViewModel?.observable.remove(observer: self)
-        self.amountInputViewModel?.observable.add(observer: self)
-        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
+        if let amountViewModel = amountInputViewModel {
+            amountViewModel.observable.remove(observer: self)
+            amountViewModel.observable.add(observer: self)
+            rootView.amountView.inputFieldText = amountViewModel.displayAmount
+        }
+//        self.amountInputViewModel = amountInputViewModel
+//        self.amountInputViewModel?.observable.remove(observer: self)
+//        self.amountInputViewModel?.observable.add(observer: self)
+//        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
         updatePreviewButton()
     }
 
@@ -154,11 +160,12 @@ extension CrossChainViewController: KeyboardViewAdoptable {
 extension CrossChainViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
-
-        guard let amountTo = amountInputViewModel?.decimalAmount else {
-            return
-        }
-        output.updateAmount(amountTo)
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+        output.updateAmount(amount)
+//        guard let amountTo = amountInputViewModel?.decimalAmount else {
+//            return
+//        }
+//        output.updateAmount(amountTo)
     }
 }
 

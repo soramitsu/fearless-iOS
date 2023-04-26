@@ -75,13 +75,11 @@ final class CrossChainViewLayout: UIView {
     // MARK: - Public methods
 
     func bind(originFeeViewModel: BalanceViewModelProtocol?) {
-        originNetworkFeeView.valueTop.text = originFeeViewModel?.amount
-        originNetworkFeeView.valueBottom.text = originFeeViewModel?.price
+        originNetworkFeeView.bindBalance(viewModel: originFeeViewModel)
     }
 
     func bind(destinationFeeViewModel: BalanceViewModelProtocol?) {
-        destinationNetworkFeeView.valueTop.text = destinationFeeViewModel?.amount
-        destinationNetworkFeeView.valueBottom.text = destinationFeeViewModel?.price
+        destinationNetworkFeeView.bindBalance(viewModel: destinationFeeViewModel)
     }
 
     func bind(assetViewModel: AssetBalanceViewModelProtocol) {
