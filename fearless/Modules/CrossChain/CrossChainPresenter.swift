@@ -14,6 +14,7 @@ protocol CrossChainViewInput: ControllerBackedProtocol {
 }
 
 protocol CrossChainInteractorInput: AnyObject {
+    var xcmServices: XcmExtrinsicServices? { get }
     func setup(with output: CrossChainInteractorOutput)
     func didReceive(originalChainAsset: ChainAsset?, destChainAsset: ChainAsset?)
     func estimateFee(originalChainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: Decimal?)
@@ -297,7 +298,8 @@ extension CrossChainPresenter: CrossChainViewOutput {
               let originalChainFee = originalNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
               let inputAmount = amountInputResult?.absoluteValue(from: originalNetworkBalance ?? .zero),
-              let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision))
+              let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
+              let xcmServices = interactor.xcmServices
         else {
             return
         }
@@ -312,7 +314,8 @@ extension CrossChainPresenter: CrossChainViewOutput {
         )
         router.showConfirmation(
             from: view,
-            data: data
+            data: data,
+            xcmServices: xcmServices
         )
     }
 }
@@ -330,7 +333,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
             provideDestNetworkFeeViewModel()
         case let .failure(error):
-            logger.error(error.localizedDescription)
+            logger.customError(error)
         }
     }
 
@@ -344,7 +347,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 provideInputViewModel()
             }
         case let .failure(error):
-            logger.error(error.localizedDescription)
+            logger.customError(error)
         }
     }
 

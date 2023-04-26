@@ -125,4 +125,4 @@ extension AssetModel: Identifiable {
     var identifier: String { id }
 }
 
-extension AssetModel: AssetModelProtocol {}
+// extension AssetModel: AssetModelProtocol {}

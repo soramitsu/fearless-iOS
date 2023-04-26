@@ -1,4 +1,5 @@
 import Foundation
+import SSFXCM
 
 final class CrossChainRouter: CrossChainRouterInput {
     func showSelectNetwork(
@@ -49,9 +50,10 @@ final class CrossChainRouter: CrossChainRouterInput {
 
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        data: CrossChainConfirmationData
+        data: CrossChainConfirmationData,
+        xcmServices: XcmExtrinsicServices
     ) {
-        guard let module = CrossChainConfirmationAssembly.configureModule(with: data) else {
+        guard let module = CrossChainConfirmationAssembly.configureModule(with: data, xcmServices: xcmServices) else {
             return
         }
         view?.controller.present(module.view.controller, animated: true)

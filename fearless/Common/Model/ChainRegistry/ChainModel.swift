@@ -9,7 +9,7 @@ enum BlockExplorerType: String, Codable {
     case sora
 }
 
-class ChainModel: Codable, ChainModelProtocol {
+class ChainModel: Codable {
     // swiftlint:disable:next type_name
     typealias Id = String
 

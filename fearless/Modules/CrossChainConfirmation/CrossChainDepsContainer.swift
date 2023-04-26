@@ -9,94 +9,64 @@ import SSFUtils
 final class CrossChainDepsContainer {
     enum DepsError: Error {
         case missingChainResponse
-        case missingOriginalChainTypes
-        case missingDestChainTypes
     }
 
     struct CrossChainConfirmationDeps {
-        let xcmService: XcmExtrinsicServiceProtocol
+        let xcmServices: XcmExtrinsicServices
     }
 
     private var cachedDependencies: [String: CrossChainConfirmationDeps] = [:]
     private let wallet: MetaAccountModel
-    private let chainsTypesMap: [String: Data]
     private lazy var operationQueue: OperationQueue = {
         OperationQueue()
     }()
 
-    init(
-        wallet: MetaAccountModel,
-        chainsTypesMap: [String: Data]
-    ) {
+    init(wallet: MetaAccountModel) {
         self.wallet = wallet
-        self.chainsTypesMap = chainsTypesMap
     }
 
     // MARK: - Public methods
 
     func prepareDepsFor(
         originalChainAsset: ChainAsset,
-        destChainModel: ChainModel,
-        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol,
-        destRuntimeMetadataItem: RuntimeMetadataItemProtocol
+        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?
     ) throws -> CrossChainConfirmationDeps {
-        let key = generateCacheKey(for: originalChainAsset, destinationChain: destChainModel)
-        if let cached = cachedDependencies[key] {
+        if let cached = cachedDependencies[originalChainAsset.chain.chainId] {
             return cached
         }
 
-        let xcmService = try createXcmService(
+        let xcmServices = try createXcmService(
             wallet: wallet,
             originalChainAsset: originalChainAsset,
-            destChainModel: destChainModel,
-            originalRuntimeMetadataItem: originalRuntimeMetadataItem,
-            destRuntimeMetadataItem: destRuntimeMetadataItem
+            originalRuntimeMetadataItem: originalRuntimeMetadataItem
         )
         let deps = CrossChainConfirmationDeps(
-            xcmService: xcmService
+            xcmServices: xcmServices
         )
 
-        cachedDependencies[key] = deps
+        cachedDependencies[originalChainAsset.chain.chainId] = deps
 
         return deps
     }
 
-    // MARK: - Private methods
-
-    private func generateCacheKey(for originalChainAsset: ChainAsset, destinationChain: ChainModel) -> String {
-        "\(originalChainAsset.chain.chainId)-\(destinationChain.chainId)"
+    func createRemoteChainsFetcher() -> XcmRemoteChainsFetching {
+        XcmAssembly.createRemoteChainsFetcher()
     }
+
+    // MARK: - Private methods
 
     private func createXcmService(
         wallet: MetaAccountModel,
         originalChainAsset: ChainAsset,
-        destChainModel: ChainModel,
-        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol,
-        destRuntimeMetadataItem: RuntimeMetadataItemProtocol
-    ) throws -> XcmExtrinsicServiceProtocol {
+        originalRuntimeMetadataItem: RuntimeMetadataItemProtocol?
+    ) throws -> XcmExtrinsicServices {
         let request = originalChainAsset.chain.accountRequest()
         guard let response = wallet.fetch(for: request) else {
             throw DepsError.missingChainResponse
         }
 
-        let chainFormat: ChainFormat = originalChainAsset.chain.isEthereumBased
-            ? .ethereum
-            : .substrate(originalChainAsset.chain.addressPrefix)
         let cryptoType = response.cryptoType
         let accountId = response.accountId
-
-        guard let originalChainTypes = chainsTypesMap[originalChainAsset.chain.chainId] else {
-            throw DepsError.missingOriginalChainTypes
-        }
-        let originalRuntimeData = XcmAssembly.RuntimeCodingServiceData(
-            chainMetadata: originalRuntimeMetadataItem,
-            chainTypes: originalChainTypes
-        )
-
-        let extrinsicServiceData = XcmAssembly.ExtrinsicServiceData(
-            accountId: accountId,
-            chainFormat: chainFormat.asSfCrypto()
-        )
 
         let secretKeyData = try fetchSecretKey(
             for: originalChainAsset.chain,
@@ -110,27 +80,16 @@ final class CrossChainDepsContainer {
         )
 
         let fromChainData = XcmAssembly.FromChainData(
-            chainAsset: originalChainAsset,
+            chainId: originalChainAsset.chain.chainId,
             cryptoType: SFCryptoType(cryptoType.utilsType),
-            runtimeData: originalRuntimeData,
-            extrinsicServiceData: extrinsicServiceData,
+            chainMetadata: originalRuntimeMetadataItem,
+            accountId: accountId,
             signingWrapperData: signingWrapperData
         )
 
-        guard let destChainTypes = chainsTypesMap[destChainModel.chainId] else {
-            throw DepsError.missingDestChainTypes
-        }
-        let destRuntimeData = XcmAssembly.RuntimeCodingServiceData(
-            chainMetadata: destRuntimeMetadataItem,
-            chainTypes: destChainTypes
-        )
-        let service = try XcmAssembly.createService(
-            fromChainData: fromChainData,
-            destChainModel: destChainModel,
-            destRuntimeData: destRuntimeData
-        )
+        let services = try XcmAssembly.createExtrincisServices(fromChainData: fromChainData)
 
-        return service.extrinsic
+        return services
     }
 
     private func fetchSecretKey(
