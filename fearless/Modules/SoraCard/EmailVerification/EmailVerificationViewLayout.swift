@@ -58,7 +58,7 @@ final class EmailVerificationViewLayout: UIView {
     let changeEmailButton: UIButton = {
         let button = UIButton()
         button.backgroundColor = .clear
-        button.tintColor = R.color.accentSecondary()
+        button.titleLabel?.textColor = R.color.colorWhite()
         return button
     }()
 
@@ -172,7 +172,10 @@ private extension EmailVerificationViewLayout {
             .enterEmailInputFieldLabel(preferredLanguages: locale.rLanguages)
         emailInputField.sora.descriptionLabelText = R.string.localizable
             .enterEmailDescription(preferredLanguages: locale.rLanguages)
-        changeEmailButton.titleLabel?.text = R.string.localizable
-            .commonChangeEmail(preferredLanguages: locale.rLanguages)
+        changeEmailButton.setTitle(
+            R.string.localizable
+                .commonChangeEmail(preferredLanguages: locale.rLanguages),
+            for: .normal
+        )
     }
 }

@@ -31,10 +31,11 @@ final class SCKYCService {
     internal let client: SCAPIClient
     private let payWingsOAuthClient: PayWingsOAuthSDK.OAuthServiceProtocol
     private let eventCenter = EventCenter.shared
-    private let tokenHolder = SCTokenHolder.shared
+    private let tokenHolder: SCTokenHolderProtocol
 
-    init(client: SCAPIClient) {
+    init(client: SCAPIClient, tokenHolder: SCTokenHolderProtocol = SCTokenHolder.shared) {
         self.client = client
+        self.tokenHolder = tokenHolder
 
         let domain = SoraCardCIKeys.domain
         let apiKey = SoraCardCIKeys.apiKey

@@ -80,8 +80,9 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
         router.present(error: error, from: view, locale: selectedLocale)
     }
 
-    func restartKYC() {
-        router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+    func restartKYC(data: SCKYCUserDataModel?) {
+        let userData: SCKYCUserDataModel = data ?? SCKYCUserDataModel()
+        router.start(from: view, data: userData, wallet: wallet)
     }
 }
 

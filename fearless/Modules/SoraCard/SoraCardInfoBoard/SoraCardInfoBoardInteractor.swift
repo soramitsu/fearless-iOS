@@ -17,19 +17,22 @@ final class SoraCardInfoBoardInteractor {
     private let service: SCKYCService
     private let storage: SCStorage
     private let eventCenter: EventCenterProtocol
+    private let tokenHolder: SCTokenHolderProtocol
 
     init(
         service: SCKYCService,
         settings: SettingsManagerProtocol,
         wallet: MetaAccountModel,
         storage: SCStorage,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.service = service
         self.settings = settings
         self.wallet = wallet
         self.storage = storage
         self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
     }
 }
 
@@ -83,24 +86,24 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
                 await MainActor.run {
                     self.output?.didReceive(error: error)
                 }
-                SCTokenHolder.shared.removeToken()
+                tokenHolder.removeToken()
                 await MainActor.run {
-                    self.output?.restartKYC()
+                    self.output?.restartKYC(data: nil)
                 }
             }
         } else {
             await MainActor.run {
-                self.output?.restartKYC()
+                self.output?.restartKYC(data: nil)
             }
         }
     }
 }
 
 extension SoraCardInfoBoardInteractor: EventVisitorProtocol {
-    func processKYCShouldRestart() {
+    func processKYCShouldRestart(data: SCKYCUserDataModel?) {
         Task {
             await MainActor.run { [weak self] in
-                self?.output?.restartKYC()
+                self?.output?.restartKYC(data: data)
             }
         }
     }

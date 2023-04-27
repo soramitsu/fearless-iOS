@@ -10,7 +10,7 @@ final class ProfilePresenter {
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
     private let eventCenter: EventCenter
-    private let soraCardStorage = SCStorage.shared
+    private let tokenHolder: SCTokenHolderProtocol
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -23,6 +23,7 @@ final class ProfilePresenter {
         logger: LoggerProtocol,
         settings: SettingsManagerProtocol,
         eventCenter: EventCenter,
+        tokenHolder: SCTokenHolderProtocol,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.viewModelFactory = viewModelFactory
@@ -31,6 +32,7 @@ final class ProfilePresenter {
         self.logger = logger
         self.settings = settings
         self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
         self.localizationManager = localizationManager
 
         self.eventCenter.add(
@@ -93,7 +95,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .zeroBalances:
             break
         case .resetToken:
-            SCTokenHolder.shared.removeToken()
+            tokenHolder.removeToken()
         }
     }
 

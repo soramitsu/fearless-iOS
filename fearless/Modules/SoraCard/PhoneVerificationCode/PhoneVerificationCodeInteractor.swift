@@ -8,6 +8,7 @@ final class PhoneVerificationCodeInteractor {
     private let service: SCKYCService
     private let storage: SCStorage = .shared
     private let eventCenter: EventCenterProtocol
+    private let tokenHolder: SCTokenHolderProtocol
 
     var data: SCKYCUserDataModel
     var callback = SignInWithPhoneNumberVerifyOtpCallback()
@@ -24,12 +25,14 @@ final class PhoneVerificationCodeInteractor {
         data: SCKYCUserDataModel,
         service: SCKYCService,
         otpLength: Int,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.service = service
         self.data = data
         self.otpLength = otpLength
         self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
         callback.delegate = self
         getUserDataCallback.delegate = self
         requestOtpCallback.delegate = self
@@ -60,12 +63,12 @@ final class PhoneVerificationCodeInteractor {
     }
 
     private func resetKYC() async {
-        SCTokenHolder.shared.removeToken()
+        tokenHolder.removeToken()
         storage.set(isRetry: false)
 
         await MainActor.run { [weak self] in
             self?.output?.resetKYC()
-            self?.eventCenter.notify(with: KYCShouldRestart())
+            self?.eventCenter.notify(with: KYCShouldRestart(data: nil))
         }
     }
 }
@@ -120,7 +123,7 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
-        SCTokenHolder.shared.set(token: token)
+        tokenHolder.set(token: token)
 
         service.getUserData(callback: getUserDataCallback)
         codeState = .succeed

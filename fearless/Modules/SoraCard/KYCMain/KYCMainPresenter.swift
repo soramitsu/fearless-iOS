@@ -61,7 +61,7 @@ final class KYCMainPresenter {
 
 extension KYCMainPresenter: KYCMainViewOutput {
     func didTapIssueCardForFree() {
-        router.showTermsAndConditions(from: view)
+        interactor.checkUserStatus()
     }
 
     func didTapGetMoreXor() {
@@ -120,6 +120,18 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
 
     func didReceiveFinalStatus() {
         router.dismiss(view: view)
+    }
+
+    func showFullFlow() {
+        router.showTermsAndConditions(from: view)
+    }
+
+    func showGetPrepared(data: SCKYCUserDataModel) {
+        router.showGetPrepared(from: view, data: data)
+    }
+
+    func showStatus() {
+        router.showStatus(from: view)
     }
 }
 

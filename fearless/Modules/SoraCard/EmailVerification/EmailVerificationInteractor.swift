@@ -7,6 +7,7 @@ final class EmailVerificationInteractor {
     private weak var output: EmailVerificationInteractorOutput?
     private let service: SCKYCService
     private let data: SCKYCUserDataModel
+    private let tokenHolder: SCTokenHolderProtocol
 
     private let unverifiedEmailCallback = ChangeUnverifiedEmailCallback()
     private let registerUserCallback = RegisterUserCallback()
@@ -14,9 +15,10 @@ final class EmailVerificationInteractor {
     private let sendNewVerificationEmailCallback = SendNewVerificationEmailCallback()
     private var timer = Timer()
 
-    init(service: SCKYCService, data: SCKYCUserDataModel) {
+    init(service: SCKYCService, data: SCKYCUserDataModel, tokenHolder: SCTokenHolderProtocol) {
         self.service = service
         self.data = data
+        self.tokenHolder = tokenHolder
 
         unverifiedEmailCallback.delegate = self
         registerUserCallback.delegate = self
@@ -78,7 +80,7 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
             accessToken: accessToken,
             accessTokenExpirationTime: accessTokenExpirationTime
         )
-        SCTokenHolder.shared.set(token: token)
+        tokenHolder.set(token: token)
         output?.didReceiveSignInSuccessfulStep(data: data)
     }
 

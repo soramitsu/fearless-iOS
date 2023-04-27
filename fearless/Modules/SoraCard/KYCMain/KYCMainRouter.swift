@@ -34,6 +34,25 @@ final class KYCMainRouter: KYCMainRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
+    func showGetPrepared(from view: ControllerBackedProtocol?, data: SCKYCUserDataModel) {
+        guard let module = PreparationAssembly.configureModule(data: data) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
+
+    func showStatus(from view: ControllerBackedProtocol?) {
+        guard let module = VerificationStatusAssembly.configureModule() else {
+            return
+        }
+        view?.controller.navigationController?.pushViewController(
+            module.view.controller,
+            animated: true
+        )
+    }
+
     func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,

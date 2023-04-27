@@ -35,7 +35,7 @@ final class KYCMainInteractor {
     private var chainAssetsAccountInfo: [ChainAsset: AccountInfo?] = [:]
     private var kycAttempts: SCKYCAtempts?
     private var xorChainAssets: [ChainAsset] = []
-    private let eventCenter = EventCenter.shared
+    private let eventCenter: EventCenterProtocol
     let wallet: MetaAccountModel
 
     private lazy var accountInfosDeliveryQueue = {
@@ -48,7 +48,8 @@ final class KYCMainInteractor {
         service: SCKYCService,
         chainAssetFetching: ChainAssetFetchingProtocol,
         accountInfoFetching: AccountInfoFetchingProtocol,
-        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
+        eventCenter: EventCenterProtocol
     ) {
         self.data = data
         self.wallet = wallet
@@ -56,6 +57,7 @@ final class KYCMainInteractor {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoFetching = accountInfoFetching
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
+        self.eventCenter = eventCenter
 
         eventCenter.add(observer: self)
     }
@@ -72,6 +74,27 @@ extension KYCMainInteractor: KYCMainInteractorInput {
     func prepareToDismiss() {
         priceProvider?.removeObserver(self)
     }
+
+    func checkUserStatus() {
+        Task {
+            let userStatus = await self.service.userStatus()
+            await MainActor.run(body: {
+                switch userStatus {
+                case .successful, .pending:
+                    output?.didReceiveFinalStatus()
+                case .rejected:
+                    guard let attempts = kycAttempts else { return }
+                    if attempts.hasFreeAttempts {
+                        output?.showGetPrepared(data: data)
+                    } else {
+                        output?.didReceiveFinalStatus()
+                    }
+                default:
+                    output?.showFullFlow()
+                }
+            })
+        }
+    }
 }
 
 private extension KYCMainInteractor {
@@ -82,8 +105,8 @@ private extension KYCMainInteractor {
             case let .success(kycAttempts):
                 self.kycAttempts = kycAttempts
             }
-            await MainActor.run(body: { [weak self] in
-                self?.getSoraChainAsset()
+            await MainActor.run(body: {
+                getSoraChainAsset()
             })
         }
     }

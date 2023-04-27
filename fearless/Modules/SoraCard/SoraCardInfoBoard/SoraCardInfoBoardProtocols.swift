@@ -24,7 +24,7 @@ protocol SoraCardInfoBoardInteractorOutput: AnyObject {
     func didReceive(hiddenState: Bool)
     func didReceive(kycStatuses: [SCKYCStatusResponse])
     func didReceive(error: NetworkingError)
-    func restartKYC()
+    func restartKYC(data: SCKYCUserDataModel?)
 }
 
 protocol SoraCardInfoBoardRouterInput: SheetAlertPresentable, ErrorPresentable {

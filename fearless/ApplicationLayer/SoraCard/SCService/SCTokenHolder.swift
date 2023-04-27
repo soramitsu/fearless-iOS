@@ -1,6 +1,13 @@
 import SoraKeystore
 
-final class SCTokenHolder {
+protocol SCTokenHolderProtocol {
+    var token: SCToken { get }
+    func loadToken() async
+    func set(token: SCToken)
+    func removeToken()
+}
+
+final class SCTokenHolder: SCTokenHolderProtocol {
     private let eventCenter = EventCenter.shared
     private let storage = SCStorage.shared
 
