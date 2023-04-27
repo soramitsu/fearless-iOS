@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFXCM
 import BigInt
 import SSFExtrinsicKit
+import SSFUtils
 
 protocol CrossChainViewInput: ControllerBackedProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
@@ -284,7 +285,6 @@ extension CrossChainPresenter: CrossChainViewOutput {
         self.view = view
         interactor.setup(with: self)
         provideOriginalSelectNetworkViewModel()
-        interactor.didReceive(originalChainAsset: selectedAmountChainAsset, destChainAsset: nil)
         provideInputViewModel()
     }
 
@@ -400,6 +400,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             .filter { $0.chain.chainId != selectedOriginalChainModel.chainId }
         availableDestChainModel = filtredChainAssets
             .map { $0.chain }
+            .withoutDuplicates()
 
         if selectedDestChainModel == nil {
             selectedDestChainModel = filtredChainAssets.map { $0.chain }.first
@@ -417,6 +418,10 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 amount: inputAmount
             )
         }
+    }
+
+    func didSetup() {
+        interactor.didReceive(originalChainAsset: selectedAmountChainAsset, destChainAsset: nil)
     }
 }
 

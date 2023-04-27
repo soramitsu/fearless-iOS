@@ -18,6 +18,7 @@ final class ChainAssetsFetching: ChainAssetFetchingProtocol {
         case assetName(String)
         case search(String)
         case ecosystem(ChainEcosystem)
+        case chainIds([ChainModel.Id])
     }
 
     enum SortDescriptor {
@@ -135,6 +136,8 @@ private extension ChainAssetsFetching {
             return chainAssets.filter {
                 return $0.defineEcosystem() == ecosystem
             }
+        case let .chainIds(ids):
+            return chainAssets.filter { ids.contains($0.chain.chainId) }
         }
     }
 

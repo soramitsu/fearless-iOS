@@ -49,10 +49,6 @@ final class CrossChainDepsContainer {
         return deps
     }
 
-    func createRemoteChainsFetcher() -> XcmRemoteChainsFetching {
-        XcmAssembly.createRemoteChainsFetcher()
-    }
-
     // MARK: - Private methods
 
     private func createXcmService(

@@ -16,6 +16,7 @@ protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveDestinationFee(result: Result<XcmFee, Error>)
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
+    func didSetup()
 }
 
 final class CrossChainInteractor {
@@ -67,6 +68,7 @@ final class CrossChainInteractor {
             do {
                 let items = try runtimeItemsOperation.extractNoCancellableResultData()
                 self?.runtimeItems = items
+                self?.output?.didSetup()
             } catch {
                 self?.logger.error(error.localizedDescription)
             }
@@ -109,28 +111,32 @@ final class CrossChainInteractor {
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
-    private func getAvailableDestChainAssets(for _: ChainAsset) {
-        chainAssetFetching.fetch(
-            filters: [ /* .assetName(chainAsset.asset.name) */ ],
-            sortDescriptors: []
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(availableChainAssets):
-                    self?.output?.didReceiveAvailableDestChainAssets(availableChainAssets)
-                default:
-                    self?.output?.didReceiveAvailableDestChainAssets([])
+    private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
+        Task {
+            do {
+                let deps = prepareDeps(originalChainAsset: chainAsset)
+                let availableChainIds = try await deps?.xcmServices.availableDestionationFetching.getAvailableDestinationChains(
+                    originalChainId: chainAsset.chain.chainId,
+                    assetSymbol: chainAsset.asset.symbol
+                ) ?? []
+
+                chainAssetFetching.fetch(
+                    filters: [.chainIds(availableChainIds)],
+                    sortDescriptors: []
+                ) { result in
+                    DispatchQueue.main.async {
+                        switch result {
+                        case let .success(availableChainAssets):
+                            self.output?.didReceiveAvailableDestChainAssets(availableChainAssets)
+                        default:
+                            self.output?.didReceiveAvailableDestChainAssets([])
+                        }
+                    }
                 }
+            } catch {
+                logger.error(error.localizedDescription)
             }
         }
-
-//        Task {
-//            let chainsFetcher = depsContainer.createRemoteChainsFetcher()
-//            let availableDestChains = await chainsFetcher.getAvailableDestinationChains(
-//                originalChain: chainAsset.chain,
-//                assetSymbol: nil
-//            )
-//        }
     }
 }
 
