@@ -35,6 +35,10 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
     }
 
     func process(email: String) {
+        guard data.email.isEmpty else {
+            changeEmail(email: email)
+            return
+        }
         data.lastEmailOTPSentDate = Date()
         data.email = email
 
