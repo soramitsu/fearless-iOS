@@ -34,7 +34,7 @@ enum SoraCardStatus {
                 return R.string.localizable.noFreeKycAttemptsTitle(preferredLanguages: locale.rLanguages)
             }
         case .success:
-            return R.string.localizable.soraCardStatusSuccessTitle(preferredLanguages: locale.rLanguages)
+            return R.string.localizable.soraCardStateOnwayTitle(preferredLanguages: locale.rLanguages)
         case .notStarted:
             return R.string.localizable.soraCardStateNoneTitle(preferredLanguages: locale.rLanguages)
         }

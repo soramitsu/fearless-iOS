@@ -95,6 +95,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .zeroBalances:
             break
         case .resetToken:
+            SCStorage.shared.set(isRetry: false)
             tokenHolder.removeToken()
         }
     }
