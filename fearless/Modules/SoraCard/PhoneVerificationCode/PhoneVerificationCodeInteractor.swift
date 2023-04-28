@@ -17,7 +17,9 @@ final class PhoneVerificationCodeInteractor {
     private let otpLength: Int
     private var codeState: SCKYCPhoneCodeState = .editing {
         didSet {
-            output?.didReceive(state: codeState)
+            DispatchQueue.main.async {
+                self.output?.didReceive(state: self.codeState)
+            }
         }
     }
 
