@@ -48,6 +48,12 @@ final class CrossChainAssembly {
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
+        let addressChainDefiner = AddressChainDefiner(
+            operationManager: OperationManagerFacade.sharedManager,
+            chainModelRepository: AnyDataProviderRepository(chainRepository),
+            wallet: wallet
+        )
+
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -56,14 +62,15 @@ final class CrossChainAssembly {
             runtimeItemRepository: AnyDataProviderRepository(runtimeMetadataRepository),
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             logger: Logger.shared,
-            wallet: wallet
+            wallet: wallet,
+            addressChainDefiner: addressChainDefiner
         )
         let router = CrossChainRouter()
 
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
-            originalChainAsset: chainAsset,
+            originChainAsset: chainAsset,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
             logger: Logger.shared,

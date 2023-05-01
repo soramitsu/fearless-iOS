@@ -29,6 +29,23 @@ protocol CrossChainRouterInput: PresentDismissable {
         data: CrossChainConfirmationData,
         xcmServices: XcmExtrinsicServices
     )
+
+    func presentScan(
+        from view: ControllerBackedProtocol?,
+        moduleOutput: ScanQRModuleOutput
+    )
+
+    func presentHistory(
+        from view: ControllerBackedProtocol?,
+        wallet: MetaAccountModel,
+        chainAsset: ChainAsset,
+        moduleOutput: ContactsModuleOutput
+    )
+
+    func showWalletManagment(
+        from view: ControllerBackedProtocol?,
+        moduleOutput: WalletsManagmentModuleOutput?
+    )
 }
 
 protocol CrossChainModuleInput: AnyObject {}

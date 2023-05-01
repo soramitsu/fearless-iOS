@@ -3,7 +3,7 @@ import SnapKit
 
 final class CrossChainViewLayout: UIView {
     enum LayoutConstants {
-        static let verticalOffset: CGFloat = 25
+        static let verticalOffset: CGFloat = 12
         static let stackSubviewHeight: CGFloat = 64
         static let networkFeeViewHeight: CGFloat = 50
 
@@ -41,9 +41,31 @@ final class CrossChainViewLayout: UIView {
         return view
     }()
 
+    let originSelectNetworkView = UIFactory.default.createNetworkView(selectable: false)
     let amountView = SelectableAmountInputView(type: .send)
-    let originalSelectNetworkView = UIFactory.default.createNetworkView(selectable: true)
     let destSelectNetworkView = UIFactory.default.createNetworkView(selectable: true)
+    let searchView = SearchTriangularedView(withPasteButton: true)
+
+    let scanButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyStackButtonStyle()
+        button.imageWithTitleView?.iconImage = R.image.iconScanQr()
+        return button
+    }()
+
+    let historyButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyStackButtonStyle()
+        button.imageWithTitleView?.iconImage = R.image.iconHistory()
+        return button
+    }()
+
+    let myWalletsButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyStackButtonStyle()
+        button.imageWithTitleView?.iconImage = R.image.fearlessRoundedIconSmall()
+        return button
+    }()
 
     let originNetworkFeeView = UIFactory.default.createMultiView()
     let destinationNetworkFeeView = UIFactory.default.createMultiView()
@@ -64,7 +86,7 @@ final class CrossChainViewLayout: UIView {
         super.init(frame: frame)
         setupLayout()
         applyLocalization()
-        backgroundColor = R.color.colorBlack02()
+        backgroundColor = R.color.colorBlack19()
     }
 
     @available(*, unavailable)
@@ -87,12 +109,12 @@ final class CrossChainViewLayout: UIView {
     }
 
     func bind(originalSelectNetworkViewModel: SelectNetworkViewModel) {
-        originalSelectNetworkView.subtitle = originalSelectNetworkViewModel.chainName
-        originalSelectNetworkViewModel.iconViewModel?.cancel(on: originalSelectNetworkView.iconView)
-        originalSelectNetworkView.iconView.image = nil
+        originSelectNetworkView.subtitle = originalSelectNetworkViewModel.chainName
+        originalSelectNetworkViewModel.iconViewModel?.cancel(on: originSelectNetworkView.iconView)
+        originSelectNetworkView.iconView.image = nil
         originalSelectNetworkViewModel
             .iconViewModel?
-            .loadAmountInputIcon(on: originalSelectNetworkView.iconView, animated: true)
+            .loadAmountInputIcon(on: originSelectNetworkView.iconView, animated: true)
     }
 
     func bind(destSelectNetworkViewModel: SelectNetworkViewModel) {
@@ -102,6 +124,11 @@ final class CrossChainViewLayout: UIView {
         destSelectNetworkViewModel
             .iconViewModel?
             .loadAmountInputIcon(on: destSelectNetworkView.iconView, animated: true)
+    }
+
+    func bind(recipientViewModel: RecipientViewModel) {
+        searchView.textField.text = recipientViewModel.address
+        searchView.updateState(icon: recipientViewModel.icon)
     }
 
     // MARK: - Private methods
@@ -131,22 +158,48 @@ final class CrossChainViewLayout: UIView {
 
         let viewOffset = -2.0 * UIConstants.horizontalInset
 
+        contentView.stackView.addArrangedSubview(originSelectNetworkView)
+        originSelectNetworkView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
+        }
+
         contentView.stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(UIConstants.amountViewV2Height)
         }
 
-        contentView.stackView.addArrangedSubview(originalSelectNetworkView)
-        originalSelectNetworkView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(viewOffset)
-            make.height.equalTo(LayoutConstants.stackSubviewHeight)
-        }
-
         contentView.stackView.addArrangedSubview(destSelectNetworkView)
         destSelectNetworkView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(viewOffset)
             make.height.equalTo(LayoutConstants.stackSubviewHeight)
+        }
+
+        contentView.stackView.addArrangedSubview(searchView)
+        searchView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
+            make.height.equalTo(LayoutConstants.stackSubviewHeight)
+        }
+
+        let commonButtonsContainer = UIFactory
+            .default
+            .createHorizontalStackView()
+        commonButtonsContainer.distribution = .equalCentering
+
+        let leftSideButtonContainer = UIFactory
+            .default
+            .createHorizontalStackView(spacing: UIConstants.defaultOffset)
+        leftSideButtonContainer.alignment = .leading
+        leftSideButtonContainer.addArrangedSubview(scanButton)
+        leftSideButtonContainer.addArrangedSubview(historyButton)
+
+        commonButtonsContainer.addArrangedSubview(leftSideButtonContainer)
+        commonButtonsContainer.addArrangedSubview(myWalletsButton)
+
+        contentView.stackView.addArrangedSubview(commonButtonsContainer)
+        commonButtonsContainer.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(viewOffset)
         }
 
         contentView.stackView.addArrangedSubview(originNetworkFeeView)
@@ -164,11 +217,31 @@ final class CrossChainViewLayout: UIView {
 
     private func applyLocalization() {
         amountView.locale = locale
+        searchView.locale = locale
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
 
+        searchView.textField.attributedPlaceholder = NSAttributedString(
+            string: R.string.localizable.searchViewTitle(
+                preferredLanguages: locale.rLanguages
+            ),
+            attributes: [.foregroundColor: R.color.colorAlmostWhite()!]
+        )
+
+        scanButton.imageWithTitleView?.title = R.string.localizable.scanQrTitle(
+            preferredLanguages: locale.rLanguages
+        )
+
+        historyButton.imageWithTitleView?.title = R.string.localizable.walletHistoryTitle_v190(
+            preferredLanguages: locale.rLanguages
+        )
+
+        myWalletsButton.imageWithTitleView?.title = R.string.localizable.xcmMywalletsButtonTitle(
+            preferredLanguages: locale.rLanguages
+        )
+
         navigationTitleLabel.text = R.string.localizable.xcmTitle(preferredLanguages: locale.rLanguages)
-        originalSelectNetworkView.title = R.string.localizable.xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
+        originSelectNetworkView.title = R.string.localizable.xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
         destSelectNetworkView.title = R.string.localizable.xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
         originNetworkFeeView.titleLabel.text = R.string.localizable.xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         destinationNetworkFeeView.titleLabel.text = R.string.localizable.xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)

@@ -3,10 +3,10 @@ import BigInt
 
 struct CrossChainConfirmationData {
     let wallet: MetaAccountModel
-    let originalChainAsset: ChainAsset
+    let originChainAsset: ChainAsset
     let destChainModel: ChainModel
     let amount: BigUInt
     let amountViewModel: BalanceViewModelProtocol
-    let originalChainFee: BalanceViewModelProtocol
+    let originChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
 }

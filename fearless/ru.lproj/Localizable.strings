@@ -1076,3 +1076,6 @@
 "xcm.original.network.title" = "Original network";
 "xcm.destination.network.title" = "Destination network";
 "xcm.title" = "Cross-Chain";
+"xcm.mywallets.button.title" = "My wallets";
+"xcm.cross.chain.button.title" = "Cross Chain";
+"wallet.managment.select.wallet.title" = "Select your wallet";

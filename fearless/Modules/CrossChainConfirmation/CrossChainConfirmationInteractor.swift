@@ -81,8 +81,8 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
                 return
             }
             let result = await xcmServices.extrinsic.transfer(
-                fromChainId: teleportData.originalChainAsset.chain.chainId,
-                assetSymbol: teleportData.originalChainAsset.asset.symbol,
+                fromChainId: teleportData.originChainAsset.chain.chainId,
+                assetSymbol: teleportData.originChainAsset.asset.symbol,
                 destChainId: teleportData.destChainModel.chainId,
                 destAccountId: destAccountId,
                 amount: teleportData.amount

@@ -88,6 +88,13 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
+    let crossChainButton: VerticalContentButton = {
+        let button = VerticalContentButton()
+        button.setImage(R.image.crossChainIcon(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        return button
+    }()
+
     let receiveContainer: BorderedContainerView = {
         let container = BorderedContainerView()
         container.backgroundColor = .clear
@@ -160,6 +167,7 @@ final class ChainAccountViewLayout: UIView {
         }
         buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
         polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
+        crossChainButton.isHidden = viewModel.chainAssetModel?.chain?.xcm == nil
 
         let borderType: BorderType = (buyButton.isHidden && polkaswapButton.isHidden) ? .left : [.left, .right]
         receiveContainer.borderType = borderType
@@ -199,6 +207,7 @@ private extension ChainAccountViewLayout {
 
         actionsContentStackView.addArrangedSubview(sendButton)
         actionsContentStackView.addArrangedSubview(receiveContainer)
+        actionsContentStackView.addArrangedSubview(crossChainButton)
         actionsContentStackView.addArrangedSubview(buyButton)
         actionsContentStackView.addArrangedSubview(polkaswapButton)
 
@@ -284,5 +293,6 @@ private extension ChainAccountViewLayout {
         receiveButton.setTitle(R.string.localizable.walletAssetReceive(preferredLanguages: locale.rLanguages), for: .normal)
         buyButton.setTitle(R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages), for: .normal)
         polkaswapButton.setTitle(R.string.localizable.polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages), for: .normal)
+        crossChainButton.setTitle(R.string.localizable.xcmCrossChainButtonTitle(preferredLanguages: locale.rLanguages), for: .normal)
     }
 }

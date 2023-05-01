@@ -163,6 +163,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
+    func didTapCrossChainButton() {
+        wireframe.presentCrossChainFlow(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
     func didTapOptionsButton() {
         guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return

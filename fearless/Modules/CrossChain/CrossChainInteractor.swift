@@ -16,6 +16,7 @@ protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
     func didReceiveDestinationFee(result: Result<XcmFee, Error>)
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
+    func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
 }
 
@@ -34,6 +35,7 @@ final class CrossChainInteractor {
     private let operationQueue: OperationQueue
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
+    private let addressChainDefiner: AddressChainDefiner
 
     private var runtimeItems: [RuntimeMetadataItem] = []
 
@@ -47,7 +49,8 @@ final class CrossChainInteractor {
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
         operationQueue: OperationQueue,
         logger: LoggerProtocol,
-        wallet: MetaAccountModel
+        wallet: MetaAccountModel,
+        addressChainDefiner: AddressChainDefiner
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -57,6 +60,7 @@ final class CrossChainInteractor {
         self.operationQueue = operationQueue
         self.logger = logger
         self.wallet = wallet
+        self.addressChainDefiner = addressChainDefiner
     }
 
     // MARK: - Private methods
@@ -87,7 +91,7 @@ final class CrossChainInteractor {
 
             return try depsContainer.prepareDepsFor(
                 originalChainAsset: originalChainAsset,
-                originalRuntimeMetadataItem: nil
+                originalRuntimeMetadataItem: originalRuntimeMetadataItem
             )
         } catch {
             return nil
@@ -111,14 +115,29 @@ final class CrossChainInteractor {
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
-    private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
+    private func getAvailableDestChainAssets(for chainAsset: ChainAsset, destChainAsset: ChainAsset?) {
         Task {
             do {
                 let deps = prepareDeps(originalChainAsset: chainAsset)
-                let availableChainIds = try await deps?.xcmServices.availableDestionationFetching.getAvailableDestinationChains(
-                    originalChainId: chainAsset.chain.chainId,
-                    assetSymbol: chainAsset.asset.symbol
-                ) ?? []
+                let availableChainIds = try await deps?.xcmServices
+                    .availableDestionationFetching
+                    .getAvailableDestinationChains(
+                        originalChainId: chainAsset.chain.chainId,
+                        assetSymbol: chainAsset.asset.symbol
+                    ) ?? []
+
+                let availableOriginAsset = try await deps?.xcmServices
+                    .availableDestionationFetching
+                    .getAvailableAssets(
+                        originalChainId: chainAsset.chain.chainId,
+                        destinationChainId: destChainAsset?.chain.chainId
+                    )
+
+                let availableChainAssets = chainAsset.chain
+                    .chainAssets
+                    .filter { chainAsset in
+                        availableOriginAsset?.contains(chainAsset.asset.name) == true
+                    }
 
                 chainAssetFetching.fetch(
                     filters: [.chainIds(availableChainIds)],
@@ -131,10 +150,11 @@ final class CrossChainInteractor {
                         default:
                             self.output?.didReceiveAvailableDestChainAssets([])
                         }
+                        self.output?.didReceiveOrigin(chainAssets: availableChainAssets)
                     }
                 }
             } catch {
-                logger.error(error.localizedDescription)
+                logger.customError(error)
             }
         }
     }
@@ -143,21 +163,21 @@ final class CrossChainInteractor {
 // MARK: - CrossChainInteractorInput
 
 extension CrossChainInteractor: CrossChainInteractorInput {
-    func estimateFee(originalChainAsset: ChainAsset, destinationChainAsset: ChainAsset, amount: Decimal?) {
+    func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?) {
         let inputAmount = amount ?? .zero
-        let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originalChainAsset.asset.precision)) ?? BigUInt.zero
+        let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
 
-        let deps = prepareDeps(originalChainAsset: originalChainAsset)
+        let deps = prepareDeps(originalChainAsset: originChainAsset)
         xcmServices = deps?.xcmServices
 
-        guard let destAccountId = wallet.fetch(for: destinationChainAsset.chain.accountRequest())?.accountId else {
+        guard let destAccountId = wallet.fetch(for: destinationChainModel.accountRequest())?.accountId else {
             return
         }
         Task {
             guard let originalFee = await deps?.xcmServices.extrinsic.estimateOriginalFee(
-                fromChainId: originalChainAsset.chain.chainId,
-                assetSymbol: originalChainAsset.asset.name,
-                destChainId: destinationChainAsset.chain.chainId,
+                fromChainId: originChainAsset.chain.chainId,
+                assetSymbol: originChainAsset.asset.name,
+                destChainId: destinationChainModel.chainId,
                 destAccountId: destAccountId,
                 amount: substrateAmout
             ) else {
@@ -172,8 +192,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                 .xcmServices
                 .destinationFeeFetcher
                 .estimateFee(
-                    originChainId: originalChainAsset.chain.chainId,
-                    destinationChainId: destinationChainAsset.chain.chainId
+                    originChainId: originChainAsset.chain.chainId,
+                    destinationChainId: destinationChainModel.chainId
                 )
             else {
                 return
@@ -189,14 +209,18 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         fetchRuntimeItems()
     }
 
-    func didReceive(originalChainAsset: ChainAsset?, destChainAsset: ChainAsset?) {
-        let chainAssets: [ChainAsset] = [originalChainAsset, destChainAsset].compactMap { $0 }
+    func didReceive(originChainAsset: ChainAsset?, destChainAsset: ChainAsset?) {
+        let chainAssets: [ChainAsset] = [originChainAsset, destChainAsset].compactMap { $0 }
         fetchPrices(for: chainAssets)
         subscribeToAccountInfo(for: chainAssets)
-        guard let originalChainAsset = originalChainAsset else {
+        guard let originalChainAsset = originChainAsset else {
             return
         }
-        getAvailableDestChainAssets(for: originalChainAsset)
+        getAvailableDestChainAssets(for: originalChainAsset, destChainAsset: destChainAsset)
+    }
+
+    func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {
+        addressChainDefiner.validate(address: address, for: chain)
     }
 }
 

@@ -221,6 +221,7 @@ extension ChainModel: Hashable {
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
             && lhs.selectedNode == rhs.selectedNode
+            && lhs.xcm == rhs.xcm
     }
 
     func hash(into hasher: inout Hasher) {

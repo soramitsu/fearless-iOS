@@ -12,6 +12,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapReceiveButton()
     func didTapBuyButton()
     func didTapOptionsButton()
+    func didTapCrossChainButton()
     func didTapSelectNetwork()
     func addressDidCopied()
     func didTapPolkaswapButton()
@@ -101,6 +102,12 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
     )
     func showPolkaswap(
         from view: ChainAccountViewProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    )
+
+    func presentCrossChainFlow(
+        from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )

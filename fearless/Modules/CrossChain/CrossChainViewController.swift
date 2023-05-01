@@ -5,12 +5,16 @@ import SnapKit
 protocol CrossChainViewOutput: AnyObject {
     func didLoad(view: CrossChainViewInput)
     func didTapSelectAsset()
-    func didTapSelectOriginalNetwork()
     func didTapSelectDestNetwoek()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func didTapBackButton()
     func didTapConfirmButton()
+    func didTapScanButton()
+    func didTapHistoryButton()
+    func didTapMyWalletsButton()
+    func didTapPasteButton()
+    func searchTextDidChanged(_ text: String)
 }
 
 final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
@@ -70,9 +74,6 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
         rootView.amountView.selectHandler = { [weak self] in
             self?.output.didTapSelectAsset()
         }
-        rootView.originalSelectNetworkView.addAction { [weak self] in
-            self?.output.didTapSelectOriginalNetwork()
-        }
         rootView.destSelectNetworkView.addAction { [weak self] in
             self?.output.didTapSelectDestNetwoek()
         }
@@ -82,6 +83,18 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
         rootView.actionButton.addAction { [weak self] in
             self?.output.didTapConfirmButton()
         }
+        rootView.scanButton.addAction { [weak self] in
+            self?.output.didTapScanButton()
+        }
+        rootView.historyButton.addAction { [weak self] in
+            self?.output.didTapHistoryButton()
+        }
+        rootView.myWalletsButton.addAction { [weak self] in
+            self?.output.didTapMyWalletsButton()
+        }
+        rootView.searchView.onPasteTapped = { [weak self] in
+            self?.output.didTapPasteButton()
+        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = UIFactory
@@ -89,6 +102,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
             .createAmountAccessoryView(for: self, locale: locale)
         rootView.amountView.textField.inputAccessoryView = accessoryView
         rootView.amountView.textField.delegate = self
+        rootView.searchView.textField.delegate = self
         updatePreviewButton()
     }
 
@@ -122,19 +136,19 @@ extension CrossChainViewController: CrossChainViewInput {
             amountViewModel.observable.add(observer: self)
             rootView.amountView.inputFieldText = amountViewModel.displayAmount
         }
-//        self.amountInputViewModel = amountInputViewModel
-//        self.amountInputViewModel?.observable.remove(observer: self)
-//        self.amountInputViewModel?.observable.add(observer: self)
-//        rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
         updatePreviewButton()
     }
 
-    func didReceive(originalSelectNetworkViewModel: SelectNetworkViewModel) {
-        rootView.bind(originalSelectNetworkViewModel: originalSelectNetworkViewModel)
+    func didReceive(originSelectNetworkViewModel: SelectNetworkViewModel) {
+        rootView.bind(originalSelectNetworkViewModel: originSelectNetworkViewModel)
     }
 
     func didReceive(destSelectNetworkViewModel: SelectNetworkViewModel) {
         rootView.bind(destSelectNetworkViewModel: destSelectNetworkViewModel)
+    }
+
+    func didReceive(recipientViewModel: RecipientViewModel) {
+        rootView.bind(recipientViewModel: recipientViewModel)
     }
 }
 
@@ -191,15 +205,44 @@ extension CrossChainViewController: UITextFieldDelegate {
     ) -> Bool {
         if textField == rootView.amountView.textField {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+        } else if textField == rootView.searchView.textField {
+            guard let text = textField.text as NSString? else {
+                return true
+            }
+            let newString = text.replacingCharacters(in: range, with: string)
+            output.searchTextDidChanged(newString)
         }
         return true
     }
 
-    func textFieldDidBeginEditing(_: UITextField) {
-        rootView.amountView.set(highlighted: true, animated: false)
+    func textFieldDidBeginEditing(_ textField: UITextField) {
+        let amountIsFirstResponder = textField == rootView.amountView.textField
+        rootView.amountView.set(highlighted: amountIsFirstResponder, animated: false)
+        let searchIsFirstResponder = textField == rootView.searchView.textField
+        rootView.searchView.set(highlighted: searchIsFirstResponder, animated: false)
     }
 
     func textFieldDidEndEditing(_: UITextField) {
         rootView.amountView.set(highlighted: false, animated: false)
+        rootView.searchView.set(highlighted: false, animated: false)
+    }
+
+    func textFieldShouldClear(_ textField: UITextField) -> Bool {
+        if textField == rootView.searchView.textField {
+            output.searchTextDidChanged("")
+        }
+        return true
+    }
+
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+
+        guard let text = textField.text else {
+            return false
+        }
+        if textField == rootView.searchView.textField {
+            output.searchTextDidChanged(text)
+        }
+        return false
     }
 }

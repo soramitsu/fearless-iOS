@@ -55,6 +55,7 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
         rootView.receiveButton.addTarget(self, action: #selector(receiveButtonClicked), for: .touchUpInside)
         rootView.buyButton.addTarget(self, action: #selector(buyButtonClicked), for: .touchUpInside)
+        rootView.crossChainButton.addTarget(self, action: #selector(crossChainButtonClicked), for: .touchUpInside)
         rootView.selectNetworkButton.addTarget(self, action: #selector(selectNetworkButtonClicked), for: .touchUpInside)
         rootView.addressCopyableLabel.onСopied = { [weak self] in
             self?.presenter.addressDidCopied()
@@ -104,6 +105,10 @@ final class ChainAccountViewController: UIViewController, ViewHolder {
 
     @objc private func buyButtonClicked() {
         presenter.didTapBuyButton()
+    }
+
+    @objc private func crossChainButtonClicked() {
+        presenter.didTapCrossChainButton()
     }
 
     @objc private func optionsButtonClicked() {

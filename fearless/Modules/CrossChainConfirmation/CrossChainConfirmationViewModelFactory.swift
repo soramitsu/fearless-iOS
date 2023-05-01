@@ -7,19 +7,19 @@ protocol CrossChainConfirmationViewModelFactoryProtocol {
 final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewModelFactoryProtocol {
     func createViewModel(with data: CrossChainConfirmationData) -> CrossChainConfirmationViewModel {
         let shadowColor = HexColorConverter.hexStringToUIColor(
-            hex: data.originalChainAsset.asset.color
+            hex: data.originChainAsset.asset.color
         )?.cgColor
         let symbolViewModel = SymbolViewModel(
-            symbolViewModel: data.originalChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
+            symbolViewModel: data.originChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
             shadowColor: shadowColor
         )
 
         return CrossChainConfirmationViewModel(
             symbolViewModel: symbolViewModel,
-            originalNetworkName: data.originalChainAsset.chain.name,
+            originalNetworkName: data.originChainAsset.chain.name,
             destNetworkName: data.destChainModel.name,
             amount: data.amountViewModel,
-            originalChainFee: data.originalChainFee,
+            originalChainFee: data.originChainFee,
             destChainFee: data.destChainFee
         )
     }

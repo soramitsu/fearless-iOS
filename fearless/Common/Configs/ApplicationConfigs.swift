@@ -172,7 +172,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: "develop")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -180,26 +180,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var assetListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
+            GitHubUrl.url(suffix: "chains/assets_dev.json", branch: "develop")
         #else
             GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "ios_app_support.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json")
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/v4/polkaswapSettings.json")
     }
 
     var fiatsURL: URL? {
@@ -224,13 +224,13 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    private static var baseUrl: URL {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")!
     }
 
-    private static let defaultBranch = "v4"
+    private static let defaultBranch = "master"
 
-    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
-        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, branch: String = defaultBranch) -> URL {
+        baseUrl.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }
