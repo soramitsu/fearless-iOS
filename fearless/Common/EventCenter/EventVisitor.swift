@@ -27,10 +27,10 @@ protocol EventVisitorProtocol: AnyObject {
     func processStakingUpdatedEvent()
     func processZeroBalancesSettingChanged()
 
-    func processKYCShouldRestart()
+    func processKYCShouldRestart(data: SCKYCUserDataModel?)
     func processKYCUserStatusChanged()
     func processKYCTokenChanged(token: SCToken)
-    func processKYCTokenNeedRefresh(token: SCToken)
+    func processKYCReceivedFinalStatus()
 }
 
 extension EventVisitorProtocol {
@@ -60,8 +60,8 @@ extension EventVisitorProtocol {
     func processStakingUpdatedEvent() {}
     func processZeroBalancesSettingChanged() {}
 
-    func processKYCShouldRestart() {}
+    func processKYCShouldRestart(data _: SCKYCUserDataModel?) {}
     func processKYCUserStatusChanged() {}
     func processKYCTokenChanged(token _: SCToken) {}
-    func processKYCTokenNeedRefresh(token _: SCToken) {}
+    func processKYCReceivedFinalStatus() {}
 }

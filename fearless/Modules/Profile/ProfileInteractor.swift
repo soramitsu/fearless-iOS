@@ -19,6 +19,7 @@ final class ProfileInteractor {
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
     private let scService: SCKYCService
+    private let tokenHolder: SCTokenHolderProtocol
 
     private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
@@ -35,7 +36,8 @@ final class ProfileInteractor {
         selectedMetaAccount: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
         walletRepository: AnyDataProviderRepository<MetaAccountModel>,
-        scService: SCKYCService
+        scService: SCKYCService,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -45,6 +47,7 @@ final class ProfileInteractor {
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
         self.scService = scService
+        self.tokenHolder = tokenHolder
     }
 
     // MARK: - Private methods
@@ -141,7 +144,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
                 await MainActor.run {
                     self.presenter?.didReceive(error: error)
                 }
-                SCTokenHolder.shared.removeToken()
+                tokenHolder.removeToken()
                 await MainActor.run {
                     self.presenter?.restartKYC()
                 }

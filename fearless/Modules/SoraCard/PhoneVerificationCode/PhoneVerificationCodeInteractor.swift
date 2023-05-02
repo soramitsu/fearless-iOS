@@ -5,17 +5,21 @@ final class PhoneVerificationCodeInteractor {
     // MARK: - Private properties
 
     private weak var output: PhoneVerificationCodeInteractorOutput?
-    private let data: SCKYCUserDataModel
     private let service: SCKYCService
     private let storage: SCStorage = .shared
     private let eventCenter: EventCenterProtocol
+    private let tokenHolder: SCTokenHolderProtocol
 
-    private var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    var data: SCKYCUserDataModel
+    var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    var getUserDataCallback = GetUserDataCallback()
     private let requestOtpCallback = SignInWithPhoneNumberRequestOtpCallback()
     private let otpLength: Int
     private var codeState: SCKYCPhoneCodeState = .editing {
         didSet {
-            output?.didReceive(state: codeState)
+            DispatchQueue.main.async {
+                self.output?.didReceive(state: self.codeState)
+            }
         }
     }
 
@@ -23,13 +27,16 @@ final class PhoneVerificationCodeInteractor {
         data: SCKYCUserDataModel,
         service: SCKYCService,
         otpLength: Int,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.service = service
         self.data = data
         self.otpLength = otpLength
         self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
         callback.delegate = self
+        getUserDataCallback.delegate = self
         requestOtpCallback.delegate = self
     }
 
@@ -58,12 +65,12 @@ final class PhoneVerificationCodeInteractor {
     }
 
     private func resetKYC() async {
-        SCTokenHolder.shared.removeToken()
+        tokenHolder.removeToken()
         storage.set(isRetry: false)
 
         await MainActor.run { [weak self] in
             self?.output?.resetKYC()
-            self?.eventCenter.notify(with: KYCShouldRestart())
+            self?.eventCenter.notify(with: KYCShouldRestart(data: nil))
         }
     }
 }
@@ -113,18 +120,36 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
 
     func onVerificationFailed() {
         codeState = .wrong("Incorrect or expired OTP")
+        output?.didReceive(state: codeState)
     }
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
-        SCTokenHolder.shared.set(token: token)
+        tokenHolder.set(token: token)
 
-        service.getUserData(callback: GetUserDataCallback())
+        service.getUserData(callback: getUserDataCallback)
         codeState = .succeed
-        output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
     func onError(error: PayWingsOAuthSDK.OAuthErrorCode, errorMessage: String?) {
         codeState = .wrong(errorMessage ?? error.description)
+    }
+}
+
+extension PhoneVerificationCodeInteractor: GetUserDataCallbackDelegate {
+    func onUserData(
+        userId: String,
+        firstName: String?,
+        lastName: String?,
+        email: String?,
+        emailConfirmed _: Bool,
+        phoneNumber _: String?
+    ) {
+        data.userId = userId
+        data.name = firstName ?? ""
+        data.lastname = lastName ?? ""
+        data.email = email ?? ""
+
+        checkUserStatus(with: data)
     }
 }

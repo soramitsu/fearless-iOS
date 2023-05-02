@@ -1,5 +1,5 @@
 import Foundation
 
 struct SoraCardInfoViewModel {
-    let userStatus: SCKYCUserStatus
+    let userStatus: SoraCardStatus
 }
