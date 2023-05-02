@@ -11,7 +11,7 @@ final class SCTokenHolder: SCTokenHolderProtocol {
     private let eventCenter = EventCenter.shared
     private let storage = SCStorage.shared
 
-    var token: SCToken = .empty
+    private(set) var token: SCToken = .empty
 
     static let shared = SCTokenHolder()
 
