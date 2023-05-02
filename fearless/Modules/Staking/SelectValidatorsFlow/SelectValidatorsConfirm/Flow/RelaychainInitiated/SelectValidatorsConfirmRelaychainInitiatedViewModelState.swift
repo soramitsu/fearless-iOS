@@ -95,10 +95,14 @@ final class SelectValidatorsConfirmRelaychainInitiatedViewModelState: SelectVali
             let bondCall = try strongSelf.callFactory.bond(
                 amount: amount,
                 controller: address,
-                rewardDestination: rewardDestination
+                rewardDestination: rewardDestination,
+                chainAsset: strongSelf.chainAsset
             )
 
-            let nominateCall = try strongSelf.callFactory.nominate(targets: targets)
+            let nominateCall = try strongSelf.callFactory.nominate(
+                targets: targets,
+                chainAsset: strongSelf.chainAsset
+            )
 
             return try builder
                 .adding(call: bondCall)

@@ -260,7 +260,7 @@ private extension ChainAssetListViewModelFactory {
                 chainAsset: chainAsset,
                 wallet: wallet,
                 balance: balance,
-                shouldHideZeroBalanceAssets: settings.shouldHideZeroBalanceAssets == true
+                shouldHideZeroBalanceAssets: wallet.zeroBalanceAssetsHidden
             ),
             isUnused: isUnused,
             locale: locale
@@ -395,7 +395,7 @@ private extension ChainAssetListViewModelFactory {
         let assetInfo = chainAsset.asset.displayInfo
 
         let balance = Decimal.fromSubstrateAmount(
-            accountInfo.data.total,
+            accountInfo.data.sendAvailable,
             precision: assetInfo.assetPrecision
         ) ?? 0
 

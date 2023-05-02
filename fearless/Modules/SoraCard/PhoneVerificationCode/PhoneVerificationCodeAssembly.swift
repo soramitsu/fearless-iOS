@@ -6,7 +6,12 @@ final class PhoneVerificationCodeAssembly {
         let localizationManager = LocalizationManager.shared
 
         let service: SCKYCService = .init(client: .shared)
-        let interactor = PhoneVerificationCodeInteractor(data: data, service: service, otpLength: otpLength)
+        let interactor = PhoneVerificationCodeInteractor(
+            data: data,
+            service: service,
+            otpLength: otpLength,
+            eventCenter: EventCenter.shared
+        )
         let router = PhoneVerificationCodeRouter()
 
         let presenter = PhoneVerificationCodePresenter(

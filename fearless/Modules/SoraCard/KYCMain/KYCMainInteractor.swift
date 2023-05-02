@@ -34,8 +34,8 @@ final class KYCMainInteractor {
     private var xorPrice: PriceData?
     private var chainAssetsAccountInfo: [ChainAsset: AccountInfo?] = [:]
     private var kycAttempts: SCKYCAtempts?
+    private var xorChainAssets: [ChainAsset] = []
     let wallet: MetaAccountModel
-    var xorChainAssets: [ChainAsset] = []
 
     private lazy var accountInfosDeliveryQueue = {
         DispatchQueue(label: "co.jp.soramitsu.wallet.chainAssetList.deliveryQueue")
@@ -63,7 +63,6 @@ final class KYCMainInteractor {
 extension KYCMainInteractor: KYCMainInteractorInput {
     func setup(with output: KYCMainInteractorOutput) {
         self.output = output
-        output.showKeyAlert(key: service.apiKey)
         checkKycAttempts()
     }
 
@@ -104,6 +103,7 @@ private extension KYCMainInteractor {
                     chainAsset.chain.chainId == Chain.soraMain.genesisHash
                 }
             #endif
+            strongSelf.output?.didReceive(xorChainAssets: chainAssets)
             strongSelf.getXorBalance(for: strongSelf.xorChainAssets)
             strongSelf.subscribeToPrice(for: strongSelf.xorChainAssets.first)
         }

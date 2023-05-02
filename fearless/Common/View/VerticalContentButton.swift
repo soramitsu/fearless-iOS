@@ -10,7 +10,7 @@ class VerticalContentButton: UIButton {
 
         return CGRect(
             x: 0,
-            y: (contentRect.height / 2) + (rect.height / 2) + LayoutConstants.verticalOffset / 2,
+            y: (contentRect.height / 2) + (rect.height / 2) + LayoutConstants.verticalOffset,
             width: contentRect.width,
             height: rect.height
         )
@@ -21,7 +21,7 @@ class VerticalContentButton: UIButton {
 
         return CGRect(
             x: contentRect.width / 2 - rect.width / 2,
-            y: (contentRect.height / 2) - (rect.height / 2) - LayoutConstants.verticalOffset / 2,
+            y: (contentRect.height / 2) - (rect.height / 2) - LayoutConstants.verticalOffset,
             width: rect.width,
             height: rect.height
         )

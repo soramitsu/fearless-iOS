@@ -10,6 +10,7 @@ final class ProfilePresenter {
     private let settings: SettingsManagerProtocol
     private let viewModelFactory: ProfileViewModelFactoryProtocol
     private let eventCenter: EventCenter
+    private let soraCardStorage = SCStorage.shared
 
     private var selectedWallet: MetaAccountModel?
     private var selectedCurrency: Currency?
@@ -75,8 +76,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .accountList:
             wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .soraCard:
-            guard let selectedWallet = selectedWallet else { return }
-            wireframe.showSoraCard(from: view, wallet: selectedWallet)
+            Task { await interactor.prepareStartSoraCard() }
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -92,6 +92,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             break
         case .zeroBalances:
             break
+        case .resetToken:
+            SCTokenHolder.shared.removeToken()
         }
     }
 
@@ -101,8 +103,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .biometry:
             settings.biometryEnabled = isOn
         case .zeroBalances:
-            settings.shouldHideZeroBalanceAssets = isOn
-            eventCenter.notify(with: ZeroBalancesSettingChanged())
+            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }
@@ -192,6 +193,24 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
         }
+    }
+
+    func didReceive(kycStatuses: [SCKYCStatusResponse]) {
+        if kycStatuses.isEmpty {
+            guard let wallet = selectedWallet else { return }
+            wireframe.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+        } else {
+            wireframe.showKYCVerificationStatus(from: view)
+        }
+    }
+
+    func didReceive(error: NetworkingError) {
+        wireframe.present(error: error, from: view, locale: selectedLocale)
+    }
+
+    func restartKYC() {
+        guard let wallet = selectedWallet else { return }
+        wireframe.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 }
 

@@ -8,34 +8,34 @@ final class KYCOnboardingInteractor {
     // MARK: - Private properties
 
     private weak var output: KYCOnboardingInteractorOutput?
-    private let data = SCKYCUserDataModel()
+    private let data: SCKYCUserDataModel
     private let service: SCKYCService
     private let storage: SCStorage
 
     private var result = VerificationResult()
 
-    init(service: SCKYCService, storage: SCStorage) {
+    init(service: SCKYCService, storage: SCStorage, data: SCKYCUserDataModel) {
         self.service = service
         self.storage = storage
+        self.data = data
 
         result.delegate = self
     }
 
     private func getKycConfig() async {
-        let sdkUserName = SoraCardKeys.username
-        let sdkPassword = SoraCardKeys.password
-        let sdkEndpoint = SoraCardKeys.endpoint
+        let sdkUserName = SoraCardCIKeys.username
+        let sdkPassword = SoraCardCIKeys.password
+        let sdkEndpoint = SoraCardCIKeys.endpoint
 
         let credentials = KycCredentials(username: sdkUserName, password: sdkPassword, endpointUrl: sdkEndpoint)
 
         let referenceNumber = await getReferenceNumber()
         let referenceId = data.referenceId
-        let language = LocalizationManager.shared.selectedLanguage.code
 
         let settings = KycSettings(
-            referenceID: data.referenceId,
-            referenceNumber: data.referenceNumber,
-            language: language
+            referenceID: referenceId,
+            referenceNumber: referenceNumber,
+            language: ""
         )
 
         let userData = KycUserData(
@@ -61,7 +61,10 @@ final class KYCOnboardingInteractor {
             userData: userData,
             userCredentials: UserCredentials(accessToken: token?.accessToken ?? "", refreshToken: token?.refreshToken)
         )
-        output?.didReceive(config: config, result: result)
+        DispatchQueue.main.async { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.output?.didReceive(config: config, result: strongSelf.result)
+        }
     }
 
     private func requestReferenceNumber() async -> String? {
@@ -69,14 +72,15 @@ final class KYCOnboardingInteractor {
             phone: data.phoneNumber,
             email: data.email
         )
-
         switch result {
         case let .success(respons):
             data.referenceNumber = respons.referenceNumber
             data.referenceId = respons.referenceID
             return data.referenceNumber
         case let .failure(error):
-            output?.didReceive(error: error)
+            DispatchQueue.main.async { [weak self] in
+                self?.output?.didReceive(error: error)
+            }
             return nil
         }
     }

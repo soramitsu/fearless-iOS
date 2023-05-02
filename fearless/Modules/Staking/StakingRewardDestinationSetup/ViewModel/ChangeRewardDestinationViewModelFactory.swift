@@ -52,22 +52,15 @@ final class ChangeRewardDestinationViewModelFactory {
         calculator: RewardCalculatorEngineProtocol,
         priceData: PriceData?
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        let restakeReturn = try calculator.calculateValidatorReturn(
-            validatorAccountId: validatorId,
-            isCompound: true,
-            period: .year
-        )
-
-        let payoutReturn = try calculator.calculateValidatorReturn(
-            validatorAccountId: validatorId,
-            isCompound: false,
-            period: .year
-        )
+        let restakeReturn = calculator.calculatorReturn(isCompound: true, period: .year, type: .max(validatorId))
+        let payoutReturn = calculator.calculatorReturn(isCompound: false, period: .year, type: .max(validatorId))
+        let restakeEarnings = try calculator.calculateEarnings(amount: bonded, validatorAccountId: validatorId, isCompound: true, period: .year)
+        let payoutEarnings = try calculator.calculateEarnings(amount: bonded, validatorAccountId: validatorId, isCompound: false, period: .year)
 
         let reward = CalculatedReward(
-            restakeReturn: restakeReturn * bonded,
+            restakeReturn: restakeEarnings,
             restakeReturnPercentage: restakeReturn,
-            payoutReturn: payoutReturn * bonded,
+            payoutReturn: payoutEarnings,
             payoutReturnPercentage: payoutReturn
         )
 
@@ -86,14 +79,17 @@ final class ChangeRewardDestinationViewModelFactory {
         calculator: RewardCalculatorEngineProtocol,
         priceData: PriceData?
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        let restakeReturn = calculator.calculateMaxReturn(isCompound: true, period: .year)
+        let restakeReturn = calculator.calculatorReturn(isCompound: true, period: .year, type: .max())
 
-        let payoutReturn = calculator.calculateMaxReturn(isCompound: false, period: .year)
+        let payoutReturn = calculator.calculatorReturn(isCompound: false, period: .year, type: .max())
+
+        let restakeEarnings = calculator.calculateMaxEarnings(amount: bonded, isCompound: true, period: .year)
+        let payoutEarnings = calculator.calculateMaxEarnings(amount: bonded, isCompound: false, period: .year)
 
         let reward = CalculatedReward(
-            restakeReturn: restakeReturn * bonded,
+            restakeReturn: restakeEarnings,
             restakeReturnPercentage: restakeReturn,
-            payoutReturn: payoutReturn * bonded,
+            payoutReturn: payoutEarnings,
             payoutReturnPercentage: payoutReturn
         )
 

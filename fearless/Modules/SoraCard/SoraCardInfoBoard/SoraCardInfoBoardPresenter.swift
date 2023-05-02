@@ -37,18 +37,14 @@ final class SoraCardInfoBoardPresenter {
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
     func didTapStart() {
-        router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+        Task { await self.interactor.prepareStart() }
     }
 
     func didLoad(view: SoraCardInfoBoardViewInput) {
         self.view = view
         interactor.setup(with: self)
         Task {
-            let userStatus = await interactor.fetchStatus() ?? .notStarted
-            await MainActor.run { [weak self] in
-                guard let self = self else { return }
-                self.didReceive(status: userStatus)
-            }
+            await interactor.fetchStatus()
         }
     }
 

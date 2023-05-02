@@ -22,6 +22,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var inputViewModel: IAmountInputViewModel?
     private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     private(set) var maxNominations: Int?
+    private(set) var rewardAssetPrice: PriceData?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
     var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
@@ -84,13 +85,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func selectRestakeDestination() {
         rewardDestination = .restake
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?) {
@@ -114,7 +115,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func updateBalance(_ balance: Decimal?) {
@@ -142,7 +143,8 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                 let bondCall = try strongSelf.callFactory.bond(
                     amount: amount,
                     controller: controllerAddress,
-                    rewardDestination: strongSelf.rewardDestination.accountAddress
+                    rewardDestination: strongSelf.rewardDestination.accountAddress,
+                    chainAsset: strongSelf.chainAsset
                 )
 
                 modifiedBuilder = try modifiedBuilder.adding(call: bondCall)
@@ -156,7 +158,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                     count: maxNominators
                 )
 
-                let nominateCall = try strongSelf.callFactory.nominate(targets: targets)
+                let nominateCall = try strongSelf.callFactory.nominate(
+                    targets: targets,
+                    chainAsset: strongSelf.chainAsset
+                )
                 modifiedBuilder = try modifiedBuilder
                     .adding(call: nominateCall)
             }
@@ -222,6 +227,12 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
     func didReceive(networkStakingInfoError: Error) {
         Logger.shared.error("StakingAmountRelaychainViewModelState.didReceiveNetworkStakingInfoError: \(networkStakingInfoError)")
+    }
+
+    func didReceive(rewardAssetPrice: PriceData?) {
+        self.rewardAssetPrice = rewardAssetPrice
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 
