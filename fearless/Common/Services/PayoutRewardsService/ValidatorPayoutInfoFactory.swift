@@ -4,12 +4,10 @@ import IrohaCrypto
 final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     let chain: ChainModel
     let asset: AssetModel
-    let addressFactory: SS58AddressFactoryProtocol
 
-    init(chain: ChainModel, asset: AssetModel, addressFactory: SS58AddressFactoryProtocol) {
+    init(chain: ChainModel, asset: AssetModel) {
         self.chain = chain
         self.asset = asset
-        self.addressFactory = addressFactory
     }
 
     func calculate(
@@ -43,8 +41,8 @@ final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
             (ownStake / totalStake)
         let commissionReward = validatorTotalReward * comission
 
-        let validatorAddress = try addressFactory
-            .addressFromAccountId(data: validatorInfo.accountId, addressPrefix: chain.addressPrefix)
+        let validatorAddress = try AddressFactory
+            .address(for: validatorInfo.accountId, chainFormat: chain.chainFormat)
 
         return PayoutInfo(
             era: era,

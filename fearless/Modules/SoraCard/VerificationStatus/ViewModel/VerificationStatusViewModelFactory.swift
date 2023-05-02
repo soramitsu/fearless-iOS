@@ -11,7 +11,7 @@ final class VerificationStatusViewModelFactory: VerificationStatusViewModelFacto
         }
 
         switch status {
-        case .notStarted:
+        case .notStarted, .userCanceled:
             return .failure
         case .pending:
             return .pending

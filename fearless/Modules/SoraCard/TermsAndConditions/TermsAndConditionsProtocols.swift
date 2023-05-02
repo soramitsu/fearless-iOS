@@ -17,7 +17,7 @@ protocol TermsAndConditionsInteractorInput: AnyObject {
 protocol TermsAndConditionsInteractorOutput: AnyObject {}
 
 protocol TermsAndConditionsRouterInput: PresentDismissable, WebPresentable {
-    func presentPhoneVerification(from view: TermsAndConditionsViewInput?)
+    func presentPhoneVerification(from view: ControllerBackedProtocol?)
 }
 
 protocol TermsAndConditionsModuleInput: AnyObject {}

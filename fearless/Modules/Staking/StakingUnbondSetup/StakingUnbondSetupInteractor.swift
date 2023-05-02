@@ -35,8 +35,8 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
         strategy.setup()
     }
 
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?) {
-        strategy.estimateFee(builderClosure: builderClosure)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
+        strategy.estimateFee(builderClosure: builderClosure, reuseIdentifier: reuseIdentifier)
     }
 }
 

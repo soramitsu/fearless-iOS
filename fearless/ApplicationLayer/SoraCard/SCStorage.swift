@@ -13,6 +13,8 @@ final class SCStorage {
                 setAppLaunched()
             }
         }
+
+        EventCenter.shared.add(observer: self)
     }
 
     private let secretManager: SecretStoreManagerProtocol
@@ -69,7 +71,7 @@ final class SCStorage {
         secretManager.checkSecret(for: Key.accessToken.rawValue)
     }
 
-    func add(token: SCToken) async {
+    private func add(token: SCToken) async {
         await withCheckedContinuation { continuation in
             guard let data = token.asSecretData() else { return }
             secretManager.saveSecret(
@@ -82,11 +84,21 @@ final class SCStorage {
         }
     }
 
-    func removeToken() async {
+    private func removeToken() async {
         await withCheckedContinuation { continuation in
             secretManager.removeSecret(for: Key.accessToken.rawValue, completionQueue: DispatchQueue.main) { _ in
                 continuation.resume()
             }
+        }
+    }
+}
+
+extension SCStorage: EventVisitorProtocol {
+    func processKYCTokenChanged(token: SCToken) {
+        if token.isEmpty {
+            Task { await removeToken() }
+        } else {
+            Task { await add(token: token) }
         }
     }
 }

@@ -8,8 +8,10 @@ final class VerificationStatusPresenter {
     private let router: VerificationStatusRouterInput
     private let interactor: VerificationStatusInteractorInput
     private let logger: LoggerProtocol
+    private let supportURL: URL
     private let viewModelFactory: VerificationStatusViewModelFactoryProtocol
     private var status: SCKYCUserStatus?
+    private var hasFreeAttempts: Bool = false
 
     // MARK: - Constructors
 
@@ -17,12 +19,14 @@ final class VerificationStatusPresenter {
         interactor: VerificationStatusInteractorInput,
         router: VerificationStatusRouterInput,
         logger: LoggerProtocol,
+        supportUrl: URL,
         localizationManager: LocalizationManagerProtocol,
         viewModelFactory: VerificationStatusViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.router = router
         self.logger = logger
+        supportURL = supportUrl
         self.viewModelFactory = viewModelFactory
         self.localizationManager = localizationManager
     }
@@ -42,14 +46,27 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
         view.didStartLoading()
     }
 
-    func didTapCloseButton() {
-        router.dismiss(view: view)
+    func didTapSupportButton() {
+        guard let view = view else { return }
+        router.showWeb(
+            url: supportURL,
+            from: view,
+            style: .automatic
+        )
     }
 
     func didTapActionButton() {
         switch status {
+        case .none:
+            Task { await self.interactor.resetKYC() }
+        case .notStarted, .userCanceled:
+            Task { await self.interactor.retryKYC() }
         case .rejected:
-            break
+            if hasFreeAttempts {
+                Task { await self.interactor.retryKYC() }
+            } else {
+                router.dismiss(view: view)
+            }
         default:
             router.dismiss(view: view)
         }
@@ -72,10 +89,17 @@ extension VerificationStatusPresenter: VerificationStatusInteractorOutput {
     }
 
     func didReceive(status: SCKYCUserStatus?, hasFreeAttempts: Bool) {
+        self.status = status
+        self.hasFreeAttempts = hasFreeAttempts
+
         view?.didStopLoading()
 
         let statusViewModel = viewModelFactory.buildStatusViewModel(from: status, hasFreeAttempts: hasFreeAttempts)
         view?.didReceive(status: statusViewModel)
+    }
+
+    func resetKYC() {
+        router.dismiss(view: view)
     }
 }
 

@@ -44,7 +44,7 @@ final class StakingAccountSubscription {
         self.logger = logger
         self.stakingType = stakingType
 
-        if stakingType == .relayChain {
+        if stakingType.isRelaychain {
             subscribeLocal()
         } else {
             subscribeRemote(for: accountId)

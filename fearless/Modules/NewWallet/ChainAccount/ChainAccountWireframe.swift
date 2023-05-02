@@ -194,7 +194,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     ) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset, wallet: wallet) else {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapChainAsset: chainAsset, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
@@ -203,6 +203,21 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
             navigationController,
             animated: true
         )
+    }
+
+    func presentLockedInfo(
+        from view: ControllerBackedProtocol?,
+        balanceContext: BalanceContext,
+        info: AssetBalanceDisplayInfo,
+        currency: Currency
+    ) {
+        let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
+            balanceContext,
+            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
+            precision: info.assetPrecision,
+            currency: currency
+        )
+        view?.controller.present(balanceLocksController, animated: true)
     }
 }
 

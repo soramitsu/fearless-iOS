@@ -6,7 +6,7 @@ import IrohaCrypto
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let selectedAccountAddress: String
-    let validatorsResolutionFactory: PayoutValidatorsFactoryProtocol
+    let validatorsResolutionFactory: PayoutValidatorsFactoryProtocol?
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let engine: JSONRPCEngine
@@ -19,7 +19,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     init(
         chain: ChainModel,
         selectedAccountAddress: String,
-        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
+        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol?,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
@@ -43,6 +43,10 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     // swiftlint:disable function_body_length
     func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
+            guard let validatorsResolutionFactory = validatorsResolutionFactory else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
+
             let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
             let historyRangeWrapper = try createChainHistoryRangeOperationWrapper(

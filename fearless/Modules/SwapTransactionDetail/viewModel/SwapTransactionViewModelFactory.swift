@@ -70,7 +70,8 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
             walletName: wallet.name,
             address: address,
             date: dateString,
-            networkFee: networkFee
+            networkFee: networkFee,
+            txHash: transaction.transactionId
         )
     }
 

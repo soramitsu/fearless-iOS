@@ -8,7 +8,7 @@ enum RewardCalculatorServiceError: Error {
     case unexpectedInfo
 }
 
-final class RewardCalculatorService {
+final class RelaychainRewardCalculatorService {
     static let queueLabelPrefix = "jp.co.fearless.rewcalculator"
 
     private struct PendingRequest {
@@ -237,7 +237,7 @@ final class RewardCalculatorService {
     }
 }
 
-extension RewardCalculatorService: RewardCalculatorServiceProtocol {
+extension RelaychainRewardCalculatorService: RewardCalculatorServiceProtocol {
     func setup() {
         eraValidatorsService.setup()
 
