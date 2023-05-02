@@ -65,7 +65,7 @@ final class ChainRegistryFactory {
 
         let runtimeProviderPool = RuntimeProviderPool(runtimeProviderFactory: runtimeProviderFactory)
 
-        let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared))
+        let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared), operationQueue: OperationManagerFacade.sharedDefaultQueue)
 
         let chainRepositoryFactory = ChainRepositoryFactory(storageFacade: repositoryFacade)
         let chainRepository = chainRepositoryFactory.createRepository()
