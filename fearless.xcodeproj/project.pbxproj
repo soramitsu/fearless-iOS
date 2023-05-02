@@ -2567,6 +2567,8 @@
 		FAD646DC284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD646DB284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift */; };
 		FAD7EADA2861AE60004BD139 /* UniversalIconGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */; };
 		FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */; };
+		FADF526E2A00F85E00D66933 /* DisconnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADF526C2A00F85E00D66933 /* DisconnectOperation.swift */; };
+		FADF526F2A00F85E00D66933 /* ConnectOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = FADF526D2A00F85E00D66933 /* ConnectOperation.swift */; };
 		FAE5F62F27B2383E00F13206 /* AddCustomNodeViewState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */; };
 		FAE5F63127B2384F00F13206 /* AddCustomNodeViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
@@ -5299,6 +5301,8 @@
 		FAD646DB284F6C90007CCB92 /* StakingUnbondSetupRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondSetupRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
 		FAD7EAD92861AE60004BD139 /* UniversalIconGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UniversalIconGenerator.swift; sourceTree = "<group>"; };
 		FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorService.swift; sourceTree = "<group>"; };
+		FADF526C2A00F85E00D66933 /* DisconnectOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DisconnectOperation.swift; sourceTree = "<group>"; };
+		FADF526D2A00F85E00D66933 /* ConnectOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectOperation.swift; sourceTree = "<group>"; };
 		FAE152D16E6C78D297BFFC3C /* WalletSendConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = WalletSendConfirmInteractor.swift; sourceTree = "<group>"; };
 		FAE5F62E27B2383E00F13206 /* AddCustomNodeViewState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewState.swift; sourceTree = "<group>"; };
 		FAE5F63027B2384F00F13206 /* AddCustomNodeViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCustomNodeViewModelFactory.swift; sourceTree = "<group>"; };
@@ -6814,6 +6818,8 @@
 		84243B2926B9676500581AB7 /* ConnectionPool */ = {
 			isa = PBXGroup;
 			children = (
+				FADF526D2A00F85E00D66933 /* ConnectOperation.swift */,
+				FADF526C2A00F85E00D66933 /* DisconnectOperation.swift */,
 				84D1110B26B922D50016D962 /* ConnectionPool.swift */,
 				84CA68DC26BEA60A003B9453 /* ConnectionFactory.swift */,
 			);
@@ -14376,6 +14382,7 @@
 				070B2C57289CE43A00F78F82 /* SelectNetworkInteractor.swift in Sources */,
 				C68130E1275FD426007B573A /* ReceiveAssetWireframe.swift in Sources */,
 				84F2FEFF25E7ADE7008338D5 /* ValidatorPrefs.swift in Sources */,
+				FADF526F2A00F85E00D66933 /* ConnectOperation.swift in Sources */,
 				FA2569AE274CE70800875A53 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				FA2FC80E28B3807D00CC0A42 /* StakingPoolJoinConfirmProtocols.swift in Sources */,
 				84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */,
@@ -14445,6 +14452,7 @@
 				84F43C0F25DF016600AEDA56 /* DispatchQueueHelper.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				FAD646D2284F1069007CCB92 /* StakingBondMoreConfirmationRelaychainViewModelState.swift in Sources */,
+				FADF526E2A00F85E00D66933 /* DisconnectOperation.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
 				84CA68D126BE99ED003B9453 /* RuntimeProviderFactory.swift in Sources */,
 				84100F3626A6069200A5054E /* IconTitleValueView.swift in Sources */,
