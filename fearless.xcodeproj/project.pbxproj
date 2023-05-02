@@ -1683,6 +1683,7 @@
 		C63468E228F2C964005CB1F1 /* ContactTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468E128F2C964005CB1F1 /* ContactTableCell.swift */; };
 		C63468E428F3530A005CB1F1 /* AddressBookViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468E328F3530A005CB1F1 /* AddressBookViewModelFactory.swift */; };
 		C63468E628F37912005CB1F1 /* CDContact + CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63468E528F37912005CB1F1 /* CDContact + CoreDataCodable.swift */; };
+		C638DEB829F9C4AF00C08A21 /* KYCReceivedFinalStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = C638DEB729F9C4AF00C08A21 /* KYCReceivedFinalStatus.swift */; };
 		C6398F36287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */; };
 		C6398F38287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6398F37287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift */; };
 		C63C82FD2769ECCC002EA6A8 /* ChainAssetModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */; };
@@ -1747,7 +1748,6 @@
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
 		C6E360AC29F69A8500B9A50C /* SCTokenHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AB29F69A8500B9A50C /* SCTokenHolder.swift */; };
 		C6E360AE29F69E5600B9A50C /* KYCTokenChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */; };
-		C6E360B029F6A4F400B9A50C /* KYCTokenNeedRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932C27C8436F00563E61 /* EthereumDerivationPathProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932B27C8436F00563E61 /* EthereumDerivationPathProcessor.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
@@ -4366,6 +4366,7 @@
 		C63468E128F2C964005CB1F1 /* ContactTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTableCell.swift; sourceTree = "<group>"; };
 		C63468E328F3530A005CB1F1 /* AddressBookViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressBookViewModelFactory.swift; sourceTree = "<group>"; };
 		C63468E528F37912005CB1F1 /* CDContact + CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDContact + CoreDataCodable.swift"; sourceTree = "<group>"; };
+		C638DEB729F9C4AF00C08A21 /* KYCReceivedFinalStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCReceivedFinalStatus.swift; sourceTree = "<group>"; };
 		C6398F35287FD230008EF3BE /* StakingBondMoreConfirmParachainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreConfirmParachainViewModelFactory.swift; sourceTree = "<group>"; };
 		C6398F37287FE988008EF3BE /* StakingBondMoreViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreViewModelFactory.swift; sourceTree = "<group>"; };
 		C63C82FC2769ECCC002EA6A8 /* ChainAssetModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainAssetModel.swift; sourceTree = "<group>"; };
@@ -4435,7 +4436,6 @@
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
 		C6E360AB29F69A8500B9A50C /* SCTokenHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCTokenHolder.swift; sourceTree = "<group>"; };
 		C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCTokenChanged.swift; sourceTree = "<group>"; };
-		C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCTokenNeedRefresh.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932B27C8436F00563E61 /* EthereumDerivationPathProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumDerivationPathProcessor.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
@@ -9508,7 +9508,7 @@
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
 				C64C2FDF29F27C5F00F32FC0 /* KYCUserStatusChanged.swift */,
 				C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */,
-				C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */,
+				C638DEB729F9C4AF00C08A21 /* KYCReceivedFinalStatus.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -14293,7 +14293,6 @@
 				FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */,
 				AEA2C1C02681E9EC0069492E /* ValidatorSearchViewLayout.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
-				C6E360B029F6A4F400B9A50C /* KYCTokenNeedRefresh.swift in Sources */,
 				C633ADBD29C19A4300EA8C29 /* SummaryStepView.swift in Sources */,
 				84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */,
 				FA86442E27674D0500956D8E /* WalletTransactionHistoryChange.swift in Sources */,
@@ -15347,6 +15346,7 @@
 				6D315EFF2B664235D297674E /* AccountImportProtocols.swift in Sources */,
 				07DFA471289B8D8E0035A8AB /* EducationStoriesAssembly.swift in Sources */,
 				F43A8A9E265BA03500A8A5A8 /* CustomValidatorListViewModel.swift in Sources */,
+				C638DEB829F9C4AF00C08A21 /* KYCReceivedFinalStatus.swift in Sources */,
 				FAA0133528DA12B6000A5230 /* StakingPoolMainPresenter.swift in Sources */,
 				AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */,
 				845B821D26EF80DB00D25C72 /* ChainAccountModel.swift in Sources */,

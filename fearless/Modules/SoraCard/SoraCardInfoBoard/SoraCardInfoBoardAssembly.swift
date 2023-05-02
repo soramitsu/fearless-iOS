@@ -12,7 +12,8 @@ final class SoraCardInfoBoardAssembly {
             settings: SettingsManager.shared,
             wallet: wallet,
             storage: .shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            tokenHolder: SCTokenHolder.shared
         )
         let router = SoraCardInfoBoardRouter()
 

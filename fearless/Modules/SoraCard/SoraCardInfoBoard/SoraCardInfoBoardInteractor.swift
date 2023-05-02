@@ -17,19 +17,22 @@ final class SoraCardInfoBoardInteractor {
     private let service: SCKYCService
     private let storage: SCStorage
     private let eventCenter: EventCenterProtocol
+    private let tokenHolder: SCTokenHolderProtocol
 
     init(
         service: SCKYCService,
         settings: SettingsManagerProtocol,
         wallet: MetaAccountModel,
         storage: SCStorage,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.service = service
         self.settings = settings
         self.wallet = wallet
         self.storage = storage
         self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
     }
 }
 
@@ -54,8 +57,18 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
     func fetchStatus() async {
         let status = await service.userStatus() ?? .notStarted
-        await MainActor.run { [weak self] in
-            self?.output?.didReceive(status: status)
+        switch await service.kycAttempts() {
+        case let .failure(error):
+            await MainActor.run {
+                self.output?.didReceive(error: error)
+            }
+        case let .success(kycAttempts):
+            await MainActor.run {
+                self.output?.didReceive(
+                    status: status,
+                    hasFreeAttempts: kycAttempts.hasFreeAttempts
+                )
+            }
         }
     }
 
@@ -65,31 +78,32 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
 
             switch response {
             case let .success(statuses):
+                let statusesToShow = statuses.filter { $0.userStatus != .userCanceled }
                 await MainActor.run {
-                    self.output?.didReceive(kycStatuses: statuses)
+                    self.output?.didReceive(kycStatuses: statusesToShow)
                 }
             case let .failure(error):
                 await MainActor.run {
                     self.output?.didReceive(error: error)
                 }
-                SCTokenHolder.shared.removeToken()
+                tokenHolder.removeToken()
                 await MainActor.run {
-                    self.output?.restartKYC()
+                    self.output?.restartKYC(data: nil)
                 }
             }
         } else {
             await MainActor.run {
-                self.output?.restartKYC()
+                self.output?.restartKYC(data: nil)
             }
         }
     }
 }
 
 extension SoraCardInfoBoardInteractor: EventVisitorProtocol {
-    func processKYCShouldRestart() {
+    func processKYCShouldRestart(data: SCKYCUserDataModel?) {
         Task {
             await MainActor.run { [weak self] in
-                self?.output?.restartKYC()
+                self?.output?.restartKYC(data: data)
             }
         }
     }
