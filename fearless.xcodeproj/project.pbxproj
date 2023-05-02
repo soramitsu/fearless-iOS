@@ -1745,6 +1745,9 @@
 		C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6CA3080286192C50087776D /* DelegationViewModel.swift */; };
 		C6D7CE0927E83A9F00FFAA6B /* AccountImportViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */; };
 		C6D7CE0B27E9932D00FFAA6B /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */; };
+		C6E360AC29F69A8500B9A50C /* SCTokenHolder.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AB29F69A8500B9A50C /* SCTokenHolder.swift */; };
+		C6E360AE29F69E5600B9A50C /* KYCTokenChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */; };
+		C6E360B029F6A4F400B9A50C /* KYCTokenNeedRefresh.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */; };
 		C6E5671768DA68535DA5B1C7 /* ControllerAccountConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F02DBCA4A63A5E52E3739374 /* ControllerAccountConfirmationViewFactory.swift */; };
 		C6FB932C27C8436F00563E61 /* EthereumDerivationPathProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932B27C8436F00563E61 /* EthereumDerivationPathProcessor.swift */; };
 		C6FB932E27C9334100563E61 /* AvailableExportOptionsProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */; };
@@ -4430,6 +4433,9 @@
 		C6CA3080286192C50087776D /* DelegationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DelegationViewModel.swift; sourceTree = "<group>"; };
 		C6D7CE0827E83A9F00FFAA6B /* AccountImportViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewLayout.swift; sourceTree = "<group>"; };
 		C6D7CE0A27E9932D00FFAA6B /* AccountImportViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportViewController.swift; sourceTree = "<group>"; };
+		C6E360AB29F69A8500B9A50C /* SCTokenHolder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SCTokenHolder.swift; sourceTree = "<group>"; };
+		C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCTokenChanged.swift; sourceTree = "<group>"; };
+		C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KYCTokenNeedRefresh.swift; sourceTree = "<group>"; };
 		C6F8BBBA9EABA266B288333F /* AnalyticsValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AnalyticsValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		C6FB932B27C8436F00563E61 /* EthereumDerivationPathProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EthereumDerivationPathProcessor.swift; sourceTree = "<group>"; };
 		C6FB932D27C9334100563E61 /* AvailableExportOptionsProvider.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailableExportOptionsProvider.swift; sourceTree = "<group>"; };
@@ -9500,8 +9506,9 @@
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
-				C66258C829EFB72A00751F67 /* KYCSShouldRestart.swift */,
 				C64C2FDF29F27C5F00F32FC0 /* KYCUserStatusChanged.swift */,
+				C6E360AD29F69E5600B9A50C /* KYCTokenChanged.swift */,
+				C6E360AF29F6A4F400B9A50C /* KYCTokenNeedRefresh.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -10503,6 +10510,7 @@
 				C633AD2429C18D4900EA8C29 /* SCKYCService+ReferenceNumber.swift */,
 				C665E4F329C46AFC001946D1 /* SCKYCService+KYCStatus.swift */,
 				C665E51129C80720001946D1 /* SCKYCService+XOne.swift */,
+				C6E360AB29F69A8500B9A50C /* SCTokenHolder.swift */,
 			);
 			path = SCService;
 			sourceTree = "<group>";
@@ -14254,6 +14262,7 @@
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
 				FA2FC82628B380C500CC0A42 /* StakingPool.swift in Sources */,
 				076D9D33293DB8E3002762E3 /* SwapMarketSources.swift in Sources */,
+				C6E360AC29F69A8500B9A50C /* SCTokenHolder.swift in Sources */,
 				C665E51029C80210001946D1 /* XOneHtmlStringBuilder.swift in Sources */,
 				C6267B9328BDF6A5001E31BF /* ChainAssetListProtocols.swift in Sources */,
 				FA3430F628508C02002B5975 /* StakingRedeemRelaychainStrategy.swift in Sources */,
@@ -14284,6 +14293,7 @@
 				FA37AE4B285C5294001DCA96 /* ExecuteDelegationRequestCall.swift in Sources */,
 				AEA2C1C02681E9EC0069492E /* ValidatorSearchViewLayout.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
+				C6E360B029F6A4F400B9A50C /* KYCTokenNeedRefresh.swift in Sources */,
 				C633ADBD29C19A4300EA8C29 /* SummaryStepView.swift in Sources */,
 				84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */,
 				FA86442E27674D0500956D8E /* WalletTransactionHistoryChange.swift in Sources */,
@@ -14981,6 +14991,7 @@
 				FA37AE452859E33E001DCA96 /* StakingRedeemParachainViewModelFactory.swift in Sources */,
 				84F30EE425FFAC0800039D09 /* StreamableProviderOptions+Substrate.swift in Sources */,
 				C633ADA029C19A4200EA8C29 /* SCKYCTermsAndConditionsRouter.swift in Sources */,
+				C6E360AE29F69E5600B9A50C /* KYCTokenChanged.swift in Sources */,
 				FAC0BBDA291D0EB000E6F106 /* SendRouter.swift in Sources */,
 				FA402F3427CCCC19008CF986 /* ChainSubstrateV2MigrationPolicy.swift in Sources */,
 				FA2FC80D28B3807D00CC0A42 /* StakingPoolJoinConfirmRouter.swift in Sources */,

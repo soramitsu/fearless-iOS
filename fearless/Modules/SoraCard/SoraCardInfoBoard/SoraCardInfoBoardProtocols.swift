@@ -15,7 +15,7 @@ protocol SoraCardInfoBoardViewOutput: AnyObject {
 protocol SoraCardInfoBoardInteractorInput: AnyObject {
     func setup(with output: SoraCardInfoBoardInteractorOutput)
     func hideCard()
-    func fetchStatus() async -> SCKYCUserStatus?
+    func fetchStatus() async
     func prepareStart() async
 }
 

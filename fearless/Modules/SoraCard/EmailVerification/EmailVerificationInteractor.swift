@@ -73,17 +73,13 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         timer.invalidate()
-        Task {
-            let token = SCToken(
-                refreshToken: refreshToken,
-                accessToken: accessToken,
-                accessTokenExpirationTime: accessTokenExpirationTime
-            )
-            await SCStorage.shared.add(token: token)
-            await MainActor.run {
-                self.output?.didReceiveSignInSuccessfulStep(data: data)
-            }
-        }
+        let token = SCToken(
+            refreshToken: refreshToken,
+            accessToken: accessToken,
+            accessTokenExpirationTime: accessTokenExpirationTime
+        )
+        SCTokenHolder.shared.set(token: token)
+        output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
     func onShowEmailConfirmationScreen(email _: String, autoEmailSent: Bool) {

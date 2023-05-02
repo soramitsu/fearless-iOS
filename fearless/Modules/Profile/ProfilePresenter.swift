@@ -76,8 +76,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .accountList:
             wireframe.showAccountSelection(from: view, moduleOutput: self)
         case .soraCard:
-            guard let selectedWallet = selectedWallet else { return }
-            wireframe.showSoraCard(from: view, wallet: selectedWallet)
+            Task { await interactor.prepareStartSoraCard() }
         case .changePincode:
             wireframe.showPincodeChange(from: view)
         case .language:
@@ -94,7 +93,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .zeroBalances:
             break
         case .resetToken:
-            Task { await SCStorage.shared.removeToken() }
+            SCTokenHolder.shared.removeToken()
         }
     }
 
@@ -194,6 +193,24 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
         case let .failure(error):
             logger.error("WalletsManagmentPresenter error: \(error.localizedDescription)")
         }
+    }
+
+    func didReceive(kycStatuses: [SCKYCStatusResponse]) {
+        if kycStatuses.isEmpty {
+            guard let wallet = selectedWallet else { return }
+            wireframe.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+        } else {
+            wireframe.showKYCVerificationStatus(from: view)
+        }
+    }
+
+    func didReceive(error: NetworkingError) {
+        wireframe.present(error: error, from: view, locale: selectedLocale)
+    }
+
+    func restartKYC() {
+        guard let wallet = selectedWallet else { return }
+        wireframe.startKYC(from: view, data: SCKYCUserDataModel(), wallet: wallet)
     }
 }
 
