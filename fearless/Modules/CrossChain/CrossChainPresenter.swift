@@ -220,7 +220,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         let destUtilityChainAsset = selectedDestChainModel?.utilityChainAssets().first(where: { $0.isUtility })
         if let destUtilityChainAsset = destUtilityChainAsset {
             let inputAmount = amountInputResult?
-                .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                .absoluteValue(from: originalNetworkBalance ?? .zero)
 
             interactor.estimateFee(
                 originalChainAsset: selectedAmountChainAsset,
@@ -237,7 +237,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         let destUtilityChainAsset = selectedDestChainModel?.utilityChainAssets().first(where: { $0.isUtility })
         if let destUtilityChainAsset = destUtilityChainAsset {
             let inputAmount = amountInputResult?
-                .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                .absoluteValue(from: originalNetworkBalance ?? .zero)
 
             interactor.estimateFee(
                 originalChainAsset: selectedAmountChainAsset,
@@ -293,13 +293,14 @@ extension CrossChainPresenter: CrossChainViewOutput {
     }
 
     func didTapConfirmButton() {
-        guard let selectedDestChainModel = selectedDestChainModel,
-              let balanceViewModel = balanceViewModel,
-              let originalChainFee = originalNetworkFeeViewModel,
-              let destChainFee = destNetworkFeeViewModel,
-              let inputAmount = amountInputResult?.absoluteValue(from: originalNetworkBalance ?? .zero),
-              let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
-              let xcmServices = interactor.xcmServices
+        guard
+            let selectedDestChainModel = selectedDestChainModel,
+            let balanceViewModel = balanceViewModel,
+            let originalChainFee = originalNetworkFeeViewModel,
+            let destChainFee = destNetworkFeeViewModel,
+            let inputAmount = amountInputResult?.absoluteValue(from: originalNetworkBalance ?? .zero),
+            let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
+            let xcmServices = interactor.xcmServices
         else {
             return
         }
@@ -411,7 +412,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             interactor.didReceive(originalChainAsset: nil, destChainAsset: destUtilityChainAsset)
 
             let inputAmount = amountInputResult?
-                .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                .absoluteValue(from: originalNetworkBalance ?? .zero)
             interactor.estimateFee(
                 originalChainAsset: selectedAmountChainAsset,
                 destinationChainAsset: destUtilityChainAsset,
@@ -449,7 +450,7 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
 
         if let destUtilityChainAsset = destUtilityChainAsset {
             let inputAmount = amountInputResult?
-                .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                .absoluteValue(from: originalNetworkBalance ?? .zero)
 
             interactor.estimateFee(
                 originalChainAsset: selectedAmountChainAsset,
@@ -487,7 +488,7 @@ extension CrossChainPresenter: SelectNetworkDelegate {
 
                 if let destUtilityChainAsset = destUtilityChainAsset {
                     let inputAmount = amountInputResult?
-                        .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                        .absoluteValue(from: originalNetworkBalance ?? .zero)
 
                     interactor.estimateFee(
                         originalChainAsset: selectedAmountChainAsset,
@@ -506,7 +507,7 @@ extension CrossChainPresenter: SelectNetworkDelegate {
             if let destUtilityChainAsset = chain.utilityChainAssets().first(where: { $0.isUtility }) {
                 interactor.didReceive(originalChainAsset: selectedAmountChainAsset, destChainAsset: destUtilityChainAsset)
                 let inputAmount = amountInputResult?
-                    .absoluteValue(from: originalNetworkBalance ?? .zero) ?? .zero
+                    .absoluteValue(from: originalNetworkBalance ?? .zero)
                 interactor.estimateFee(
                     originalChainAsset: selectedAmountChainAsset,
                     destinationChainAsset: destUtilityChainAsset,
