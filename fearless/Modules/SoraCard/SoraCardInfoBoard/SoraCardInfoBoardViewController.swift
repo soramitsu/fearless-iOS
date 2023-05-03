@@ -60,8 +60,8 @@ final class SoraCardInfoBoardViewController: UIViewController, ViewHolder {
 // MARK: - SoraCardInfoBoardViewInput
 
 extension SoraCardInfoBoardViewController: SoraCardInfoBoardViewInput {
-    func didReceive(stateViewModel: SoraCardInfoViewModel) {
-        rootView.bind(viewModel: stateViewModel)
+    func didReceive(status: SoraCardStatus) {
+        rootView.bind(status: status)
     }
 }
 

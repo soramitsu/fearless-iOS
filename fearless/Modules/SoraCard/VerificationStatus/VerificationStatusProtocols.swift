@@ -17,6 +17,7 @@ protocol VerificationStatusInteractorInput: AnyObject {
     func getKYCStatus()
     func retryKYC() async
     func resetKYC() async
+    func restartKYC()
 }
 
 protocol VerificationStatusInteractorOutput: AnyObject {

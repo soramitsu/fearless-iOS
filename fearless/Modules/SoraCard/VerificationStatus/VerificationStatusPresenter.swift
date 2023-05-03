@@ -63,12 +63,14 @@ extension VerificationStatusPresenter: VerificationStatusViewOutput {
             Task { await self.interactor.retryKYC() }
         case .rejected:
             if hasFreeAttempts {
-                Task { await self.interactor.retryKYC() }
+                interactor.restartKYC()
             } else {
                 router.dismiss(view: view)
+                EventCenter.shared.notify(with: KYCReceivedFinalStatus())
             }
-        default:
+        case .pending, .successful:
             router.dismiss(view: view)
+            EventCenter.shared.notify(with: KYCReceivedFinalStatus())
         }
     }
 

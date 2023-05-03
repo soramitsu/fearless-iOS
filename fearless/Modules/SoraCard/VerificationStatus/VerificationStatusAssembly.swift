@@ -11,7 +11,8 @@ final class VerificationStatusAssembly {
             data: SCKYCUserDataModel(),
             service: service,
             storage: SCStorage.shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            tokenHolder: SCTokenHolder.shared
         )
         let router = VerificationStatusRouter()
 
