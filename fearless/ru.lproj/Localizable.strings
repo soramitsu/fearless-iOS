@@ -935,7 +935,7 @@
 "select.asset.search.empty.subtitle" = "Токены не найдены :(";
 "choose.pool.empty.title" = "No pools\nhave been created yet";
 "all.done.alert.all.done.stub" = "All done";
-"all.done.alert.description.stub" = "You can now back to your app and do that you're usually do";
+"all.done.alert.description.stub" = "You can return to the app";
 "all.done.alert.hash.stub" = "Hash";
 "all.done.alert.result.stub" = "Result";
 "all.done.alert.success.stub" = "Success";
