@@ -33,6 +33,7 @@ final class StakingRewardDestSetupPresenter {
     private var balance: Decimal?
     private var fee: Decimal?
     private var nomination: Nomination?
+    private var rewardAssetPriceData: PriceData?
 
     init(
         wireframe: StakingRewardDestSetupWireframeProtocol,
@@ -79,13 +80,15 @@ final class StakingRewardDestSetupPresenter {
             return
         }
 
+        let price = rewardAssetPriceData ?? priceData
+
         let viewModel = rewardDestViewModelFactory.createViewModel(
             from: originalRewardDestination,
             selectedRewardDestination: rewardDestination,
             bondedAmount: bonded,
             calculator: calculator,
             nomination: nomination,
-            priceData: priceData
+            priceData: price
         )
 
         view?.didReceiveRewardDestination(viewModel: viewModel)
@@ -329,6 +332,15 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
             } ?? nil
         case let .failure(error):
             logger?.error("Account info error: \(error)")
+        }
+    }
+
+    func didReceiveRewardAssetPriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            rewardAssetPriceData = priceData
+        case let .failure(error):
+            logger?.error("Reward asset price data error: \(error)")
         }
     }
 }

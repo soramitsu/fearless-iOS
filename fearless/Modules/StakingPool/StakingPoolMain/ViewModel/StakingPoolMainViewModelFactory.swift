@@ -95,9 +95,9 @@ final class StakingPoolMainViewModelFactory {
 
         let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
-        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month)
+        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month, type: .max())
 
-        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year)
+        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year, type: .max())
 
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: (amount ?? 0.0) * monthlyReturn,

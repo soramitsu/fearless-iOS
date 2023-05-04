@@ -28,7 +28,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             let chainAsset = stakingSettings.value,
             let sharedState = try? createSharedState(
                 with: chainAsset,
-                stakingSettings: stakingSettings
+                stakingSettings: stakingSettings,
+                wallet: selectedAccount
             ) else {
             return nil
         }
@@ -189,6 +190,26 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             subqueryOperationFactory: rewardOperationFactory
         )
 
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .userInitiated
+
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: operationQueue,
+            meta: selectedAccount
+        )
+
         return StakingMainInteractor(
             selectedWalletSettings: SelectedWalletSettings.shared,
             sharedState: state,
@@ -208,13 +229,15 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             eraCountdownOperationFactory: eraCountdownOperationFactory,
             commonSettings: settings,
             logger: logger,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            chainAssetFetching: chainAssetFetching
         )
     }
 
     private static func createSharedState(
         with chainAsset: ChainAsset,
-        stakingSettings: StakingAssetSettings
+        stakingSettings: StakingAssetSettings,
+        wallet: MetaAccountModel
     ) throws -> StakingSharedState {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
@@ -256,7 +279,8 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             for: chainAsset,
             assetPrecision: chainAsset.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         )
 
         let relaychainStakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(

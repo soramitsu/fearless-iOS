@@ -44,6 +44,7 @@ final class EmailVerificationViewController: UIViewController, ViewHolder, Hidda
 
     private func configure() {
         rootView.sendButton.addTarget(self, action: #selector(sendButtonClicked), for: .touchUpInside)
+        rootView.changeEmailButton.addTarget(self, action: #selector(changeEmailButtonClicked), for: .touchUpInside)
         rootView.navigationBar.backButton.addTarget(self, action: #selector(backButtonClicked), for: .touchUpInside)
         rootView.closeButton.addTarget(self, action: #selector(closeButtonClicked), for: .touchUpInside)
     }
@@ -67,9 +68,18 @@ final class EmailVerificationViewController: UIViewController, ViewHolder, Hidda
 
     @objc private func sendButtonClicked() {
         guard let email = rootView.emailInputField.textField.text, !email.isEmpty else { return }
-
+        rootView.set(state: .verify(email: email))
         output.didTapSendButton(with: email)
         resetTimer()
+    }
+
+    @objc private func changeEmailButtonClicked() {
+        rootView.set(state: .enter)
+        rootView.set(timerState: .finished)
+        if let timer = self.timer {
+            timer.invalidate()
+            self.timer = nil
+        }
     }
 
     private func resetTimer() {

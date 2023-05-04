@@ -11,7 +11,6 @@ enum StakingAmountFlow {
 protocol StakingAmountModelStateListener: AnyObject {
     func modelStateDidChanged(viewModelState: StakingAmountViewModelState)
     func provideYourRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
-    func provideSelectRewardDestinationViewModel(viewModelState: StakingAmountViewModelState)
 }
 
 protocol StakingAmountViewModelState: StakingAmountUserInputHandler {

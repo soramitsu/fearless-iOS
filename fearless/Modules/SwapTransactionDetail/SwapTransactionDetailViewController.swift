@@ -39,12 +39,24 @@ final class SwapTransactionDetailViewController: UIViewController, ViewHolder {
     // MARK: - Private methods
 
     private func bindActions() {
-        rootView.backButton.addTarget(self, action: #selector(handleDismissTap), for: .touchUpInside)
         rootView.closeButton.addTarget(self, action: #selector(handleDismissTap), for: .touchUpInside)
+        rootView.copyOnTap = { [weak self] in
+            self?.output.didTapCopyTxHash()
+        }
+        rootView.subscanButton.addTarget(self, action: #selector(handleSubscanTapped), for: .touchUpInside)
+        rootView.shareButton.addTarget(self, action: #selector(handleShareTapped), for: .touchUpInside)
     }
 
     @objc private func handleDismissTap() {
         output.didTapDismiss()
+    }
+
+    @objc private func handleSubscanTapped() {
+        output.didTapSubscan()
+    }
+
+    @objc private func handleShareTapped() {
+        output.didTapShare()
     }
 }
 
@@ -53,6 +65,10 @@ final class SwapTransactionDetailViewController: UIViewController, ViewHolder {
 extension SwapTransactionDetailViewController: SwapTransactionDetailViewInput {
     func didReceive(viewModel: SwapTransactionViewModel) {
         rootView.bind(viewModel: viewModel)
+    }
+
+    func didReceive(explorer: ChainModel.ExternalApiExplorer?) {
+        rootView.updateState(for: explorer)
     }
 }
 

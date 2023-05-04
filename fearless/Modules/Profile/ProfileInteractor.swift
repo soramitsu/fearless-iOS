@@ -17,6 +17,9 @@ final class ProfileInteractor {
     private let operationQueue: OperationQueue
     private let selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+    private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
+    private let scService: SCKYCService
+    private let tokenHolder: SCTokenHolderProtocol
 
     private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
@@ -31,7 +34,10 @@ final class ProfileInteractor {
         repository: AnyDataProviderRepository<ManagedMetaAccountModel>,
         operationQueue: OperationQueue,
         selectedMetaAccount: MetaAccountModel,
-        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
+        walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>,
+        scService: SCKYCService,
+        tokenHolder: SCTokenHolderProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -39,6 +45,9 @@ final class ProfileInteractor {
         self.operationQueue = operationQueue
         self.selectedMetaAccount = selectedMetaAccount
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
+        self.walletRepository = walletRepository
+        self.scService = scService
+        self.tokenHolder = tokenHolder
     }
 
     // MARK: - Private methods
@@ -99,6 +108,52 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     func update(currency: Currency) {
         currentCurrency = currency
         provideSelectedCurrency()
+    }
+
+    func update(zeroBalanceAssetsHidden: Bool) {
+        let updatedWallet = selectedMetaAccount.replacingZeroBalanceAssetsHidden(zeroBalanceAssetsHidden)
+
+        let saveOperation = walletRepository.saveOperation {
+            [updatedWallet]
+        } _: {
+            []
+        }
+
+        saveOperation.completionBlock = { [weak self] in
+            let event = MetaAccountModelChangedEvent(account: updatedWallet)
+            self?.eventCenter.notify(with: event)
+
+            DispatchQueue.main.async {
+                self?.presenter?.didReceive(wallet: updatedWallet)
+            }
+        }
+
+        operationQueue.addOperation(saveOperation)
+    }
+
+    func prepareStartSoraCard() async {
+        if await SCStorage.shared.token() != nil {
+            let response = await scService.kycStatuses()
+
+            switch response {
+            case let .success(statuses):
+                await MainActor.run {
+                    self.presenter?.didReceive(kycStatuses: statuses)
+                }
+            case let .failure(error):
+                await MainActor.run {
+                    self.presenter?.didReceive(error: error)
+                }
+                tokenHolder.removeToken()
+                await MainActor.run {
+                    self.presenter?.restartKYC()
+                }
+            }
+        } else {
+            await MainActor.run {
+                self.presenter?.restartKYC()
+            }
+        }
     }
 }
 

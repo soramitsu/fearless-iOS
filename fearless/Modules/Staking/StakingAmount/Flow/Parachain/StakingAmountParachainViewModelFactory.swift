@@ -67,14 +67,16 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
         let reward: CalculatedReward?
 
         if let calculator = calculator {
-            let restake = calculator.calculateAvgReturn(
+            let restake = calculator.calculatorReturn(
                 isCompound: true,
-                period: .year
+                period: .year,
+                type: .avg
             )
 
-            let payout = calculator.calculateAvgReturn(
+            let payout = calculator.calculatorReturn(
                 isCompound: false,
-                period: .year
+                period: .year,
+                type: .avg
             )
 
             let curAmount = viewModelState.amount ?? 0.0

@@ -122,8 +122,18 @@ class ChainModel: Codable {
         case .moonbeam: return 4
         case .moonriver, .moonbaseAlpha: return 12
         case .polkadot: return 1
-        case .kusama, .westend, .rococo: return 4
+        case .kusama, .westend, .rococo, .soraMain, .soraTest: return 4
         default: return 1 // We have staking only for above chains
+        }
+    }
+
+    var stakingSettings: ChainStakingSettings? {
+        let oldChainModel = Chain(rawValue: name)
+        switch oldChainModel {
+        case .soraMain:
+            return SoraChainStakingSettings()
+        default:
+            return DefaultRelaychainChainStakingSettings()
         }
     }
 

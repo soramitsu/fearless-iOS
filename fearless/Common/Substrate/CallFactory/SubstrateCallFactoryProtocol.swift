@@ -16,12 +16,13 @@ protocol SubstrateCallFactoryProtocol {
     func bond(
         amount: BigUInt,
         controller: String,
-        rewardDestination: RewardDestination<AccountAddress>
+        rewardDestination: RewardDestination<AccountAddress>,
+        chainAsset: ChainAsset
     ) throws -> any RuntimeCallable
     func bondExtra(amount: BigUInt) -> any RuntimeCallable
     func unbond(amount: BigUInt) -> any RuntimeCallable
     func rebond(amount: BigUInt) -> any RuntimeCallable
-    func nominate(targets: [SelectedValidatorInfo]) throws -> any RuntimeCallable
+    func nominate(targets: [SelectedValidatorInfo], chainAsset: ChainAsset) throws -> any RuntimeCallable
     func poolNominate(
         poolId: UInt32,
         targets: [SelectedValidatorInfo]
@@ -29,7 +30,7 @@ protocol SubstrateCallFactoryProtocol {
     func payout(validatorId: Data, era: EraIndex) throws -> any RuntimeCallable
     func setPayee(for destination: RewardDestinationArg) -> any RuntimeCallable
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> any RuntimeCallable
-    func setController(_ controller: AccountAddress) throws -> any RuntimeCallable
+    func setController(_ controller: AccountAddress, chainAsset: ChainAsset) throws -> any RuntimeCallable
     func chill() -> any RuntimeCallable
     func contribute(
         to paraId: ParaId,
@@ -105,6 +106,7 @@ protocol SubstrateCallFactoryProtocol {
     ) -> any RuntimeCallable
     func setRewardDestination(
         _ rewardDestination: RewardDestination<AccountAddress>,
-        stashItem: StashItem
+        stashItem: StashItem,
+        chainAsset: ChainAsset
     ) throws -> any RuntimeCallable
 }

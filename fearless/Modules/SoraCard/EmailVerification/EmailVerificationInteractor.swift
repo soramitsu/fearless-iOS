@@ -7,6 +7,7 @@ final class EmailVerificationInteractor {
     private weak var output: EmailVerificationInteractorOutput?
     private let service: SCKYCService
     private let data: SCKYCUserDataModel
+    private let tokenHolder: SCTokenHolderProtocol
 
     private let unverifiedEmailCallback = ChangeUnverifiedEmailCallback()
     private let registerUserCallback = RegisterUserCallback()
@@ -14,9 +15,10 @@ final class EmailVerificationInteractor {
     private let sendNewVerificationEmailCallback = SendNewVerificationEmailCallback()
     private var timer = Timer()
 
-    init(service: SCKYCService, data: SCKYCUserDataModel) {
+    init(service: SCKYCService, data: SCKYCUserDataModel, tokenHolder: SCTokenHolderProtocol) {
         self.service = service
         self.data = data
+        self.tokenHolder = tokenHolder
 
         unverifiedEmailCallback.delegate = self
         registerUserCallback.delegate = self
@@ -33,6 +35,10 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
     }
 
     func process(email: String) {
+        guard data.email.isEmpty else {
+            changeEmail(email: email)
+            return
+        }
         data.lastEmailOTPSentDate = Date()
         data.email = email
 
@@ -73,18 +79,13 @@ extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, Re
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         timer.invalidate()
-        Task { [weak self] in
-            let token = SCToken(
-                refreshToken: refreshToken,
-                accessToken: accessToken,
-                accessTokenExpirationTime: accessTokenExpirationTime
-            )
-            await SCStorage.shared.add(token: token)
-            guard let self = self else { return }
-            await MainActor.run {
-                self.output?.didReceiveSignInSuccessfulStep(data: data)
-            }
-        }
+        let token = SCToken(
+            refreshToken: refreshToken,
+            accessToken: accessToken,
+            accessTokenExpirationTime: accessTokenExpirationTime
+        )
+        tokenHolder.set(token: token)
+        output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
     func onShowEmailConfirmationScreen(email _: String, autoEmailSent: Bool) {

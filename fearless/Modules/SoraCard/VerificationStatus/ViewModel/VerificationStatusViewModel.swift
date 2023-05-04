@@ -4,7 +4,7 @@ enum SoraCardStatus {
     case pending
     case rejected(hasFreeAttempts: Bool)
     case success
-    case failure
+    case notStarted
 
     var iconImage: UIImage? {
         switch self {
@@ -18,7 +18,7 @@ enum SoraCardStatus {
             }
         case .success:
             return R.image.soraCardStatusSuccess()
-        case .failure:
+        case .notStarted:
             return R.image.soraCardStatusFailure()
         }
     }
@@ -34,9 +34,9 @@ enum SoraCardStatus {
                 return R.string.localizable.noFreeKycAttemptsTitle(preferredLanguages: locale.rLanguages)
             }
         case .success:
-            return R.string.localizable.soraCardStatusSuccessTitle(preferredLanguages: locale.rLanguages)
-        case .failure:
-            return R.string.localizable.soraCardStatusFailureTitle(preferredLanguages: locale.rLanguages)
+            return R.string.localizable.soraCardStateOnwayTitle(preferredLanguages: locale.rLanguages)
+        case .notStarted:
+            return R.string.localizable.soraCardStateNoneTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -52,15 +52,19 @@ enum SoraCardStatus {
             }
         case .success:
             return R.string.localizable.soraCardStatusSuccessText(preferredLanguages: locale.rLanguages)
-        case .failure:
+        case .notStarted:
             return R.string.localizable.soraCardStatusFailureText(preferredLanguages: locale.rLanguages)
         }
     }
 
     func buttonTitle(with locale: Locale) -> String {
         switch self {
-        case .rejected:
-            return R.string.localizable.tryAgainCommon(preferredLanguages: locale.rLanguages)
+        case let .rejected(hasFreeAttempts):
+            if hasFreeAttempts {
+                return R.string.localizable.tryAgainCommon(preferredLanguages: locale.rLanguages)
+            } else {
+                return R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
+            }
         default:
             return R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
         }

@@ -7,12 +7,12 @@ protocol VerificationStatusViewModelFactoryProtocol {
 final class VerificationStatusViewModelFactory: VerificationStatusViewModelFactoryProtocol {
     func buildStatusViewModel(from status: SCKYCUserStatus?, hasFreeAttempts: Bool) -> SoraCardStatus {
         guard let status = status else {
-            return .failure
+            return .notStarted
         }
 
         switch status {
         case .notStarted, .userCanceled:
-            return .failure
+            return .notStarted
         case .pending:
             return .pending
         case .successful:

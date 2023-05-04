@@ -5,23 +5,73 @@ final class PhoneVerificationCodeInteractor {
     // MARK: - Private properties
 
     private weak var output: PhoneVerificationCodeInteractorOutput?
-    private let data: SCKYCUserDataModel
     private let service: SCKYCService
-    private var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    private let storage: SCStorage = .shared
+    private let eventCenter: EventCenterProtocol
+    private let tokenHolder: SCTokenHolderProtocol
+
+    var data: SCKYCUserDataModel
+    var callback = SignInWithPhoneNumberVerifyOtpCallback()
+    var getUserDataCallback = GetUserDataCallback()
     private let requestOtpCallback = SignInWithPhoneNumberRequestOtpCallback()
     private let otpLength: Int
     private var codeState: SCKYCPhoneCodeState = .editing {
         didSet {
-            output?.didReceive(state: codeState)
+            DispatchQueue.main.async {
+                self.output?.didReceive(state: self.codeState)
+            }
         }
     }
 
-    init(data: SCKYCUserDataModel, service: SCKYCService, otpLength: Int) {
+    init(
+        data: SCKYCUserDataModel,
+        service: SCKYCService,
+        otpLength: Int,
+        eventCenter: EventCenterProtocol,
+        tokenHolder: SCTokenHolderProtocol
+    ) {
         self.service = service
         self.data = data
         self.otpLength = otpLength
+        self.eventCenter = eventCenter
+        self.tokenHolder = tokenHolder
         callback.delegate = self
+        getUserDataCallback.delegate = self
         requestOtpCallback.delegate = self
+    }
+
+    private func checkUserStatus(with data: SCKYCUserDataModel) {
+        Task {
+            var hasFreeAttempts = false
+            if case let .success(atempts) = await service.kycAttempts() {
+                hasFreeAttempts = atempts.hasFreeAttempts
+            }
+            let response = await service.kycStatuses()
+            await MainActor.run { [weak self, hasFreeAttempts] in
+                guard let self else { return }
+                switch response {
+                case let .success(statuses):
+                    let statusesToShow = statuses.filter { $0.userStatus != .userCanceled }
+                    if statusesToShow.isEmpty || self.storage.isKYCRetry() && hasFreeAttempts {
+                        output?.didReceiveSignInSuccessfulStep(data: data)
+                        return
+                    }
+                    output?.didReceiveUserStatus()
+                case .failure:
+                    Task { await resetKYC() }
+                }
+            }
+        }
+    }
+
+    private func resetKYC() async {
+        tokenHolder.removeToken()
+        storage.set(isRetry: false)
+
+        await MainActor.run { [weak self] in
+            self?.output?.resetKYC()
+            self?.eventCenter.notify(with: KYCShouldRestart(data: nil))
+        }
     }
 }
 
@@ -70,24 +120,36 @@ extension PhoneVerificationCodeInteractor: SignInWithPhoneNumberVerifyOtpCallbac
 
     func onVerificationFailed() {
         codeState = .wrong("Incorrect or expired OTP")
+        output?.didReceive(state: codeState)
     }
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         let token = SCToken(refreshToken: refreshToken, accessToken: accessToken, accessTokenExpirationTime: accessTokenExpirationTime)
-        service.client.set(token: token)
+        tokenHolder.set(token: token)
 
-        Task { [weak self] in
-            await SCStorage.shared.add(token: token)
-            guard let self = self else { return }
-            self.service.getUserData(callback: GetUserDataCallback())
-            await MainActor.run {
-                self.codeState = .succeed
-            }
-        }
-        output?.didReceiveSignInSuccessfulStep(data: data)
+        service.getUserData(callback: getUserDataCallback)
+        codeState = .succeed
     }
 
     func onError(error: PayWingsOAuthSDK.OAuthErrorCode, errorMessage: String?) {
         codeState = .wrong(errorMessage ?? error.description)
+    }
+}
+
+extension PhoneVerificationCodeInteractor: GetUserDataCallbackDelegate {
+    func onUserData(
+        userId: String,
+        firstName: String?,
+        lastName: String?,
+        email: String?,
+        emailConfirmed _: Bool,
+        phoneNumber _: String?
+    ) {
+        data.userId = userId
+        data.name = firstName ?? ""
+        data.lastname = lastName ?? ""
+        data.email = email ?? ""
+
+        checkUserStatus(with: data)
     }
 }

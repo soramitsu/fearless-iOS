@@ -8,8 +8,7 @@ final class StakingRewardPayoutsInteractor {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     let stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let payoutService: PayoutRewardsServiceProtocol
-    private let asset: AssetModel
-    private let chain: ChainModel
+    private let chainAsset: ChainAsset
     private let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -41,13 +40,12 @@ final class StakingRewardPayoutsInteractor {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.payoutService = payoutService
-        self.asset = asset
-        self.chain = chain
         self.eraCountdownOperationFactory = eraCountdownOperationFactory
         self.operationManager = operationManager
         self.runtimeService = runtimeService
         self.logger = logger
         self.connection = connection
+        chainAsset = ChainAsset(chain: chain, asset: asset)
     }
 
     private func fetchEraCompletionTime() {
@@ -72,17 +70,22 @@ final class StakingRewardPayoutsInteractor {
 
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
-        if let priceId = asset.priceId {
+        if let priceId = chainAsset.asset.priceId {
             priceProvider = subscribeToPrice(for: priceId)
         }
 
-        activeEraProvider = subscribeActiveEra(for: chain.chainId)
+        activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
         fetchEraCompletionTime()
         reload()
     }
 
     func reload() {
+        if chainAsset.chain.externalApi?.staking == nil {
+            presenter.didReceive(result: .success(PayoutsInfo(activeEra: 0, historyDepth: 0, payouts: [])))
+            return
+        }
+
         guard payoutOperationsWrapper == nil else {
             return
         }

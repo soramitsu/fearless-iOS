@@ -2,7 +2,7 @@ import Foundation
 
 final class KYCMainRouter: KYCMainRouterInput {
     func showSwap(from view: ControllerBackedProtocol?, wallet: MetaAccountModel, chainAsset: ChainAsset) {
-        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapFromChainAsset: chainAsset, wallet: wallet) else {
+        guard let module = PolkaswapAdjustmentAssembly.configureModule(swapChainAsset: chainAsset, swapVariant: .desiredOutput, wallet: wallet) else {
             return
         }
         let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
@@ -34,6 +34,25 @@ final class KYCMainRouter: KYCMainRouterInput {
         view?.controller.present(navigationController, animated: true)
     }
 
+    func showGetPrepared(from view: ControllerBackedProtocol?, data: SCKYCUserDataModel) {
+        guard let module = PreparationAssembly.configureModule(data: data) else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: module.view.controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
+
+    func showStatus(from view: ControllerBackedProtocol?) {
+        guard let module = VerificationStatusAssembly.configureModule() else {
+            return
+        }
+        view?.controller.navigationController?.pushViewController(
+            module.view.controller,
+            animated: true
+        )
+    }
+
     func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
@@ -54,5 +73,9 @@ final class KYCMainRouter: KYCMainRouterInput {
         }
 
         view?.controller.present(module.view.controller, animated: true)
+    }
+
+    func dismiss(view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: true)
     }
 }

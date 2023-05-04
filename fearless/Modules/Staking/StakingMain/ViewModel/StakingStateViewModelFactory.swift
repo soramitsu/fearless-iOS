@@ -26,8 +26,6 @@ final class StakingStateViewModelFactory {
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChainAsset: ChainAsset?
 
-    private lazy var addressFactory = SS58AddressFactory()
-
     init(
         analyticsRewardsViewModelFactoryBuilder: @escaping AnalyticsRewardsViewModelFactoryBuilder,
         logger: LoggerProtocol? = nil,
@@ -65,10 +63,6 @@ final class StakingStateViewModelFactory {
     }
 
     private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
-        if let factory = balanceViewModelFactory {
-            return factory
-        }
-
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: selectedMetaAccount
@@ -102,6 +96,7 @@ final class StakingStateViewModelFactory {
         viewStatus: NominationViewStatus
     ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
+        let rewardBalanceViewModelFactory = getBalanceViewModelFactory(for: commonData.rewardChainAsset ?? chainAsset)
 
         let stakedAmount = convertAmount(ledgerInfo.active, for: chainAsset, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
@@ -112,7 +107,7 @@ final class StakingStateViewModelFactory {
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
-            reward = balanceViewModelFactory.balanceFromPrice(
+            reward = rewardBalanceViewModelFactory.balanceFromPrice(
                 totalReward.amount.decimalValue,
                 priceData: commonData.price,
                 usageCase: .listCrypto
@@ -122,13 +117,14 @@ final class StakingStateViewModelFactory {
         }
 
         return LocalizableResource { locale in
+            let defaultReward: String = (chainAsset.chain.externalApi?.staking == nil) ? R.string.localizable.commonNotAvailableShort(preferredLanguages: locale.rLanguages) : ""
             let stakedViewModel = staked.value(for: locale)
             let rewardViewModel = reward?.value(for: locale)
 
             return NominationViewModel(
                 totalStakedAmount: stakedViewModel.amount,
                 totalStakedPrice: stakedViewModel.price ?? "",
-                totalRewardAmount: rewardViewModel?.amount ?? "",
+                totalRewardAmount: rewardViewModel?.amount ?? defaultReward,
                 totalRewardPrice: rewardViewModel?.price ?? "",
                 status: viewStatus,
                 hasPrice: commonData.price != nil,
@@ -281,7 +277,7 @@ final class StakingStateViewModelFactory {
             priceData: commonData.price,
             period: rewardsForPeriod.1,
             selectedChartIndex: nil,
-            hasPendingRewards: chainAsset.stakingType == .relayChain
+            hasPendingRewards: chainAsset.stakingType?.isRelaychain == true
         )
         return LocalizableResource { locale in
             RewardAnalyticsWidgetViewModel(
@@ -299,23 +295,28 @@ final class StakingStateViewModelFactory {
         guard let calculator = commonData.calculatorEngine else {
             return nil
         }
+        let chainAsset = commonData.rewardChainAsset ?? chainAsset
+        let price = commonData.rewardAssetPrice ?? commonData.price
 
         let rewardViewModelFactory = getRewardViewModelFactory(for: chainAsset)
 
-        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month)
+        let monthlyReturn = calculator.calculatorReturn(isCompound: true, period: .month, type: .max())
 
-        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year)
+        let yearlyReturn = calculator.calculatorReturn(isCompound: true, period: .year, type: .max())
+
+        let yearlyReturnAmount = calculator.calculateMaxEarnings(amount: amount ?? .zero, isCompound: true, period: .year)
+        let monthlyReturnAmount = calculator.calculateMaxEarnings(amount: amount ?? .zero, isCompound: true, period: .month)
 
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
-            reward: (amount ?? 0.0) * monthlyReturn,
+            reward: monthlyReturnAmount,
             targetReturn: monthlyReturn,
-            priceData: commonData.price
+            priceData: price
         )
 
         let yearlyViewModel = rewardViewModelFactory.createRewardViewModel(
-            reward: (amount ?? 0.0) * yearlyReturn,
+            reward: yearlyReturnAmount,
             targetReturn: yearlyReturn,
-            priceData: commonData.price
+            priceData: price
         )
 
         return LocalizableResource { locale in
@@ -330,8 +331,7 @@ final class StakingStateViewModelFactory {
         for chainAsset: ChainAsset,
         commonData: StakingStateCommonData,
         amount: Decimal?
-    )
-        throws -> StakingEstimationViewModel {
+    ) throws -> StakingEstimationViewModel {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chainAsset)
 
         let balance = convertAmount(

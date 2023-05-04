@@ -8,7 +8,8 @@ final class EmailVerificationAssembly {
         let service: SCKYCService = .init(client: .shared)
         let interactor = EmailVerificationInteractor(
             service: service,
-            data: data
+            data: data,
+            tokenHolder: SCTokenHolder.shared
         )
         let router = EmailVerificationRouter()
 

@@ -64,24 +64,32 @@ final class PolkaswapAdjustmentPresenter {
     init(
         wallet: MetaAccountModel,
         soraChainAsset: ChainAsset,
-        swapFromChainAsset: ChainAsset,
+        swapChainAsset: ChainAsset,
         viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
         logger: LoggerProtocol = Logger.shared,
         interactor: PolkaswapAdjustmentInteractorInput,
         router: PolkaswapAdjustmentRouterInput,
+        swapVariant: SwapVariant,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wallet = wallet
         xorChainAsset = soraChainAsset
-        self.swapFromChainAsset = swapFromChainAsset
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         selectedLiquiditySourceType = LiquiditySourceType.smart
         self.interactor = interactor
         self.router = router
+        self.swapVariant = swapVariant
         self.localizationManager = localizationManager
+
+        switch swapVariant {
+        case .desiredInput:
+            swapFromChainAsset = swapChainAsset
+        case .desiredOutput:
+            swapToChainAsset = swapChainAsset
+        }
     }
 
     // MARK: - Private methods

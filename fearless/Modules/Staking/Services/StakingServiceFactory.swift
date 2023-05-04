@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import FearlessUtils
 
 enum StakingServiceFactoryError: Error {
     case stakingUnavailable
@@ -11,7 +12,8 @@ protocol StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?
+        collatorOperationFactory: ParachainCollatorOperationFactory?,
+        wallet: MetaAccountModel
     ) throws -> RewardCalculatorServiceProtocol
 }
 
@@ -66,7 +68,8 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         for chainAsset: ChainAsset,
         assetPrecision: Int16,
         validatorService: EraValidatorServiceProtocol,
-        collatorOperationFactory: ParachainCollatorOperationFactory?
+        collatorOperationFactory: ParachainCollatorOperationFactory?,
+        wallet: MetaAccountModel
     ) throws -> RewardCalculatorServiceProtocol {
         guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             throw ChainRegistryError.runtimeMetadaUnavailable
@@ -74,17 +77,26 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
 
         switch chainAsset.stakingType {
         case .relayChain:
-            return RewardCalculatorService(
-                chainAsset: chainAsset,
-                assetPrecision: assetPrecision,
-                eraValidatorsService: validatorService,
-                operationManager: operationManager,
-                providerFactory: substrateDataProviderFactory,
-                runtimeCodingService: runtimeService,
-                stakingDurationFactory: StakingDurationOperationFactory(),
-                storageFacade: storageFacade,
-                logger: logger
-            )
+            if chainAsset.chain.isSora {
+                return try createSoraRewardCalculator(
+                    for: chainAsset,
+                    assetPrecision: assetPrecision,
+                    validatorService: validatorService,
+                    wallet: wallet
+                )
+            } else {
+                return RelaychainRewardCalculatorService(
+                    chainAsset: chainAsset,
+                    assetPrecision: assetPrecision,
+                    eraValidatorsService: validatorService,
+                    operationManager: operationManager,
+                    providerFactory: substrateDataProviderFactory,
+                    runtimeCodingService: runtimeService,
+                    stakingDurationFactory: StakingDurationOperationFactory(),
+                    storageFacade: storageFacade,
+                    logger: logger
+                )
+            }
         case .paraChain:
             guard let collatorOperationFactory = collatorOperationFactory else {
                 throw StakingServiceFactoryError.stakingUnavailable
@@ -102,5 +114,77 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         case .none:
             throw StakingServiceFactoryError.stakingUnavailable
         }
+    }
+
+    // MARK: - Private methods
+
+    private func createSoraRewardCalculator(
+        for chainAsset: ChainAsset,
+        assetPrecision: Int16,
+        validatorService: EraValidatorServiceProtocol,
+        wallet: MetaAccountModel
+    ) throws -> RewardCalculatorServiceProtocol {
+        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId),
+              let connection = chainRegisty.getConnection(for: chainAsset.chain.chainId) else {
+            throw ChainRegistryError.runtimeMetadaUnavailable
+        }
+
+        let chainRepository = ChainRepositoryFactory().createRepository(
+            sortDescriptors: [NSSortDescriptor.chainsByAddressPrefix]
+        )
+
+        let operationQueue = OperationQueue()
+        operationQueue.qualityOfService = .userInitiated
+
+        let substrateRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetching = AccountInfoFetching(
+            accountInfoRepository: accountInfoRepository,
+            chainRegistry: ChainRegistryFacade.sharedRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+        let chainAssetFetching = ChainAssetsFetching(
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            accountInfoFetching: accountInfoFetching,
+            operationQueue: operationQueue,
+            meta: wallet
+        )
+
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let operationFactory = PolkaswapOperationFactory(
+            engine: connection,
+            storageRequestFactory: storageOperationFactory,
+            runtimeService: runtimeService
+        )
+
+        let repositoryFacade = SubstrateDataStorageFacade.shared
+        let mapper = PolkaswapSettingMapper()
+        let settingsRepository: CoreDataRepository<PolkaswapRemoteSettings, CDPolkaswapRemoteSettings> =
+            repositoryFacade.createRepository(
+                filter: nil,
+                sortDescriptors: [],
+                mapper: AnyCoreDataMapper(mapper)
+            )
+
+        return SoraRewardCalculatorService(
+            chainAsset: chainAsset,
+            assetPrecision: assetPrecision,
+            eraValidatorsService: validatorService,
+            operationManager: operationManager,
+            providerFactory: substrateDataProviderFactory,
+            runtimeCodingService: runtimeService,
+            stakingDurationFactory: StakingDurationOperationFactory(),
+            storageFacade: storageFacade,
+            polkaswapOperationFactory: operationFactory,
+            chainAssetFetching: chainAssetFetching,
+            settingsRepository: AnyDataProviderRepository(settingsRepository),
+            logger: Logger.shared
+        )
     }
 }
