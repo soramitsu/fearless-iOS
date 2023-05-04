@@ -930,7 +930,7 @@ Remember to make a backup of your key and keep it in a safe and private place (e
 "parachain.staking.story.rewards.page.2" = "Delegators get rewards after a reward payout delay. Payout delays are a certain amount of rounds which must pass before staking rewards are distributed automatically to the free balance.\nReward distribution to some delegators may be stopped because of two possible reasons; A collator hasn\'t been chosen by the network for creating blocks, or decided to leave the candidate pool. Another reason is having a stake amount lower than the minimum collator bond.";
 "alert.pool.created.text" = "Your pool has been successfully created. Now you should choose validators for the pool";
 "all.done.alert.all.done.stub" = "All done";
-"all.done.alert.description.stub" = "You can now back to your app and do that you're usually do";
+"all.done.alert.description.stub" = "You can return to the app";
 "all.done.alert.hash.stub" = "Hash";
 "all.done.alert.result.stub" = "Result";
 "all.done.alert.success.stub" = "Success";
