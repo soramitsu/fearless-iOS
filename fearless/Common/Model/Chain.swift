@@ -10,6 +10,7 @@ enum Chain: String, Codable, CaseIterable {
     case moonriver = "Moonriver"
     case moonbaseAlpha = "Moonbase Alpha"
     case soraMain = "SORA Mainnet"
+    case soraTest = "SORA Test"
 
     init?(rawValue: String) {
         switch rawValue {
@@ -40,13 +41,14 @@ enum Chain: String, Codable, CaseIterable {
         case .moonriver: return "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b"
         case .moonbaseAlpha: return "91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527"
         case .soraMain: return "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5"
+        case .soraTest: return "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17"
         }
     }
 
     var erasPerDay: Int {
         switch self {
-        case .polkadot, .soraMain: return 1
-        case .kusama, .westend, .rococo, .moonbeam: return 4
+        case .polkadot: return 1
+        case .kusama, .westend, .rococo, .moonbeam, .soraMain, .soraTest: return 4
         case .moonriver, .moonbaseAlpha: return 12
         }
     }

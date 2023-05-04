@@ -106,7 +106,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         ) else {
             return nil
         }

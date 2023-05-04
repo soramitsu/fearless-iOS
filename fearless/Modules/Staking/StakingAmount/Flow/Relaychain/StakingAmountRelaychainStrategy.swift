@@ -12,6 +12,7 @@ protocol StakingAmountRelaychainStrategyOutput: AnyObject {
     func didReceive(networkStakingInfo: NetworkStakingInfo)
     func didReceive(networkStakingInfoError _: Error)
     func didReceive(maxNominations: Int)
+    func didReceive(rewardAssetPrice: PriceData?)
 }
 
 class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
@@ -19,6 +20,7 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
+    internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let chainAsset: ChainAsset
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -27,8 +29,10 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let eraValidatorService: EraValidatorServiceProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let rewardChainAsset: ChainAsset?
 
     private weak var output: StakingAmountRelaychainStrategyOutput?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
 
     init(
         chainAsset: ChainAsset,
@@ -39,7 +43,9 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         output: StakingAmountRelaychainStrategyOutput?,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
-        existentialDepositService: ExistentialDepositServiceProtocol
+        existentialDepositService: ExistentialDepositServiceProtocol,
+        rewardChainAsset: ChainAsset?,
+        priceLocalSubscriptionFactory: PriceProviderFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.runtimeService = runtimeService
@@ -50,6 +56,8 @@ class StakingAmountRelaychainStrategy: RuntimeConstantFetching {
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.eraValidatorService = eraValidatorService
         self.existentialDepositService = existentialDepositService
+        self.rewardChainAsset = rewardChainAsset
+        self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
     }
 
     private func fetchMaxNominations() {
@@ -87,6 +95,10 @@ extension StakingAmountRelaychainStrategy: StakingAmountStrategy {
             case let .failure(error):
                 self?.output?.didReceive(error: error)
             }
+        }
+
+        if let priceId = rewardChainAsset?.asset.priceId {
+            priceProvider = subscribeToPrice(for: priceId)
         }
     }
 
@@ -145,6 +157,17 @@ extension StakingAmountRelaychainStrategy: RelaychainStakingLocalStorageSubscrib
         switch result {
         case let .success(value):
             output?.didReceive(counterForNominators: value)
+        case let .failure(error):
+            output?.didReceive(error: error)
+        }
+    }
+}
+
+extension StakingAmountRelaychainStrategy: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, priceId _: AssetModel.PriceId) {
+        switch result {
+        case let .success(priceData):
+            output?.didReceive(rewardAssetPrice: priceData)
         case let .failure(error):
             output?.didReceive(error: error)
         }

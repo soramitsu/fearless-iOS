@@ -139,9 +139,13 @@ final class RelaychainValidatorOperationFactory {
 
         maxNominatorsOperation.addDependency(runtimeOperation)
 
-        let statusesOperation = ClosureOperation<[ValidatorMyNominationStatus]> {
+        let statusesOperation = ClosureOperation<[ValidatorMyNominationStatus]> { [weak self] in
+            guard let strongSelf = self else {
+                return []
+            }
+
             let allElectedValidators = try electedValidatorsOperation.extractNoCancellableResultData()
-            let nominatorId = try SS58AddressFactory().accountId(from: nominatorAddress)
+            let nominatorId = try AddressFactory.accountId(from: nominatorAddress, chain: strongSelf.chain)
             let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
 
             return validatorIds.enumerated().map { _, accountId in
@@ -151,7 +155,7 @@ final class RelaychainValidatorOperationFactory {
                     if let index = nominators.firstIndex(where: { $0.who == nominatorId }),
                        let amountDecimal = Decimal.fromSubstrateAmount(
                            nominators[index].value,
-                           precision: Int16(self.asset.precision)
+                           precision: Int16(strongSelf.asset.precision)
                        ) {
                         let isRewarded = index < maxNominators
                         let allocation = ValidatorTokenAllocation(amount: amountDecimal, isRewarded: isRewarded)
@@ -409,7 +413,7 @@ final class RelaychainValidatorOperationFactory {
                     stakeReturn: validatorReturn,
                     hasSlashes: hasSlashes,
                     maxNominatorsRewarded: maxNominators,
-                    addressType: addressPrefix,
+                    chainFormat: chainFormat,
                     blocked: validator.prefs.blocked,
                     precision: Int16(self.asset.precision)
                 )

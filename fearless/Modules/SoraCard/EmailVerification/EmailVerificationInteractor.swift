@@ -52,7 +52,7 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
         service.sendNewVerificationEmail(callback: sendNewVerificationEmailCallback)
     }
 
-    private func checkEmail() {
+    private func startEmailVerificationChecks() {
         timer.invalidate()
         timer = Timer.scheduledTimer(
             timeInterval: 5,
@@ -69,28 +69,21 @@ extension EmailVerificationInteractor: EmailVerificationInteractorInput {
 }
 
 extension EmailVerificationInteractor: ChangeUnverifiedEmailCallbackDelegate, RegisterUserCallbackDelegate, SendNewVerificationEmailCallbackDelegate, CheckEmailVerifiedCallbackDelegate {
-    func onEmailNotVerified() {
-        timer.invalidate()
-    }
+    func onEmailNotVerified() {}
 
     func onSignInSuccessful(refreshToken: String, accessToken: String, accessTokenExpirationTime: Int64) {
         timer.invalidate()
-        Task { [weak self] in
-            let token = SCToken(
-                refreshToken: refreshToken,
-                accessToken: accessToken,
-                accessTokenExpirationTime: accessTokenExpirationTime
-            )
-            await SCStorage.shared.add(token: token)
-            guard let self = self else { return }
-            await MainActor.run {
-                self.output?.didReceiveSignInSuccessfulStep(data: data)
-            }
-        }
+        let token = SCToken(
+            refreshToken: refreshToken,
+            accessToken: accessToken,
+            accessTokenExpirationTime: accessTokenExpirationTime
+        )
+        SCTokenHolder.shared.set(token: token)
+        output?.didReceiveSignInSuccessfulStep(data: data)
     }
 
     func onShowEmailConfirmationScreen(email _: String, autoEmailSent: Bool) {
-        checkEmail()
+        startEmailVerificationChecks()
 
         output?.didReceiveConfirmationRequired(data: data, autoEmailSent: autoEmailSent)
     }

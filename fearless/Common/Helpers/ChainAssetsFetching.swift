@@ -126,7 +126,7 @@ private extension ChainAssetsFetching {
                 chainAsset.hasStaking == hasStaking
             }
         case let .assetName(name):
-            return chainAssets.filter { $0.asset.name == name }
+            return chainAssets.filter { $0.asset.name.lowercased() == name.lowercased() }
         case let .search(name):
             return chainAssets.filter {
                 $0.asset.name.lowercased().contains(name.lowercased())

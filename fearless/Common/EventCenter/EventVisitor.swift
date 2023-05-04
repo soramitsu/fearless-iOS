@@ -26,6 +26,11 @@ protocol EventVisitorProtocol: AnyObject {
     func processMetaAccountChanged(event: MetaAccountModelChangedEvent)
     func processStakingUpdatedEvent()
     func processZeroBalancesSettingChanged()
+
+    func processKYCShouldRestart()
+    func processKYCUserStatusChanged()
+    func processKYCTokenChanged(token: SCToken)
+    func processKYCTokenNeedRefresh(token: SCToken)
 }
 
 extension EventVisitorProtocol {
@@ -54,4 +59,9 @@ extension EventVisitorProtocol {
     func processMetaAccountChanged(event _: MetaAccountModelChangedEvent) {}
     func processStakingUpdatedEvent() {}
     func processZeroBalancesSettingChanged() {}
+
+    func processKYCShouldRestart() {}
+    func processKYCUserStatusChanged() {}
+    func processKYCTokenChanged(token _: SCToken) {}
+    func processKYCTokenNeedRefresh(token _: SCToken) {}
 }

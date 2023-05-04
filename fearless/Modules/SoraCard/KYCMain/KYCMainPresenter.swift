@@ -8,6 +8,7 @@ final class KYCMainPresenter {
     private let router: KYCMainRouterInput
     private let interactor: KYCMainInteractorInput
     private let viewModelFactory: KYCMainViewModelFactoryProtocol
+    private var xorChainAssets: [ChainAsset] = []
 
     // MARK: - Constructors
 
@@ -24,6 +25,36 @@ final class KYCMainPresenter {
     }
 
     // MARK: - Private methods
+
+    private func showMoreXorSources(for chainAsset: ChainAsset) {
+        let languages = localizationManager?.selectedLocale.rLanguages
+        let swapAction = SheetAlertPresentableAction(
+            title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages)
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showSwap(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
+        }
+
+        let buyAction = SheetAlertPresentableAction(
+            title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages),
+            style: .warningStyle
+        ) { [weak self] in
+            guard let strongSelf = self else { return }
+            strongSelf.router.showBuyXor(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
+        }
+
+        let viewModel = SheetAlertPresentableViewModel(
+            title: R.string.localizable.detailsGetMoreXor(preferredLanguages: languages),
+            message: R.string.localizable.detailsGetMoreXorDescription(preferredLanguages: languages),
+            actions: [buyAction, swapAction],
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
+        )
+
+        DispatchQueue.main.async { [weak self] in
+            self?.router.present(viewModel: viewModel, from: self?.view)
+        }
+    }
 }
 
 // MARK: - KYCMainViewOutput
@@ -34,36 +65,17 @@ extension KYCMainPresenter: KYCMainViewOutput {
     }
 
     func didTapGetMoreXor() {
-        guard let chainAsset = interactor.xorChainAssets.first(where: { chainAsset in
-            chainAsset.chain.chainId == Chain.soraMain.genesisHash
-        }) else { return }
-
-        let languages = localizationManager?.selectedLocale.rLanguages
-        let swapAction = SheetAlertPresentableAction(
-            title: R.string.localizable.getMoreXorSwapActionTitle(preferredLanguages: languages),
-            style: .warningStyle
-        ) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.router.showSwap(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
-        }
-
-        let buyAction = SheetAlertPresentableAction(
-            title: R.string.localizable.getMoreXorBuyActionTitle(preferredLanguages: languages)
-        ) { [weak self] in
-            guard let strongSelf = self else { return }
-            strongSelf.router.showBuyXor(from: strongSelf.view, wallet: strongSelf.interactor.wallet, chainAsset: chainAsset)
-        }
-
-        let viewModel = SheetAlertPresentableViewModel(
-            title: R.string.localizable.detailsGetMoreXor(preferredLanguages: languages),
-            message: R.string.localizable.detailsGetMoreXorDescription(preferredLanguages: languages),
-            actions: [swapAction, buyAction],
-            closeAction: nil,
-            icon: R.image.iconWarningBig()
-        )
-
-        DispatchQueue.main.async { [weak self] in
-            self?.router.present(viewModel: viewModel, from: self?.view)
+        if xorChainAssets.count > 1 {
+            let chains = xorChainAssets.map { $0.chain }
+            router.showSelectNetwork(
+                from: view,
+                wallet: interactor.wallet,
+                chainModels: chains,
+                delegate: self
+            )
+        } else {
+            guard let chainAsset = xorChainAssets.first else { return }
+            showMoreXorSources(for: chainAsset)
         }
     }
 
@@ -102,10 +114,8 @@ extension KYCMainPresenter: KYCMainInteractorOutput {
         view?.set(viewModel: viewModel)
     }
 
-    func showKeyAlert(key: String) {
-        DispatchQueue.main.async { [weak self] in
-            self?.router.present(message: nil, title: key, closeAction: nil, from: self?.view, actions: [])
-        }
+    func didReceive(xorChainAssets: [ChainAsset]) {
+        self.xorChainAssets = xorChainAssets
     }
 }
 
@@ -116,3 +126,11 @@ extension KYCMainPresenter: Localizable {
 }
 
 extension KYCMainPresenter: KYCMainModuleInput {}
+
+extension KYCMainPresenter: SelectNetworkDelegate {
+    func chainSelection(view _: SelectNetworkViewInput, didCompleteWith chain: ChainModel?, contextTag _: Int?) {
+        if let chainAsset = xorChainAssets.first(where: { $0.chain == chain }) {
+            showMoreXorSources(for: chainAsset)
+        }
+    }
+}

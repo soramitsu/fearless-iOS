@@ -21,6 +21,7 @@ final class AccountInfoUpdatingService {
     private var subscribedChains: [ChainAssetKey: SubscriptionInfo] = [:]
 
     private let mutex = NSLock()
+    private lazy var readLock = ReaderWriterLock()
 
     deinit {
         removeAllSubscriptions()
@@ -41,24 +42,12 @@ final class AccountInfoUpdatingService {
     }
 
     private func removeAllSubscriptions() {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         for chainAssetKey in subscribedChains.keys {
             removeSubscription(for: chainAssetKey)
         }
     }
 
     private func handle(changes: [DataProviderChange<ChainModel>]) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         for change in changes {
             switch change {
             case let .insert(newItem):
@@ -83,7 +72,8 @@ final class AccountInfoUpdatingService {
             return
         }
 
-        guard subscribedChains[chainAsset.uniqueKey(accountId: accountId)] == nil else {
+        let key = chainAsset.uniqueKey(accountId: accountId)
+        guard getSubscription(for: key) == nil else {
             return
         }
 
@@ -95,20 +85,53 @@ final class AccountInfoUpdatingService {
         )
 
         if let subsciptionId = maybeSubscriptionId {
-            subscribedChains[chainAsset.uniqueKey(accountId: accountId)] = SubscriptionInfo(
+            let subscription = SubscriptionInfo(
                 subscriptionId: subsciptionId,
                 accountId: accountId
             )
+
+            setSubscription(subscription, for: chainAsset.uniqueKey(accountId: accountId))
+        }
+    }
+
+    private func setSubscription(_ subscription: SubscriptionInfo?, for key: String) {
+        readLock.exclusivelyWrite { [weak self] in
+            self?.subscribedChains[key] = subscription
+        }
+    }
+
+    private func getSubscription(for key: ChainAssetKey) -> SubscriptionInfo? {
+        readLock.concurrentlyRead { subscribedChains[key] }
+    }
+
+    private func updateSubscription(for chainAsset: ChainAsset) {
+        guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
+            return
+        }
+        let key = chainAsset.uniqueKey(accountId: accountId)
+
+        guard let subscriptionInfo = getSubscription(for: key) else {
+            logger?.error("Expected to update subscription but not found for \(key)")
+            return
+        }
+
+        remoteSubscriptionService.detachFromAccountInfo(
+            for: subscriptionInfo.subscriptionId,
+            chainAssetKey: key,
+            queue: nil
+        ) { [weak self] _ in
+            self?.setSubscription(nil, for: key)
+            self?.addSubscriptionIfNeeded(for: chainAsset)
         }
     }
 
     private func removeSubscription(for key: ChainAssetKey) {
-        guard let subscriptionInfo = subscribedChains[key] else {
+        guard let subscriptionInfo = getSubscription(for: key) else {
             logger?.error("Expected to remove subscription but not found for \(key)")
             return
         }
 
-        subscribedChains[key] = nil
+        setSubscription(nil, for: key)
 
         remoteSubscriptionService.detachFromAccountInfo(
             for: subscriptionInfo.subscriptionId,
@@ -157,12 +180,7 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
     func processChainsUpdated(event: ChainsUpdatedEvent) {
         event.updatedChains.forEach { chain in
             chain.chainAssets.forEach {
-                guard let accountId = selectedMetaAccount.fetch(for: $0.chain.accountRequest())?.accountId else {
-                    return
-                }
-                let key = $0.uniqueKey(accountId: accountId)
-                removeSubscription(for: key)
-                addSubscriptionIfNeeded(for: $0)
+                updateSubscription(for: $0)
             }
         }
     }
@@ -170,12 +188,7 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
     func processChainSyncDidComplete(event: ChainSyncDidComplete) {
         event.newOrUpdatedChains.forEach { chain in
             chain.chainAssets.forEach {
-                guard let accountId = selectedMetaAccount.fetch(for: $0.chain.accountRequest())?.accountId else {
-                    return
-                }
-                let key = $0.uniqueKey(accountId: accountId)
-                removeSubscription(for: key)
-                addSubscriptionIfNeeded(for: $0)
+                updateSubscription(for: $0)
             }
         }
     }

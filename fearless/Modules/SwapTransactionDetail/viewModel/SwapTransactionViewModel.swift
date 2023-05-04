@@ -8,4 +8,5 @@ struct SwapTransactionViewModel {
     let address: String
     let date: String
     let networkFee: BalanceViewModelProtocol
+    let txHash: String
 }

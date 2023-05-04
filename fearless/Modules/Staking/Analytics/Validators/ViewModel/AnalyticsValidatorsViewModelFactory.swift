@@ -47,9 +47,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: eraValidatorInfos)
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
-        let addressFactory = SS58AddressFactory()
         let validatorsAddresses = nomination.targets.compactMap { accountId in
-            try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix)
+            try? AddressFactory.address(for: accountId, chain: chain)
         }
 
         let validatorsViewModel: [AnalyticsValidatorItemViewModel] = validatorsAddresses.map { address in

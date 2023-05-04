@@ -5,7 +5,6 @@ import SSFUtils
 final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactoryProtocol {
     let iconGenerator: IconGenerating
     let currentAccountItem: ChainAccountResponse
-    private lazy var addressFactory = SS58AddressFactory()
 
     init(currentAccountItem: ChainAccountResponse, iconGenerator: IconGenerating) {
         self.currentAccountItem = currentAccountItem

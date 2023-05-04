@@ -20,8 +20,6 @@ final class ControllerAccountConfirmationInteractor {
     private let chainAsset: ChainAsset
     private let selectedAccount: MetaAccountModel
     private let callFactory: SubstrateCallFactoryProtocol
-    private lazy var addressFactory = SS58AddressFactory()
-
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -105,7 +103,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
             return
         }
         do {
-            let setController = try callFactory.setController(address)
+            let setController = try callFactory.setController(address, chainAsset: chainAsset)
 
             extrinsicService?.submit(
                 { builder in
@@ -136,7 +134,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
     func estimateFee() {
         guard let extrinsicService = extrinsicService, let address = controllerAccountItem.toAddress() else { return }
         do {
-            let setController = try callFactory.setController(address)
+            let setController = try callFactory.setController(address, chainAsset: chainAsset)
             let identifier = setController.callName + controllerAccountItem.name
 
             feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
@@ -153,9 +151,9 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         }
 
         do {
-            let accountId = try addressFactory.accountId(
-                fromAddress: address,
-                addressPrefix: chainAsset.chain.addressPrefix
+            let accountId = try AddressFactory.accountId(
+                from: address,
+                chain: chainAsset.chain
             )
 
             let ledgerOperataion = createLedgerFetchOperation(accountId)

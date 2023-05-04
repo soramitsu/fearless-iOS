@@ -74,7 +74,8 @@ final class StakingRedeemPoolStrategy: RuntimeConstantFetching, AccountFetching 
         let wrapper = slashesOperationFactory.createSlashingSpansOperationForStash(
             stash,
             engine: engine,
-            runtimeService: runtimeService
+            runtimeService: runtimeService,
+            chainAsset: chainAsset
         )
 
         wrapper.targetOperation.completionBlock = { [weak self] in

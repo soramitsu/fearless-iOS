@@ -13,10 +13,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     ) -> StakingRewardPayoutsViewProtocol? {
         let chainAsset = ChainAsset(chain: chain, asset: asset)
 
-        guard let validatorsResolutionFactory = PayoutValidatorsFactoryAssembly
-            .createPayoutValidatorsFactory(chainAsset: chainAsset) else {
-            return nil
-        }
+        let validatorsResolutionFactory = PayoutValidatorsFactoryAssembly.createPayoutValidatorsFactory(chainAsset: chainAsset)
 
         let payoutInfoFactory = NominatorPayoutInfoFactory(
             addressPrefix: chain.addressPrefix,
@@ -40,12 +37,11 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         selectedAccount: MetaAccountModel,
         stashAddress: AccountAddress
     ) -> StakingRewardPayoutsViewProtocol? {
-        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory()
+        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory(chainAsset: ChainAsset(chain: chain, asset: asset))
 
         let payoutInfoFactory = ValidatorPayoutInfoFactory(
             chain: chain,
-            asset: asset,
-            addressFactory: SS58AddressFactory()
+            asset: asset
         )
 
         return createView(
@@ -63,7 +59,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         asset: AssetModel,
         selectedAccount: MetaAccountModel,
         stashAddress: AccountAddress,
-        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
+        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol?,
         payoutInfoFactory: PayoutInfoFactoryProtocol
     ) -> StakingRewardPayoutsViewProtocol? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry

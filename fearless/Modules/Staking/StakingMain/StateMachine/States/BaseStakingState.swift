@@ -126,6 +126,18 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
+    func process(rewardChainAsset: ChainAsset?) {
+        commonData = commonData.byReplacing(rewardChainAsset: rewardChainAsset)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(rewardAssetPrice: PriceData?) {
+        commonData = commonData.byReplacing(rewardAssetPrice: rewardAssetPrice)
+
+        stateMachine?.transit(to: self)
+    }
+
     func process(rewardEstimationAmount _: Decimal?) {}
     func process(stashItem _: StashItem?) {}
     func process(ledgerInfo _: StakingLedger?) {}

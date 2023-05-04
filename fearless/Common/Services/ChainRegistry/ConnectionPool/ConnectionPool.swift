@@ -21,6 +21,7 @@ final class ConnectionPool {
     private let connectionFactory: ConnectionFactoryProtocol
     private let applicationHandler = ApplicationHandler()
     private weak var delegate: ConnectionPoolDelegate?
+    private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
     private lazy var readLock = ReaderWriterLock()
@@ -32,8 +33,9 @@ final class ConnectionPool {
         connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
     }
 
-    init(connectionFactory: ConnectionFactoryProtocol) {
+    init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
         self.connectionFactory = connectionFactory
+        self.operationQueue = operationQueue
         applicationHandler.delegate = self
     }
 }
@@ -121,20 +123,26 @@ extension ConnectionPool: WebSocketEngineDelegate {
 
 extension ConnectionPool: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
-        connectionsByChainIds.values.forEach { wrapper in
+        let operations: [DisconnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
             guard let connection = wrapper.target as? ChainConnection else {
-                return
+                return nil
             }
-            connection.disconnectIfNeeded()
+
+            return DisconnectOperation(connection: connection)
         }
+
+        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 
     func didReceiveWillEnterForeground(notification _: Notification) {
-        connectionsByChainIds.values.forEach { wrapper in
+        let operations: [ConnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
             guard let connection = wrapper.target as? ChainConnection else {
-                return
+                return nil
             }
-            connection.connectIfNeeded()
+
+            return ConnectOperation(connection: connection)
         }
+
+        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 }

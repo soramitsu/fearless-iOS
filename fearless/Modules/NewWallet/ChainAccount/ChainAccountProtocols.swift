@@ -2,6 +2,7 @@ import BigInt
 
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)
+    func didReceive(balanceViewModel: ChainAccountBalanceViewModel?)
 }
 
 protocol ChainAccountPresenterProtocol: AnyObject {
@@ -16,6 +17,7 @@ protocol ChainAccountPresenterProtocol: AnyObject {
     func didTapSelectNetwork()
     func addressDidCopied()
     func didTapPolkaswapButton()
+    func didTapLockedInfoButton()
 }
 
 protocol ChainAccountInteractorInputProtocol: AnyObject {
@@ -30,6 +32,9 @@ protocol ChainAccountInteractorInputProtocol: AnyObject {
 protocol ChainAccountInteractorOutputProtocol: AnyObject {
     func didReceiveExportOptions(options: [ExportOption])
     func didUpdate(chainAsset: ChainAsset)
+    func didReceiveBalanceLocks(result: Result<BalanceLocks?, Error>)
+    func didReceiveWalletBalancesResult(_ result: WalletBalancesResult)
+    func didReceiveMinimumBalance(result: Result<BigUInt, Error>)
 }
 
 protocol ChainAccountWireframeProtocol: ErrorPresentable,
@@ -105,7 +110,12 @@ protocol ChainAccountWireframeProtocol: ErrorPresentable,
         chainAsset: ChainAsset,
         wallet: MetaAccountModel
     )
-
+    func presentLockedInfo(
+        from view: ControllerBackedProtocol?,
+        balanceContext: BalanceContext,
+        info: AssetBalanceDisplayInfo,
+        currency: Currency
+    )
     func presentCrossChainFlow(
         from view: ControllerBackedProtocol?,
         chainAsset: ChainAsset,

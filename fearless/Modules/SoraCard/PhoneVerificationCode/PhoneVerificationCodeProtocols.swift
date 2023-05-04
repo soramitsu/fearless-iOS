@@ -24,6 +24,8 @@ protocol PhoneVerificationCodeInteractorOutput: AnyObject {
     func didReceiveEmailVerificationStep(data: SCKYCUserDataModel)
     func didReceiveUserRegistrationStep(data: SCKYCUserDataModel)
     func didReceiveSignInSuccessfulStep(data: SCKYCUserDataModel)
+    func didReceiveUserStatus()
+    func resetKYC()
 }
 
 protocol PhoneVerificationCodeRouterInput: PushDismissable {
@@ -36,8 +38,10 @@ protocol PhoneVerificationCodeRouterInput: PushDismissable {
         data: SCKYCUserDataModel
     )
     func presentPreparation(
-        from view: PhoneVerificationCodeViewInput?
+        from view: PhoneVerificationCodeViewInput?,
+        data: SCKYCUserDataModel
     )
+    func showStatus(from view: ControllerBackedProtocol?)
     func close(from view: PhoneVerificationCodeViewInput?)
 }
 

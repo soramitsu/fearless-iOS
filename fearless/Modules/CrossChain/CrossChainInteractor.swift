@@ -176,7 +176,7 @@ final class CrossChainInteractor {
 
 extension CrossChainInteractor: CrossChainInteractorInput {
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?) {
-        let inputAmount = amount ?? .zero
+        let inputAmount = amount ?? 1
         let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
 
         let deps = prepareDeps(originalChainAsset: originChainAsset)

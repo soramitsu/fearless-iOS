@@ -274,6 +274,10 @@ extension ChainAssetListInteractor: EventVisitorProtocol {
             output?.updateViewModel()
         }
 
+        if wallet.zeroBalanceAssetsHidden != event.account.zeroBalanceAssetsHidden {
+            output?.updateViewModel()
+        }
+
         wallet = event.account
     }
 

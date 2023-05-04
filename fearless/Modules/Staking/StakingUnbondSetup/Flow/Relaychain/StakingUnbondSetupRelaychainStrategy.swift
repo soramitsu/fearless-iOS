@@ -11,6 +11,10 @@ protocol StakingUnbondSetupRelaychainStrategyOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveController(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveMinBonded(result: Result<BigUInt?, Error>)
+    func didReceiveNomination(result: Result<Nomination?, Error>)
+    func didReceiveNewExtrinsicService()
 }
 
 final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, AccountFetching {
@@ -58,6 +62,9 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var payeeProvider: AnyDataProvider<DecodedPayee>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
+    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
     private var extrinsicService: ExtrinsicServiceProtocol?
 
     private func handleController(accountItem: ChainAccountResponse) {
@@ -70,25 +77,21 @@ final class StakingUnbondSetupRelaychainStrategy: RuntimeConstantFetching, Accou
             operationManager: operationManager
         )
 
-        estimateFee()
+        output?.didReceiveNewExtrinsicService()
     }
 }
 
 extension StakingUnbondSetupRelaychainStrategy: StakingUnbondSetupStrategy {
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?) {
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
-              let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(chainAsset.asset.precision)
-              ) else {
+              let extrinsicService = extrinsicService
+        else {
             return
         }
 
-        let unbondCall = callFactory.unbond(amount: amount)
-
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: unbondCall.callName,
+            reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
     }
@@ -115,23 +118,8 @@ extension StakingUnbondSetupRelaychainStrategy: StakingUnbondSetupStrategy {
         }
 
         feeProxy.delegate = self
-    }
 
-    func estimateFee() {
-        guard let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(chainAsset.asset.precision)
-              ) else {
-            return
-        }
-
-        let unbondCall = callFactory.unbond(amount: amount)
-        let setPayeeCall = callFactory.setPayee(for: .stash)
-        let chillCall = callFactory.chill()
-
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
-            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
-        }
+        minBondedProvider = subscribeToMinNominatorBond(for: chainAsset.chain.chainId)
     }
 }
 
@@ -142,12 +130,26 @@ extension StakingUnbondSetupRelaychainStrategy: AccountInfoSubscriptionAdapterHa
 }
 
 extension StakingUnbondSetupRelaychainStrategy: RelaychainStakingLocalStorageSubscriber, RelaychainStakingLocalSubscriptionHandler, AnyProviderAutoCleaning {
+    func handleNomination(result: Result<Nomination?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        output?.didReceiveNomination(result: result)
+    }
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chainId _: ChainModel.Id) {
+        output?.didReceiveMinBonded(result: result)
+    }
+
+    func handlePayee(result: Result<RewardDestinationArg?, Error>, accountId _: AccountId, chainId _: ChainModel.Id) {
+        output?.didReceivePayee(result: result)
+    }
+
     func handleStashItem(result: Result<StashItem?, Error>, for _: AccountAddress) {
         do {
             let maybeStashItem = try result.get()
 
             clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &ledgerProvider)
+            clear(dataProvider: &payeeProvider)
+            clear(dataProvider: &nominationProvider)
 
             output?.didReceiveStashItem(result: result)
 
@@ -163,6 +165,16 @@ extension StakingUnbondSetupRelaychainStrategy: RelaychainStakingLocalStorageSub
                     }
                     if case let .success(account) = result, let account = account {
                         self.ledgerProvider = self.subscribeLedgerInfo(
+                            for: account.accountId,
+                            chainAsset: self.chainAsset
+                        )
+
+                        self.payeeProvider = self.subscribePayee(
+                            for: account.accountId,
+                            chainAsset: self.chainAsset
+                        )
+
+                        self.nominationProvider = self.subscribeNomination(
                             for: account.accountId,
                             chainAsset: self.chainAsset
                         )

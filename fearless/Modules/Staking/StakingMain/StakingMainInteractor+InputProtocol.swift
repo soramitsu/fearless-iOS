@@ -22,7 +22,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         sharedState.eraValidatorService.setup()
         sharedState.rewardCalculationService.setup()
 
-        eraInfoOperationFactory = selectedChainAsset?.stakingType == .paraChain
+        eraInfoOperationFactory = selectedChainAsset?.stakingType?.isParachain == true
             ? ParachainStakingInfoOperationFactory()
             : RelaychainStakingInfoOperationFactory()
 
@@ -111,9 +111,11 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideNewChain()
 
         clear(singleValueProvider: &priceProvider)
+        clear(singleValueProvider: &rewardAssetPriceProvider)
         clear(dataProvider: &delegatorStateProvider)
         collatorIds = nil
         performPriceSubscription()
+        provideRewardChainAsset()
 
         clearNominatorsLimitProviders()
         performNominatorLimitsSubscripion()
