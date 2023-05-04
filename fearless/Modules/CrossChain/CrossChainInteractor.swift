@@ -14,7 +14,7 @@ protocol CrossChainInteractorOutput: AnyObject {
         result: Result<[PriceData], Error>
     )
     func didReceiveAvailableDestChainAssets(_ chainAssets: [ChainAsset])
-    func didReceiveDestinationFee(result: Result<XcmFee, Error>)
+    func didReceiveDestinationFee(result: Result<DestXcmFee, Error>)
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
     func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
@@ -205,7 +205,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                 .destinationFeeFetcher
                 .estimateFee(
                     originChainId: originChainAsset.chain.chainId,
-                    destinationChainId: destinationChainModel.chainId
+                    destinationChainId: destinationChainModel.chainId,
+                    token: originChainAsset.asset.name
                 )
             else {
                 return

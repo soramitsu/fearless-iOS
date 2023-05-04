@@ -333,7 +333,7 @@ final class CrossChainPresenter {
             return
         }
         let inputAmount = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance) ?? .zero
+            .absoluteValue(from: originNetworkSelectedAssetBalance) ?? 1
 
         interactor.estimateFee(
             originChainAsset: selectedAmountChainAsset,
@@ -430,11 +430,14 @@ extension CrossChainPresenter: CrossChainViewOutput {
 // MARK: - CrossChainInteractorOutput
 
 extension CrossChainPresenter: CrossChainInteractorOutput {
-    func didReceiveDestinationFee(result: Result<XcmFee, Error>) {
+    func didReceiveDestinationFee(result: Result<DestXcmFee, Error>) {
         switch result {
         case let .success(response):
+            guard let feeInPlanks = response.feeInPlanks else {
+                return
+            }
             destNetworkFee = Decimal.fromSubstrateAmount(
-                response.destXcmFee,
+                feeInPlanks,
                 precision: Int16(selectedAmountChainAsset.asset.precision)
             )
 
