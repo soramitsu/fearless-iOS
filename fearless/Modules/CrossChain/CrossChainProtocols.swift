@@ -6,7 +6,7 @@ typealias CrossChainModuleCreationResult = (
     input: CrossChainModuleInput
 )
 
-protocol CrossChainRouterInput: PresentDismissable {
+protocol CrossChainRouterInput: PresentDismissable, SheetAlertPresentable, ErrorPresentable, BaseErrorPresentable {
     func showSelectNetwork(
         from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,

@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 
-protocol CrossChainConfirmationViewInput: ControllerBackedProtocol {
+protocol CrossChainConfirmationViewInput: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(viewModel: CrossChainConfirmationViewModel)
 }
 
@@ -58,13 +58,32 @@ extension CrossChainConfirmationPresenter: CrossChainConfirmationViewOutput {
     }
 
     func confirmButtonTapped() {
+        view?.didStartLoading()
         interactor.submit()
     }
 }
 
 // MARK: - CrossChainConfirmationInteractorOutput
 
-extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutput {}
+extension CrossChainConfirmationPresenter: CrossChainConfirmationInteractorOutput {
+    func didTransfer(result: Result<String, Error>) {
+        view?.didStopLoading()
+
+        switch result {
+        case let .success(hash):
+
+            router.complete(on: view, title: hash, chainAsset: teleportData.originChainAsset)
+        case let .failure(error):
+            guard let view = view else {
+                return
+            }
+
+            if !router.present(error: error, from: view, locale: selectedLocale) {
+                router.presentExtrinsicFailed(from: view, locale: selectedLocale)
+            }
+        }
+    }
+}
 
 // MARK: - Localizable
 

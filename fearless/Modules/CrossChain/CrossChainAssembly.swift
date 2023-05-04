@@ -11,6 +11,15 @@ final class CrossChainAssembly {
         wallet: MetaAccountModel
     ) -> CrossChainModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        guard
+            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
+            let runtimeService = chainRegistry.getRuntimeProvider(
+                for: chainAsset.chain.chainId
+            )
+        else {
+            return nil
+        }
 
         let repositoryFacade = SubstrateDataStorageFacade.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(
@@ -42,7 +51,6 @@ final class CrossChainAssembly {
             operationQueue: operationQueue,
             meta: wallet
         )
-        let networkOperationFactory = NetworkOperationFactory()
 
         let depsContainer = CrossChainDepsContainer(wallet: wallet)
         let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
@@ -54,6 +62,12 @@ final class CrossChainAssembly {
             wallet: wallet
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: OperationManagerFacade.sharedManager,
+            engine: connection
+        )
+
         let interactor = CrossChainInteractor(
             chainAssetFetching: chainAssetFetching,
             accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -63,16 +77,18 @@ final class CrossChainAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             logger: Logger.shared,
             wallet: wallet,
-            addressChainDefiner: addressChainDefiner
+            addressChainDefiner: addressChainDefiner,
+            existentialDepositService: existentialDepositService
         )
         let router = CrossChainRouter()
-
+        let dataValidatingFactory = SendDataValidatingFactory(presentable: router)
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = CrossChainViewModelFactory(iconGenerator: iconGenerator)
         let presenter = CrossChainPresenter(
             originChainAsset: chainAsset,
             wallet: wallet,
             viewModelFactory: viewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             logger: Logger.shared,
             interactor: interactor,
             router: router,
@@ -83,6 +99,7 @@ final class CrossChainAssembly {
             output: presenter,
             localizationManager: localizationManager
         )
+        dataValidatingFactory.view = view
 
         return (view, presenter)
     }

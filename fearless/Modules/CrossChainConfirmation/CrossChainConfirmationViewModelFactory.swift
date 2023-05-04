@@ -6,16 +6,32 @@ protocol CrossChainConfirmationViewModelFactoryProtocol {
 
 final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewModelFactoryProtocol {
     func createViewModel(with data: CrossChainConfirmationData) -> CrossChainConfirmationViewModel {
-        let shadowColor = HexColorConverter.hexStringToUIColor(
+        let originShadowColor = HexColorConverter.hexStringToUIColor(
             hex: data.originChainAsset.asset.color
         )?.cgColor
-        let symbolViewModel = SymbolViewModel(
-            symbolViewModel: data.originChainAsset.asset.icon.map { RemoteImageViewModel(url: $0) },
-            shadowColor: shadowColor
+        let originSymbolViewModel = SymbolViewModel(
+            symbolViewModel: data.originChainAsset.chain.icon.map { RemoteImageViewModel(url: $0) },
+            shadowColor: originShadowColor
+        )
+
+        let destShadowColor = HexColorConverter.hexStringToUIColor(
+            hex: data.originChainAsset.asset.color
+        )?.cgColor
+        let destSymbolViewModel = SymbolViewModel(
+            symbolViewModel: data.destChainModel.icon.map { RemoteImageViewModel(url: $0) },
+            shadowColor: destShadowColor
+        )
+
+        let doubleImageViewViewModel = PolkaswapDoubleSymbolViewModel(
+            leftViewModel: originSymbolViewModel.symbolViewModel,
+            rightViewModel: destSymbolViewModel.symbolViewModel,
+            leftShadowColor: originShadowColor,
+            rightShadowColor: destShadowColor
         )
 
         return CrossChainConfirmationViewModel(
-            symbolViewModel: symbolViewModel,
+            sendTo: data.recipientAddress,
+            doubleImageViewViewModel: doubleImageViewViewModel,
             originalNetworkName: data.originChainAsset.chain.name,
             destNetworkName: data.destChainModel.name,
             amount: data.amountViewModel,

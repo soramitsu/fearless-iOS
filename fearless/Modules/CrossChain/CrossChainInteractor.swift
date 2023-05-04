@@ -18,6 +18,7 @@ protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult)
     func didReceiveOrigin(chainAssets: [ChainAsset])
     func didSetup()
+    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
 }
 
 final class CrossChainInteractor {
@@ -36,6 +37,7 @@ final class CrossChainInteractor {
     private let logger: LoggerProtocol
     private let wallet: MetaAccountModel
     private let addressChainDefiner: AddressChainDefiner
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private var runtimeItems: [RuntimeMetadataItem] = []
 
@@ -50,7 +52,8 @@ final class CrossChainInteractor {
         operationQueue: OperationQueue,
         logger: LoggerProtocol,
         wallet: MetaAccountModel,
-        addressChainDefiner: AddressChainDefiner
+        addressChainDefiner: AddressChainDefiner,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.chainAssetFetching = chainAssetFetching
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -61,6 +64,7 @@ final class CrossChainInteractor {
         self.logger = logger
         self.wallet = wallet
         self.addressChainDefiner = addressChainDefiner
+        self.existentialDepositService = existentialDepositService
     }
 
     // MARK: - Private methods
@@ -115,7 +119,7 @@ final class CrossChainInteractor {
         pricesProvider = subscribeToPrices(for: pricesIds)
     }
 
-    private func getAvailableDestChainAssets(for chainAsset: ChainAsset, destChainAsset: ChainAsset?) {
+    private func getAvailableDestChainAssets(for chainAsset: ChainAsset, destChainModel: ChainModel?) {
         Task {
             do {
                 let deps = prepareDeps(originalChainAsset: chainAsset)
@@ -130,7 +134,7 @@ final class CrossChainInteractor {
                     .availableDestionationFetching
                     .getAvailableAssets(
                         originalChainId: chainAsset.chain.chainId,
-                        destinationChainId: destChainAsset?.chain.chainId
+                        destinationChainId: destChainModel?.chainId
                     )
 
                 let availableChainAssets = chainAsset.chain
@@ -156,6 +160,14 @@ final class CrossChainInteractor {
             } catch {
                 logger.customError(error)
             }
+        }
+    }
+
+    private func getExistentialDeposit(for chainAsset: ChainAsset) {
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
+            self?.output?.didReceiveExistentialDeposit(result: result)
         }
     }
 }
@@ -209,14 +221,16 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         fetchRuntimeItems()
     }
 
-    func didReceive(originChainAsset: ChainAsset?, destChainAsset: ChainAsset?) {
-        let chainAssets: [ChainAsset] = [originChainAsset, destChainAsset].compactMap { $0 }
+    func didReceive(originChainAsset: ChainAsset?, destChainModel: ChainModel?) {
+        let originalUtilityChainAsset = originChainAsset?.chain.utilityChainAssets().first
+        let chainAssets: [ChainAsset] = [originalUtilityChainAsset, originChainAsset].compactMap { $0 }
         fetchPrices(for: chainAssets)
         subscribeToAccountInfo(for: chainAssets)
-        guard let originalChainAsset = originChainAsset else {
+        guard let originChainAsset = originChainAsset else {
             return
         }
-        getAvailableDestChainAssets(for: originalChainAsset, destChainAsset: destChainAsset)
+        getAvailableDestChainAssets(for: originChainAsset, destChainModel: destChainModel)
+        getExistentialDeposit(for: originChainAsset)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {

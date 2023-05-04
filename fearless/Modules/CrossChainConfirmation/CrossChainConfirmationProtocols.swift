@@ -3,7 +3,18 @@ typealias CrossChainConfirmationModuleCreationResult = (
     input: CrossChainConfirmationModuleInput
 )
 
-protocol CrossChainConfirmationRouterInput: PresentDismissable {}
+protocol CrossChainConfirmationRouterInput:
+    PresentDismissable,
+    ErrorPresentable,
+    BaseErrorPresentable,
+    ModalAlertPresenting,
+    SheetAlertPresentable {
+    func complete(
+        on view: ControllerBackedProtocol?,
+        title: String,
+        chainAsset: ChainAsset
+    )
+}
 
 protocol CrossChainConfirmationModuleInput: AnyObject {}
 

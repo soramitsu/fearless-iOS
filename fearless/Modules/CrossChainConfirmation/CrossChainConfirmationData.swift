@@ -9,4 +9,6 @@ struct CrossChainConfirmationData {
     let amountViewModel: BalanceViewModelProtocol
     let originChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
+    let destChainFeeDecimal: Decimal
+    let recipientAddress: String
 }

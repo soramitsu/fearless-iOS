@@ -167,7 +167,7 @@ final class ChainAccountViewLayout: UIView {
         }
         buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
         polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
-        crossChainButton.isHidden = viewModel.chainAssetModel?.chain?.xcm == nil
+        crossChainButton.isHidden = !(viewModel.chainAssetModel?.chain?.xcm?.availableAssets.contains(viewModel.chainAssetModel?.asset.name ?? "") ?? true)
 
         let borderType: BorderType = (buyButton.isHidden && polkaswapButton.isHidden) ? .left : [.left, .right]
         receiveContainer.borderType = borderType

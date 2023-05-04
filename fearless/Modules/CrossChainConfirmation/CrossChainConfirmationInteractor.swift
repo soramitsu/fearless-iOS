@@ -4,7 +4,9 @@ import RobinHood
 import BigInt
 import SSFModels
 
-protocol CrossChainConfirmationInteractorOutput: AnyObject {}
+protocol CrossChainConfirmationInteractorOutput: AnyObject {
+    func didTransfer(result: Result<String, Error>)
+}
 
 final class CrossChainConfirmationInteractor {
     // MARK: - Private properties
@@ -29,42 +31,6 @@ final class CrossChainConfirmationInteractor {
     }
 
     // MARK: - Private methods
-
-//    private func fetchRuntimeItems() {
-//        let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
-//
-//        runtimeItemsOperation.completionBlock = { [weak self] in
-//            do {
-//                let items = try runtimeItemsOperation.extractNoCancellableResultData()
-//                self?.runtimeItems = items
-//                self?.prepareDeps()
-//            } catch {
-//                self?.logger.error(error.localizedDescription)
-//            }
-//        }
-//
-//        operationQueue.addOperation(runtimeItemsOperation)
-//    }
-
-//    private func prepareDeps() {
-//        do {
-//            guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == teleportData.originalChainAsset.chain.chainId }),
-//                  let destRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == teleportData.destChainModel.chainId })
-//            else {
-//                throw ConvenienceError(error: "missing runtime item")
-//            }
-//
-//            let deps = try depsContainer.prepareDepsFor(
-//                originalChainAsset: teleportData.originalChainAsset,
-//                destChainModel: teleportData.destChainModel,
-//                originalRuntimeMetadataItem: originalRuntimeMetadataItem,
-//                destRuntimeMetadataItem: destRuntimeMetadataItem
-//            )
-//            self.deps = deps
-//        } catch {
-//            logger.error(error.localizedDescription)
-//        }
-//    }
 }
 
 // MARK: - CrossChainConfirmationInteractorInput
@@ -76,24 +42,26 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
 
     func submit() {
         Task {
-            let destChainRequest = teleportData.destChainModel.accountRequest()
-            guard let destAccountId = teleportData.wallet.fetch(for: destChainRequest)?.accountId else {
+            let address = teleportData.recipientAddress
+            let chain = teleportData.destChainModel
+            let precision = Int16(teleportData.originChainAsset.asset.precision)
+            guard
+                let destAccountId = try? AddressFactory.accountId(from: address, chain: chain),
+                let destFeeValue = teleportData.destChainFeeDecimal.toSubstrateAmount(precision: precision)
+            else {
                 return
             }
+
+            let amount = teleportData.amount + destFeeValue
             let result = await xcmServices.extrinsic.transfer(
                 fromChainId: teleportData.originChainAsset.chain.chainId,
                 assetSymbol: teleportData.originChainAsset.asset.symbol,
                 destChainId: teleportData.destChainModel.chainId,
                 destAccountId: destAccountId,
-                amount: teleportData.amount
+                amount: amount
             )
 
-            switch result {
-            case let .success(hash):
-                logger.verbose("submit hash \(hash)")
-            case let .failure(error):
-                logger.error("submit error \(error)")
-            }
+            output?.didTransfer(result: result)
         }
     }
 }

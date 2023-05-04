@@ -9,7 +9,7 @@ protocol CrossChainViewOutput: AnyObject {
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func didTapBackButton()
-    func didTapConfirmButton()
+    func didTapContinueButton()
     func didTapScanButton()
     func didTapHistoryButton()
     func didTapMyWalletsButton()
@@ -81,7 +81,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
             self?.output.didTapBackButton()
         }
         rootView.actionButton.addAction { [weak self] in
-            self?.output.didTapConfirmButton()
+            self?.output.didTapContinueButton()
         }
         rootView.scanButton.addAction { [weak self] in
             self?.output.didTapScanButton()
@@ -107,7 +107,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     }
 
     private func updatePreviewButton() {
-        let isEnabled = amountInputViewModel?.isValid == true
+        let isEnabled = amountInputViewModel?.isValid == true && rootView.searchView.textField.text.or("").isNotEmpty
         rootView.actionButton.set(enabled: isEnabled)
     }
 }
@@ -149,6 +149,7 @@ extension CrossChainViewController: CrossChainViewInput {
 
     func didReceive(recipientViewModel: RecipientViewModel) {
         rootView.bind(recipientViewModel: recipientViewModel)
+        updatePreviewButton()
     }
 }
 
@@ -176,10 +177,6 @@ extension CrossChainViewController: AmountInputViewModelObserver {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
         let amount = amountInputViewModel?.decimalAmount ?? 0.0
         output.updateAmount(amount)
-//        guard let amountTo = amountInputViewModel?.decimalAmount else {
-//            return
-//        }
-//        output.updateAmount(amountTo)
     }
 }
 
@@ -192,6 +189,7 @@ extension CrossChainViewController: AmountInputAccessoryViewDelegate {
 
     func didSelectDone(on _: AmountInputAccessoryView) {
         rootView.amountView.textField.resignFirstResponder()
+        rootView.searchView.textField.resignFirstResponder()
     }
 }
 
@@ -206,11 +204,11 @@ extension CrossChainViewController: UITextFieldDelegate {
         if textField == rootView.amountView.textField {
             return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
         } else if textField == rootView.searchView.textField {
-            guard let text = textField.text as NSString? else {
-                return true
+            if range.length == 1, string.isEmpty {
+                output.searchTextDidChanged("")
+            } else {
+                return false
             }
-            let newString = text.replacingCharacters(in: range, with: string)
-            output.searchTextDidChanged(newString)
         }
         return true
     }

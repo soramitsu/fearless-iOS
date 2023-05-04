@@ -16,7 +16,7 @@ final class CrossChainConfirmationViewLayout: UIView {
         return view
     }()
 
-    let symbolView = SymbolView()
+    let doubleImageView = PolkaswapDoubleSymbolView()
 
     let teleportStubLabel: UILabel = {
         let label = UILabel()
@@ -43,9 +43,9 @@ final class CrossChainConfirmationViewLayout: UIView {
     }()
 
     let infoViewsStackView = UIFactory.default.createVerticalStackView(spacing: UIConstants.bigOffset)
+    let sendToView = UIFactory.default.createConfirmationMultiView()
     let originalNetworkView = UIFactory.default.createConfirmationMultiView()
     let destNetworkView = UIFactory.default.createConfirmationMultiView()
-    let amountView = UIFactory.default.createConfirmationMultiView()
     let originalChainFeeView = UIFactory.default.createConfirmationMultiView()
     let destChainFeeView = UIFactory.default.createConfirmationMultiView()
 
@@ -79,11 +79,11 @@ final class CrossChainConfirmationViewLayout: UIView {
     }
 
     func bind(confirmViewModel: CrossChainConfirmationViewModel) {
-        symbolView.bind(viewModel: confirmViewModel.symbolViewModel)
+        doubleImageView.bind(viewModel: confirmViewModel.doubleImageViewViewModel)
         amountLabel.text = confirmViewModel.amount.amount
+        sendToView.valueTop.text = confirmViewModel.sendTo
         originalNetworkView.valueTop.text = confirmViewModel.originalNetworkName
         destNetworkView.valueTop.text = confirmViewModel.destNetworkName
-        amountView.bindBalance(viewModel: confirmViewModel.amount)
         originalChainFeeView.bindBalance(viewModel: confirmViewModel.originalChainFee)
         destChainFeeView.bindBalance(viewModel: confirmViewModel.destChainFee)
     }
@@ -94,15 +94,15 @@ final class CrossChainConfirmationViewLayout: UIView {
         originalNetworkView.valueTop.textAlignment = .right
         destNetworkView.valueTop.lineBreakMode = .byTruncatingMiddle
         destNetworkView.valueTop.textAlignment = .right
-        amountView.valueBottom.textAlignment = .right
-        amountView.valueTop.textAlignment = .right
+        sendToView.valueTop.textAlignment = .right
+        sendToView.valueTop.lineBreakMode = .byTruncatingMiddle
         originalChainFeeView.valueBottom.textAlignment = .right
         originalChainFeeView.valueTop.textAlignment = .right
         destChainFeeView.valueBottom.textAlignment = .right
         destChainFeeView.valueTop.textAlignment = .right
         originalNetworkView.borderView.isHidden = true
         destNetworkView.borderView.isHidden = true
-        amountView.borderView.isHidden = true
+        sendToView.borderView.isHidden = true
         originalChainFeeView.borderView.isHidden = true
         destChainFeeView.borderView.isHidden = true
     }
@@ -111,14 +111,18 @@ final class CrossChainConfirmationViewLayout: UIView {
         navigationBar.setTitle(R.string.localizable.commonPreview(
             preferredLanguages: locale.rLanguages
         ))
-        teleportStubLabel.text = "Teleport"
-        originalNetworkView.titleLabel.text = "Original network"
-        destNetworkView.titleLabel.text = "Destination network"
-        amountView.titleLabel.text = R.string.localizable.walletSendAmountTitle(
-            preferredLanguages: locale.rLanguages
-        )
-        originalChainFeeView.titleLabel.text = "Origin Chain Fee"
-        destChainFeeView.titleLabel.text = "Destination Chain Fee"
+        teleportStubLabel.text = R.string.localizable
+            .sendConfirmAmountTitle("", preferredLanguages: locale.rLanguages)
+        originalNetworkView.titleLabel.text = R.string.localizable
+            .xcmOriginalNetworkTitle(preferredLanguages: locale.rLanguages)
+        destNetworkView.titleLabel.text = R.string.localizable
+            .xcmDestinationNetworkTitle(preferredLanguages: locale.rLanguages)
+        sendToView.titleLabel.text = R.string.localizable
+            .searchViewTitle(preferredLanguages: locale.rLanguages)
+        originalChainFeeView.titleLabel.text = R.string.localizable
+            .xcmOriginNetworkFeeTitle(preferredLanguages: locale.rLanguages)
+        destChainFeeView.titleLabel.text = R.string.localizable
+            .xcmDestinationNetworkFeeTitle(preferredLanguages: locale.rLanguages)
         confirmButton.imageWithTitleView?.title = R.string.localizable.commonConfirm(
             preferredLanguages: locale.rLanguages
         )
@@ -129,15 +133,15 @@ final class CrossChainConfirmationViewLayout: UIView {
         addSubview(contentView)
         addSubview(confirmButton)
 
-        contentView.stackView.addArrangedSubview(symbolView)
+        contentView.stackView.addArrangedSubview(doubleImageView)
         contentView.stackView.addArrangedSubview(teleportStubLabel)
         contentView.stackView.addArrangedSubview(amountLabel)
         contentView.stackView.addArrangedSubview(infoBackground)
 
         infoBackground.addSubview(infoViewsStackView)
+        infoViewsStackView.addArrangedSubview(sendToView)
         infoViewsStackView.addArrangedSubview(originalNetworkView)
         infoViewsStackView.addArrangedSubview(destNetworkView)
-        infoViewsStackView.addArrangedSubview(amountView)
         infoViewsStackView.addArrangedSubview(originalChainFeeView)
         infoViewsStackView.addArrangedSubview(destChainFeeView)
 
@@ -179,7 +183,7 @@ final class CrossChainConfirmationViewLayout: UIView {
         [
             originalNetworkView,
             destNetworkView,
-            amountView,
+            sendToView,
             originalChainFeeView,
             destChainFeeView
         ].forEach { makeCellHeightConstraints(for: $0) }

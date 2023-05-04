@@ -1,7 +1,8 @@
 import Foundation
 
 struct CrossChainConfirmationViewModel {
-    let symbolViewModel: SymbolViewModel
+    let sendTo: String
+    let doubleImageViewViewModel: PolkaswapDoubleSymbolViewModel
     let originalNetworkName: String
     let destNetworkName: String
     let amount: BalanceViewModelProtocol
