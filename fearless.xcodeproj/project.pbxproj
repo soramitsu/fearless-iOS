@@ -2377,6 +2377,7 @@
 		FA93A313283653B70021330F /* ValidatorListFilterFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */; };
 		FA93A3162836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */; };
 		FA93A3182836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */; };
+		FA97E68B2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */; };
 		FA99422827FE925000D771E5 /* UISwitch+CustomSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */; };
 		FA99422A27FE927800D771E5 /* AssetModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422927FE927700D771E5 /* AssetModelMapper.swift */; };
 		FA99422D28002BB800D771E5 /* MissingAccountOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */; };
@@ -5101,6 +5102,7 @@
 		FA93A312283653B70021330F /* ValidatorListFilterFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterFlow.swift; sourceTree = "<group>"; };
 		FA93A3152836542D0021330F /* ValidatorListFilterRelaychainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelState.swift; sourceTree = "<group>"; };
 		FA93A3172836543B0021330F /* ValidatorListFilterRelaychainViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorListFilterRelaychainViewModelFactory.swift; sourceTree = "<group>"; };
+		FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GiantsquidRewardOperationFactory.swift; sourceTree = "<group>"; };
 		FA99422727FE925000D771E5 /* UISwitch+CustomSize.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UISwitch+CustomSize.swift"; sourceTree = "<group>"; };
 		FA99422927FE927700D771E5 /* AssetModelMapper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetModelMapper.swift; sourceTree = "<group>"; };
 		FA99422C28002BB800D771E5 /* MissingAccountOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountOptions.swift; sourceTree = "<group>"; };
@@ -12306,6 +12308,7 @@
 				FA6C175829935DC700A55254 /* SubsquidRewardOperationFactory.swift */,
 				FA6C175929935DC700A55254 /* RewardOperationFactory.swift */,
 				FA6C175A29935DC700A55254 /* SubqueryRewardOperationFactory.swift */,
+				FA97E68A2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift */,
 			);
 			path = Rewards;
 			sourceTree = "<group>";
@@ -14621,6 +14624,7 @@
 				076D9D35293E34AF002762E3 /* LiquiditySourceType.swift in Sources */,
 				C6CA3081286192C50087776D /* DelegationViewModel.swift in Sources */,
 				FAA0137528DA12E3000A5230 /* StakingRedeemConfirmationRelaychainViewModelFactory.swift in Sources */,
+				FA97E68B2A0281230035F5D7 /* GiantsquidRewardOperationFactory.swift in Sources */,
 				FA2E9BC127A2A1000023FAD2 /* FilterSectionHeaderView.swift in Sources */,
 				FA17B4D127E9CF21006E0735 /* main.swift in Sources */,
 				FAA0133C28DA12B6000A5230 /* StakingPoolManagementProtocols.swift in Sources */,

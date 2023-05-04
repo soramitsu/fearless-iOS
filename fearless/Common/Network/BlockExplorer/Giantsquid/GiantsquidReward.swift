@@ -5,7 +5,7 @@ import IrohaCrypto
 
 struct GiantsquidReward: Decodable {
     let amount: String
-    let era: UInt32?
+    let era: Int?
     let accountId: String?
     let validator: String?
     let timestamp: String
@@ -17,6 +17,32 @@ struct GiantsquidReward: Decodable {
         let dateFormatter = DateFormatter.giantsquidDate
         let date = dateFormatter.value(for: Locale.current).date(from: timestamp)
         return Int64(date?.timeIntervalSince1970 ?? 0)
+    }
+}
+
+extension GiantsquidReward: RewardOrSlashData, RewardOrSlash {
+    var address: String {
+        accountId ?? ""
+    }
+
+    var rewardInfo: RewardOrSlash? {
+        self
+    }
+
+    var isReward: Bool {
+        true
+    }
+
+    var stash: String? {
+        accountId
+    }
+
+    var eventIdx: String? {
+        id
+    }
+
+    var assetId: String? {
+        nil
     }
 }
 

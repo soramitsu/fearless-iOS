@@ -117,7 +117,7 @@ final class SubsquidHistoryOperationFactory {
     }
 
     private func prepareQueryForAddress(
-        _ address: String,
+        _: String,
         count: Int,
         cursor: String?,
         filters: [WalletTransactionHistoryFilter]
@@ -126,7 +126,7 @@ final class SubsquidHistoryOperationFactory {
         let offset: Int = cursor.map { Int($0) ?? 0 } ?? 0
         return """
         query MyQuery {
-          historyElements(where: {address_eq: "\(address)", \(filterString)}, orderBy: timestamp_DESC, limit: \(count), offset: \(offset)) {
+          historyElements(where: {\(filterString)}, orderBy: timestamp_DESC, limit: \(count), offset: \(offset)) {
             timestamp
             id
             extrinsicIdx

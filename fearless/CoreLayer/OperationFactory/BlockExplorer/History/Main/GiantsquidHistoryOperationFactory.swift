@@ -99,14 +99,14 @@ final class GiantsquidHistoryOperationFactory {
 
     private func prepareFilter(
         filters: [WalletTransactionHistoryFilter],
-        address: String
+        address _: String
     ) -> String {
         var filterStrings: [String] = []
 
         if filters.contains(where: { $0.type == .other && $0.selected }), GiantsquidConfig.giantsquidExtrinsicEnabled {
             filterStrings.append(
                 """
-                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                          slashes {
                             accountId
                             amount
                             blockNumber
@@ -115,7 +115,7 @@ final class GiantsquidHistoryOperationFactory {
                             id
                             timestamp
                           }
-                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                          bonds {
                             accountId
                             amount
                             blockNumber
@@ -132,7 +132,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .reward && $0.selected }), GiantsquidConfig.giantsquidRewardsEnabled {
             filterStrings.append(
                 """
-                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
+                rewards {
                 accountId
                 amount
                 blockNumber
@@ -149,7 +149,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                          transfers(where: {account: {id_eq: "\(address)"}}, orderBy: id_DESC) {
+                          transfers(limit: 10) {
                            id
                                transfer {
                                  amount
@@ -327,7 +327,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let result = GiantsquidResponseData(transfers: [], rewards: [], bonds: [], slashes: [])
+            let result = GiantsquidResponseData(transfers: [], stakingRewards: [], bonds: [], slashes: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 
