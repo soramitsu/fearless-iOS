@@ -38,7 +38,8 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
             assetViewModel: nil,
             rewardDestinationViewModel: nil,
             feeViewModel: feeViewModel,
-            inputViewModel: nil
+            inputViewModel: nil,
+            continueAvailable: parachainViewModelState.continueAvailable
         )
     }
 

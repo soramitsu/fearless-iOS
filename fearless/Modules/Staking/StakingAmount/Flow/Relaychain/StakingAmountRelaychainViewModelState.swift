@@ -11,7 +11,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private let callFactory: SubstrateCallFactoryProtocol
 
     private var networkStakingInfo: NetworkStakingInfo?
-    private var minStake: Decimal?
+    private(set) var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var minimumBond: Decimal?
     private(set) var counterForNominators: UInt32?
@@ -29,6 +29,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private var balance: Decimal?
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var inputResult: AmountInputResult?
+
+    var continueAvailable: Bool {
+        minStake != nil && minimumBond != nil && fee != nil && balance != nil && counterForNominators != nil
+    }
 
     var bonding: InitiatedBonding? {
         guard let amount = amount else {
@@ -64,18 +68,29 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     }
 
     func validators(using _: Locale) -> [DataValidating] {
-        [dataValidatingFactory.canNominate(
-            amount: amount,
-            minimalBalance: minimalBalance,
-            minNominatorBond: minimumBond,
-            locale: selectedLocale
-        ),
-        dataValidatingFactory.maxNominatorsCountNotApplied(
-            counterForNominators: counterForNominators,
-            maxNominatorsCount: maxNominatorsCount,
-            hasExistingNomination: false,
-            locale: selectedLocale
-        )]
+        func calculateMinimumBond() -> Decimal? {
+            guard let minStake = minStake, let minimumBond = minimumBond else {
+                return nil
+            }
+
+            return max(minimumBond, minStake)
+        }
+
+        let minNominatorBond = calculateMinimumBond()
+        return [
+            dataValidatingFactory.canNominate(
+                amount: amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minNominatorBond,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.maxNominatorsCountNotApplied(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                hasExistingNomination: false,
+                locale: selectedLocale
+            )
+        ]
     }
 
     func selectPayoutDestination() {
@@ -176,6 +191,8 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategyOutput {
     func didReceive(maxNominations: Int) {
         self.maxNominations = maxNominations
+
+        notifyListeners()
     }
 
     func didReceive(error _: Error) {}
@@ -223,6 +240,8 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
         let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: minimumBond?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)))
         minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+
+        notifyListeners()
     }
 
     func didReceive(networkStakingInfoError: Error) {
