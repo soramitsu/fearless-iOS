@@ -39,7 +39,8 @@ final class KYCMainAssembly {
             service: .shared,
             chainAssetFetching: chainAssetFetching,
             accountInfoFetching: accountInfoFetching,
-            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            eventCenter: EventCenter.shared
         )
         let router = KYCMainRouter()
 

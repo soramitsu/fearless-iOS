@@ -52,12 +52,6 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         if ignoredUrl == nil,
            let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection,
            connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {

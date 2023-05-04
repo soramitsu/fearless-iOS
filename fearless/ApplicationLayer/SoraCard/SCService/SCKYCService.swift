@@ -31,10 +31,11 @@ final class SCKYCService {
     internal let client: SCAPIClient
     private let payWingsOAuthClient: PayWingsOAuthSDK.OAuthServiceProtocol
     private let eventCenter = EventCenter.shared
-    private let tokenHolder = SCTokenHolder.shared
+    private let tokenHolder: SCTokenHolderProtocol
 
-    init(client: SCAPIClient) {
+    init(client: SCAPIClient, tokenHolder: SCTokenHolderProtocol = SCTokenHolder.shared) {
         self.client = client
+        self.tokenHolder = tokenHolder
 
         let domain = SoraCardCIKeys.domain
         let apiKey = SoraCardCIKeys.apiKey
@@ -42,7 +43,10 @@ final class SCKYCService {
 
         payWingsOAuthClient = PayWingsOAuthClient.instance()!
 
-        Task { await kycStatuses() }
+        Task {
+            await tokenHolder.loadToken()
+            await kycStatuses()
+        }
     }
 
     internal var userStatusYield: ((SCKYCUserStatus) -> Void)?
@@ -55,16 +59,34 @@ final class SCKYCService {
         }
     }()
 
-    func refreshAccessTokenIfNeeded(oldToken: SCToken) {
-        payWingsOAuthClient.getNewAccessToken(refreshToken: oldToken.refreshToken) { [weak self] result in
-            if let data = result.accessTokenData {
-                let token = SCToken(
-                    refreshToken: oldToken.refreshToken,
-                    accessToken: data.accessToken,
-                    accessTokenExpirationTime: data.accessTokenExpirationTime
-                )
-                self?.tokenHolder.set(token: token)
-                return
+    func refreshAccessTokenIfNeeded() async throws {
+        let token = tokenHolder.token
+        guard Date() >= Date(timeIntervalSince1970: TimeInterval(token.accessTokenExpirationTime)) else {
+            return
+        }
+
+        return await withCheckedContinuation { continuation in
+
+            self.payWingsOAuthClient.getNewAccessToken(refreshToken: token.refreshToken) { [weak self] result in
+                if let data = result.accessTokenData {
+                    let token = SCToken(
+                        refreshToken: token.refreshToken,
+                        accessToken: data.accessToken,
+                        accessTokenExpirationTime: data.accessTokenExpirationTime
+                    )
+                    self?.tokenHolder.set(token: token)
+
+                    Task {
+                        continuation.resume()
+                    }
+                    return
+                }
+
+                if let errorData = result.errorData {
+                    print("Error SCKYCService:\(errorData.error.rawValue) \(String(describing: errorData.errorMessage))")
+                    continuation.resume()
+                    return
+                }
             }
         }
     }
@@ -75,10 +97,10 @@ final class SCKYCService {
 
     func getUserData(callback: GetUserDataCallback) {
         Task {
-            guard let token = await SCStorage.shared.token() else {
+            guard !tokenHolder.token.isEmpty else {
                 return
             }
-            payWingsOAuthClient.getUserData(accessToken: token.accessToken, callback: callback)
+            payWingsOAuthClient.getUserData(accessToken: tokenHolder.token.accessToken, callback: callback)
         }
     }
 
@@ -118,11 +140,5 @@ final class SCKYCService {
         let decoder = JSONDecoder()
         guard let fiatData = try? decoder.decode([String: [String: Float]].self, from: data) else { return nil }
         return fiatData["sora"]?["eur"] as? Float
-    }
-}
-
-extension SCKYCService: EventVisitorProtocol {
-    func processKYCTokenNeedRefresh(token: SCToken) {
-        refreshAccessTokenIfNeeded(oldToken: token)
     }
 }

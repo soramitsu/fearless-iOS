@@ -56,11 +56,11 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardViewOutput {
 // MARK: - SoraCardInfoBoardInteractorOutput
 
 extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
-    func didReceive(status: SCKYCUserStatus) {
+    func didReceive(status: SCKYCUserStatus?, hasFreeAttempts: Bool) {
         view?.didStopLoading()
 
-        let statusViewModel = viewModelFactory.buildViewModel(from: status)
-        view?.didReceive(stateViewModel: statusViewModel)
+        let status = viewModelFactory.buildStatusViewModel(from: status, hasFreeAttempts: hasFreeAttempts)
+        view?.didReceive(status: status)
     }
 
     func didReceive(hiddenState: Bool) {
@@ -76,11 +76,13 @@ extension SoraCardInfoBoardPresenter: SoraCardInfoBoardInteractorOutput {
     }
 
     func didReceive(error: NetworkingError) {
+        view?.didReceive(status: .notStarted)
         router.present(error: error, from: view, locale: selectedLocale)
     }
 
-    func restartKYC() {
-        router.start(from: view, data: SCKYCUserDataModel(), wallet: wallet)
+    func restartKYC(data: SCKYCUserDataModel?) {
+        let userData: SCKYCUserDataModel = data ?? SCKYCUserDataModel()
+        router.start(from: view, data: userData, wallet: wallet)
     }
 }
 

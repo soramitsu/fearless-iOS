@@ -10,7 +10,8 @@ final class PhoneVerificationCodeAssembly {
             data: data,
             service: service,
             otpLength: otpLength,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            tokenHolder: SCTokenHolder.shared
         )
         let router = PhoneVerificationCodeRouter()
 
