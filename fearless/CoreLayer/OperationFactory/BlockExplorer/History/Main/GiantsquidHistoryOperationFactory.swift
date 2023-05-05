@@ -99,7 +99,7 @@ final class GiantsquidHistoryOperationFactory {
 
     private func prepareFilter(
         filters: [WalletTransactionHistoryFilter],
-        address _: String
+        address: String
     ) -> String {
         var filterStrings: [String] = []
 
@@ -149,7 +149,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                          transfers(limit: 10) {
+                          transfers(where: {account: {id_eq: "\(address)"}}) {
                            id
                                transfer {
                                  amount
