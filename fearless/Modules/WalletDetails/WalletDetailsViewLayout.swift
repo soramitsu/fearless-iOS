@@ -1,4 +1,5 @@
 import UIKit
+import SnapKit
 
 final class WalletDetailsViewLayout: UIView {
     var walletView: CommonInputView = {
@@ -52,6 +53,8 @@ final class WalletDetailsViewLayout: UIView {
             applyLocalization()
         }
     }
+
+    var keyboardAdoptableConstraint: Constraint?
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -127,7 +130,7 @@ private extension WalletDetailsViewLayout {
             make.leading.equalToSuperview().offset(UIConstants.bigOffset)
             make.trailing.equalToSuperview().inset(UIConstants.bigOffset)
             make.top.equalTo(walletView.snp.bottom).offset(UIConstants.bigOffset)
-            make.bottom.equalToSuperview().inset(UIConstants.hugeOffset)
+            keyboardAdoptableConstraint = make.bottom.equalToSuperview().inset(UIConstants.hugeOffset).constraint
         }
 
         addSubview(exportButton)
