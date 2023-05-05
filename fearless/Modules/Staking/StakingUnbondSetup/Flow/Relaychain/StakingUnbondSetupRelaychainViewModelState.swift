@@ -174,10 +174,7 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     func updateAmount(_ amount: Decimal) {
         inputAmount = amount
         stateListener?.provideAssetViewModel()
-
-        if fee == nil {
-            stateListener?.updateFeeIfNeeded()
-        }
+        stateListener?.updateFeeIfNeeded()
     }
 }
 
