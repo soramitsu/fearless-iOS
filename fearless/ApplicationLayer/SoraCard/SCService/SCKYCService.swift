@@ -60,13 +60,12 @@ final class SCKYCService {
     }()
 
     func refreshAccessTokenIfNeeded() async throws {
-        print("refreshAccessTokenIfNeeded()")
         let token = tokenHolder.token
         guard Date() >= Date(timeIntervalSince1970: TimeInterval(token.accessTokenExpirationTime)) else {
             return
         }
 
-        return await withUnsafeContinuation { continuation in
+        return await withCheckedContinuation { continuation in
 
             self.payWingsOAuthClient.getNewAccessToken(refreshToken: token.refreshToken) { [weak self] result in
                 if let data = result.accessTokenData {
@@ -85,7 +84,7 @@ final class SCKYCService {
 
                 if let errorData = result.errorData {
                     print("Error SCKYCService:\(errorData.error.rawValue) \(String(describing: errorData.errorMessage))")
-//                    continuation.resume()
+                    continuation.resume()
                     return
                 }
             }

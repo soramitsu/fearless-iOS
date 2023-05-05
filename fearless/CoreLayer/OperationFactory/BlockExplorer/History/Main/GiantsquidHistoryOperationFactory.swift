@@ -106,7 +106,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .other && $0.selected }), GiantsquidConfig.giantsquidExtrinsicEnabled {
             filterStrings.append(
                 """
-                          slashes {
+                          slashes(where: {accountId_containsInsensitive: \"\(address)\"}) {
                             accountId
                             amount
                             blockNumber
@@ -115,7 +115,7 @@ final class GiantsquidHistoryOperationFactory {
                             id
                             timestamp
                           }
-                          bonds {
+                          bonds(where: {accountId_containsInsensitive: \"\(address)\"}) {
                             accountId
                             amount
                             blockNumber
@@ -132,7 +132,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .reward && $0.selected }), GiantsquidConfig.giantsquidRewardsEnabled {
             filterStrings.append(
                 """
-                rewards {
+                rewards(where: {accountId_containsInsensitive: \"\(address)\"}) {
                 accountId
                 amount
                 blockNumber
@@ -149,7 +149,7 @@ final class GiantsquidHistoryOperationFactory {
         if filters.contains(where: { $0.type == .transfer && $0.selected }) {
             filterStrings.append(
                 """
-                          transfers(where: {account: {id_eq: "\(address)"}}) {
+                          transfers(where: {account: {id_eq: "\(address)"}}, orderBy: id_DESC) {
                            id
                                transfer {
                                  amount
