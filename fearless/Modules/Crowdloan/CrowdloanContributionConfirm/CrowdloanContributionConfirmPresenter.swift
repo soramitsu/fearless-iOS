@@ -98,7 +98,7 @@ final class CrowdloanContributionConfirmPresenter {
 
     private func provideFeeViewModel() {
         let feeViewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
         view?.didReceiveFee(viewModel: feeViewModel)

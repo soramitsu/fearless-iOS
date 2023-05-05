@@ -19,7 +19,7 @@ extension AssetPriceViewModelFactoryProtocol {
         currency: Currency
     ) -> NSAttributedString? {
         let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .fiat)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
 
         guard let priceData = priceData,

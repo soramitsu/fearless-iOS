@@ -35,9 +35,9 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         targetReturn: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<RewardViewModelProtocol> {
-        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo)
+        let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAssetInfo, usageCase: .detailsCrypto)
         let priceAssetInfo = AssetBalanceDisplayInfo.forCurrency(selectedMetaAccount.selectedCurrency)
-        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo)
+        let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAssetInfo, usageCase: .fiat)
 
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)

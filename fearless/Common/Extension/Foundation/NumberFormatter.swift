@@ -110,4 +110,17 @@ extension NumberFormatter {
         formatter.maximumFractionDigits = 4
         return formatter
     }
+
+    static func token(
+        rounding: NumberFormatter.RoundingMode,
+        usesIntGrouping: Bool = false
+    ) -> NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 8
+        formatter.roundingMode = rounding
+        formatter.usesGroupingSeparator = usesIntGrouping
+        return formatter
+    }
 }

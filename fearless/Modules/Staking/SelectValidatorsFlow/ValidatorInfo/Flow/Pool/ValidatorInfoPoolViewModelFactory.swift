@@ -82,7 +82,8 @@ final class ValidatorInfoPoolViewModelFactory {
 
         let totalStake = balanceViewModelFactory.balanceFromPrice(
             validatorInfo.totalStake,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale)
 
         let estimatedRewardDecimal = validatorInfo.stakeInfo?.stakeReturn ?? 0.0
@@ -150,7 +151,7 @@ final class ValidatorInfoPoolViewModelFactory {
         amount: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<StakingAmountViewModel> {
-        let balance = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let balance = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
 
         return LocalizableResource { locale in
 

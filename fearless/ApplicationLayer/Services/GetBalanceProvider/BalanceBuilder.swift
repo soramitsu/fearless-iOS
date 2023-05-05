@@ -100,7 +100,7 @@ final class BalanceBuilder: BalanceBuilderProtocol {
 
     private func tokenFormatter(for currency: Currency) -> TokenFormatter {
         let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo)
+        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo, usageCase: .fiat)
         let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
         return balanceTokenFormatterValue
     }

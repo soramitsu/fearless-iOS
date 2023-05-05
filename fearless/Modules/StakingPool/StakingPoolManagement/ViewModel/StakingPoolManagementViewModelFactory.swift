@@ -32,7 +32,7 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<NSAttributedString> {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         return LocalizableResource { locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""

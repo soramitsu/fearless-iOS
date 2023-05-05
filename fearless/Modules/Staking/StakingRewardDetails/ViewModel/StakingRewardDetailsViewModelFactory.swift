@@ -94,7 +94,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
     }
 
     private func tokenAmountText(payoutInfo: PayoutInfo, locale: Locale) -> String {
-        balanceViewModelFactory.amountFromValue(payoutInfo.reward).value(for: locale)
+        balanceViewModelFactory.amountFromValue(payoutInfo.reward, usageCase: .detailsCrypto).value(for: locale)
     }
 
     private func priceText(payoutInfo: PayoutInfo, priceData: PriceData?, locale: Locale) -> String {

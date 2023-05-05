@@ -9,7 +9,7 @@ final class BalanceInfoRouter: BalanceInfoRouterInput {
     ) {
         let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
             balanceContext,
-            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info),
+            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .detailsCrypto),
             precision: info.assetPrecision,
             currency: currency
         )
