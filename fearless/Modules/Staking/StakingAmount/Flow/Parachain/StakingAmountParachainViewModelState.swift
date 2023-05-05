@@ -34,6 +34,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 
     var payoutAccount: ChainAccountResponse? { nil }
 
+    var continueAvailable: Bool {
+        minimalBalance != nil && networkStakingInfo != nil && minStake != nil
+    }
+
     var bonding: InitiatedBonding? {
         guard let amount = amount, let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
             return nil
@@ -123,6 +127,8 @@ extension StakingAmountParachainViewModelState: StakingAmountParachainStrategyOu
 
         let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: networkStakingInfo.baseInfo.minStakeAmongActiveNominators)
         minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+
+        notifyListeners()
     }
 
     func didSetup() {
