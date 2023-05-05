@@ -78,7 +78,8 @@ final class ValidatorInfoParachainViewModelFactory {
 
         let totalStake = balanceViewModelFactory.balanceFromPrice(
             totalStakeDecimal,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale)
 
         let estimatedReward = collatorInfo.subqueryData?.apr ?? 0.0
@@ -95,17 +96,20 @@ final class ValidatorInfoParachainViewModelFactory {
 
         let minimumBondString = balanceViewModelFactory.balanceFromPrice(
             minimumBond,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale).amount
 
         let selfBondedString = balanceViewModelFactory.balanceFromPrice(
             ownStakeDecimal,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale).amount
 
         let effectiveAmountBondedString = balanceViewModelFactory.balanceFromPrice(
             effectiveAmountBondedDecimal,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale).amount
 
         return ValidatorInfoViewModel.ParachainExposure(
@@ -171,7 +175,7 @@ final class ValidatorInfoParachainViewModelFactory {
         amount: Decimal,
         priceData: PriceData?
     ) -> LocalizableResource<StakingAmountViewModel> {
-        let balance = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let balance = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
 
         return LocalizableResource { locale in
 

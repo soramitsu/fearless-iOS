@@ -52,7 +52,7 @@ class WalletTransactionDetailsViewModelFactory: WalletTransactionDetailsViewMode
         let dateString = DateFormatter.txDetails.value(for: locale).string(from: date)
 
         let tokenFormatter = assetBalanceFormatterFactory
-            .createTokenFormatter(for: asset.displayInfo)
+            .createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
             .value(for: locale)
 
         switch transactionType {

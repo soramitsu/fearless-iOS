@@ -60,7 +60,8 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
             }
 
             let formatter = strongSelf.amountFormatterFactory.createDisplayFormatter(
-                for: strongSelf.assetInfo
+                for: strongSelf.assetInfo,
+                usageCase: .detailsCrypto
             ).value(for: locale)
 
             let minimumBalanceString = minimumBalance
@@ -106,7 +107,7 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
                 )
 
                 let diffString = decimalDiff.map {
-                    strongSelf.amountFormatterFactory.createDisplayFormatter(for: strongSelf.assetInfo)
+                    strongSelf.amountFormatterFactory.createDisplayFormatter(for: strongSelf.assetInfo, usageCase: .detailsCrypto)
                         .value(for: locale)
                         .stringFromDecimal($0)
                 } ?? nil

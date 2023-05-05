@@ -42,7 +42,7 @@ final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewMo
         else { return "" }
 
         let tokenAmountText = balanceViewModelFactory
-            .amountFromValue(tokenDecimal)
+            .amountFromValue(tokenDecimal, usageCase: .detailsCrypto)
             .value(for: locale)
         return tokenAmountText
     }

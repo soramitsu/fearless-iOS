@@ -52,7 +52,7 @@ extension StakingPoolJoinChoosePoolViewModelFactory: StakingPoolJoinChoosePoolVi
                 preferredLanguages: locale.rLanguages
             )
 
-            let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+            let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
             let amountDecimal = Decimal.fromSubstrateAmount(
                 pool.info.points,
                 precision: Int16(chainAsset.asset.precision)
