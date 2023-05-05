@@ -53,17 +53,20 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
         if ignoredUrl == nil,
-           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection,
+           let connection = getConnection(for: chain.chainId),
            connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
             return connection
         }
 
-        var chainFaledUrls = failedUrls[chain.chainId].or([])
+        var chainFaledUrls = getFailedUrls(for: chain.chainId).or([])
         let node = chain.selectedNode ?? chain.nodes.first(where: {
             ($0.url != ignoredUrl) && !chainFaledUrls.contains($0.url)
         })
         chainFaledUrls.insert(ignoredUrl)
-        failedUrls[chain.chainId] = chainFaledUrls
+
+        readLock.exclusivelyWrite {
+            self.failedUrls[chain.chainId] = chainFaledUrls
+        }
 
         guard let url = node?.url else {
             throw ConnectionPoolError.onlyOneNode
@@ -90,6 +93,10 @@ extension ConnectionPool: ConnectionPoolProtocol {
         connectionsByChainIds[chain.chainId] = wrapper
 
         return connection
+    }
+
+    func getFailedUrls(for chainId: ChainModel.Id) -> Set<URL?>? {
+        readLock.concurrentlyRead { failedUrls[chainId] }
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
