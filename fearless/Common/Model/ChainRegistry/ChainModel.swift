@@ -249,6 +249,10 @@ extension ChainModel {
     struct ExternalResource: Codable, Hashable {
         let type: String
         let url: URL
+
+        static func == (lhs: ExternalResource, rhs: ExternalResource) -> Bool {
+            lhs.type == rhs.type && lhs.url == rhs.url
+        }
     }
 
     struct BlockExplorer: Codable, Hashable {
@@ -262,6 +266,10 @@ extension ChainModel {
 
             self.type = externalApiType
             self.url = url
+        }
+
+        static func == (lhs: BlockExplorer, rhs: BlockExplorer) -> Bool {
+            lhs.type == rhs.type && lhs.url == rhs.url
         }
     }
 
@@ -299,6 +307,10 @@ extension ChainModel {
         let history: BlockExplorer?
         let crowdloans: ExternalResource?
         let explorers: [ExternalApiExplorer]?
+
+        static func == (lhs: ExternalApiSet, rhs: ExternalApiSet) -> Bool {
+            lhs.staking == rhs.staking && lhs.history == rhs.history && lhs.crowdloans == rhs.crowdloans && lhs.explorers == rhs.explorers
+        }
     }
 
     func polkascanAddressURL(_ address: String) -> URL? {
