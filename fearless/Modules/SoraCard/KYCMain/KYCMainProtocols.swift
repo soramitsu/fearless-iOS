@@ -20,7 +20,6 @@ protocol KYCMainInteractorInput: AnyObject {
 
     func setup(with output: KYCMainInteractorOutput)
     func prepareToDismiss()
-    func checkUserStatus()
 }
 
 protocol KYCMainInteractorOutput: AnyObject {

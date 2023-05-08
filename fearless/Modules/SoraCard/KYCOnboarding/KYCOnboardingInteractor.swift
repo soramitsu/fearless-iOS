@@ -135,9 +135,5 @@ extension KYCOnboardingInteractor: VerificationResultDelegate {
         }
     }
 
-    func error(result: PayWingsOnboardingKYC.ErrorEvent) {
-        DispatchQueue.main.async { [weak self] in
-            self?.output?.didReceive(kycError: result)
-        }
-    }
+    func error(result _: PayWingsOnboardingKYC.ErrorEvent) {}
 }

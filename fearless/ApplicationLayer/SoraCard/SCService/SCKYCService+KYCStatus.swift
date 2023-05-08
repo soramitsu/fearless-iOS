@@ -1,25 +1,26 @@
 import Foundation
 
 extension SCKYCService {
-    func userStatus() async -> SCKYCUserStatus? {
-        guard case let .success(statuses) = await kycStatuses(),
-              let userStatus = statuses.sorted.last?.userStatus
-        else { return nil }
-        return userStatus
+    var userStatusStream: AsyncStream<SCKYCUserStatus> {
+        _userStatusStream.stream
     }
 
     func kycStatuses() async -> Result<[SCKYCStatusResponse], NetworkingError> {
-        try? await refreshAccessTokenIfNeeded()
+        guard await refreshAccessTokenIfNeeded() else {
+            return .failure(.unauthorized)
+        }
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycStatuses)
         let response: Result<[SCKYCStatusResponse], NetworkingError> = await client.performDecodable(request: request)
         if case let .success(statuses) = response, let userStatus = statuses.sorted.last?.userStatus {
-            self.userStatusYield?(userStatus)
+            self._userStatusStream.wrappedValue = userStatus
         }
         return response
     }
 
     func kycAttempts() async -> Result<SCKYCAtempts, NetworkingError> {
-        try? await refreshAccessTokenIfNeeded()
+        guard await refreshAccessTokenIfNeeded() else {
+            return .failure(.unauthorized)
+        }
         let request = APIRequest(method: .get, endpoint: SCEndpoint.kycAttemptCount)
         return await client.performDecodable(request: request)
     }

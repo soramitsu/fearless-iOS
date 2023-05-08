@@ -49,20 +49,16 @@ final class SCKYCService {
         }
     }
 
-    internal var userStatusYield: ((SCKYCUserStatus) -> Void)?
+    @Stream internal var _userStatusStream = Stream(wrappedValue: SCKYCUserStatus.notStarted)
 
-    lazy var userStatus: AsyncStream<SCKYCUserStatus> = {
-        AsyncStream<SCKYCUserStatus> { [weak self] continuation in
-            self?.userStatusYield = { status in
-                continuation.yield(status)
-            }
-        }
-    }()
-
-    func refreshAccessTokenIfNeeded() async throws {
+    func refreshAccessTokenIfNeeded() async -> Bool {
         let token = tokenHolder.token
+        if token.isEmpty {
+            return false
+        }
         guard Date() >= Date(timeIntervalSince1970: TimeInterval(token.accessTokenExpirationTime)) else {
-            return
+            tokenHolder.set(token: token)
+            return true
         }
 
         return await withCheckedContinuation { continuation in
@@ -75,16 +71,13 @@ final class SCKYCService {
                         accessTokenExpirationTime: data.accessTokenExpirationTime
                     )
                     self?.tokenHolder.set(token: token)
-
-                    Task {
-                        continuation.resume()
-                    }
+                    continuation.resume(returning: true)
                     return
                 }
 
                 if let errorData = result.errorData {
                     print("Error SCKYCService:\(errorData.error.rawValue) \(String(describing: errorData.errorMessage))")
-                    continuation.resume()
+                    continuation.resume(returning: false)
                     return
                 }
             }

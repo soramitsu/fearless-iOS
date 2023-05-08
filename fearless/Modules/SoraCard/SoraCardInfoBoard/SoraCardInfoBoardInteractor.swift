@@ -56,18 +56,19 @@ extension SoraCardInfoBoardInteractor: SoraCardInfoBoardInteractorInput {
     }
 
     func fetchStatus() async {
-        let status = await service.userStatus() ?? .notStarted
         switch await service.kycAttempts() {
         case let .failure(error):
             await MainActor.run {
                 self.output?.didReceive(error: error)
             }
         case let .success(kycAttempts):
-            await MainActor.run {
-                self.output?.didReceive(
-                    status: status,
-                    hasFreeAttempts: kycAttempts.hasFreeAttempts
-                )
+            for await userStatus in service.userStatusStream {
+                await MainActor.run {
+                    self.output?.didReceive(
+                        status: userStatus,
+                        hasFreeAttempts: kycAttempts.hasFreeAttempts
+                    )
+                }
             }
         }
     }

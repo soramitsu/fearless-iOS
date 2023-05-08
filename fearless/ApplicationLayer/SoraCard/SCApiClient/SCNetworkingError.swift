@@ -189,6 +189,10 @@ public extension NetworkingError {
     static var unknownError: NetworkingError {
         NetworkingError(status: .unknown)
     }
+
+    static var unauthorized: NetworkingError {
+        NetworkingError(status: .unauthorized)
+    }
 }
 
 public extension DecodingError {
