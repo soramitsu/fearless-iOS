@@ -37,27 +37,53 @@ final class KYCOnboardingPresenter {
                 if granted == true {
                     self.checkMicrophonePermission()
                 } else {
-                    self.showPhoneSettings(type: PermissionType.camera.rawValue)
+                    let closeAction = SheetAlertPresentableAction(
+                        title: R.string.localizable.commonClose(preferredLanguages: self.selectedLocale.rLanguages))
+                    { [weak self] in
+                        self?.router.dismiss(view: self?.view)
+                    }
+                    let alertViewModel = SheetAlertPresentableViewModel(
+                        title: "Permission Error",
+                        message: "Using the camera on your device is restricted, but it is necessary to create an application",
+                        actions: [closeAction],
+                        closeAction: nil,
+                        icon: R.image.iconWarningBig()
+                    )
+                    DispatchQueue.main.async {
+                        self.router.present(viewModel: alertViewModel, from: self.view)
+                    }
                 }
             })
         case .denied:
             showPhoneSettings(type: PermissionType.camera.rawValue)
         case .restricted:
+            let closeAction = SheetAlertPresentableAction(
+                title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages))
+            { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
             let alertViewModel = SheetAlertPresentableViewModel(
                 title: "Permission Error",
                 message: "Using the camera on your device is restricted, but it is necessary to create an application",
-                actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                actions: [closeAction],
+                closeAction: nil,
                 icon: R.image.iconWarningBig()
             )
+            router.present(viewModel: alertViewModel, from: view)
         default:
+            let closeAction = SheetAlertPresentableAction(
+                title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages))
+            { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
             let alertViewModel = SheetAlertPresentableViewModel(
                 title: "Permission Error",
                 message: "Can't define camera permission on your phone",
-                actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                actions: [closeAction],
+                closeAction: nil,
                 icon: R.image.iconWarningBig()
             )
+            router.present(viewModel: alertViewModel, from: view)
         }
     }
 
@@ -69,20 +95,28 @@ final class KYCOnboardingPresenter {
             showPhoneSettings(type: PermissionType.microphone.rawValue)
         case .undetermined:
             AVAudioSession.sharedInstance().requestRecordPermission { granted in
-                if granted {
-                    self.onAllPermissionsGranted()
-                } else {
-                    self.showPhoneSettings(type: PermissionType.microphone.rawValue)
+                DispatchQueue.main.async {
+                    if granted {
+                        self.onAllPermissionsGranted()
+                    } else {
+                        self.showPhoneSettings(type: PermissionType.microphone.rawValue)
+                    }
                 }
             }
         default:
+            let closeAction = SheetAlertPresentableAction(
+                title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages))
+            { [weak self] in
+                self?.router.dismiss(view: self?.view)
+            }
             let alertViewModel = SheetAlertPresentableViewModel(
                 title: "Permission Error",
                 message: "Can't define microphone permission on your phone",
-                actions: [],
-                closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                actions: [closeAction],
+                closeAction: nil,
                 icon: R.image.iconWarningBig()
             )
+            router.present(viewModel: alertViewModel, from: view)
         }
     }
 
@@ -94,11 +128,16 @@ final class KYCOnboardingPresenter {
             }
         }
 
+        let closeAction = SheetAlertPresentableAction(
+            title: R.string.localizable.commonClose(preferredLanguages: selectedLocale.rLanguages))
+        { [weak self] in
+            self?.router.dismiss(view: self?.view)
+        }
         let alertViewModel = SheetAlertPresentableViewModel(
             title: "Permission Error",
             message: "Permission for \(type) access denied, please allow our app permission through Settings in your phone if you want to use our service.",
-            actions: [settingsAction],
-            closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+            actions: [settingsAction, closeAction],
+            closeAction: nil,
             icon: R.image.iconWarningBig()
         )
 
