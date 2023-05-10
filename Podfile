@@ -1,6 +1,10 @@
 platform :ios, '13.0'
 
-source 'git@github.com:soramitsu/SSFSpecs.git'
+# ssh local build
+#source 'git@github.com:soramitsu/SSFSpecs.git'
+
+# CI
+source 'https://github.com/soramitsu/SSFSpecs.git'
 source 'https://github.com/CocoaPods/Specs.git'
 
 abstract_target 'fearlessAll' do
