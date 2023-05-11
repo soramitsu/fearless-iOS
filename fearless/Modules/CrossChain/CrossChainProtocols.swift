@@ -43,6 +43,7 @@ protocol CrossChainRouterInput: PresentDismissable, SheetAlertPresentable, Error
     )
 
     func showWalletManagment(
+        selectedWalletId: MetaAccountId?,
         from view: ControllerBackedProtocol?,
         moduleOutput: WalletsManagmentModuleOutput?
     )

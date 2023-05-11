@@ -55,6 +55,7 @@ final class WalletsManagmentAssembly {
         )
 
         let presenter = WalletsManagmentPresenter(
+            viewType: viewType,
             contextTag: contextTag,
             viewModelFactory: viewModelFactory,
             logger: logger,

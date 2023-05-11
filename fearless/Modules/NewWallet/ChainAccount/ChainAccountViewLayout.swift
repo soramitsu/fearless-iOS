@@ -95,14 +95,6 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
-    let receiveContainer: BorderedContainerView = {
-        let container = BorderedContainerView()
-        container.backgroundColor = .clear
-        container.strokeWidth = 1.0
-        container.strokeColor = R.color.colorDarkGray()!
-        return container
-    }()
-
     let chainOptionsContentView = UIView()
 
     let actionsView: TriangularedView = {
@@ -256,7 +248,7 @@ private extension ChainAccountViewLayout {
         }
 
         actionsContentStackView.addArrangedSubview(sendButton)
-        actionsContentStackView.addArrangedSubview(receiveContainer)
+        actionsContentStackView.addArrangedSubview(receiveButton)
         actionsContentStackView.addArrangedSubview(crossChainButton)
         actionsContentStackView.addArrangedSubview(buyButton)
         actionsContentStackView.addArrangedSubview(polkaswapButton)

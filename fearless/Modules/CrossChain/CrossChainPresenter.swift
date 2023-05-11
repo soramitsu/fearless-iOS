@@ -115,7 +115,8 @@ final class CrossChainPresenter {
 
         let balanceViewModel = balanceViewModelFactory?.balanceFromPrice(
             inputAmount ?? .zero,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .inputCrypto
         ).value(for: selectedLocale)
         self.balanceViewModel = balanceViewModel
 
@@ -151,7 +152,8 @@ final class CrossChainPresenter {
         let priceData = prices.first(where: { $0.priceId == utilityOriginChainAsset.asset.priceId })
         let viewModel = viewModelFactory.balanceFromPrice(
             originNetworkFee,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .detailsCrypto
         )
 
         originNetworkFeeViewModel = viewModel.value(for: selectedLocale)
@@ -173,7 +175,8 @@ final class CrossChainPresenter {
         let priceData = prices.first(where: { $0.priceId == selectedAmountChainAsset.asset.priceId })
         let viewModel = viewModelFactory.balanceFromPrice(
             destNetworkFee,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .detailsCrypto
         )
 
         destNetworkFeeViewModel = viewModel.value(for: selectedLocale)
@@ -232,7 +235,6 @@ final class CrossChainPresenter {
     }
 
     private func continueWithValidation() {
-        let precision = Int16(selectedAmountChainAsset.asset.precision)
         let inputAmountDecimal = amountInputResult?
             .absoluteValue(from: originNetworkSelectedAssetBalance) ?? .zero
 
@@ -410,6 +412,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
 
     func didTapMyWalletsButton() {
         router.showWalletManagment(
+            selectedWalletId: destWallet?.metaId,
             from: view,
             moduleOutput: self
         )
@@ -441,10 +444,11 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 precision: Int16(selectedAmountChainAsset.asset.precision)
             )
 
-            provideDestNetworkFeeViewModel()
         case let .failure(error):
+            destNetworkFee = nil
             logger.customError(error)
         }
+        provideDestNetworkFeeViewModel()
     }
 
     func didReceiveOriginFee(result: SSFExtrinsicKit.FeeExtrinsicResult) {
@@ -458,11 +462,12 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                 return
             }
             originNetworkFee = feeDecimal
-            provideOriginNetworkFeeViewModel()
-            provideInputViewModel()
         case let .failure(error):
+            originNetworkFee = nil
             logger.customError(error)
         }
+        provideOriginNetworkFeeViewModel()
+        provideInputViewModel()
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {

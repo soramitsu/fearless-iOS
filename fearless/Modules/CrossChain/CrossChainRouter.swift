@@ -87,11 +87,12 @@ final class CrossChainRouter: CrossChainRouterInput {
     }
 
     func showWalletManagment(
+        selectedWalletId: MetaAccountId?,
         from view: ControllerBackedProtocol?,
         moduleOutput: WalletsManagmentModuleOutput?
     ) {
         guard let module = WalletsManagmentAssembly.configureModule(
-            viewType: .selectYourWallet,
+            viewType: .selectYourWallet(selectedWalletId: selectedWalletId),
             shouldSaveSelected: false,
             moduleOutput: moduleOutput
         ) else {

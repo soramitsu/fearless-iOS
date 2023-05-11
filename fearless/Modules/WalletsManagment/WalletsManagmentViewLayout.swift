@@ -3,7 +3,7 @@ import SoraUI
 
 enum WalletsManagmentType {
     case wallets
-    case selectYourWallet
+    case selectYourWallet(selectedWalletId: MetaAccountId?)
 }
 
 final class WalletsManagmentViewLayout: UIView {
