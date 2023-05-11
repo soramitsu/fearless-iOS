@@ -51,7 +51,8 @@ final class RichAmountInputViewModel: RichAmountInputViewModelProtocol {
 
             return balanceViewModelFactory.balanceFromPrice(
                 amount,
-                priceData: priceData
+                priceData: priceData,
+                usageCase: .inputFiat
             ).value(for: locale).price ?? ""
         }
     }

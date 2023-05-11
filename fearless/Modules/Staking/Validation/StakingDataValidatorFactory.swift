@@ -269,7 +269,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             let amountString = minAmount.map {
-                self?.balanceFactory?.amountFromValue($0).value(for: locale) ?? ""
+                self?.balanceFactory?.amountFromValue($0, usageCase: .listCrypto).value(for: locale) ?? ""
             } ?? ""
 
             self?.presentable.presentAmountTooLow(value: amountString, from: view, locale: locale)

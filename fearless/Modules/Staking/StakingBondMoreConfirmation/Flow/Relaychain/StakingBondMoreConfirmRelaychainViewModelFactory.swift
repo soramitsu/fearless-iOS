@@ -31,7 +31,7 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
 
         let icon = try? iconGenerator.generateFromAddress(address)
 
-        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
         let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
         let amountViewModel = TitleMultiValueViewModel(
             title: balanceViewModel.value(for: locale).amount,
@@ -51,7 +51,7 @@ final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreCon
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 

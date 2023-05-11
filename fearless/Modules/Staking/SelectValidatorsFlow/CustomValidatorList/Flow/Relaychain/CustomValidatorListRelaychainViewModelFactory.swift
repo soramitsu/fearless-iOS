@@ -75,7 +75,8 @@ final class CustomValidatorListRelaychainViewModelFactory {
 
             let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
                 validator.totalStake,
-                priceData: priceData
+                priceData: priceData,
+                usageCase: .listCrypto
             ).value(for: locale)
 
             let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(

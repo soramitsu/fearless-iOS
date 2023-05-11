@@ -7,4 +7,5 @@ struct StakingAmountMainViewModel {
     let rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     let feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
     let inputViewModel: LocalizableResource<IAmountInputViewModel>?
+    let continueAvailable: Bool
 }

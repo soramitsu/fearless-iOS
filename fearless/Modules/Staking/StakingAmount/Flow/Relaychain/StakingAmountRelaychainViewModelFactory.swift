@@ -38,7 +38,8 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             assetViewModel: nil,
             rewardDestinationViewModel: rewardDestinationViewModel,
             feeViewModel: feeViewModel,
-            inputViewModel: nil
+            inputViewModel: nil,
+            continueAvailable: relaychainViewModelState.continueAvailable
         )
     }
 
@@ -121,6 +122,6 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 }

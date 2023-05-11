@@ -88,8 +88,8 @@ final class ChainAccountPresenter {
             Int16(chainAsset.asset.precision)
         ) ?? Decimal.zero
 
-        let transferrableValue = balanceViewModelFactory.balanceFromPrice(freeBalance, priceData: priceData)
-        let lockedValue = balanceViewModelFactory.balanceFromPrice(lockedBalance, priceData: priceData)
+        let transferrableValue = balanceViewModelFactory.balanceFromPrice(freeBalance, priceData: priceData, usageCase: .detailsCrypto)
+        let lockedValue = balanceViewModelFactory.balanceFromPrice(lockedBalance, priceData: priceData, usageCase: .detailsCrypto)
 
         let balanceViewModel = ChainAccountBalanceViewModel(transferrableValue: transferrableValue, lockedValue: lockedValue)
         view?.didReceive(balanceViewModel: balanceViewModel)

@@ -20,7 +20,7 @@ final class YourValidatorListRelaychainViewModelFactory {
                 return nil
             }
 
-            return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
+            return balanceViewModeFactory.amountFromValue(allocation.amount, usageCase: .listCrypto).value(for: locale)
         }()
 
         let apy: NSAttributedString? = model.stakeInfo.map { info in

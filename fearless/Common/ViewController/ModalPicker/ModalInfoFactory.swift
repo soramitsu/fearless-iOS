@@ -81,7 +81,7 @@ struct ModalInfoFactory {
         viewController.modalPresentationStyle = .custom
 
         let assetBalanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let priceFormatter = AssetBalanceFormatterFactory().createTokenFormatter(for: assetBalanceDisplayInfo)
+        let priceFormatter = AssetBalanceFormatterFactory().createTokenFormatter(for: assetBalanceDisplayInfo, usageCase: .fiat)
 
         let viewModels = createViewModelsForContext(
             balanceContext,

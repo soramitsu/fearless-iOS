@@ -178,6 +178,8 @@ extension ChainAccountInteractor: ChainAccountInteractorInputProtocol {
         if let newChainAsset = availableChainAssets.first(where: { $0.chain.chainId == chain.chainId }) {
             chainAsset = newChainAsset
             presenter?.didUpdate(chainAsset: chainAsset)
+
+            fetchChainAssetBasedData()
         } else {
             assertionFailure("Unable to select this chain")
         }

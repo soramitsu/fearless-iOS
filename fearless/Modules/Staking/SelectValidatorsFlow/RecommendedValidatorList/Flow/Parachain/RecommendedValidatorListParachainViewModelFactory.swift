@@ -71,7 +71,8 @@ extension RecommendedValidatorListParachainViewModelFactory: RecommendedValidato
                 ) ?? Decimal.zero
                 let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
                     totalStake,
-                    priceData: nil
+                    priceData: nil,
+                    usageCase: .detailsCrypto
                 ).value(for: locale)
                 let stakedString = R.string.localizable.yourValidatorsValidatorTotalStake(
                     "\(balanceViewModel.amount)",

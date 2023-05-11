@@ -79,12 +79,14 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
 
         let localizedRestakeBalance = balanceViewModelFactory.balanceFromPrice(
             model.restakeReturn,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         let localizedPayoutBalance = balanceViewModelFactory.balanceFromPrice(
             model.payoutReturn,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         return LocalizableResource { locale in

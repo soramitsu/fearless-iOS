@@ -74,7 +74,7 @@ final class ChainSelectionPresenter {
             return nil
         }
 
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: assetInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: assetInfo, usageCase: .listCrypto)
             .value(for: selectedLocale)
 
         return tokenFormatter.stringFromDecimal(balance)

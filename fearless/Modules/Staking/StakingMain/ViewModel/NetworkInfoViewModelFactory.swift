@@ -61,7 +61,8 @@ final class NetworkInfoViewModelFactory {
 
         let stakedPair = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         return LocalizableResource { locale in
@@ -152,7 +153,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         let balanceViewModel = getBalanceViewModelFactory(
             for: chainAsset,
             selectedMetaAccount: selectedMetaAccount
-        ).amountFromValue(balance)
+        ).amountFromValue(balance, usageCase: .listCrypto)
 
         let imageViewModel = chainAsset.assetDisplayInfo.icon.map {
             RemoteImageViewModel(url: $0)

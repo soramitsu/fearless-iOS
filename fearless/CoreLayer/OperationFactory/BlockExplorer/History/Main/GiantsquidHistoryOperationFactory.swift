@@ -327,7 +327,7 @@ extension GiantsquidHistoryOperationFactory: HistoryOperationFactoryProtocol {
                 filters: filters
             )
         } else {
-            let result = GiantsquidResponseData(transfers: [], rewards: [], bonds: [], slashes: [])
+            let result = GiantsquidResponseData(transfers: [], stakingRewards: [], bonds: [], slashes: [])
             remoteHistoryOperation = BaseOperation.createWithResult(result)
         }
 

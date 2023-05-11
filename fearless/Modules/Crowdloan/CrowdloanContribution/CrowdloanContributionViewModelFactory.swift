@@ -111,8 +111,8 @@ final class CrowdloanContributionViewModelFactory {
         metadata _: CrowdloanMetadata,
         locale: Locale
     ) -> DisplayProgress {
-        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: assetInfo).value(for: locale)
-        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo).value(for: locale)
+        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: assetInfo, usageCase: .detailsCrypto).value(for: locale)
+        let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo, usageCase: .detailsCrypto).value(for: locale)
 
         let percentFormatter = NumberFormatter.percentSingle
         percentFormatter.locale = locale
@@ -237,7 +237,7 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         let senderName = !confirmationData.displayAddress.username.isEmpty ?
             confirmationData.displayAddress.username : confirmationData.displayAddress.address
 
-        let formatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo).value(for: locale)
+        let formatter = amountFormatterFactory.createDisplayFormatter(for: assetInfo, usageCase: .detailsCrypto).value(for: locale)
         let inputAmount = formatter.stringFromDecimal(confirmationData.contribution) ?? ""
 
         return CrowdloanContributeConfirmViewModel(
@@ -255,7 +255,7 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         locale: Locale
     ) -> String? {
         let tokenInfo = AssetBalanceDisplayInfo.fromCrowdloan(info: displayInfo)
-        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo).value(for: locale)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo, usageCase: .detailsCrypto).value(for: locale)
 
         if let rewardRate = displayInfo.rewardRate {
             return formatter.stringFromDecimal(inputAmount * rewardRate)
@@ -277,7 +277,7 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         }
 
         let tokenInfo = AssetBalanceDisplayInfo.fromCrowdloan(info: displayInfo)
-        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo).value(for: locale)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: tokenInfo, usageCase: .detailsCrypto).value(for: locale)
 
         if let rewardRate = displayInfo.rewardRate {
             return formatter.stringFromDecimal(inputAmount * rewardRate * bonusRate)

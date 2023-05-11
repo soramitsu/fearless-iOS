@@ -60,17 +60,19 @@ class WalletDetailsViewModelFactory {
         chains: [ChainModel],
         locale: Locale
     ) -> [WalletDetailsSection] {
-        let emptyAccounts = chains.filter {
+        let sortedChains = chains.sorted(by: { $0.name < $1.name })
+
+        let emptyAccounts = sortedChains.filter {
             flow.wallet.fetch(for: $0.accountRequest()) == nil
                 && !(flow.wallet.unusedChainIds ?? []).contains($0.chainId)
         }
-        let nativeAccounts = chains.filter {
+        let nativeAccounts = sortedChains.filter {
             flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == false
                 || (flow.wallet.fetch(for: $0.accountRequest()) == nil
                     && (flow.wallet.unusedChainIds ?? []).contains($0.chainId))
         }
 
-        let customAccounts = chains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
+        let customAccounts = sortedChains.filter { flow.wallet.fetch(for: $0.accountRequest())?.isChainAccount == true }
 
         var sections: [WalletDetailsSection] = []
 

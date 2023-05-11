@@ -172,9 +172,9 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             minMaxReceiveValue: minMaxReceiveVieModel.1,
             route: route,
             fromPerToTitle: fromPerToTitle,
-            fromPerToValue: fromPerToValue.toString(locale: locale, digits: .max) ?? "",
+            fromPerToValue: fromPerToValue.toString(locale: locale, maximumDigits: .max) ?? "",
             toPerFromTitle: toPerFromTitle,
-            toPerFromValue: toPerFromValue.toString(locale: locale, digits: .max) ?? "",
+            toPerFromValue: toPerFromValue.toString(locale: locale, maximumDigits: .max) ?? "",
             liqudityProviderFeeVieModel: liqudityProviderFeeVieModel
         )
 
@@ -220,7 +220,8 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
         let receiveValue = balanceViewModelFactory.balanceFromPrice(
             minMaxValue,
             priceData: price,
-            isApproximately: true
+            isApproximately: true,
+            usageCase: .detailsCrypto
         ).value(for: locale)
 
         return (receiveValue, minMaxValue)
@@ -237,7 +238,8 @@ final class PolkaswapAdjustmentViewModelFactory: PolkaswapAdjustmentViewModelFac
             priceData: prices?.first(where: { price in
                 price.priceId == xorChainAsset.asset.priceId
             }),
-            isApproximately: true
+            isApproximately: true,
+            usageCase: .detailsCrypto
         ).value(for: locale)
 
         return lpViewModel

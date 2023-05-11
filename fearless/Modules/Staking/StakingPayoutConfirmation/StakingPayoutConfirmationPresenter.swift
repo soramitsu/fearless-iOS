@@ -142,7 +142,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationModelStat
 
     func provideFee() {
         if let fee = viewModelState.fee {
-            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             view?.didReceive(feeViewModel: viewModel)
         } else {
             view?.didReceive(feeViewModel: nil)

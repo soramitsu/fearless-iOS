@@ -265,7 +265,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         let displayInfo = asset.displayInfo
 
         let amountFormatter = amountFormatterFactory.createTokenFormatter(
-            for: asset.displayInfo
+            for: asset.displayInfo,
+            usageCase: .listCrypto
         ).value(for: locale)
 
         let amount: String
@@ -304,11 +305,11 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         let timeFormatter = TotalTimeFormatter()
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
         let tokenFormatter = amountFormatterFactory.createTokenFormatter(
-            for: chainAsset.asset
+            for: chainAsset.asset, usageCase: .listCrypto
         ).value(for: locale)
 
         let displayFormatter = amountFormatterFactory.createDisplayFormatter(
-            for: chainAsset.asset
+            for: chainAsset.asset, usageCase: .listCrypto
         ).value(for: locale)
 
         let formatters = Formatters(

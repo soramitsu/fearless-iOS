@@ -489,7 +489,8 @@ private extension SendPresenter {
             .map { balanceViewModelFactory
                 .balanceFromPrice(
                     $0,
-                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData
+                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData,
+                    usageCase: .detailsCrypto
                 )
             }?.value(for: selectedLocale)
         let tipViewModel = TipViewModel(
@@ -507,7 +508,7 @@ private extension SendPresenter {
               .balanceViewModelFactory
         else { return }
         let viewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
         view?.didReceive(feeViewModel: viewModel)
     }

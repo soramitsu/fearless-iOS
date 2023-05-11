@@ -38,7 +38,8 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
             assetViewModel: nil,
             rewardDestinationViewModel: nil,
             feeViewModel: feeViewModel,
-            inputViewModel: nil
+            inputViewModel: nil,
+            continueAvailable: parachainViewModelState.continueAvailable
         )
     }
 
@@ -50,7 +51,7 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     func buildYourRewardDestinationViewModel(

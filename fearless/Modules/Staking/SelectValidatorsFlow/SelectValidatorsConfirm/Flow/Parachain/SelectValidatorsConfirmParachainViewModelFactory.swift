@@ -105,7 +105,8 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         return LocalizableResource { [weak self] locale in
             let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
                 state.amount,
-                priceData: viewModelState.priceData
+                priceData: viewModelState.priceData,
+                usageCase: .listCrypto
             ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
@@ -131,13 +132,13 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     private func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 

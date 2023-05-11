@@ -58,7 +58,7 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
             return nil
         }
 
-        let formatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let formatter = formatterFactory.createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).stringFromDecimal(viewModelState.inputAmount) ?? ""
@@ -88,7 +88,7 @@ final class StakingUnbondConfirmRelaychainViewModelFactory: StakingUnbondConfirm
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = asset.displayInfo.icon.map { RemoteImageViewModel(url: $0) }
 

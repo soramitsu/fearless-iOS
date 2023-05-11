@@ -164,7 +164,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
         let address: String
 
@@ -236,7 +236,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
 
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
@@ -289,7 +289,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             totalAmountValue += totalFee
         }
 
-        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+        let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .listCrypto)
         let amountDisplayString = amountFormatter.value(for: locale).stringFromDecimal(totalAmountValue) ?? ""
 
         let incoming: Bool
@@ -346,7 +346,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
             $0.asset.currencyId == data.assetId
         }
         if let receiveAsset = receiveAsset {
-            let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo)
+            let amountFormatter = balanceFormatterFactory.createTokenFormatter(for: receiveAsset.asset.displayInfo, usageCase: .listCrypto)
             receiveAmountString = amountFormatter.value(for: locale).stringFromDecimal(amountValue) ?? ""
         }
 
@@ -356,7 +356,7 @@ final class WalletTransactionHistoryViewModelFactory: WalletTransactionHistoryVi
         })
         var sendAmount = "\(sendAmountDecimal?.decimalValue ?? .zero)"
         if let sendAsset = sendAsset {
-            let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo)
+            let sendAmountFormatter = balanceFormatterFactory.createTokenFormatter(for: sendAsset.asset.displayInfo, usageCase: .listCrypto)
             sendAmount = sendAmountFormatter
                 .value(for: locale)
                 .stringFromDecimal(sendAmountDecimal?.decimalValue ?? .zero) ?? ""

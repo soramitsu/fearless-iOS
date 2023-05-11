@@ -113,10 +113,10 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
 
         let amounts = calculateChartAmounts(chartDoubles: chartDoubles)
 
-        let bottomYValue = balanceViewModelFactory.amountFromValue(0.0).value(for: locale)
+        let bottomYValue = balanceViewModelFactory.amountFromValue(0.0, usageCase: .listCrypto).value(for: locale)
         let averageAmount = chartDoubles.reduce(0.0, +) / Double(yValues.count)
         let averageAmountRawText = balanceViewModelFactory
-            .amountFromValue(Decimal(averageAmount))
+            .amountFromValue(Decimal(averageAmount), usageCase: .listCrypto)
             .value(for: locale)
             .replacingOccurrences(of: " ", with: "\n")
         let averageAmountText = R.string.localizable.stakingAnalyticsAvg(
@@ -221,7 +221,8 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
     ) -> AnalyticsSummaryRewardViewModel {
         let totalBalance = balanceViewModelFactory.balanceFromPrice(
             selectedChartData.yValue,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         ).value(for: locale)
 
         return AnalyticsSummaryRewardViewModel(
@@ -245,7 +246,7 @@ class AnalyticsViewModelFactoryBase<T: AnalyticsViewModelItem> {
         else { return "" }
 
         let tokenAmountText = balanceViewModelFactory
-            .amountFromValue(tokenDecimal)
+            .amountFromValue(tokenDecimal, usageCase: .listCrypto)
             .value(for: locale)
         let sign = data.amountSign == .plus ? "+" : "-"
         return sign + tokenAmountText
