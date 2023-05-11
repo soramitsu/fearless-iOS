@@ -578,6 +578,11 @@ extension CrossChainPresenter: SelectNetworkDelegate {
             return
         }
 
+        destNetworkFee = nil
+        originNetworkFee = nil
+        provideOriginNetworkFeeViewModel()
+        provideDestNetworkFeeViewModel()
+
         selectedDestChainModel = chain
         provideDestSelectNetworkViewModel()
         provideAddress()
