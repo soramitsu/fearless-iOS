@@ -90,7 +90,9 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        connectionsByChainIds[chain.chainId] = wrapper
+        readLock.exclusivelyWrite {
+            self.connectionsByChainIds[chain.chainId] = wrapper
+        }
 
         return connection
     }

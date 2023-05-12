@@ -19,6 +19,11 @@ protocol CrossChainViewOutput: AnyObject {
 
 final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = CrossChainViewLayout
+
+    private enum Constants {
+        static let delay: CGFloat = 0.5
+    }
+
     var keyboardHandler: FearlessKeyboardHandler?
 
     // MARK: Private properties
@@ -176,7 +181,19 @@ extension CrossChainViewController: KeyboardViewAdoptable {
 extension CrossChainViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         rootView.amountView.inputFieldText = amountInputViewModel?.displayAmount
-        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+
+        NSObject.cancelPreviousPerformRequests(
+            withTarget: self,
+            selector: #selector(updateAmounts),
+            object: nil
+        )
+        perform(#selector(updateAmounts), with: nil, afterDelay: Constants.delay)
+    }
+
+    @objc private func updateAmounts() {
+        guard let amount = amountInputViewModel?.decimalAmount else {
+            return
+        }
         output.updateAmount(amount)
     }
 }

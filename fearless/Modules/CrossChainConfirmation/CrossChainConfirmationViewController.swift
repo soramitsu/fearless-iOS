@@ -7,7 +7,7 @@ protocol CrossChainConfirmationViewOutput: AnyObject {
     func confirmButtonTapped()
 }
 
-final class CrossChainConfirmationViewController: UIViewController, ViewHolder {
+final class CrossChainConfirmationViewController: UIViewController, ViewHolder, HiddableBarWhenPushed {
     typealias RootViewType = CrossChainConfirmationViewLayout
 
     // MARK: Private properties

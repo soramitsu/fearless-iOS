@@ -61,7 +61,9 @@ extension CrossChainConfirmationInteractor: CrossChainConfirmationInteractorInpu
                 amount: amount
             )
 
-            output?.didTransfer(result: result)
+            await MainActor.run {
+                self.output?.didTransfer(result: result)
+            }
         }
     }
 }

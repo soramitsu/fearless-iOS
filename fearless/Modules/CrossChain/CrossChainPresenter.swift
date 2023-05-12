@@ -474,15 +474,15 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
         case let .failure(error):
             originNetworkFee = nil
             logger.customError(error)
-        #if F_DEV
-            router.present(
-                message: "\(error)",
-                title: "\(#function)",
-                closeAction: nil,
-                from: view,
-                actions: []
-            )
-        #endif
+            #if F_DEV
+                router.present(
+                    message: "\(error)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
         provideOriginNetworkFeeViewModel()
     }
@@ -495,15 +495,15 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             providePrices()
         case let .failure(error):
             logger.customError(error)
-        #if F_DEV
-            router.present(
-                message: "\(error)",
-                title: "\(#function)",
-                closeAction: nil,
-                from: view,
-                actions: []
-            )
-        #endif
+            #if F_DEV
+                router.present(
+                    message: "\(error)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
     }
 
@@ -532,15 +532,15 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             }
         case let .failure(failure):
             logger.customError(failure)
-        #if F_DEV
-            router.present(
-                message: "\(failure)",
-                title: "\(#function)",
-                closeAction: nil,
-                from: view,
-                actions: []
-            )
-        #endif
+            #if F_DEV
+                router.present(
+                    message: "\(failure)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
     }
 
@@ -573,15 +573,15 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             self.existentialDeposit = existentialDeposit
         case let .failure(error):
             logger.customError(error)
-        #if F_DEV
-            router.present(
-                message: "\(error)",
-                title: "\(#function)",
-                closeAction: nil,
-                from: view,
-                actions: []
-            )
-        #endif
+            #if F_DEV
+                router.present(
+                    message: "\(error)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
     }
 }

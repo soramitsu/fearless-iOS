@@ -4,7 +4,7 @@ typealias CrossChainConfirmationModuleCreationResult = (
 )
 
 protocol CrossChainConfirmationRouterInput:
-    PresentDismissable,
+    PushDismissable,
     ErrorPresentable,
     BaseErrorPresentable,
     ModalAlertPresenting,

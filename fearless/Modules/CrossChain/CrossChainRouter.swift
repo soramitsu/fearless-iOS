@@ -56,7 +56,10 @@ final class CrossChainRouter: CrossChainRouterInput {
         guard let module = CrossChainConfirmationAssembly.configureModule(with: data, xcmServices: xcmServices) else {
             return
         }
-        view?.controller.present(module.view.controller, animated: true)
+        view?.controller.navigationController?.pushViewController(
+            module.view.controller,
+            animated: true
+        )
     }
 
     func presentScan(
