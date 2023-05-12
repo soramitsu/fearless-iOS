@@ -54,7 +54,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount _: Decimal?,
+        amount: Decimal?,
         callFactory: SubstrateCallFactoryProtocol
 
     ) {
