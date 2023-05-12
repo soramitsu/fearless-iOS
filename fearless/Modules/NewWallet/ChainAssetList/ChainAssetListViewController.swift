@@ -20,7 +20,6 @@ final class ChainAssetListViewController:
 
     // MARK: Private properties
 
-    private let soraCardViewController: UIViewController?
     private let output: ChainAssetListViewOutput
 
     private var viewModel: ChainAssetListViewModel?
@@ -33,11 +32,9 @@ final class ChainAssetListViewController:
 
     init(
         output: ChainAssetListViewOutput,
-        soraCardViewController: UIViewController?,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.output = output
-        self.soraCardViewController = soraCardViewController
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
     }
@@ -49,21 +46,6 @@ final class ChainAssetListViewController:
 
     // MARK: - Life cycle
 
-    private func setupEmbededSoraCardView() {
-        guard let soraCardViewController = soraCardViewController else {
-            return
-        }
-
-        addChild(soraCardViewController)
-
-        guard let view = soraCardViewController.view else {
-            return
-        }
-
-        rootView.addChild(soraCardView: view)
-        soraCardViewController.didMove(toParent: self)
-    }
-
     override func loadView() {
         view = ChainAssetListViewLayout()
     }
@@ -73,7 +55,6 @@ final class ChainAssetListViewController:
         output.didLoad(view: self)
         configureTableView()
         configureEmptyView()
-        setupEmbededSoraCardView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -160,11 +141,6 @@ extension ChainAssetListViewController: ChainAssetListViewInput {
 
     func showEmptyState() {
         rootView.apply(state: .empty)
-    }
-
-    func didReceive(soraCardHiddenState: Bool) {
-        let soraCardIsHidden = soraCardViewController == nil ? true : soraCardHiddenState
-        rootView.changeSoraCardHiddenState(soraCardIsHidden)
     }
 }
 

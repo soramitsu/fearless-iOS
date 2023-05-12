@@ -5,8 +5,7 @@ import SoraKeystore
 
 final class ChainAssetListAssembly {
     static func configureModule(
-        wallet: MetaAccountModel,
-        soraCardViewController: UIViewController? = nil
+        wallet: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
         let localizationManager = LocalizationManager.shared
 
@@ -96,7 +95,6 @@ final class ChainAssetListAssembly {
 
         let view = ChainAssetListViewController(
             output: presenter,
-            soraCardViewController: soraCardViewController,
             localizationManager: localizationManager
         )
 
