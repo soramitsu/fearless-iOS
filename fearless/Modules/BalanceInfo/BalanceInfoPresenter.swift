@@ -90,21 +90,6 @@ extension BalanceInfoPresenter: BalanceInfoViewOutput {
         self.view = view
         interactor.setup(with: self, for: balanceInfoType)
     }
-
-    func didTapInfoButton() {
-        guard case let .chainAsset(wallet, chainAsset) = balanceInfoType,
-              let balance = balances[wallet.metaId] else {
-            return
-        }
-        if let balanceContext = createBalanceContext() {
-            router.presentLockedInfo(
-                from: view,
-                balanceContext: balanceContext,
-                info: chainAsset.asset.displayInfo,
-                currency: balance.currency
-            )
-        }
-    }
 }
 
 // MARK: - BalanceInfoInteractorOutput

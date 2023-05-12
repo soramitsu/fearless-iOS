@@ -84,7 +84,7 @@ final class SCKYCService {
 
                 if let errorData = result.errorData {
                     print("Error SCKYCService:\(errorData.error.rawValue) \(String(describing: errorData.errorMessage))")
-                    continuation.resume()
+//                    continuation.resume()
                     return
                 }
             }

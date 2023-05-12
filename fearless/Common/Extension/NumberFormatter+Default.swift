@@ -49,7 +49,7 @@ public extension NumberFormatter {
         let formatter = NumberFormatter()
         formatter.locale = locale
         formatter.minimumFractionDigits = 3
-        formatter.maximumFractionDigits = 3
+        formatter.maximumFractionDigits = 8
         formatter.roundingMode = rounding
         formatter.usesGroupingSeparator = usesIntGrouping
         return formatter

@@ -208,7 +208,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(target, maxTargets, bonding):
-            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
             let collatorOperationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,

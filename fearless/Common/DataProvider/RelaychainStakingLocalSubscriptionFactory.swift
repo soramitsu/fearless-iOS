@@ -31,7 +31,7 @@ protocol RelaychainStakingLocalSubscriptionFactoryProtocol {
 
     func getTotalReward(
         for address: AccountAddress,
-        api: ChainModel.BlockExplorer,
+        chain: ChainModel,
         assetPrecision: Int16
     ) throws -> AnySingleValueProvider<TotalRewardItem>
 
@@ -199,9 +199,13 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
     func getTotalReward(
         for address: AccountAddress,
-        api: ChainModel.BlockExplorer,
+        chain: ChainModel,
         assetPrecision: Int16
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
+        guard let api = chain.externalApi?.staking else {
+            throw CommonError.internal
+        }
+
         clearIfNeeded()
 
         let identifier = ("reward" + api.url.absoluteString) + address
@@ -216,7 +220,7 @@ final class RelaychainStakingLocalSubscriptionFactory: SubstrateLocalSubscriptio
 
         let trigger = DataProviderProxyTrigger()
 
-        let operationFactory = RewardOperationFactory.factory(blockExplorer: api)
+        let operationFactory = RewardOperationFactory.factory(chain: chain)
 
         let source = SubqueryRewardSource(
             address: address,

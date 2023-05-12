@@ -17,13 +17,6 @@ final class BalanceInfoViewLayout: UIView {
         return label
     }()
 
-    let infoButton: UIButton = {
-        let button = UIButton()
-        button.setImage(R.image.iconInfoGrayFilled(), for: .normal)
-        button.isHidden = true
-        return button
-    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -35,7 +28,6 @@ final class BalanceInfoViewLayout: UIView {
     }
 
     func bind(viewModel: BalanceInfoViewModel) {
-        infoButton.isHidden = !viewModel.infoButtonEnabled
         priceLabel.attributedText = viewModel.dayChangeAttributedString
         balanceLabel.text = viewModel.balanceString
 
@@ -45,7 +37,6 @@ final class BalanceInfoViewLayout: UIView {
 
     private func setupLayout() {
         balanceContainerView.addArrangedSubview(balanceLabel)
-        balanceContainerView.addArrangedSubview(infoButton)
 
         let vStackView = UIFactory.default.createVerticalStackView(spacing: 2)
         vStackView.alignment = .fill

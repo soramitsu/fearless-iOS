@@ -247,7 +247,7 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
             from: view,
             wallet: wallet,
             selectedChainId: chainAsset.chain.chainId,
-            chainModels: interactor.availableChainAssets.map(\.chain),
+            chainModels: interactor.availableChainAssets.map(\.chain).withoutDuplicates(),
             delegate: self
         )
     }
