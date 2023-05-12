@@ -24,7 +24,7 @@ extension StakingMainInteractor {
             validatorProvider = subscribeValidator(for: stashAccountId, chainAsset: chainAsset)
             payeeProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)
 
-            if let _ = chainAsset.chain.externalApi?.staking {
+            if chainAsset.chain.externalApi?.staking != nil {
                 totalRewardProvider = subscribeTotalReward(
                     for: stashItem.stash,
                     chain: chainAsset.chain,
