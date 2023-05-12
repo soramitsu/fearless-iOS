@@ -140,7 +140,7 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,

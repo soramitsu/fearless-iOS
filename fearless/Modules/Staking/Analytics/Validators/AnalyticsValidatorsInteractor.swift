@@ -105,7 +105,7 @@ final class AnalyticsValidatorsInteractor {
         else { return }
 
         let rewardOperationFactory = RewardOperationFactory.factory(
-            blockExplorer: chainAsset.chain.externalApi?.staking
+            chain: chainAsset.chain
         )
         let subqueryRewardsSource = ParachainSubqueryRewardsSource(
             address: stashAddress,

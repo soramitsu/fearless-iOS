@@ -8,7 +8,6 @@ protocol BalanceInfoViewInput: ControllerBackedProtocol {
 
 protocol BalanceInfoViewOutput: AnyObject {
     func didLoad(view: BalanceInfoViewInput)
-    func didTapInfoButton()
 }
 
 protocol BalanceInfoInteractorInput: AnyObject {
