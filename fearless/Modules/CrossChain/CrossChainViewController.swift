@@ -127,6 +127,7 @@ extension CrossChainViewController: CrossChainViewInput {
         if let assetViewModel = assetBalanceViewModel {
             rootView.bind(assetViewModel: assetViewModel)
         }
+        updatePreviewButton()
     }
 
     func didReceive(amountInputViewModel: IAmountInputViewModel?) {

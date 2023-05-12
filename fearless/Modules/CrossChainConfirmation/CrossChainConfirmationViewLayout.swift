@@ -80,7 +80,7 @@ final class CrossChainConfirmationViewLayout: UIView {
 
     func bind(confirmViewModel: CrossChainConfirmationViewModel) {
         doubleImageView.bind(viewModel: confirmViewModel.doubleImageViewViewModel)
-        amountLabel.text = confirmViewModel.amount.amount
+        amountLabel.text = confirmViewModel.amount
         sendToView.valueTop.text = confirmViewModel.sendTo
         originalNetworkView.valueTop.text = confirmViewModel.originalNetworkName
         destNetworkView.valueTop.text = confirmViewModel.destNetworkName

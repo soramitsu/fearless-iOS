@@ -6,7 +6,7 @@ struct CrossChainConfirmationData {
     let originChainAsset: ChainAsset
     let destChainModel: ChainModel
     let amount: BigUInt
-    let amountViewModel: BalanceViewModelProtocol
+    let displayAmount: String
     let originChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
     let destChainFeeDecimal: Decimal

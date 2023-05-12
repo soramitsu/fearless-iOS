@@ -34,7 +34,7 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             doubleImageViewViewModel: doubleImageViewViewModel,
             originalNetworkName: data.originChainAsset.chain.name,
             destNetworkName: data.destChainModel.name,
-            amount: data.amountViewModel,
+            amount: data.displayAmount,
             originalChainFee: data.originChainFee,
             destChainFee: data.destChainFee
         )

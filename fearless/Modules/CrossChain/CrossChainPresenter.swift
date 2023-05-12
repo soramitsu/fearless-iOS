@@ -54,7 +54,7 @@ final class CrossChainPresenter {
 
     private var originNetworkFee: Decimal?
     private var destNetworkFee: Decimal?
-    private var balanceViewModel: BalanceViewModelProtocol?
+    private var inputViewModel: IAmountInputViewModel?
     private var originNetworkFeeViewModel: BalanceViewModelProtocol?
     private var destNetworkFeeViewModel: BalanceViewModelProtocol?
 
@@ -93,6 +93,7 @@ final class CrossChainPresenter {
         let inputViewModel = balanceViewModelFactory?
             .createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
+        self.inputViewModel = inputViewModel
 
         view?.didReceive(amountInputViewModel: inputViewModel)
     }
@@ -118,7 +119,6 @@ final class CrossChainPresenter {
             priceData: priceData,
             usageCase: .inputCrypto
         ).value(for: selectedLocale)
-        self.balanceViewModel = balanceViewModel
 
         view?.didReceive(assetBalanceViewModel: assetBalanceViewModel)
     }
@@ -236,7 +236,7 @@ final class CrossChainPresenter {
 
     private func continueWithValidation() {
         let inputAmountDecimal = amountInputResult?
-            .absoluteValue(from: originNetworkSelectedAssetBalance) ?? .zero
+            .absoluteValue(from: originNetworkSelectedAssetBalance - (destNetworkFee ?? .zero)) ?? .zero
 
         guard let utilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first else {
             return
@@ -301,7 +301,7 @@ final class CrossChainPresenter {
 
     private func prepareAndShowConfirmation() {
         guard let selectedDestChainModel = selectedDestChainModel,
-              let balanceViewModel = balanceViewModel,
+              let inputViewModel = inputViewModel,
               let originChainFee = originNetworkFeeViewModel,
               let destChainFee = destNetworkFeeViewModel,
               let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance),
@@ -317,7 +317,7 @@ final class CrossChainPresenter {
             originChainAsset: selectedAmountChainAsset,
             destChainModel: selectedDestChainModel,
             amount: substrateAmout,
-            amountViewModel: balanceViewModel,
+            displayAmount: inputViewModel.displayAmount,
             originChainFee: originChainFee,
             destChainFee: destChainFee,
             destChainFeeDecimal: destChainFeeDecimal,
@@ -467,7 +467,6 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             logger.customError(error)
         }
         provideOriginNetworkFeeViewModel()
-        provideInputViewModel()
     }
 
     func didReceivePricesData(result: Result<[PriceData], Error>) {
@@ -499,8 +498,9 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
                     ) ?? .zero
                 } ?? .zero
                 provideAssetViewModel()
-            } else if let originUtilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
-                      receiveUniqueKey == originUtilityChainAsset.uniqueKey(accountId: accountId) {
+            }
+            if let originUtilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
+               receiveUniqueKey == originUtilityChainAsset.uniqueKey(accountId: accountId) {
                 originNetworkUtilityTokenBalance = success?.data.total ?? .zero
             }
         case let .failure(failure):

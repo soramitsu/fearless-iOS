@@ -5,7 +5,7 @@ struct CrossChainConfirmationViewModel {
     let doubleImageViewViewModel: PolkaswapDoubleSymbolViewModel
     let originalNetworkName: String
     let destNetworkName: String
-    let amount: BalanceViewModelProtocol
+    let amount: String
     let originalChainFee: BalanceViewModelProtocol
     let destChainFee: BalanceViewModelProtocol
 }
