@@ -150,6 +150,10 @@ final class ChainSyncService {
             }
         }
 
+        remoteChains.forEach { chain in
+            chain.selectedNode = localChains.first(where: { $0.chainId == chain.chainId })?.selectedNode
+        }
+
         remoteChains.forEach {
             $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
         }

@@ -110,7 +110,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         guard
             let accountInfo = balanceInfo.accountInfos[chainAssetKey] ?? nil,
             let balance = Decimal.fromSubstrateAmount(
-                accountInfo.data.total,
+                accountInfo.data.sendAvailable,
                 precision: displayInfo.assetPrecision
             ),
             let balanceString = assetFormatter.stringFromDecimal(balance)

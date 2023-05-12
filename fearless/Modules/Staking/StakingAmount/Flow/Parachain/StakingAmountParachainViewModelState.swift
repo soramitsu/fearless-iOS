@@ -29,7 +29,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.callFactory = callFactory
-        inputResult = .absolute(amount ?? 0)
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
     }
 
     var payoutAccount: ChainAccountResponse? { nil }

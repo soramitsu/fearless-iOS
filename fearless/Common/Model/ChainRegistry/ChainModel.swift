@@ -22,7 +22,7 @@ class ChainModel: Codable {
     let icon: URL?
     let options: [ChainOptions]?
     let externalApi: ExternalApiSet?
-    let selectedNode: ChainNodeModel?
+    var selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
     let iosMinAppVersion: String?
 

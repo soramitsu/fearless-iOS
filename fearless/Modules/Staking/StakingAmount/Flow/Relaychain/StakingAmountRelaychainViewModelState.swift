@@ -54,7 +54,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?,
+        amount _: Decimal?,
         callFactory: SubstrateCallFactoryProtocol
 
     ) {
@@ -62,7 +62,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         self.wallet = wallet
         self.chainAsset = chainAsset
         self.callFactory = callFactory
-        inputResult = .absolute(amount ?? 0)
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
     }
