@@ -122,13 +122,13 @@ private extension KYCMainInteractor {
             else {
                 return
             }
-            #if DEBUG
-                strongSelf.xorChainAssets = chainAssets
-            #else
-                strongSelf.xorChainAssets = chainAssets.filter { chainAsset in
-                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
-                }
-            #endif
+//            #if DEBUG
+            strongSelf.xorChainAssets = chainAssets
+//            #else
+//                strongSelf.xorChainAssets = chainAssets.filter { chainAsset in
+//                    chainAsset.chain.chainId == Chain.soraMain.genesisHash
+//                }
+//            #endif
             strongSelf.output?.didReceive(xorChainAssets: chainAssets)
             strongSelf.getXorBalance(for: strongSelf.xorChainAssets)
             strongSelf.subscribeToPrice(for: strongSelf.xorChainAssets.first)
