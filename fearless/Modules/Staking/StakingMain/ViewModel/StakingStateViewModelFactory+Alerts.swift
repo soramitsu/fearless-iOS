@@ -38,16 +38,17 @@ extension StakingStateViewModelFactory {
         ledgerInfo: StakingLedger
     ) -> StakingAlert? {
         guard
+            let chainAsset = commonData.chainAsset,
             let era = commonData.eraStakersInfo?.activeEra,
             let precision = commonData.chainAsset?.assetDisplayInfo.assetPrecision,
             let redeemable = Decimal.fromSubstrateAmount(
                 ledgerInfo.redeemable(inEra: era),
                 precision: precision
             ),
-            redeemable > 0,
-            let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable, usageCase: .listCrypto)
+            redeemable > 0
         else { return nil }
 
+        let redeemableAmount = getBalanceViewModelFactory(for: chainAsset).amountFromValue(redeemable, usageCase: .listCrypto)
         let localizedString = LocalizableResource<String> { locale in
             redeemableAmount.value(for: locale)
         }
@@ -71,12 +72,11 @@ extension StakingStateViewModelFactory {
             let minActiveDecimal = Decimal.fromSubstrateAmount(
                 minStake,
                 precision: chainAsset.assetDisplayInfo.assetPrecision
-            ),
-            let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal, usageCase: .listCrypto)
+            )
         else {
             return nil
         }
-
+        let minActiveAmount = getBalanceViewModelFactory(for: chainAsset).amountFromValue(minActiveDecimal, usageCase: .listCrypto)
         let localizedString = LocalizableResource<String> { locale in
             R.string.localizable.stakingInactiveCurrentMinimalStake(
                 minActiveAmount.value(for: locale),
@@ -103,12 +103,11 @@ extension StakingStateViewModelFactory {
                 let minActiveDecimal = Decimal.fromSubstrateAmount(
                     minStake,
                     precision: chainAsset.assetDisplayInfo.assetPrecision
-                ),
-                let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal, usageCase: .listCrypto)
+                )
             else {
                 return nil
             }
-
+            let minActiveAmount = getBalanceViewModelFactory(for: chainAsset).amountFromValue(minActiveDecimal, usageCase: .listCrypto)
             let localizedString = LocalizableResource<String> { locale in
                 R.string.localizable.stakingInactiveCurrentMinimalStake(
                     minActiveAmount.value(for: locale),
