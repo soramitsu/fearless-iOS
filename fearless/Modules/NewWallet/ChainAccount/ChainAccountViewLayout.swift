@@ -92,6 +92,7 @@ final class ChainAccountViewLayout: UIView {
         let button = VerticalContentButton()
         button.setImage(R.image.crossChainIcon(), for: .normal)
         button.titleLabel?.font = .p2Paragraph
+        button.isHidden = true
         return button
     }()
 
@@ -188,7 +189,11 @@ final class ChainAccountViewLayout: UIView {
         }
         buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
         polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
-        crossChainButton.isHidden = !(viewModel.chainAssetModel?.chain?.xcm?.availableAssets.contains(viewModel.chainAssetModel?.asset.name ?? "") ?? true)
+        if
+            let xcm = viewModel.chainAssetModel?.chain?.xcm,
+            let symbol = viewModel.chainAssetModel?.asset.symbol.lowercased() {
+            crossChainButton.isHidden = !xcm.availableAssets.map { $0.lowercased() }.contains(symbol)
+        }
     }
 }
 

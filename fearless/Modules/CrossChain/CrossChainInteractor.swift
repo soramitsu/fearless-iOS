@@ -204,7 +204,6 @@ extension CrossChainInteractor: CrossChainInteractorInput {
                 .xcmServices
                 .destinationFeeFetcher
                 .estimateFee(
-                    originChainId: originChainAsset.chain.chainId,
                     destinationChainId: destinationChainModel.chainId,
                     token: originChainAsset.asset.name
                 )
