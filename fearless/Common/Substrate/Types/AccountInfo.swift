@@ -69,22 +69,6 @@ struct AccountData: Codable, Equatable {
     @StringCodable var reserved: BigUInt
     @StringCodable var miscFrozen: BigUInt
     @StringCodable var feeFrozen: BigUInt
-
-    init(free: BigUInt, reserved: BigUInt, miscFrozen: BigUInt, feeFrozen: BigUInt) {
-        self.free = free
-        self.reserved = reserved
-        self.miscFrozen = miscFrozen
-        self.feeFrozen = feeFrozen
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-
-        free = (try? container.decode(BigUInt?.self, forKey: .free)) ?? .zero
-        reserved = (try? container.decode(BigUInt?.self, forKey: .reserved)) ?? .zero
-        miscFrozen = (try? container.decode(BigUInt?.self, forKey: .miscFrozen)) ?? .zero
-        feeFrozen = (try? container.decode(BigUInt?.self, forKey: .feeFrozen)) ?? .zero
-    }
 }
 
 extension AccountData {
