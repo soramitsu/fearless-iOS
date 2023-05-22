@@ -9,6 +9,8 @@ final class SubstrateCallFactoryAssembly {
             return SubstrateCallFactoryV9380()
         case .v9390:
             return SubstrateCallFactoryV9390()
+        case .v9420:
+            return SubstrateCallFactoryV9420()
         }
     }
 }
