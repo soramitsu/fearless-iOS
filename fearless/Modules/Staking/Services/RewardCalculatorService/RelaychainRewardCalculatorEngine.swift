@@ -200,6 +200,8 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         }
     }
 
+    // MARK: - Private
+
     private func calculateReturnForStake(_ stake: Decimal, commission: Decimal) -> Decimal {
         (annualInflation * averageStake / (stakedPortion * stake)) * (1.0 - commission)
     }
@@ -251,8 +253,6 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             return amount * rate * dailyReturn * Decimal(period.inDays)
         }
     }
-
-    // MARK: - Private
 
     // Calculation formula: R = P(1 + r/n)^nt - P, where
     // P – original amount

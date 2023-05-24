@@ -6,17 +6,15 @@ import IrohaCrypto
 final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal
     private var totalStaked: Decimal
-
     private let chainId: ChainModel.Id
     private let assetPrecision: Int16
     private let eraDurationInSeconds: TimeInterval
     private let commission: Decimal
     private let collators: [ParachainStakingCandidateInfo]
 
-    private let decayRate: Decimal = 0.05
-    private let idealStakePortion: Decimal = 0.75
-    private let idealInflation: Decimal = 0.1
-    private let minimalInflation: Decimal = 0.025
+    private lazy var annualInflation: Decimal = {
+        0.025
+    }()
 
     init(
         chainId: ChainModel.Id,
@@ -41,10 +39,6 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         self.commission = commission
         self.collators = collators
     }
-
-    private lazy var annualInflation: Decimal = {
-        0.025
-    }()
 
     func avgEarningTitle(locale: Locale) -> String {
         R.string.localizable.parachainStakingRewardInfoAvg(preferredLanguages: locale.rLanguages)
@@ -75,6 +69,8 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         calculateAvgEarnings(amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: isCompound, period: period)
     }
 
+    // MARK: - Private
+
     private func dailyPercentReward() -> Decimal {
         ((totalIssuance * annualInflation) / totalStaked) / 365
     }
@@ -85,8 +81,6 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     private func calculateEarningsForCollator(
         _: ParachainStakingCandidateInfo,
-        amount _: Decimal,
-        isCompound _: Bool,
         period: CalculationPeriod
     ) -> Decimal {
         dailyPercentReward() * Decimal(period.inDays)
@@ -113,8 +107,6 @@ final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             return amount * dailyReturn * Decimal(period.inDays)
         }
     }
-
-    // MARK: - Private
 
     // Calculation formula: R = P(1 + r/n)^nt - P, where
     // P – original amount

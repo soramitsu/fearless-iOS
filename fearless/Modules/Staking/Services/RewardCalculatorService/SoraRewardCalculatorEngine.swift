@@ -58,8 +58,8 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     private lazy var maxValidator: EraValidatorInfo? = {
         validators.max {
-            calculateEarningsForValidator($0, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent) <
-                calculateEarningsForValidator($1, amount: RewardCalculatorConstants.percentCalculationAmount, isCompound: false, period: .year, resultType: .percent)
+            calculateEarningsForValidator($0, amount: RewardCalculatorConstants.percentCalculationAmount, period: .year, resultType: .percent) <
+                calculateEarningsForValidator($1, amount: RewardCalculatorConstants.percentCalculationAmount, period: .year, resultType: .percent)
         }
     }()
 
@@ -93,7 +93,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     func calculateEarnings(
         amount: Decimal,
         validatorAccountId: Data,
-        isCompound: Bool,
+        isCompound _: Bool,
         period: CalculationPeriod
     ) throws -> Decimal {
         guard let validator = validators.first(where: { $0.accountId == validatorAccountId }) else {
@@ -103,7 +103,6 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         return calculateEarningsForValidator(
             validator,
             amount: amount,
-            isCompound: isCompound,
             period: period,
             resultType: .percent
         )
@@ -111,7 +110,7 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     func calculateMaxEarnings(
         amount: Decimal,
-        isCompound: Bool,
+        isCompound _: Bool,
         period: CalculationPeriod
     ) -> Decimal {
         guard let validator = maxValidator else {
@@ -121,7 +120,6 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         return calculateEarningsForValidator(
             validator,
             amount: amount,
-            isCompound: isCompound,
             period: period,
             resultType: .value
         )
@@ -129,14 +127,13 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
     func calculateAvgEarnings(
         amount: Decimal,
-        isCompound: Bool,
+        isCompound _: Bool,
         period: CalculationPeriod
     ) -> Decimal {
         calculateEarningsForAmount(
             amount,
             stake: averageStake,
             commission: medianCommission,
-            isCompound: isCompound,
             period: period,
             rewardAssetType: .percent
         )
@@ -176,7 +173,6 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private func calculateEarningsForValidator(
         _ validator: EraValidatorInfo,
         amount: Decimal,
-        isCompound: Bool,
         period: CalculationPeriod,
         resultType: RewardCalculationResultType
     ) -> Decimal {
@@ -190,7 +186,6 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
             amount,
             stake: stake,
             commission: commission,
-            isCompound: isCompound,
             period: period,
             rewardAssetType: resultType
         )
@@ -200,7 +195,6 @@ final class SoraRewardCalculatorEngine: RewardCalculatorEngineProtocol {
         _ amount: Decimal,
         stake: Decimal,
         commission: Decimal,
-        isCompound _: Bool,
         period: CalculationPeriod,
         rewardAssetType: RewardCalculationResultType
     ) -> Decimal {
