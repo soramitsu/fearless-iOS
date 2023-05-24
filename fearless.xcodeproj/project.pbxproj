@@ -2435,6 +2435,9 @@
 		FAC0BBE3291D0EB000E6F106 /* SelectAssetPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBCD291D0EB000E6F106 /* SelectAssetPresenter.swift */; };
 		FAC0BBE4291D0EB000E6F106 /* SelectAssetProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBCE291D0EB000E6F106 /* SelectAssetProtocols.swift */; };
 		FAC0BBE6291D11D600E6F106 /* SelectableAmountInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC0BBE5291D11D600E6F106 /* SelectableAmountInputView.swift */; };
+		FAC18FE42A1CAA3B00624F0D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC18FE32A1CAA3B00624F0D /* RelaychainRewardCalculatorEngine.swift */; };
+		FAC18FE62A1CAA4400624F0D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC18FE52A1CAA4400624F0D /* ParachainRewardCalculatorEngine.swift */; };
+		FAC18FE82A1CAA4D00624F0D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC18FE72A1CAA4C00624F0D /* SoraRewardCalculatorEngine.swift */; };
 		FAC2175E293F41B600A8BA83 /* AllDonePresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAC2175D293F41B600A8BA83 /* AllDonePresentable.swift */; };
 		FACACE1127BCF105005422EE /* MetaAccountCreationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACACE1027BCF104005422EE /* MetaAccountCreationMetadata.swift */; };
 		FACACE1427BCF10F005422EE /* MetaAccountImportMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = FACACE1227BCF10E005422EE /* MetaAccountImportMetadata.swift */; };
@@ -5058,6 +5061,9 @@
 		FAC0BBCD291D0EB000E6F106 /* SelectAssetPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectAssetPresenter.swift; sourceTree = "<group>"; };
 		FAC0BBCE291D0EB000E6F106 /* SelectAssetProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectAssetProtocols.swift; sourceTree = "<group>"; };
 		FAC0BBE5291D11D600E6F106 /* SelectableAmountInputView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectableAmountInputView.swift; sourceTree = "<group>"; };
+		FAC18FE32A1CAA3B00624F0D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		FAC18FE52A1CAA4400624F0D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		FAC18FE72A1CAA4C00624F0D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FAC2175D293F41B600A8BA83 /* AllDonePresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AllDonePresentable.swift; sourceTree = "<group>"; };
 		FACACE1027BCF104005422EE /* MetaAccountCreationMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetaAccountCreationMetadata.swift; sourceTree = "<group>"; };
 		FACACE1227BCF10E005422EE /* MetaAccountImportMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MetaAccountImportMetadata.swift; sourceTree = "<group>"; };
@@ -10042,6 +10048,9 @@
 				AEE4E34725E90C6000D6DF31 /* RelaychainRewardCalculatorService.swift */,
 				FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */,
 				FADB9DB429D551A100303F7D /* SoraRewardCalculatorService.swift */,
+				FAC18FE32A1CAA3B00624F0D /* RelaychainRewardCalculatorEngine.swift */,
+				FAC18FE52A1CAA4400624F0D /* ParachainRewardCalculatorEngine.swift */,
+				FAC18FE72A1CAA4C00624F0D /* SoraRewardCalculatorEngine.swift */,
 			);
 			path = RewardCalculatorService;
 			sourceTree = "<group>";
@@ -13233,7 +13242,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -13297,7 +13306,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -13715,6 +13724,7 @@
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
 				FA37AE3A2859CCC9001DCA96 /* StakingUnbondConfirmParachainViewModelState.swift in Sources */,
 				F471897626C297AA006487AD /* AnalyticsValidatorsPage.swift in Sources */,
+				FAC18FE42A1CAA3B00624F0D /* RelaychainRewardCalculatorEngine.swift in Sources */,
 				F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */,
 				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
 				FA2FC82628B380C500CC0A42 /* StakingPool.swift in Sources */,
@@ -13870,6 +13880,7 @@
 				847119EB262EFF3800716580 /* ValidatorPayoutInfoFactory.swift in Sources */,
 				84CFF1F126526FBC00DB7CF7 /* StakingBondMoreConfirmationInteractor.swift in Sources */,
 				FA99425828053C8800D771E5 /* SelectExportAccountAssembly.swift in Sources */,
+				FAC18FE62A1CAA4400624F0D /* ParachainRewardCalculatorEngine.swift in Sources */,
 				AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */,
 				07DFA4462897EE370035A8AB /* WalletsManagmentViewModelFactory.swift in Sources */,
 				07D05E4A28EEFF2F00B66C70 /* SelectValidatorsStartPoolStrategy.swift in Sources */,
@@ -14869,6 +14880,7 @@
 				844D22A325EE7E4600C022F7 /* AnySingleValueProvider.swift in Sources */,
 				FA936BD2286C41F00059B97A /* StakingRebondConfirmationRelaychainViewModelFactory.swift in Sources */,
 				84CEAAF726D7B8010021B881 /* SettingsMigrator.swift in Sources */,
+				FAC18FE82A1CAA4D00624F0D /* SoraRewardCalculatorEngine.swift in Sources */,
 				844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */,
 				C665E4F029C35801001946D1 /* TimeFormatter.swift in Sources */,
 				073417B3298BA28300104F41 /* EquilibriumTotalBalanceServiceFactory.swift in Sources */,
