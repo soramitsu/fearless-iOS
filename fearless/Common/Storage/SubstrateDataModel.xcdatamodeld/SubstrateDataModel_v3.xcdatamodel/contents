@@ -9,6 +9,7 @@
         <attribute name="fiatDayChange" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="icon" optional="YES" attributeType="URI"/>
         <attribute name="id" attributeType="String"/>
+        <attribute name="name" optional="YES" attributeType="String"/>
         <attribute name="precision" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="price" optional="YES" attributeType="Decimal" defaultValueString="0.0"/>
         <attribute name="priceId" optional="YES" attributeType="String"/>

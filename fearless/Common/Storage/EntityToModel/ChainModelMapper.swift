@@ -12,22 +12,30 @@ final class ChainModelMapper {
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
         var symbol: String?
-
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
         } else {
             symbol = entity.id
         }
+
+        var name: String?
+        if let entityName = entity.name {
+            name = entityName
+        } else {
+            name = entity.symbol
+        }
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = symbol
+            let symbol = symbol,
+            let name = name
         else {
             preconditionFailure()
         }
 
         return AssetModel(
             id: id,
+            name: name,
             symbol: symbol,
             chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
@@ -158,6 +166,7 @@ final class ChainModelMapper {
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
         assetEntity.color = model.asset.color
+        assetEntity.name = model.asset.name
 
         entity.asset = assetEntity
     }

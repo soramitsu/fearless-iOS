@@ -5,4 +5,7 @@ struct ChainAccountViewModel {
     let selectedChainName: String
     let address: String?
     let chainAssetModel: ChainAssetModel?
+    let buyButtonVisible: Bool
+    let polkaswapButtonVisible: Bool
+    let xcmButtomVisible: Bool
 }

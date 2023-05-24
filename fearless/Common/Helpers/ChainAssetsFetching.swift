@@ -126,10 +126,10 @@ private extension ChainAssetsFetching {
                 chainAsset.hasStaking == hasStaking
             }
         case let .assetName(name):
-            return chainAssets.filter { $0.asset.name.lowercased() == name.lowercased() }
+            return chainAssets.filter { $0.asset.symbol == name.lowercased() }
         case let .search(name):
             return chainAssets.filter {
-                $0.asset.name.lowercased().contains(name.lowercased())
+                $0.asset.symbol.contains(name.lowercased())
                     || $0.chain.name.lowercased().contains(name.lowercased())
             }
         case let .ecosystem(ecosystem):
@@ -371,9 +371,9 @@ private extension ChainAssetsFetching {
         chainAssets.sorted {
             switch order {
             case .ascending:
-                return $0.asset.name < $1.asset.name
+                return $0.asset.symbol < $1.asset.symbol
             case .descending:
-                return $0.asset.name > $1.asset.name
+                return $0.asset.symbol > $1.asset.symbol
             }
         }
     }

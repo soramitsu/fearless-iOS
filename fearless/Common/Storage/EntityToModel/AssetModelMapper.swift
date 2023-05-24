@@ -13,13 +13,15 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = entity.symbol
+            let symbol = entity.symbol,
+            let name = entity.name
         else {
             throw AssetModelMapperError.requiredFieldsMissing
         }
 
         return AssetModel(
             id: id,
+            name: name,
             symbol: symbol,
             chainId: chainId,
             precision: UInt16(entity.precision),

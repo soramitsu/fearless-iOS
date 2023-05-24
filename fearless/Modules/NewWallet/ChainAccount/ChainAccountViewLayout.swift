@@ -187,13 +187,9 @@ final class ChainAccountViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
-        buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
-        polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
-        if
-            let xcm = viewModel.chainAssetModel?.chain?.xcm,
-            let symbol = viewModel.chainAssetModel?.asset.symbol.lowercased() {
-            crossChainButton.isHidden = !xcm.availableAssets.map { $0.lowercased() }.contains(symbol)
-        }
+        buyButton.isHidden = !viewModel.buyButtonVisible
+        polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
+        crossChainButton.isHidden = !viewModel.xcmButtomVisible
     }
 }
 

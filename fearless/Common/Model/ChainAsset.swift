@@ -117,7 +117,7 @@ extension ChainAsset {
     }
 
     var debugName: String {
-        "\(chain.name)-\(asset.name)"
+        "\(chain.name)-\(asset.symbolUppercased)"
     }
 
     var hasStaking: Bool {
@@ -139,15 +139,3 @@ enum ChainAssetType: String, Codable {
     case equilibrium
     case soraAsset
 }
-
-//// MARK: - ChainAssetProtocol
-//
-// extension ChainAsset: ChainAssetProtocol {
-//    var chainModel: ChainModelProtocol {
-//        chain
-//    }
-//
-//    var assetModel: AssetModelProtocol {
-//        asset
-//    }
-// }

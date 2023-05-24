@@ -18,7 +18,7 @@ protocol CrossChainViewInput: ControllerBackedProtocol {
 protocol CrossChainInteractorInput: AnyObject {
     var xcmServices: XcmExtrinsicServices? { get }
     func setup(with output: CrossChainInteractorOutput)
-    func didReceive(originChainAsset: ChainAsset?, destChainModel: ChainModel?)
+    func didReceive(originChainAsset: ChainAsset?)
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?)
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult
 }
@@ -38,7 +38,7 @@ final class CrossChainPresenter {
     private var selectedOriginChainModel: ChainModel
     private var selectedAmountChainAsset: ChainAsset
     private var amountInputResult: AmountInputResult?
-    private var availableOriginChainAsset: [ChainAsset] = []
+    private var availableOriginChainAssets: [ChainAsset] = []
 
     private var originNetworkBalanceValue: BigUInt = .zero
     private var originNetworkSelectedAssetBalance: Decimal = .zero
@@ -112,12 +112,6 @@ final class CrossChainPresenter {
             inputAmount,
             balance: originNetworkSelectedAssetBalance,
             priceData: priceData
-        ).value(for: selectedLocale)
-
-        let balanceViewModel = balanceViewModelFactory?.balanceFromPrice(
-            inputAmount ?? .zero,
-            priceData: priceData,
-            usageCase: .inputCrypto
         ).value(for: selectedLocale)
 
         view?.didReceive(assetBalanceViewModel: assetBalanceViewModel)
@@ -323,11 +317,16 @@ final class CrossChainPresenter {
             destChainFeeDecimal: destChainFeeDecimal,
             recipientAddress: recipientAddress
         )
-        router.showConfirmation(
-            from: view,
-            data: data,
-            xcmServices: xcmServices
-        )
+        Task { @MainActor in
+            guard await addressIsValid() else {
+                return
+            }
+            router.showConfirmation(
+                from: view,
+                data: data,
+                xcmServices: xcmServices
+            )
+        }
     }
 
     private func estimateFee() {
@@ -342,6 +341,42 @@ final class CrossChainPresenter {
             destinationChainModel: selectedDestChainModel,
             amount: inputAmount
         )
+    }
+
+    private func addressIsValid() async -> Bool {
+        guard let selectedDestChainModel = selectedDestChainModel else {
+            return false
+        }
+        let validAddressResult = interactor.validate(address: recipientAddress, for: selectedDestChainModel)
+
+        switch validAddressResult {
+        case .valid:
+            return true
+        case .sameAddress:
+            return await showSameAddressAlert()
+        case .invalid:
+            return false
+        }
+    }
+
+    private func showSameAddressAlert() async -> Bool {
+        await withCheckedContinuation { continuation in
+            let action = SheetAlertPresentableAction(
+                title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)
+            ) {
+                continuation.resume(returning: true)
+            }
+            Task { @MainActor in
+                router.present(
+                    message: R.string.localizable
+                        .sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
+                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                    closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
+                    from: view,
+                    actions: [action]
+                )
+            }
+        }
     }
 }
 
@@ -365,7 +400,7 @@ extension CrossChainPresenter: CrossChainViewOutput {
         router.showSelectAsset(
             from: view,
             wallet: wallet,
-            chainAssets: availableOriginChainAsset,
+            chainAssets: availableOriginChainAssets,
             selectedAssetId: selectedAmountChainAsset.asset.identifier,
             output: self
         )
@@ -555,16 +590,15 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             selectedDestChainModel = filtredChainAssets.map { $0.chain }.first
         }
         provideDestSelectNetworkViewModel()
-        interactor.didReceive(originChainAsset: nil, destChainModel: selectedDestChainModel)
         estimateFee()
     }
 
     func didSetup() {
-        interactor.didReceive(originChainAsset: selectedAmountChainAsset, destChainModel: nil)
+        interactor.didReceive(originChainAsset: selectedAmountChainAsset)
     }
 
     func didReceiveOrigin(chainAssets: [ChainAsset]) {
-        availableOriginChainAsset = chainAssets
+        availableOriginChainAssets = chainAssets
     }
 
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
@@ -605,7 +639,8 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
             return
         }
         selectedAmountChainAsset = chainAsset
-        interactor.didReceive(originChainAsset: chainAsset, destChainModel: selectedDestChainModel)
+        selectedDestChainModel = nil
+        interactor.didReceive(originChainAsset: chainAsset)
         estimateFee()
         provideInputViewModel()
     }
@@ -631,7 +666,7 @@ extension CrossChainPresenter: SelectNetworkDelegate {
         selectedDestChainModel = chain
         provideDestSelectNetworkViewModel()
         provideAddress()
-        interactor.didReceive(originChainAsset: selectedAmountChainAsset, destChainModel: chain)
+        interactor.didReceive(originChainAsset: selectedAmountChainAsset)
         estimateFee()
         provideInputViewModel()
     }

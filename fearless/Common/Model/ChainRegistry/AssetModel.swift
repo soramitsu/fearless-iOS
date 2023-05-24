@@ -8,7 +8,9 @@ struct AssetModel: Equatable, Codable, Hashable {
     typealias PriceId = String
 
     let id: String
+    let name: String
     let symbol: String
+    let displayName: String?
     let chainId: String
     let precision: UInt16
     let icon: URL?
@@ -17,16 +19,16 @@ struct AssetModel: Equatable, Codable, Hashable {
     let fiatDayChange: Decimal?
     let transfersEnabled: Bool
     let currencyId: String?
-    let displayName: String?
     let existentialDeposit: String?
     let color: String?
 
-    var name: String {
+    var symbolUppercased: String {
         symbol.uppercased()
     }
 
     init(
         id: String,
+        name: String,
         symbol: String,
         chainId: String,
         precision: UInt16,
@@ -43,6 +45,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         self.id = id
         self.symbol = symbol
         self.chainId = chainId
+        self.name = name
         self.precision = precision
         self.icon = icon
         self.priceId = priceId
@@ -57,6 +60,7 @@ struct AssetModel: Equatable, Codable, Hashable {
 
     enum CodingKeys: String, CodingKey {
         case id
+        case name
         case symbol
         case chainId
         case precision
@@ -64,7 +68,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         case priceId
         case transfersEnabled
         case currencyId
-        case displayName = "name"
+        case displayName
         case existentialDeposit
         case color
     }
@@ -73,6 +77,7 @@ struct AssetModel: Equatable, Codable, Hashable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         id = try container.decode(String.self, forKey: .id)
+        name = try container.decode(String.self, forKey: .name)
         symbol = try container.decode(String.self, forKey: .symbol)
         chainId = try container.decode(String.self, forKey: .chainId)
         precision = try container.decode(UInt16.self, forKey: .precision)
@@ -91,6 +96,7 @@ struct AssetModel: Equatable, Codable, Hashable {
     func replacingPrice(_ priceData: PriceData) -> AssetModel {
         AssetModel(
             id: id,
+            name: name,
             symbol: symbol,
             chainId: chainId,
             precision: precision,
@@ -108,6 +114,7 @@ struct AssetModel: Equatable, Codable, Hashable {
 
     static func == (lhs: AssetModel, rhs: AssetModel) -> Bool {
         lhs.id == rhs.id &&
+            lhs.name == rhs.name &&
             lhs.chainId == rhs.chainId &&
             lhs.precision == rhs.precision &&
             lhs.icon == rhs.icon &&
@@ -124,5 +131,3 @@ struct AssetModel: Equatable, Codable, Hashable {
 extension AssetModel: Identifiable {
     var identifier: String { id }
 }
-
-// extension AssetModel: AssetModelProtocol {}
