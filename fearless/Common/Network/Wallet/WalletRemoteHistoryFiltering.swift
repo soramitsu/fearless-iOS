@@ -19,7 +19,7 @@ final class WalletRemoteHistoryClosureFilter: WalletRemoteHistoryFiltering {
 extension WalletRemoteHistoryClosureFilter {
     static var transfersInExtrinsics: WalletRemoteHistoryClosureFilter {
         let module = "balances"
-        let calls = ["transfer", "transfer_keep_alive", "force_transfer"]
+        let calls = ["transfer", "transfer_keep_alive", "force_transfer", "transfer_allow_death"]
 
         return WalletRemoteHistoryClosureFilter { item in
             guard let extrinsic = item as? SubscanConcreteExtrinsicsItemData else {
