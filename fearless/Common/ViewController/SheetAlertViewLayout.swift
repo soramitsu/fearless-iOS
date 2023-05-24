@@ -136,12 +136,6 @@ final class SheetAlertViewLayout: UIView {
             }
         }
 
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
-            make.top.equalToSuperview().inset(20)
-        }
-
         let containerBackgroundColor = viewModel.isInfo ? R.color.colorWhite8() : R.color.colorBlack()
         imageViewContainer.backgroundColor = containerBackgroundColor
         if !viewModel.isInfo {
@@ -176,6 +170,8 @@ final class SheetAlertViewLayout: UIView {
 
         contentStackView.addArrangedSubview(imageViewContainer)
         contentStackView.setCustomSpacing(24, after: imageViewContainer)
+        contentStackView.addArrangedSubview(titleLabel)
+        contentStackView.setCustomSpacing(24, after: titleLabel)
         contentStackView.addArrangedSubview(descriptionLabel)
         contentStackView.setCustomSpacing(24, after: descriptionLabel)
 

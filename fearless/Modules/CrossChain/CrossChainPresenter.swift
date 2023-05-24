@@ -317,16 +317,14 @@ final class CrossChainPresenter {
             destChainFeeDecimal: destChainFeeDecimal,
             recipientAddress: recipientAddress
         )
-        Task { @MainActor in
-            guard await addressIsValid() else {
-                return
-            }
-            router.showConfirmation(
-                from: view,
-                data: data,
-                xcmServices: xcmServices
-            )
+        guard addressIsValid() else {
+            return
         }
+        router.showConfirmation(
+            from: view,
+            data: data,
+            xcmServices: xcmServices
+        )
     }
 
     private func estimateFee() {
@@ -343,40 +341,33 @@ final class CrossChainPresenter {
         )
     }
 
-    private func addressIsValid() async -> Bool {
+    private func addressIsValid() -> Bool {
         guard let selectedDestChainModel = selectedDestChainModel else {
             return false
         }
         let validAddressResult = interactor.validate(address: recipientAddress, for: selectedDestChainModel)
 
         switch validAddressResult {
-        case .valid:
+        case .valid, .sameAddress:
             return true
-        case .sameAddress:
-            return await showSameAddressAlert()
         case .invalid:
+            showInvalidAddressAlert()
             return false
         }
     }
 
-    private func showSameAddressAlert() async -> Bool {
-        await withCheckedContinuation { continuation in
-            let action = SheetAlertPresentableAction(
-                title: R.string.localizable.commonProceed(preferredLanguages: selectedLocale.rLanguages)
-            ) {
-                continuation.resume(returning: true)
-            }
-            Task { @MainActor in
-                router.present(
-                    message: R.string.localizable
-                        .sameAddressTransferWarningMessage(preferredLanguages: selectedLocale.rLanguages),
-                    title: R.string.localizable.commonWarning(preferredLanguages: selectedLocale.rLanguages),
-                    closeAction: R.string.localizable.commonCancel(preferredLanguages: selectedLocale.rLanguages),
-                    from: view,
-                    actions: [action]
-                )
-            }
-        }
+    private func showInvalidAddressAlert() {
+        let message = R.string.localizable
+            .xcmCrossChainInvalidAddressMessage(preferredLanguages: selectedLocale.rLanguages)
+        let title = R.string.localizable
+            .xcmCrossChainInvalidAddressTitle(preferredLanguages: selectedLocale.rLanguages)
+        router.present(
+            message: message,
+            title: title,
+            closeAction: R.string.localizable.commonOk(preferredLanguages: selectedLocale.rLanguages),
+            from: view,
+            actions: []
+        )
     }
 }
 
