@@ -34,8 +34,7 @@ struct AccountInfo: Codable, Equatable {
         data = AccountData(
             free: ormlAccountInfo.free,
             reserved: ormlAccountInfo.reserved,
-            miscFrozen: ormlAccountInfo.frozen,
-            feeFrozen: BigUInt.zero
+            frozen: ormlAccountInfo.frozen
         )
     }
 
@@ -50,8 +49,7 @@ struct AccountInfo: Codable, Equatable {
         data = AccountData(
             free: equilibriumFree,
             reserved: BigUInt.zero,
-            miscFrozen: BigUInt.zero,
-            feeFrozen: BigUInt.zero
+            frozen: BigUInt.zero
         )
     }
 
@@ -65,18 +63,53 @@ struct AccountInfo: Codable, Equatable {
 }
 
 struct AccountData: Codable, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case free
+        case reserved
+        case frozen
+        case miscFrozen
+        case feeFrozen
+    }
+
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
-    @StringCodable var miscFrozen: BigUInt
-    @StringCodable var feeFrozen: BigUInt
+    @StringCodable var frozen: BigUInt
+
+    init(free: BigUInt, reserved: BigUInt, frozen: BigUInt) {
+        self.free = free
+        self.reserved = reserved
+        self.frozen = frozen
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(free, forKey: .free)
+        try container.encode(reserved, forKey: .reserved)
+        try container.encode(frozen, forKey: .frozen)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+
+        do {
+            frozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .frozen).value
+        } catch {
+            let feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
+            let miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
+
+            frozen = max(feeFrozen, miscFrozen)
+        }
+    }
 }
 
 extension AccountData {
     var total: BigUInt { free + reserved }
-    var frozen: BigUInt { reserved + locked }
-    var locked: BigUInt { max(miscFrozen, feeFrozen) }
-    var stakingAvailable: BigUInt { free - feeFrozen }
-    var sendAvailable: BigUInt { free - locked }
+    var locked: BigUInt { frozen }
+    var stakingAvailable: BigUInt { free - frozen }
+    var sendAvailable: BigUInt { free - frozen }
 }
 
 // MARK: - Orml
