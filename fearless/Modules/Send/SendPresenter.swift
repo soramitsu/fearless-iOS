@@ -279,7 +279,7 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(accountInfo):
             if chainAsset == selectedChainAsset {
-                totalBalanceValue = accountInfo?.data.total ?? 0
+                totalBalanceValue = accountInfo?.data.sendAvailable ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,
@@ -488,7 +488,8 @@ private extension SendPresenter {
             .map { balanceViewModelFactory
                 .balanceFromPrice(
                     $0,
-                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData
+                    priceData: chainAsset.isUtility ? self.priceData : self.utilityPriceData,
+                    usageCase: .detailsCrypto
                 )
             }?.value(for: selectedLocale)
         let tipViewModel = TipViewModel(
@@ -506,7 +507,7 @@ private extension SendPresenter {
               .balanceViewModelFactory
         else { return }
         let viewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
         view?.didReceive(feeViewModel: viewModel)
     }

@@ -17,17 +17,24 @@ class AccountItemMapperTests: XCTestCase {
                                                        type: .kusamaMain)
         let accountId = try keypair.publicKey().rawData().publicKeyToAccountId()
 
-        let metaAccountItem = MetaAccountModel(metaId: UUID().uuidString,
-                                               name: "meta",
-                                               substrateAccountId: accountId,
-                                               substrateCryptoType: CryptoType.ecdsa.rawValue,
-                                               substratePublicKey: keypair.publicKey().rawData(),
-                                               ethereumAddress: address.asSecretData(),
-                                               ethereumPublicKey: keypair.publicKey().rawData(),
-                                               chainAccounts: [],
-                                               assetKeysOrder: nil,
-                                               assetIdsEnabled: nil,
-                                               canExportEthereumMnemonic: true)
+        
+        let metaAccountItem = MetaAccountModel(
+            metaId: UUID().uuidString,
+            name: "meta",
+            substrateAccountId: accountId,
+            substrateCryptoType: CryptoType.ecdsa.rawValue,
+            substratePublicKey: keypair.publicKey().rawData(),
+            ethereumAddress: address.asSecretData(),
+            ethereumPublicKey: keypair.publicKey().rawData(),
+            chainAccounts: [],
+            assetKeysOrder: nil,
+            assetFilterOptions: [],
+            canExportEthereumMnemonic: true,
+            unusedChainIds: nil,
+            selectedCurrency: Currency.defaultCurrency(),
+            chainIdForFilter: nil,
+            assetsVisibility: []
+        )
 
         settings.save(value: metaAccountItem)
 

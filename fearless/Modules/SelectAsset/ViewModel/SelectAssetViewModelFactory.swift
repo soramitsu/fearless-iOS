@@ -99,11 +99,6 @@ private extension SelectAssetViewModelFactory {
         locale: Locale,
         selectedAssetId: String?
     ) -> SelectAssetCellViewModel {
-        if let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId {
-            let key = chainAsset.uniqueKey(accountId: accountId)
-            let accountInfo = accountInfos[key]
-        }
-
         let containsChainAssets = chainAssets.filter {
             $0.asset.name == chainAsset.asset.name
         }
@@ -149,8 +144,9 @@ private extension SelectAssetViewModelFactory {
             return Decimal.zero
         }.reduce(0, +)
 
-        let digits = totalAssetBalance > 0 ? 4 : 0
-        return totalAssetBalance.toString(locale: locale, digits: digits)
+        let minDigits = totalAssetBalance > 0 ? 3 : 0
+        let maxDigits = totalAssetBalance > 0 ? 8 : 0
+        return totalAssetBalance.toString(locale: locale, minimumDigits: minDigits, maximumDigits: maxDigits)
     }
 
     func getBalance(
@@ -203,7 +199,7 @@ private extension SelectAssetViewModelFactory {
         locale: Locale
     ) -> TokenFormatter {
         let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
     }

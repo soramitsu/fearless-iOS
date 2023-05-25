@@ -30,7 +30,7 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return SheetAlertPresentableAction(title: title) {
+                return SheetAlertPresentableAction(title: title, style: .warningStyle) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
@@ -41,7 +41,8 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
             title: title,
             message: nil,
             actions: actions,
-            closeAction: cancelTitle
+            closeAction: cancelTitle,
+            icon: nil
         )
 
         present(

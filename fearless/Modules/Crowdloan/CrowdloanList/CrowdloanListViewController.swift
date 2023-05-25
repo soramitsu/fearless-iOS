@@ -299,7 +299,7 @@ extension CrowdloanListViewController: Localizable {
 }
 
 extension CrowdloanListViewController: LoadableViewProtocol {
-    var loadableContentView: UIView! { rootView.statusView }
+    var loadableContentView: UIView { rootView.statusView }
 }
 
 extension CrowdloanListViewController: EmptyStateViewOwnerProtocol {

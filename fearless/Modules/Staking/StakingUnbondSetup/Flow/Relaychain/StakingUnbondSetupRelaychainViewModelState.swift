@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import FearlessUtils
 
 final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewModelState {
     var stateListener: StakingUnbondSetupModelStateListener?
@@ -13,25 +14,11 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
     private(set) var fee: Decimal?
     private(set) var controller: ChainAccountResponse?
     private(set) var stashItem: StashItem?
+    private(set) var payee: RewardDestinationArg?
+    private(set) var minNominatorBonded: Decimal?
+    private(set) var nomination: Nomination?
     private let dataValidatingFactory: StakingDataValidatingFactory
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
-
-    var builderClosure: ExtrinsicBuilderClosure? {
-        guard
-            let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                precision: Int16(chainAsset.asset.precision)
-            ) else {
-            return nil
-        }
-
-        let unbondCall = callFactory.unbond(amount: amount)
-        let setPayeeCall = callFactory.setPayee(for: .stash)
-        let chillCall = callFactory.chill()
-
-        return { builder in
-            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
-        }
-    }
+    private let callFactory: SubstrateCallFactoryProtocol
 
     var confirmationFlow: StakingUnbondConfirmFlow? {
         guard let inputAmount = inputAmount else {
@@ -45,14 +32,105 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
         inputAmount
     }
 
+    var reuseIdentifier: String {
+        var identifier = ""
+        let amountValue = inputAmount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) ?? BigUInt.zero
+        identifier.append("\(amountValue)")
+
+        if shouldChill {
+            let chillName = callFactory.chill().callName
+            identifier.append(chillName)
+        }
+
+        let unbondName = callFactory.unbond(amount: amountValue).callName
+        identifier.append(unbondName)
+
+        if shouldResetRewardDestination {
+            let resetName = callFactory.setPayee(for: .stash).callName
+            identifier.append(resetName)
+        }
+
+        return identifier
+    }
+
+    var builderClosure: ExtrinsicBuilderClosure? {
+        { [weak self] builder in
+            guard let strongSelf = self else {
+                throw CommonError.undefined
+            }
+
+            let amount = strongSelf.inputAmount ?? Decimal.zero
+
+            return try strongSelf.setupExtrinsicBuiler(
+                builder,
+                amount: amount,
+                resettingRewardDestination: strongSelf.shouldResetRewardDestination,
+                chilling: strongSelf.shouldChill
+            )
+        }
+    }
+
+    private var shouldChill: Bool {
+        let amount = inputAmount ?? Decimal.zero
+        if
+            let bonded = bonded,
+            let minNominatorBonded = minNominatorBonded,
+            nomination != nil {
+            return bonded - amount < minNominatorBonded || amount == bonded
+        } else {
+            return false
+        }
+    }
+
+    private var shouldResetRewardDestination: Bool {
+        let amount = inputAmount ?? Decimal.zero
+        switch payee {
+        case .staked:
+            if let bonded = bonded, let minimalBalance = minimalBalance {
+                return bonded - amount < minimalBalance || amount == bonded
+            } else {
+                return false
+            }
+        default:
+            return false
+        }
+    }
+
     init(
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
-        dataValidatingFactory: StakingDataValidatingFactory
+        dataValidatingFactory: StakingDataValidatingFactory,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
+    }
+
+    private func setupExtrinsicBuiler(
+        _ builder: ExtrinsicBuilderProtocol,
+        amount: Decimal,
+        resettingRewardDestination: Bool,
+        chilling: Bool
+    ) throws -> ExtrinsicBuilderProtocol {
+        guard let amountValue = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)) else {
+            throw CommonError.undefined
+        }
+
+        var resultBuilder = builder
+
+        if chilling {
+            resultBuilder = try builder.adding(call: callFactory.chill())
+        }
+
+        resultBuilder = try resultBuilder.adding(call: callFactory.unbond(amount: amountValue))
+
+        if resettingRewardDestination {
+            resultBuilder = try resultBuilder.adding(call: callFactory.setPayee(for: .stash))
+        }
+
+        return resultBuilder
     }
 
     func setStateListener(_ stateListener: StakingUnbondSetupModelStateListener?) {
@@ -89,16 +167,14 @@ final class StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupViewMo
             inputAmount = bonded * Decimal(Double(percentage))
             stateListener?.provideInputViewModel()
             stateListener?.provideAssetViewModel()
+            stateListener?.updateFeeIfNeeded()
         }
     }
 
     func updateAmount(_ amount: Decimal) {
         inputAmount = amount
         stateListener?.provideAssetViewModel()
-
-        if fee == nil {
-            stateListener?.updateFeeIfNeeded()
-        }
+        stateListener?.updateFeeIfNeeded()
     }
 }
 
@@ -190,5 +266,49 @@ extension StakingUnbondSetupRelaychainViewModelState: StakingUnbondSetupRelaycha
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
+    }
+
+    func didReceivePayee(result: Result<RewardDestinationArg?, Error>) {
+        switch result {
+        case let .success(payee):
+            self.payee = payee
+
+            stateListener?.updateFeeIfNeeded()
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
+    func didReceiveMinBonded(result: Result<BigUInt?, Error>) {
+        switch result {
+        case let .success(minNominatorBonded):
+            if let minNominatorBonded = minNominatorBonded {
+                self.minNominatorBonded = Decimal.fromSubstrateAmount(
+                    minNominatorBonded,
+                    precision: Int16(chainAsset.asset.precision)
+                )
+            } else {
+                self.minNominatorBonded = Decimal.zero
+            }
+
+            stateListener?.updateFeeIfNeeded()
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
+    func didReceiveNomination(result: Result<Nomination?, Error>) {
+        switch result {
+        case let .success(nomination):
+            self.nomination = nomination
+
+            stateListener?.updateFeeIfNeeded()
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
+    func didReceiveNewExtrinsicService() {
+        stateListener?.updateFeeIfNeeded()
     }
 }

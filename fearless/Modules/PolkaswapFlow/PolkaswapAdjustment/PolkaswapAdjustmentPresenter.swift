@@ -64,24 +64,32 @@ final class PolkaswapAdjustmentPresenter {
     init(
         wallet: MetaAccountModel,
         soraChainAsset: ChainAsset,
-        swapFromChainAsset: ChainAsset,
+        swapChainAsset: ChainAsset,
         viewModelFactory: PolkaswapAdjustmentViewModelFactoryProtocol,
         dataValidatingFactory: SendDataValidatingFactory,
         logger: LoggerProtocol = Logger.shared,
         interactor: PolkaswapAdjustmentInteractorInput,
         router: PolkaswapAdjustmentRouterInput,
+        swapVariant: SwapVariant,
         localizationManager: LocalizationManagerProtocol
     ) {
         self.wallet = wallet
         xorChainAsset = soraChainAsset
-        self.swapFromChainAsset = swapFromChainAsset
         self.viewModelFactory = viewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         selectedLiquiditySourceType = LiquiditySourceType.smart
         self.interactor = interactor
         self.router = router
+        self.swapVariant = swapVariant
         self.localizationManager = localizationManager
+
+        switch swapVariant {
+        case .desiredInput:
+            swapFromChainAsset = swapChainAsset
+        case .desiredOutput:
+            swapToChainAsset = swapChainAsset
+        }
     }
 
     // MARK: - Private methods
@@ -331,7 +339,8 @@ final class PolkaswapAdjustmentPresenter {
             priceData: prices?.first(where: { price in
                 price.priceId == xorChainAsset.asset.priceId
             }),
-            isApproximately: true
+            isApproximately: true,
+            usageCase: .detailsCrypto
         ).value(for: selectedLocale)
         DispatchQueue.main.async {
             self.view?.didReceiveNetworkFee(fee: feeViewModel)
@@ -423,7 +432,8 @@ final class PolkaswapAdjustmentPresenter {
             message: alertMessage,
             actions: [chooseAssetAction],
             closeAction: closeTitle,
-            dismissCompletion: nil
+            dismissCompletion: nil,
+            icon: R.image.iconWarningBig()
         )
         router.present(
             viewModel: viewModel,

@@ -338,27 +338,3 @@ class NMapKeyEncodingOperation: BaseOperation<[Data]> {
         try param.encode(encoder: factory.createEncoder(), type: type)
     }
 }
-
-extension MapKeyEncodingOperation {
-    func localWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
-        baseLocalWrapper(for: factory)
-    }
-}
-
-extension DoubleMapKeyEncodingOperation {
-    func localWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
-        baseLocalWrapper(for: factory)
-    }
-}
-
-private extension BaseOperation where ResultType == [Data] {
-    func baseLocalWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
-        let mapOperation = ClosureOperation<[String]> {
-            let keys = try self.extractNoCancellableResultData()
-            return keys.map { factory.createIdentifier(for: $0) }
-        }
-
-        mapOperation.addDependency(self)
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [self])
-    }
-}

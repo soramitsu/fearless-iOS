@@ -11,33 +11,38 @@ protocol AssetBalanceFormatterFactoryProtocol {
     ) -> LocalizableResource<NumberFormatter>
 
     func createDisplayFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<LocalizableDecimalFormatting>
 
     func createTokenFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter>
 
     func createFeeTokenFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter>
 }
 
 class AssetBalanceFormatterFactory {
     private func createTokenFormatterCommon(
         for info: AssetBalanceDisplayInfo,
-        roundingMode: NumberFormatter.RoundingMode
+        roundingMode: NumberFormatter.RoundingMode,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter> {
-        let formatter = createCompoundFormatter(for: info.displayPrecision, roundingMode: roundingMode)
+        LocalizableResource { locale in
+            let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
+            let formatter = self.createCompoundFormatter(for: info.displayPrecision, roundingMode: roundingMode, formatter: numberFormatter)
 
-        let tokenFormatter = TokenFormatter(
-            decimalFormatter: formatter,
-            tokenSymbol: info.symbol,
-            separator: info.symbolValueSeparator,
-            position: info.symbolPosition
-        )
+            let tokenFormatter = TokenFormatter(
+                decimalFormatter: formatter,
+                tokenSymbol: info.symbol,
+                separator: info.symbolValueSeparator,
+                position: info.symbolPosition
+            )
 
-        return LocalizableResource { locale in
             tokenFormatter.locale = locale
             return tokenFormatter
         }
@@ -45,34 +50,28 @@ class AssetBalanceFormatterFactory {
 
     // swiftlint:disable function_body_length
     private func createCompoundFormatter(
-        for preferredPrecision: UInt16,
-        roundingMode: NumberFormatter.RoundingMode = .down
+        for _: UInt16,
+        roundingMode: NumberFormatter.RoundingMode = .down,
+        formatter: NumberFormatter
     ) -> LocalizableDecimalFormatting {
         let abbreviations: [BigNumberAbbreviation] = [
             BigNumberAbbreviation(
                 threshold: 0,
                 divisor: 1.0,
                 suffix: "",
-                formatter: DynamicPrecisionFormatter(
-                    preferredPrecision: UInt8(preferredPrecision),
-                    roundingMode: roundingMode
-                )
+                formatter: formatter
             ),
             BigNumberAbbreviation(
                 threshold: 1,
                 divisor: 1.0,
                 suffix: "",
-                formatter: NumberFormatter.decimalFormatter(
-                    precision: Int(preferredPrecision),
-                    rounding: roundingMode,
-                    usesIntGrouping: true
-                )
+                formatter: formatter
             ),
             BigNumberAbbreviation(
                 threshold: 10,
                 divisor: 1.0,
                 suffix: "",
-                formatter: nil
+                formatter: formatter
             ),
             BigNumberAbbreviation(
                 threshold: 1_000_000,
@@ -121,24 +120,28 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
     }
 
     func createDisplayFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<LocalizableDecimalFormatting> {
-        let formatter = createCompoundFormatter(for: info.displayPrecision)
-        return LocalizableResource { locale in
+        LocalizableResource { locale in
+            let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
+            let formatter = self.createCompoundFormatter(for: info.displayPrecision, formatter: numberFormatter)
             formatter.locale = locale
             return formatter
         }
     }
 
     func createTokenFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter> {
-        createTokenFormatterCommon(for: info, roundingMode: .down)
+        createTokenFormatterCommon(for: info, roundingMode: .down, usageCase: usageCase)
     }
 
     func createFeeTokenFormatter(
-        for info: AssetBalanceDisplayInfo
+        for info: AssetBalanceDisplayInfo,
+        usageCase: NumberFormatterUsageCase
     ) -> LocalizableResource<TokenFormatter> {
-        createTokenFormatterCommon(for: info, roundingMode: .up)
+        createTokenFormatterCommon(for: info, roundingMode: .up, usageCase: usageCase)
     }
 }

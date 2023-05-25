@@ -24,7 +24,8 @@ protocol CollatorAprResponse {
 }
 
 enum RewardOperationFactory {
-    static func factory(blockExplorer: ChainModel.BlockExplorer?) -> RewardOperationFactoryProtocol {
+    static func factory(chain: ChainModel) -> RewardOperationFactoryProtocol {
+        let blockExplorer = chain.externalApi?.staking
         let type = blockExplorer?.type ?? .subsquid
 
         switch type {
@@ -33,7 +34,7 @@ enum RewardOperationFactory {
         case .subsquid:
             return SubsquidRewardOperationFactory(url: blockExplorer?.url)
         case .giantsquid:
-            return SubsquidRewardOperationFactory(url: blockExplorer?.url)
+            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         case .sora:
             return SubqueryRewardOperationFactory(url: blockExplorer?.url)
         }

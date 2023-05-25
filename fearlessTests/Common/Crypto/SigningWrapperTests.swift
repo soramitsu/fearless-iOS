@@ -46,13 +46,20 @@ class SigningWrapperTests: XCTestCase {
     func testSr25519CreationFromKeystoreAndSigning() throws {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
-
-        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validSrKeystoreName,
-                                                                ethereumFilename: nil,
-                                                                substratePassword: Constants.validSrKeystorePassword,
-                                                                ethereumPassword: nil,
-                                                                keychain: keychain,
-                                                                settings: settings)
+        
+        let bundle = Bundle(for: type(of: self))
+        let substratePath = bundle.path(forResource: Constants.validSrKeystoreName, ofType: "json")!
+        let substrateData = try Data(contentsOf: URL(fileURLWithPath: substratePath))
+        
+        try AccountCreationHelper.createMetaAccountFromKeystoreData(
+            substrateData: substrateData,
+            ethereumData: nil,
+            substratePassword: Constants.validSrKeystorePassword,
+            ethereumPassword: nil,
+            keychain: keychain,
+            settings: settings,
+            cryptoType: .sr25519
+        )
 
         try performSr25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -86,13 +93,20 @@ class SigningWrapperTests: XCTestCase {
     func testEd25519CreationFromKeystoreAndSigning() throws {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
+        
+        let bundle = Bundle(for: type(of: self))
+        let substratePath = bundle.path(forResource: Constants.validEd25519KeystoreName, ofType: "json")!
+        let substrateData = try Data(contentsOf: URL(fileURLWithPath: substratePath))
 
-        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validEd25519KeystoreName,
-                                                                ethereumFilename: nil,
-                                                                substratePassword: Constants.validEd25519KeystorePassword,
-                                                                ethereumPassword: nil,
-                                                                keychain: keychain,
-                                                                settings: settings)
+        try AccountCreationHelper.createMetaAccountFromKeystoreData(
+            substrateData: substrateData,
+            ethereumData: nil,
+            substratePassword: Constants.validEd25519KeystorePassword,
+            ethereumPassword: nil,
+            keychain: keychain,
+            settings: settings,
+            cryptoType: .ed25519
+        )
 
         try performEd25519SigningTest(keychain: keychain, settings: settings)
     }
@@ -129,12 +143,22 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = Self.testSettings
 
-        try AccountCreationHelper.createMetaAccountFromKeystore(substrateFilename: Constants.validEcdsaKeystoreName,
-                                                                ethereumFilename: Constants.validEthereumKeystoreName,
-                                                                substratePassword: Constants.validEcdsaKeystorePassword,
-                                                                ethereumPassword: Constants.validEthereumKeystorePassword,
-                                                                keychain: keychain,
-                                                                settings: settings)
+        
+        let bundle = Bundle(for: type(of: self))
+        let substratePath = bundle.path(forResource: Constants.validEcdsaKeystoreName, ofType: "json")!
+        let ethereumPath = bundle.path(forResource: Constants.validEthereumKeystoreName, ofType: "json")!
+        let substrateData = try Data(contentsOf: URL(fileURLWithPath: substratePath))
+        let ethereumData = try Data(contentsOf: URL(fileURLWithPath: ethereumPath))
+
+        try AccountCreationHelper.createMetaAccountFromKeystoreData(
+            substrateData: substrateData,
+            ethereumData: ethereumData,
+            substratePassword: Constants.validEcdsaKeystorePassword,
+            ethereumPassword: Constants.validEthereumKeystorePassword,
+            keychain: keychain,
+            settings: settings,
+            cryptoType: .ecdsa
+        )
 
         try performSubstrateEcdsaSigningTest(keychain: keychain, settings: settings)
         try performEthereumEcdsaSigningTest(keychain: keychain, settings: settings)

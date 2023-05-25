@@ -77,7 +77,8 @@ final class StakingPoolMainAssembly {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: nil
+            collatorOperationFactory: nil,
+            wallet: wallet
         ) else {
             return nil
         }
@@ -158,7 +159,7 @@ final class StakingPoolMainAssembly {
         )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -174,7 +175,8 @@ final class StakingPoolMainAssembly {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         ) else {
             return nil
         }

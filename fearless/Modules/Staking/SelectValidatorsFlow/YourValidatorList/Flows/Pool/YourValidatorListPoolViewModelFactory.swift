@@ -20,7 +20,7 @@ final class YourValidatorListPoolViewModelFactory {
                 return nil
             }
 
-            return balanceViewModeFactory.amountFromValue(allocation.amount).value(for: locale)
+            return balanceViewModeFactory.amountFromValue(allocation.amount, usageCase: .listCrypto).value(for: locale)
         }()
 
         let apy: NSAttributedString? = model.stakeInfo.map { info in
@@ -30,7 +30,7 @@ final class YourValidatorListPoolViewModelFactory {
             let apyStringAttributed = NSMutableAttributedString(string: apyString)
             apyStringAttributed.addAttribute(
                 .foregroundColor,
-                value: R.color.colorColdGreen(),
+                value: R.color.colorColdGreen() as Any,
                 range: (apyString as NSString).range(of: stakeReturnString)
             )
             return apyStringAttributed

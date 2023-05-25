@@ -88,7 +88,7 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
             let title = R.string.localizable
                 .stakingReward(preferredLanguages: locale.rLanguages)
 
-            let priceData = self.balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+            let priceData = self.balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
 
             let reward = priceData.value(for: locale)
 
@@ -115,11 +115,11 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
             let stakedString = R.string.localizable.poolStakingClaimAmountTitle(
                 amountString,
@@ -128,11 +128,15 @@ final class StakingPayoutConfirmationPoolViewModelFactory {
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }
@@ -153,7 +157,7 @@ extension StakingPayoutConfirmationPoolViewModelFactory: StakingPayoutConfirmati
             return nil
         }
 
-        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo)
+        let formatter = formatterFactory.createTokenFormatter(for: chainAsset.asset.displayInfo, usageCase: .detailsCrypto)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).stringFromDecimal(viewModelState.rewardAmount) ?? ""

@@ -103,6 +103,12 @@ struct StakingBondMoreViewFactory {
             operationManager: operationManager
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let feeProxy = ExtrinsicFeeProxy()
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -129,11 +135,14 @@ struct StakingBondMoreViewFactory {
             selectedMetaAccount: wallet
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case .relaychain:
             let viewModelState = StakingBondMoreRelaychainViewModelState(
                 chainAsset: chainAsset,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
 
             let strategy = StakingBondMoreRelaychainStrategy(
@@ -147,7 +156,9 @@ struct StakingBondMoreViewFactory {
                 extrinsicService: extrinsicService,
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
-                operationManager: operationManager
+                operationManager: operationManager,
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
                 accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
@@ -162,7 +173,8 @@ struct StakingBondMoreViewFactory {
                 chainAsset: chainAsset,
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
-                candidate: candidate
+                candidate: candidate,
+                callFactory: callFactory
             )
             let strategy = StakingBondMoreParachainStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -173,7 +185,9 @@ struct StakingBondMoreViewFactory {
                 extrinsicService: extrinsicService,
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
-                operationManager: operationManager
+                operationManager: operationManager,
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
 
             let viewModelFactory = StakingBondMoreParachainViewModelFactory(
@@ -190,7 +204,8 @@ struct StakingBondMoreViewFactory {
             let viewModelState = StakingBondMorePoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingBondMorePoolStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -201,7 +216,9 @@ struct StakingBondMoreViewFactory {
                 extrinsicService: extrinsicService,
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
-                operationManager: operationManager
+                operationManager: operationManager,
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMorePoolViewModelFactory(
                 accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))

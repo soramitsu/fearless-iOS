@@ -18,7 +18,6 @@ protocol EventVisitorProtocol: AnyObject {
     func processChainsUpdated(event: ChainsUpdatedEvent)
     func processChainReconnecting(event: ChainReconnectingEvent)
 
-    func processRuntimeCommonTypesSyncCompleted(event: RuntimeCommonTypesSyncCompleted)
     func processRuntimeChainsTypesSyncCompleted(event: RuntimeChainsTypesSyncCompleted)
     func processRuntimeChainMetadataSyncCompleted(event: RuntimeMetadataSyncCompleted)
 
@@ -47,7 +46,6 @@ extension EventVisitorProtocol {
     func processChainsUpdated(event _: ChainsUpdatedEvent) {}
     func processChainReconnecting(event _: ChainReconnectingEvent) {}
 
-    func processRuntimeCommonTypesSyncCompleted(event _: RuntimeCommonTypesSyncCompleted) {}
     func processRuntimeChainsTypesSyncCompleted(event _: RuntimeChainsTypesSyncCompleted) {}
     func processRuntimeChainMetadataSyncCompleted(event _: RuntimeMetadataSyncCompleted) {}
 

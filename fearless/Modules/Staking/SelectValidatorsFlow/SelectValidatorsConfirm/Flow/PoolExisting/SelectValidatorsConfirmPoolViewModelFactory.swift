@@ -92,8 +92,7 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolExistingViewModelState,
@@ -101,10 +100,6 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
         else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
 
         return LocalizableResource { _ in
             SelectValidatorsConfirmViewModel(
@@ -132,13 +127,13 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
                 preferredLanguages: locale.rLanguages
             )
@@ -149,7 +144,11 @@ extension SelectValidatorsConfirmPoolExistingViewModelFactory: SelectValidatorsC
                 range: (stakedString as NSString).range(of: stakedString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

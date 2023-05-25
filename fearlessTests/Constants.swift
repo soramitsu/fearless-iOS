@@ -1,7 +1,7 @@
 import Foundation
 
 struct Constants {
-    static let defaultExpectationDuration: TimeInterval = 1.0
+    static let defaultExpectationDuration: TimeInterval = 3.0
     static let validSrKeystoreName: String = "validSrKeystore"
     static let validSrKeystorePassword: String = "test5"
     static let validEd25519KeystoreName = "validEd25519Keystore"

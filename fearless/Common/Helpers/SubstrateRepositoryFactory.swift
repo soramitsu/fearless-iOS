@@ -21,6 +21,13 @@ final class SubstrateRepositoryFactory: SubstrateRepositoryFactoryProtocol {
         return AnyDataProviderRepository(repository)
     }
 
+    func createAccountInfoStorageItemRepository() -> AnyDataProviderRepository<AccountInfoStorageWrapper> {
+        let repository: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
+            storageFacade.createRepository()
+
+        return AnyDataProviderRepository(repository)
+    }
+
     func createStashItemRepository() -> AnyDataProviderRepository<StashItem> {
         let mapper: CodableCoreDataMapper<StashItem, CDStashItem> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDStashItem.stash))

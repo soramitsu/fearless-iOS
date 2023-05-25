@@ -64,7 +64,7 @@ final class StakingPoolJoinConfirmAssembly {
         }
         eraValidatorService.setup()
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -80,7 +80,8 @@ final class StakingPoolJoinConfirmAssembly {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         ) else {
             return nil
         }
@@ -104,6 +105,8 @@ final class StakingPoolJoinConfirmAssembly {
             identityOperationFactory: identityOperationFactory
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         let interactor = StakingPoolJoinConfirmInteractor(
             priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
             chainAsset: chainAsset,
@@ -115,7 +118,8 @@ final class StakingPoolJoinConfirmAssembly {
             signingWrapper: signingWrapper,
             runtimeService: runtimeService,
             operationManager: operationManager,
-            validatorOperationFactory: validatorOperationFactory
+            validatorOperationFactory: validatorOperationFactory,
+            callFactory: callFactory
         )
         let router = StakingPoolJoinConfirmRouter()
 

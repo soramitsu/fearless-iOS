@@ -115,7 +115,7 @@ struct AnalyticsRewardsViewFactory {
                 wallet: wallet
             )
 
-            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
             let strategy = AnalyticsRewardsParachainStrategy(
                 operationManager: operationManager,

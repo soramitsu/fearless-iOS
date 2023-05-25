@@ -18,6 +18,7 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
     // MARK: Private properties
 
     private let output: ScanQRViewOutput
+    private lazy var messageDissmisAnimator: BlockViewAnimatorProtocol = BlockViewAnimator()
 
     // MARK: - Constructor
 
@@ -129,6 +130,8 @@ final class ScanQRViewController: UIViewController, ViewHolder, AdaptiveDesignab
         let block: () -> Void = { [weak self] in
             self?.rootView.messageLabel.alpha = 0.0
         }
+
+        messageDissmisAnimator.animate(block: block, completionBlock: nil)
     }
 
     // MARK: Actions

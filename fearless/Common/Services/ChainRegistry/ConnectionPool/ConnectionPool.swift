@@ -21,6 +21,7 @@ final class ConnectionPool {
     private let connectionFactory: ConnectionFactoryProtocol
     private let applicationHandler = ApplicationHandler()
     private weak var delegate: ConnectionPoolDelegate?
+    private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
     private lazy var readLock = ReaderWriterLock()
@@ -32,8 +33,9 @@ final class ConnectionPool {
         connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
     }
 
-    init(connectionFactory: ConnectionFactoryProtocol) {
+    init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
         self.connectionFactory = connectionFactory
+        self.operationQueue = operationQueue
         applicationHandler.delegate = self
     }
 }
@@ -50,24 +52,21 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func setupConnection(for chain: ChainModel, ignoredUrl: URL?) throws -> ChainConnection {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
         if ignoredUrl == nil,
-           let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection,
+           let connection = getConnection(for: chain.chainId),
            connection.url?.absoluteString == chain.selectedNode?.url.absoluteString {
             return connection
         }
 
-        var chainFaledUrls = failedUrls[chain.chainId].or([])
+        var chainFaledUrls = getFailedUrls(for: chain.chainId).or([])
         let node = chain.selectedNode ?? chain.nodes.first(where: {
             ($0.url != ignoredUrl) && !chainFaledUrls.contains($0.url)
         })
         chainFaledUrls.insert(ignoredUrl)
-        failedUrls[chain.chainId] = chainFaledUrls
+
+        readLock.exclusivelyWrite {
+            self.failedUrls[chain.chainId] = chainFaledUrls
+        }
 
         guard let url = node?.url else {
             throw ConnectionPoolError.onlyOneNode
@@ -96,6 +95,10 @@ extension ConnectionPool: ConnectionPoolProtocol {
         return connection
     }
 
+    func getFailedUrls(for chainId: ChainModel.Id) -> Set<URL?>? {
+        readLock.concurrentlyRead { failedUrls[chainId] }
+    }
+
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         readLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
     }
@@ -121,20 +124,26 @@ extension ConnectionPool: WebSocketEngineDelegate {
 
 extension ConnectionPool: ApplicationHandlerDelegate {
     func didReceiveDidEnterBackground(notification _: Notification) {
-        connectionsByChainIds.values.forEach { wrapper in
+        let operations: [DisconnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
             guard let connection = wrapper.target as? ChainConnection else {
-                return
+                return nil
             }
-            connection.disconnectIfNeeded()
+
+            return DisconnectOperation(connection: connection)
         }
+
+        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 
     func didReceiveWillEnterForeground(notification _: Notification) {
-        connectionsByChainIds.values.forEach { wrapper in
+        let operations: [ConnectOperation] = connectionsByChainIds.values.compactMap { wrapper in
             guard let connection = wrapper.target as? ChainConnection else {
-                return
+                return nil
             }
-            connection.connectIfNeeded()
+
+            return ConnectOperation(connection: connection)
         }
+
+        operationQueue.addOperations(operations, waitUntilFinished: true)
     }
 }

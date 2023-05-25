@@ -43,6 +43,8 @@ protocol StakingStateProtocol {
     func process(topDelegations: [AccountAddress: ParachainStakingDelegations]?)
     func process(roundInfo: ParachainStakingRoundInfo?)
     func process(currentBlock: UInt32?)
+    func process(rewardChainAsset: ChainAsset?)
+    func process(rewardAssetPrice: PriceData?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

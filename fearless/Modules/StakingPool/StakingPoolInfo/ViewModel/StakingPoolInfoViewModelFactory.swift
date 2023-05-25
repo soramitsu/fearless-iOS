@@ -41,7 +41,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             stakingPool.info.points,
             precision: Int16(chainAsset.asset.precision)
         ) ?? 0.0
-        let stakedAmountViewModel = balanceViewModelFactory.balanceFromPrice(staked, priceData: priceData)
+        let stakedAmountViewModel = balanceViewModelFactory.balanceFromPrice(staked, priceData: priceData, usageCase: .detailsCrypto)
         let validatorsCountAttributedString = NSMutableAttributedString(string: "\(validators.allValidators.count)" + "    ")
 
         let imageAttachment = NSTextAttachment()
@@ -67,7 +67,7 @@ extension StakingPoolInfoViewModelFactory: StakingPoolInfoViewModelFactoryProtoc
             depositorName: try? roles.depositor.toAddress(using: chainAsset.chain.chainFormat),
             rootName: try? roles.root?.toAddress(using: chainAsset.chain.chainFormat),
             nominatorName: try? roles.nominator?.toAddress(using: chainAsset.chain.chainFormat),
-            stateTogglerName: try? roles.stateToggler?.toAddress(using: chainAsset.chain.chainFormat),
+            bouncerName: try? roles.bouncer?.toAddress(using: chainAsset.chain.chainFormat),
             rolesChanged: roles != stakingPool.info.roles,
             userIsRoot: currentAccountId == stakingPool.info.roles.root
         )

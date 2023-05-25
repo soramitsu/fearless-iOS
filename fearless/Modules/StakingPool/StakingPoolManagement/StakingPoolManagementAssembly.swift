@@ -107,7 +107,7 @@ final class StakingPoolManagementAssembly {
             engine: connection
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -123,7 +123,8 @@ final class StakingPoolManagementAssembly {
             for: chainAsset,
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         ) else {
             return nil
         }

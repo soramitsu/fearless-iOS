@@ -117,12 +117,11 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
             operationManager: operationManager,
-            logger: Logger.shared
+            logger: logger
         )
 
         let keystore = Keychain()
@@ -155,13 +154,16 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let feeProxy = ExtrinsicFeeProxy()
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case let .relaychain(payouts):
             let viewModelState = StakingPayoutConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
                 logger: logger,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
 
             let viewModelFactory = StakingPayoutConfirmationRelaychainViewModelFactory(
@@ -183,7 +185,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 payouts: payouts,
                 chainAsset: chainAsset,
                 accountRepository: AnyDataProviderRepository(accountRepository),
-                output: viewModelState
+                output: viewModelState,
+                callFactory: callFactory
             )
 
             return StakingPayoutConfirmationDependencyContainer(
@@ -196,7 +199,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
                 chainAsset: chainAsset,
                 wallet: wallet,
                 logger: logger,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
 
             let viewModelFactory = StakingPayoutConfirmationPoolViewModelFactory(

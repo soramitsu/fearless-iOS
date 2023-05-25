@@ -98,8 +98,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         case .biometry:
             settings.biometryEnabled = isOn
         case .zeroBalances:
-            settings.shouldHideZeroBalanceAssets = isOn
-            eventCenter.notify(with: ZeroBalancesSettingChanged())
+            interactor.update(zeroBalanceAssetsHidden: isOn)
         default:
             break
         }
@@ -134,7 +133,8 @@ extension ProfilePresenter: ProfilePresenterProtocol {
             title: title,
             message: details,
             actions: [cancelAction, removeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)

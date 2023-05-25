@@ -6,3 +6,24 @@ enum MoonPayCIKeys {
 enum SubscanCIKeys {
     static var apiKey: String = "{{ argument.subscanAPIKey }}"
 }
+
+enum SoraCardCIKeys {
+    static var apiKey: String = "{{ argument.soraCardAPIKey }}"
+    static var domain: String = "{{ argument.soraCardDomain }}"
+    static var endpoint: String = "{{ argument.soraCardKycEndpoint }}"
+    static var username: String = "{{ argument.soraCardKycUsername }}"
+    static var password: String = "{{ argument.soraCardKycPassword }}"
+}
+
+enum PayWingsCIKeys {
+    static var paywingsRepositoryUrl: String = "{{ argument.paywingsRepositoryUrl }}"
+    static var paywingsUsername: String = "{{ argument.paywingsUsername }}"
+    static var paywingsPassword: String = "{{ argument.paywingsPassword }}"
+}
+
+enum XOneCIKeys {
+    static var x1EndpointUrlRelease: String = "{{ argument.x1EndpointUrlRelease }}"
+    static var x1WidgetIdRelease: String = "{{ argument.x1WidgetIdRelease }}"
+    static var x1EndpointUrlDebug: String = "{{ argument.x1EndpointUrlDebug }}"
+    static var x1WidgetIdDebug: String = "{{ argument.x1WidgetIdDebug }}"
+}

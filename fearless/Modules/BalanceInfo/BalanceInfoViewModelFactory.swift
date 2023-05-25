@@ -104,13 +104,13 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         )
 
         let displayInfo = chainAsset.asset.displayInfo
-        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo).value(for: locale)
+        let assetFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto).value(for: locale)
 
         let chainAssetKey = chainAsset.uniqueKey(accountId: accountId)
         guard
             let accountInfo = balanceInfo.accountInfos[chainAssetKey] ?? nil,
             let balance = Decimal.fromSubstrateAmount(
-                accountInfo.data.total,
+                accountInfo.data.sendAvailable,
                 precision: displayInfo.assetPrecision
             ),
             let balanceString = assetFormatter.stringFromDecimal(balance)
@@ -144,7 +144,7 @@ final class BalanceInfoViewModelFactory: BalanceInfoViewModelFactoryProtocol {
         locale: Locale
     ) -> TokenFormatter {
         let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .fiat)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
     }

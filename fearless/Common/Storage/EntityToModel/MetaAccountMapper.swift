@@ -16,7 +16,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
                 return nil
             }
 
-            let ethereumBased = chainAccontEntity.ethereumBased ?? false
+            let ethereumBased = chainAccontEntity.ethereumBased
 
             let accountId = try Data(hexString: chainAccontEntity.accountId!)
             return ChainAccountModel(
@@ -46,6 +46,13 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
         let ethereumAddress = try entity.ethereumAddress.map { try Data(hexString: $0) }
         let assetFilterOptions = entity.assetFilterOptions as? [String]
+        let assetsVisibility: [AssetVisibility]? = (entity.assetsVisibility?.allObjects as? [CDAssetVisibility])?.compactMap {
+            guard let assetId = $0.assetId else {
+                return nil
+            }
+
+            return AssetVisibility(assetId: assetId, hidden: $0.hidden)
+        }
 
         return DataProviderModel(
             metaId: entity.metaId!,
@@ -57,12 +64,13 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             ethereumPublicKey: entity.ethereumPublicKey,
             chainAccounts: Set(chainAccounts),
             assetKeysOrder: entity.assetKeysOrder as? [String],
-            assetIdsEnabled: entity.assetIdsEnabled as? [String],
             assetFilterOptions: assetFilterOptions?.compactMap { FilterOption(rawValue: $0) } ?? [],
             canExportEthereumMnemonic: entity.canExportEthereumMnemonic,
             unusedChainIds: entity.unusedChainIds as? [String],
             selectedCurrency: selectedCurrency ?? Currency.defaultCurrency(),
-            chainIdForFilter: entity.chainIdForFilter
+            chainIdForFilter: entity.chainIdForFilter,
+            assetsVisibility: assetsVisibility ?? [],
+            zeroBalanceAssetsHidden: entity.zeroBalanceAssetsHidden
         )
     }
 
@@ -79,12 +87,27 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
         entity.substratePublicKey = model.substratePublicKey
         entity.ethereumPublicKey = model.ethereumPublicKey
         entity.ethereumAddress = model.ethereumAddress?.toHex()
-        entity.assetIdsEnabled = model.assetIdsEnabled as? NSArray
         entity.assetKeysOrder = model.assetKeysOrder as? NSArray
         entity.canExportEthereumMnemonic = model.canExportEthereumMnemonic
         entity.unusedChainIds = model.unusedChainIds as? NSArray
         entity.assetFilterOptions = assetFilterOptions
         entity.chainIdForFilter = model.chainIdForFilter
+        entity.zeroBalanceAssetsHidden = model.zeroBalanceAssetsHidden
+
+        for assetVisibility in model.assetsVisibility {
+            var assetVisibilityEntity = entity.assetsVisibility?.first { entity in
+                (entity as? CDAssetVisibility)?.assetId == assetVisibility.assetId
+            } as? CDAssetVisibility
+
+            if assetVisibilityEntity == nil {
+                let newEntity = CDAssetVisibility(context: context)
+                entity.addToAssetsVisibility(newEntity)
+                assetVisibilityEntity = newEntity
+            }
+
+            assetVisibilityEntity?.assetId = assetVisibility.assetId
+            assetVisibilityEntity?.hidden = assetVisibility.hidden
+        }
 
         for chainAccount in model.chainAccounts {
             var chainAccountEntity = entity.chainAccounts?.first {

@@ -65,7 +65,8 @@ final class ChainRegistryFactory {
 
         let runtimeProviderPool = RuntimeProviderPool(runtimeProviderFactory: runtimeProviderFactory)
 
-        let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared))
+        let queue = OperationQueue()
+        let connectionPool = ConnectionPool(connectionFactory: ConnectionFactory(logger: Logger.shared), operationQueue: queue)
 
         let chainRepositoryFactory = ChainRepositoryFactory(storageFacade: repositoryFacade)
         let chainRepository = chainRepositoryFactory.createRepository()
@@ -84,14 +85,6 @@ final class ChainRegistryFactory {
         let specVersionSubscriptionFactory = SpecVersionSubscriptionFactory(
             runtimeSyncService: runtimeSyncService,
             logger: Logger.shared
-        )
-
-        let commonTypesSyncService = CommonTypesSyncService(
-            url: ApplicationConfig.shared.commonTypesURL,
-            filesOperationFactory: filesOperationFactory,
-            dataOperationFactory: dataFetchOperationFactory,
-            eventCenter: EventCenter.shared,
-            operationQueue: OperationManagerFacade.syncQueue
         )
 
         let chainsTypesSuncService = ChainsTypesSyncService(
@@ -119,7 +112,6 @@ final class ChainRegistryFactory {
             connectionPool: connectionPool,
             chainSyncService: chainSyncService,
             runtimeSyncService: runtimeSyncService,
-            commonTypesSyncService: commonTypesSyncService,
             chainsTypesSyncService: chainsTypesSuncService,
             chainProvider: chainProvider,
             specVersionSubscriptionFactory: specVersionSubscriptionFactory,

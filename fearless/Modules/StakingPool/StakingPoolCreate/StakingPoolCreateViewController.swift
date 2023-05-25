@@ -12,7 +12,7 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
 
     private let output: StakingPoolCreateViewOutput
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var poolNameInputViewModel: InputViewModelProtocol?
 
     // MARK: - Constructor
@@ -81,9 +81,9 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
             action: #selector(handleNominationTapped),
             for: .touchUpInside
         )
-        rootView.stateTogglerView.addTarget(
+        rootView.bouncerView.addTarget(
             self,
-            action: #selector(handleStateTogglerTapped),
+            action: #selector(handleBouncerTapped),
             for: .touchUpInside
         )
         rootView.feeView.actionButton.addTarget(
@@ -109,8 +109,8 @@ final class StakingPoolCreateViewController: UIViewController, ViewHolder, Hidda
         output.nominatorDidTapped()
     }
 
-    @objc private func handleStateTogglerTapped() {
-        output.stateTogglerDidTapped()
+    @objc private func handleBouncerTapped() {
+        output.bouncerDidTapped()
     }
 
     @objc private func handleCreateButtonTapped() {
@@ -137,7 +137,7 @@ extension StakingPoolCreateViewController: StakingPoolCreateViewInput {
         rootView.bind(viewModel: viewModel)
     }
 
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol) {
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel) {
         rootView.amountView.inputFieldText = amountInputViewModel.displayAmount
         self.amountInputViewModel = amountInputViewModel
         self.amountInputViewModel?.observable.remove(observer: self)

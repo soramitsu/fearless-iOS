@@ -484,7 +484,8 @@ private extension AccountImportPresenter {
             title: R.string.localizable.alertAddEthereumTitle(preferredLanguages: selectedLocale.rLanguages),
             message: R.string.localizable.alertAddEthereumMessage(preferredLanguages: selectedLocale.rLanguages),
             actions: [showAction, closeAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
         wireframe.present(viewModel: alertViewModel, from: view)
     }
@@ -721,7 +722,8 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             title: title,
             message: nil,
             actions: [pasteAction, selectFileAction],
-            closeAction: closeTitle
+            closeAction: closeTitle,
+            icon: R.image.iconWarningBig()
         )
 
         wireframe.present(viewModel: viewModel, from: view)
@@ -811,7 +813,8 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             title: "",
             message: message,
             actions: [replaceAction, cancelAction],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
         wireframe.present(
             viewModel: alertViewModel,
@@ -995,7 +998,8 @@ extension AccountImportPresenter: UIDocumentPickerDelegate {
             title: title,
             message: message,
             actions: [action],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
         wireframe.present(
             viewModel: alertViewModel,

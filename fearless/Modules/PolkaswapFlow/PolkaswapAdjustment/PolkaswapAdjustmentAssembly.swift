@@ -6,14 +6,15 @@ import SoraKeystore
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(
-        swapFromChainAsset: ChainAsset,
+        swapChainAsset: ChainAsset,
+        swapVariant: SwapVariant = .desiredInput,
         wallet: MetaAccountModel
     ) -> PolkaswapAdjustmentModuleCreationResult? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
-        guard let connection = chainRegistry.getConnection(for: swapFromChainAsset.chain.chainId),
-              let accountResponse = wallet.fetch(for: swapFromChainAsset.chain.accountRequest()),
-              let runtimeService = chainRegistry.getRuntimeProvider(for: swapFromChainAsset.chain.chainId),
-              let xorChainAsset = swapFromChainAsset.chain.utilityChainAssets().first
+        guard let connection = chainRegistry.getConnection(for: swapChainAsset.chain.chainId),
+              let accountResponse = wallet.fetch(for: swapChainAsset.chain.accountRequest()),
+              let runtimeService = chainRegistry.getRuntimeProvider(for: swapChainAsset.chain.chainId),
+              let xorChainAsset = swapChainAsset.chain.utilityChainAssets().first
         else {
             return nil
         }
@@ -49,7 +50,7 @@ final class PolkaswapAdjustmentAssembly {
 
         let extrinsicService = ExtrinsicService(
             accountId: accountResponse.accountId,
-            chainFormat: swapFromChainAsset.chain.chainFormat,
+            chainFormat: swapChainAsset.chain.chainFormat,
             cryptoType: accountResponse.cryptoType,
             runtimeRegistry: runtimeService,
             engine: connection,
@@ -64,6 +65,8 @@ final class PolkaswapAdjustmentAssembly {
                 mapper: AnyCoreDataMapper(mapper)
             )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         let interactor = PolkaswapAdjustmentInteractor(
             xorChainAsset: xorChainAsset,
             subscriptionService: subscriptionService,
@@ -74,7 +77,8 @@ final class PolkaswapAdjustmentAssembly {
             extrinsicService: extrinsicService,
             operationFactory: operationFactory,
             operationManager: operationManager,
-            userDefaultsStorage: SettingsManager.shared
+            userDefaultsStorage: SettingsManager.shared,
+            callFactory: callFactory
         )
         let router = PolkaswapAdjustmentRouter()
 
@@ -88,11 +92,12 @@ final class PolkaswapAdjustmentAssembly {
         let presenter = PolkaswapAdjustmentPresenter(
             wallet: wallet,
             soraChainAsset: xorChainAsset,
-            swapFromChainAsset: swapFromChainAsset,
+            swapChainAsset: swapChainAsset,
             viewModelFactory: viewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             interactor: interactor,
             router: router,
+            swapVariant: swapVariant,
             localizationManager: localizationManager
         )
 

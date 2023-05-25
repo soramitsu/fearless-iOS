@@ -7,12 +7,14 @@ struct StakingRewardDestSetupViewFactory {
     static func createView(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) -> StakingRewardDestSetupViewProtocol? {
         guard let interactor = try? createInteractor(
             chain: chain,
             asset: asset,
-            selectedAccount: selectedAccount
+            selectedAccount: selectedAccount,
+            rewardChainAsset: rewardChainAsset
         ) else {
             return nil
         }
@@ -27,8 +29,14 @@ struct StakingRewardDestSetupViewFactory {
             selectedMetaAccount: selectedAccount
         )
 
+        let rewardAsset = rewardChainAsset?.asset ?? asset
+        let rewardBalanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: rewardAsset.displayInfo,
+            selectedMetaAccount: selectedAccount
+        )
+
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory,
+            balanceViewModelFactory: rewardBalanceViewModelFactory,
             iconGenerator: UniversalIconGenerator(chain: chain)
         )
 
@@ -64,7 +72,8 @@ struct StakingRewardDestSetupViewFactory {
     private static func createInteractor(
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) throws -> StakingRewardDestSetupInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         let chainAsset = ChainAsset(chain: chain, asset: asset)
@@ -131,7 +140,7 @@ struct StakingRewardDestSetupViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -145,8 +154,11 @@ struct StakingRewardDestSetupViewFactory {
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(
             for: ChainAsset(chain: settings.chain, asset: settings.asset),
             assetPrecision: settings.assetDisplayInfo.assetPrecision,
-            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory
+            validatorService: eraValidatorService, collatorOperationFactory: collatorOperationFactory,
+            wallet: selectedAccount
         )
+
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
 
         return StakingRewardDestSetupInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -163,7 +175,9 @@ struct StakingRewardDestSetupViewFactory {
             feeProxy: feeProxy,
             chainAsset: chainAsset,
             selectedAccount: selectedAccount,
-            connection: connection
+            connection: connection,
+            callFactory: callFactory,
+            rewardChainAsset: rewardChainAsset
         )
     }
 }

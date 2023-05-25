@@ -6,10 +6,10 @@ typealias StakingPoolJoinConfigModuleCreationResult = (
     input: StakingPoolJoinConfigModuleInput
 )
 
-protocol StakingPoolJoinConfigViewInput: ControllerBackedProtocol {
+protocol StakingPoolJoinConfigViewInput: ControllerBackedProtocol, SheetAlertPresentable {
     func didReceiveAccountViewModel(_ accountViewModel: AccountViewModel)
     func didReceiveAssetBalanceViewModel(_ assetBalanceViewModel: AssetBalanceViewModelProtocol)
-    func didReceiveAmountInputViewModel(_ amountInputViewModel: AmountInputViewModelProtocol)
+    func didReceiveAmountInputViewModel(_ amountInputViewModel: IAmountInputViewModel)
     func didReceive(locale: Locale)
     func didReceiveFeeViewModel(_ feeViewModel: BalanceViewModelProtocol?)
 }

@@ -85,7 +85,8 @@ class StoriesProgressBar: UIView {
     }
 
     private func configureTimer() {
-        timer = CountdownTimer(delegate: self)
+        timer = CountdownTimer()
+        timer?.delegate = self
     }
 
     private func configureStackViewIfNeeded() {

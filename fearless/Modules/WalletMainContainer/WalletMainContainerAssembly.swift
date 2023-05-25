@@ -4,6 +4,7 @@ import RobinHood
 
 final class WalletMainContainerAssembly {
     static func configureModule(wallet: MetaAccountModel) -> WalletMainContainerModuleCreationResult? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
         let localizationManager = LocalizationManager.shared
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
@@ -18,12 +19,27 @@ final class WalletMainContainerAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
+        let userRepositoryFactory = SubstrateRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared
+        )
+
+        let accountInfoRepository = userRepositoryFactory.createAccountInfoStorageItemRepository()
+        let accountInfoFetcher = AccountInfoFetching(
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            chainRegistry: chainRegistry,
+            operationQueue: OperationManagerFacade.sharedDefaultQueue
+        )
+
         let chainsIssuesCenter = ChainsIssuesCenter(
             wallet: wallet,
             networkIssuesCenter: NetworkIssuesCenter.shared,
             eventCenter: EventCenter.shared,
-            missingAccountHelper: missingAccountHelper
+            missingAccountHelper: missingAccountHelper,
+            accountInfoFetcher: accountInfoFetcher
         )
+
+        let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -31,7 +47,8 @@ final class WalletMainContainerAssembly {
             wallet: wallet,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
-            chainsIssuesCenter: chainsIssuesCenter
+            chainsIssuesCenter: chainsIssuesCenter,
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
         )
 
         let router = WalletMainContainerRouter()
@@ -74,7 +91,11 @@ final class WalletMainContainerAssembly {
     private static func configureAssetListModule(
         metaAccount: MetaAccountModel
     ) -> ChainAssetListModuleCreationResult? {
-        ChainAssetListAssembly.configureModule(wallet: metaAccount)
+        let chainAssetListModule = ChainAssetListAssembly.configureModule(
+            wallet: metaAccount
+        )
+
+        return chainAssetListModule
     }
 
     private static func configureNftModule() -> MainNftContainerModuleCreationResult? {

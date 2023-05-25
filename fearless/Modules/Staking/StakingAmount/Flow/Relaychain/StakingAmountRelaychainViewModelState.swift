@@ -8,8 +8,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
+    private let callFactory: SubstrateCallFactoryProtocol
+
     private var networkStakingInfo: NetworkStakingInfo?
-    private var minStake: Decimal?
+    private(set) var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
     private(set) var minimumBond: Decimal?
     private(set) var counterForNominators: UInt32?
@@ -17,15 +19,23 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var assetViewModel: AssetBalanceViewModelProtocol?
     private(set) var rewardDestinationViewModel: RewardDestinationViewModelProtocol?
     private(set) var feeViewModel: BalanceViewModelProtocol?
-    private(set) var inputViewModel: AmountInputViewModelProtocol?
+    private(set) var inputViewModel: IAmountInputViewModel?
     private(set) var rewardDestination: RewardDestination<ChainAccountResponse> = .restake
     private(set) var maxNominations: Int?
+    private(set) var rewardAssetPrice: PriceData?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
-    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFeeAndED) }
     private var balance: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var inputResult: AmountInputResult?
+
+    private lazy var balanceMinusFeeAndED: Decimal = {
+        (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
+    }()
+
+    var continueAvailable: Bool {
+        minStake != nil && minimumBond != nil && fee != nil && balance != nil && counterForNominators != nil
+    }
 
     var bonding: InitiatedBonding? {
         guard let amount = amount else {
@@ -47,30 +57,58 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?
+        amount: Decimal?,
+        callFactory: SubstrateCallFactoryProtocol
 
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        inputResult = .absolute(amount ?? 0)
+        self.callFactory = callFactory
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
     }
 
     func validators(using _: Locale) -> [DataValidating] {
-        [dataValidatingFactory.canNominate(
-            amount: amount,
-            minimalBalance: minimalBalance,
-            minNominatorBond: minimumBond,
-            locale: selectedLocale
-        ),
-        dataValidatingFactory.maxNominatorsCountNotApplied(
-            counterForNominators: counterForNominators,
-            maxNominatorsCount: maxNominatorsCount,
-            hasExistingNomination: false,
-            locale: selectedLocale
-        )]
+        func calculateMinimumBond() -> Decimal? {
+            guard let minStake = minStake, let minimumBond = minimumBond else {
+                return nil
+            }
+
+            return max(minimumBond, minStake)
+        }
+
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+
+        let minNominatorBond = calculateMinimumBond()
+        return [
+            dataValidatingFactory.canNominate(
+                amount: amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minNominatorBond,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.maxNominatorsCountNotApplied(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                hasExistingNomination: false,
+                locale: selectedLocale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: amountSubstrate,
+                totalAmount: balanceSubstrate,
+                minimumBalance: edSubstrate,
+                locale: selectedLocale,
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
+            )
+        ]
     }
 
     func selectPayoutDestination() {
@@ -80,13 +118,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func selectRestakeDestination() {
         rewardDestination = .restake
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func setStateListener(_ stateListener: StakingAmountModelStateListener?) {
@@ -110,7 +148,7 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 
         rewardDestination = .payout(account: payoutAccount)
 
-        stateListener?.provideSelectRewardDestinationViewModel(viewModelState: self)
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 
     func updateBalance(_ balance: Decimal?) {
@@ -128,7 +166,6 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
             }
 
             var modifiedBuilder = builder
-            let callFactory = SubstrateCallFactory()
             let accountRequest = strongSelf.chainAsset.chain.accountRequest()
 
             if
@@ -136,10 +173,11 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                     precision: Int16(strongSelf.chainAsset.asset.precision)
                 ),
                 let controllerAddress = strongSelf.wallet.fetch(for: accountRequest)?.toAddress() {
-                let bondCall = try callFactory.bond(
+                let bondCall = try strongSelf.callFactory.bond(
                     amount: amount,
                     controller: controllerAddress,
-                    rewardDestination: strongSelf.rewardDestination.accountAddress
+                    rewardDestination: strongSelf.rewardDestination.accountAddress,
+                    chainAsset: strongSelf.chainAsset
                 )
 
                 modifiedBuilder = try modifiedBuilder.adding(call: bondCall)
@@ -153,7 +191,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                     count: maxNominators
                 )
 
-                let nominateCall = try callFactory.nominate(targets: targets)
+                let nominateCall = try strongSelf.callFactory.nominate(
+                    targets: targets,
+                    chainAsset: strongSelf.chainAsset
+                )
                 modifiedBuilder = try modifiedBuilder
                     .adding(call: nominateCall)
             }
@@ -168,6 +209,8 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
 extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategyOutput {
     func didReceive(maxNominations: Int) {
         self.maxNominations = maxNominations
+
+        notifyListeners()
     }
 
     func didReceive(error _: Error) {}
@@ -182,7 +225,7 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
     }
 
     func didReceive(minimumBond: BigUInt?) {
-        self.minimumBond = minimumBond.map { Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) } ?? nil
+        self.minimumBond = minimumBond.map { Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) } ?? Decimal.zero
 
         notifyListeners()
     }
@@ -215,10 +258,18 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
 
         let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: minimumBond?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision)))
         minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+
+        notifyListeners()
     }
 
     func didReceive(networkStakingInfoError: Error) {
         Logger.shared.error("StakingAmountRelaychainViewModelState.didReceiveNetworkStakingInfoError: \(networkStakingInfoError)")
+    }
+
+    func didReceive(rewardAssetPrice: PriceData?) {
+        self.rewardAssetPrice = rewardAssetPrice
+
+        stateListener?.modelStateDidChanged(viewModelState: self)
     }
 }
 

@@ -74,7 +74,7 @@ class StakingRewardCalculatorView: UIView {
         return label
     }()
 
-    private var inputViewModel: AmountInputViewModelProtocol?
+    private var inputViewModel: IAmountInputViewModel?
     private var widgetViewModel: StakingEstimationViewModel?
     private var skeletonView: SkrullableView?
 
@@ -398,7 +398,9 @@ extension StakingRewardCalculatorView: AmountInputViewModelObserver {
 
         amountInputView.inputFieldText = inputViewModel.displayAmount
 
-        let amount = inputViewModel.decimalAmount
+        guard let amount = inputViewModel.decimalAmount else {
+            return
+        }
 
         delegate?.rewardCalculatorView(self, didChange: amount)
     }

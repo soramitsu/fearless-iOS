@@ -28,6 +28,7 @@ protocol WalletMainContainerInteractorOutput: AnyObject {
     func didReceiveSelectedChain(_ chain: ChainModel?)
     func didReceiveError(_ error: Error)
     func didReceiveChainsIssues(chainsIssues: [ChainIssue])
+    func didReceive(chainSettings: [ChainSettings])
 }
 
 protocol WalletMainContainerRouterInput: SheetAlertPresentable, ErrorPresentable, ApplicationStatusPresentable, AccountManagementPresentable {

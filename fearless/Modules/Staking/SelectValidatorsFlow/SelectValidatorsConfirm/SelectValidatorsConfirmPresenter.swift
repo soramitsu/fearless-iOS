@@ -179,8 +179,7 @@ extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmModelStateLis
 
     func provideConfirmationState(viewModelState: SelectValidatorsConfirmViewModelState) {
         guard let viewModel = try? viewModelFactory.buildViewModel(
-            viewModelState: viewModelState,
-            asset: chainAsset.asset
+            viewModelState: viewModelState
         ) else {
             return
         }

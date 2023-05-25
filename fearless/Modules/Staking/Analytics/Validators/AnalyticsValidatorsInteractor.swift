@@ -105,7 +105,7 @@ final class AnalyticsValidatorsInteractor {
         else { return }
 
         let rewardOperationFactory = RewardOperationFactory.factory(
-            blockExplorer: chainAsset.chain.externalApi?.staking
+            chain: chainAsset.chain
         )
         let subqueryRewardsSource = ParachainSubqueryRewardsSource(
             address: stashAddress,
@@ -152,10 +152,9 @@ extension AnalyticsValidatorsInteractor: RelaychainStakingLocalStorageSubscriber
             if let stashAddress = stashItem?.stash {
                 presenter.didReceive(stashAddressResult: .success(stashAddress))
 
-                let addressFactory = SS58AddressFactory()
-                if let accountId = try? addressFactory.accountId(
-                    fromAddress: stashAddress,
-                    type: chainAsset.chain.addressPrefix
+                if let accountId = try? AddressFactory.accountId(
+                    from: stashAddress,
+                    chain: chainAsset.chain
                 ) {
                     nominationProvider = subscribeNomination(for: accountId, chainAsset: chainAsset)
                 }

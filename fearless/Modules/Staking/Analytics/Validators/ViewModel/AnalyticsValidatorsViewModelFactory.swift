@@ -47,9 +47,8 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
 
         let erasWhenStaked = countErasWhenStaked(eraValidatorInfos: eraValidatorInfos)
         let totalRewards = totalRewardOfStash(address: stashAddress, rewards: rewards)
-        let addressFactory = SS58AddressFactory()
         let validatorsAddresses = nomination.targets.compactMap { accountId in
-            try? addressFactory.address(fromAccountId: accountId, type: chain.addressPrefix)
+            try? AddressFactory.address(for: accountId, chain: chain)
         }
 
         let validatorsViewModel: [AnalyticsValidatorItemViewModel] = validatorsAddresses.map { address in
@@ -81,7 +80,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
                         return amount + (decimal ?? 0.0)
                     }
                     let totalAmountText = balanceViewModelFactory
-                        .amountFromValue(totalAmount).value(for: locale)
+                        .amountFromValue(totalAmount, usageCase: .listCrypto).value(for: locale)
                     let amountDouble = NSDecimalNumber(decimal: totalAmount).doubleValue
                     let percents = amountDouble / totalRewards
                     return (percents, amountDouble, totalAmountText)
@@ -191,7 +190,7 @@ final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFac
             )
         case .rewards:
             let totalRewards = validators.map(\.amount).reduce(0.0, +)
-            let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards))
+            let totalRewardsText = balanceViewModelFactory.amountFromValue(Decimal(totalRewards), usageCase: .listCrypto)
                 .value(for: locale)
             return createChartCenterText(
                 firstLine: "TODO in next release",

@@ -28,7 +28,7 @@ class WarningAlertPresentAnimator: NSObject, UIViewControllerAnimatedTransitioni
         containerView.insertSubview(toViewController.view, aboveSubview: fromViewController.view)
 
         containerView.addConstraint(NSLayoutConstraint(
-            item: toViewController.view,
+            item: toViewController.view as Any,
             attribute: .centerX,
             relatedBy: .equal,
             toItem: containerView,
@@ -38,7 +38,7 @@ class WarningAlertPresentAnimator: NSObject, UIViewControllerAnimatedTransitioni
         ))
 
         containerView.addConstraint(NSLayoutConstraint(
-            item: toViewController.view,
+            item: toViewController.view as Any,
             attribute: .bottom,
             relatedBy: .equal,
             toItem: containerView,
@@ -48,7 +48,7 @@ class WarningAlertPresentAnimator: NSObject, UIViewControllerAnimatedTransitioni
         ))
 
         containerView.addConstraint(NSLayoutConstraint(
-            item: toViewController.view,
+            item: toViewController.view as Any,
             attribute: .width,
             relatedBy: .equal,
             toItem: containerView,

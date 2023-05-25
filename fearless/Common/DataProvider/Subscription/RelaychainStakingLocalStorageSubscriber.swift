@@ -31,7 +31,7 @@ protocol RelaychainStakingLocalStorageSubscriber where Self: AnyObject {
 
     func subscribeTotalReward(
         for address: AccountAddress,
-        api: ChainModel.BlockExplorer,
+        chain: ChainModel,
         assetPrecision: Int16
     ) -> AnySingleValueProvider<TotalRewardItem>?
 
@@ -421,14 +421,15 @@ extension RelaychainStakingLocalStorageSubscriber {
 
     func subscribeTotalReward(
         for address: AccountAddress,
-        api: ChainModel.BlockExplorer,
+        chain: ChainModel,
         assetPrecision: Int16
     ) -> AnySingleValueProvider<TotalRewardItem>? {
-        guard let totalRewardProvider = try? stakingLocalSubscriptionFactory.getTotalReward(
-            for: address,
-            api: api,
-            assetPrecision: assetPrecision
-        ) else {
+        guard let api = chain.externalApi?.staking,
+              let totalRewardProvider = try? stakingLocalSubscriptionFactory.getTotalReward(
+                  for: address,
+                  chain: chain,
+                  assetPrecision: assetPrecision
+              ) else {
             return nil
         }
 

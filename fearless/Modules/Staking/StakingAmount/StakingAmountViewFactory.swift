@@ -9,14 +9,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         with amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountViewProtocol? {
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
         let wireframe = StakingAmountWireframe()
 
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: asset.displayInfo,
-
             selectedMetaAccount: selectedAccount
         )
 
@@ -29,7 +29,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             chainAsset: ChainAsset(chain: chain, asset: asset),
             dataValidatingFactory: dataValidatingFactory,
             wallet: selectedAccount,
-            amount: amount
+            amount: amount,
+            rewardChainAsset: rewardChainAsset
         ) else {
             return nil
         }
@@ -125,7 +126,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         chainAsset: ChainAsset,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
-        amount: Decimal?
+        amount: Decimal?,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountDependencyContainer? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
         guard
@@ -146,6 +148,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         guard let eraValidatorService = try? serviceFactory.createEraValidatorService(
             for: chainAsset.chain
         ) else {
@@ -154,12 +158,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.asset.displayInfo,
+            selectedMetaAccount: wallet
+        )
 
+        let rewardChainAsset = rewardChainAsset ?? chainAsset
+        let rewardBalanceViewModelFactory = BalanceViewModelFactory(
+            targetAssetInfo: rewardChainAsset.asset.displayInfo,
             selectedMetaAccount: wallet
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
-            balanceViewModelFactory: balanceViewModelFactory,
+            balanceViewModelFactory: rewardBalanceViewModelFactory,
             iconGenerator: UniversalIconGenerator(chain: chainAsset.chain)
         )
 
@@ -191,8 +200,11 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
                 chainAsset: chainAsset,
-                amount: amount
+                amount: amount,
+                callFactory: callFactory
             )
+
+            let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
 
             let strategy = StakingAmountRelaychainStrategy(
                 chainAsset: chainAsset,
@@ -203,12 +215,15 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 output: viewModelState,
                 eraInfoOperationFactory: RelaychainStakingInfoOperationFactory(),
                 eraValidatorService: eraValidatorService,
-                existentialDepositService: existentialDepositService
+                existentialDepositService: existentialDepositService,
+                rewardChainAsset: rewardChainAsset,
+                priceLocalSubscriptionFactory: priceLocalSubscriptionFactory
             )
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                rewardDestViewModelFactory: rewardDestViewModelFactory
+                rewardDestViewModelFactory: rewardDestViewModelFactory,
+                chainAsset: chainAsset
             )
 
             return StakingAmountDependencyContainer(
@@ -228,7 +243,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                 dataValidatingFactory: dataValidatingFactory,
                 wallet: wallet,
                 chainAsset: chainAsset,
-                amount: amount
+                amount: amount,
+                callFactory: callFactory
             )
 
             let strategy = StakingAmountParachainStrategy(
@@ -292,7 +308,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,
@@ -307,20 +323,19 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             for: ChainAsset(chain: chain, asset: asset),
             assetPrecision: Int16(asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: selectedAccount
         ) else {
             return nil
         }
 
         guard
-            let connection = chainRegistry.getConnection(for: chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
         else {
             return nil
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
         let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let facade = UserDataStorageFacade.shared
         let mapper = MetaAccountMapper()

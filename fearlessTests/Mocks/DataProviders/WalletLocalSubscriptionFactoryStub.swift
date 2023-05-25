@@ -4,69 +4,55 @@ import RobinHood
 import BigInt
 
 final class WalletLocalSubscriptionFactoryStub: WalletLocalSubscriptionFactoryProtocol {
-    let accountInfo: AccountInfo?
-    let ormlAccountInfo: OrmlAccountInfo?
+    var operationManager: RobinHood.OperationManagerProtocol
+    var processingQueue: DispatchQueue?
 
-    init(balance: BigUInt? = nil) {
-        self.accountInfo = balance.map { value in
-            AccountInfo(
-                nonce: 0,
-                consumers: 1,
-                providers: 2,
-                data: AccountData(
-                    free: value,
-                    reserved: 0,
-                    miscFrozen: 0,
-                    feeFrozen: 0
-                )
-            )
-        }
-        
-        self.ormlAccountInfo = balance.map { value in
-            OrmlAccountInfo(free: value, reserved: 0, frozen: 0)
-        }
+    init() {
+        self.operationManager = OperationManagerFacade.sharedManager
     }
 
     func getAccountProvider(
         for accountId: AccountId,
-        chainId: ChainModel.Id
-    ) throws -> AnyDataProvider<DecodedAccountInfo> {
-        let localIdentifierFactory = LocalStorageKeyFactory()
+        chainAsset: ChainAsset
+    ) throws -> StreamableProvider<AccountInfoStorageWrapper> {
+        let codingPath = chainAsset.storagePath
 
-        let accountInfoModel: DecodedAccountInfo = try {
-            let localKey = try localIdentifierFactory.createFromStoragePath(
-                .account,
-                accountId: accountId,
-                chainId: chainId
-            )
+        let localKey = try LocalStorageKeyFactory().createFromStoragePath(
+            codingPath,
+            chainAssetKey: chainAsset.uniqueKey(accountId: accountId)
+        )
 
-            if let accountInfo = accountInfo {
-                return DecodedAccountInfo(identifier: localKey, item: accountInfo)
-            } else {
-                return DecodedAccountInfo(identifier: localKey, item: nil)
-            }
-        }()
-
-        return AnyDataProvider(DataProviderStub(models: [accountInfoModel]))
+        return getProvider(for: localKey)
     }
-    
-    func getOrmlAccountProvider(for accountId: AccountId, chain: ChainModel) throws -> AnyDataProvider<DecodedOrmlAccountInfo> {
-        let localIdentifierFactory = LocalStorageKeyFactory()
 
-        let ormlAccountInfoModel: DecodedOrmlAccountInfo = try {
-            let localKey = try localIdentifierFactory.createFromStoragePath(
-                .account,
-                accountId: accountId,
-                chainId: chain.chainId
-            )
+    func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {
+        let chainRegistry = ChainRegistryFacade.sharedRegistry
+        return chainRegistry.getRuntimeProvider(for: chainId)
+    }
 
-            if let accountInfo = ormlAccountInfo {
-                return DecodedOrmlAccountInfo(identifier: localKey, item: accountInfo)
-            } else {
-                return DecodedOrmlAccountInfo(identifier: localKey, item: nil)
-            }
-        }()
+    private func getProvider(for key: String) -> StreamableProvider<AccountInfoStorageWrapper> {
+        let facade = SubstrateDataStorageFacade.shared
 
-        return AnyDataProvider(DataProviderStub(models: [ormlAccountInfoModel]))
+        let mapper: CodableCoreDataMapper<AccountInfoStorageWrapper, CDAccountInfo> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDAccountInfo.identifier))
+
+        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
+        let storage: CoreDataRepository<AccountInfoStorageWrapper, CDAccountInfo> =
+            facade.createRepository(filter: filter)
+        let source = EmptyStreamableSource<AccountInfoStorageWrapper>()
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(mapper),
+            predicate: { $0.identifier == key },
+            processingQueue: processingQueue
+        )
+
+        return StreamableProvider(
+            source: AnyStreamableSource(source),
+            repository: AnyDataProviderRepository(storage),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager,
+            serialQueue: processingQueue
+        )
     }
 }

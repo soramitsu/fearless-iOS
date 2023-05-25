@@ -7,7 +7,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder, Hiddabl
 
     let presenter: StakingBondMorePresenterProtocol
 
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?
 
@@ -111,7 +111,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
         applyAsset()
     }
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>) {
         let concreteViewModel = viewModel.value(for: selectedLocale)
 
         amountInputViewModel?.observable.remove(observer: self)

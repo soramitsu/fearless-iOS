@@ -36,16 +36,24 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let applicationHandler: ApplicationHandlerProtocol
     let eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol
     let commonSettings: SettingsManagerProtocol
+    let chainAssetFetching: ChainAssetFetchingProtocol
 
     let logger: LoggerProtocol?
     var collatorOperationFactory: ParachainCollatorOperationFactory
 
     var selectedAccount: ChainAccountResponse?
     var selectedChainAsset: ChainAsset?
+    var rewardChainAsset: ChainAsset? {
+        didSet {
+            presenter?.didReceive(rewardChainAsset: rewardChainAsset)
+            subsribeRewardAssetPrice()
+        }
+    }
 
     private var chainSubscriptionId: UUID?
     private var accountSubscriptionId: UUID?
 
+    var rewardAssetPriceProvider: AnySingleValueProvider<PriceData>?
     var priceProvider: AnySingleValueProvider<PriceData>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -78,7 +86,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         eraCountdownOperationFactory: EraCountdownOperationFactoryProtocol,
         commonSettings: SettingsManagerProtocol,
         logger: LoggerProtocol? = nil,
-        collatorOperationFactory: ParachainCollatorOperationFactory
+        collatorOperationFactory: ParachainCollatorOperationFactory,
+        chainAssetFetching: ChainAssetFetchingProtocol
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.sharedState = sharedState
@@ -96,6 +105,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.commonSettings = commonSettings
         self.logger = logger
         self.collatorOperationFactory = collatorOperationFactory
+        self.chainAssetFetching = chainAssetFetching
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 
@@ -117,12 +127,15 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         selectedAccount = response
         selectedChainAsset = chainAsset
+
+        provideRewardChainAsset()
     }
 
     func updateSharedState() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
+            let wallet = selectedWalletSettings.value,
             let chainAsset = selectedChainAsset,
             let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
@@ -137,7 +150,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -160,7 +173,8 @@ final class StakingMainInteractor: RuntimeConstantFetching {
                 for: chainAsset,
                 assetPrecision: Int16(chainAsset.asset.precision),
                 validatorService: eraValidatorService,
-                collatorOperationFactory: collatorOperationFactory
+                collatorOperationFactory: collatorOperationFactory,
+                wallet: wallet
             )
 
             sharedState.eraValidatorService.throttle()
@@ -237,7 +251,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     }
 
     func provideMaxNominatorsPerValidator(from runtimeService: RuntimeCodingServiceProtocol) {
-        guard selectedChainAsset?.stakingType == .relayChain else {
+        guard selectedChainAsset?.stakingType?.isRelaychain == true else {
             return
         }
 
@@ -353,6 +367,39 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             }
         }
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
+    }
+
+    func provideRewardChainAsset() {
+        guard let chainAsset = selectedChainAsset else {
+            rewardChainAsset = nil
+            return
+        }
+
+        guard let assetName = chainAsset.chain.stakingSettings?.rewardAssetName else {
+            rewardChainAsset = chainAsset
+            return
+        }
+
+        chainAssetFetching.fetch(filters: [.assetName(assetName), .chainId(chainAsset.chain.chainId)], sortDescriptors: []) { [weak self] result in
+            switch result {
+            case let .success(chainAssets):
+                let rewardChainAsset = chainAssets.first ?? chainAsset
+                self?.rewardChainAsset = rewardChainAsset
+            case let .failure(error):
+                self?.logger?.error(error.localizedDescription)
+            case .none:
+                break
+            }
+        }
+    }
+
+    private func subsribeRewardAssetPrice() {
+        guard let priceId = rewardChainAsset?.asset.priceId else {
+            presenter?.didReceive(rewardAssetPrice: nil)
+            return
+        }
+
+        rewardAssetPriceProvider = subscribeToPrice(for: priceId)
     }
 
 //    Parachain

@@ -26,7 +26,7 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
     private let delegation: ParachainStakingDelegation
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -40,7 +40,8 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
         extrinsicService: ExtrinsicServiceProtocol?,
         operationFactory: ParachainCollatorOperationFactory,
         candidate: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
+        delegation: ParachainStakingDelegation,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.runtimeService = runtimeService
@@ -54,11 +55,12 @@ final class StakingUnbondSetupParachainStrategy: RuntimeConstantFetching, Accoun
         self.operationFactory = operationFactory
         self.candidate = candidate
         self.delegation = delegation
+        self.callFactory = callFactory
     }
 }
 
 extension StakingUnbondSetupParachainStrategy: StakingUnbondSetupStrategy {
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?) {
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
               let extrinsicService = extrinsicService,
               let amount = StakingConstants.maxAmount.toSubstrateAmount(
@@ -67,11 +69,9 @@ extension StakingUnbondSetupParachainStrategy: StakingUnbondSetupStrategy {
             return
         }
 
-        let unbondCall = callFactory.unbond(amount: amount)
-
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: unbondCall.callName,
+            reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
     }

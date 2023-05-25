@@ -19,12 +19,17 @@ final class StakingPoolJoinConfigPresenter {
     private var inputResult: AmountInputResult?
     private var balance: Decimal?
     private var priceData: PriceData?
-    private var amountViewModel: AmountInputViewModelProtocol?
+    private var amountViewModel: IAmountInputViewModel?
     private var fee: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var minJoinBond: Decimal?
     private var existentialDeposit: BigUInt?
     private var totalAmount: BigUInt?
+
+    private lazy var balanceMinusFeeAndED: Decimal = {
+        let existentialDepositDecimal = Decimal.fromSubstrateAmount(existentialDeposit ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0.0
+        return (balance ?? 0) - (fee ?? 0) - existentialDepositDecimal
+
+    }()
 
     // MARK: - Constructors
 
@@ -73,7 +78,7 @@ final class StakingPoolJoinConfigPresenter {
     }
 
     private func provideAssetVewModel() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndED) ?? 0.0
 
         let assetBalanceViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
@@ -90,12 +95,12 @@ final class StakingPoolJoinConfigPresenter {
             return
         }
 
-        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
         view?.didReceiveFeeViewModel(feeViewModel.value(for: selectedLocale))
     }
 
     private func provideInputViewModel() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndED)
 
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
@@ -107,6 +112,10 @@ final class StakingPoolJoinConfigPresenter {
 
 extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
     func selectAmountPercentage(_ percentage: Float) {
+        guard fee != nil, existentialDeposit != nil else {
+            return
+        }
+
         inputResult = .rate(Decimal(Double(percentage)))
         provideInputViewModel()
         provideAssetVewModel()
@@ -124,7 +133,7 @@ extension StakingPoolJoinConfigPresenter: StakingPoolJoinConfigViewOutput {
     }
 
     func didTapContinueButton() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFeeAndED) ?? 0.0
         let spendingAmount = inputAmount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
         DataValidationRunner(validators: [
             dataValidatingFactory.canNominate(

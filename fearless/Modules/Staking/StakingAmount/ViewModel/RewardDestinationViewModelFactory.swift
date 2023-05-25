@@ -7,9 +7,6 @@ protocol RewardDestinationViewModelFactoryProtocol {
     func createRestake(from model: CalculatedReward?, priceData: PriceData?)
         -> LocalizableResource<RewardDestinationViewModelProtocol>
 
-    func createPayout(from model: CalculatedReward?, priceData: PriceData?, account: AccountItem) throws
-        -> LocalizableResource<RewardDestinationViewModelProtocol>
-
     func createPayout(from model: CalculatedReward?, priceData: PriceData?, address: AccountAddress, title: String) throws
         -> LocalizableResource<RewardDestinationViewModelProtocol>
 }
@@ -38,23 +35,6 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
             from: model,
             priceData: priceData,
             type: .restake
-        )
-    }
-
-    func createPayout(from model: CalculatedReward?, priceData: PriceData?, account: AccountItem) throws
-        -> LocalizableResource<RewardDestinationViewModelProtocol> {
-        let icon = try iconGenerator.generateFromAddress(account.address)
-
-        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username, address: account.address)
-
-        guard let model = model else {
-            return createEmptyReturnViewModel(from: type)
-        }
-
-        return createViewModel(
-            from: model,
-            priceData: priceData,
-            type: type
         )
     }
 
@@ -99,12 +79,14 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
 
         let localizedRestakeBalance = balanceViewModelFactory.balanceFromPrice(
             model.restakeReturn,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         let localizedPayoutBalance = balanceViewModelFactory.balanceFromPrice(
             model.payoutReturn,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         return LocalizableResource { locale in

@@ -1,6 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
+import SnapKit
 
 final class WalletDetailsViewController: UIViewController, ViewHolder {
     enum Constants {
@@ -37,9 +38,19 @@ final class WalletDetailsViewController: UIViewController, ViewHolder {
         output.didLoad(ui: self)
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        setupKeyboardHandler()
+    }
+
     override func viewWillDisappear(_: Bool) {
         output.willDisappear()
         super.viewWillDisappear(true)
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        clearKeyboardHandler()
     }
 
     @objc private func closeButtonClicked() {
@@ -232,3 +243,13 @@ extension WalletDetailsViewController: WalletDetailsTableCellDelegate {
 }
 
 extension WalletDetailsViewController: HiddableBarWhenPushed {}
+
+extension WalletDetailsViewController: KeyboardViewAdoptable {
+    var target: Constraint? { rootView.keyboardAdoptableConstraint }
+
+    func offsetFromKeyboardWithInset(_: CGFloat) -> CGFloat {
+        0
+    }
+
+    func updateWhileKeyboardFrameChanging(_: CGRect) {}
+}

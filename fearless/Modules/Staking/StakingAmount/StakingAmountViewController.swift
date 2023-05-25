@@ -33,7 +33,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
-    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var amountInputViewModel: IAmountInputViewModel?
+    private var viewModel: StakingAmountMainViewModel?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -231,7 +232,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
     }
 
     private func updateActionButton() {
-        let isEnabled = (amountInputViewModel?.isValid == true)
+        let isEnabled = (amountInputViewModel?.isValid == true) && viewModel?.continueAvailable == true
         actionButton.set(enabled: isEnabled)
     }
 
@@ -370,6 +371,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable, L
 
 extension StakingAmountViewController: StakingAmountViewProtocol {
     func didReceive(viewModel: StakingAmountMainViewModel) {
+        self.viewModel = viewModel
+
         chooseRewardView.isHidden = viewModel.rewardDestinationViewModel == nil
 
         if let assetViewModel = viewModel.assetViewModel {
@@ -387,6 +390,8 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
         if let inputViewModel = viewModel.inputViewModel {
             didReceiveInput(viewModel: inputViewModel)
         }
+
+        updateActionButton()
     }
 
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
@@ -411,7 +416,7 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
         updateActionButton()
     }
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let concreteViewModel = viewModel.value(for: locale)
 

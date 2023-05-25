@@ -1,15 +1,14 @@
-platform :ios, '12.0'
+platform :ios, '13.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.1'
+  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.3'
   pod 'SwiftLint'
   pod 'R.swift', '6.1.0', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
   pod 'SoraUI', '~> 1.10.3'
   pod 'IrohaCrypto'
-  pod 'RobinHood', '~> 2.6.2'
   pod 'CommonWallet/Core'
   pod 'SoraFoundation', '~> 1.0.0'
   pod 'SwiftyBeaver'
@@ -23,21 +22,22 @@ abstract_target 'fearlessAll' do
   pod 'keccak.c'
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
+  pod 'RobinHood', '~> 2.6.6'
 
   target 'fearlessTests' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.1'
+    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.3'
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', '6.1.0', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
     pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
     pod 'IrohaCrypto'
-    pod 'RobinHood', '~> 2.6.2'
     pod 'CommonWallet/Core'
     pod 'Sourcery', '~> 1.4'
     pod 'keccak.c'
+    pod 'RobinHood', '~> 2.6.6'
 
   end
 
@@ -45,13 +45,4 @@ abstract_target 'fearlessAll' do
 
   target 'fearless'
 
-end
-
-post_install do |installer|
-  installer.pods_project.targets.each do |target|
-    target.build_configurations.each do |config|
-      config.build_settings['ENABLE_BITCODE'] = 'NO'
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '12.0'
-    end
-  end
 end

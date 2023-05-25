@@ -125,9 +125,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
-
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -166,12 +163,15 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             selectedMetaAccount: wallet
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case .relaychain:
             let viewModelState = StakingRedeemRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingRedeemRelaychainStrategy(
                 output: viewModelState,
@@ -206,7 +206,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
                 dataValidatingFactory: dataValidatingFactory,
                 delegation: delegation,
                 collator: collator,
-                readyForRevoke: readyForRevoke
+                readyForRevoke: readyForRevoke,
+                callFactory: callFactory
             )
 
             let strategy = StakingRedeemParachainStrategy(
@@ -239,7 +240,8 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             let viewModelState = StakingRedeemPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingRedeemPoolViewModelFactory(
                 asset: chainAsset.asset,

@@ -19,10 +19,13 @@ final class ChainAssetListViewLayout: UIView {
 
     var keyboardAdoptableConstraint: Constraint?
 
-    private let contentContainer = UIView()
+    private var cardContainer: UIView? = {
+        let view = UIView()
+        return view
+    }()
 
     let tableView: UITableView = {
-        let view = UITableView(frame: .zero, style: .grouped)
+        let view = UITableView()
         view.backgroundColor = .clear
         view.separatorStyle = .none
         view.contentInset = UIEdgeInsets(top: 0, left: 0, bottom: UIConstants.bigOffset, right: 0)
@@ -61,13 +64,13 @@ final class ChainAssetListViewLayout: UIView {
     }
 
     private func setupLayout() {
-        addSubview(contentContainer)
-        contentContainer.addSubview(tableView)
-        contentContainer.addSubview(emptyView)
+        addSubview(tableView)
+        addSubview(emptyView)
+        tableView.tableHeaderView = cardContainer
 
-        contentContainer.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview()
-            keyboardAdoptableConstraint = make.bottom.equalToSuperview().constraint
+        cardContainer?.snp.makeConstraints { make in
+            make.top.equalToSuperview()
+            make.leading.trailing.equalTo(self).inset(UIConstants.bigOffset)
         }
 
         emptyView.snp.makeConstraints { make in

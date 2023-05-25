@@ -6,29 +6,42 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
 
     var stateListener: StakingAmountModelStateListener?
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
+
     let wallet: MetaAccountModel
     let chainAsset: ChainAsset
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
-    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFeeAndED) }
     private var balance: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var inputResult: AmountInputResult?
+    private lazy var balanceMinusFeeAndED: Decimal = {
+        (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
+    }()
 
     init(
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         wallet: MetaAccountModel,
         chainAsset: ChainAsset,
-        amount: Decimal?
+        amount: Decimal?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.dataValidatingFactory = dataValidatingFactory
         self.wallet = wallet
         self.chainAsset = chainAsset
-        inputResult = .absolute(amount ?? 0)
+        self.callFactory = callFactory
+
+        if let amount = amount {
+            inputResult = .absolute(amount)
+        }
     }
 
     var payoutAccount: ChainAccountResponse? { nil }
+
+    var continueAvailable: Bool {
+        minimalBalance != nil && networkStakingInfo != nil && minStake != nil
+    }
 
     var bonding: InitiatedBonding? {
         guard let amount = amount, let account = wallet.fetch(for: chainAsset.chain.accountRequest()) else {
@@ -51,7 +64,7 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
                 return builder
             }
 
-            let call = SubstrateCallFactory().delegate(
+            let call = callFactory.delegate(
                 candidate: accountId,
                 amount: amount,
                 candidateDelegationCount: UInt32.max,
@@ -67,6 +80,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
         let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
 
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+
         return [
             dataValidatingFactory.canNominate(
                 amount: amount,
@@ -79,6 +96,14 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
                 amount: amount,
                 minNominatorBond: minStake,
                 locale: locale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: amountSubstrate,
+                totalAmount: balanceSubstrate,
+                minimumBalance: edSubstrate,
+                locale: locale,
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
             )
         ]
     }
@@ -119,6 +144,8 @@ extension StakingAmountParachainViewModelState: StakingAmountParachainStrategyOu
 
         let minStakeSubstrateAmount = networkStakingInfo.calculateMinimumStake(given: networkStakingInfo.baseInfo.minStakeAmongActiveNominators)
         minStake = Decimal.fromSubstrateAmount(minStakeSubstrateAmount, precision: Int16(chainAsset.asset.precision))
+
+        notifyListeners()
     }
 
     func didSetup() {

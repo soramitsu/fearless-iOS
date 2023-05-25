@@ -245,7 +245,7 @@ final class StakingBalanceParachainViewModelFactory: StakingBalanceViewModelFact
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
-        balanceViewModelFactory.amountFromValue(value).value(for: locale)
+        balanceViewModelFactory.amountFromValue(value, usageCase: .detailsCrypto).value(for: locale)
     }
 
     private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String? {

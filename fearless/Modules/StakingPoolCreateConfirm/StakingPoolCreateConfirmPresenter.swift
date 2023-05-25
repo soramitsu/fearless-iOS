@@ -48,7 +48,7 @@ final class StakingPoolCreateConfirmPresenter {
             rootName: createData.root.name,
             poolId: "\(createData.poolId)",
             nominatorName: createData.nominator.name,
-            stateTogglerName: createData.stateToggler.name
+            bouncerName: createData.bouncer.name
         )
 
         let viewModel = viewModelFactory.buildViewModel(
@@ -61,7 +61,7 @@ final class StakingPoolCreateConfirmPresenter {
 
     private func provideFeeViewModel() {
         let feeViewModel = fee
-            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }?
+            .map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData, usageCase: .detailsCrypto) }?
             .value(for: selectedLocale)
 
         view?.didReceive(feeViewModel: feeViewModel)

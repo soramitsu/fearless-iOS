@@ -28,6 +28,10 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                 balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
                 precision: precision
             ) ?? 0.0
+            let bondedDecimal = Decimal.fromSubstrateAmount(
+                balanceData.stakingLedger.active,
+                precision: precision
+            ) ?? 0.0
 
             let widgetViewModel = self.createWidgetViewModel(
                 from: balanceData,
@@ -47,7 +51,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             return StakingBalanceViewModel(
                 title: R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages),
                 widgetViewModel: widgetViewModel,
-                actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
+                actionsViewModel: self.createActionsViewModel(redeemableDecimal: redeemableDecimal, bondedDecimal: bondedDecimal, locale: locale),
                 unbondingViewModel: unbondingViewModel
             )
         }
@@ -110,6 +114,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
 
     func createActionsViewModel(
         redeemableDecimal: Decimal,
+        bondedDecimal: Decimal,
         locale: Locale
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
@@ -119,7 +124,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
             redeemIcon: R.image.iconRedeem(),
             redeemActionIsAvailable: redeemableDecimal > 0,
             stakeMoreActionAvailable: true,
-            stakeLessActionAvailable: true
+            stakeLessActionAvailable: redeemableDecimal != bondedDecimal
         )
     }
 
@@ -161,11 +166,6 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
                     ) ?? .zero
                 let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
                 let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
-                let timeLeft = timeLeftAttributedString(
-                    unbondingEra: unbondingItem.era,
-                    eraCountdown: balanceData.eraCountdown,
-                    locale: locale
-                )
 
                 return UnbondingItemViewModel(
                     addressOrName: R.string.localizable.stakingUnbond_v190(preferredLanguages: locale.rLanguages),
@@ -179,7 +179,7 @@ final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFac
     }
 
     private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
-        balanceViewModelFactory.amountFromValue(value).value(for: locale)
+        balanceViewModelFactory.amountFromValue(value, usageCase: .detailsCrypto).value(for: locale)
     }
 
     private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String? {

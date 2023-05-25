@@ -27,14 +27,14 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
         locale: Locale,
         priceData: PriceData?
     ) -> StakingBondMoreConfirmViewModel? {
-        guard let state = state as? StakingBondMoreConfirmationPoolViewModelState else {
+        guard state is StakingBondMoreConfirmationPoolViewModelState else {
             return nil
         }
 
         let address = account.fetch(for: chainAsset.chain.accountRequest())?.toAddress() ?? ""
         let senderIcon = try? iconGenerator.generateFromAddress(address)
 
-        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData, usageCase: .listCrypto)
         let accountViewModel = TitleMultiValueViewModel(title: account.name, subtitle: address)
         let amountViewModel = TitleMultiValueViewModel(
             title: balanceViewModel.value(for: locale).amount,
@@ -54,11 +54,11 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
             let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
                 amountString,
@@ -67,11 +67,15 @@ final class StakingBondMoreConfirmPoolViewModelFactory: StakingBondMoreConfirmVi
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

@@ -37,7 +37,7 @@ struct ValidatorSearchViewFactory {
             return nil
         }
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -53,7 +53,8 @@ struct ValidatorSearchViewFactory {
             for: chainAsset,
             assetPrecision: Int16(chainAsset.asset.precision),
             validatorService: eraValidatorService,
-            collatorOperationFactory: collatorOperationFactory
+            collatorOperationFactory: collatorOperationFactory,
+            wallet: wallet
         ) else {
             return nil
         }
@@ -67,7 +68,7 @@ struct ValidatorSearchViewFactory {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: RuntimeRegistryFacade.sharedService,
+            runtimeService: runtimeService,
             engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )

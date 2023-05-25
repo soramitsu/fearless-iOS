@@ -3,7 +3,7 @@ import CommonWallet
 import BigInt
 
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
     func didReceiveAccount(viewModel: AccountViewModel)

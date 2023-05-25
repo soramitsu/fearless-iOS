@@ -8,7 +8,7 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
     let wallet: MetaAccountModel
     let dataValidatingFactory: StakingDataValidatingFactory
     let inputAmount: Decimal
-    let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var minimalBalance: Decimal?
@@ -50,7 +50,7 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         switch payee {
         case .staked:
             if let bonded = bonded, let minimalBalance = minimalBalance {
-                return bonded - inputAmount < minimalBalance
+                return bonded - inputAmount < minimalBalance || bonded == inputAmount
             } else {
                 return false
             }
@@ -61,7 +61,7 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
 
     private var shouldChill: Bool {
         if let bonded = bonded, let minNominatorBonded = minNominatorBonded, nomination != nil {
-            return bonded - inputAmount < minNominatorBonded
+            return bonded - inputAmount < minNominatorBonded || bonded == inputAmount
         } else {
             return false
         }
@@ -71,12 +71,14 @@ final class StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmVi
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactory,
-        inputAmount: Decimal
+        inputAmount: Decimal,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.inputAmount = inputAmount
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: StakingUnbondConfirmModelStateListener?) {
@@ -236,7 +238,7 @@ extension StakingUnbondConfirmRelaychainViewModelState: StakingUnbondConfirmRela
                     precision: Int16(chainAsset.asset.precision)
                 )
             } else {
-                self.minNominatorBonded = nil
+                self.minNominatorBonded = Decimal.zero
             }
 
             stateListener?.refreshFeeIfNeeded()

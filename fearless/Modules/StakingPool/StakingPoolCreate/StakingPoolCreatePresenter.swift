@@ -8,7 +8,7 @@ struct StakingPoolCreateData {
     let amount: Decimal
     let root: MetaAccountModel
     let nominator: MetaAccountModel
-    let stateToggler: MetaAccountModel
+    let bouncer: MetaAccountModel
     let chainAsset: ChainAsset
 }
 
@@ -34,7 +34,7 @@ final class StakingPoolCreatePresenter {
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) - (existentialDeposit ?? 0) }
     private var minCreateBond: Decimal?
     private var nominatorWallet: MetaAccountModel
-    private var stateTogglerWallet: MetaAccountModel
+    private var bouncerWallet: MetaAccountModel
     private var rootWallet: MetaAccountModel
     private var lastPoolId: UInt32?
     private var poolNameInputViewModel: InputViewModelProtocol
@@ -63,7 +63,7 @@ final class StakingPoolCreatePresenter {
         self.wallet = wallet
         self.chainAsset = chainAsset
         nominatorWallet = wallet
-        stateTogglerWallet = wallet
+        bouncerWallet = wallet
         rootWallet = wallet
 
         let nameInputHandling = InputHandler(predicate: NSPredicate.notEmpty)
@@ -82,7 +82,7 @@ final class StakingPoolCreatePresenter {
         let viewModel = viewModelFactory.buildViewModel(
             wallet: wallet,
             nominatorWallet: nominatorWallet,
-            stateToggler: stateTogglerWallet,
+            bouncer: bouncerWallet,
             rootWallet: rootWallet,
             lastPoolId: lastPoolId
         )
@@ -107,7 +107,7 @@ final class StakingPoolCreatePresenter {
             return
         }
 
-        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
         view?.didReceiveFeeViewModel(feeViewModel.value(for: selectedLocale))
     }
 
@@ -134,7 +134,8 @@ final class StakingPoolCreatePresenter {
             title: R.string.localizable.stakingPoolCreateMissingNameTitle(preferredLanguages: languages),
             message: nil,
             actions: [action],
-            closeAction: nil
+            closeAction: nil,
+            icon: R.image.iconWarningBig()
         )
 
         DispatchQueue.main.async { [weak self] in
@@ -206,7 +207,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
                 amount: inputAmount,
                 root: strongSelf.wallet,
                 nominator: strongSelf.nominatorWallet,
-                stateToggler: strongSelf.stateTogglerWallet,
+                bouncer: strongSelf.bouncerWallet,
                 chainAsset: strongSelf.chainAsset
             )
 
@@ -222,9 +223,9 @@ extension StakingPoolCreatePresenter: StakingPoolCreateViewOutput {
         )
     }
 
-    func stateTogglerDidTapped() {
+    func bouncerDidTapped() {
         router.showWalletManagment(
-            contextTag: StakingPoolCreateContextTag.stateToggler.rawValue,
+            contextTag: StakingPoolCreateContextTag.bouncer.rawValue,
             from: view,
             moduleOutput: self
         )
@@ -385,7 +386,7 @@ extension StakingPoolCreatePresenter: StakingPoolCreateModuleInput {}
 extension StakingPoolCreatePresenter: WalletsManagmentModuleOutput {
     private enum StakingPoolCreateContextTag: Int {
         case nominator = 0
-        case stateToggler
+        case bouncer
         case root
     }
 
@@ -397,8 +398,8 @@ extension StakingPoolCreatePresenter: WalletsManagmentModuleOutput {
         switch contextTag {
         case .nominator:
             nominatorWallet = wallet
-        case .stateToggler:
-            stateTogglerWallet = wallet
+        case .bouncer:
+            bouncerWallet = wallet
         case .root:
             rootWallet = wallet
         }

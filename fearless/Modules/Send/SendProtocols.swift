@@ -5,7 +5,7 @@ typealias SendModuleCreationResult = (view: SendViewInput, input: SendModuleInpu
 
 protocol SendViewInput: ControllerBackedProtocol {
     func didReceive(assetBalanceViewModel: AssetBalanceViewModelProtocol?)
-    func didReceive(amountInputViewModel: AmountInputViewModelProtocol?)
+    func didReceive(amountInputViewModel: IAmountInputViewModel?)
     func didReceive(selectNetworkViewModel: SelectNetworkViewModel)
     func didReceive(feeViewModel: BalanceViewModelProtocol?)
     func didReceive(tipViewModel: TipViewModel?)
@@ -81,7 +81,7 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
     )
 
     func showSelectNetwork(
-        from view: SendViewInput?,
+        from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         selectedChainId: ChainModel.Id?,
         chainModels: [ChainModel]?,
@@ -89,7 +89,7 @@ protocol SendRouterInput: SheetAlertPresentable, ErrorPresentable, BaseErrorPres
     )
 
     func showSelectAsset(
-        from view: SendViewInput?,
+        from view: ControllerBackedProtocol?,
         wallet: MetaAccountModel,
         selectedAssetId: AssetModel.Id?,
         chainAssets: [ChainAsset]?,

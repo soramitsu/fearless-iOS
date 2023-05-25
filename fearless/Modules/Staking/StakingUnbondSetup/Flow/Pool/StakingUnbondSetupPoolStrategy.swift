@@ -12,6 +12,7 @@ protocol StakingUnbondSetupPoolStrategyOutput: AnyObject {
     func didReceive(stakingDuration: StakingDuration)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(stakingPool: StakingPool?)
+    func didSetup()
 }
 
 final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetching {
@@ -23,7 +24,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
     let accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private weak var output: StakingUnbondSetupPoolStrategyOutput?
-    private lazy var callFactory = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private let stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
 
@@ -38,7 +39,8 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         extrinsicService: ExtrinsicServiceProtocol?,
         stakingPoolOperationFactory: StakingPoolOperationFactoryProtocol,
         stakingDurationOperationFactory: StakingDurationOperationFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol
+        runtimeService: RuntimeCodingServiceProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -51,6 +53,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
         self.stakingDurationOperationFactory = stakingDurationOperationFactory
         self.runtimeService = runtimeService
+        self.callFactory = callFactory
     }
 
     private var poolMemberProvider: AnyDataProvider<DecodedPoolMember>?
@@ -154,22 +157,16 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
 }
 
 extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?) {
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
-              let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(chainAsset.asset.precision)
-              ),
-              let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+              let extrinsicService = extrinsicService
         else {
             return
         }
 
-        let unbondCall = callFactory.poolUnbond(accountId: accountId, amount: amount)
-
         feeProxy.estimateFee(
             using: extrinsicService,
-            reuseIdentifier: unbondCall.callName,
+            reuseIdentifier: reuseIdentifier,
             setupBy: builderClosure
         )
     }
@@ -189,6 +186,8 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
 
         fetchStakingDuration()
         fetchNetworkInfo()
+
+        output?.didSetup()
     }
 
     func estimateFee() {

@@ -23,9 +23,6 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
 
         let eventCenter = EventCenter.shared
         let logger = Logger.shared
-        let operationManager = OperationManagerFacade.sharedManager
-
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
@@ -53,7 +50,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
             repository: repository,
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             selectedMetaAccount: selectedMetaAccount,
-            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter,
+            walletRepository: accountRepository
         )
 
         let presenter = ProfilePresenter(

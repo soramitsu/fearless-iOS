@@ -28,6 +28,7 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
     private let chainAsset: ChainAsset
     private let wallet: MetaAccountModel
     private let output: StakingPayoutConfirmationrelaychainStrategyOutput?
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var stashItemProvider: StreamableProvider<StashItem>?
@@ -49,7 +50,8 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
         payouts: [PayoutInfo],
         chainAsset: ChainAsset,
         accountRepository: AnyDataProviderRepository<MetaAccountModel>,
-        output: StakingPayoutConfirmationrelaychainStrategyOutput?
+        output: StakingPayoutConfirmationrelaychainStrategyOutput?,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.extrinsicOperationFactory = extrinsicOperationFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -64,19 +66,20 @@ final class StakingPayoutConfirmationRelayachainStrategy: AccountFetching {
         self.chainAsset = chainAsset
         self.accountRepository = accountRepository
         self.output = output
+        self.callFactory = callFactory
     }
 
     // MARK: - Private functions
 
     private func createExtrinsicBuilderClosure(for payouts: [PayoutInfo]) -> ExtrinsicBuilderIndexedClosure? {
-        let callFactory = SubstrateCallFactory()
-
-        let closure: ExtrinsicBuilderIndexedClosure = { builder, _ in
+        let closure: ExtrinsicBuilderIndexedClosure = { [weak self] builder, _ in
             try payouts.forEach { payout in
-                let payoutCall = try callFactory.payout(
+                guard let payoutCall = try self?.callFactory.payout(
                     validatorId: payout.validator,
                     era: payout.era
-                )
+                ) else {
+                    return
+                }
 
                 _ = try builder.adding(call: payoutCall)
             }

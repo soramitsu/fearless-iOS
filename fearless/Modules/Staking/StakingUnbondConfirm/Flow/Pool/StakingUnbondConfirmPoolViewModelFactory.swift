@@ -46,7 +46,7 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
             return nil
         }
 
-        let formatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let formatter = formatterFactory.createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
 
         let amount = LocalizableResource { locale in
             formatter.value(for: locale).stringFromDecimal(viewModelState.inputAmount) ?? ""
@@ -78,11 +78,11 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: asset.displayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = asset.displayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
             let stakedString = R.string.localizable.poolStakingUnstakeAmountTitle(
                 amountString,
@@ -91,11 +91,15 @@ final class StakingUnbondConfirmPoolViewModelFactory: StakingUnbondConfirmViewMo
             let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
             stakedAmountAttributedString.addAttribute(
                 NSAttributedString.Key.foregroundColor,
-                value: R.color.colorWhite(),
+                value: R.color.colorWhite() as Any,
                 range: (stakedString as NSString).range(of: amountString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.asset.color
+            )
         }
     }
 }

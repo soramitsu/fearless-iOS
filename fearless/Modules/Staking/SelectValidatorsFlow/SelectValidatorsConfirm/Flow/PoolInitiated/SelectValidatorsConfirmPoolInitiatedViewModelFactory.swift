@@ -92,8 +92,7 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard
             let viewModelState = viewModelState as? SelectValidatorsConfirmPoolInitiatedViewModelState,
@@ -102,29 +101,8 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
             return nil
         }
 
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createInputFormatter(for: asset.displayInfo)
-
-        let rewardViewModel: RewardDestinationTypeViewModel
-
-        switch state.rewardDestination {
-        case .restake:
-            rewardViewModel = .restake
-        case let .payout(account):
-            let payoutIcon = try? iconGenerator.generateFromAddress(account.address)
-
-            rewardViewModel = .payout(
-                icon: payoutIcon,
-                title: account.username,
-                address: account.address
-            )
-        }
-
-        return LocalizableResource { locale in
-            let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
-
-            return SelectValidatorsConfirmViewModel(
+        return LocalizableResource { _ in
+            SelectValidatorsConfirmViewModel(
                 senderAddress: state.wallet.address,
                 senderName: state.wallet.username,
                 amount: nil,
@@ -149,13 +127,13 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let stakedString = R.string.localizable.stakingSelectValidatorsConfirmTitle(
                 preferredLanguages: locale.rLanguages
             )
@@ -166,7 +144,11 @@ extension SelectValidatorsConfirmPoolInitiatedViewModelFactory: SelectValidators
                 range: (stakedString as NSString).range(of: stakedString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

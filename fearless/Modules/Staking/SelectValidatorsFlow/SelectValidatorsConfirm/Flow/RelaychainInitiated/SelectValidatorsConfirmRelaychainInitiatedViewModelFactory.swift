@@ -87,17 +87,12 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmRelaychainInitiatedViewModelState,
               let state = viewModelState.confirmationModel else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let rewardViewModel: RewardDestinationTypeViewModel
 
@@ -111,10 +106,10 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
         }
 
         return LocalizableResource { [weak self] locale in
-            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
             let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
                 state.amount,
-                priceData: viewModelState.priceData
+                priceData: viewModelState.priceData,
+                usageCase: .listCrypto
             ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
@@ -140,13 +135,13 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     private func createStakedAmountViewModel() -> LocalizableResource<StakeAmountViewModel>? {
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let stakedString = R.string.localizable.stakingStake(
                 preferredLanguages: locale.rLanguages
             )
@@ -157,7 +152,11 @@ extension SelectValidatorsConfirmRelaychainInitiatedViewModelFactory: SelectVali
                 range: (stakedString as NSString).range(of: stakedString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

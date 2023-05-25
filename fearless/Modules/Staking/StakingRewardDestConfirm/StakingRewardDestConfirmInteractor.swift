@@ -27,8 +27,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
-    private lazy var callFactory = SubstrateCallFactory()
-    private lazy var addressFactory = SS58AddressFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         priceLocalSubscriptionFactory: PriceProviderFactoryProtocol,
@@ -44,7 +43,8 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         signingWrapper: SigningWrapperProtocol,
         connection: JSONRPCEngine,
         keystore: KeystoreProtocol,
-        accountRepository: AnyDataProviderRepository<MetaAccountModel>
+        accountRepository: AnyDataProviderRepository<MetaAccountModel>,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.priceLocalSubscriptionFactory = priceLocalSubscriptionFactory
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
@@ -60,6 +60,7 @@ final class StakingRewardDestConfirmInteractor: AccountFetching {
         self.keystore = keystore
         self.connection = connection
         self.accountRepository = accountRepository
+        self.callFactory = callFactory
     }
 
     private func setupExtrinsicService(_ account: ChainAccountResponse) {
@@ -95,7 +96,11 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
 
     func estimateFee(for rewardDestination: RewardDestination<AccountAddress>, stashItem: StashItem) {
         do {
-            let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
+            let setPayeeCall = try callFactory.setRewardDestination(
+                rewardDestination,
+                stashItem: stashItem,
+                chainAsset: chainAsset
+            )
 
             feeProxy.estimateFee(
                 using: extrinsicService,
@@ -110,7 +115,11 @@ extension StakingRewardDestConfirmInteractor: StakingRewardDestConfirmInteractor
 
     func submit(rewardDestination: RewardDestination<AccountAddress>, for stashItem: StashItem) {
         do {
-            let setPayeeCall = try callFactory.setRewardDestination(rewardDestination, stashItem: stashItem)
+            let setPayeeCall = try callFactory.setRewardDestination(
+                rewardDestination,
+                stashItem: stashItem,
+                chainAsset: chainAsset
+            )
 
             extrinsicService.submit(
                 { builder in
@@ -147,7 +156,7 @@ extension StakingRewardDestConfirmInteractor: RelaychainStakingLocalStorageSubsc
             accountInfoSubscriptionAdapter.reset()
 
             if let stashItem = stashItem {
-                let accountId = try addressFactory.accountId(fromAddress: stashItem.controller, type: chainAsset.chain.addressPrefix)
+                let accountId = try AddressFactory.accountId(from: stashItem.controller, chain: chainAsset.chain)
                 accountInfoSubscriptionAdapter.subscribe(chainAsset: chainAsset, accountId: accountId, handler: self)
 
                 fetchChainAccount(

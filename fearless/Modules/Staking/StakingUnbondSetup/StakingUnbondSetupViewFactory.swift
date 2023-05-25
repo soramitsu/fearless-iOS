@@ -101,7 +101,6 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
@@ -131,12 +130,15 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case .relaychain:
             let viewModelState = StakingUnbondSetupRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingUnbondSetupRelaychainStrategy(
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
@@ -149,7 +151,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 connection: connection,
                 accountRepository: AnyDataProviderRepository(accountRepository),
                 output: viewModelState,
-                extrinsicService: extrinsicService
+                extrinsicService: extrinsicService,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondSetupRelaychainViewModelFactory()
 
@@ -159,7 +162,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(candidate, delegation):
-            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,
@@ -175,7 +178,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 wallet: wallet,
                 dataValidatingFactory: dataValidatingFactory,
                 candidate: candidate,
-                delegation: delegation
+                delegation: delegation,
+                callFactory: callFactory
             )
             let strategy = StakingUnbondSetupParachainStrategy(
                 accountInfoSubscriptionAdapter: accountInfoSubscriptionAdapter,
@@ -189,7 +193,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 extrinsicService: extrinsicService,
                 operationFactory: operationFactory,
                 candidate: candidate,
-                delegation: delegation
+                delegation: delegation,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondSetupParachainViewModelFactory(
                 accountViewModelFactory:
@@ -205,7 +210,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             let viewModelState = StakingUnbondSetupPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingUnbondSetupPoolViewModelFactory(
                 accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
@@ -232,7 +238,8 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 extrinsicService: extrinsicService,
                 stakingPoolOperationFactory: stakingPoolOperationFactory,
                 stakingDurationOperationFactory: stakingDurationOperationFactory,
-                runtimeService: runtimeService
+                runtimeService: runtimeService,
+                callFactory: callFactory
             )
 
             return StakingUnbondSetupDependencyContainer(

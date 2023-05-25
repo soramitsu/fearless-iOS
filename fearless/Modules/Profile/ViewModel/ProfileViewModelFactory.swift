@@ -62,7 +62,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let profileOptionViewModel = createOptionViewModels(
             language: language,
             currency: currency,
-            locale: locale
+            locale: locale,
+            wallet: wallet
         )
         let logoutViewModel = createLogoutViewModel(locale: locale)
         let viewModel = ProfileViewModel(
@@ -77,7 +78,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
 
     private func tokenFormatter(for currency: Currency, locale: Locale) -> TokenFormatter {
         let balanceDisplayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo)
+        let balanceTokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: balanceDisplayInfo, usageCase: .detailsCrypto)
         let balanceTokenFormatterValue = balanceTokenFormatter.value(for: locale)
         return balanceTokenFormatterValue
     }
@@ -105,9 +106,16 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createOptionViewModels(
         language: Language,
         currency: Currency,
-        locale: Locale
+        locale: Locale,
+        wallet: MetaAccountModel
     ) -> [ProfileOptionViewModelProtocol] {
-        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
+        var options: [ProfileOption] = []
+        #if F_DEV
+            options = ProfileOption.allCases
+        #else
+            options = ProfileOption.allCases.filter { $0 != .resetToken }
+        #endif
+        let optionViewModels = options.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
                 return createAccountListViewModel(for: locale)
@@ -124,7 +132,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             case .currency:
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .zeroBalances:
-                return createZeroBalancesViewModel(for: locale)
+                return createZeroBalancesViewModel(for: locale, wallet: wallet)
             }
         }
 
@@ -231,14 +239,14 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         )
     }
 
-    private func createZeroBalancesViewModel(for locale: Locale) -> ProfileOptionViewModel {
+    private func createZeroBalancesViewModel(for locale: Locale, wallet: MetaAccountModel) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileHideZeroBalancesTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(
             title: title,
             icon: R.image.iconZeroBalances()!,
             accessoryTitle: nil,
-            accessoryType: .switcher(settings.shouldHideZeroBalanceAssets ?? false),
+            accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
             option: .zeroBalances
         )
     }

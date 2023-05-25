@@ -13,6 +13,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     let wallet: MetaAccountModel
     let operationManager: OperationManagerProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     private(set) var confirmationModel: SelectValidatorsConfirmRelaychainModel?
     private(set) var priceData: PriceData?
@@ -43,8 +44,8 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         chainAsset: ChainAsset,
         wallet: MetaAccountModel,
         operationManager: OperationManagerProtocol,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
-
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.targets = targets
         self.maxTargets = maxTargets
@@ -53,6 +54,7 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
         self.wallet = wallet
         self.operationManager = operationManager
         self.dataValidatingFactory = dataValidatingFactory
+        self.callFactory = callFactory
     }
 
     func setStateListener(_ stateListener: SelectValidatorsConfirmModelStateListener?) {
@@ -85,10 +87,15 @@ final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValid
     func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
         let targets = targets
 
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let callFactory = SubstrateCallFactory()
+        let closure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                return builder
+            }
 
-            let nominateCall = try callFactory.nominate(targets: targets)
+            let nominateCall = try strongSelf.callFactory.nominate(
+                targets: targets,
+                chainAsset: strongSelf.chainAsset
+            )
 
             return try builder
                 .adding(call: nominateCall)

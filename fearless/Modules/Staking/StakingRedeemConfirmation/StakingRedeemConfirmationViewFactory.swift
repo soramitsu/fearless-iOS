@@ -126,9 +126,7 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
         )
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
-        let logger = Logger.shared
 
-        let priceLocalSubscriptionFactory = PriceProviderFactory(storageFacade: substrateStorageFacade)
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
             chainRegistry: chainRegistry,
             storageFacade: substrateStorageFacade,
@@ -168,12 +166,15 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             selectedMetaAccount: wallet
         )
 
+        let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)
+
         switch flow {
         case .relaychain:
             let viewModelState = StakingRedeemConfirmationRelaychainViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let strategy = StakingRedeemConfirmationRelaychainStrategy(
                 output: viewModelState,
@@ -208,7 +209,8 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
                 dataValidatingFactory: dataValidatingFactory,
                 delegation: delegation,
                 collator: collator,
-                readyForRevoke: readyForRevoke
+                readyForRevoke: readyForRevoke,
+                callFactory: callFactory
             )
 
             let strategy = StakingRedeemConfirmationParachainStrategy(
@@ -241,7 +243,8 @@ final class StakingRedeemConfirmationViewFactory: StakingRedeemConfirmationViewF
             let viewModelState = StakingRedeemConfirmationPoolViewModelState(
                 chainAsset: chainAsset,
                 wallet: wallet,
-                dataValidatingFactory: dataValidatingFactory
+                dataValidatingFactory: dataValidatingFactory,
+                callFactory: callFactory
             )
             let viewModelFactory = StakingRedeemConfirmationPoolViewModelFactory(
                 asset: chainAsset.asset,

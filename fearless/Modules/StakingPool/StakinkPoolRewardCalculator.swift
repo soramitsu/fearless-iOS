@@ -96,12 +96,14 @@ final class StakinkPoolRewardCalculator: StakinkPoolRewardCalculatorProtocol {
 
         let totalReward = balanceViewModelFactory.balanceFromPrice(
             pendingReward,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         let totalStake = balanceViewModelFactory.balanceFromPrice(
             totalStakeAmount,
-            priceData: priceData
+            priceData: priceData,
+            usageCase: .listCrypto
         )
 
         let totalRewardViewModel = BalanceViewModel(

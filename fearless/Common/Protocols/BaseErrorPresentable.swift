@@ -105,7 +105,8 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
             title: title,
             message: message,
             actions: [proceedAction],
-            closeAction: closeTitle
+            closeAction: closeTitle,
+            icon: R.image.iconWarningBig()
         )
 
         present(
@@ -127,7 +128,8 @@ extension BaseErrorPresentable where Self: SheetAlertPresentable & ErrorPresenta
             title: title,
             message: message,
             actions: [],
-            closeAction: closeTitle
+            closeAction: closeTitle,
+            icon: R.image.iconWarningBig()
         )
 
         present(

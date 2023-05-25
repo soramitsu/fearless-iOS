@@ -33,7 +33,7 @@ extension StakingPoolJoinConfirmViewModelFactory: StakingPoolJoinConfirmViewMode
         poolNomination: Nomination?,
         nominationReceived: Bool
     ) -> StakingPoolJoinConfirmViewModel {
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let amountString = tokenFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
         let stakedString = R.string.localizable.poolStakingStartConfirmAmountTitle(
@@ -43,7 +43,7 @@ extension StakingPoolJoinConfirmViewModelFactory: StakingPoolJoinConfirmViewMode
         let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
         stakedAmountAttributedString.addAttribute(
             NSAttributedString.Key.foregroundColor,
-            value: R.color.colorWhite(),
+            value: R.color.colorWhite() as Any,
             range: (stakedString as NSString).range(of: amountString)
         )
 

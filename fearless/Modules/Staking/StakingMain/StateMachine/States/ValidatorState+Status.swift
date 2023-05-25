@@ -4,12 +4,14 @@ import BigInt
 
 extension ValidatorState {
     var status: ValidationViewStatus {
-        guard let eraStakers = commonData.eraStakersInfo else {
+        guard let eraStakers = commonData.eraStakersInfo,
+              let chainAsset = commonData.chainAsset
+        else {
             return .undefined
         }
 
         do {
-            let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
+            let accountId = try AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain)
 
             if eraStakers.validators
                 .first(where: { $0.accountId == accountId }) != nil {
@@ -48,7 +50,8 @@ extension ValidatorState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 
@@ -65,7 +68,8 @@ extension ValidatorState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 

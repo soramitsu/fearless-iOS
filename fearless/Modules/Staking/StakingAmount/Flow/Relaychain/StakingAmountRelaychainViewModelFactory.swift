@@ -5,13 +5,16 @@ import CommonWallet
 final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFactoryProtocol {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
+        self.chainAsset = chainAsset
     }
 
     func buildViewModel(
@@ -26,7 +29,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         let rewardDestinationViewModel = try? buildSelectRewardDestinationViewModel(
             viewModelState: relaychainViewModelState,
             priceData: priceData,
-            calculator: calculator
+            calculator: calculator, rewardAssetPrice: relaychainViewModelState.rewardAssetPrice
         )
 
         let feeViewModel = buildFeeViewModel(
@@ -38,37 +41,54 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             assetViewModel: nil,
             rewardDestinationViewModel: rewardDestinationViewModel,
             feeViewModel: feeViewModel,
-            inputViewModel: nil
+            inputViewModel: nil,
+            continueAvailable: relaychainViewModelState.continueAvailable
         )
     }
 
     func buildSelectRewardDestinationViewModel(
         viewModelState: StakingAmountViewModelState,
         priceData: PriceData?,
-        calculator: RewardCalculatorEngineProtocol?
+        calculator: RewardCalculatorEngineProtocol?,
+        rewardAssetPrice: PriceData?
     ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
         guard let viewModelState = viewModelState as? StakingAmountRelaychainViewModelState else {
             return nil
         }
 
         let reward: CalculatedReward?
+        let price = rewardAssetPrice ?? priceData
 
         if let calculator = calculator {
-            let restake = calculator.calculateMaxReturn(
+            let restake = calculator.calculatorReturn(
+                isCompound: true,
+                period: .year,
+                type: .max()
+            )
+
+            let payout = calculator.calculatorReturn(
+                isCompound: false,
+                period: .year,
+                type: .max()
+            )
+
+            let amount = viewModelState.amount ?? 0.0
+
+            let restakeEarnings = calculator.calculateMaxEarnings(
+                amount: amount,
                 isCompound: true,
                 period: .year
             )
-
-            let payout = calculator.calculateMaxReturn(
+            let payoutEarnings = calculator.calculateMaxEarnings(
+                amount: amount,
                 isCompound: false,
                 period: .year
             )
 
-            let curAmount = viewModelState.amount ?? 0.0
             reward = CalculatedReward(
-                restakeReturn: restake * curAmount,
+                restakeReturn: restakeEarnings,
                 restakeReturnPercentage: restake,
-                payoutReturn: payout * curAmount,
+                payoutReturn: payoutEarnings,
                 payoutReturnPercentage: payout
             )
         } else {
@@ -79,7 +99,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
         case .restake:
             return rewardDestViewModelFactory.createRestake(
                 from: reward,
-                priceData: priceData
+                priceData: price
             )
         case .payout:
             if let payoutAccount = viewModelState.payoutAccount,
@@ -87,7 +107,7 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
                 return try rewardDestViewModelFactory
                     .createPayout(
                         from: reward,
-                        priceData: priceData,
+                        priceData: price,
                         address: address,
                         title: (try? payoutAccount.toDisplayAddress().username) ?? address
                     )
@@ -105,6 +125,6 @@ final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFacto
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 }

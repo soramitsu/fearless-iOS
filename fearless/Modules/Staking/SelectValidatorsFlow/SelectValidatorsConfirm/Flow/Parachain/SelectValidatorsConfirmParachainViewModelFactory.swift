@@ -89,17 +89,12 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
     }
 
     func buildViewModel(
-        viewModelState: SelectValidatorsConfirmViewModelState,
-        asset: AssetModel
+        viewModelState: SelectValidatorsConfirmViewModelState
     ) throws -> LocalizableResource<SelectValidatorsConfirmViewModel>? {
         guard let viewModelState = viewModelState as? SelectValidatorsConfirmParachainViewModelState,
               let state = viewModelState.confirmationModel else {
             return nil
         }
-
-        let icon = try? iconGenerator.generateFromAddress(state.wallet.address)
-
-        let amountFormatter = amountFactory.createTokenFormatter(for: asset.displayInfo)
 
         let selectedCollatorViewModel = SelectedValidatorViewModel(
             name: state.target.identity?.name,
@@ -108,10 +103,10 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
         )
 
         return LocalizableResource { [weak self] locale in
-            let amount = amountFormatter.value(for: locale).stringFromDecimal(state.amount)
             let amountViewModel = self?.balanceViewModelFactory.balanceFromPrice(
                 state.amount,
-                priceData: viewModelState.priceData
+                priceData: viewModelState.priceData,
+                usageCase: .listCrypto
             ).value(for: locale)
 
             return SelectValidatorsConfirmViewModel(
@@ -137,17 +132,17 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
             return nil
         }
 
-        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+        return balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
     }
 
     private func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<StakeAmountViewModel>? {
-        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = amountFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         let iconViewModel = chainAsset.assetDisplayInfo.icon.map { RemoteImageViewModel(url: $0) }
 
-        return LocalizableResource { locale in
+        return LocalizableResource { [weak self] locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
             let stakedString = R.string.localizable.poolStakingStakeMoreAmountTitle(
                 amountString,
@@ -160,7 +155,11 @@ extension SelectValidatorsConfirmParachainViewModelFactory: SelectValidatorsConf
                 range: (stakedString as NSString).range(of: amountString)
             )
 
-            return StakeAmountViewModel(amountTitle: stakedAmountAttributedString, iconViewModel: iconViewModel)
+            return StakeAmountViewModel(
+                amountTitle: stakedAmountAttributedString,
+                iconViewModel: iconViewModel,
+                color: self?.chainAsset.asset.color
+            )
         }
     }
 }

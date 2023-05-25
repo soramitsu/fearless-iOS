@@ -58,8 +58,7 @@ final class BalanceInfoPresenter {
            let info = accountInfo,
            let free = Decimal.fromSubstratePerbill(value: info.data.free),
            let reserved = Decimal.fromSubstratePerbill(value: info.data.reserved),
-           let miscFrozen = Decimal.fromSubstratePerbill(value: info.data.miscFrozen),
-           let feeFrozen = Decimal.fromSubstratePerbill(value: info.data.feeFrozen),
+           let frozen = Decimal.fromSubstratePerbill(value: info.data.frozen),
            let minBalance = minimumBalance,
            let decimalMinBalance = Decimal.fromSubstratePerbill(value: minBalance),
            let locks = balanceLocks {
@@ -71,8 +70,7 @@ final class BalanceInfoPresenter {
             return BalanceContext(
                 free: free,
                 reserved: reserved,
-                miscFrozen: miscFrozen,
-                feeFrozen: feeFrozen,
+                frozen: frozen,
                 price: price,
                 priceChange: priceData?.fiatDayChange ?? 0,
                 minimalBalance: decimalMinBalance,
@@ -89,21 +87,6 @@ extension BalanceInfoPresenter: BalanceInfoViewOutput {
     func didLoad(view: BalanceInfoViewInput) {
         self.view = view
         interactor.setup(with: self, for: balanceInfoType)
-    }
-
-    func didTapInfoButton() {
-        guard case let .chainAsset(wallet, chainAsset) = balanceInfoType,
-              let balance = balances[wallet.metaId] else {
-            return
-        }
-        if let balanceContext = createBalanceContext() {
-            router.presentLockedInfo(
-                from: view,
-                balanceContext: balanceContext,
-                info: chainAsset.asset.displayInfo,
-                currency: balance.currency
-            )
-        }
     }
 }
 

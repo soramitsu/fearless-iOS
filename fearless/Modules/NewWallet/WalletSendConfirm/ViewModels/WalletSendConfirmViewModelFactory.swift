@@ -32,7 +32,7 @@ class WalletSendConfirmViewModelFactory: WalletSendConfirmViewModelFactoryProtoc
     func buildViewModel(
         parameters: WalletSendConfirmViewModelFactoryParameters
     ) -> WalletSendConfirmViewModel {
-        let formatter = amountFormatterFactory.createTokenFormatter(for: assetInfo)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: assetInfo, usageCase: .detailsCrypto)
         let inputAmount = formatter.value(for: parameters.locale).stringFromDecimal(parameters.amount) ?? ""
         let amountString = R.string.localizable.sendConfirmAmountTitle(
             inputAmount,

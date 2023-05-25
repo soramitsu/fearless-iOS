@@ -18,13 +18,17 @@ class AnalyticsRewardDetailsTests: XCTestCase {
             amount: 0,
             isReward: true
         )
+        
+        let asset = ChainModelGenerator.generateAssetWithId("887a17c7-1370-4de0-97dd-5422e294fa75", symbol: "dot")
+        let chain = ChainModelGenerator.generateChain(generatingAssets: 1, addressPrefix: 0)
+        let chainAsset = ChainAsset(chain: chain, asset: asset)
 
         let presenter = AnalyticsRewardDetailsPresenter(
             rewardModel: rewardModel,
             interactor: MockAnalyticsRewardDetailsInteractorInputProtocol(),
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            chain: .westend
+            chainAsset: chainAsset
         )
 
         let createViewModelExpectation = XCTestExpectation()
@@ -60,7 +64,7 @@ class AnalyticsRewardDetailsTests: XCTestCase {
         // Test 'block number' action
         let presentActionSheetExpectation = XCTestExpectation()
         stub(wireframe) { stub in
-            when(stub).present(viewModel: any(), style: any(), from: any()).then { _ in
+            when(stub).present(viewModel: any(), from: any()).then { _ in
                 presentActionSheetExpectation.fulfill()
             }
         }

@@ -68,9 +68,9 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
             action: #selector(handleNominationTapped),
             for: .touchUpInside
         )
-        rootView.roleStateTogglerView.addTarget(
+        rootView.roleBouncerView.addTarget(
             self,
-            action: #selector(handleStateTogglerTapped),
+            action: #selector(handleBouncerTapped),
             for: .touchUpInside
         )
         rootView.roleRootView.addTarget(
@@ -93,8 +93,8 @@ final class StakingPoolInfoViewController: UIViewController, ViewHolder, Hiddabl
         output.nominatorDidTapped()
     }
 
-    @objc private func handleStateTogglerTapped() {
-        output.stateTogglerDidTapped()
+    @objc private func handleBouncerTapped() {
+        output.bouncerDidTapped()
     }
 
     @objc private func handleRootTapped() {

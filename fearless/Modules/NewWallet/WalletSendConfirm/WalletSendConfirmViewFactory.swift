@@ -70,26 +70,6 @@ struct WalletSendConfirmViewFactory {
         }
 
         let operationManager = OperationManagerFacade.sharedManager
-        let chainRegistry = ChainRegistryFacade.sharedRegistry
-
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            return nil
-        }
-
-        guard let accountResponse = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest()) else {
-            return nil
-        }
-
-        let extrinsicService = ExtrinsicService(
-            accountId: accountResponse.accountId,
-            chainFormat: chainAsset.chain.chainFormat,
-            cryptoType: accountResponse.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
 
         let feeProxy = ExtrinsicFeeProxy()
         let priceLocalSubscriptionFactory = PriceProviderFactory(

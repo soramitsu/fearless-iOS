@@ -10,7 +10,7 @@ protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
 }
 
 protocol StakingAmountPresenterProtocol: AnyObject {
@@ -66,6 +66,7 @@ protocol StakingAmountViewFactoryProtocol: AnyObject {
         with amount: Decimal?,
         chain: ChainModel,
         asset: AssetModel,
-        selectedAccount: MetaAccountModel
+        selectedAccount: MetaAccountModel,
+        rewardChainAsset: ChainAsset?
     ) -> StakingAmountViewProtocol?
 }

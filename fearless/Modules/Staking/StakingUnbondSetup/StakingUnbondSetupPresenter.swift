@@ -58,8 +58,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
         provideHintsViewModel()
 
         interactor.setup()
-
-        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
     }
 
     func selectAmountPercentage(_ percentage: Float) {
@@ -116,7 +114,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
 
     func provideFeeViewModel() {
         if let fee = viewModelState.fee {
-            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let balanceViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             let feeViewModel = viewModelFactory.buildNetworkFeeViewModel(from: balanceViewModel)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {
@@ -147,7 +145,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupModelStateListener {
     }
 
     func updateFeeIfNeeded() {
-        interactor.estimateFee(builderClosure: viewModelState.builderClosure)
+        interactor.estimateFee(builderClosure: viewModelState.builderClosure, reuseIdentifier: viewModelState.reuseIdentifier)
     }
 
     func didReceiveError(error: Error) {

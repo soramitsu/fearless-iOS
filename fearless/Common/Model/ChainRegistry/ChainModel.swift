@@ -22,7 +22,7 @@ class ChainModel: Codable {
     let icon: URL?
     let options: [ChainOptions]?
     let externalApi: ExternalApiSet?
-    let selectedNode: ChainNodeModel?
+    var selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
     let iosMinAppVersion: String?
 
@@ -68,8 +68,16 @@ class ChainModel: Codable {
         options?.contains(.tipRequired) ?? false
     }
 
+    var isPolkadot: Bool {
+        name.lowercased() == "polkadot"
+    }
+
+    var isKusama: Bool {
+        name.lowercased() == "kusama"
+    }
+
     var isPolkadotOrKusama: Bool {
-        name.lowercased() == "polkadot" || name.lowercased() == "kusama"
+        isPolkadot || isKusama
     }
 
     var isWestend: Bool {
@@ -108,22 +116,24 @@ class ChainModel: Codable {
         assets.filter { $0.isUtility }
     }
 
-    var typesUsage: TypesUsage {
-        if let types = types {
-            return types.overridesCommon ? .onlyOwn : .both
-        } else {
-            return .onlyCommon
-        }
-    }
-
     var erasPerDay: UInt32 {
         let oldChainModel = Chain(rawValue: name)
         switch oldChainModel {
         case .moonbeam: return 4
         case .moonriver, .moonbaseAlpha: return 12
         case .polkadot: return 1
-        case .kusama, .westend, .rococo: return 4
+        case .kusama, .westend, .rococo, .soraMain, .soraTest: return 4
         default: return 1 // We have staking only for above chains
+        }
+    }
+
+    var stakingSettings: ChainStakingSettings? {
+        let oldChainModel = Chain(rawValue: name)
+        switch oldChainModel {
+        case .soraMain:
+            return SoraChainStakingSettings()
+        default:
+            return DefaultRelaychainChainStakingSettings()
         }
     }
 
@@ -239,6 +249,10 @@ extension ChainModel {
     struct ExternalResource: Codable, Hashable {
         let type: String
         let url: URL
+
+        static func == (lhs: ExternalResource, rhs: ExternalResource) -> Bool {
+            lhs.type == rhs.type && lhs.url == rhs.url
+        }
     }
 
     struct BlockExplorer: Codable, Hashable {
@@ -252,6 +266,10 @@ extension ChainModel {
 
             self.type = externalApiType
             self.url = url
+        }
+
+        static func == (lhs: BlockExplorer, rhs: BlockExplorer) -> Bool {
+            lhs.type == rhs.type && lhs.url == rhs.url
         }
     }
 
@@ -289,12 +307,10 @@ extension ChainModel {
         let history: BlockExplorer?
         let crowdloans: ExternalResource?
         let explorers: [ExternalApiExplorer]?
-    }
 
-    enum TypesUsage {
-        case onlyCommon
-        case both
-        case onlyOwn
+        static func == (lhs: ExternalApiSet, rhs: ExternalApiSet) -> Bool {
+            lhs.staking == rhs.staking && lhs.history == rhs.history && lhs.crowdloans == rhs.crowdloans && lhs.explorers == rhs.explorers
+        }
     }
 
     func polkascanAddressURL(_ address: String) -> URL? {

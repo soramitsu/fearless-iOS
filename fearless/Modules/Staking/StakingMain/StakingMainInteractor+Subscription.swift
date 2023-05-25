@@ -17,17 +17,17 @@ extension StakingMainInteractor {
         if
             let stashItem = stashItem,
             let chainAsset = selectedChainAsset,
-            let stashAccountId = try? stashItem.stash.toAccountId(),
-            let controllerId = try? stashItem.controller.toAccountId() {
+            let stashAccountId = try? AddressFactory.accountId(from: stashItem.stash, chain: chainAsset.chain),
+            let controllerId = try? AddressFactory.accountId(from: stashItem.controller, chain: chainAsset.chain) {
             ledgerProvider = subscribeLedgerInfo(for: controllerId, chainAsset: chainAsset)
             nominatorProvider = subscribeNomination(for: stashAccountId, chainAsset: chainAsset)
             validatorProvider = subscribeValidator(for: stashAccountId, chainAsset: chainAsset)
             payeeProvider = subscribePayee(for: stashAccountId, chainAsset: chainAsset)
 
-            if let rewardApi = chainAsset.chain.externalApi?.staking {
+            if chainAsset.chain.externalApi?.staking != nil {
                 totalRewardProvider = subscribeTotalReward(
                     for: stashItem.stash,
-                    api: rewardApi,
+                    chain: chainAsset.chain,
                     assetPrecision: Int16(chainAsset.asset.precision)
                 )
             } else {
@@ -89,7 +89,7 @@ extension StakingMainInteractor {
     }
 
     func performStashControllerSubscription() {
-        guard selectedChainAsset?.stakingType == .relayChain else {
+        guard selectedChainAsset?.stakingType?.isRelaychain == true else {
             return
         }
 
@@ -102,7 +102,7 @@ extension StakingMainInteractor {
     }
 
     func subscribeToControllerAccount(address: AccountAddress, chain: ChainModel) {
-        guard controllerAccountProvider == nil, let accountId = try? address.toAccountId() else {
+        guard controllerAccountProvider == nil, let accountId = try? AddressFactory.accountId(from: address, chain: chain) else {
             return
         }
 
@@ -142,7 +142,7 @@ extension StakingMainInteractor {
     }
 
     func performNominatorLimitsSubscripion() {
-        guard selectedChainAsset?.stakingType == .relayChain else {
+        guard selectedChainAsset?.stakingType?.isRelaychain == true else {
             return
         }
 
@@ -157,7 +157,7 @@ extension StakingMainInteractor {
 
     func subscribeRewardsAnalytics(for address: AccountAddress) {
         if let analyticsURL = selectedChainAsset?.chain.externalApi?.staking?.url,
-           selectedChainAsset?.stakingType == .paraChain,
+           selectedChainAsset?.stakingType?.isParachain == true,
            let chainAsset = selectedChainAsset {
             rewardAnalyticsProvider = subscribeWeaklyRewardAnalytics(chainAsset: chainAsset, for: address, url: analyticsURL)
         } else {
@@ -300,6 +300,16 @@ extension StakingMainInteractor: PriceLocalStorageSubscriber, PriceLocalSubscrip
             case let .success(priceData):
                 guard let priceData = priceData else { return }
                 presenter?.didReceive(price: priceData)
+            case let .failure(error):
+                presenter?.didReceive(priceError: error)
+            }
+        }
+
+        if let chainAsset = rewardChainAsset, chainAsset.asset.priceId == priceId {
+            switch result {
+            case let .success(priceData):
+                guard let priceData = priceData else { return }
+                presenter?.didReceive(rewardAssetPrice: priceData)
             case let .failure(error):
                 presenter?.didReceive(priceError: error)
             }

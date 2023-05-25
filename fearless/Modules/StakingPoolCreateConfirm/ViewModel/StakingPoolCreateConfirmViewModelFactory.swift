@@ -8,7 +8,7 @@ struct CreatePoolConfirmData {
     let rootName: String
     let poolId: String
     let nominatorName: String
-    let stateTogglerName: String
+    let bouncerName: String
 }
 
 protocol StakingPoolCreateConfirmViewModelFactoryProtocol {
@@ -34,7 +34,7 @@ final class StakingPoolCreateConfirmViewModelFactory: StakingPoolCreateConfirmVi
         data: CreatePoolConfirmData,
         locale: Locale
     ) -> StakingPoolCreateConfirmViewModel {
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
 
         let amountString = tokenFormatter.value(for: locale).stringFromDecimal(data.amount) ?? ""
@@ -45,7 +45,7 @@ final class StakingPoolCreateConfirmViewModelFactory: StakingPoolCreateConfirmVi
         let stakedAmountAttributedString = NSMutableAttributedString(string: stakedString)
         stakedAmountAttributedString.addAttribute(
             NSAttributedString.Key.foregroundColor,
-            value: R.color.colorWhite(),
+            value: R.color.colorWhite() as Any,
             range: (stakedString as NSString).range(of: amountString)
         )
 
@@ -64,7 +64,7 @@ final class StakingPoolCreateConfirmViewModelFactory: StakingPoolCreateConfirmVi
             rootName: data.rootName,
             poolId: "\(data.poolId)",
             nominatorName: data.nominatorName,
-            stateTogglerName: data.stateTogglerName
+            bouncerName: data.bouncerName
         )
     }
 }

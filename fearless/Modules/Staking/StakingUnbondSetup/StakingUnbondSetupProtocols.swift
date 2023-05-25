@@ -6,7 +6,7 @@ import BigInt
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<NetworkFeeFooterViewModelProtocol>?)
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
+    func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)
     func didReceiveBonding(duration: LocalizableResource<TitleWithSubtitleViewModel>)
     func didReceiveAccount(viewModel: AccountViewModel)
     func didReceiveCollator(viewModel: AccountViewModel)
@@ -25,7 +25,7 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
 
 protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(builderClosure: ExtrinsicBuilderClosure?)
+    func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String)
 }
 
 protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {

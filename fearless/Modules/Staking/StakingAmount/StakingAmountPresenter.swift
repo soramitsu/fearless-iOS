@@ -81,7 +81,7 @@ final class StakingAmountPresenter {
 
     private func provideFee() {
         if let fee = viewModelState?.fee {
-            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData, usageCase: .detailsCrypto)
             view?.didReceiveFee(viewModel: feeViewModel)
         } else {
             view?.didReceiveFee(viewModel: nil)
@@ -319,9 +319,5 @@ extension StakingAmountPresenter: StakingAmountModelStateListener {
         }
 
         view?.didReceiveYourRewardDestination(viewModel: viewModel)
-    }
-
-    func provideSelectRewardDestinationViewModel(viewModelState _: StakingAmountViewModelState) {
-        provideRewardDestination()
     }
 }

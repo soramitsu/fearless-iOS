@@ -23,10 +23,10 @@ enum ChainAccountViewFactory {
         )
 
         let substrateRepositoryFactory = SubstrateRepositoryFactory(
-            storageFacade: SubstrateDataStorageFacade.shared
+            storageFacade: UserDataStorageFacade.shared
         )
 
-        let accountInfoRepository = substrateRepositoryFactory.createChainStorageItemRepository()
+        let accountInfoRepository = substrateRepositoryFactory.createAccountInfoStorageItemRepository()
 
         let accountInfoFetching = AccountInfoFetching(
             accountInfoRepository: accountInfoRepository,
@@ -42,6 +42,29 @@ enum ChainAccountViewFactory {
             meta: wallet
         )
 
+        let keyFactory = StorageKeyFactory()
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: keyFactory,
+            operationManager: operationManager
+        )
+
+        let accountRepositoryFactory = AccountRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
+        let accountRepository = accountRepositoryFactory.createMetaAccountRepository(for: nil, sortDescriptors: [])
+        let logger = Logger.shared
+
+        let priceLocalSubscriptionFactory = PriceProviderFactory(
+            storageFacade: SubstrateDataStorageFacade.shared
+        )
+
+        let walletBalanceSubscriptionAdapter = WalletBalanceSubscriptionAdapter(
+            metaAccountRepository: AnyDataProviderRepository(accountRepository),
+            priceLocalSubscriptionFactory: priceLocalSubscriptionFactory,
+            chainRepository: AnyDataProviderRepository(chainRepository),
+            operationQueue: OperationManagerFacade.sharedDefaultQueue,
+            eventCenter: eventCenter,
+            logger: logger
+        )
+
         let interactor = ChainAccountInteractor(
             wallet: wallet,
             chainAsset: chainAsset,
@@ -49,14 +72,16 @@ enum ChainAccountViewFactory {
             eventCenter: eventCenter,
             repository: AccountRepositoryFactory.createRepository(),
             availableExportOptionsProvider: AvailableExportOptionsProvider(),
-            chainAssetFetching: chainAssetFetching
+            chainAssetFetching: chainAssetFetching,
+            storageRequestFactory: storageRequestFactory,
+            walletBalanceSubscriptionAdapter: walletBalanceSubscriptionAdapter
         )
 
         let wireframe = ChainAccountWireframe()
 
         let assetBalanceFormatterFactory = AssetBalanceFormatterFactory()
         let viewModelFactory = ChainAccountViewModelFactory(assetBalanceFormatterFactory: assetBalanceFormatterFactory)
-
+        let balanceViewModelFactory = BalanceViewModelFactory(targetAssetInfo: chainAsset.assetDisplayInfo, selectedMetaAccount: wallet)
         guard let balanceInfoModule = Self.configureBalanceInfoModule(
             wallet: wallet,
             chainAsset: chainAsset
@@ -73,7 +98,8 @@ enum ChainAccountViewFactory {
             wallet: wallet,
             moduleOutput: moduleOutput,
             balanceInfoModule: balanceInfoModule.input,
-            localizationManager: LocalizationManager.shared
+            localizationManager: LocalizationManager.shared,
+            balanceViewModelFactory: balanceViewModelFactory
         )
 
         interactor.presenter = presenter

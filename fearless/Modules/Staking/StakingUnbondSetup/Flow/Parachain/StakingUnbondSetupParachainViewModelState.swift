@@ -8,7 +8,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
     let chainAsset: ChainAsset
     let wallet: MetaAccountModel
     private let dataValidatingFactory: StakingDataValidatingFactory
-    private let callFactory: SubstrateCallFactoryProtocol = SubstrateCallFactory()
+    private let callFactory: SubstrateCallFactoryProtocol
     private(set) var bonded: Decimal?
     private(set) var balance: Decimal?
     private(set) var inputAmount: Decimal?
@@ -45,12 +45,12 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         }
     }
 
-    var reuseIdentifier: String? {
+    var reuseIdentifier: String {
         guard
             let amount = StakingConstants.maxAmount.toSubstrateAmount(
                 precision: Int16(chainAsset.asset.precision)
             ) else {
-            return nil
+            return UUID().uuidString
         }
 
         var identifier = ""
@@ -119,13 +119,15 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
         wallet: MetaAccountModel,
         dataValidatingFactory: StakingDataValidatingFactory,
         candidate: ParachainStakingCandidateInfo,
-        delegation: ParachainStakingDelegation
+        delegation: ParachainStakingDelegation,
+        callFactory: SubstrateCallFactoryProtocol
     ) {
         self.chainAsset = chainAsset
         self.wallet = wallet
         self.dataValidatingFactory = dataValidatingFactory
         self.candidate = candidate
         self.delegation = delegation
+        self.callFactory = callFactory
 
         bonded = Decimal.fromSubstrateAmount(
             delegation.amount,
@@ -167,10 +169,7 @@ final class StakingUnbondSetupParachainViewModelState: StakingUnbondSetupViewMod
     func updateAmount(_ amount: Decimal) {
         inputAmount = amount
         stateListener?.provideAssetViewModel()
-
-        if fee == nil {
-            stateListener?.updateFeeIfNeeded()
-        }
+        stateListener?.updateFeeIfNeeded()
     }
 }
 
@@ -182,6 +181,7 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
     func didSetup() {
         stateListener?.provideAccountViewModel()
         stateListener?.provideCollatorViewModel()
+        stateListener?.updateFeeIfNeeded()
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
@@ -195,6 +195,8 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
             } else {
                 balance = nil
             }
+
+            stateListener?.updateFeeIfNeeded()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }

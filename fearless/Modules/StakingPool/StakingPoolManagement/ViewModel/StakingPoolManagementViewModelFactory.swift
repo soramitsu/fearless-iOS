@@ -7,7 +7,9 @@ protocol StakingPoolManagementViewModelFactoryProtocol {
         _ amount: Decimal
     ) -> LocalizableResource<NSAttributedString>
     func buildUnstakeViewModel(
-        unstakePeriod: TimeInterval?
+        stakingInfo: StakingPoolMember?,
+        activeEra: EraIndex?,
+        stakingDuration: StakingDuration?
     ) -> LocalizableResource<String>?
     func buildViewModel(
         stakeInfo: StakingPoolMember?,
@@ -30,7 +32,7 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
     func createStakedAmountViewModel(
         _ amount: Decimal
     ) -> LocalizableResource<NSAttributedString> {
-        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo)
+        let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: chainAsset.assetDisplayInfo, usageCase: .detailsCrypto)
 
         return LocalizableResource { locale in
             let amountString = localizableBalanceFormatter.value(for: locale).stringFromDecimal(amount) ?? ""
@@ -50,13 +52,24 @@ extension StakingPoolManagementViewModelFactory: StakingPoolManagementViewModelF
     }
 
     func buildUnstakeViewModel(
-        unstakePeriod: TimeInterval?
+        stakingInfo: StakingPoolMember?,
+        activeEra: EraIndex?,
+        stakingDuration: StakingDuration?
     ) -> LocalizableResource<String>? {
-        guard let unstakePeriod = unstakePeriod else {
+        guard let stakingInfo = stakingInfo,
+              let activeEra = activeEra,
+              let stakingDuration = stakingDuration,
+              let unbondingEra = stakingInfo.unbondingEras.map({ $0.era }).min(),
+              unbondingEra > activeEra else {
             return nil
         }
 
-        return unstakePeriod.localizedReadableValue()
+        let erasLeft = unbondingEra - activeEra
+        let secondsLeft = TimeInterval(erasLeft) * stakingDuration.era
+
+        return LocalizableResource { locale in
+            secondsLeft.readableValue(locale: locale)
+        }
     }
 
     func buildViewModel(

@@ -2,6 +2,10 @@
 import RobinHood
 
 class ValidatorOperationFactoryStub: ValidatorOperationFactoryProtocol {
+    func nomination(accountId: fearless.AccountId) -> RobinHood.CompoundOperationWrapper<fearless.Nomination?> {
+        CompoundOperationWrapper.createWithResult(nil)
+    }
+    
     private let electedValidatorList: [ElectedValidatorInfo]
     private let selectedValidatorList: [SelectedValidatorInfo]
 

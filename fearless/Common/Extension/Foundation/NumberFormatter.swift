@@ -93,4 +93,34 @@ extension NumberFormatter {
         numberFormatter.usesGroupingSeparator = true
         return numberFormatter
     }
+
+    static var fiat: NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 2
+        formatter.usesSignificantDigits = true
+        return formatter
+    }
+
+    static var polkaswapBalance: NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 4
+        return formatter
+    }
+
+    static func token(
+        rounding: NumberFormatter.RoundingMode,
+        usesIntGrouping: Bool = false
+    ) -> NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+        formatter.minimumFractionDigits = 3
+        formatter.maximumFractionDigits = 8
+        formatter.roundingMode = rounding
+        formatter.usesGroupingSeparator = usesIntGrouping
+        return formatter
+    }
 }

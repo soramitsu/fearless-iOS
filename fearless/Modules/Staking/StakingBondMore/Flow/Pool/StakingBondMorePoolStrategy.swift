@@ -1,11 +1,13 @@
 import Foundation
 import RobinHood
 import FearlessUtils
+import BigInt
 
 protocol StakingBondMorePoolStrategyOutput: AnyObject {
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didSetup()
+    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
 
     func extrinsicServiceUpdated()
 }
@@ -23,8 +25,8 @@ final class StakingBondMorePoolStrategy {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-
-    private lazy var callFactory = SubstrateCallFactory()
+    private let existentialDepositService: ExistentialDepositServiceProtocol
+    private let callFactory: SubstrateCallFactoryProtocol
 
     init(
         accountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtocol,
@@ -35,7 +37,9 @@ final class StakingBondMorePoolStrategy {
         extrinsicService: ExtrinsicServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        callFactory: SubstrateCallFactoryProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
         self.output = output
@@ -46,6 +50,8 @@ final class StakingBondMorePoolStrategy {
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.callFactory = callFactory
+        self.existentialDepositService = existentialDepositService
 
         self.feeProxy.delegate = self
     }
@@ -67,6 +73,12 @@ extension StakingBondMorePoolStrategy: StakingBondMoreStrategy {
                 accountId: accountId,
                 handler: self
             )
+        }
+
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
+            self?.output?.didReceiveExistentialDeposit(result: result)
         }
 
         output?.didSetup()

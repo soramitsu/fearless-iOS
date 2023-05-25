@@ -21,25 +21,26 @@ struct UIConstants {
     static let normalAddressIconSize = CGSize(width: 32.0, height: 32.0)
     static let accessoryBarHeight: CGFloat = 44.0
     static let accessoryItemsSpacing: CGFloat = 12.0
-    static let cellHeight: CGFloat = 48
+    static let cellHeight: CGFloat = 48.0
     static let tableHeaderHeight: CGFloat = 40.0
-    static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
+    static let separatorHeight: CGFloat = 1.0 / UIScreen.main.scale
     static let skeletonBigRowSize = CGSize(width: 72.0, height: 12.0)
     static let skeletonSmallRowSize = CGSize(width: 57.0, height: 6.0)
     static let amountInputIconSize = CGSize(width: 24.0, height: 24.0)
-    static let networkFeeViewDefaultHeight: CGFloat = 132
-    static let referralBonusButtonHeight: CGFloat = 30
-    static let amountViewHeight: CGFloat = 72
-    static let swipeTableActionButtonWidth: CGFloat = 88
-    static let iconSize: CGFloat = 24
-    static let standardButtonSize = CGSize(width: 36, height: 36)
+    static let networkFeeViewDefaultHeight: CGFloat = 132.0
+    static let referralBonusButtonHeight: CGFloat = 30.0
+    static let amountViewHeight: CGFloat = 72.0
+    static let swipeTableActionButtonWidth: CGFloat = 88.0
+    static let iconSize: CGFloat = 24.0
+    static let standardButtonSize = CGSize(width: 36.0, height: 36.0)
     static let indicatorSize = CGSize(width: 35.0, height: 2.0)
-    static let amountViewV2Height: CGFloat = 92
-    static let offset12: CGFloat = 12
+    static let amountViewV2Height: CGFloat = 92.0
+    static let offset12: CGFloat = 12.0
     static let statusViewHeight: CGFloat = 51.0
     static let validatorCellHeight: CGFloat = 77.0
     static let infoButtonSize: CGFloat = 14.0
     static let minButtonSize = CGSize(width: 44, height: 44)
+    static let roundedButtonHeight: CGFloat = 56.0
 }
 
 enum AccountViewMode {
@@ -98,6 +99,7 @@ protocol UIFactoryProtocol {
         locale: Locale
     ) -> UIToolbar
     func createDisabledButton() -> TriangularedButton
+    func createRoundedButton() -> UIButton
 }
 
 extension UIFactoryProtocol {
@@ -715,5 +717,12 @@ final class UIFactory: UIFactoryProtocol {
         view.valueBottom.font = .p1Paragraph
         view.valueBottom.textColor = R.color.colorStrokeGray()
         return view
+    }
+
+    func createRoundedButton() -> UIButton {
+        let button = UIButton(type: .custom)
+        button.titleLabel?.font = .h6Title
+        button.layer.cornerRadius = 12
+        return button
     }
 }

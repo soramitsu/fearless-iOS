@@ -80,7 +80,7 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(balance, priceData: priceData)
+        let balanceViewModel = balanceViewModelFactory.balanceFromPrice(balance, priceData: priceData, usageCase: .detailsCrypto)
         view?.didReceive(balanceViewModel: balanceViewModel.value(for: selectedLocale))
     }
 
@@ -95,7 +95,7 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        let unstakingViewModel = balanceViewModelFactory.balanceFromPrice(unstakingAmount, priceData: priceData)
+        let unstakingViewModel = balanceViewModelFactory.balanceFromPrice(unstakingAmount, priceData: priceData, usageCase: .detailsCrypto)
         view?.didReceive(unstakingViewModel: unstakingViewModel.value(for: selectedLocale))
     }
 
@@ -113,7 +113,12 @@ final class StakingPoolManagementPresenter {
     }
 
     private func provideRedeemDelayViewModel() {
-        let viewModel = viewModelFactory.buildUnstakeViewModel(unstakePeriod: stakingDuration?.unlocking)
+        let viewModel = viewModelFactory.buildUnstakeViewModel(
+            stakingInfo: stakeInfo,
+            activeEra: eraStakersInfo?.activeEra,
+            stakingDuration: stakingDuration
+        )
+
         view?.didReceive(redeemDelayViewModel: viewModel)
     }
 
@@ -128,7 +133,7 @@ final class StakingPoolManagementPresenter {
             return
         }
 
-        let viewModel = balanceViewModelFactory.balanceFromPrice(claimableDecimal, priceData: priceData)
+        let viewModel = balanceViewModelFactory.balanceFromPrice(claimableDecimal, priceData: priceData, usageCase: .detailsCrypto)
 
         view?.didReceive(redeemableViewModel: viewModel.value(for: selectedLocale))
     }
@@ -143,7 +148,7 @@ final class StakingPoolManagementPresenter {
             pendingRewards,
             precision: Int16(chainAsset.asset.precision)
         ) ?? Decimal.zero
-        let viewModel = balanceViewModelFactory.balanceFromPrice(pendingRewardsDecimal, priceData: priceData)
+        let viewModel = balanceViewModelFactory.balanceFromPrice(pendingRewardsDecimal, priceData: priceData, usageCase: .detailsCrypto)
 
         view?.didReceive(claimableViewModel: viewModel.value(for: selectedLocale))
     }
@@ -381,6 +386,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         provideRedeemableViewModel()
         provideClaimableViewModel()
         provideViewModel()
+        provideRedeemDelayViewModel()
     }
 
     func didReceive(stakeInfoError _: Error) {}
@@ -391,6 +397,7 @@ extension StakingPoolManagementPresenter: StakingPoolManagementInteractorOutput 
         provideRedeemableViewModel()
         provideClaimableViewModel()
         provideViewModel()
+        provideRedeemDelayViewModel()
     }
 
     func didReceive(eraCountdownResult _: Result<EraCountdown, Error>) {}

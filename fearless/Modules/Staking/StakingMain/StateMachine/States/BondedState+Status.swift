@@ -29,7 +29,8 @@ extension BondedState {
             title: title,
             message: message,
             actions: [],
-            closeAction: closeAction
+            closeAction: closeAction,
+            icon: R.image.iconWarningBig()
         )
     }
 }

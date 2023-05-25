@@ -152,7 +152,7 @@ final class ChainModelMapper {
         assetEntity.price = model.asset.price as NSDecimalNumber?
         assetEntity.fiatDayChange = model.asset.fiatDayChange as NSDecimalNumber?
         assetEntity.symbol = model.asset.symbol
-        assetEntity.transfersEnabled = model.asset.transfersEnabled ?? true
+        assetEntity.transfersEnabled = model.asset.transfersEnabled
         assetEntity.currencyId = model.asset.currencyId
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
