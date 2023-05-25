@@ -33,7 +33,6 @@ final class SoraRewardCalculatorService {
     private var dexInfos: [PolkaswapDexInfo] = []
     private var rewardAssetRate: Decimal?
 
-    private var totalIssuanceDataProvider: StreamableProvider<ChainStorageItem>?
     private var pendingRequests: [PendingRequest] = []
 
     private let chainAsset: ChainAsset
@@ -48,6 +47,8 @@ final class SoraRewardCalculatorService {
     private let polkaswapOperationFactory: PolkaswapOperationFactoryProtocol
     private let chainAssetFetching: ChainAssetFetchingProtocol
     private let settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>
+    private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let engine: JSONRPCEngine
 
     init(
         chainAsset: ChainAsset,
@@ -61,7 +62,9 @@ final class SoraRewardCalculatorService {
         polkaswapOperationFactory: PolkaswapOperationFactoryProtocol,
         chainAssetFetching: ChainAssetFetchingProtocol,
         settingsRepository: AnyDataProviderRepository<PolkaswapRemoteSettings>,
-        logger: LoggerProtocol? = nil
+        logger: LoggerProtocol? = nil,
+        storageRequestFactory: StorageRequestFactoryProtocol,
+        engine: JSONRPCEngine
     ) {
         self.chainAsset = chainAsset
         self.assetPrecision = assetPrecision
@@ -75,6 +78,8 @@ final class SoraRewardCalculatorService {
         self.chainAssetFetching = chainAssetFetching
         self.settingsRepository = settingsRepository
         self.logger = logger
+        self.storageRequestFactory = storageRequestFactory
+        self.engine = engine
     }
 
     // MARK: - Polkaswap quoutes
@@ -140,7 +145,9 @@ final class SoraRewardCalculatorService {
                 return
             }
 
-            self?.rewardAssetRate = stakingAmountDecimal / receivedAmountDecimal
+            self?.rewardAssetRate = receivedAmountDecimal / stakingAmountDecimal
+
+            self?.fetchTotalValidatorRewards()
         }
 
         group.notify(queue: .main, work: workItem)
@@ -226,10 +233,10 @@ final class SoraRewardCalculatorService {
             let eraStakersInfo = try eraOperation.extractNoCancellableResultData()
             let stakingDuration = try durationWrapper.targetOperation.extractNoCancellableResultData()
 
-            return RewardCalculatorEngine(
+            return SoraRewardCalculatorEngine(
                 chainId: chainId,
                 assetPrecision: assetPrecision,
-                totalIssuance: snapshot,
+                averageTotalRewardsPerEra: snapshot,
                 validators: eraStakersInfo.validators,
                 eraDurationInSeconds: stakingDuration.era,
                 rewardAssetRate: self?.rewardAssetRate ?? 1.0
@@ -258,7 +265,7 @@ final class SoraRewardCalculatorService {
         )
     }
 
-    private func notifyPendingClosures(with totalIssuance: BigUInt) {
+    private func notifyPendingClosures(with eraValBurned: BigUInt) {
         logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
 
         guard !pendingRequests.isEmpty else {
@@ -270,7 +277,7 @@ final class SoraRewardCalculatorService {
 
         requests.forEach {
             deliver(
-                snapshot: totalIssuance,
+                snapshot: eraValBurned,
                 to: $0,
                 chainId: chainAsset.chain.chainId,
                 assetPrecision: assetPrecision
@@ -280,97 +287,41 @@ final class SoraRewardCalculatorService {
         logger?.debug("Fulfilled pendings")
     }
 
-    private func handleTotalIssuanceDecodingResult(
-        result: Result<StringScaleMapper<BigUInt>, Error>?
-    ) {
-        switch result {
-        case let .success(totalIssuance):
-            snapshot = totalIssuance.value
-            notifyPendingClosures(with: totalIssuance.value)
-        case let .failure(error):
-            logger?.error("Did receive total issuance decoding error: \(error)")
-        case .none:
-            logger?.warning("Error decoding operation canceled")
-        }
+    private func createTotalValidatorRewardsOperation(
+        dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        let totalValidatorRewardsWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
+            storageRequestFactory.queryItemsByPrefix(
+                engine: engine,
+                keys: { [try StorageKeyFactory().key(from: .totalValidatorReward)] },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .totalValidatorReward
+            )
+
+        totalValidatorRewardsWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        return CompoundOperationWrapper(targetOperation: totalValidatorRewardsWrapper.targetOperation, dependencies: [runtimeOperation] + totalValidatorRewardsWrapper.dependencies)
     }
 
-    private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
-        guard let totalIssuanceItem = totalIssuanceItem else {
-            return
-        }
+    private func fetchTotalValidatorRewards() {
+        let runtimeOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        let totalValidatorRewardsOperation = createTotalValidatorRewardsOperation(dependingOn: runtimeOperation)
 
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation =
-            StorageDecodingOperation<StringScaleMapper<BigUInt>>(
-                path: .totalIssuance,
-                data: totalIssuanceItem.data
-            )
-        decodingOperation.configurationBlock = {
+        totalValidatorRewardsOperation.targetOperation.completionBlock = { [weak self] in
             do {
-                decodingOperation.codingFactory = try codingFactoryOperation
-                    .extractNoCancellableResultData()
+                let result = try totalValidatorRewardsOperation.targetOperation.extractNoCancellableResultData()
+
+                let values = result.compactMap { $0.value?.value }
+                let averageTotalValidatorReward = values.reduce(BigUInt.zero, +) / BigUInt(result.count)
+
+                self?.snapshot = averageTotalValidatorReward
+                self?.notifyPendingClosures(with: averageTotalValidatorReward)
             } catch {
-                decodingOperation.result = .failure(error)
+                self?.logger?.error("Error on fetching total validator rewards: \(error)")
             }
         }
 
-        decodingOperation.addDependency(codingFactoryOperation)
-
-        decodingOperation.completionBlock = { [weak self] in
-            self?.syncQueue.async {
-                self?.handleTotalIssuanceDecodingResult(result: decodingOperation.result)
-            }
-        }
-
-        operationManager.enqueue(
-            operations: [codingFactoryOperation, decodingOperation],
-            in: .transient
-        )
-    }
-
-    private func subscribe() {
-        do {
-            let localKey = try LocalStorageKeyFactory().createFromStoragePath(
-                .totalIssuance,
-                chainId: chainAsset.chain.chainId
-            )
-
-            let totalIssuanceDataProvider = providerFactory.createStorageProvider(for: localKey)
-
-            let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
-                let finalValue: ChainStorageItem? = changes.reduce(nil) { _, item in
-                    switch item {
-                    case let .insert(newItem), let .update(newItem):
-                        return newItem
-                    case .delete:
-                        return nil
-                    }
-                }
-
-                self?.didUpdateTotalIssuanceItem(finalValue)
-            }
-
-            let failureClosure: (Error) -> Void = { [weak self] error in
-                self?.logger?.error("Did receive error: \(error)")
-            }
-
-            totalIssuanceDataProvider.addObserver(
-                self,
-                deliverOn: syncQueue,
-                executing: updateClosure,
-                failing: failureClosure,
-                options: StreamableProviderObserverOptions.substrateSource()
-            )
-
-            self.totalIssuanceDataProvider = totalIssuanceDataProvider
-        } catch {
-            logger?.error("Can't make subscription")
-        }
-    }
-
-    private func unsubscribe() {
-        totalIssuanceDataProvider?.removeObserver(self)
-        totalIssuanceDataProvider = nil
+        operationManager.enqueue(operations: totalValidatorRewardsOperation.allOperations, in: .transient)
     }
 }
 
@@ -385,8 +336,6 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
             }
 
             self.isActive = true
-
-            self.subscribe()
         }
     }
 
@@ -397,8 +346,6 @@ extension SoraRewardCalculatorService: RewardCalculatorServiceProtocol {
             }
 
             self.isActive = false
-
-            self.unsubscribe()
         }
     }
 

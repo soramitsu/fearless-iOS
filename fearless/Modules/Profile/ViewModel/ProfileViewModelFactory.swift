@@ -109,8 +109,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         locale: Locale,
         wallet: MetaAccountModel
     ) -> [ProfileOptionViewModelProtocol] {
-        var options: [ProfileOption] = ProfileOption.allCases
-        let optionViewModels = options.compactMap { (option) -> ProfileOptionViewModel? in
+        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
                 return createAccountListViewModel(for: locale)
