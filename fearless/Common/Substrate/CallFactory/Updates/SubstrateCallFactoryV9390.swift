@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-class SubstrateCallFactoryV9390: SubstrateCallFactoryDefault {
+class SubstrateCallFactoryV9390: SubstrateCallFactoryV9380 {
     override func createPool(
         amount: BigUInt,
         root: MultiAddress,
