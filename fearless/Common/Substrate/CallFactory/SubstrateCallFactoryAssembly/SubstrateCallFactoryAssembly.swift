@@ -10,8 +10,6 @@ final class SubstrateCallFactoryAssembly {
             return SubstrateCallFactoryV9420()
         case _ where version >= 9390:
             return SubstrateCallFactoryV9390()
-        case _ where version >= 9370:
-            return SubstrateCallFactoryV9380()
         default:
             return SubstrateCallFactoryDefault()
         }
