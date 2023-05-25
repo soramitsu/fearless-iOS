@@ -25,10 +25,13 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     private(set) var rewardAssetPrice: PriceData?
     var payoutAccount: ChainAccountResponse?
     var fee: Decimal?
-    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFeeAndED) }
     private var balance: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var inputResult: AmountInputResult?
+
+    private lazy var balanceMinusFeeAndED: Decimal = {
+        (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
+    }()
 
     var continueAvailable: Bool {
         minStake != nil && minimumBond != nil && fee != nil && balance != nil && counterForNominators != nil
@@ -79,6 +82,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
             return max(minimumBond, minStake)
         }
 
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+
         let minNominatorBond = calculateMinimumBond()
         return [
             dataValidatingFactory.canNominate(
@@ -92,6 +99,14 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
                 maxNominatorsCount: maxNominatorsCount,
                 hasExistingNomination: false,
                 locale: selectedLocale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: amountSubstrate,
+                totalAmount: balanceSubstrate,
+                minimumBalance: edSubstrate,
+                locale: selectedLocale,
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
             )
         ]
     }

@@ -13,10 +13,12 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     private var networkStakingInfo: NetworkStakingInfo?
     private var minStake: Decimal?
     private(set) var minimalBalance: Decimal?
-    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFee) }
+    var amount: Decimal? { inputResult?.absoluteValue(from: balanceMinusFeeAndED) }
     private var balance: Decimal?
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
     private var inputResult: AmountInputResult?
+    private lazy var balanceMinusFeeAndED: Decimal = {
+        (balance ?? 0) - (fee ?? 0) - (minimalBalance ?? 0)
+    }()
 
     init(
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
@@ -78,6 +80,10 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
         let minimumStake = Decimal.fromSubstrateAmount(networkStakingInfo?.baseInfo.minStakeAmongActiveNominators ?? BigUInt.zero, precision: Int16(chainAsset.asset.precision)) ?? 0
 
+        let amountSubstrate = amount?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+
         return [
             dataValidatingFactory.canNominate(
                 amount: amount,
@@ -90,6 +96,14 @@ class StakingAmountParachainViewModelState: StakingAmountViewModelState {
                 amount: amount,
                 minNominatorBond: minStake,
                 locale: locale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: amountSubstrate,
+                totalAmount: balanceSubstrate,
+                minimumBalance: edSubstrate,
+                locale: locale,
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
             )
         ]
     }
