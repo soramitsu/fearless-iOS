@@ -4,13 +4,14 @@ final class SubstrateCallFactoryAssembly {
     static func createCallFactory(
         for runtimeSpecVersion: RuntimeSpecVersion
     ) -> SubstrateCallFactoryProtocol {
-        switch runtimeSpecVersion {
-        case .v9370, .v9380:
-            return SubstrateCallFactoryV9380()
-        case .v9390:
-            return SubstrateCallFactoryV9390()
-        case .v9420:
+        let version = runtimeSpecVersion.rawValue
+        switch runtimeSpecVersion.rawValue {
+        case _ where version >= 9420:
             return SubstrateCallFactoryV9420()
+        case _ where version >= 9390:
+            return SubstrateCallFactoryV9390()
+        default:
+            return SubstrateCallFactoryDefault()
         }
     }
 }

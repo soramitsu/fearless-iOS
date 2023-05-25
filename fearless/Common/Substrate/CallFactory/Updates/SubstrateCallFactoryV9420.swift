@@ -2,7 +2,7 @@ import Foundation
 import BigInt
 import FearlessUtils
 
-class SubstrateCallFactoryV9420: SubstrateCallFactoryDefault {
+class SubstrateCallFactoryV9420: SubstrateCallFactoryV9390 {
     override func defaultTransfer(to receiver: AccountId, amount: BigUInt) -> any RuntimeCallable {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: nil)
         let path: SubstrateCallPath = .transferAllowDeath

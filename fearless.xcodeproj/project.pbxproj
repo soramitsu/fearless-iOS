@@ -2045,7 +2045,6 @@
 		FA30D4F428BF67DF00548C1E /* StakingPoolInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */; };
 		FA30D4F628BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */; };
 		FA335AAC29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */; };
-		FA335AAF29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */; };
 		FA335AB129C81B060003DBDD /* SubstrateCallFactoryV9390.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */; };
 		FA335AB429C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */; };
 		FA3430EE285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */; };
@@ -4647,7 +4646,6 @@
 		FA30D4F328BF67DF00548C1E /* StakingPoolInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModel.swift; sourceTree = "<group>"; };
 		FA30D4F528BF686A00548C1E /* StakingPoolInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		FA335AAB29C81ADC0003DBDD /* SubstrateCallFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryProtocol.swift; sourceTree = "<group>"; };
-		FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9380.swift; sourceTree = "<group>"; };
 		FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryV9390.swift; sourceTree = "<group>"; };
 		FA335AB329C8295C0003DBDD /* SubstrateCallFactoryAssembly.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactoryAssembly.swift; sourceTree = "<group>"; };
 		FA3430ED285065A1002B5975 /* StakingUnbondConfirmRelaychainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmRelaychainStrategy.swift; sourceTree = "<group>"; };
@@ -11440,7 +11438,6 @@
 			isa = PBXGroup;
 			children = (
 				FA7A4C772A1E03860051FB4D /* SubstrateCallFactoryV9420.swift */,
-				FA335AAE29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift */,
 				FA335AB029C81B060003DBDD /* SubstrateCallFactoryV9390.swift */,
 			);
 			path = Updates;
@@ -13646,7 +13643,6 @@
 				FA9278A827C382C600FF7B5B /* MultiassetV2.xcmappingmodel in Sources */,
 				FA38C99B275F384E005C5577 /* ChainOptionsViewModel.swift in Sources */,
 				84CD3570252620FB0081BC0B /* CryptoType+Extrinsic.swift in Sources */,
-				FA335AAF29C81AFA0003DBDD /* SubstrateCallFactoryV9380.swift in Sources */,
 				FA85373627EC874500918A1E /* InactiveBondAlertConfig.swift in Sources */,
 				FADB9DB529D551A100303F7D /* SoraRewardCalculatorService.swift in Sources */,
 				843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */,
