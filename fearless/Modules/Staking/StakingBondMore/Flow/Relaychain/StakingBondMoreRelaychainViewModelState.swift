@@ -11,6 +11,7 @@ final class StakingBondMoreRelaychainViewModelState {
     var balance: Decimal?
     private var stashItem: StashItem?
     private var stashAccount: ChainAccountResponse?
+    private var minimalBalance: Decimal?
 
     init(
         chainAsset: ChainAsset,
@@ -25,7 +26,11 @@ final class StakingBondMoreRelaychainViewModelState {
 
 extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState {
     func validators(using locale: Locale) -> [DataValidating] {
-        [
+        let amountSubstrate = amount.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let balanceSubstrate = balance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+        let edSubstrate = minimalBalance?.toSubstrateAmount(precision: Int16(chainAsset.asset.precision))
+
+        return [
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [unowned self] in
                 self.stateListener?.feeParametersDidChanged(viewModelState: self)
             }),
@@ -36,11 +41,18 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
                 spendingAmount: amount,
                 locale: locale
             ),
-
             dataValidatingFactory.has(
                 stash: stashAccount,
                 for: stashItem?.stash ?? "",
                 locale: locale
+            ),
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: amountSubstrate,
+                totalAmount: balanceSubstrate,
+                minimumBalance: edSubstrate,
+                locale: locale,
+                chainAsset: chainAsset,
+                canProceedIfViolated: false
             )
         ]
     }
@@ -53,8 +65,8 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreViewModelState
     }
 
     func selectAmountPercentage(_ percentage: Float) {
-        if let balance = balance, let fee = fee {
-            let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
+        if let balance = balance, let fee = fee, let minimalBalance = minimalBalance {
+            let newAmount = max(balance - fee - minimalBalance, 0.0) * Decimal(Double(percentage))
 
             if newAmount > 0 {
                 amount = newAmount
@@ -149,6 +161,16 @@ extension StakingBondMoreRelaychainViewModelState: StakingBondMoreRelaychainStra
             }
 
             stateListener?.provideFee()
+        case let .failure(error):
+            stateListener?.didReceiveError(error: error)
+        }
+    }
+
+    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
+        switch result {
+        case let .success(existentialDeposit):
+            let amount = Decimal.fromSubstrateAmount(existentialDeposit, precision: Int16(chainAsset.asset.precision))
+            minimalBalance = amount
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }
