@@ -10,8 +10,6 @@ final class ChainAssetListViewLayout: UIView {
             bottom: UIConstants.bigOffset,
             right: 0
         )
-
-        static let cardContainerHeight: CGFloat = 80
     }
 
     enum ViewState {
@@ -73,7 +71,6 @@ final class ChainAssetListViewLayout: UIView {
         cardContainer?.snp.makeConstraints { make in
             make.top.equalToSuperview()
             make.leading.trailing.equalTo(self).inset(UIConstants.bigOffset)
-            make.height.equalTo(Constants.cardContainerHeight)
         }
 
         emptyView.snp.makeConstraints { make in
@@ -83,25 +80,5 @@ final class ChainAssetListViewLayout: UIView {
         tableView.snp.makeConstraints { make in
             make.edges.equalToSuperview()
         }
-    }
-
-    private func cardContainerView(for isHiddenState: Bool) -> UIView? {
-        if isHiddenState {
-            return nil
-        }
-
-        return cardContainer
-    }
-
-    func addChild(soraCardView: UIView) {
-        cardContainer?.addSubview(soraCardView)
-        soraCardView.snp.makeConstraints { make in
-            make.edges.equalToSuperview()
-        }
-    }
-
-    func changeSoraCardHiddenState(_ hidden: Bool) {
-        let view = cardContainerView(for: hidden)
-        tableView.tableHeaderView = view
     }
 }

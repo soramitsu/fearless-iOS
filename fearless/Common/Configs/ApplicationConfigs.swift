@@ -27,8 +27,6 @@ protocol ApplicationConfigProtocol {
     var fearlessAnnouncements: URL { get }
     var fearlessHappiness: URL { get }
     var crowdloanWiki: URL { get }
-    var soraCardTerms: URL { get }
-    var soraCardPrivacy: URL { get }
 
     // MARK: - GitHub
 
@@ -45,10 +43,6 @@ final class ApplicationConfig {
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol {
-    var soraCardSupportUrl: URL {
-        URL(string: "https://t.me/SORAhappiness")!
-    }
-
     var termsURL: URL {
         URL(string: "https://fearlesswallet.io/terms")!
     }
@@ -164,19 +158,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://wiki.fearlesswallet.io/crowdloans")!
     }
 
-    var soraCardTerms: URL {
-        URL(string: "https://soracard.com/terms/")!
-    }
-
-    var soraCardPrivacy: URL {
-        URL(string: "https://soracard.com/privacy/")!
-    }
-
     // MARK: - GitHub
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: "develop")
+            GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -184,26 +170,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var assetListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json", branch: "develop")
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "chains/all_chains_types.json")
+        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
+            GitHubUrl.url(suffix: "ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/v4/polkaswapSettings.json")
+        GitHubUrl.url(suffix: "polkaswapSettings.json")
     }
 
     var fiatsURL: URL? {
@@ -217,24 +203,16 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var scamListCsvURL: URL? {
         GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
     }
-
-    var soraCardCountriesBlacklist: URL? {
-        URL(string: "https://soracard.com/blacklist")
-    }
-
-    var xcmFeesURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/develop/xcm_fees.json")
-    }
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")!
+    private static var baseUrl: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
     }
 
-    private static let defaultBranch = "master"
+    private static let defaultBranch = "v4"
 
-    static func url(suffix: String, branch: String = defaultBranch) -> URL {
-        baseUrl.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
+        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }

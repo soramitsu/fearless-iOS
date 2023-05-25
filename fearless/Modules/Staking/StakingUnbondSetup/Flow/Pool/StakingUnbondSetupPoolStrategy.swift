@@ -12,6 +12,7 @@ protocol StakingUnbondSetupPoolStrategyOutput: AnyObject {
     func didReceive(stakingDuration: StakingDuration)
     func didReceive(networkInfo: StakingPoolNetworkInfo)
     func didReceive(stakingPool: StakingPool?)
+    func didSetup()
 }
 
 final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetching {
@@ -158,11 +159,7 @@ final class StakingUnbondSetupPoolStrategy: RuntimeConstantFetching, AccountFetc
 extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
     func estimateFee(builderClosure: ExtrinsicBuilderClosure?, reuseIdentifier: String) {
         guard let builderClosure = builderClosure,
-              let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
-                  precision: Int16(chainAsset.asset.precision)
-              ),
-              let accountId = wallet.fetch(for: chainAsset.chain.accountRequest())?.accountId
+              let extrinsicService = extrinsicService
         else {
             return
         }
@@ -189,6 +186,8 @@ extension StakingUnbondSetupPoolStrategy: StakingUnbondSetupStrategy {
 
         fetchStakingDuration()
         fetchNetworkInfo()
+
+        output?.didSetup()
     }
 
     func estimateFee() {

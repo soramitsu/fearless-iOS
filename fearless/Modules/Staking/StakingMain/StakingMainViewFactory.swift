@@ -179,7 +179,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             operationQueue: OperationManagerFacade.sharedDefaultQueue
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,
@@ -264,7 +264,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
             chain: chainAsset.chain,

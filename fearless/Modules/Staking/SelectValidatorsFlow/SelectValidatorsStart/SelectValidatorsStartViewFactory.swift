@@ -90,7 +90,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: chainAsset.asset,
@@ -218,7 +218,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 viewModelFactory: viewModelFactory
             )
         case let .parachain(bonding):
-            let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+            let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
             let operationFactory = ParachainCollatorOperationFactory(
                 asset: chainAsset.asset,

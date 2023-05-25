@@ -50,6 +50,7 @@ class DelegationStateView: StakingStateView, LocalizableViewProtocol {
         stakeAmountView.valueLabel.text = viewModel.totalStakedAmount
         stakeAmountView.subtitleLabel.text = viewModel.totalStakedPrice
         rewardAmountView.valueLabel.text = viewModel.apr
+        rewardAmountView.subtitleLabel.text = " "
 
         toggleStatus(true)
 

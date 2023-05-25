@@ -18,7 +18,6 @@ protocol ProfileInteractorInputProtocol: AnyObject {
     func logout(completion: @escaping () -> Void)
     func update(currency: Currency)
     func update(zeroBalanceAssetsHidden: Bool)
-    func prepareStartSoraCard() async
 }
 
 protocol ProfileInteractorOutputProtocol: AnyObject {
@@ -26,9 +25,6 @@ protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceiveUserDataProvider(error: Error)
     func didRecieve(selectedCurrency: Currency)
     func didReceiveWalletBalances(_ balances: Result<[MetaAccountId: WalletBalanceInfo], Error>)
-    func didReceive(kycStatuses: [SCKYCStatusResponse])
-    func didReceive(error: NetworkingError)
-    func restartKYC()
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable,
@@ -56,8 +52,6 @@ protocol ProfileWireframeProtocol: ErrorPresentable,
     func showSelectCurrency(from view: ProfileViewProtocol?, with: MetaAccountModel)
     func close(view: ControllerBackedProtocol?)
     func showPolkaswapDisclaimer(from view: ControllerBackedProtocol?)
-    func startKYC(from view: ControllerBackedProtocol?, data: SCKYCUserDataModel, wallet: MetaAccountModel)
-    func showKYCVerificationStatus(from view: ControllerBackedProtocol?)
 }
 
 protocol ProfileViewFactoryProtocol: AnyObject {

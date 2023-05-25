@@ -21,8 +21,6 @@ final class StakingStateViewModelFactory {
     private let eventCenter: EventCenter
 
     private var lastViewModel: StakingViewState = .undefined
-
-    var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChainAsset: ChainAsset?
 
@@ -41,7 +39,6 @@ final class StakingStateViewModelFactory {
 
     private func updateCacheForChainAsset(_ newChainAsset: ChainAsset) {
         if newChainAsset != cachedChainAsset {
-            balanceViewModelFactory = nil
             rewardViewModelFactory = nil
             cachedChainAsset = newChainAsset
         }
@@ -62,13 +59,11 @@ final class StakingStateViewModelFactory {
         }
     }
 
-    private func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
+    func getBalanceViewModelFactory(for chainAsset: ChainAsset) -> BalanceViewModelFactoryProtocol {
         let factory = BalanceViewModelFactory(
             targetAssetInfo: chainAsset.assetDisplayInfo,
             selectedMetaAccount: selectedMetaAccount
         )
-
-        balanceViewModelFactory = factory
 
         return factory
     }
