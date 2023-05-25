@@ -225,7 +225,7 @@ extension StakingAmountRelaychainViewModelState: StakingAmountRelaychainStrategy
     }
 
     func didReceive(minimumBond: BigUInt?) {
-        self.minimumBond = minimumBond.map { Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) } ?? nil
+        self.minimumBond = minimumBond.map { Decimal.fromSubstrateAmount($0, precision: Int16(chainAsset.asset.precision)) } ?? Decimal.zero
 
         notifyListeners()
     }

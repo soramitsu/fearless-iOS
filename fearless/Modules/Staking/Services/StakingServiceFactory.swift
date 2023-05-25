@@ -172,6 +172,11 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 mapper: AnyCoreDataMapper(mapper)
             )
 
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
         return SoraRewardCalculatorService(
             chainAsset: chainAsset,
             assetPrecision: assetPrecision,
@@ -184,7 +189,9 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
             polkaswapOperationFactory: operationFactory,
             chainAssetFetching: chainAssetFetching,
             settingsRepository: AnyDataProviderRepository(settingsRepository),
-            logger: Logger.shared
+            logger: Logger.shared,
+            storageRequestFactory: requestFactory,
+            engine: connection
         )
     }
 }
