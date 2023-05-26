@@ -1,4 +1,4 @@
-@Library('jenkins-library@feature/DOPS-2406-limit-the-execution-time') _
+@Library('jenkins-library@feature/DOPS-2406-limit-the-execution') _
 
 // Job properties
 def jobParams = [
@@ -11,5 +11,5 @@ def appPipline = new org.ios.AppPipeline(
     appPushNoti: true,
     jobParams: jobParams,
     label: 'macos-ios-1-2')
-    timeoutOption: '2'
+    timeoutOption: '1'
 appPipline.runPipeline('fearless')
