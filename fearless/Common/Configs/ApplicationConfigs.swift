@@ -177,19 +177,19 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "ios_app_support.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json")
+        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/v4/polkaswapSettings.json")
     }
 
     var fiatsURL: URL? {
@@ -201,16 +201,16 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+        GitHubUrl.url(suffix: "scamDetection/Polkadot_Hot_Wallet_Attributions.csv")
     }
 }
 
 private enum GitHubUrl {
     private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
     }
 
-    private static let defaultBranch = "v4"
+    private static let defaultBranch = "develop"
 
     static func url(suffix: String, branch: String = defaultBranch) -> URL? {
         baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
