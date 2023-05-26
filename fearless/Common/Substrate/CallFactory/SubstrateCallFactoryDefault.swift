@@ -578,7 +578,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
-    private func defaultTransfer(
+    func defaultTransfer(
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable {

@@ -222,7 +222,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                rewardDestViewModelFactory: rewardDestViewModelFactory
+                rewardDestViewModelFactory: rewardDestViewModelFactory,
+                chainAsset: chainAsset
             )
 
             return StakingAmountDependencyContainer(
@@ -307,7 +308,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let rewardOperationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let collatorOperationFactory = ParachainCollatorOperationFactory(
             asset: asset,
             chain: chain,

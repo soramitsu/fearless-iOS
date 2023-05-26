@@ -7,7 +7,7 @@ import SnapKit
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private enum Constants {
-        static let delegationRowHeight: CGFloat = 175.0
+        static let delegationRowHeight: CGFloat = 200.0
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
         static let contentInset = UIEdgeInsets(

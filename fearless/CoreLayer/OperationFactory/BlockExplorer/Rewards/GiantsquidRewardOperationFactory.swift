@@ -6,13 +6,16 @@ import SoraFoundation
 enum GiantsquidRewardOperationFactoryError: Error {
     case urlMissing
     case stakingTypeUnsupported
+    case incorrectAddress
 }
 
 final class GiantsquidRewardOperationFactory {
     private let url: URL?
+    private let chain: ChainModel
 
-    init(url: URL?) {
+    init(url: URL?, chain: ChainModel) {
         self.url = url
+        self.chain = chain
     }
 
     private func prepareLastRoundsQuery() -> String {
@@ -64,7 +67,7 @@ final class GiantsquidRewardOperationFactory {
 
         return """
                 query MyQuery {
-                  stakingRewards(orderBy: timestamp_DESC, where: {account: {id_eq: \"\(address)\"},  \(timestampFilter)}) {
+                  stakingRewards(orderBy: timestamp_DESC, where: {account: {publicKey_eq: \"\(address)\"},  \(timestampFilter)}) {
                     id
                     amount
                     blockNumber
@@ -192,13 +195,18 @@ extension GiantsquidRewardOperationFactory: RewardOperationFactoryProtocol {
         startTimestamp: Int64?,
         endTimestamp: Int64?
     ) -> BaseOperation<RewardOrSlashResponse> {
-        let queryString = prepareHistoryRequestForAddress(
-            address,
-            startTimestamp: startTimestamp,
-            endTimestamp: endTimestamp
-        )
-
         let requestFactory = BlockNetworkRequestFactory { [weak self] in
+            guard let strongSelf = self else {
+                throw CommonError.internal
+            }
+
+            let accountId = try AddressFactory.accountId(from: address, chain: strongSelf.chain).toHex(includePrefix: true)
+            let queryString = strongSelf.prepareHistoryRequestForAddress(
+                accountId,
+                startTimestamp: startTimestamp,
+                endTimestamp: endTimestamp
+            )
+
             guard let url = self?.url else {
                 throw SubqueryRewardOperationFactoryError.urlMissing
             }

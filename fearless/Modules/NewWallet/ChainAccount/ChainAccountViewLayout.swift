@@ -9,7 +9,7 @@ final class ChainAccountViewLayout: UIView {
     enum LayoutConstants {
         static let actionsViewHeight: CGFloat = 60
         static let accessoryButtonSize: CGFloat = 32.0
-        static let addressLabelWidth: CGFloat = 135
+        static let addressLabelWidth: CGFloat = 200
         static let addressLabelHeight: CGFloat = 24
         static let balanceViewHeight: CGFloat = 58
         static let balanceViewWidth: CGFloat = 230
@@ -310,19 +310,19 @@ private extension ChainAccountViewLayout {
     }
 
     private func setupBalanceLayout() {
+        walletBalanceVStackView.distribution = .fill
+        walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
+        walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
+
         addressCopyableLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         addressCopyableLabel.snp.makeConstraints { make in
-            make.width.lessThanOrEqualTo(LayoutConstants.addressLabelWidth)
+            make.width.equalTo(LayoutConstants.addressLabelWidth)
             make.height.equalTo(LayoutConstants.addressLabelHeight)
         }
 
         walletBalanceViewContainer.snp.makeConstraints { make in
             make.height.equalTo(LayoutConstants.balanceViewHeight)
         }
-
-        walletBalanceVStackView.distribution = .fill
-        walletBalanceVStackView.addArrangedSubview(walletBalanceViewContainer)
-        walletBalanceVStackView.addArrangedSubview(addressCopyableLabel)
 
         contentView.setCustomSpacing(LayoutConstants.navigationBarSpacing, after: navigationBar)
         contentView.addArrangedSubview(walletBalanceVStackView)

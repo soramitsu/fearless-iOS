@@ -16,7 +16,6 @@ protocol ProfileViewModelFactoryProtocol: AnyObject {
 
 enum ProfileOption: UInt, CaseIterable {
     case accountList
-    case soraCard
     case currency
     case language
     case polkaswapDisclaimer
@@ -24,7 +23,6 @@ enum ProfileOption: UInt, CaseIterable {
     case biometry
     case about
     case zeroBalances
-    case resetToken
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
@@ -111,18 +109,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         locale: Locale,
         wallet: MetaAccountModel
     ) -> [ProfileOptionViewModelProtocol] {
-        var options: [ProfileOption] = []
-        #if F_DEV
-            options = ProfileOption.allCases
-        #else
-            options = ProfileOption.allCases.filter { $0 != .resetToken }
-        #endif
-        let optionViewModels = options.compactMap { (option) -> ProfileOptionViewModel? in
+        let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
                 return createAccountListViewModel(for: locale)
-            case .soraCard:
-                return createSoraCardViewModel(for: locale)
             case .changePincode:
                 return createChangePincode(for: locale)
             case .language:
@@ -137,8 +127,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
                 return createCurrencyViewModel(from: currency, locale: locale)
             case .zeroBalances:
                 return createZeroBalancesViewModel(for: locale, wallet: wallet)
-            case .resetToken:
-                return createResetTokenViewModel()
             }
         }
 
@@ -188,18 +176,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .arrow,
             option: .accountList
-        )
-        return viewModel
-    }
-
-    private func createSoraCardViewModel(for locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable.profileSoraCardTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(
-            title: title,
-            icon: R.image.iconSoraCard()!,
-            accessoryTitle: nil,
-            accessoryType: .arrow,
-            option: .soraCard
         )
         return viewModel
     }
@@ -266,17 +242,6 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
             accessoryTitle: nil,
             accessoryType: .switcher(wallet.zeroBalanceAssetsHidden),
             option: .zeroBalances
-        )
-    }
-
-//    Only dev testing option
-    private func createResetTokenViewModel() -> ProfileOptionViewModel {
-        ProfileOptionViewModel(
-            title: "Reset token",
-            icon: R.image.iconSoraCard()!,
-            accessoryTitle: nil,
-            accessoryType: .arrow,
-            option: .resetToken
         )
     }
 

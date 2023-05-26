@@ -15,13 +15,10 @@ final class ProfileInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
-    private let scService: SCKYCService
-    private let tokenHolder: SCTokenHolderProtocol
 
-    private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
     }()
@@ -35,9 +32,7 @@ final class ProfileInteractor {
         operationQueue: OperationQueue,
         selectedMetaAccount: MetaAccountModel,
         walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol,
-        walletRepository: AnyDataProviderRepository<MetaAccountModel>,
-        scService: SCKYCService,
-        tokenHolder: SCTokenHolderProtocol
+        walletRepository: AnyDataProviderRepository<MetaAccountModel>
     ) {
         self.selectedWalletSettings = selectedWalletSettings
         self.eventCenter = eventCenter
@@ -46,8 +41,6 @@ final class ProfileInteractor {
         self.selectedMetaAccount = selectedMetaAccount
         self.walletBalanceSubscriptionAdapter = walletBalanceSubscriptionAdapter
         self.walletRepository = walletRepository
-        self.scService = scService
-        self.tokenHolder = tokenHolder
     }
 
     // MARK: - Private methods
@@ -58,8 +51,8 @@ final class ProfileInteractor {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            self.wallet = wallet
             presenter?.didReceive(wallet: wallet)
+            selectedMetaAccount = wallet
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
@@ -90,7 +83,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
-        guard self.wallet?.identifier == wallet.identifier else {
+        guard selectedMetaAccount.identifier == wallet.identifier else {
             return
         }
         selectedWalletSettings.save(value: wallet)
@@ -129,31 +122,6 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         }
 
         operationQueue.addOperation(saveOperation)
-    }
-
-    func prepareStartSoraCard() async {
-        if await SCStorage.shared.token() != nil {
-            let response = await scService.kycStatuses()
-
-            switch response {
-            case let .success(statuses):
-                await MainActor.run {
-                    self.presenter?.didReceive(kycStatuses: statuses)
-                }
-            case let .failure(error):
-                await MainActor.run {
-                    self.presenter?.didReceive(error: error)
-                }
-                tokenHolder.removeToken()
-                await MainActor.run {
-                    self.presenter?.restartKYC()
-                }
-            }
-        } else {
-            await MainActor.run {
-                self.presenter?.restartKYC()
-            }
-        }
     }
 }
 

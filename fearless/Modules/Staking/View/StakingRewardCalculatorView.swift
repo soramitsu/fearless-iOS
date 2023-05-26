@@ -398,7 +398,9 @@ extension StakingRewardCalculatorView: AmountInputViewModelObserver {
 
         amountInputView.inputFieldText = inputViewModel.displayAmount
 
-        let amount = inputViewModel.decimalAmount
+        guard let amount = inputViewModel.decimalAmount else {
+            return
+        }
 
         delegate?.rewardCalculatorView(self, didChange: amount)
     }

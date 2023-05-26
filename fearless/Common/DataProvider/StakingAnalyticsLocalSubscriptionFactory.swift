@@ -46,7 +46,7 @@ extension ParachainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubsc
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let operationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
 
         let source = ParachainWeaklyAnalyticsRewardSource(
             address: address,
@@ -102,7 +102,7 @@ extension RelaychainAnalyticsLocalSubscriptionFactory: StakingAnalyticsLocalSubs
         let repository = SubstrateRepositoryFactory(storageFacade: storageFacade)
             .createSingleValueRepository()
 
-        let operationFactory = RewardOperationFactory.factory(blockExplorer: chainAsset.chain.externalApi?.staking)
+        let operationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
         let source = RelaychainWeaklyAnalyticsRewardSource(
             address: address,
             operationFactory: operationFactory
