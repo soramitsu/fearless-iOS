@@ -31,12 +31,8 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
 
         var xcmButtomVisible: Bool = false
         if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.lowercased() }) {
-            if let displayName = chainAsset.asset.displayName?.lowercased() {
-                xcmButtomVisible = availableAssets.contains(displayName)
-            } else {
-                let symbol = chainAsset.asset.symbol.lowercased()
-                xcmButtomVisible = availableAssets.contains(symbol)
-            }
+            let symbol = chainAsset.asset.symbol.lowercased()
+            xcmButtomVisible = availableAssets.contains(symbol)
         }
 
         return ChainAccountViewModel(

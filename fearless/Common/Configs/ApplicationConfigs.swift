@@ -162,7 +162,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: "develop")
+            GitHubUrl.url(suffix: "chains/chains_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
@@ -170,7 +170,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var assetListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json", branch: "develop")
+            GitHubUrl.url(suffix: "chains/assets_dev.json")
         #else
             GitHubUrl.url(suffix: "chains/assets.json")
         #endif
@@ -201,7 +201,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+        GitHubUrl.url(suffix: "scamDetection/Polkadot_Hot_Wallet_Attributions.csv")
     }
 
     var soraCardCountriesBlacklist: URL? {
@@ -214,13 +214,13 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")!
+    private static var baseUrl: URL? {
+        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
     }
 
-    private static let defaultBranch = "master"
+    private static let defaultBranch = "develop"
 
-    static func url(suffix: String, branch: String = defaultBranch) -> URL {
-        baseUrl.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
+        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
     }
 }

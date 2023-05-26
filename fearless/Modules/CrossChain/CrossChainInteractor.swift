@@ -141,12 +141,8 @@ final class CrossChainInteractor {
                 let availableChainAssets = chainAsset.chain
                     .chainAssets
                     .filter {
-                        if let displayName = $0.asset.displayName?.lowercased() {
-                            return availableOriginAsset?.contains(displayName) == true
-                        } else {
-                            let symbol = $0.asset.symbol.lowercased()
-                            return availableOriginAsset?.contains(symbol) == true
-                        }
+                        let symbol = $0.asset.symbol.lowercased()
+                        return availableOriginAsset?.contains(symbol) == true
                     }
 
                 chainAssetFetching.fetch(
