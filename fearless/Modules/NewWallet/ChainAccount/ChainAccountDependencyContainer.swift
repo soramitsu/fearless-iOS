@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct ChainAccountDependencies {
     let connection: JSONRPCEngine

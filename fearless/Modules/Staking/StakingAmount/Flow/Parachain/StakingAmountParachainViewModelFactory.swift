@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactoryProtocol {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol

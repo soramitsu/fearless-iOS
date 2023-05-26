@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
-import FearlessUtils
+import SSFUtils
 import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable, LoadableViewProtocol {

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 enum CrowdloanLastContribution: Equatable {
     static let neverField = "Never"

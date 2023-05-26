@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 private struct Scheme {
     let colors: [UInt]

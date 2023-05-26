@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import CommonWallet
 
 protocol RewardDestinationViewModelFactoryProtocol {

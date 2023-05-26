@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol SpecVersionSubscriptionProtocol: AnyObject {
     func subscribe()

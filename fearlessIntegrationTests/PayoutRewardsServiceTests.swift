@@ -1,6 +1,6 @@
 //import XCTest
 //import SoraKeystore
-//import FearlessUtils
+//import SSFUtils
 //import IrohaCrypto
 //@testable import fearless
 //
