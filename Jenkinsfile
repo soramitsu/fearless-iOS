@@ -10,6 +10,6 @@ def appPipline = new org.ios.AppPipeline(
     appTests: false,
     appPushNoti: true,
     jobParams: jobParams,
-    label: 'macos-ios-1-2')
-    timeoutOption: '1'
+    label: 'macos-ios-1-2',
+    timeoutOption: '1')
 appPipline.runPipeline('fearless')
