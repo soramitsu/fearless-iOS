@@ -32,7 +32,20 @@ abstract_target 'fearlessAll' do
   pod 'PayWingsOAuthSDK', :http => 'https://github.com/PayWings/PayWingsOAuthSDK-iOS/archive/v1.2.1.tar.gz'
   pod 'PayWingsOnboardingKYC', :http => 'https://github.com/PayWings/PayWingsOnboardingKycSDK-iOS/archive/v5.1.2.tar.gz'
   pod 'IdensicMobileSDK', :http => 'https://github.com/paywings/PayWingsOnboardingKycSDK-iOS-IdensicMobile/archive/v2.0.0.tar.gz'
-  pod 'SoraSwiftUI', :path => './SoraSwiftUI'
+
+pod 'SSFXCM'
+pod 'SSFExtrinsicKit'
+pod 'SSFCrypto'
+pod 'SSFSigner'
+pod 'SSFModels'
+pod 'SSFEraKit'
+pod 'SSFLogger'
+pod 'SSFRuntimeCodingService'
+pod 'SSFStorageQueryKit'
+pod 'SSFChainConnection'
+pod 'SSFNetwork'
+pod 'SSFUtils'
+pod 'SSFChainRegistry'
   
   # Development pods
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
@@ -49,22 +62,6 @@ abstract_target 'fearlessAll' do
 #  pod 'SSFUtils', :path => '../soramitsu-shared-features-ios/SSFUtils'
 #  pod 'SSFChainRegistry', :path => '../soramitsu-shared-features-ios/SSFChainRegistry'
 #  pod 'SSFHelpers', :path => '../soramitsu-shared-features-ios/SSFHelpers'
-
-pod 'SSFXCM'
-pod 'SSFExtrinsicKit'
-pod 'SSFCrypto'
-pod 'SSFSigner'
-pod 'SSFModels'
-pod 'SSFEraKit'
-pod 'SSFLogger'
-pod 'SSFRuntimeCodingService'
-pod 'SSFStorageQueryKit'
-pod 'SSFChainConnection'
-pod 'SSFNetwork'
-pod 'SSFUtils'
-pod 'SSFChainRegistry'
-
-
 
   target 'fearlessTests' do
     inherit! :search_paths
