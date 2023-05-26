@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 enum UpdateRoleCase: Codable {
     case set(AccountId)

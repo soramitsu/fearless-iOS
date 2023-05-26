@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 class RecommendedValidatorListPoolViewModelFactory {
     private let iconGenerator: IconGenerating

@@ -1,7 +1,7 @@
 import Foundation
 @testable import fearless
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {    
     var termsURL: URL? { URL(string: "https://google.com") }

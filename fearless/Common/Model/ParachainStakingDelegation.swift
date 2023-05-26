@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 struct ParachainStakingDelegations: Codable, Equatable {
     let delegations: [ParachainStakingDelegation]

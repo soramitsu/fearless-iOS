@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 enum ParachainStakingDelegationAction: Decodable, Equatable {
     case revoke(amount: BigUInt)

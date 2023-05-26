@@ -1,5 +1,5 @@
 import XCTest
-import FearlessUtils
+import SSFUtils
 @testable import fearless
 
 class KeystoreImportTests: XCTestCase {

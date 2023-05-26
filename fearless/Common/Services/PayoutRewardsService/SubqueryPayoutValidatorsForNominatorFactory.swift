@@ -1,6 +1,6 @@
 import RobinHood
 import Foundation
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 
 final class SubqueryPayoutValidatorsForNominatorFactory {

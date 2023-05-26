@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class ProfileViewController: UIViewController, ViewHolder {
     typealias RootViewType = ProfileViewLayout

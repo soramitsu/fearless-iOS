@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 
 final class SelectValidatorsStartInteractor: RuntimeConstantFetching {

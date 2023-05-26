@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 struct CandidateBondLessRequest: Decodable, Equatable {
     @StringCodable var amount: BigUInt

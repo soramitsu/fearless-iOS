@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 typealias RuntimeVersionUpdate = JSONRPCSubscriptionUpdate<RuntimeVersion>
 typealias StorageSubscriptionUpdate = JSONRPCSubscriptionUpdate<StorageUpdate>

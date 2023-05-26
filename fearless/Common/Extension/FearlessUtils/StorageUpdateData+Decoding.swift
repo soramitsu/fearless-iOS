@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension StorageUpdateData {
     func decodeUpdatedData<V: ScaleDecodable>(for key: String) throws -> V? {

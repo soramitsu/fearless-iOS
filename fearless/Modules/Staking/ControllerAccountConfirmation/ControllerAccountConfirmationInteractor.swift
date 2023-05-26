@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class ControllerAccountConfirmationInteractor {
     weak var presenter: ControllerAccountConfirmationInteractorOutputProtocol!

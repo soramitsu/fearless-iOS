@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 struct ExportMnemonicData {
     let mnemonic: IRMnemonicProtocol

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct Nomination: Codable, Equatable {
     let targets: [Data]

@@ -2,7 +2,7 @@ import Foundation
 import CommonWallet
 import BigInt
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 extension AssetTransactionData {

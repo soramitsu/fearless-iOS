@@ -2,7 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 // swiftlint:disable type_body_length function_body_length
 final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {

@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class StakingPoolJoinChoosePoolAssembly {
     static func configureModule(
