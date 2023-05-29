@@ -6,6 +6,7 @@ enum BlockExplorerType: String, Codable {
     case subsquid
     case giantsquid
     case sora
+    case alchemy
 }
 
 class ChainModel: Codable {

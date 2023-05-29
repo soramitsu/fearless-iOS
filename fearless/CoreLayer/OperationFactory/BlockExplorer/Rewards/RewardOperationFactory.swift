@@ -37,6 +37,8 @@ enum RewardOperationFactory {
             return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         case .sora:
             return SubqueryRewardOperationFactory(url: blockExplorer?.url)
+        case .alchemy:
+            return GiantsquidRewardOperationFactory(url: blockExplorer?.url, chain: chain)
         }
     }
 }

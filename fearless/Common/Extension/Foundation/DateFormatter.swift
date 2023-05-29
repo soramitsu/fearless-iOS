@@ -57,4 +57,12 @@ extension DateFormatter {
             return dateFormatter
         }
     }
+
+    static var alchemyDate: LocalizableResource<DateFormatter> {
+        LocalizableResource { _ in
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = DateStringFormat.alchemy.rawValue
+            return dateFormatter
+        }
+    }
 }

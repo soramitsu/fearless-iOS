@@ -130,6 +130,16 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
         fetchChainSettings()
+
+        let service = AlchemyService()
+        Task {
+            do {
+                _ = try await service.fetchGasPrice()
+                _ = try await service.fetchBalances(for: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C")
+            } catch {
+                print("Achemy get balance error: \(error)")
+            }
+        }
     }
 }
 
