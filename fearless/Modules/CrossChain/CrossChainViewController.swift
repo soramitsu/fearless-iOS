@@ -21,7 +21,7 @@ final class CrossChainViewController: UIViewController, ViewHolder, HiddableBarW
     typealias RootViewType = CrossChainViewLayout
 
     private enum Constants {
-        static let delay: CGFloat = 0.5
+        static let amountInputDidChangeDelay: CGFloat = 0.5
     }
 
     var keyboardHandler: FearlessKeyboardHandler?
@@ -187,7 +187,7 @@ extension CrossChainViewController: AmountInputViewModelObserver {
             selector: #selector(updateAmounts),
             object: nil
         )
-        perform(#selector(updateAmounts), with: nil, afterDelay: Constants.delay)
+        perform(#selector(updateAmounts), with: nil, afterDelay: Constants.amountInputDidChangeDelay)
     }
 
     @objc private func updateAmounts() {

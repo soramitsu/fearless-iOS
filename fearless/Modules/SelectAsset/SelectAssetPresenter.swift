@@ -108,7 +108,7 @@ extension SelectAssetPresenter: SelectAssetViewOutput {
         guard
             let selectedViewModel = viewModels[safe: index],
             let selectedChainAsset = chainAssets.first(where: { chainAsset in
-                chainAsset.asset.symbol == selectedViewModel.symbol.lowercased()
+                chainAsset.asset.symbol.lowercased() == selectedViewModel.symbol.lowercased()
             })
         else {
             output.assetSelection(didCompleteWith: nil, contextTag: contextTag)

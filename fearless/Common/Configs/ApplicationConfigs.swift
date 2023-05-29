@@ -189,7 +189,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var polkaswapSettingsURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/v4/polkaswapSettings.json")
+        GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
     }
 
     var fiatsURL: URL? {
@@ -201,26 +201,23 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "scamDetection/Polkadot_Hot_Wallet_Attributions.csv")
-    }
-
-    var soraCardCountriesBlacklist: URL? {
-        URL(string: "https://soracard.com/blacklist")
-    }
-
-    var xcmFeesURL: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/develop/xcm_fees.json")
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: .master)
     }
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
+    enum BaseUrl: String {
+        case sharedUtils = "https://raw.githubusercontent.com/soramitsu/shared-features-utils/"
+        case fearlessUtils = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
     }
 
-    private static let defaultBranch = "develop"
+    enum DefaultBranch: String {
+        case master
+        case develop
+        case v4
+    }
 
-    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
-        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
+        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

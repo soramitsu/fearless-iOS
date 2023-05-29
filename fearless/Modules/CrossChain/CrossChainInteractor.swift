@@ -123,6 +123,7 @@ final class CrossChainInteractor {
         Task {
             do {
                 let deps = prepareDeps(originalChainAsset: chainAsset)
+                xcmServices = deps?.xcmServices
                 let availableChainIds = try await deps?.xcmServices
                     .availableDestionationFetching
                     .getAvailableDestinationChains(

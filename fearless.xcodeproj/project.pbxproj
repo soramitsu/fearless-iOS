@@ -2184,7 +2184,6 @@
 		FA7A4C882A209F760051FB4D /* ParachainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C852A209F760051FB4D /* ParachainRewardCalculatorEngine.swift */; };
 		FA7A4C892A209F760051FB4D /* RelaychainRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C862A209F760051FB4D /* RelaychainRewardCalculatorEngine.swift */; };
 		FA7A4C8A2A209F760051FB4D /* SoraRewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7A4C872A209F760051FB4D /* SoraRewardCalculatorEngine.swift */; };
-		FA7DAE4E29E9861400B02FC6 /* CrossChainDependencyContainer.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA7DAE4D29E9861400B02FC6 /* CrossChainDependencyContainer.swift */; };
 		FA80391528DC2DA2007365E8 /* StakingPoolPalletID.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */; };
 		FA80391728DD70D7007365E8 /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */; };
 		FA8122E329CC374B00F43560 /* AssetVisibility.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA8122E229CC374B00F43560 /* AssetVisibility.swift */; };
@@ -4820,7 +4819,6 @@
 		FA7A4C852A209F760051FB4D /* ParachainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C862A209F760051FB4D /* RelaychainRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RelaychainRewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		FA7A4C872A209F760051FB4D /* SoraRewardCalculatorEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SoraRewardCalculatorEngine.swift; sourceTree = "<group>"; };
-		FA7DAE4D29E9861400B02FC6 /* CrossChainDependencyContainer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrossChainDependencyContainer.swift; sourceTree = "<group>"; };
 		FA80391428DC2DA2007365E8 /* StakingPoolPalletID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPoolPalletID.swift; sourceTree = "<group>"; };
 		FA80391628DD70D7007365E8 /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
 		FA8122E229CC374B00F43560 /* AssetVisibility.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetVisibility.swift; sourceTree = "<group>"; };
@@ -12612,7 +12610,6 @@
 				FABC719B29DD72C00074A31E /* CrossChainProtocols.swift */,
 				FABC719C29DD72C00074A31E /* CrossChainAssembly.swift */,
 				FABC719D29DD72C00074A31E /* CrossChainViewModelFactory.swift */,
-				FA7DAE4D29E9861400B02FC6 /* CrossChainDependencyContainer.swift */,
 			);
 			path = CrossChain;
 			sourceTree = "<group>";
@@ -14067,7 +14064,6 @@
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
 				C640416228F51F9900845780 /* CreateContactViewModelFactory.swift in Sources */,
 				8444D1BE2671465A00AF6D8C /* CrowdloanBonusServiceError.swift in Sources */,
-				FA7DAE4E29E9861400B02FC6 /* CrossChainDependencyContainer.swift in Sources */,
 				84D1110C26B922D50016D962 /* ConnectionPool.swift in Sources */,
 				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
 				844CB57426FA01DD00396E13 /* SubstrateRepositoryFactory.swift in Sources */,

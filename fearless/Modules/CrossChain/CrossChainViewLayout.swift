@@ -6,11 +6,12 @@ final class CrossChainViewLayout: UIView {
         static let verticalOffset: CGFloat = 12
         static let stackSubviewHeight: CGFloat = 64
         static let networkFeeViewHeight: CGFloat = 50
-
-//        static let stackActionHeight: CGFloat = 32
-//        static let stackViewSpacing: CGFloat = 12
-//        static let bottomContainerHeight: CGFloat = 120
-//        static let optionsImageSize: CGFloat = 16
+        static let contentViewLayoutMargins = UIEdgeInsets(
+            top: 24.0,
+            left: 0.0,
+            bottom: 0.0,
+            right: 0.0
+        )
     }
 
     var keyboardAdoptableConstraint: Constraint?
@@ -31,12 +32,7 @@ final class CrossChainViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(
-            top: 24.0,
-            left: 0.0,
-            bottom: 0.0,
-            right: 0.0
-        )
+        view.stackView.layoutMargins = LayoutConstants.contentViewLayoutMargins
         view.stackView.spacing = LayoutConstants.verticalOffset
         return view
     }()

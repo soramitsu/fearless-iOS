@@ -35,7 +35,7 @@ final class CrossChainPresenter {
     private let viewModelFactory: CrossChainViewModelFactoryProtocol
     private let dataValidatingFactory: SendDataValidatingFactory
 
-    private var selectedOriginChainModel: ChainModel
+    private let selectedOriginChainModel: ChainModel
     private var selectedAmountChainAsset: ChainAsset
     private var amountInputResult: AmountInputResult?
     private var availableOriginChainAssets: [ChainAsset] = []
@@ -542,7 +542,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
 
         switch result {
         case let .success(success):
-            originNetworkBalanceValue = success?.data.total ?? .zero
+            originNetworkBalanceValue = success?.data.sendAvailable ?? .zero
             if receiveUniqueKey == selectedAmountChainAsset.uniqueKey(accountId: accountId) {
                 originNetworkSelectedAssetBalance = success.map {
                     Decimal.fromSubstrateAmount(
@@ -554,7 +554,7 @@ extension CrossChainPresenter: CrossChainInteractorOutput {
             }
             if let originUtilityChainAsset = selectedAmountChainAsset.chain.utilityChainAssets().first,
                receiveUniqueKey == originUtilityChainAsset.uniqueKey(accountId: accountId) {
-                originNetworkUtilityTokenBalance = success?.data.total ?? .zero
+                originNetworkUtilityTokenBalance = success?.data.sendAvailable ?? .zero
             }
         case let .failure(failure):
             logger.customError(failure)
