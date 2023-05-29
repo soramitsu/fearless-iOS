@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 // swiftlint:disable type_name

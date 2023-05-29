@@ -1,7 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import CommonWallet
 
 struct StakingBondMoreViewFactory {
@@ -103,6 +103,12 @@ struct StakingBondMoreViewFactory {
             operationManager: operationManager
         )
 
+        let existentialDepositService = ExistentialDepositService(
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager,
+            engine: connection
+        )
+
         let feeProxy = ExtrinsicFeeProxy()
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
@@ -151,7 +157,8 @@ struct StakingBondMoreViewFactory {
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                callFactory: callFactory
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMoreRelaychainViewModelFactory(
                 accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))
@@ -179,7 +186,8 @@ struct StakingBondMoreViewFactory {
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                callFactory: callFactory
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
 
             let viewModelFactory = StakingBondMoreParachainViewModelFactory(
@@ -209,7 +217,8 @@ struct StakingBondMoreViewFactory {
                 feeProxy: feeProxy,
                 runtimeService: runtimeService,
                 operationManager: operationManager,
-                callFactory: callFactory
+                callFactory: callFactory,
+                existentialDepositService: existentialDepositService
             )
             let viewModelFactory = StakingBondMorePoolViewModelFactory(
                 accountViewModelFactory: AccountViewModelFactory(iconGenerator: UniversalIconGenerator(chain: chainAsset.chain))

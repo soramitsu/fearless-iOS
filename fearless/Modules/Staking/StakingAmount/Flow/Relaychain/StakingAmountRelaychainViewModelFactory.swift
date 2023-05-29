@@ -5,13 +5,16 @@ import CommonWallet
 final class StakingAmountRelaychainViewModelFactory: StakingAmountViewModelFactoryProtocol {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
+        self.chainAsset = chainAsset
     }
 
     func buildViewModel(

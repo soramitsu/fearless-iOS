@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 final class SendPresenter {
     enum State {
@@ -279,7 +279,7 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(accountInfo):
             if chainAsset == selectedChainAsset {
-                totalBalanceValue = accountInfo?.data.total ?? 0
+                totalBalanceValue = accountInfo?.data.sendAvailable ?? 0
                 balance = accountInfo.map {
                     Decimal.fromSubstrateAmount(
                         $0.data.sendAvailable,

@@ -1,6 +1,6 @@
 import Foundation
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 
 final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     private var itemViewModelFactory =

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension MultiAddress {
     var accountId: Data? {

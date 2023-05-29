@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 import BigInt
 
@@ -577,7 +577,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
         )
     }
 
-    private func defaultTransfer(
+    func defaultTransfer(
         to receiver: AccountId,
         amount: BigUInt
     ) -> any RuntimeCallable {

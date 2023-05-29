@@ -2,7 +2,7 @@ import Foundation
 import SoraKeystore
 import RobinHood
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     static func createView(
@@ -222,7 +222,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
             let viewModelFactory = StakingAmountRelaychainViewModelFactory(
                 balanceViewModelFactory: balanceViewModelFactory,
-                rewardDestViewModelFactory: rewardDestViewModelFactory
+                rewardDestViewModelFactory: rewardDestViewModelFactory,
+                chainAsset: chainAsset
             )
 
             return StakingAmountDependencyContainer(

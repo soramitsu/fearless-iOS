@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class StorageKeyDataExtractor {
     private let storageKey: Data

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class StakingAccountSubscription {
     struct Subscription {

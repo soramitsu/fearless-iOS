@@ -17,18 +17,6 @@ PODS:
   - Cuckoo (1.9.1):
     - Cuckoo/Swift (= 1.9.1)
   - Cuckoo/Swift (1.9.1)
-  - FearlessUtils (0.14.1):
-    - BigInt (~> 5.0)
-    - IrohaCrypto/ed25519
-    - IrohaCrypto/Scrypt
-    - IrohaCrypto/secp256k1
-    - IrohaCrypto/sr25519
-    - IrohaCrypto/ss58
-    - ReachabilitySwift (~> 5.0)
-    - RobinHood (~> 2.6.1)
-    - Starscream
-    - TweetNacl (~> 1.0.0)
-    - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
   - IrohaCrypto (0.10.0):
     - IrohaCrypto/BIP39 (= 0.10.0)
@@ -122,6 +110,18 @@ PODS:
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
+  - SSFUtils (0.1.0):
+    - BigInt (~> 5.0)
+    - IrohaCrypto/ed25519
+    - IrohaCrypto/Scrypt
+    - IrohaCrypto/secp256k1
+    - IrohaCrypto/sr25519
+    - IrohaCrypto/ss58
+    - ReachabilitySwift (~> 5.0)
+    - RobinHood
+    - Starscream
+    - TweetNacl (~> 1.0.0)
+    - xxHash-Swift (~> 1.0.0)
   - Starscream (4.0.8)
   - SVGKit (3.0.0):
     - CocoaLumberjack (~> 3.0)
@@ -137,7 +137,6 @@ DEPENDENCIES:
   - Charts (~> 4.1.0)
   - CommonWallet/Core
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, tag `0.14.3`)
   - FireMock
   - IrohaCrypto
   - keccak.c
@@ -150,6 +149,7 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
+  - SSFUtils (from `../soramitsu-shared-features-ios/SSFUtils`)
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -158,8 +158,11 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/cocoapods/Specs.git:
     - BigInt
+    - TweetNacl
+    - xxHash-Swift
+  trunk:
     - Charts
     - CocoaLumberjack
     - CommonWallet
@@ -183,16 +186,13 @@ SPEC REPOS:
     - SwiftFormat
     - SwiftLint
     - SwiftyBeaver
-    - TweetNacl
-    - xxHash-Swift
 
 EXTERNAL SOURCES:
-  FearlessUtils:
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.3
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
+  SSFUtils:
+    :path: "../soramitsu-shared-features-ios/SSFUtils"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -200,9 +200,6 @@ EXTERNAL SOURCES:
     :podspec: https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec
 
 CHECKOUT OPTIONS:
-  FearlessUtils:
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-    :tag: 0.14.3
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
@@ -216,7 +213,6 @@ SPEC CHECKSUMS:
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
-  FearlessUtils: 47b213751f68810c81cd684f857ad53595967b69
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: eb3772088068d8938198205b62b0a9dc5b8ce005
   keccak.c: 859583afdaccb4e4fcc0f0096064d101580313f4
@@ -232,6 +228,7 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
+  SSFUtils: 18b426810c7ac702a400eae2f90af68100aa9785
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -242,6 +239,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 5ec202ea5b666c3a1eee7ec8b69b0247f44e481b
+PODFILE CHECKSUM: 0dc7949796904f4b9114587d0889be7e4750bd16
 
 COCOAPODS: 1.11.3

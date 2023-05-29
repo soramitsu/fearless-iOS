@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct ChainReconnectingEvent: EventProtocol {
     let chain: ChainModel

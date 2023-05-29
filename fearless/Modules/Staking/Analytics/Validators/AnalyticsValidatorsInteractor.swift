@@ -1,7 +1,7 @@
 import UIKit
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class AnalyticsValidatorsInteractor {
     weak var presenter: AnalyticsValidatorsInteractorOutputProtocol!

@@ -181,6 +181,7 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
     func didSetup() {
         stateListener?.provideAccountViewModel()
         stateListener?.provideCollatorViewModel()
+        stateListener?.updateFeeIfNeeded()
     }
 
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
@@ -194,6 +195,8 @@ extension StakingUnbondSetupParachainViewModelState: StakingUnbondSetupParachain
             } else {
                 balance = nil
             }
+
+            stateListener?.updateFeeIfNeeded()
         case let .failure(error):
             stateListener?.didReceiveError(error: error)
         }

@@ -1,7 +1,7 @@
 import CommonWallet
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class HistoryOperationFactoriesAssembly {
     static func createOperationFactory(

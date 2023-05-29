@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 extension MultiSignature {
     static func signature(from cryptoType: CryptoType, data: Data) -> MultiSignature? {

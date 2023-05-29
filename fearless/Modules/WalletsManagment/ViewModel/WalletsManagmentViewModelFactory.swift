@@ -76,7 +76,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
         locale: Locale
     ) -> TokenFormatter {
         let displayInfo = AssetBalanceDisplayInfo.forCurrency(currency)
-        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .listCrypto)
+        let tokenFormatter = assetBalanceFormatterFactory.createTokenFormatter(for: displayInfo, usageCase: .fiat)
         let tokenFormatterValue = tokenFormatter.value(for: locale)
         return tokenFormatterValue
     }

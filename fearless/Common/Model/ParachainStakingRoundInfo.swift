@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct ParachainStakingRoundInfo: Decodable, Equatable {
     @StringCodable var current: UInt32

@@ -1,6 +1,6 @@
 import RobinHood
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol ChainAssetFetchingProtocol {
     func fetch(

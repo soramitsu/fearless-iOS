@@ -1,12 +1,14 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
+import BigInt
 
 protocol StakingBondMoreRelaychainStrategyOutput: AnyObject {
     func didReceiveStash(result: Result<ChainAccountResponse?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
 
     func extrinsicServiceUpdated()
 }
@@ -27,6 +29,7 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
+    private let existentialDepositService: ExistentialDepositServiceProtocol
 
     private let callFactory: SubstrateCallFactoryProtocol
 
@@ -42,7 +45,8 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        callFactory: SubstrateCallFactoryProtocol
+        callFactory: SubstrateCallFactoryProtocol,
+        existentialDepositService: ExistentialDepositServiceProtocol
     ) {
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.accountInfoSubscriptionAdapter = accountInfoSubscriptionAdapter
@@ -56,6 +60,7 @@ final class StakingBondMoreRelaychainStrategy: AccountFetching {
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.callFactory = callFactory
+        self.existentialDepositService = existentialDepositService
 
         self.feeProxy.delegate = self
     }
@@ -73,6 +78,12 @@ extension StakingBondMoreRelaychainStrategy: StakingBondMoreStrategy {
     func setup() {
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             stashItemProvider = subscribeStashItemProvider(for: address)
+        }
+
+        existentialDepositService.fetchExistentialDeposit(
+            chainAsset: chainAsset
+        ) { [weak self] result in
+            self?.output?.didReceiveExistentialDeposit(result: result)
         }
     }
 }
