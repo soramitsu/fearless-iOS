@@ -6,10 +6,6 @@ public extension Data {
         self.init(buffer: UnsafeBufferPointer(start: &value, count: 1))
     }
 
-    func toHexString() -> String {
-        "0x" + hex
-    }
-
     var bytes: [UInt8] {
         Array(self)
     }

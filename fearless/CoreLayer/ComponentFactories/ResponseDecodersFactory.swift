@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol ResponseDecodersFactory {
     func buildResponseDecoder(with type: ResponseDecoderType) -> any ResponseDecoder

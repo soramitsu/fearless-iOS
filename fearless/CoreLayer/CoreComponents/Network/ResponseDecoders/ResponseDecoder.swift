@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol ResponseDecoder {
     func decode<T>(data: Data) throws -> T
