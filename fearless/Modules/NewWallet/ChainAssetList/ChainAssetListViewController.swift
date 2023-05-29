@@ -208,8 +208,9 @@ extension ChainAssetListViewController: UITableViewDelegate {
     func tableView(_: UITableView, willDisplay cell: UITableViewCell, forRowAt indexPath: IndexPath) {
         if let sect = viewModel?.sections[indexPath.section],
            let cells = viewModel?.cellsForSections[sect],
-           let assetCell = cell as? ChainAccountBalanceTableCell {
-            assetCell.bind(to: cells[indexPath.row])
+           let assetCell = cell as? ChainAccountBalanceTableCell,
+           let viewModel = cells[safe: indexPath.row] {
+            assetCell.bind(to: viewModel)
         }
     }
 

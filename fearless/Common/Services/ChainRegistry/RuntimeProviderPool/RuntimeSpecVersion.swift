@@ -1,10 +1,10 @@
 import Foundation
 
 enum RuntimeSpecVersion: UInt32 {
-    case v9370
-    case v9380
-    case v9390
-    case v9420
+    case v9370 = 9370
+    case v9380 = 9380
+    case v9390 = 9390
+    case v9420 = 9420
 
     static let defaultVersion: RuntimeSpecVersion = .v9390
 

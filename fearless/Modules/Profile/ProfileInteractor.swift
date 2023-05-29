@@ -15,11 +15,10 @@ final class ProfileInteractor {
     private let eventCenter: EventCenterProtocol
     private let repository: AnyDataProviderRepository<ManagedMetaAccountModel>
     private let operationQueue: OperationQueue
-    private let selectedMetaAccount: MetaAccountModel
+    private var selectedMetaAccount: MetaAccountModel
     private let walletBalanceSubscriptionAdapter: WalletBalanceSubscriptionAdapterProtocol
     private let walletRepository: AnyDataProviderRepository<MetaAccountModel>
 
-    private var wallet: MetaAccountModel?
     private lazy var currentCurrency: Currency? = {
         selectedMetaAccount.selectedCurrency
     }()
@@ -52,8 +51,8 @@ final class ProfileInteractor {
                 throw ProfileInteractorError.noSelectedAccount
             }
 
-            self.wallet = wallet
             presenter?.didReceive(wallet: wallet)
+            selectedMetaAccount = wallet
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
@@ -84,7 +83,7 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
     }
 
     func updateWallet(_ wallet: MetaAccountModel) {
-        guard self.wallet?.identifier == wallet.identifier else {
+        guard selectedMetaAccount.identifier == wallet.identifier else {
             return
         }
         selectedWalletSettings.save(value: wallet)
