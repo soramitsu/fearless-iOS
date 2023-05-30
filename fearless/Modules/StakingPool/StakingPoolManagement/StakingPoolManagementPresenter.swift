@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 enum PoolAccount: UInt8 {
     case stash = 0

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInput {
     func dismiss(view: ControllerBackedProtocol?) {

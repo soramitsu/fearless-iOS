@@ -3,6 +3,7 @@ import CommonWallet
 import BigInt
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 extension AssetTransactionData {
     static func createTransaction(

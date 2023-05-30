@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class WalletQREncoder: WalletQREncoderProtocol {
     let username: String?

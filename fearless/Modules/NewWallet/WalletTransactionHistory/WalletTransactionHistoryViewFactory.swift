@@ -3,6 +3,7 @@ import SSFUtils
 import CommonWallet
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 struct WalletTransactionHistoryModule {
     let view: WalletTransactionHistoryViewProtocol?

@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 final class WalletTransactionHistoryPresenter {
     weak var view: WalletTransactionHistoryViewProtocol?

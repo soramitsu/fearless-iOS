@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 protocol GetBalanceMetaAccountHandler: AnyObject {
     func handleMetaAccountBalance(metaAccount: MetaAccountModel, balance: String?)

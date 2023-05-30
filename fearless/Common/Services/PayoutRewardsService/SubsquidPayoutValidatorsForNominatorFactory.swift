@@ -2,6 +2,7 @@ import RobinHood
 import Foundation
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class SubsquidPayoutValidatorsForNominatorFactory {
     private let url: URL

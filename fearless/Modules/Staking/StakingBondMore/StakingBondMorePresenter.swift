@@ -1,6 +1,7 @@
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 final class StakingBondMorePresenter {
     let interactor: StakingBondMoreInteractorInputProtocol

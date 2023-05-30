@@ -4,6 +4,7 @@ import CommonWallet
 import RobinHood
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 final class StakingPayoutConfirmationInteractor: AccountFetching {
     let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     func close(view: ControllerBackedProtocol?) {

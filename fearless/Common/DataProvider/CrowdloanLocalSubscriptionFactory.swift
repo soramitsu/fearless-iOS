@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 protocol CrowdloanLocalSubscriptionFactoryProtocol {
     func getBlockNumberProvider(for chainId: ChainModel.Id) throws -> AnyDataProvider<DecodedBlockNumber>

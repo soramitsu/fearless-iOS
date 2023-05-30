@@ -2,6 +2,7 @@ import SoraFoundation
 import SSFUtils
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 // swiftlint:disable function_body_length
 final class AnalyticsValidatorsViewModelFactory: AnalyticsValidatorsViewModelFactoryProtocol {

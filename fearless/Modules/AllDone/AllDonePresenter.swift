@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class AllDonePresenter {
     // MARK: Private properties

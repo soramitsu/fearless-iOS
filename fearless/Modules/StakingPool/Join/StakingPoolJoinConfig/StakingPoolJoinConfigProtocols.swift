@@ -1,5 +1,6 @@
 import CommonWallet
 import BigInt
+import SSFModels
 
 typealias StakingPoolJoinConfigModuleCreationResult = (
     view: StakingPoolJoinConfigViewInput,

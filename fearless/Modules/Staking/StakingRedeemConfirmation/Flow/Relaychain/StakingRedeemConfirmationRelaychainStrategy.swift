@@ -3,6 +3,7 @@ import RobinHood
 import SoraKeystore
 import SSFUtils
 import BigInt
+import SSFModels
 
 protocol StakingRedeemConfirmationRelaychainStrategyOutput: AnyObject {
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)

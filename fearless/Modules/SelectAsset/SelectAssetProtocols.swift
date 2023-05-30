@@ -1,3 +1,6 @@
+import Foundation
+import SSFModels
+
 typealias SelectAssetModuleCreationResult = (view: SelectAssetViewInput, input: SelectAssetModuleInput)
 
 protocol SelectAssetViewInput: SelectionListViewProtocol {}

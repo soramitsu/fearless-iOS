@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import SSFModels
 
 final class SendInteractor: RuntimeConstantFetching {
     // MARK: - Private properties

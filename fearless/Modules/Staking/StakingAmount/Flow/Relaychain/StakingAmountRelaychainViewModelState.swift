@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     weak var stateListener: StakingAmountModelStateListener?

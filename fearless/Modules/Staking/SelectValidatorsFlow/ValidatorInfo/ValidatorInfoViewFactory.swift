@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import SoraKeystore
 import SoraFoundation
+import SSFModels
 
 final class ValidatorInfoViewFactory {
     // swiftlint:disable function_body_length

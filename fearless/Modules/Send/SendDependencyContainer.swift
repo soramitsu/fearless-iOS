@@ -1,5 +1,6 @@
 import SSFUtils
 import RobinHood
+import SSFModels
 
 struct SendDependencies {
     let wallet: MetaAccountModel

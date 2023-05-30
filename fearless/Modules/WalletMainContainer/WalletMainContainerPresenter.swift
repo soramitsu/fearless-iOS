@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class WalletMainContainerPresenter {
     // MARK: Private properties

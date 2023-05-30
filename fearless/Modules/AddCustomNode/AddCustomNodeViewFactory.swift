@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 struct AddCustomNodeViewFactory {
     static func createView(chain: ChainModel, moduleOutput: AddCustomNodeModuleOutput?) -> AddCustomNodeViewProtocol? {

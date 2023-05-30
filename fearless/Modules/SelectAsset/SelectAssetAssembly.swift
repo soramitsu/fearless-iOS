@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFModels
 
 final class SelectAssetAssembly {
     static func configureModule(

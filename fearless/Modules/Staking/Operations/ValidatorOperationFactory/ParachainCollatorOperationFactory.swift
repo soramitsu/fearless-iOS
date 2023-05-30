@@ -3,6 +3,7 @@ import SSFUtils
 import RobinHood
 import BigInt
 import CommonWallet
+import SSFModels
 
 final class ParachainCollatorOperationFactory {
     private let asset: AssetModel

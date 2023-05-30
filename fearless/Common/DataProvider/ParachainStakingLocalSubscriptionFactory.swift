@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol ParachainStakingLocalSubscriptionFactoryProtocol {
     func getCandidatePool(for chainId: ChainModel.Id) throws

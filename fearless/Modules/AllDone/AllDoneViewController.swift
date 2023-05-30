@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraUI
+import SSFModels
 
 final class AllDoneViewController: UIViewController, ViewHolder, UIAdaptivePresentationControllerDelegate {
     typealias RootViewType = AllDoneViewLayout

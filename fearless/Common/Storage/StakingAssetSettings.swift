@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class StakingAssetSettings: PersistentValueSettings<ChainAsset> {
     let settings: SettingsManagerProtocol

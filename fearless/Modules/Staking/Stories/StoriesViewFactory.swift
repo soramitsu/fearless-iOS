@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class StoriesViewFactory: StoriesViewFactoryProtocol {
     static func createView(with index: Int, chainAsset: ChainAsset) -> StoriesViewProtocol? {

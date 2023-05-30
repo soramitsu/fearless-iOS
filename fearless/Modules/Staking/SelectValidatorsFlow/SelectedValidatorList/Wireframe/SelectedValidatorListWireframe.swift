@@ -1,3 +1,5 @@
+
+import SSFModels
 class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
     func present(
         flow: ValidatorInfoFlow,

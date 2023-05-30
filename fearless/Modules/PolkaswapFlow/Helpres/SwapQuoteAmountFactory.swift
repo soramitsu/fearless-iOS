@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SoraFoundation
+import SSFModels
 
 struct PolkaswapAdjustmentDetailsViewModel {
     let minMaxReceiveVieModel: BalanceViewModelProtocol?

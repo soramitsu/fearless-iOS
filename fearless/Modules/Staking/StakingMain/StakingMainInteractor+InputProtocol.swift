@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func updatePrices() {

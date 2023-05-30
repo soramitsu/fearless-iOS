@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import RobinHood
 import SoraFoundation
+import SSFModels
 
 struct StakingRewardDestConfirmViewFactory {
     static func createView(

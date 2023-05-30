@@ -4,6 +4,7 @@ import SSFUtils
 import RobinHood
 import SSFXCM
 import SSFNetwork
+import SSFModels
 
 final class CrossChainAssembly {
     static func configureModule(

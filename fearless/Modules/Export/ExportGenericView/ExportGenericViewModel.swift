@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 protocol ExportGenericViewModelBinding {
     func bind(stringViewModel: ExportStringViewModel, locale: Locale) -> UIView

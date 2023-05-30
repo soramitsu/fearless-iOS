@@ -3,6 +3,7 @@ import SSFXCM
 import RobinHood
 import BigInt
 import SSFExtrinsicKit
+import SSFModels
 
 protocol CrossChainInteractorOutput: AnyObject {
     func didReceiveAccountInfo(

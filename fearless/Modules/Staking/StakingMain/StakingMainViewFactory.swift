@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import SoraKeystore
+import SSFModels
 import RobinHood
 
 // swiftlint:disable function_body_length

@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 struct PeriodRewardViewModel {
     let monthlyReward: RewardViewModelProtocol

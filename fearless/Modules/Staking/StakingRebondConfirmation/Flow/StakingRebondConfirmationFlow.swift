@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 enum StakingRebondConfirmationFlow {
     case relaychain(variant: SelectedRebondVariant)

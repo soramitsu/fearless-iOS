@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 /**
  *  Class is designed to handle creation of `ChainRegistryProtocol` instance for application.

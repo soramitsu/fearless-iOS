@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 struct CrowdloanContributionConfirmViewFactory {
     static func createView(

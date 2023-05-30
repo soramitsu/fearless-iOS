@@ -2,6 +2,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFModels
 
 struct StakingBalanceViewFactory {
     static func createView(

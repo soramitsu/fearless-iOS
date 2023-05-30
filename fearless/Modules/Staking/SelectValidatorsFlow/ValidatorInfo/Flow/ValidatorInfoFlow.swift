@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 enum ValidatorInfoFlow {
     case relaychain(validatorInfo: ValidatorInfoProtocol?, address: AccountAddress?)

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class ValidatorInfoRelaychainViewModelFactory {
     private let iconGenerator: IconGenerating

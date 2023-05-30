@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class StakingPoolCreateConfirmRouter: StakingPoolCreateConfirmRouterInput {
     func finish(view: ControllerBackedProtocol?) {

@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 enum ExportMnemonicInteractorError: Error {
     case missingAccount

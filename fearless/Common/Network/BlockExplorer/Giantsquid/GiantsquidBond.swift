@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SSFModels
 
 struct GiantsquidBond: Decodable {
     let id: String

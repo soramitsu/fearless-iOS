@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SoraFoundation
+import SSFModels
 
 final class AnalyticsStakePresenter {
     weak var view: AnalyticsStakeViewProtocol?

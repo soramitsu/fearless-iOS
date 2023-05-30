@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {

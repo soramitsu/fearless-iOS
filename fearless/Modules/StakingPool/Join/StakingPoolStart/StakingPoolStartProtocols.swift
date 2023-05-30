@@ -1,4 +1,6 @@
 import Foundation
+import SSFModels
+
 typealias StakingPoolStartModuleCreationResult = (view: StakingPoolStartViewInput, input: StakingPoolStartModuleInput)
 
 protocol StakingPoolStartViewInput: ControllerBackedProtocol {

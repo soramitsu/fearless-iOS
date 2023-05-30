@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 final class CustomValidatorListInteractor {
     weak var presenter: CustomValidatorListInteractorOutputProtocol!

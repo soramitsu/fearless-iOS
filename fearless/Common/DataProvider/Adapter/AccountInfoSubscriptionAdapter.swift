@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol AccountInfoSubscriptionAdapterHandler: AnyObject {
     func handleAccountInfo(

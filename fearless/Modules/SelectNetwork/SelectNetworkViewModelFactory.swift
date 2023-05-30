@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum SelectNetworkItem {
     case allNetworks

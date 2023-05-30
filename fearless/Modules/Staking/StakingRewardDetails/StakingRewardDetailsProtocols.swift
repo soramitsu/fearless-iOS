@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: LocalizableResource<StakingRewardDetailsViewModel>)

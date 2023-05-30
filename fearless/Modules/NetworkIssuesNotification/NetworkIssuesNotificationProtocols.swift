@@ -1,4 +1,6 @@
 import Foundation
+import SSFModels
+
 typealias NetworkIssuesNotificationModuleCreationResult = (
     view: NetworkIssuesNotificationViewInput,
     input: NetworkIssuesNotificationModuleInput

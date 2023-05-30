@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol WalletLocalSubscriptionHandler: AnyObject {
     func handleAccountInfo(

@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!

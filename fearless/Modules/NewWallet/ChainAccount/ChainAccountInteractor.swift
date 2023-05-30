@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?

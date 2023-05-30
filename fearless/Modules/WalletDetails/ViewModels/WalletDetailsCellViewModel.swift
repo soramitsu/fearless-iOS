@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 struct WalletDetailsCellViewModel {
     let chainImageViewModel: RemoteImageViewModel?

@@ -2,6 +2,7 @@ import SoraFoundation
 import IrohaCrypto
 import CoreGraphics
 import SSFUtils
+import SSFModels
 
 final class ReceiveAssetPresenter {
     enum Constants {
