@@ -76,7 +76,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         clearUnusedConnections()
 
-        if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+        if let connection = getConnection(for: chain.chainId) {
             if connection.url == url {
                 return connection
             } else if ignoredUrl != nil {
