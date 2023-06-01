@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 
 struct SetControllerCall: Codable {
     let controller: MultiAddress

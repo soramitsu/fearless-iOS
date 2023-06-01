@@ -2,7 +2,7 @@ import Foundation
 import IrohaCrypto
 import CommonWallet
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class ContactsConfigurator {
     private var localSearchEngine: ContactsLocalSearchEngine

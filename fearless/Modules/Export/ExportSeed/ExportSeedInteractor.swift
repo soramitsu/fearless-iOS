@@ -2,7 +2,7 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 enum ExportSeedInteractorError: Error {
     case missingSeed

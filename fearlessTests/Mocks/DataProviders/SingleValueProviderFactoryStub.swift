@@ -3,7 +3,7 @@
 //import RobinHood
 //import IrohaCrypto
 //import BigInt
-//import FearlessUtils
+//import SSFUtils
 //
 //final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
 //    let price: AnySingleValueProvider<PriceData>

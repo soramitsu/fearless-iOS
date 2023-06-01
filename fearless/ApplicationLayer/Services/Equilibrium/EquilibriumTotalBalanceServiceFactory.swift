@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class EquilibriumTotalBalanceServiceFactory {
     static func createService(

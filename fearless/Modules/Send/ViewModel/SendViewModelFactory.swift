@@ -1,4 +1,4 @@
-import FearlessUtils
+import SSFUtils
 
 protocol SendViewModelFactoryProtocol {
     func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel

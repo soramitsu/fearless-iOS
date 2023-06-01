@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import SoraKeystore
 
 // swiftlint:disable function_body_length

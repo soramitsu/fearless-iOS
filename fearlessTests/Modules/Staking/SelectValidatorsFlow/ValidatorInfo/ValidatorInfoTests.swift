@@ -3,7 +3,7 @@
 //import Cuckoo
 //import SoraKeystore
 //import IrohaCrypto
-//import FearlessUtils
+//import SSFUtils
 //import SoraFoundation
 //
 //class ValidatorInfoTests: XCTestCase {

@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 struct ManagedAccountViewModelItem: Equatable {
     let identifier: String

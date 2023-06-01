@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 protocol StakingPoolMainViewModelFactoryProtocol {
     func createEstimationViewModel(

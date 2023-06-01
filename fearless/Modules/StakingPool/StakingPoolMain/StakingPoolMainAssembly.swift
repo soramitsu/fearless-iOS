@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 final class StakingPoolMainAssembly {
     // swiftlint:disable function_body_length

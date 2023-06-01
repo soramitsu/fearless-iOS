@@ -3,7 +3,7 @@ import Foundation
 import IrohaCrypto
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class AccountCreationHelper {
     static func createMetaAccountFromMnemonic(

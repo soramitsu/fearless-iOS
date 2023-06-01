@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class BatchMapper<R>: Mapping {
     typealias InputType = JSON

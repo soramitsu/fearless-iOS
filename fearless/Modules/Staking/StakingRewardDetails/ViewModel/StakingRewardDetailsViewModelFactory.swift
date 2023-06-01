@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 protocol StakingRewardDetailsViewModelFactoryProtocol {
     func createViewModel(

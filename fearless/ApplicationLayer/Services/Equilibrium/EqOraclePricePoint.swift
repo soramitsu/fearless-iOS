@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 struct EqOraclePricePoint: Decodable {
     @StringCodable var blockNumber: BigUInt

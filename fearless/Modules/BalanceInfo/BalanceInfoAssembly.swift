@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 enum BalanceInfoType {
     case wallet(wallet: MetaAccountModel)

@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 class YourValidatorTableCell: UITableViewCell {
     private enum LayoutConstants {
