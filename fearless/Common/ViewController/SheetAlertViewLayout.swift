@@ -138,7 +138,7 @@ final class SheetAlertViewLayout: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.centerX.equalToSuperview()
             make.top.equalToSuperview().inset(20)
         }
 

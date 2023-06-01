@@ -53,16 +53,15 @@ final class StakingPoolJoinConfigAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let localizationManager = LocalizationManager.shared
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)

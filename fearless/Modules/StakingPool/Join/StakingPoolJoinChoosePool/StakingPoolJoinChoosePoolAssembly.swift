@@ -11,13 +11,6 @@ final class StakingPoolJoinChoosePoolAssembly {
         let localizationManager = LocalizationManager.shared
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return nil
-        }
-
         let operationManager = OperationManagerFacade.sharedManager
         let requestFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
@@ -26,8 +19,7 @@ final class StakingPoolJoinChoosePoolAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
         let interactor = StakingPoolJoinChoosePoolInteractor(
             stakingPoolOperationFactory: stakingPoolOperationFactory,
