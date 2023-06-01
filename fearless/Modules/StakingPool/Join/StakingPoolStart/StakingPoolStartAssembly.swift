@@ -11,7 +11,6 @@ final class StakingPoolStartAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
             let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
             return nil
         }
@@ -53,8 +52,7 @@ final class StakingPoolStartAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let interactor = StakingPoolStartInteractor(

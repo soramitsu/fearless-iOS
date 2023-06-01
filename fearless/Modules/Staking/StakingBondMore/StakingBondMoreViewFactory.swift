@@ -104,9 +104,9 @@ struct StakingBondMoreViewFactory {
         )
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let feeProxy = ExtrinsicFeeProxy()

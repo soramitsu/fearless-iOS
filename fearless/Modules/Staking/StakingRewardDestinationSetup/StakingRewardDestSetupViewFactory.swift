@@ -145,10 +145,9 @@ struct StakingRewardDestSetupViewFactory {
             asset: asset,
             chain: chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

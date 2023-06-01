@@ -182,9 +182,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         switch flow {
@@ -313,10 +313,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             asset: asset,
             chain: chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(

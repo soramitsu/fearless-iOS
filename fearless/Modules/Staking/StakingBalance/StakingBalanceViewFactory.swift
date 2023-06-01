@@ -194,10 +194,9 @@ struct StakingBalanceViewFactory {
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageRequestFactory,
-                runtimeService: runtimeService,
-                engine: connection,
                 identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-                subqueryOperationFactory: rewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let subqueryHistoryOperationFactory = ParachainHistoryOperationFactoryAssembly.factory(
