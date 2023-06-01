@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 public struct EthereumIcon {
     public struct Square: Equatable {

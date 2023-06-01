@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct EventRecord: Decodable {
     enum CodingKeys: String, CodingKey {

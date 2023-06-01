@@ -1,7 +1,7 @@
 import XCTest
 import CoreData
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import IrohaCrypto
 import SoraKeystore
 @testable import fearless

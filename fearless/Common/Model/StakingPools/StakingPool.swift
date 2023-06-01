@@ -1,6 +1,6 @@
 import Foundation
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 struct StakingPoolInfo: Decodable {
     @StringCodable var points: BigUInt

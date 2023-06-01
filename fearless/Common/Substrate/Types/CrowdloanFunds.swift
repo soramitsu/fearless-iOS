@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import BigInt
 
 enum TrieOrFundIndex: Codable, ScaleEncodable, Equatable, Hashable {

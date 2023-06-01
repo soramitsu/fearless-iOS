@@ -2,7 +2,7 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!

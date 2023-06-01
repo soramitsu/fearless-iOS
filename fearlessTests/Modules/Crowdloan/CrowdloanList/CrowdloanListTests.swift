@@ -2,7 +2,7 @@ import XCTest
 @testable import fearless
 import SoraFoundation
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 import Cuckoo
 import BigInt
 

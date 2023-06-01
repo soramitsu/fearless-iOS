@@ -1,6 +1,6 @@
 import UIKit
 import SoraUI
-import FearlessUtils
+import SSFUtils
 
 final class SearchTriangularedView: UIView {
     enum LayoutConstants {

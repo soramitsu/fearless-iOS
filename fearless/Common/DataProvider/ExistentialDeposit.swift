@@ -1,7 +1,7 @@
 import Foundation
 import BigInt
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol ExistentialDepositServiceProtocol {
     func fetchExistentialDeposit(

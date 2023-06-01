@@ -3,7 +3,7 @@ import XCTest
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 class StakingInfoTests: XCTestCase {
     func testRewardsPolkadot() throws {

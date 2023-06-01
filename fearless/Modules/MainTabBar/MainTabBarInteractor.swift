@@ -1,7 +1,7 @@
 import Foundation
 import SoraKeystore
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 final class MainTabBarInteractor {

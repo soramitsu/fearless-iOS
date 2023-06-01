@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct DexIdInfo: Decodable {
     let isPublic: Bool

@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol StakingBalanceRelaychainStrategyOutput: AnyObject {
     func didReceive(ledgerResult: Result<StakingLedger?, Error>)

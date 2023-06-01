@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import Rswift
-import FearlessUtils
+import SSFUtils
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {
