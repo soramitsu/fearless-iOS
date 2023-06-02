@@ -79,11 +79,11 @@ struct AccountData: Codable, Equatable {
     @StringCodable var frozen: BigUInt
     @StringCodable var flags: BigUInt
 
-    init(free: BigUInt, reserved: BigUInt, frozen: BigUInt, flags: BigUInt) {
+    init(free: BigUInt, reserved: BigUInt, frozen: BigUInt, flags: BigUInt? = .zero) {
         self.free = free
         self.reserved = reserved
         self.frozen = frozen
-        self.flags = flags
+        self.flags = flags ?? .zero
     }
 
     func encode(to encoder: Encoder) throws {
@@ -99,7 +99,11 @@ struct AccountData: Codable, Equatable {
 
         free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
         reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
-        flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
+        do {
+            flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
+        } catch {
+            flags = .zero
+        }
 
         do {
             frozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .frozen).value
