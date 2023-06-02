@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 import BigInt
 
 protocol CrowdloansViewModelFactoryProtocol {

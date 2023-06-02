@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol QRParser {
     func extractAddress(from code: String) throws -> String

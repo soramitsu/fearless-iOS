@@ -1,5 +1,5 @@
 import UIKit
-import FearlessUtils
+import SSFUtils
 import RobinHood
 import SoraKeystore
 
@@ -26,7 +26,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private(set) var stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol
     private let poolStakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol
     private let stakingAccountUpdatingService: StakingAccountUpdatingServiceProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
     private let accountOperationFactory: AccountOperationFactoryProtocol
     private let existentialDepositService: ExistentialDepositServiceProtocol
     private var validatorOperationFactory: ValidatorOperationFactoryProtocol
@@ -62,7 +61,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         eventCenter: EventCenterProtocol,
         stakingLocalSubscriptionFactory: RelaychainStakingLocalSubscriptionFactoryProtocol,
         poolStakingAccountUpdatingService: PoolStakingAccountUpdatingServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
         accountOperationFactory: AccountOperationFactoryProtocol,
         existentialDepositService: ExistentialDepositServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
@@ -87,7 +85,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         self.eventCenter = eventCenter
         self.stakingLocalSubscriptionFactory = stakingLocalSubscriptionFactory
         self.poolStakingAccountUpdatingService = poolStakingAccountUpdatingService
-        self.runtimeService = runtimeService
         self.accountOperationFactory = accountOperationFactory
         self.existentialDepositService = existentialDepositService
         self.validatorOperationFactory = validatorOperationFactory
@@ -121,13 +118,6 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
     private func updateDependencies() {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
-        else {
-            return
-        }
-
         let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: operationManager
@@ -141,10 +131,9 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         do {
@@ -176,8 +165,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         self.stakingPoolOperationFactory = stakingPoolOperationFactory
@@ -188,9 +176,8 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
             eraValidatorService: eraValidatorService,
             rewardService: rewardCalculationService,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            chainRegistry: chainRegistry
         )
     }
 
@@ -496,12 +483,16 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
 
         activeEraProvider = subscribeActiveEra(for: chainAsset.chain.chainId)
 
-        fetchCompoundConstant(
-            for: .nominationPoolsPalletId,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<Data, Error>) in
-            self?.output?.didReceive(palletIdResult: result)
+        if let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) {
+            fetchCompoundConstant(
+                for: .nominationPoolsPalletId,
+                runtimeCodingService: runtimeService,
+                operationManager: operationManager
+            ) { [weak self] (result: Result<Data, Error>) in
+                self?.output?.didReceive(palletIdResult: result)
+            }
+        } else {
+            output?.didReceive(palletIdResult: .failure(ChainRegistryError.runtimeMetadaUnavailable))
         }
 
         existentialDepositService.fetchExistentialDeposit(chainAsset: chainAsset) { [weak self] result in

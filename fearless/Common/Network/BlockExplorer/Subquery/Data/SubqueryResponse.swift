@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct SubqueryErrors: Error, Decodable {
     struct SubqueryError: Error, Decodable {

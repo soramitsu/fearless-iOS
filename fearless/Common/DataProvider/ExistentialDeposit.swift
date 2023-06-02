@@ -1,7 +1,7 @@
 import Foundation
 import BigInt
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 protocol ExistentialDepositServiceProtocol {
     func fetchExistentialDeposit(
@@ -13,20 +13,20 @@ protocol ExistentialDepositServiceProtocol {
 final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepositServiceProtocol {
     // MARK: - Private properties
 
-    private let runtimeCodingService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
-    private let engine: JSONRPCEngine
+    private let chainRegistry: ChainRegistryProtocol
+    private let chainId: ChainModel.Id
 
     // MARK: - Constructor
 
     init(
-        runtimeCodingService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        engine: JSONRPCEngine
+        chainRegistry: ChainRegistryProtocol,
+        chainId: ChainModel.Id
     ) {
-        self.runtimeCodingService = runtimeCodingService
         self.operationManager = operationManager
-        self.engine = engine
+        self.chainRegistry = chainRegistry
+        self.chainId = chainId
     }
 
     // MARK: - Public methods
@@ -35,6 +35,11 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
+
         if
             let existentialDeposit = chainAsset.asset.existentialDeposit,
             let result = BigUInt(existentialDeposit) {
@@ -46,7 +51,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         case .normal, .ormlChain, .soraAsset:
             fetchConstant(
                 for: .existentialDeposit,
-                runtimeCodingService: runtimeCodingService,
+                runtimeCodingService: runtimeService,
                 operationManager: operationManager
             ) { result in
                 completion(result)
@@ -63,7 +68,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         case .equilibrium:
             fetchConstant(
                 for: .equilibriumExistentialDeposit,
-                runtimeCodingService: runtimeCodingService,
+                runtimeCodingService: runtimeService,
                 operationManager: operationManager
             ) { result in
                 completion(result)
@@ -77,12 +82,17 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            completion(.failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+
         guard let parameter = ExistentialDepositCurrencyId(from: chainAsset.currencyId) else {
             return
         }
 
         let callOperation = JSONRPCOperation<[ExistentialDepositCurrencyId], String>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.existentialDeposit,
             parameters: [parameter]
         )

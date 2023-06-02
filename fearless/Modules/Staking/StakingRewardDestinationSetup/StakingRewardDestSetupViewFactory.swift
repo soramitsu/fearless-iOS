@@ -1,7 +1,7 @@
 import SoraFoundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -145,10 +145,9 @@ struct StakingRewardDestSetupViewFactory {
             asset: asset,
             chain: chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

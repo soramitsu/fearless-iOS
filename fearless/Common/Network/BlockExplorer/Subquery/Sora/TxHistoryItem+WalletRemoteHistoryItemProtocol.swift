@@ -3,7 +3,7 @@ import XNetworking
 import BigInt
 import CommonWallet
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 
 extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
     var identifier: String { id }

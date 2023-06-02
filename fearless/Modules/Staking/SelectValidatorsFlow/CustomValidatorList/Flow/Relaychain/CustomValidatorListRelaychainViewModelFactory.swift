@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class CustomValidatorListRelaychainViewModelFactory {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol

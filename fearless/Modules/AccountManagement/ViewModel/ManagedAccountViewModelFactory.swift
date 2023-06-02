@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol ManagedAccountViewModelFactoryProtocol {
     func createViewModelFromItem(_ item: ManagedMetaAccountModel) -> ManagedAccountViewModelItem

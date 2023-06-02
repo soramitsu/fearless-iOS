@@ -1,6 +1,6 @@
 import XCTest
 @testable import fearless
-import FearlessUtils
+import SSFUtils
 import RobinHood
 import SoraKeystore
 import IrohaCrypto

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 
 extension StakingMainInteractor {
     func handle(stashItem: StashItem?) {

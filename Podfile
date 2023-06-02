@@ -1,9 +1,13 @@
+# CI
+source 'https://github.com/soramitsu/SSFSpecs.git'
+source 'https://github.com/CocoaPods/Specs.git'
+
 platform :ios, '13.0'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.3'
+  pod 'SSFUtils'
   pod 'SwiftLint'
   pod 'R.swift', '6.1.0', :inhibit_warnings => true
   pod 'SoraKeystore', :git => 'https://github.com/soramitsu/keystore-iOS.git', :tag => '1.0.1'
@@ -28,7 +32,7 @@ abstract_target 'fearlessAll' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :tag => '0.14.3'
+    pod 'SSFUtils'
     pod 'SoraFoundation', '~> 1.0.0'
     pod 'R.swift', '6.1.0', :inhibit_warnings => true
     pod 'FireMock', :inhibit_warnings => true
