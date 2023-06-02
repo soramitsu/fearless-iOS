@@ -37,7 +37,8 @@ struct StakingRewardDestSetupViewFactory {
 
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: rewardBalanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator(chain: chain),
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let changeRewardDestViewModelFactory = ChangeRewardDestinationViewModelFactory(
