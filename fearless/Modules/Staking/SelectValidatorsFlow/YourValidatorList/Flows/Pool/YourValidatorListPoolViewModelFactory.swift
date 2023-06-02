@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class YourValidatorListPoolViewModelFactory {
     private let balanceViewModeFactory: BalanceViewModelFactoryProtocol

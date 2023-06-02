@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 enum SNAddressType: UInt16 {
     case polkadotMain = 0

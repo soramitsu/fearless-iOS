@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 /**
  *  Protocol is designed to provide methods to create a subscription

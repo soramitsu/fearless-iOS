@@ -1,6 +1,6 @@
 //import Foundation
 //@testable import fearless
-//import FearlessUtils
+//import SSFUtils
 //import IrohaCrypto
 //import BigInt
 //

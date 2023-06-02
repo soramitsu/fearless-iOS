@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 import RobinHood
 import BigInt
 import CommonWallet
@@ -8,27 +8,24 @@ final class ParachainCollatorOperationFactory {
     private let asset: AssetModel
     private let chain: ChainModel
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
     private let identityOperationFactory: IdentityOperationFactoryProtocol
     private let rewardOperationFactory: RewardOperationFactoryProtocol
-    private let engine: JSONRPCEngine
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         asset: AssetModel,
         chain: ChainModel,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
         identityOperationFactory: IdentityOperationFactoryProtocol,
-        subqueryOperationFactory: RewardOperationFactoryProtocol
+        subqueryOperationFactory: RewardOperationFactoryProtocol,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.asset = asset
         self.chain = chain
         self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
-        self.engine = engine
         self.identityOperationFactory = identityOperationFactory
         rewardOperationFactory = subqueryOperationFactory
+        self.chainRegistry = chainRegistry
     }
 
     func createStorageKeyOperation(from storagePath: StorageCodingPath) -> ClosureOperation<Data> {
@@ -41,9 +38,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let topDelegationsWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingDelegations>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .topDelegations
@@ -79,9 +80,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let bottomDelegationsWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingDelegations>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .bottomDelegations
@@ -120,9 +125,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         params: @escaping () throws -> [[NMapKeyParamProtocol]]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingCollatorSnapshot]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let atStakeWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingCollatorSnapshot>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: params,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .atStake
@@ -158,9 +167,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegatorState]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let topDelegationsWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingDelegatorState>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .delegatorState
@@ -196,9 +209,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingCandidateMetadata]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let candidateInfoWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingCandidateMetadata>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .candidateInfo
@@ -231,9 +248,13 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createCandidatePoolOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<[ParachainStakingCandidate]>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainStakingCandidate]>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .candidatePool)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .candidatePool
@@ -245,9 +266,13 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createSelectedCandidatesOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<[AccountId]>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let selectedCandidatesWrapper: CompoundOperationWrapper<[StorageResponse<[AccountId]>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .selectedCandidates)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .selectedCandidates
@@ -262,9 +287,13 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: [ParachainStakingScheduledRequest]]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let delegationScheduledRequestsWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainStakingScheduledRequest]>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: accountIdsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .delegationScheduledRequests
@@ -300,9 +329,13 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createRoundOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .round)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .round
@@ -314,9 +347,13 @@ final class ParachainCollatorOperationFactory {
     }
 
     func createCurrentBlockOperation(dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>) -> CompoundOperationWrapper<[StorageResponse<String>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .currentBlock)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .currentBlock
@@ -330,9 +367,13 @@ final class ParachainCollatorOperationFactory {
     func createCommissionOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<String>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .collatorCommission)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .collatorCommission
@@ -347,11 +388,15 @@ final class ParachainCollatorOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         roundOperation: CompoundOperationWrapper<[StorageResponse<ParachainStakingRoundInfo>]>
     ) -> CompoundOperationWrapper<[StorageResponse<String>]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let params: (() throws -> [String]) = { ["\(try roundOperation.targetOperation.extractNoCancellableResultData().first?.value?.current ?? 0)"] }
 
         let candidatePoolWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: params,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .staked
@@ -365,6 +410,14 @@ final class ParachainCollatorOperationFactory {
 
 extension ParachainCollatorOperationFactory {
     func candidateInfos(for candidateIdsOperation: CompoundOperationWrapper<[AccountId]>) -> CompoundOperationWrapper<[ParachainStakingCandidateInfo]?> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let accountIdsClosure: () throws -> [AccountId] = {
@@ -373,7 +426,7 @@ extension ParachainCollatorOperationFactory {
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -449,6 +502,12 @@ extension ParachainCollatorOperationFactory {
     }
 
     func allElectedOperation() -> CompoundOperationWrapper<[ParachainStakingCandidateInfo]?> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId),
+              let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId)
+        else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let candidatePoolOperation = createCandidatePoolOperation(dependingOn: runtimeOperation)
@@ -466,7 +525,7 @@ extension ParachainCollatorOperationFactory {
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -538,6 +597,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func collatorInfoOperation(accountId: AccountId) -> CompoundOperationWrapper<ParachainStakingCandidateMetadata?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let candidateInfoOperation = createCollatorInfoOperation(dependingOn: runtimeOperation) {
             [accountId]
@@ -555,6 +618,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func collatorBottomDelegations(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let topDelegationsWrapper = createBottomDelegationsOperation(
             dependingOn: runtimeOperation,
@@ -573,6 +640,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func collatorTopDelegations(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegations]?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let topDelegationsWrapper = createTopDelegationsOperation(
             dependingOn: runtimeOperation,
@@ -593,6 +664,10 @@ extension ParachainCollatorOperationFactory {
     func collatorAtStake(
         collatorAccountId: AccountId
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingCollatorSnapshot]?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let roundOperation = createRoundOperation(dependingOn: runtimeOperation)
 
@@ -624,6 +699,10 @@ extension ParachainCollatorOperationFactory {
     func delegatorState(
         accountIdsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[AccountAddress: ParachainStakingDelegatorState]?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let delegatorStateWrapper = createDelegatorStateOperation(
             dependingOn: runtimeOperation,
@@ -641,7 +720,13 @@ extension ParachainCollatorOperationFactory {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    func delegationScheduledRequests(accountIdsClosure: @escaping () throws -> [AccountId]) -> CompoundOperationWrapper<[AccountAddress: [ParachainStakingScheduledRequest]]?> {
+    func delegationScheduledRequests(
+        accountIdsClosure: @escaping () throws -> [AccountId]
+    ) -> CompoundOperationWrapper<[AccountAddress: [ParachainStakingScheduledRequest]]?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let delegatorStateWrapper = createDelegationScheduledRequestsOperation(
             dependingOn: runtimeOperation,
@@ -660,6 +745,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func round() -> CompoundOperationWrapper<ParachainStakingRoundInfo?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let roundWrapper = createRoundOperation(dependingOn: runtimeOperation)
 
@@ -675,6 +764,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func commission() -> CompoundOperationWrapper<String?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let commissionWrapper = createCommissionOperation(dependingOn: runtimeOperation)
 
@@ -690,6 +783,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func staked() -> CompoundOperationWrapper<String?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let roundOperation = createRoundOperation(dependingOn: runtimeOperation)
@@ -712,6 +809,10 @@ extension ParachainCollatorOperationFactory {
     }
 
     func currentBlock() -> CompoundOperationWrapper<String?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let blockWrapper = createCurrentBlockOperation(dependingOn: runtimeOperation)
 

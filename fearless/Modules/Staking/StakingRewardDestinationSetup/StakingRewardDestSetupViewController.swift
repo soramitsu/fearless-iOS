@@ -1,6 +1,6 @@
 import UIKit
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 final class StakingRewardDestSetupViewController: UIViewController, ViewHolder, LoadableViewProtocol {

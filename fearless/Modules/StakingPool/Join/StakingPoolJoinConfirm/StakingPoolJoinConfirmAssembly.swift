@@ -1,7 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 final class StakingPoolJoinConfirmAssembly {
     // swiftlint:disable function_body_length
@@ -70,10 +70,9 @@ final class StakingPoolJoinConfirmAssembly {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -100,9 +99,8 @@ final class StakingPoolJoinConfirmAssembly {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let callFactory = SubstrateCallFactoryAssembly.createCallFactory(for: runtimeService.runtimeSpecVersion)

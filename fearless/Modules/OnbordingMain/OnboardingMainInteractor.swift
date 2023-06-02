@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 final class OnboardingMainInteractor {
     weak var presenter: OnboardingMainInteractorOutputProtocol?

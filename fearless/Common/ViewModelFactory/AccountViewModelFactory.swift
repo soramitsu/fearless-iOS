@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 protocol AccountViewModelFactoryProtocol {
     func buildViewModel(

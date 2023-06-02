@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class StakingRedeemConfirmationRelaychainViewModelFactory: StakingRedeemConfirmationViewModelFactoryProtocol {
     let asset: AssetModel

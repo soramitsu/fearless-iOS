@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 import SoraFoundation
-import FearlessUtils
+import SSFUtils
 
 final class MainTabBarPresenter {
     private weak var view: MainTabBarViewProtocol?

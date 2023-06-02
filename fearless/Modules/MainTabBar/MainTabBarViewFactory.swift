@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import CommonWallet
-import FearlessUtils
+import SSFUtils
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0

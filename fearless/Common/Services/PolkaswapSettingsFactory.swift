@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import FearlessUtils
+import SSFUtils
 
 final class PolkaswapSettingsFactory {
     static func createService() -> PolkaswapSettingsSyncServiceProtocol {

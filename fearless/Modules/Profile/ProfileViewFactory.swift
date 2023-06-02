@@ -2,7 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
-import FearlessUtils
+import SSFUtils
 import RobinHood
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {

@@ -1,6 +1,6 @@
 import AVFoundation
 import UIKit
-import FearlessUtils
+import SSFUtils
 
 typealias ScanQRModuleCreationResult = (view: ScanQRViewInput, input: ScanQRModuleInput)
 

@@ -1,7 +1,7 @@
 import Foundation
 import SoraKeystore
 import RobinHood
-import FearlessUtils
+import SSFUtils
 import SoraFoundation
 
 final class StakingMainInteractor: RuntimeConstantFetching {
@@ -156,10 +156,9 @@ final class StakingMainInteractor: RuntimeConstantFetching {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         self.collatorOperationFactory = collatorOperationFactory

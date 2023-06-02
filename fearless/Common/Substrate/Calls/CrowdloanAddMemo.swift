@@ -1,5 +1,5 @@
 import Foundation
-import FearlessUtils
+import SSFUtils
 
 struct CrowdloanAddMemo: Codable {
     @StringCodable var index: ParaId

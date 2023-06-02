@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SoraKeystore
-import FearlessUtils
+import SSFUtils
 
 struct YourValidatorListViewFactory {
     static func createView(
@@ -101,10 +101,9 @@ struct YourValidatorListViewFactory {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardCalculatorService = try? serviceFactory.createRewardCalculatorService(
@@ -128,9 +127,8 @@ struct YourValidatorListViewFactory {
             eraValidatorService: eraValidatorService,
             rewardService: rewardCalculatorService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            chainRegistry: chainRegistry
         )
 
         let stakingLocalSubscriptionFactory = RelaychainStakingLocalSubscriptionFactory(
@@ -184,8 +182,7 @@ struct YourValidatorListViewFactory {
             let stakingPoolOperationFactory = StakingPoolOperationFactory(
                 chainAsset: chainAsset,
                 storageRequestFactory: storageRequestFactory,
-                runtimeService: runtimeService,
-                engine: connection
+                chainRegistry: chainRegistry
             )
             let eraCountdownOperationFactory = EraCountdownOperationFactory(
                 storageRequestFactory: storageRequestFactory

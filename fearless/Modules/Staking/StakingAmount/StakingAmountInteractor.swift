@@ -3,7 +3,7 @@ import RobinHood
 import SoraKeystore
 import IrohaCrypto
 import BigInt
-import FearlessUtils
+import SSFUtils
 
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?
