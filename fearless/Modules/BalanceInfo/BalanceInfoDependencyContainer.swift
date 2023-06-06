@@ -19,9 +19,9 @@ final class BalanceInfoDepencyContainer {
         }
         let operationManager = OperationManagerFacade.sharedManager
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
         return BalanceInfoDependencies(
             connection: connection,

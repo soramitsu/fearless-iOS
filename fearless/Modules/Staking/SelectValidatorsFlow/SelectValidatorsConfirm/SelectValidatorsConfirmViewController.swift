@@ -204,7 +204,7 @@ extension SelectValidatorsConfirmViewController: SelectValidatorsConfirmViewProt
 extension SelectValidatorsConfirmViewController {
     func applyLocalization() {
         if isViewLoaded {
-            applyLocalization()
+            setupLocalization()
             view.setNeedsLayout()
         }
     }

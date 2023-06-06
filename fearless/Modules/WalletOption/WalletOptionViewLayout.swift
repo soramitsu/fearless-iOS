@@ -92,8 +92,7 @@ final class WalletOptionViewLayout: UIView {
 
         navView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.centerY.equalToSuperview()
-            make.leading.equalToSuperview().offset(UIConstants.bigOffset)
+            make.center.equalToSuperview()
         }
 
         let indicator = UIFactory.default.createIndicatorView()

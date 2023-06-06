@@ -116,8 +116,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let extrinsicService = createExtrinsicService(
@@ -214,10 +213,9 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
                 identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsConfirmParachainViewModelState(

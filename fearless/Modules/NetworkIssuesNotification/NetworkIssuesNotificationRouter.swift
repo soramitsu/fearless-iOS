@@ -20,17 +20,17 @@ final class NetworkIssuesNotificationRouter: NetworkIssuesNotificationRouterInpu
             switch option {
             case .create:
                 let title = R.string.localizable.createNewAccount(preferredLanguages: locale?.rLanguages)
-                return SheetAlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title, style: .grayBackgroundWhiteText) { [weak self] in
                     self?.showCreate(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .import:
                 let title = R.string.localizable.alreadyHaveAccount(preferredLanguages: locale?.rLanguages)
-                return SheetAlertPresentableAction(title: title) { [weak self] in
+                return SheetAlertPresentableAction(title: title, style: .grayBackgroundWhiteText) { [weak self] in
                     self?.showImport(uniqueChainModel: uniqueChainModel, from: view)
                 }
             case .skip:
                 let title = R.string.localizable.missingAccountSkip(preferredLanguages: locale?.rLanguages)
-                return SheetAlertPresentableAction(title: title, style: .warningStyle) {
+                return SheetAlertPresentableAction(title: title, style: .grayBackgroundPinkText) {
                     skipBlock(uniqueChainModel.chain)
                 }
             }
