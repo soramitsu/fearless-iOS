@@ -474,6 +474,7 @@ private extension AccountImportPresenter {
     func askIfNeedAddEthereum(showHandler: @escaping () -> Void, closeHandler: @escaping () -> Void) {
         let showAction = SheetAlertPresentableAction(
             title: R.string.localizable.commonYes(preferredLanguages: selectedLocale.rLanguages),
+            style: .pinkBackgroundWhiteText,
             handler: showHandler
         )
         let closeAction = SheetAlertPresentableAction(
