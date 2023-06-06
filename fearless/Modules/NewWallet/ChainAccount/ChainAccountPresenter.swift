@@ -237,6 +237,14 @@ extension ChainAccountPresenter: ChainAccountPresenterProtocol {
         )
     }
 
+    func didTapCrossChainButton() {
+        wireframe.presentCrossChainFlow(
+            from: view,
+            chainAsset: chainAsset,
+            wallet: wallet
+        )
+    }
+
     func didTapOptionsButton() {
         guard let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() else {
             return
@@ -371,7 +379,8 @@ extension ChainAccountPresenter: ModalPickerViewControllerDelegate {
 extension ChainAccountPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         guard let chain = chain else {
             return

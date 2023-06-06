@@ -5,6 +5,7 @@ import SoraUI
 
 final class WalletsManagmentAssembly {
     static func configureModule(
+        viewType: WalletsManagmentType = .wallets,
         shouldSaveSelected: Bool,
         contextTag: Int = 0,
         moduleOutput: WalletsManagmentModuleOutput?
@@ -54,6 +55,7 @@ final class WalletsManagmentAssembly {
         )
 
         let presenter = WalletsManagmentPresenter(
+            viewType: viewType,
             contextTag: contextTag,
             viewModelFactory: viewModelFactory,
             logger: logger,
@@ -63,16 +65,22 @@ final class WalletsManagmentAssembly {
             localizationManager: localizationManager
         )
 
-        let view = Self.createView(presenter: presenter, localizationManager: localizationManager)
+        let view = Self.createView(
+            viewType: viewType,
+            presenter: presenter,
+            localizationManager: localizationManager
+        )
 
         return (view, presenter)
     }
 
     private static func createView(
+        viewType: WalletsManagmentType,
         presenter: WalletsManagmentPresenter,
         localizationManager: LocalizationManager
     ) -> WalletsManagmentViewInput {
         let view = WalletsManagmentViewController(
+            viewType: viewType,
             output: presenter,
             localizationManager: localizationManager
         )

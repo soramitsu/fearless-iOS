@@ -26,11 +26,23 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         }
         let allAssets = Array(chainAsset.chain.assets)
         let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
+        let buyButtonVisible = !(chainAssetModel?.purchaseProviders?.first == nil)
+        let polkaswapButtonVisible = chainAssetModel?.chain?.options?.contains(.polkaswap) == true
+
+        var xcmButtomVisible: Bool = false
+        if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.lowercased() }) {
+            let symbol = chainAsset.asset.symbol.lowercased()
+            xcmButtomVisible = availableAssets.contains(symbol)
+        }
+
         return ChainAccountViewModel(
             walletName: wallet.name,
             selectedChainName: chainAsset.chain.name,
             address: address,
-            chainAssetModel: chainAssetModel
+            chainAssetModel: chainAssetModel,
+            buyButtonVisible: buyButtonVisible,
+            polkaswapButtonVisible: polkaswapButtonVisible,
+            xcmButtomVisible: xcmButtomVisible
         )
     }
 }

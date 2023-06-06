@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import RobinHood
+import SSFModels
 
 class ChainAssetModel: Codable {
     let assetId: String
@@ -90,3 +91,5 @@ enum StakingType: String, Codable {
         }
     }
 }
+
+extension ChainAssetModel: ChainAssetModelProtocol {}

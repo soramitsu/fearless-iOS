@@ -177,19 +177,19 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "ios_app_support.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json")
+        GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
     }
 
     var fiatsURL: URL? {
@@ -201,26 +201,23 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.sharedFeaturesUrl(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "develop")
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: .master)
     }
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    enum BaseUrl: String {
+        case sharedUtils = "https://raw.githubusercontent.com/soramitsu/shared-features-utils/"
+        case fearlessUtils = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
     }
 
-    private static var sharedUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/shared-features-utils/")
+    enum DefaultBranch: String {
+        case master
+        case develop
+        case v4
     }
 
-    private static let defaultBranch = "v5"
-
-    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
-        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
-    }
-
-    static func sharedFeaturesUrl(suffix: String, branch: String) -> URL? {
-        sharedUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
+        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

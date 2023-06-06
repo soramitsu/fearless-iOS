@@ -24,13 +24,13 @@ final class ConnectionPool {
     private let operationQueue: OperationQueue
 
     private let mutex = NSLock()
-    private lazy var readLock = ReaderWriterLock()
+    private lazy var lock = ReaderWriterLock()
 
     private(set) var connectionsByChainIds: [ChainModel.Id: WeakWrapper] = [:]
     private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
-        readLock.exclusivelyWrite {
+        lock.exclusivelyWrite {
             self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
         }
     }
@@ -66,7 +66,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         })
         chainFailedUrls.insert(ignoredUrl)
 
-        readLock.exclusivelyWrite { [weak self] in
+        lock.exclusivelyWrite { [weak self] in
             self?.failedUrls[chain.chainId] = chainFailedUrls
         }
 
@@ -92,7 +92,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        readLock.exclusivelyWrite { [weak self] in
+        lock.exclusivelyWrite { [weak self] in
             self?.connectionsByChainIds[chain.chainId] = wrapper
         }
 
@@ -100,11 +100,11 @@ extension ConnectionPool: ConnectionPoolProtocol {
     }
 
     func getFailedUrls(for chainId: ChainModel.Id) -> Set<URL?>? {
-        readLock.concurrentlyRead { failedUrls[chainId] }
+        lock.concurrentlyRead { failedUrls[chainId] }
     }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
-        readLock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
+        lock.concurrentlyRead { connectionsByChainIds[chainId]?.target as? ChainConnection }
     }
 }
 

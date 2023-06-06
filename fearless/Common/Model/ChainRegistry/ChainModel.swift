@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import RobinHood
 
 enum BlockExplorerType: String, Codable {
@@ -25,6 +26,7 @@ class ChainModel: Codable {
     var selectedNode: ChainNodeModel?
     let customNodes: Set<ChainNodeModel>?
     let iosMinAppVersion: String?
+    let xcm: XcmChain?
 
     init(
         chainId: Id,
@@ -39,7 +41,8 @@ class ChainModel: Codable {
         externalApi: ExternalApiSet? = nil,
         selectedNode: ChainNodeModel? = nil,
         customNodes: Set<ChainNodeModel>? = nil,
-        iosMinAppVersion: String?
+        iosMinAppVersion: String?,
+        xcm: XcmChain?
     ) {
         self.chainId = chainId
         self.parentId = parentId
@@ -54,6 +57,7 @@ class ChainModel: Codable {
         self.selectedNode = selectedNode
         self.customNodes = customNodes
         self.iosMinAppVersion = iosMinAppVersion
+        self.xcm = xcm
     }
 
     var isEthereumBased: Bool {
@@ -171,7 +175,8 @@ class ChainModel: Codable {
             externalApi: externalApi,
             selectedNode: node,
             customNodes: customNodes,
-            iosMinAppVersion: iosMinAppVersion
+            iosMinAppVersion: iosMinAppVersion,
+            xcm: xcm
         )
     }
 
@@ -189,9 +194,28 @@ class ChainModel: Codable {
             externalApi: externalApi,
             selectedNode: selectedNode,
             customNodes: Set(newCustomNodes),
-            iosMinAppVersion: iosMinAppVersion
+            iosMinAppVersion: iosMinAppVersion,
+            xcm: xcm
         )
     }
+
+    // MARK: - ChainModelProtocol
+
+    var assetsModels: [any ChainAssetModelProtocol] {
+        Array(assets)
+    }
+
+    var isRelaychain: Bool {
+        parentId == nil
+    }
+
+    public lazy var nodesUrls: [URL] = {
+        nodes.map { $0.url }
+    }()
+
+    public lazy var selectedNodeUrl: URL? = {
+        selectedNode?.url
+    }()
 }
 
 extension ChainModel: Hashable {
@@ -207,6 +231,7 @@ extension ChainModel: Hashable {
             && lhs.nodes == rhs.nodes
             && lhs.iosMinAppVersion == rhs.iosMinAppVersion
             && lhs.selectedNode == rhs.selectedNode
+            && lhs.xcm == rhs.xcm
     }
 
     func hash(into hasher: inout Hasher) {
