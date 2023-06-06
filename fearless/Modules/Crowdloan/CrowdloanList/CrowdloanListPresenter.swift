@@ -74,7 +74,7 @@ final class CrowdloanListPresenter {
 
         let viewModel = viewModelFactory.createChainViewModel(
             from: chain,
-            asset: asset.asset,
+            asset: asset,
             balance: balance,
             locale: selectedLocale
         )
@@ -164,7 +164,7 @@ final class CrowdloanListPresenter {
             let viewInfo = try viewInfoResult.get()
 
             let chainAsset = ChainAssetDisplayInfo(
-                asset: asset.asset.displayInfo,
+                asset: asset.displayInfo,
                 chain: chain.chainFormat
             )
 

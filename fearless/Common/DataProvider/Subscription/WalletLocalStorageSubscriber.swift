@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol WalletLocalStorageSubscriber where Self: AnyObject {
     var walletLocalSubscriptionFactory: WalletLocalSubscriptionFactoryProtocol { get }
@@ -91,10 +92,14 @@ extension WalletLocalStorageSubscriber {
             .vToken,
             .vsToken,
             .stable,
-            .soraAsset:
+            .soraAsset,
+            .assetId,
+            .token2:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
         case .equilibrium:
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
+        case .assets:
+            handleAssetAccount(for: accountId, chainAsset: chainAsset, item: item)
         }
     }
 
@@ -235,6 +240,63 @@ extension WalletLocalStorageSubscriber {
                 return
             }
             self?.handleEquilibrium(result: result, accountId: accountId, chainAsset: chainAsset)
+        }
+
+        walletLocalSubscriptionFactory.operationManager.enqueue(
+            operations: [codingFactoryOperation, decodingOperation],
+            in: .transient
+        )
+    }
+
+    private func handleAssetAccount(
+        for accountId: AccountId,
+        chainAsset: ChainAsset,
+        item: AccountInfoStorageWrapper
+    ) {
+        guard
+            let runtimeCodingService = walletLocalSubscriptionFactory.getRuntimeProvider(
+                for: chainAsset.chain.chainId
+            )
+        else {
+            return
+        }
+
+        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        let decodingOperation = StorageDecodingOperation<AssetAccount?>(
+            path: .assetsAccount,
+            data: item.data
+        )
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation
+                    .extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
+
+        decodingOperation.addDependency(codingFactoryOperation)
+
+        decodingOperation.completionBlock = { [weak self] in
+            guard let result = decodingOperation.result else {
+                return
+            }
+
+            switch result {
+            case let .success(assetAccount):
+                let accountInfo = AccountInfo(assetAccount: assetAccount)
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .success(accountInfo),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
+            case let .failure(error):
+                self?.walletLocalSubscriptionHandler?.handleAccountInfo(
+                    result: .failure(error),
+                    accountId: accountId,
+                    chainAsset: chainAsset
+                )
+            }
         }
 
         walletLocalSubscriptionFactory.operationManager.enqueue(

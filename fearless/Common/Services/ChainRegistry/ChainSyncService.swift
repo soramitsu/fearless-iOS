@@ -1,6 +1,8 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
+import SSFChainRegistry
 
 protocol ChainSyncServiceProtocol {
     func syncUp()
@@ -18,34 +20,28 @@ final class ChainSyncService {
         let removedItems: [ChainModel]
     }
 
-    let chainsUrl: URL?
-    let assetsUrl: URL?
-    let repository: AnyDataProviderRepository<ChainModel>
-    let dataFetchFactory: DataOperationFactoryProtocol
-    let eventCenter: EventCenterProtocol
-    let retryStrategy: ReconnectionStrategyProtocol
-    let operationQueue: OperationQueue
-    let logger: LoggerProtocol?
+    private let syncService: SSFChainRegistry.ChainSyncServiceProtocol
+    private let repository: AnyDataProviderRepository<ChainModel>
+    private let eventCenter: EventCenterProtocol
+    private let retryStrategy: ReconnectionStrategyProtocol
+    private let operationQueue: OperationQueue
+    private let logger: LoggerProtocol?
 
-    private(set) var retryAttempt: Int = 0
-    private(set) var isSyncing: Bool = false
+    private var retryAttempt: Int = 0
+    private var isSyncing: Bool = false
     private let mutex = NSLock()
 
     private lazy var scheduler = Scheduler(with: self, callbackQueue: DispatchQueue.global())
 
     init(
-        chainsUrl: URL?,
-        assetsUrl: URL?,
-        dataFetchFactory: DataOperationFactoryProtocol,
+        syncService: SSFChainRegistry.ChainSyncServiceProtocol,
         repository: AnyDataProviderRepository<ChainModel>,
         eventCenter: EventCenterProtocol,
         operationQueue: OperationQueue,
         retryStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
         logger: LoggerProtocol? = nil
     ) {
-        self.chainsUrl = chainsUrl
-        self.assetsUrl = assetsUrl
-        self.dataFetchFactory = dataFetchFactory
+        self.syncService = syncService
         self.repository = repository
         self.eventCenter = eventCenter
         self.operationQueue = operationQueue
@@ -74,34 +70,33 @@ final class ChainSyncService {
         if Self.fetchLocalData {
             do {
                 let localData = try fetchLocalData()
-                decode(chainsData: localData.chainsData, assetsData: localData.assetsData)
+                handle(remoteChains: localData)
             } catch {
                 complete(result: .failure(error))
             }
         } else {
-            guard let chainsUrl = chainsUrl, let assetsUrl = assetsUrl else {
-                assertionFailure()
-                return
+            Task {
+                do {
+                    let remoteChains = try await syncService.getChainModels()
+                    handle(remoteChains: remoteChains)
+                } catch {
+                    complete(result: .failure(error))
+                }
             }
-            fetchRemoteData(chainsUrl: chainsUrl, assetsUrl: assetsUrl)
         }
     }
 
-    private func decode(chainsData: Data, assetsData: Data) {
+    private func handle(remoteChains: [ChainModel]) {
         let localFetchOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let processingOperation: BaseOperation<(
             remoteChains: [ChainModel],
-            assetsList: [AssetModel],
             localChains: [ChainModel]
         )> = ClosureOperation {
-            let remoteChains: [ChainModel] = try JSONDecoder().decode([ChainModel].self, from: chainsData)
-            let assetsList: [AssetModel] = try JSONDecoder().decode([AssetModel].self, from: assetsData)
             let localChains = try localFetchOperation.extractNoCancellableResultData()
 
             return (
                 remoteChains: remoteChains,
-                assetsList: assetsList,
                 localChains: localChains
             )
         }
@@ -113,10 +108,9 @@ final class ChainSyncService {
             }
 
             switch result {
-            case let .success((remoteChains, assetsList, localChains)):
+            case let .success((remoteChains, localChains)):
                 self?.syncChanges(
                     remoteChains: remoteChains,
-                    assetsList: assetsList,
                     localChains: localChains
                 )
             case let .failure(error):
@@ -136,26 +130,10 @@ final class ChainSyncService {
 
     private func syncChanges(
         remoteChains: [ChainModel],
-        assetsList: [AssetModel],
         localChains: [ChainModel]
     ) {
         remoteChains.forEach { chain in
-            chain.assets.forEach { chainAsset in
-                chainAsset.chain = chain
-                if let asset = assetsList.first(where: { asset in
-                    chainAsset.assetId == asset.id
-                }) {
-                    chainAsset.asset = asset
-                }
-            }
-        }
-
-        remoteChains.forEach { chain in
             chain.selectedNode = localChains.first(where: { $0.chainId == chain.chainId })?.selectedNode
-        }
-
-        remoteChains.forEach {
-            $0.assets = $0.assets.filter { $0.asset != nil && $0.chain != nil }
         }
 
         let remoteMapping = remoteChains.reduce(into: [ChainModel.Id: ChainModel]()) { mapping, item in
@@ -175,7 +153,8 @@ final class ChainSyncService {
         }
 
         let removed = localChains.compactMap { localItem in
-            remoteMapping[localItem.chainId] == nil ? localItem : nil
+            let isRemoved = remoteMapping[localItem.chainId] == nil || (remoteMapping[localItem.chainId]?.disabled == true)
+            return isRemoved ? localItem : nil
         }
 
         let syncChanges = SyncChanges(newOrUpdatedItems: newOrUpdated, removedItems: removed)
@@ -196,66 +175,21 @@ final class ChainSyncService {
         operationQueue.addOperation(localSaveOperation)
     }
 
-    private func fetchRemoteData(
-        chainsUrl: URL,
-        assetsUrl: URL
-    ) {
-        let remoteFetchChainsOperation = dataFetchFactory.fetchData(from: chainsUrl)
-        let remoteFetchAssetsOperation = dataFetchFactory.fetchData(from: assetsUrl)
-
-        let mergeOperation: BaseOperation<(chainsData: Data, assetsData: Data)> = ClosureOperation {
-            let remoteAssetsData = try remoteFetchAssetsOperation.extractNoCancellableResultData()
-            let remoteChainsData = try remoteFetchChainsOperation.extractNoCancellableResultData()
-
-            return (chainsData: remoteChainsData, assetsData: remoteAssetsData)
-        }
-
-        mergeOperation.completionBlock = { [weak self] in
-            guard let result = mergeOperation.result else {
-                return
-            }
-
-            switch result {
-            case let .success((chainsData, assetsData)):
-                self?.decode(chainsData: chainsData, assetsData: assetsData)
-            case let .failure(error):
-                self?.complete(result: .failure(error))
-            }
-        }
-
-        mergeOperation.addDependency(remoteFetchChainsOperation)
-        mergeOperation.addDependency(remoteFetchAssetsOperation)
-
-        operationQueue.addOperations(
-            [
-                mergeOperation,
-                remoteFetchChainsOperation,
-                remoteFetchAssetsOperation
-            ],
-            waitUntilFinished: false
-        )
-    }
-
-    private func fetchLocalData() throws -> (chainsData: Data, assetsData: Data) {
-        guard
-            let chainsUrl = Bundle.main.url(forResource: "chains", withExtension: "json"),
-            let assetsUrl = Bundle.main.url(forResource: "assets", withExtension: "json")
-        else {
+    private func fetchLocalData() throws -> [ChainModel] {
+        guard let chainsUrl = Bundle.main.url(forResource: "chains", withExtension: "json") else {
             throw ChainSyncServiceError.missingLocalFile
         }
 
-        let chainsData = try Data(contentsOf: chainsUrl)
-        let assetsData = try Data(contentsOf: assetsUrl)
-
-        return (chainsData: chainsData, assetsData: assetsData)
+        let data = try Data(contentsOf: chainsUrl)
+        return try JSONDecoder().decode([ChainModel].self, from: data)
     }
 
     private func complete(result: Result<SyncChanges, Error>?) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
+//        mutex.lock()
+//
+//        defer {
+//            mutex.unlock()
+//        }
 
         isSyncing = false
 

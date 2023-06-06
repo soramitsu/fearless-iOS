@@ -307,8 +307,27 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            logger?.info("Did receive minimum balance \(minimumBalance)")
+            #if F_DEV
+                router.present(
+                    message: "\(minimumBalance)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
+            #if F_DEV
+                router.present(
+                    message: "\(error)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
     }
 

@@ -150,7 +150,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
         guard let chainAsset = chainAsset else { return nil }
         if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
            let utilityAsset = chainAsset.chain.utilityAssets().first {
-            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset.asset)
+            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset)
         }
         return chainAsset
     }

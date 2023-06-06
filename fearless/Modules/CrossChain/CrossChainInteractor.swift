@@ -234,7 +234,10 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             return
         }
         getAvailableDestChainAssets(for: originChainAsset)
-        getExistentialDeposit(for: originChainAsset)
+        guard let edChainAsset = originalUtilityChainAsset else {
+            return
+        }
+        getExistentialDeposit(for: edChainAsset)
     }
 
     func validate(address: String?, for chain: ChainModel) -> AddressValidationResult {

@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SSFUtils
+import SSFModels
 
 class SubstrateCallFactoryV9420: SubstrateCallFactoryV9390 {
     override func defaultTransfer(to receiver: AccountId, amount: BigUInt) -> any RuntimeCallable {

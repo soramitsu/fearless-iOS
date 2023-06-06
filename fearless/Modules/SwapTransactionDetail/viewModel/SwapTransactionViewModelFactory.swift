@@ -27,10 +27,10 @@ final class SwapTransactionViewModelFactory: SwapTransactionViewModelFactoryProt
         locale: Locale
     ) -> SwapTransactionViewModel {
         let sendAsset = chainAsset.chain.chainAssets.first(where: {
-            $0.asset.type?.currencyId == transaction.peerId
+            $0.asset.currencyId == transaction.peerId
         })
         let receiveAsset = chainAsset.chain.chainAssets.first {
-            $0.asset.type?.currencyId == transaction.assetId
+            $0.asset.currencyId == transaction.assetId
         }
 
         let doubleImageViewViewModel = createDoubleImageViewModel(
