@@ -222,9 +222,8 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupWalletBalanceLayout() {
-        addressCopyableLabel.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         addressCopyableLabel.snp.makeConstraints { make in
-            make.width.lessThanOrEqualTo(135)
+            make.width.lessThanOrEqualTo(200)
             make.height.equalTo(24)
         }
 

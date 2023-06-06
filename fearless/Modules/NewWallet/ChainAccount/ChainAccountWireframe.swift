@@ -224,7 +224,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     ) {
         let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
             balanceContext,
-            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .fiat),
+            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .detailsCrypto),
             precision: info.assetPrecision,
             currency: currency
         )

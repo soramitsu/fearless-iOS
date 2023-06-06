@@ -97,10 +97,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -131,9 +130,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 eraValidatorService: eraValidatorService,
                 rewardService: rewardService,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsStartRelaychainExistingViewModelState(
@@ -162,9 +160,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 eraValidatorService: eraValidatorService,
                 rewardService: rewardService,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsStartRelaychainInitiatedViewModelState(
@@ -193,9 +190,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 eraValidatorService: eraValidatorService,
                 rewardService: rewardService,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsStartPoolInitiatedViewModelState(
@@ -225,10 +221,9 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
                 identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsStartParachainViewModelState(bonding: bonding, chainAsset: chainAsset)
@@ -255,9 +250,8 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
                 eraValidatorService: eraValidatorService,
                 rewardService: rewardService,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
-                identityOperationFactory: identityOperationFactory
+                identityOperationFactory: identityOperationFactory,
+                chainRegistry: chainRegistry
             )
 
             let viewModelState = SelectValidatorsStartPoolExistingViewModelState(

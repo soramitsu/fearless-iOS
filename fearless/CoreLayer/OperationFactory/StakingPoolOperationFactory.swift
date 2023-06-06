@@ -23,28 +23,29 @@ protocol StakingPoolOperationFactoryProtocol {
 final class StakingPoolOperationFactory {
     private let chainAsset: ChainAsset
     private let storageRequestFactory: StorageRequestFactoryProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
-    private let engine: JSONRPCEngine
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         chainAsset: ChainAsset,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.chainAsset = chainAsset
         self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
-        self.engine = engine
+        self.chainRegistry = chainRegistry
     }
 
     private func createBondedPoolOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         paramsClosure: @escaping () throws -> [String]
     ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let bondedPoolWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: paramsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .bondedPools
@@ -58,9 +59,13 @@ final class StakingPoolOperationFactory {
     private func createBondedPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let bondedPoolsWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolInfo>]> =
             storageRequestFactory.queryItemsByPrefix(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .bondedPools)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .bondedPools
@@ -75,9 +80,13 @@ final class StakingPoolOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         paramsClosure: @escaping () throws -> [String]
     ) -> CompoundOperationWrapper<[StorageResponse<Data>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<Data>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: paramsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMetadata
@@ -91,9 +100,13 @@ final class StakingPoolOperationFactory {
     private func createMinJoinBondOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMinJoinBond)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMinJoinBond
@@ -107,9 +120,13 @@ final class StakingPoolOperationFactory {
     private func createMinCreateBondOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMinCreateBond)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMinCreateBond
@@ -123,9 +140,13 @@ final class StakingPoolOperationFactory {
     private func createPoolMembersOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<BigUInt>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<BigUInt>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMembers)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMembers
@@ -140,9 +161,13 @@ final class StakingPoolOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         paramsClosure: @escaping () throws -> [AccountId]
     ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolMember>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolMember>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: paramsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMembers
@@ -156,9 +181,13 @@ final class StakingPoolOperationFactory {
     private func createMaxPoolMembersOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPoolMembers)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMaxPoolMembers
@@ -172,9 +201,13 @@ final class StakingPoolOperationFactory {
     private func createMaxPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPools)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMaxPools
@@ -188,9 +221,13 @@ final class StakingPoolOperationFactory {
     private func createMaxPoolMembersPerPoolOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolMaxPoolMembersPerPool)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolMaxPoolMembersPerPool
@@ -204,9 +241,13 @@ final class StakingPoolOperationFactory {
     private func createCounterForBondedPoolsOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let minJoinBondWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolCounterForBondedPools)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolCounterForBondedPools
@@ -221,9 +262,13 @@ final class StakingPoolOperationFactory {
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         paramsClosure: @escaping () throws -> [String]
     ) -> CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let poolMetadataWrapper: CompoundOperationWrapper<[StorageResponse<StakingPoolRewards>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: paramsClosure,
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolRewards
@@ -237,9 +282,13 @@ final class StakingPoolOperationFactory {
     private func createLastPoolIdOperation(
         dependingOn runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let lastPoolIdWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keys: { [try StorageKeyFactory().key(from: .stakingPoolLastPoolId)] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .stakingPoolLastPoolId
@@ -253,6 +302,10 @@ final class StakingPoolOperationFactory {
 
 extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolsOperation() -> CompoundOperationWrapper<[StakingPool]> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let bondedPoolsOperation = createBondedPoolsOperation(dependingOn: runtimeOperation)
 
@@ -302,6 +355,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchBondedPoolOperation(poolId: String) -> CompoundOperationWrapper<StakingPool?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let bondedPoolsOperation = createBondedPoolOperation(dependingOn: runtimeOperation) {
             [poolId]
@@ -343,6 +400,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchPoolMetadataOperation(poolId: String) -> CompoundOperationWrapper<String?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let poolMetadataOperation = createMetadataOperation(dependingOn: runtimeOperation) {
             [poolId]
@@ -360,6 +421,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchMinJoinBondOperation() -> CompoundOperationWrapper<BigUInt?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let minJoinBondOperation = createMinJoinBondOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<BigUInt?> {
@@ -374,6 +439,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchMinCreateBondOperation() -> CompoundOperationWrapper<BigUInt?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let minCreateBondOperation = createMinCreateBondOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<BigUInt?> {
@@ -388,6 +457,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchStakingPoolMembers(accountId: AccountId) -> CompoundOperationWrapper<StakingPoolMember?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let stakingPoolMembersOperation = createStakingPoolMembersOperation(dependingOn: runtimeOperation) {
             [accountId]
@@ -405,6 +478,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchMaxStakingPoolsCount() -> CompoundOperationWrapper<UInt32?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxStakingPoolsCountOperation = createMaxPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
@@ -419,6 +496,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchMaxPoolMembers() -> CompoundOperationWrapper<UInt32?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxPoolMembersOperation = createMaxPoolMembersOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
@@ -433,6 +514,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchCounterForBondedPools() -> CompoundOperationWrapper<UInt32?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let counterForBondedPoolsOperation = createCounterForBondedPoolsOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
@@ -447,6 +532,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchMaxPoolMembersPerPool() -> CompoundOperationWrapper<UInt32?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let maxPoolMembersPerPoolOperation = createMaxPoolMembersPerPoolOperation(dependingOn: runtimeOperation)
         let mapOperation = ClosureOperation<UInt32?> {
@@ -461,6 +550,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchPoolRewardsOperation(poolId: String) -> CompoundOperationWrapper<StakingPoolRewards?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let stakingPoolMembersOperation = createStakingPoolRewardsOperation(dependingOn: runtimeOperation) {
             [poolId]
@@ -478,6 +571,10 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchLastPoolId() -> CompoundOperationWrapper<UInt32?> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
         let lastPoolIdOperation = createLastPoolIdOperation(dependingOn: runtimeOperation)
 
@@ -493,12 +590,20 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
     }
 
     func fetchPendingRewards(accountId: AccountId) -> CompoundOperationWrapper<BigUInt?> {
+        guard let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let params = [RuntimeCallPath.nominationPoolsPendingRewards.rawValue, accountId.toHex(includePrefix: true)]
 
         let infoOperation = JSONRPCListOperation<String?>(
-            engine: engine,
+            engine: connection,
             method: RPCMethod.stateCall,
             parameters: params
         )

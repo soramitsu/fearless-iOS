@@ -159,7 +159,7 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
 
         let removeAction = SheetAlertPresentableAction(
             title: removeTitle,
-            button: UIFactory.default.createDestructiveButton()
+            style: .pinkBackgroundWhiteText
         ) { [weak self] in
             self?.performRemoveItem(at: index)
 

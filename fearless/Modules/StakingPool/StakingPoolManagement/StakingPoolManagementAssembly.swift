@@ -58,8 +58,7 @@ final class StakingPoolManagementAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let keyFactory = StorageKeyFactory()
@@ -97,15 +96,15 @@ final class StakingPoolManagementAssembly {
         let stakingDurationOperationFactory = StakingDurationOperationFactory()
 
         let accountOperationFactory = AccountOperationFactory(
-            engine: connection,
             requestFactory: requestFactory,
-            runtimeService: runtimeService
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let rewardOperationFactory = RewardOperationFactory.factory(chain: chainAsset.chain)
@@ -114,10 +113,9 @@ final class StakingPoolManagementAssembly {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -144,9 +142,8 @@ final class StakingPoolManagementAssembly {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let interactor = StakingPoolManagementInteractor(

@@ -616,7 +616,7 @@
 "wallet.manage.assets" = "Управление активами";
 "moonbeam.ethereum.address.incorrect" = "Формат адреса Moonbeam Ethereum неверен, попробуйте еще раз";
 "moonbeam.ethereum.reward" = "Вознаграждения будут выплачиваться на этот адрес. Вы можете использовать существующий адрес Ethereum. ПОЖАЛУЙСТА, УБЕДИТЕСЬ, ЧТО У ВАС ЕСТЬ ПРИВАТНЫЕ КЛЮЧИ ДЛЯ ЭТОГО АДРЕСА.";
-"manage.assets.search.hint" = "Поиск по токену или сети";
+"manage.assets.search.hint" = "Поиск по названию токена";
 "crowdloan.email.hint" = "Адрес электронной почты";
 "replace.account.template" = "Заменить %s аккаунт";
 "create.new.account" = "Создать новый аккаунт";

@@ -17,7 +17,7 @@ protocol CrossChainViewInput: ControllerBackedProtocol {
 }
 
 protocol CrossChainInteractorInput: AnyObject {
-    var xcmServices: XcmExtrinsicServices? { get }
+    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps? { get }
     func setup(with output: CrossChainInteractorOutput)
     func didReceive(originChainAsset: ChainAsset?)
     func estimateFee(originChainAsset: ChainAsset, destinationChainModel: ChainModel, amount: Decimal?)
@@ -301,7 +301,7 @@ final class CrossChainPresenter {
               let destChainFee = destNetworkFeeViewModel,
               let inputAmount = amountInputResult?.absoluteValue(from: originNetworkSelectedAssetBalance),
               let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(selectedAmountChainAsset.asset.precision)),
-              let xcmServices = interactor.xcmServices,
+              let xcmServices = interactor.deps?.xcmServices,
               let recipientAddress = recipientAddress,
               let destChainFeeDecimal = destNetworkFee
         else {

@@ -44,10 +44,9 @@ struct ValidatorSearchViewFactory {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -69,9 +68,8 @@ struct ValidatorSearchViewFactory {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
+            identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
+            chainRegistry: chainRegistry
         )
 
         let balanceViewModelFactory = BalanceViewModelFactory(

@@ -75,6 +75,12 @@ class AssetBalanceFormatterFactory {
                 formatter: formatter
             ),
             BigNumberAbbreviation(
+                threshold: 1000,
+                divisor: 1000.0,
+                suffix: "K",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
                 threshold: 1_000_000,
                 divisor: 1_000_000.0,
                 suffix: "M",

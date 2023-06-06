@@ -613,7 +613,7 @@ This is your transaction hash:";
 "wallet.manage.assets" = "Manage assets";
 "moonbeam.ethereum.address.incorrect" = "The Moonbeam Ethereum address format is incorrect, please try again";
 "moonbeam.ethereum.reward" = "Rewards will be paid out to this address. You can use an existing Ethereum address. PLEASE ENSURE YOU HAVE THE PRIVATE KEYS FOR THIS ADDRESS.";
-"manage.assets.search.hint" = "Search by token or network";
+"manage.assets.search.hint" = "Search by asset name";
 "crowdloan.email.hint" = "Email address";
 "replace.account.template" = "Replace %s account";
 "create.new.account" = "Create a new account";

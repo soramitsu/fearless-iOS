@@ -169,10 +169,9 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
                 asset: chainAsset.asset,
                 chain: chainAsset.chain,
                 storageRequestFactory: storageOperationFactory,
-                runtimeService: runtimeService,
-                engine: connection,
                 identityOperationFactory: identityOperationFactory,
-                subqueryOperationFactory: rewardOperationFactory
+                subqueryOperationFactory: rewardOperationFactory,
+                chainRegistry: chainRegistry
             )
             let viewModelState = StakingUnbondSetupParachainViewModelState(
                 chainAsset: chainAsset,
@@ -225,8 +224,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             let stakingPoolOperationFactory = StakingPoolOperationFactory(
                 chainAsset: chainAsset,
                 storageRequestFactory: requestFactory,
-                runtimeService: runtimeService,
-                engine: connection
+                chainRegistry: chainRegistry
             )
             let strategy = StakingUnbondSetupPoolStrategy(
                 stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,

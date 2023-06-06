@@ -8,7 +8,6 @@ protocol ChainRegistryProtocol: AnyObject {
     var chainsTypesMap: [String: Data] { get }
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection?
-    func setupConnection(for chainModel: ChainModel) -> ChainConnection?
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol?
     func chainsSubscribe(
         _ target: AnyObject,
@@ -196,14 +195,6 @@ extension ChainRegistry: ChainRegistryProtocol {
 
     func getConnection(for chainId: ChainModel.Id) -> ChainConnection? {
         readLock.concurrentlyRead { connectionPool.getConnection(for: chainId) }
-    }
-
-    func setupConnection(for chainModel: ChainModel) -> ChainConnection? {
-        if let connection = readLock.concurrentlyRead({ connectionPool.getConnection(for: chainModel.chainId) }) {
-            return connection
-        } else {
-            return try? connectionPool.setupConnection(for: chainModel)
-        }
     }
 
     func getRuntimeProvider(for chainId: ChainModel.Id) -> RuntimeProviderProtocol? {

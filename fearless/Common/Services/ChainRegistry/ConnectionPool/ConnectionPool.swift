@@ -31,7 +31,9 @@ final class ConnectionPool {
     private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
-        connectionsByChainIds = connectionsByChainIds.filter { $0.value.target != nil }
+        lock.exclusivelyWrite {
+            self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
+        }
     }
 
     init(connectionFactory: ConnectionFactoryProtocol, operationQueue: OperationQueue) {
@@ -59,14 +61,14 @@ extension ConnectionPool: ConnectionPoolProtocol {
             return connection
         }
 
-        var chainFaledUrls = getFailedUrls(for: chain.chainId).or([])
+        var chainFailedUrls = getFailedUrls(for: chain.chainId).or([])
         let node = chain.selectedNode ?? chain.nodes.first(where: {
-            ($0.url != ignoredUrl) && !chainFaledUrls.contains($0.url)
+            ($0.url != ignoredUrl) && !chainFailedUrls.contains($0.url)
         })
-        chainFaledUrls.insert(ignoredUrl)
+        chainFailedUrls.insert(ignoredUrl)
 
-        lock.exclusivelyWrite {
-            self.failedUrls[chain.chainId] = chainFaledUrls
+        lock.exclusivelyWrite { [weak self] in
+            self?.failedUrls[chain.chainId] = chainFailedUrls
         }
 
         guard let url = node?.url else {
@@ -75,7 +77,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
 
         clearUnusedConnections()
 
-        if let connection = connectionsByChainIds[chain.chainId]?.target as? ChainConnection {
+        if let connection = getConnection(for: chain.chainId) {
             if connection.url == url {
                 return connection
             } else if ignoredUrl != nil {
@@ -91,8 +93,8 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        lock.exclusivelyWrite {
-            self.connectionsByChainIds[chain.chainId] = wrapper
+        lock.exclusivelyWrite { [weak self] in
+            self?.connectionsByChainIds[chain.chainId] = wrapper
         }
 
         return connection

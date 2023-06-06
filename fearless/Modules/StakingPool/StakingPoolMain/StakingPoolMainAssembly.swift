@@ -24,9 +24,7 @@ final class StakingPoolMainAssembly {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
         guard
-            let chainAsset = stakingSettings.value,
-            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId)
+            let chainAsset = stakingSettings.value
         else {
             return nil
         }
@@ -55,8 +53,7 @@ final class StakingPoolMainAssembly {
         let stakingPoolOperationFactory = StakingPoolOperationFactory(
             chainAsset: chainAsset,
             storageRequestFactory: requestFactory,
-            runtimeService: runtimeService,
-            engine: connection
+            chainRegistry: chainRegistry
         )
 
         let serviceFactory = StakingServiceFactory(
@@ -142,15 +139,15 @@ final class StakingPoolMainAssembly {
         eraValidatorService.setup()
 
         let accountOperationFactory = AccountOperationFactory(
-            engine: connection,
             requestFactory: requestFactory,
-            runtimeService: runtimeService
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: operationManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let storageOperationFactory = StorageRequestFactory(
@@ -165,10 +162,9 @@ final class StakingPoolMainAssembly {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: identityOperationFactory,
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         guard let rewardService = try? serviceFactory.createRewardCalculatorService(
@@ -189,9 +185,8 @@ final class StakingPoolMainAssembly {
             eraValidatorService: eraValidatorService,
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
-            runtimeService: runtimeService,
-            engine: connection,
-            identityOperationFactory: identityOperationFactory
+            identityOperationFactory: identityOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let chainItemRepository = substrateRepositoryFactory.createChainStorageItemRepository()
@@ -222,7 +217,6 @@ final class StakingPoolMainAssembly {
             eventCenter: EventCenter.shared,
             stakingLocalSubscriptionFactory: stakingLocalSubscriptionFactory,
             poolStakingAccountUpdatingService: poolStakingAccountUpdatingService,
-            runtimeService: runtimeService,
             accountOperationFactory: accountOperationFactory,
             existentialDepositService: existentialDepositService,
             validatorOperationFactory: validatorOperationFactory,

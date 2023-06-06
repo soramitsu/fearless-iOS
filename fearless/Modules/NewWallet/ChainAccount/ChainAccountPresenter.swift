@@ -92,7 +92,11 @@ final class ChainAccountPresenter {
         let transferrableValue = balanceViewModelFactory.balanceFromPrice(freeBalance, priceData: priceData, usageCase: .detailsCrypto)
         let lockedValue = balanceViewModelFactory.balanceFromPrice(lockedBalance, priceData: priceData, usageCase: .detailsCrypto)
 
-        let balanceViewModel = ChainAccountBalanceViewModel(transferrableValue: transferrableValue, lockedValue: lockedValue)
+        let balanceViewModel = ChainAccountBalanceViewModel(
+            transferrableValue: transferrableValue,
+            lockedValue: lockedValue,
+            hasLockedTokens: lockedBalance > Decimal.zero
+        )
         view?.didReceive(balanceViewModel: balanceViewModel)
     }
 
