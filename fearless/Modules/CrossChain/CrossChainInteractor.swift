@@ -41,7 +41,7 @@ final class CrossChainInteractor {
 
     private var runtimeItems: [RuntimeMetadataItem] = []
 
-    var xcmServices: XcmExtrinsicServices?
+    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -85,20 +85,16 @@ final class CrossChainInteractor {
         operationQueue.addOperation(runtimeItemsOperation)
     }
 
-    private func prepareDeps(
-        originalChainAsset: ChainAsset
-    ) -> CrossChainDepsContainer.CrossChainConfirmationDeps? {
+    private func refrashDeps(originalChainAsset: ChainAsset) {
         do {
             guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }) else {
                 throw ConvenienceError(error: "missing runtime item")
             }
 
-            return try depsContainer.prepareDepsFor(
+            deps = try depsContainer.prepareDepsFor(
                 originalChainAsset: originalChainAsset,
                 originalRuntimeMetadataItem: originalRuntimeMetadataItem
             )
-        } catch {
-            return nil
         }
     }
 
@@ -122,8 +118,8 @@ final class CrossChainInteractor {
     private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
         Task {
             do {
-                let deps = prepareDeps(originalChainAsset: chainAsset)
-                xcmServices = deps?.xcmServices
+                refrashDeps(originalChainAsset: chainAsset)
+
                 let availableChainIds = try await deps?.xcmServices
                     .availableDestionationFetching
                     .getAvailableDestinationChains(
@@ -182,8 +178,7 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         let inputAmount = amount ?? 1
         let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
 
-        let deps = prepareDeps(originalChainAsset: originChainAsset)
-        xcmServices = deps?.xcmServices
+        refrashDeps(originalChainAsset: originChainAsset)
 
         guard let destAccountId = wallet.fetch(for: destinationChainModel.accountRequest())?.accountId else {
             return
