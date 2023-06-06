@@ -41,7 +41,7 @@ final class CrossChainInteractor {
 
     private var runtimeItems: [RuntimeMetadataItem] = []
 
-    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps
+    var deps: CrossChainDepsContainer.CrossChainConfirmationDeps?
 
     init(
         chainAssetFetching: ChainAssetFetchingProtocol,
@@ -85,17 +85,14 @@ final class CrossChainInteractor {
         operationQueue.addOperation(runtimeItemsOperation)
     }
 
-    private func refrashDeps(originalChainAsset: ChainAsset) {
-        do {
-            guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }) else {
-                throw ConvenienceError(error: "missing runtime item")
-            }
-
-            deps = try depsContainer.prepareDepsFor(
-                originalChainAsset: originalChainAsset,
-                originalRuntimeMetadataItem: originalRuntimeMetadataItem
-            )
+    private func refreshDeps(originalChainAsset: ChainAsset) throws {
+        guard let originalRuntimeMetadataItem = runtimeItems.first(where: { $0.chain == originalChainAsset.chain.chainId }) else {
+            throw ConvenienceError(error: "missing runtime item")
         }
+        deps = try depsContainer.prepareDepsFor(
+            originalChainAsset: originalChainAsset,
+            originalRuntimeMetadataItem: originalRuntimeMetadataItem
+        )
     }
 
     private func subscribeToAccountInfo(for chainAssets: [ChainAsset]) {
@@ -118,7 +115,7 @@ final class CrossChainInteractor {
     private func getAvailableDestChainAssets(for chainAsset: ChainAsset) {
         Task {
             do {
-                refrashDeps(originalChainAsset: chainAsset)
+                try refreshDeps(originalChainAsset: chainAsset)
 
                 let availableChainIds = try await deps?.xcmServices
                     .availableDestionationFetching
@@ -178,7 +175,7 @@ extension CrossChainInteractor: CrossChainInteractorInput {
         let inputAmount = amount ?? 1
         let substrateAmout = inputAmount.toSubstrateAmount(precision: Int16(originChainAsset.asset.precision)) ?? BigUInt.zero
 
-        refrashDeps(originalChainAsset: originChainAsset)
+        try? refreshDeps(originalChainAsset: originChainAsset)
 
         guard let destAccountId = wallet.fetch(for: destinationChainModel.accountRequest())?.accountId else {
             return

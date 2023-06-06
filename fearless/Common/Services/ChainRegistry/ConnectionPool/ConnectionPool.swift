@@ -30,7 +30,7 @@ final class ConnectionPool {
     private var failedUrls: [ChainModel.Id: Set<URL?>] = [:]
 
     private func clearUnusedConnections() {
-        readLock.exclusivelyWrite {
+        lock.exclusivelyWrite {
             self.connectionsByChainIds = self.connectionsByChainIds.filter { $0.value.target != nil }
         }
     }
@@ -66,7 +66,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         })
         chainFailedUrls.insert(ignoredUrl)
 
-        readLock.exclusivelyWrite { [weak self] in
+        lock.exclusivelyWrite { [weak self] in
             self?.failedUrls[chain.chainId] = chainFailedUrls
         }
 
@@ -92,7 +92,7 @@ extension ConnectionPool: ConnectionPoolProtocol {
         )
         let wrapper = WeakWrapper(target: connection)
 
-        readLock.exclusivelyWrite { [weak self] in
+        lock.exclusivelyWrite { [weak self] in
             self?.connectionsByChainIds[chain.chainId] = wrapper
         }
 
