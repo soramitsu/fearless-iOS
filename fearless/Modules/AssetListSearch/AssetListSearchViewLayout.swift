@@ -72,5 +72,8 @@ final class AssetListSearchViewLayout: UIView {
     private func applyLocalization() {
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
         cancelButton.setTitle(cancelTitle, for: .normal)
+        searchTextField.textField.placeholder = R.string.localizable.manageAssetsSearchHint(
+            preferredLanguages: locale.rLanguages
+        )
     }
 }
