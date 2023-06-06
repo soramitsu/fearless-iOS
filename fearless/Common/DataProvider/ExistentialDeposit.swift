@@ -126,6 +126,14 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         chainAsset: ChainAsset,
         completion: @escaping (Result<BigUInt, Error>) -> Void
     ) {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            completion(.failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
         guard let currencyId = chainAsset.asset.currencyId else {
             completion(.failure(ConvenienceError(error: "missing currency id \(chainAsset.debugName)")))
             return
@@ -136,10 +144,10 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             operationManager: operationManager
         )
 
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let fetchWrapper: CompoundOperationWrapper<[StorageResponse<AssetDetails>]> = requestFactory.queryItems(
-            engine: engine,
+            engine: connection,
             keyParams: { [StringScaleMapper(value: currencyId)] },
             factory: { try codingFactoryOperation.extractNoCancellableResultData() },
             storagePath: assetsDetailsPath
