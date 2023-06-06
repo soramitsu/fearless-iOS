@@ -63,9 +63,9 @@ final class CrossChainAssembly {
         )
 
         let existentialDepositService = ExistentialDepositService(
-            runtimeCodingService: runtimeService,
             operationManager: OperationManagerFacade.sharedManager,
-            engine: connection
+            chainRegistry: chainRegistry,
+            chainId: chainAsset.chain.chainId
         )
 
         let interactor = CrossChainInteractor(
