@@ -30,6 +30,7 @@
 		07089AF928B78248001566CA /* SheetAlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07089AF828B78248001566CA /* SheetAlertPresentable.swift */; };
 		07089AFC28B783B5001566CA /* SheetAletViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07089AFB28B783B5001566CA /* SheetAletViewController.swift */; };
 		07089AFE28B7841A001566CA /* SheetAlertViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07089AFD28B7841A001566CA /* SheetAlertViewLayout.swift */; };
+		070944292A303F5700508B42 /* AssetDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070944282A303F5700508B42 /* AssetDetail.swift */; };
 		070B2C55289CE43A00F78F82 /* SelectNetworkProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070B2C4E289CE43A00F78F82 /* SelectNetworkProtocols.swift */; };
 		070B2C56289CE43A00F78F82 /* SelectNetworkPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070B2C4F289CE43A00F78F82 /* SelectNetworkPresenter.swift */; };
 		070B2C57289CE43A00F78F82 /* SelectNetworkInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 070B2C50289CE43A00F78F82 /* SelectNetworkInteractor.swift */; };
@@ -2612,6 +2613,7 @@
 		07089AF828B78248001566CA /* SheetAlertPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAlertPresentable.swift; sourceTree = "<group>"; };
 		07089AFB28B783B5001566CA /* SheetAletViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAletViewController.swift; sourceTree = "<group>"; };
 		07089AFD28B7841A001566CA /* SheetAlertViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SheetAlertViewLayout.swift; sourceTree = "<group>"; };
+		070944282A303F5700508B42 /* AssetDetail.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDetail.swift; sourceTree = "<group>"; };
 		070B2C4B289BEB6D00F78F82 /* SelectNetworkViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectNetworkViewModelFactory.swift; sourceTree = "<group>"; };
 		070B2C4E289CE43A00F78F82 /* SelectNetworkProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectNetworkProtocols.swift; sourceTree = "<group>"; };
 		070B2C4F289CE43A00F78F82 /* SelectNetworkPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectNetworkPresenter.swift; sourceTree = "<group>"; };
@@ -6973,6 +6975,7 @@
 				8444D1732671372800AF6D8C /* BytesCodable.swift */,
 				846A2600267C768500429A7F /* CrowdloanContributionMapper.swift */,
 				845532CF2684690D00C2645D /* ParachainSlotLease.swift */,
+				070944282A303F5700508B42 /* AssetDetail.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -14848,6 +14851,7 @@
 				07DFA471289B8D8E0035A8AB /* EducationStoriesAssembly.swift in Sources */,
 				F43A8A9E265BA03500A8A5A8 /* CustomValidatorListViewModel.swift in Sources */,
 				FAA0133528DA12B6000A5230 /* StakingPoolMainPresenter.swift in Sources */,
+				070944292A303F5700508B42 /* AssetDetail.swift in Sources */,
 				AEA2C1BC2681E9CD0069492E /* ValidatorSearchPresenter.swift in Sources */,
 				845B821D26EF80DB00D25C72 /* ChainAccountModel.swift in Sources */,
 				FABC71AD29DD72C10074A31E /* CrossChainPresenter.swift in Sources */,

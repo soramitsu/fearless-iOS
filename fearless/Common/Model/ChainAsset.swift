@@ -3,6 +3,8 @@ import RobinHood
 import SSFModels
 
 extension ChainAsset: Identifiable {
+    public var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
+
     public var identifier: String {
         chain.identifier + asset.identifier
     }
