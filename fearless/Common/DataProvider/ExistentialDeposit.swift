@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import RobinHood
 import SSFUtils
+import SSFModels
 
 protocol ExistentialDepositServiceProtocol {
     func fetchExistentialDeposit(
@@ -63,7 +64,9 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             .liquidCrowdloan,
             .vToken,
             .vsToken,
-            .stable:
+            .stable,
+            .assetId,
+            .token2:
             fetchSubAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
         case .equilibrium:
             fetchConstant(
@@ -73,6 +76,8 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
             ) { result in
                 completion(result)
             }
+        case .assets:
+            fetchAssetsExistentialDeposit(chainAsset: chainAsset, completion: completion)
         }
     }
 
@@ -115,5 +120,56 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
         }
 
         operationManager.enqueue(operations: [callOperation], in: .transient)
+    }
+
+    private func fetchAssetsExistentialDeposit(
+        chainAsset: ChainAsset,
+        completion: @escaping (Result<BigUInt, Error>) -> Void
+    ) {
+        guard let connection = chainRegistry.getConnection(for: chainId) else {
+            completion(.failure(ChainRegistryError.connectionUnavailable))
+            return
+        }
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chainId) else {
+            completion(.failure(ChainRegistryError.runtimeMetadaUnavailable))
+            return
+        }
+        guard let currencyId = chainAsset.asset.currencyId else {
+            completion(.failure(ConvenienceError(error: "missing currency id \(chainAsset.debugName)")))
+            return
+        }
+        let assetsDetailsPath = StorageCodingPath.assetsAssetDetail
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let fetchWrapper: CompoundOperationWrapper<[StorageResponse<AssetDetails>]> = requestFactory.queryItems(
+            engine: connection,
+            keyParams: { [StringScaleMapper(value: currencyId)] },
+            factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+            storagePath: assetsDetailsPath
+        )
+
+        fetchWrapper.addDependency(operations: [codingFactoryOperation])
+
+        fetchWrapper.targetOperation.completionBlock = {
+            do {
+                let details = try fetchWrapper.targetOperation.extractNoCancellableResultData().first?.value
+
+                DispatchQueue.main.async {
+                    completion(.success(details?.minBalance ?? .zero))
+                }
+            } catch {
+                DispatchQueue.main.async {
+                    completion(.failure(error))
+                }
+            }
+        }
+
+        let operations = [codingFactoryOperation] + fetchWrapper.allOperations
+        operationManager.enqueue(operations: operations, in: .transient)
     }
 }

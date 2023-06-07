@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SSFUtils
+import SSFModels
 
 protocol StakingPoolMainViewModelFactoryProtocol {
     func createEstimationViewModel(

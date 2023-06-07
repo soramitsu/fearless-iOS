@@ -1,3 +1,5 @@
+import SSFModels
+
 protocol AssetSelectionWireframeProtocol: SheetAlertPresentable, ErrorPresentable {
     func complete(
         on view: ChainSelectionViewProtocol,
@@ -14,4 +16,4 @@ protocol AssetSelectionDelegate: AnyObject {
     )
 }
 
-typealias AssetSelectionFilter = (ChainAssetModel) -> Bool
+typealias AssetSelectionFilter = (AssetModel) -> Bool

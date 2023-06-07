@@ -1,5 +1,6 @@
 import BigInt
 import Foundation
+import SSFModels
 
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)

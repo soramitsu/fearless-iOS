@@ -1,4 +1,5 @@
 import IrohaCrypto
+import SSFModels
 
 protocol ExportMnemonicInteractorInputProtocol: AnyObject {
     func fetchExportDataForWallet(wallet: MetaAccountModel, accounts: [ChainAccountInfo])

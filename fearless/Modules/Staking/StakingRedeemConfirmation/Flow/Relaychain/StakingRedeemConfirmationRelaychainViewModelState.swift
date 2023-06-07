@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 final class StakingRedeemConfirmationRelaychainViewModelState: StakingRedeemConfirmationViewModelState {
     private let callFactory: SubstrateCallFactoryProtocol

@@ -3,6 +3,7 @@ import SoraKeystore
 import RobinHood
 import SSFUtils
 import CommonWallet
+import SSFModels
 
 struct StakingBondMoreViewFactory {
     static func createView(

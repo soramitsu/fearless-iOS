@@ -3,6 +3,7 @@ import RobinHood
 import CommonWallet
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 class SubqueryHistoryOperationFactory {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>

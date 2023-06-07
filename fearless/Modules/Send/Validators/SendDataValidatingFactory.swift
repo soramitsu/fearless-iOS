@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 enum BalanceType {
     case utility(balance: Decimal?)

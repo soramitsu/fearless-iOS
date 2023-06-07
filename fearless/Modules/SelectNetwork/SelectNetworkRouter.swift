@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol SelectNetworkDelegate: AnyObject {
     func chainSelection(

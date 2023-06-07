@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import SSFModels
 
 struct TransactionHistoryMergeResult {
     let historyItems: [AssetTransactionData]

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 struct NodeSelectionViewFactory {
     static func createView(chain: ChainModel) -> NodeSelectionViewProtocol? {

@@ -1,14 +1,6 @@
 import Foundation
+import SSFModels
 import SoraFoundation
-
-struct AssetBalanceDisplayInfo: Equatable {
-    let displayPrecision: UInt16
-    let assetPrecision: Int16
-    let symbol: String
-    let symbolValueSeparator: String
-    let symbolPosition: TokenSymbolPosition
-    let icon: URL?
-}
 
 extension AssetBalanceDisplayInfo {
     static func forCurrency(_ currency: Currency) -> AssetBalanceDisplayInfo {
@@ -41,30 +33,6 @@ extension AssetBalanceDisplayInfo {
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: URL(string: info.icon)
-        )
-    }
-}
-
-extension AssetModel {
-    var displayInfo: AssetBalanceDisplayInfo {
-        AssetBalanceDisplayInfo(
-            displayPrecision: 5,
-            assetPrecision: Int16(bitPattern: precision),
-            symbol: symbolUppercased,
-            symbolValueSeparator: " ",
-            symbolPosition: .suffix,
-            icon: icon
-        )
-    }
-
-    func displayInfo(with chainIcon: URL?) -> AssetBalanceDisplayInfo {
-        AssetBalanceDisplayInfo(
-            displayPrecision: 5,
-            assetPrecision: Int16(bitPattern: precision),
-            symbol: symbolUppercased,
-            symbolValueSeparator: " ",
-            symbolPosition: .suffix,
-            icon: icon ?? chainIcon
         )
     }
 }

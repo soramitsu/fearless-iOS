@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import SoraFoundation
 import BigInt
+import SSFModels
 
 final class SelectedValidatorListParachainViewModelFactory {
     private var iconGenerator: IconGenerating

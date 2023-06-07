@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SSFModels
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {

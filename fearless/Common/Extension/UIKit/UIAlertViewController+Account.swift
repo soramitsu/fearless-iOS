@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 extension UIAlertController {
     static func presentAccountOptions(

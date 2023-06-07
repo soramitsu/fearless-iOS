@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 final class CustomValidatorListRelaychainViewModelFactory {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol

@@ -2,6 +2,7 @@ import CommonWallet
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class HistoryOperationFactoriesAssembly {
     static func createOperationFactory(

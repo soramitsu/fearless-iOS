@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 typealias AllDoneModuleCreationResult = (view: AllDoneViewInput, input: AllDoneModuleInput)
 

@@ -1,5 +1,6 @@
 import UIKit
 import SSFUtils
+import SSFModels
 
 protocol WalletDetailsViewModelFactoryProtocol {
     func buildNormalViewModel(

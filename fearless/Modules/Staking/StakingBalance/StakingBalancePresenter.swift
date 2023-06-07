@@ -1,5 +1,6 @@
 import SoraFoundation
 import Darwin
+import SSFModels
 
 final class StakingBalancePresenter {
     let interactor: StakingBalanceInteractorInputProtocol

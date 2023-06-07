@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SSFXCM
+import SSFModels
 
 protocol CrossChainViewModelFactoryProtocol {
     func buildNetworkViewModel(chain: ChainModel) -> SelectNetworkViewModel

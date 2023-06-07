@@ -1,5 +1,6 @@
 import Foundation
 import SSFXCM
+import SSFModels
 
 final class CrossChainRouter: CrossChainRouterInput {
     func showSelectNetwork(

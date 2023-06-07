@@ -1,5 +1,6 @@
 import BigInt
 import Foundation
+import SSFModels
 
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: WalletSendConfirmViewState)

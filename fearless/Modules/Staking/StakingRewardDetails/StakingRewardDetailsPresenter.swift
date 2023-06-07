@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class StakingRewardDetailsPresenter {
     weak var view: StakingRewardDetailsViewProtocol?

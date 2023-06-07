@@ -1,6 +1,7 @@
 import Foundation
 import UIKit
 import SoraUI
+import SSFModels
 
 final class WalletSendConfirmWireframe: WalletSendConfirmWireframeProtocol {
     func finish(view: ControllerBackedProtocol?) {

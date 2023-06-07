@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 protocol StakingBalanceRelaychainStrategyOutput: AnyObject {
     func didReceive(ledgerResult: Result<StakingLedger?, Error>)

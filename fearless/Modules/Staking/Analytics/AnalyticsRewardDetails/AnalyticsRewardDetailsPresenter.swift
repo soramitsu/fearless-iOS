@@ -1,5 +1,6 @@
 import Foundation
 import UIKit.UIPasteboard
+import SSFModels
 
 final class AnalyticsRewardDetailsPresenter {
     weak var view: AnalyticsRewardDetailsViewProtocol?

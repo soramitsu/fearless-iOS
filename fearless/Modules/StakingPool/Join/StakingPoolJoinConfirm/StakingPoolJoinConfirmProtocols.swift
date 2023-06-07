@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias StakingPoolJoinConfirmModuleCreationResult = (view: StakingPoolJoinConfirmViewInput, input: StakingPoolJoinConfirmModuleInput)
 

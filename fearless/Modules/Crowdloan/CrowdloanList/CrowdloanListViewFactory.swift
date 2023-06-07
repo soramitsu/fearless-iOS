@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 import RobinHood
 
 struct CrowdloanListViewFactory {

@@ -2,6 +2,7 @@ import Foundation
 import CoreData
 import RobinHood
 import SSFModels
+import SSFUtils
 
 final class ChainModelMapper {
     var entityIdentifierFieldName: String { #keyPath(CDChain.chainId) }
@@ -9,8 +10,7 @@ final class ChainModelMapper {
     typealias DataProviderModel = ChainModel
     typealias CoreDataEntity = CDChain
 
-    // TODO: replace precondition failure to optional
-    private func createAsset(from entity: CDAsset) -> AssetModel {
+    private func createAsset(from entity: CDAsset) -> AssetModel? {
         var symbol: String?
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
@@ -26,54 +26,39 @@ final class ChainModelMapper {
         }
         guard
             let id = entity.id,
-            let chainId = entity.chainId,
             let symbol = symbol,
             let name = name
         else {
-            preconditionFailure()
+            return nil
+        }
+
+        let staking: SSFModels.StakingType?
+        if let entityStaking = entity.staking {
+            staking = SSFModels.StakingType(rawValue: entityStaking)
+        } else {
+            staking = nil
+        }
+        let purchaseProviders: [SSFModels.PurchaseProvider]? = entity.purchaseProviders?.compactMap {
+            SSFModels.PurchaseProvider(rawValue: $0)
         }
 
         return AssetModel(
             id: id,
             name: name,
             symbol: symbol,
-            chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
             icon: entity.icon,
             priceId: entity.priceId,
             price: entity.price as Decimal?,
             fiatDayChange: entity.fiatDayChange as Decimal?,
-            transfersEnabled: entity.transfersEnabled,
             currencyId: entity.currencyId,
-            displayName: entity.displayName,
             existentialDeposit: entity.existentialDeposit,
-            color: entity.color
-        )
-    }
-
-    private func createChainAsset(from entity: CDChainAsset, parentChain: ChainModel) -> ChainAssetModel {
-        guard let assetId = entity.assetId,
-              let asset = entity.asset else {
-            preconditionFailure()
-        }
-        let staking: StakingType?
-        if let entityStaking = entity.staking {
-            staking = StakingType(rawValue: entityStaking)
-        } else {
-            staking = nil
-        }
-        let purchaseProviders: [PurchaseProvider]? = entity.purchaseProviders?.compactMap {
-            PurchaseProvider(rawValue: $0)
-        }
-        return ChainAssetModel(
-            assetId: assetId,
+            color: entity.color,
+            isUtility: entity.isUtility,
+            isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type),
-            asset: createAsset(from: asset),
-            chain: parentChain,
-            isUtility: entity.isUtility,
-            isNative: entity.isNative
+            type: createChainAssetModelType(from: entity.type)
         )
     }
 
@@ -93,82 +78,36 @@ final class ChainModelMapper {
         )
     }
 
-    private func updateEntityChainAssets(
+    private func updateEntityAsset(
         for entity: CDChain,
         from model: ChainModel,
         context: NSManagedObjectContext
     ) {
-        let assetEntities: [CDChainAsset] = model.assets.map { asset in
-            let assetEntity: CDChainAsset
+        let assets = model.assets.map {
+            let assetEntity = CDAsset(context: context)
+            assetEntity.id = $0.id
+            assetEntity.icon = $0.icon
+            assetEntity.precision = Int16(bitPattern: $0.precision)
+            assetEntity.priceId = $0.priceId
+            assetEntity.price = $0.price as NSDecimalNumber?
+            assetEntity.fiatDayChange = $0.fiatDayChange as NSDecimalNumber?
+            assetEntity.symbol = $0.symbol
+            assetEntity.existentialDeposit = $0.existentialDeposit
+            assetEntity.color = $0.color
+            assetEntity.name = $0.name
+            assetEntity.currencyId = $0.currencyId
+            assetEntity.type = $0.type.rawValue
+            assetEntity.isUtility = $0.isUtility
+            assetEntity.isNative = $0.isNative
+            assetEntity.staking = $0.staking?.rawValue
 
-            let maybeExistingEntity = entity.assets?
-                .first { ($0 as? CDChainAsset)?.assetId == asset.assetId } as? CDChainAsset
-
-            if let existingEntity = maybeExistingEntity {
-                assetEntity = existingEntity
-            } else {
-                assetEntity = CDChainAsset(context: context)
-            }
-
-            let purchaseProviders: [String]? = asset.purchaseProviders?.map(\.rawValue)
-
-            assetEntity.assetId = asset.assetId
+            let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders
-            assetEntity.staking = asset.staking?.rawValue
-            assetEntity.type = asset.type.rawValue
-            assetEntity.isUtility = asset.isUtility
-            assetEntity.isNative = asset.isNative
-
-            updateEntityAsset(
-                for: assetEntity,
-                from: asset,
-                context: context
-            )
 
             return assetEntity
         }
 
-        let existingAssetIds = Set(model.assets.map(\.assetId))
-
-        if let oldAssets = entity.assets as? Set<CDChainAsset> {
-            for oldAsset in oldAssets {
-                if let oldAssetId = oldAsset.assetId {
-                    if !existingAssetIds.contains(oldAssetId) {
-                        context.delete(oldAsset)
-                    }
-                }
-            }
-        }
-
-        entity.assets = Set(assetEntities) as NSSet
-    }
-
-    private func updateEntityAsset(
-        for entity: CDChainAsset,
-        from model: ChainAssetModel,
-        context: NSManagedObjectContext
-    ) {
-        if let oldAsset = entity.asset {
-            context.delete(oldAsset)
-        }
-
-        let assetEntity = CDAsset(context: context)
-        assetEntity.id = model.asset.id
-        assetEntity.chainId = model.asset.chainId
-        assetEntity.icon = model.asset.icon
-        assetEntity.precision = Int16(bitPattern: model.asset.precision)
-        assetEntity.priceId = model.asset.priceId
-        assetEntity.price = model.asset.price as NSDecimalNumber?
-        assetEntity.fiatDayChange = model.asset.fiatDayChange as NSDecimalNumber?
-        assetEntity.symbol = model.asset.symbol
-        assetEntity.transfersEnabled = model.asset.transfersEnabled
-        assetEntity.currencyId = model.asset.currencyId
-        assetEntity.displayName = model.asset.displayName
-        assetEntity.existentialDeposit = model.asset.existentialDeposit
-        assetEntity.color = model.asset.color
-        assetEntity.name = model.asset.name
-
-        entity.asset = assetEntity
+        entity.assets = Set(assets) as NSSet
     }
 
     private func updateEntityNodes(
@@ -465,10 +404,12 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         let xcm = createXcmConfig(from: entity)
 
         let chainModel = ChainModel(
+            disabled: entity.disabled,
             chainId: entity.chainId!,
             parentId: entity.parentId,
+            paraId: nil,
             name: entity.name!,
-            nodes: Set(nodes),
+            xcm: xcm, nodes: Set(nodes),
             addressPrefix: UInt16(bitPattern: entity.addressPrefix),
             types: types,
             icon: entity.icon,
@@ -476,20 +417,19 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: customNodesSet,
-            iosMinAppVersion: entity.minimalAppVersion,
-            xcm: xcm
+            iosMinAppVersion: entity.minimalAppVersion
         )
 
-        let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
-            guard let asset = anyAsset as? CDChainAsset else {
+        let assetsArray: [AssetModel] = entity.assets.or([]).compactMap { anyAsset in
+            guard let asset = anyAsset as? CDAsset else {
                 return nil
             }
 
-            return createChainAsset(from: asset, parentChain: chainModel)
-        } ?? []
-        let chainAssets = Set(chainAssetsArray)
+            return createAsset(from: asset)
+        }
+        let assets = Set(assetsArray)
 
-        chainModel.assets = chainAssets
+        chainModel.assets = assets
 
         return chainModel
     }
@@ -499,6 +439,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         from model: ChainModel,
         using context: NSManagedObjectContext
     ) throws {
+        entity.disabled = model.disabled
         entity.chainId = model.chainId
         entity.parentId = model.parentId
         entity.name = model.name
@@ -514,7 +455,7 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         entity.minimalAppVersion = model.iosMinAppVersion
         entity.options = model.options?.map(\.rawValue) as? NSArray
 
-        updateEntityChainAssets(for: entity, from: model, context: context)
+        updateEntityAsset(for: entity, from: model, context: context)
         updateEntityNodes(for: entity, from: model, context: context)
         updateExternalApis(in: entity, from: model.externalApi)
         updateEntityCustomNodes(for: entity, from: model, context: context)

@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias WalletMainContainerModuleCreationResult = (
     view: WalletMainContainerViewInput,
     input: WalletMainContainerModuleInput

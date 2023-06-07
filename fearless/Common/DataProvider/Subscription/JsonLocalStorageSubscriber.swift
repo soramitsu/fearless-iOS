@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol JsonLocalStorageSubscriber where Self: AnyObject {
     var jsonLocalSubscriptionFactory: JsonDataProviderFactoryProtocol { get }

@@ -3,6 +3,7 @@ import SSFModels
 
 enum ExistentialDepositCurrencyId {
     case token(tokenSymbol: String)
+    case token2(tokenSymbol: String)
     case liquidCrowdloan(symbol: String)
     case foreignAsset(tokenSymbol: UInt16)
     case stableAssetPoolToken(stableAssetPoolToken: String)
@@ -51,6 +52,12 @@ enum ExistentialDepositCurrencyId {
         case .soraAsset:
             // Sora chain zero ED
             return nil
+        case .assets:
+            return nil
+        case let .assetId(id):
+            self = .token(tokenSymbol: id)
+        case let .token2(id):
+            self = .token(tokenSymbol: id)
         }
     }
 }
@@ -62,6 +69,8 @@ extension ExistentialDepositCurrencyId: Codable {
         switch self {
         case let .token(symbol):
             try container.encode(symbol, forKey: .token)
+        case let .token2(symbol):
+            try container.encode(symbol, forKey: .token2)
         case let .foreignAsset(foreignAsset):
             try container.encode(foreignAsset, forKey: .foreignAsset)
         case let .stableAssetPoolToken(stableAssetPoolToken):

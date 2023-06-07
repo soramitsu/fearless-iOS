@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {

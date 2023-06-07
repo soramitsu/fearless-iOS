@@ -1,4 +1,5 @@
 import SSFUtils
+import SSFModels
 
 struct BalanceInfoDependencies {
     let connection: JSONRPCEngine

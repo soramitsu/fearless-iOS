@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct WalletChainAccountDashboardViewFactory {
     static func createView(

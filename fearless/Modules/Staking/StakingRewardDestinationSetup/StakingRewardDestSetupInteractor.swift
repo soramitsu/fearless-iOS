@@ -2,6 +2,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!

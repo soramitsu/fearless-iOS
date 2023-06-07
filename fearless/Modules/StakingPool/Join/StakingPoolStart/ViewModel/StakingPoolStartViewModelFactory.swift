@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 enum StakingPoolStartViewModelFactoryError: Error {
     case numberFormatterPercentError

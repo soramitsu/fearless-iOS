@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class PolkaswapAdjustmentAssembly {
     static func configureModule(

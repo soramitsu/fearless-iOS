@@ -4,6 +4,7 @@ import IrohaCrypto
 import SSFUtils
 import XNetworking
 import BigInt
+import SSFModels
 
 final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
     private let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
@@ -16,7 +17,7 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
 
     func fetchTransactionHistoryOperation(
         asset: AssetModel,
-        chain: ChainModel,
+        chain: SSFModels.ChainModel,
         address: String,
         filters: [WalletTransactionHistoryFilter],
         pagination: Pagination
@@ -158,7 +159,7 @@ final class SoraHistoryOperationFactory: HistoryOperationFactoryProtocol {
         dependingOn remoteOperation: CompoundOperationWrapper<WalletRemoteHistoryData>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: AssetModel,
-        chain: ChainModel,
+        chain: SSFModels.ChainModel,
         address: String
     ) -> BaseOperation<TransactionHistoryMergeResult> {
         ClosureOperation {

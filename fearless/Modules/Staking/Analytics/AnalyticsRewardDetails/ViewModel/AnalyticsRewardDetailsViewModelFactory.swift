@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 final class AnalyticsRewardDetailsViewModelFactory: AnalyticsRewardDetailsViewModelFactoryProtocol {
     let chainAsset: ChainAsset

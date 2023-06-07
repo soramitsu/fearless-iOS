@@ -3,6 +3,7 @@ import RobinHood
 import CommonWallet
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class GiantsquidHistoryOperationFactory {
     private enum GiantsquidConfig {

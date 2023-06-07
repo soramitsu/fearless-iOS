@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 extension AssetTransactionData {
     static func createTransaction(

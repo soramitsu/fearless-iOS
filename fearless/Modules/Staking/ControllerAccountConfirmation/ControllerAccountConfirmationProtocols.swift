@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol ControllerAccountConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func reload(with viewModel: LocalizableResource<ControllerAccountConfirmationVM>)

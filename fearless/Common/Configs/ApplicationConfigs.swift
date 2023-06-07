@@ -31,7 +31,6 @@ protocol ApplicationConfigProtocol {
     // MARK: - GitHub
 
     var chainListURL: URL? { get }
-    var assetListURL: URL? { get }
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
@@ -162,17 +161,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: .newAssets)
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
-        #endif
-    }
-
-    var assetListURL: URL? {
-        #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
-        #else
-            GitHubUrl.url(suffix: "chains/assets.json")
         #endif
     }
 
@@ -215,6 +206,7 @@ private enum GitHubUrl {
         case master
         case develop
         case v4
+        case newAssets = "new-assets"
     }
 
     static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {

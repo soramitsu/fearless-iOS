@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct ExportSeedData {
     let seed: Data

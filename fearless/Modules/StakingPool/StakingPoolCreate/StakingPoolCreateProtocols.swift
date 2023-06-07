@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import BigInt
 import SoraFoundation
+import SSFModels
 
 typealias StakingPoolCreateModuleCreationResult = (
     view: StakingPoolCreateViewInput,

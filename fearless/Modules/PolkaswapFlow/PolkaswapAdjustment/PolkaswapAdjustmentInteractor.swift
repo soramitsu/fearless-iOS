@@ -2,6 +2,7 @@ import UIKit
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class PolkaswapAdjustmentInteractor: RuntimeConstantFetching {
     internal let priceLocalSubscriptionFactory: PriceProviderFactoryProtocol

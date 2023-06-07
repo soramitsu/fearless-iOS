@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolExistingViewModelState: SelectValidatorsConfirmViewModelState {

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol ValidatorListFilterWireframeProtocol {
     func close(_ view: ControllerBackedProtocol?)

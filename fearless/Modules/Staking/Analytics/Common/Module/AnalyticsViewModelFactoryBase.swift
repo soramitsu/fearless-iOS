@@ -1,5 +1,6 @@
 import BigInt
 import SoraFoundation
+import SSFModels
 
 protocol AnalyticsViewModelItem: Dated, AnalyticsRewardDetailsModel {
     var timestamp: Int64 { get }

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 // swiftlint:disable type_name
 final class RecommendedValidatorListParachainViewModelFactory {

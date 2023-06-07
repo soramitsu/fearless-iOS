@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum ExportFlow {
     case multiple(wallet: MetaAccountModel, accounts: [ChainAccountInfo])

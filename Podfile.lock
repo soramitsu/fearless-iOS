@@ -127,7 +127,6 @@ PODS:
     - IrohaCrypto/sr25519
     - IrohaCrypto/ss58
     - keccak.c
-    - SSFModels
     - SSFUtils
     - xxHash-Swift (~> 1.0.0)
   - SSFEraKit (0.1.0):
@@ -153,8 +152,6 @@ PODS:
     - SwiftyBeaver
   - SSFModels (0.1.0):
     - IrohaCrypto
-    - SoraFoundation
-    - SSFUtils
   - SSFNetwork (0.1.0):
     - RobinHood
   - SSFRuntimeCodingService (0.1.0):
@@ -344,14 +341,14 @@ SPEC CHECKSUMS:
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
   SSFChainConnection: 2e09fb1ab881300a35658d35291772841d3df83c
   SSFChainRegistry: a56168a8e65cc579b98379d6f2e4d82702c80621
-  SSFCrypto: 7f45f092ffea4607c5263520cfb676083cf9b210
+  SSFCrypto: 8b040775919550cf41d682b00a79bdb9b605d048
   SSFEraKit: 326e1175e2d6af38eebea8c8fba90cabec5e2913
   SSFExtrinsicKit: 6d5bb2f673c66c9b51c1e477a71c6abb3e80468f
   SSFHelpers: dc0ad9aea08504629e7079c79f42edccca15c36e
   SSFLogger: baa2fd710bf2bd243af8fddb9b18574a77f7e734
-  SSFModels: d2e2d60c076c9490d726e4885064d8dd809c4fb6
+  SSFModels: 0f1c159d87352f57c787af8c9d6d7ebe9a62e3ab
   SSFNetwork: 92b985ffe2670afdaf6db9f7af84890dc16523fd
-  SSFRuntimeCodingService: 763025fa8eea2711d803a0a462b2e6348a30237d
+  SSFRuntimeCodingService: 862c8686ff522a35db9932a23cfc9629b4a47c3e
   SSFSigner: fdd10bb636a971c44949cdc62f463adf95a45b93
   SSFStorageQueryKit: a6276c00809e7d3a0e5d7a0d86fb1eb859bd741d
   SSFUtils: 18b426810c7ac702a400eae2f90af68100aa9785

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
     static func createView(

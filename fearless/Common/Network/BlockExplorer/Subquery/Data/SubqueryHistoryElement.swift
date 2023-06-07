@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import CommonWallet
+import SSFModels
 
 struct SubqueryHistoryElement: Decodable, RewardOrSlashData {
     enum CodingKeys: String, CodingKey {

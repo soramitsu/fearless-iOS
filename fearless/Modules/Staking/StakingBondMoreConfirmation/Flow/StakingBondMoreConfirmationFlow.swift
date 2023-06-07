@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 enum StakingBondMoreConfirmationFlowError: Error {}
 

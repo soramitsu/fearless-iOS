@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class StakingUnbondSetupWireframe: StakingUnbondSetupWireframeProtocol {
     func close(view: StakingUnbondSetupViewProtocol?) {

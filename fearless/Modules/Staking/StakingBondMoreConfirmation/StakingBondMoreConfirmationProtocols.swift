@@ -1,6 +1,7 @@
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 protocol StakingBondMoreConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceiveConfirmation(viewModel: StakingBondMoreConfirmViewModel)

@@ -455,7 +455,6 @@
 		8418E7202617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8418E71F2617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift */; };
 		8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419378025442FEE00CFA50C /* WalletQRCoderFactory.swift */; };
 		841937872544772F00CFA50C /* animatedBg.gif in Resources */ = {isa = PBXBuildFile; fileRef = 841937862544772F00CFA50C /* animatedBg.gif */; };
-		8419C39626EA8F7300A3179C /* PriceData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8419C39526EA8F7300A3179C /* PriceData.swift */; };
 		841AAC2126F6860B00F0A25E /* AssetBalanceFormatterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2026F6860B00F0A25E /* AssetBalanceFormatterFactory.swift */; };
 		841AAC2326F6879900F0A25E /* AssetBalanceDisplayInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2226F6879900F0A25E /* AssetBalanceDisplayInfo.swift */; };
 		841AAC2526F692EF00F0A25E /* AddressConversion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841AAC2426F692EF00F0A25E /* AddressConversion.swift */; };
@@ -1990,7 +1989,8 @@
 		FA286B1B2A3043DB008BD527 /* CrossChainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B082A3043DB008BD527 /* CrossChainProtocols.swift */; };
 		FA286B1C2A3043DB008BD527 /* CrossChainAssembly.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B092A3043DB008BD527 /* CrossChainAssembly.swift */; };
 		FA286B1D2A3043DB008BD527 /* CrossChainViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B0A2A3043DB008BD527 /* CrossChainViewModelFactory.swift */; };
-		FA286B222A30470F008BD527 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA286B1E2A30470F008BD527 /* SubstrateDataModel.xcdatamodeld */; };
+		FA286B242A3070C8008BD527 /* AssetDetail.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA286B232A3070C8008BD527 /* AssetDetail.swift */; };
+		FA286B2A2A3070D7008BD527 /* SubstrateDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FA286B252A3070D7008BD527 /* SubstrateDataModel.xcdatamodeld */; };
 		FA28A9B229D2E451005AA42E /* MultiassetV9.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */; };
 		FA2C997E28645F24007D9675 /* ParachainRewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */; };
 		FA2E9B93279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */; };
@@ -3095,7 +3095,6 @@
 		8418E71F2617602000DCF6C8 /* WalletRemoteHistoryProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteHistoryProtocols.swift; sourceTree = "<group>"; };
 		8419378025442FEE00CFA50C /* WalletQRCoderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletQRCoderFactory.swift; sourceTree = "<group>"; };
 		841937862544772F00CFA50C /* animatedBg.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = animatedBg.gif; sourceTree = "<group>"; };
-		8419C39526EA8F7300A3179C /* PriceData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PriceData.swift; sourceTree = "<group>"; };
 		841AAC2026F6860B00F0A25E /* AssetBalanceFormatterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBalanceFormatterFactory.swift; sourceTree = "<group>"; };
 		841AAC2226F6879900F0A25E /* AssetBalanceDisplayInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBalanceDisplayInfo.swift; sourceTree = "<group>"; };
 		841AAC2426F692EF00F0A25E /* AddressConversion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressConversion.swift; sourceTree = "<group>"; };
@@ -4655,9 +4654,11 @@
 		FA286B082A3043DB008BD527 /* CrossChainProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainProtocols.swift; sourceTree = "<group>"; };
 		FA286B092A3043DB008BD527 /* CrossChainAssembly.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainAssembly.swift; sourceTree = "<group>"; };
 		FA286B0A2A3043DB008BD527 /* CrossChainViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CrossChainViewModelFactory.swift; sourceTree = "<group>"; };
-		FA286B1F2A30470F008BD527 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
-		FA286B202A30470F008BD527 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
-		FA286B212A30470F008BD527 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
+		FA286B232A3070C8008BD527 /* AssetDetail.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetDetail.swift; sourceTree = "<group>"; };
+		FA286B262A3070D7008BD527 /* SubstrateDataModel.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel.xcdatamodel; sourceTree = "<group>"; };
+		FA286B272A3070D7008BD527 /* SubstrateDataModel_v4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v4.xcdatamodel; sourceTree = "<group>"; };
+		FA286B282A3070D7008BD527 /* SubstrateDataModel_v2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v2.xcdatamodel; sourceTree = "<group>"; };
+		FA286B292A3070D7008BD527 /* SubstrateDataModel_v3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = SubstrateDataModel_v3.xcdatamodel; sourceTree = "<group>"; };
 		FA28A9B129D2E451005AA42E /* MultiassetV9.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiassetV9.xcmappingmodel; sourceTree = "<group>"; };
 		FA2C997D28645F24007D9675 /* ParachainRewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParachainRewardCalculatorService.swift; sourceTree = "<group>"; };
 		FA2E9B92279FE35E0023FAD2 /* ExtrinsicOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicOptionsPresentable.swift; sourceTree = "<group>"; };
@@ -7032,6 +7033,7 @@
 		8438E1DC24C18F11001BDB13 /* Types */ = {
 			isa = PBXGroup;
 			children = (
+				FA286B232A3070C8008BD527 /* AssetDetail.swift */,
 				FAFDB2C229112A00003971FB /* SubstrateCallPath.swift */,
 				FA2569B3274CE71D00875A53 /* BalanceLock.swift */,
 				8463A73725E3AA47003B8160 /* AccountInfo.swift */,
@@ -7566,7 +7568,7 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				FA286B1E2A30470F008BD527 /* SubstrateDataModel.xcdatamodeld */,
+				FA286B252A3070D7008BD527 /* SubstrateDataModel.xcdatamodeld */,
 				FA7435A029C0744B0085A47E /* UserDataModel.xcdatamodeld */,
 				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
@@ -8088,7 +8090,6 @@
 				84DBEA46265E98C300FDF73C /* AmountInputResult.swift */,
 				AEDD7C0E269C81F500A8405F /* BlockWeights.swift */,
 				84CEAAF226D6ED870021B881 /* KeystoreTag.swift */,
-				8419C39526EA8F7300A3179C /* PriceData.swift */,
 				84F13F0926F14122006725FF /* ChainAsset.swift */,
 				FA38C96D275897E0005C5577 /* AssetAmountValues.swift */,
 				FA1109EA27A92D56003C2158 /* ChainAction.swift */,
@@ -14359,6 +14360,7 @@
 				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				071BC677292B21CC007685D1 /* UIImage.swift in Sources */,
 				FAC2175E293F41B600A8BA83 /* AllDonePresentable.swift in Sources */,
+				FA286B242A3070C8008BD527 /* AssetDetail.swift in Sources */,
 				F4A6C9E4265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift in Sources */,
 				84452F5825D5C30600F47EC5 /* FilesRepository.swift in Sources */,
 				FAFFAE7C29AC84B10074AF1F /* KmmCallCodingPath.swift in Sources */,
@@ -14634,7 +14636,6 @@
 				849ABE5B2627739400011A2A /* ListReducing.swift in Sources */,
 				FA5989532812658F008BD8A2 /* StakingOperationFactory.swift in Sources */,
 				84BB3CF3267D24B000676FFE /* UIStackView+Manage.swift in Sources */,
-				8419C39626EA8F7300A3179C /* PriceData.swift in Sources */,
 				FA2E9BB727A13E890023FAD2 /* FiltersViewState.swift in Sources */,
 				FA4B92B52844D0E60003BCEF /* SelectCurrencyPresenter.swift in Sources */,
 				FAAF946C2A0CFF90009A4BA5 /* Array+Duplicates.swift in Sources */,
@@ -15440,7 +15441,6 @@
 				F40D0AED260CCDE600CBD43B /* RewardDetailsRow.swift in Sources */,
 				8498430926592E5D006BBB9F /* CrowdloanViewModel.swift in Sources */,
 				5DDD2206DF795CF205610455 /* AccountExportPasswordPresenter.swift in Sources */,
-				FA286B222A30470F008BD527 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */,
 				076D9D5129484C8E002762E3 /* PolkaswapDexInfo.swift in Sources */,
 				C6A53DF128A5036400EFF190 /* Array + Unique.swift in Sources */,
@@ -15827,6 +15827,7 @@
 				90A3F46EF181DC2B821CC80C /* CrowdloanContributionConfirmViewFactory.swift in Sources */,
 				FAA0133728DA12B6000A5230 /* StakingPoolMainAssembly.swift in Sources */,
 				07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */,
+				FA286B2A2A3070D7008BD527 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				EB9D8D22AA13BF12F845856B /* ReferralCrowdloanProtocols.swift in Sources */,
 				51FC48FA6FD4D2FB1781424D /* ReferralCrowdloanWireframe.swift in Sources */,
 				FAD7EADA2861AE60004BD139 /* UniversalIconGenerator.swift in Sources */,
@@ -16818,14 +16819,15 @@
 /* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
-		FA286B1E2A30470F008BD527 /* SubstrateDataModel.xcdatamodeld */ = {
+		FA286B252A3070D7008BD527 /* SubstrateDataModel.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				FA286B1F2A30470F008BD527 /* SubstrateDataModel.xcdatamodel */,
-				FA286B202A30470F008BD527 /* SubstrateDataModel_v2.xcdatamodel */,
-				FA286B212A30470F008BD527 /* SubstrateDataModel_v3.xcdatamodel */,
+				FA286B262A3070D7008BD527 /* SubstrateDataModel.xcdatamodel */,
+				FA286B272A3070D7008BD527 /* SubstrateDataModel_v4.xcdatamodel */,
+				FA286B282A3070D7008BD527 /* SubstrateDataModel_v2.xcdatamodel */,
+				FA286B292A3070D7008BD527 /* SubstrateDataModel_v3.xcdatamodel */,
 			);
-			currentVersion = FA286B212A30470F008BD527 /* SubstrateDataModel_v3.xcdatamodel */;
+			currentVersion = FA286B272A3070D7008BD527 /* SubstrateDataModel_v4.xcdatamodel */;
 			path = SubstrateDataModel.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

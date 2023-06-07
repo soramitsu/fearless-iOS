@@ -1,6 +1,7 @@
 import SoraFoundation
 import CommonWallet
 import BigInt
+import SSFModels
 
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<IAmountInputViewModel>)

@@ -55,6 +55,21 @@ struct AccountInfo: Codable, Equatable {
         )
     }
 
+    init?(assetAccount: AssetAccount?) {
+        guard let assetAccount = assetAccount else {
+            return nil
+        }
+        nonce = 0
+        consumers = 0
+        providers = 0
+
+        data = AccountData(
+            free: assetAccount.balance,
+            reserved: .zero,
+            frozen: .zero
+        )
+    }
+
     func nonZero() -> Bool {
         data.total > 0
     }
@@ -97,7 +112,12 @@ struct AccountData: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        do {
+            free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        } catch {
+            print(error)
+            free = .zero
+        }
         reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
         do {
             flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
@@ -129,6 +149,12 @@ struct OrmlAccountInfo: Codable, Equatable {
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
     @StringCodable var frozen: BigUInt
+}
+
+// MARK: - Assets Account
+
+struct AssetAccount: Codable {
+    @StringCodable var balance: BigUInt
 }
 
 // MARK: - Equilibrium

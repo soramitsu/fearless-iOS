@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol StakingRewardDestSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)

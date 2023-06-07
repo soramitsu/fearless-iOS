@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 // swiftlint:disable function_parameter_count
 protocol BalanceBuilderProtocol {

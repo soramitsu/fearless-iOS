@@ -1,5 +1,6 @@
 import RobinHood
 import CommonWallet
+import SSFModels
 
 final class WalletTransactionHistoryDependencyContainer {
     struct WalletTransactionHistoryDependencies {

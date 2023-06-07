@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import SSFModels
 
 extension SearchData {
     static func createFromContactItem(

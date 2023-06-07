@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import IrohaCrypto
+import SSFModels
 
 protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol {
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating

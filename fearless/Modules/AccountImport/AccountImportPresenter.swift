@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import Rswift
 import SSFUtils
+import SSFModels
 
 // swiftlint:disable function_body_length file_length
 enum AccountImportContext: String {

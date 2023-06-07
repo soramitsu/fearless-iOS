@@ -1,6 +1,7 @@
 import RobinHood
 import Foundation
 import SSFUtils
+import SSFModels
 
 protocol ChainAssetFetchingProtocol {
     func fetch(

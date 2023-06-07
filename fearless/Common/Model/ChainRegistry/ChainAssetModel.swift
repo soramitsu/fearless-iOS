@@ -63,31 +63,3 @@ extension ChainAssetModel: Hashable {
         hasher.combine(assetId)
     }
 }
-
-enum PurchaseProvider: String, Codable {
-    case moonpay
-    case ramp
-}
-
-enum StakingType: String, Codable {
-    case relayChain = "relaychain"
-    case paraChain = "parachain"
-
-    var isRelaychain: Bool {
-        switch self {
-        case .relayChain:
-            return true
-        default:
-            return false
-        }
-    }
-
-    var isParachain: Bool {
-        switch self {
-        case .paraChain:
-            return true
-        default:
-            return false
-        }
-    }
-}

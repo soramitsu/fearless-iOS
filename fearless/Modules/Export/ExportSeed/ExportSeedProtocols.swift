@@ -1,3 +1,6 @@
+
+import SSFModels
+
 protocol ExportSeedInteractorInputProtocol: AnyObject {
     func fetchExportDataForAddress(_ address: String, chain: ChainModel, wallet: MetaAccountModel)
     func fetchExportDataForWallet(_ wallet: MetaAccountModel, accounts: [ChainAccountInfo])

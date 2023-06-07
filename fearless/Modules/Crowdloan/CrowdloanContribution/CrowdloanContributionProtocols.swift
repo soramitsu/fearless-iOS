@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 protocol CrowdloanContributionInteractorInputProtocol: AnyObject {
     func setup()
