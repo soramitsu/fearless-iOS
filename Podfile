@@ -40,6 +40,7 @@ abstract_target 'fearlessAll' do
   pod 'SSFNetwork'
   pod 'SSFUtils'
   pod 'SSFChainRegistry'
+  pod 'SSFHelpers'
   
   # Development pods
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
