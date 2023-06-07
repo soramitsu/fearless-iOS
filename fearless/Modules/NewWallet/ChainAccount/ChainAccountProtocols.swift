@@ -1,4 +1,5 @@
 import BigInt
+import Foundation
 
 protocol ChainAccountViewProtocol: ControllerBackedProtocol, Containable {
     func didReceiveState(_ state: ChainAccountViewState)

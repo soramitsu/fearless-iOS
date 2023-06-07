@@ -1,4 +1,5 @@
 import BigInt
+import Foundation
 
 protocol WalletSendConfirmViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceive(state: WalletSendConfirmViewState)

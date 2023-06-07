@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 51;
+	objectVersion = 52;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -2152,6 +2152,9 @@
 		FA60F52429EF9D1F00AB9561 /* NumberFormatter+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA60F52329EF9D1F00AB9561 /* NumberFormatter+Default.swift */; };
 		FA66FE902779C9AE0037C989 /* runtime-empty.json in Resources */ = {isa = PBXBuildFile; fileRef = FA66FE8F2779C9AE0037C989 /* runtime-empty.json */; };
 		FA67200D2914B163007EB694 /* StorageKeyExtractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA67200C2914B163007EB694 /* StorageKeyExtractor.swift */; };
+		FA681E292A303B6000D93E0B /* Web3 in Frameworks */ = {isa = PBXBuildFile; productRef = FA681E282A303B6000D93E0B /* Web3 */; };
+		FA681E2B2A303B6000D93E0B /* Web3ContractABI in Frameworks */ = {isa = PBXBuildFile; productRef = FA681E2A2A303B6000D93E0B /* Web3ContractABI */; };
+		FA681E2D2A303B6000D93E0B /* Web3PromiseKit in Frameworks */ = {isa = PBXBuildFile; productRef = FA681E2C2A303B6000D93E0B /* Web3PromiseKit */; };
 		FA68301C2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA68301B2930DD35002AD926 /* RecommendedValidatorListPoolViewModelFactory.swift */; };
 		FA69A94727CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */; };
 		FA6A6DBD27B60A84007D1A20 /* ChainNodeModelMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA6A6DBC27B60A84007D1A20 /* ChainNodeModelMapper.swift */; };
@@ -5276,7 +5279,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FA681E2B2A303B6000D93E0B /* Web3ContractABI in Frameworks */,
 				E24B8FD5EE2A75EC6C3DD49D /* Pods_fearlessAll_fearless.framework in Frameworks */,
+				FA681E2D2A303B6000D93E0B /* Web3PromiseKit in Frameworks */,
+				FA681E292A303B6000D93E0B /* Web3 in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -13230,6 +13236,11 @@
 			dependencies = (
 			);
 			name = fearless;
+			packageProductDependencies = (
+				FA681E282A303B6000D93E0B /* Web3 */,
+				FA681E2A2A303B6000D93E0B /* Web3ContractABI */,
+				FA681E2C2A303B6000D93E0B /* Web3PromiseKit */,
+			);
 			productName = fearless;
 			productReference = 849013A824A80984008F705E /* fearless.app */;
 			productType = "com.apple.product-type.application";
@@ -13289,6 +13300,9 @@
 				ru,
 			);
 			mainGroup = 8490139F24A80984008F705E;
+			packageReferences = (
+				FA681E272A303B6000D93E0B /* XCRemoteSwiftPackageReference "Web3.swift" */,
+			);
 			productRefGroup = 849013A924A80984008F705E /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -16676,6 +16690,35 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		FA681E272A303B6000D93E0B /* XCRemoteSwiftPackageReference "Web3.swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Boilertalk/Web3.swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.8.3;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		FA681E282A303B6000D93E0B /* Web3 */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA681E272A303B6000D93E0B /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3;
+		};
+		FA681E2A2A303B6000D93E0B /* Web3ContractABI */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA681E272A303B6000D93E0B /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3ContractABI;
+		};
+		FA681E2C2A303B6000D93E0B /* Web3PromiseKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = FA681E272A303B6000D93E0B /* XCRemoteSwiftPackageReference "Web3.swift" */;
+			productName = Web3PromiseKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 
 /* Begin XCVersionGroup section */
 		FA2569A7274CE70700875A53 /* SubstrateDataModel.xcdatamodeld */ = {
