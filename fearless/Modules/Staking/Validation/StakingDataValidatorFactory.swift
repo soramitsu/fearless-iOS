@@ -318,7 +318,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             let amountString = (minNominatorBond ?? Decimal.zero).stringWithPointSeparator
-            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
+            let amountWithSymbolString = [amountString, asset.symbolUppercased].joined(separator: " ")
 
             self?.presentable.presentWarningAlert(from: view, config: WarningAlertConfig.inactiveAlertConfig(bondAmount: amountWithSymbolString, with: locale), buttonHandler: {
                 self?.presentable.dismiss(view: view)
@@ -359,7 +359,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             let amountString = minimalRootBond.stringWithPointSeparator
-            let amountWithSymbolString = [amountString, asset.name.uppercased()].joined(separator: " ")
+            let amountWithSymbolString = [amountString, asset.symbolUppercased].joined(separator: " ")
 
             self?.presentable.presentPoolRootUnbondingTooHigh(
                 minimalBond: amountWithSymbolString,

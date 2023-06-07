@@ -1,6 +1,7 @@
 import Combine
 import Foundation
 import RobinHood
+import SSFModels
 
 class ChainAssetModel: Codable {
     let assetId: String

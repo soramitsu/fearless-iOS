@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 /* This version of call factory is based on runtime version v9370 */
 /* If there are some change in new runtime version please create new factory with specified version and override changed call */
@@ -538,7 +539,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func ormlChainTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .ormlChainTransfer
@@ -552,7 +553,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func ormlAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?,
+        currencyId: SSFModels.CurrencyId?,
         path: SubstrateCallPath
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accoundId(receiver), value: amount, currencyId: currencyId)
@@ -566,7 +567,7 @@ class SubstrateCallFactoryDefault: SubstrateCallFactoryProtocol {
     private func equilibriumAssetTransfer(
         to receiver: AccountId,
         amount: BigUInt,
-        currencyId: CurrencyId?
+        currencyId: SSFModels.CurrencyId?
     ) -> any RuntimeCallable {
         let args = TransferCall(dest: .accountTo(receiver), value: amount, currencyId: currencyId)
         let path: SubstrateCallPath = .equilibriumAssetTransfer

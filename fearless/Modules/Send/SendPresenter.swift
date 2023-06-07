@@ -418,7 +418,7 @@ extension SendPresenter: SelectAssetModuleOutput {
         if let asset = chainAsset?.asset {
             if let chain = selectedChain {
                 state = .normal
-                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol })
                 if let selectedChainAsset = selectedChainAsset {
                     handle(selectedChainAsset: selectedChainAsset)
                 }
@@ -449,7 +449,8 @@ extension SendPresenter: SelectAssetModuleOutput {
 extension SendPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         handle(selectedChain: chain)
     }
@@ -573,7 +574,7 @@ private extension SendPresenter {
                 let selectedChain = selectedChain,
                 let selectedAsset = optionalAsset,
                 let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.name == selectedAsset.name
+                    $0.asset.symbol == selectedAsset.symbol
                 }) {
                 self.selectedChainAsset = selectedChainAsset
                 handle(selectedChainAsset: selectedChainAsset)

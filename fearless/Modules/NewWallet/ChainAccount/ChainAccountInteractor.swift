@@ -43,7 +43,7 @@ final class ChainAccountInteractor {
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
-            filters: [.assetName(chainAsset.asset.name), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
             switch result {

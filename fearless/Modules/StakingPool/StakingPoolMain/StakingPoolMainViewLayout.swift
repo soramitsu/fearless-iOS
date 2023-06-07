@@ -228,7 +228,7 @@ final class StakingPoolMainViewLayout: UIView {
             )
         }
 
-        assetSelectionView.title = chainAsset.asset.name
+        assetSelectionView.title = chainAsset.asset.symbolUppercased
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol) {

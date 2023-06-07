@@ -118,7 +118,7 @@ extension SendInteractor: SendInteractorInput {
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
-                    let chains = chainAssets.filter { $0.asset.name == asset.name }.map { $0.chain }
+                    let chains = chainAssets.filter { $0.asset.symbolUppercased == asset.symbolUppercased }.map { $0.chain }
                     completionBlock(chains)
                 default:
                     completionBlock(nil)

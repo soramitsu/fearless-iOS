@@ -5,14 +5,13 @@ import SSFUtils
 
 // swiftlint:disable type_body_length
 final class RelaychainValidatorOperationFactory {
-    let asset: AssetModel
-    let chain: ChainModel
-    let eraValidatorService: EraValidatorServiceProtocol
-    let rewardService: RewardCalculatorServiceProtocol
-    let storageRequestFactory: StorageRequestFactoryProtocol
-    let runtimeService: RuntimeCodingServiceProtocol
-    let identityOperationFactory: IdentityOperationFactoryProtocol
-    let engine: JSONRPCEngine
+    private let asset: AssetModel
+    private let chain: ChainModel
+    private let eraValidatorService: EraValidatorServiceProtocol
+    private let rewardService: RewardCalculatorServiceProtocol
+    private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let identityOperationFactory: IdentityOperationFactoryProtocol
+    private let chainRegistry: ChainRegistryProtocol
 
     init(
         asset: AssetModel,
@@ -20,18 +19,16 @@ final class RelaychainValidatorOperationFactory {
         eraValidatorService: EraValidatorServiceProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
-        identityOperationFactory: IdentityOperationFactoryProtocol
+        identityOperationFactory: IdentityOperationFactoryProtocol,
+        chainRegistry: ChainRegistryProtocol
     ) {
         self.asset = asset
         self.chain = chain
         self.eraValidatorService = eraValidatorService
         self.rewardService = rewardService
         self.storageRequestFactory = storageRequestFactory
-        self.runtimeService = runtimeService
-        self.engine = engine
         self.identityOperationFactory = identityOperationFactory
+        self.chainRegistry = chainRegistry
     }
 
     func createUnappliedSlashesWrapper(
@@ -39,6 +36,10 @@ final class RelaychainValidatorOperationFactory {
         runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         slashDefer: BaseOperation<UInt32>
     ) -> UnappliedSlashesWrapper {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
@@ -58,7 +59,7 @@ final class RelaychainValidatorOperationFactory {
         }
 
         return storageRequestFactory.queryItems(
-            engine: engine,
+            engine: connection,
             keyParams: keyParams,
             factory: factory,
             storagePath: path
@@ -86,11 +87,19 @@ final class RelaychainValidatorOperationFactory {
         for validatorIds: [AccountId],
         nomination: Nomination
     ) -> CompoundOperationWrapper<[AccountId: Bool]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: { validatorIds },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .slashingSpans
@@ -129,6 +138,10 @@ final class RelaychainValidatorOperationFactory {
         electedValidatorsOperation: BaseOperation<EraStakersInfo>,
         nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[ValidatorMyNominationStatus]> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
@@ -177,15 +190,24 @@ final class RelaychainValidatorOperationFactory {
         )
     }
 
-    func createValidatorPrefsWrapper(for accountIdList: [AccountId])
-        -> CompoundOperationWrapper<[AccountAddress: ValidatorPrefs]> {
+    func createValidatorPrefsWrapper(
+        for accountIdList: [AccountId]
+    ) -> CompoundOperationWrapper<[AccountAddress: ValidatorPrefs]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let chainFormat = chain.chainFormat
 
         let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
 
         let fetchOperation: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: { accountIdList },
                 factory: { try runtimeFetchOperation.extractNoCancellableResultData() },
                 storagePath: .validatorPrefs
@@ -222,6 +244,10 @@ final class RelaychainValidatorOperationFactory {
         for validatorIds: [AccountId],
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[ValidatorStakeInfo?]> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let chainFormat = chain.chainFormat
 
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
@@ -294,6 +320,10 @@ final class RelaychainValidatorOperationFactory {
         for nominatorAddress: AccountAddress,
         electedValidatorsOperation: BaseOperation<EraStakersInfo>
     ) -> CompoundOperationWrapper<[AccountId: ValidatorStakeInfo]> {
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let chain = chain
         let chainFormat = chain.chainFormat
 
@@ -424,11 +454,19 @@ final class RelaychainValidatorOperationFactory {
     func createNominatorsOperation(
         for accountId: AccountId
     ) -> CompoundOperationWrapper<Nomination?> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let nominatorsWrapper: CompoundOperationWrapper<[StorageResponse<Nomination>]> =
             storageRequestFactory.queryItems(
-                engine: engine,
+                engine: connection,
                 keyParams: { [accountId] },
                 factory: { try runtimeOperation.extractNoCancellableResultData() },
                 storagePath: .nominators
@@ -458,6 +496,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
     // swiftlint:disable function_body_length
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashDeferOperation: BaseOperation<UInt32> =
@@ -483,7 +529,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: accountIdsClosure,
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -535,9 +581,17 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
         by nomination: Nomination,
         nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let identityWrapper = identityOperationFactory.createIdentityWrapper(
             for: { nomination.targets },
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -600,6 +654,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func activeValidatorsOperation(
         for nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
         let activeValidatorsStakeInfoWrapper = createActiveValidatorsStakeInfo(
             for: nominatorAddress,
@@ -614,7 +676,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
             for: validatorIds,
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -661,6 +723,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func pendingValidatorsOperation(
         for accountIds: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
         let validatorsStakeInfoWrapper = createValidatorsStakeInfoWrapper(
             for: accountIds,
@@ -671,7 +741,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
             for: { accountIds },
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )
@@ -711,6 +781,14 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
     func wannabeValidatorsOperation(
         for accountIdList: [AccountId]
     ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        guard let connection = chainRegistry.getConnection(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.connectionUnavailable)
+        }
+
+        guard let runtimeService = chainRegistry.getRuntimeProvider(for: chain.chainId) else {
+            return CompoundOperationWrapper.createWithError(ChainRegistryError.runtimeMetadaUnavailable)
+        }
+
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashDeferOperation: BaseOperation<UInt32> =
@@ -737,7 +815,7 @@ extension RelaychainValidatorOperationFactory: ValidatorOperationFactoryProtocol
 
         let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
             for: { accountIdList },
-            engine: engine,
+            engine: connection,
             runtimeService: runtimeService,
             chain: chain
         )

@@ -114,12 +114,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     ) -> StakingMainInteractor? {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard
-            let connection = chainRegistry.getConnection(for: chainAsset.chain.chainId),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            return nil
-        }
-
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
@@ -184,10 +178,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let chainRepository = ChainRepositoryFactory().createRepository(
@@ -241,12 +234,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     ) throws -> StakingSharedState {
         let chainRegistry = ChainRegistryFacade.sharedRegistry
 
-        guard
-            let connection = chainRegistry.setupConnection(for: chainAsset.chain),
-            let runtimeService = chainRegistry.getRuntimeProvider(for: chainAsset.chain.chainId) else {
-            throw ChainRegistryError.connectionUnavailable
-        }
-
         let storageFacade = SubstrateDataStorageFacade.shared
         let serviceFactory = StakingServiceFactory(
             chainRegisty: chainRegistry,
@@ -269,10 +256,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             asset: chainAsset.asset,
             chain: chainAsset.chain,
             storageRequestFactory: storageRequestFactory,
-            runtimeService: runtimeService,
-            engine: connection,
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory),
-            subqueryOperationFactory: rewardOperationFactory
+            subqueryOperationFactory: rewardOperationFactory,
+            chainRegistry: chainRegistry
         )
 
         let rewardCalculatorService = try serviceFactory.createRewardCalculatorService(

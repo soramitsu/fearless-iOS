@@ -11,11 +11,11 @@ extension MockConnection: ChainConnection {
         
     }
     
-    var pendingEngineRequests: [FearlessUtils.JSONRPCRequest] {
+    var pendingEngineRequests: [SSFUtils.JSONRPCRequest] {
         []
     }
     
-    func connect(with pendingRequests: [FearlessUtils.JSONRPCRequest]) {
+    func connect(with pendingRequests: [SSFUtils.JSONRPCRequest]) {
 
     }
     

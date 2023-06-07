@@ -1,6 +1,7 @@
 import Foundation
 import CoreData
 import RobinHood
+import SSFModels
 
 final class ChainModelMapper {
     var entityIdentifierFieldName: String { #keyPath(CDChain.chainId) }
@@ -11,22 +12,30 @@ final class ChainModelMapper {
     // TODO: replace precondition failure to optional
     private func createAsset(from entity: CDAsset) -> AssetModel {
         var symbol: String?
-
         if let entitySymbol = entity.symbol {
             symbol = entitySymbol
         } else {
             symbol = entity.id
         }
+
+        var name: String?
+        if let entityName = entity.name {
+            name = entityName
+        } else {
+            name = entity.symbol
+        }
         guard
             let id = entity.id,
             let chainId = entity.chainId,
-            let symbol = symbol
+            let symbol = symbol,
+            let name = name
         else {
             preconditionFailure()
         }
 
         return AssetModel(
             id: id,
+            name: name,
             symbol: symbol,
             chainId: chainId,
             precision: UInt16(bitPattern: entity.precision),
@@ -157,6 +166,7 @@ final class ChainModelMapper {
         assetEntity.displayName = model.asset.displayName
         assetEntity.existentialDeposit = model.asset.existentialDeposit
         assetEntity.color = model.asset.color
+        assetEntity.name = model.asset.name
 
         entity.asset = assetEntity
     }
@@ -304,6 +314,32 @@ final class ChainModelMapper {
         }
     }
 
+    private func createXcmConfig(from entity: CDChain) -> XcmChain? {
+        guard let versionRaw = entity.xcmConfig?.xcmVersion else {
+            return nil
+        }
+
+        let version = XcmCallFactoryVersion(rawValue: versionRaw)
+        let assets = entity.xcmConfig?.availableAssets as? [String] ?? []
+        let destinationEntities = entity.xcmConfig?.availableDestinations?.allObjects as? [CDXcmAvailableDestination] ?? []
+        let destinations: [XcmAvailableDestination] = destinationEntities.compactMap {
+            guard let chainId = $0.chainId, let assets = $0.assets else {
+                return nil
+            }
+
+            return XcmAvailableDestination(
+                chainId: chainId,
+                assets: assets
+            )
+        }
+
+        return XcmChain(
+            xcmVersion: version,
+            availableAssets: assets,
+            availableDestinations: destinations
+        )
+    }
+
     private func createExplorers(from entity: CDChain) -> [ChainModel.ExternalApiExplorer]? {
         let explorers: [ChainModel.ExternalApiExplorer]? = entity.explorers?.compactMap {
             guard let explorer = $0 as? CDExternalApi,
@@ -360,6 +396,29 @@ final class ChainModelMapper {
         }
         return ChainAssetType(rawValue: rawValue) ?? .normal
     }
+
+    private func updateXcmConfig(
+        in entity: CDChain,
+        from xcmConfig: XcmChain?,
+        context: NSManagedObjectContext
+    ) {
+        guard let xcmConfig = xcmConfig else {
+            return
+        }
+
+        let configEntity = CDChainXcmConfig(context: context)
+        configEntity.xcmVersion = xcmConfig.xcmVersion?.rawValue
+        configEntity.availableAssets = xcmConfig.availableAssets
+        let destinationEntities = xcmConfig.availableDestinations.compactMap {
+            let destinationEntity = CDXcmAvailableDestination(context: context)
+            destinationEntity.chainId = $0.chainId
+            destinationEntity.assets = $0.assets
+            return destinationEntity
+        }
+        configEntity.availableDestinations = Set(destinationEntities) as NSSet
+
+        entity.xcmConfig = configEntity
+    }
 }
 
 extension ChainModelMapper: CoreDataMapperProtocol {
@@ -403,6 +462,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
 
         let externalApiSet = createExternalApi(from: entity)
 
+        let xcm = createXcmConfig(from: entity)
+
         let chainModel = ChainModel(
             chainId: entity.chainId!,
             parentId: entity.parentId,
@@ -415,7 +476,8 @@ extension ChainModelMapper: CoreDataMapperProtocol {
             externalApi: externalApiSet,
             selectedNode: selectedNode,
             customNodes: customNodesSet,
-            iosMinAppVersion: entity.minimalAppVersion
+            iosMinAppVersion: entity.minimalAppVersion,
+            xcm: xcm
         )
 
         let chainAssetsArray: [ChainAssetModel] = entity.assets?.compactMap { anyAsset in
@@ -458,5 +520,6 @@ extension ChainModelMapper: CoreDataMapperProtocol {
         updateEntityCustomNodes(for: entity, from: model, context: context)
         updateEntitySelectedNode(for: entity, from: model, context: context)
         updateEplorersApis(in: entity, from: model.externalApi?.explorers, context: context)
+        updateXcmConfig(in: entity, from: model.xcm, context: context)
     }
 }

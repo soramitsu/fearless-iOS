@@ -158,7 +158,7 @@ extension WalletSendConfirmPresenter: WalletSendConfirmPresenterProtocol {
             preferredLanguages: selectedLocale.rLanguages
         )
         let message = R.string.localizable.scamWarningAlertSubtitle(
-            chainAsset.asset.name,
+            chainAsset.asset.symbolUppercased,
             preferredLanguages: selectedLocale.rLanguages
         )
 

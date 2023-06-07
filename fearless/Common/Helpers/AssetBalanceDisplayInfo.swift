@@ -50,7 +50,7 @@ extension AssetModel {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: name,
+            symbol: symbolUppercased,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon
@@ -61,7 +61,7 @@ extension AssetModel {
         AssetBalanceDisplayInfo(
             displayPrecision: 5,
             assetPrecision: Int16(bitPattern: precision),
-            symbol: name,
+            symbol: symbolUppercased,
             symbolValueSeparator: " ",
             symbolPosition: .suffix,
             icon: icon ?? chainIcon

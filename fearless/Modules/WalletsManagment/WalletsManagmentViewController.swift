@@ -13,12 +13,16 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
         }
     }
 
+    private let viewType: WalletsManagmentType
+
     // MARK: - Constructor
 
     init(
+        viewType: WalletsManagmentType,
         output: WalletsManagmentViewOutput,
         localizationManager: LocalizationManagerProtocol?
     ) {
+        self.viewType = viewType
         self.output = output
         super.init(nibName: nil, bundle: nil)
         self.localizationManager = localizationManager
@@ -32,7 +36,7 @@ final class WalletsManagmentViewController: UIViewController, ViewHolder {
     // MARK: - Life cycle
 
     override func loadView() {
-        view = WalletsManagmentViewLayout()
+        view = WalletsManagmentViewLayout(type: viewType)
     }
 
     override func viewDidLoad() {

@@ -23,6 +23,22 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
         view?.controller.present(navigationController, animated: true)
     }
 
+    func presentCrossChainFlow(
+        from view: ControllerBackedProtocol?,
+        chainAsset: ChainAsset,
+        wallet: MetaAccountModel
+    ) {
+        guard let controller = CrossChainAssembly.configureModule(
+            with: chainAsset,
+            wallet: wallet
+        )?.view.controller else {
+            return
+        }
+        let navigationController = FearlessNavigationController(rootViewController: controller)
+
+        view?.controller.present(navigationController, animated: true)
+    }
+
     func presentReceiveFlow(
         from view: ControllerBackedProtocol?,
         asset: AssetModel,
@@ -207,7 +223,7 @@ final class ChainAccountWireframe: ChainAccountWireframeProtocol {
     ) {
         let balanceLocksController = ModalInfoFactory.createFromBalanceContext(
             balanceContext,
-            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .fiat),
+            amountFormatter: AssetBalanceFormatterFactory().createDisplayFormatter(for: info, usageCase: .detailsCrypto),
             precision: info.assetPrecision,
             currency: currency
         )

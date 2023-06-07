@@ -18,6 +18,41 @@ struct SheetAlertPresentableActionStyle {
             titleColor: R.color.colorPink()!
         )
     }()
+
+    static let pinkBackgroundWhiteText: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: R.color.colorPink()!,
+            titleColor: R.color.colorWhite()!
+        )
+    }()
+
+    static let grayBackgroundPinkText: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: R.color.colorSemiBlack()!,
+            titleColor: R.color.colorPink()!
+        )
+    }()
+
+    static let grayBackgroundWhiteText: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: R.color.colorSemiBlack()!,
+            titleColor: R.color.colorWhite()!
+        )
+    }()
+
+    static let clearBackgroundWhiteText: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: .clear,
+            titleColor: R.color.colorWhite()!
+        )
+    }()
+
+    static let clearBackgroundPinkText: SheetAlertPresentableActionStyle = {
+        SheetAlertPresentableActionStyle(
+            backgroundColor: .clear,
+            titleColor: R.color.colorPink()!
+        )
+    }()
 }
 
 struct SheetAlertPresentableAction {

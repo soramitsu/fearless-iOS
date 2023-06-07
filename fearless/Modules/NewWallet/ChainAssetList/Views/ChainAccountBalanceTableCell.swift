@@ -294,7 +294,7 @@ extension ChainAccountBalanceTableCell: DeactivatableView {
 extension ChainAccountBalanceTableCell {
     private func controlSkeleton(for viewModel: ChainAccountBalanceCellViewModel) {
         let chainName = viewModel.assetName?.uppercased()
-        let chainSymbol = viewModel.chainAsset.asset.name.uppercased()
+        let chainSymbol = viewModel.chainAsset.asset.symbolUppercased
         chainNameLabel.apply(state: .updating(chainName))
         balanceView.keyLabel.apply(state: .updating(chainSymbol))
         assetIconImageView.startShimmeringAnimation()

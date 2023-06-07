@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 typealias ChainAssetKey = String
 
@@ -23,53 +24,53 @@ struct ChainAsset: Equatable, Hashable, Identifiable {
         chain.identifier + asset.identifier
     }
 
-    var currencyId: CurrencyId? {
+    var currencyId: SSFModels.CurrencyId? {
         switch chainAssetType {
         case .normal:
             if chain.isSora, isUtility {
                 guard let currencyId = asset.currencyId else {
                     return nil
                 }
-                return CurrencyId.soraAsset(id: currencyId)
+                return SSFModels.CurrencyId.soraAsset(id: currencyId)
             }
             return nil
         case .ormlChain, .ormlAsset:
-            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
-            return CurrencyId.token(symbol: tokenSymbol)
+            let tokenSymbol = SSFModels.TokenSymbol(symbol: asset.symbol)
+            return SSFModels.CurrencyId.token(symbol: tokenSymbol)
         case .foreignAsset:
             guard let foreignAssetId = asset.currencyId else {
                 return nil
             }
-            return CurrencyId.foreignAsset(foreignAsset: foreignAssetId)
+            return SSFModels.CurrencyId.foreignAsset(foreignAsset: foreignAssetId)
         case .stableAssetPoolToken:
             guard let stableAssetPoolTokenId = asset.currencyId else {
                 return nil
             }
-            return CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
+            return SSFModels.CurrencyId.stableAssetPoolToken(stableAssetPoolToken: stableAssetPoolTokenId)
         case .liquidCrowdloan:
             guard let currencyId = asset.currencyId else {
                 return nil
             }
-            return CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
+            return SSFModels.CurrencyId.liquidCrowdloan(liquidCrowdloan: currencyId)
         case .vToken:
-            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
-            return CurrencyId.vToken(symbol: tokenSymbol)
+            let tokenSymbol = SSFModels.TokenSymbol(symbol: asset.symbol)
+            return SSFModels.CurrencyId.vToken(symbol: tokenSymbol)
         case .vsToken:
-            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
-            return CurrencyId.vsToken(symbol: tokenSymbol)
+            let tokenSymbol = SSFModels.TokenSymbol(symbol: asset.symbol)
+            return SSFModels.CurrencyId.vsToken(symbol: tokenSymbol)
         case .stable:
-            let tokenSymbol = TokenSymbol(symbol: asset.symbol)
-            return CurrencyId.stable(symbol: tokenSymbol)
+            let tokenSymbol = SSFModels.TokenSymbol(symbol: asset.symbol)
+            return SSFModels.CurrencyId.stable(symbol: tokenSymbol)
         case .equilibrium:
             guard let currencyId = asset.currencyId else {
                 return nil
             }
-            return CurrencyId.equilibrium(id: currencyId)
+            return SSFModels.CurrencyId.equilibrium(id: currencyId)
         case .soraAsset:
             guard let currencyId = asset.currencyId else {
                 return nil
             }
-            return CurrencyId.soraAsset(id: currencyId)
+            return SSFModels.CurrencyId.soraAsset(id: currencyId)
         }
     }
 
@@ -116,7 +117,7 @@ extension ChainAsset {
     }
 
     var debugName: String {
-        "\(chain.name)-\(asset.name)"
+        "\(chain.name)-\(asset.symbolUppercased)"
     }
 
     var hasStaking: Bool {
