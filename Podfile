@@ -1,8 +1,8 @@
 platform :ios, '13.0'
 
 # Uncomment for CI
-source 'https://github.com/soramitsu/SSFSpecs.git'
-source 'https://github.com/CocoaPods/Specs.git'
+#source 'https://github.com/soramitsu/SSFSpecs.git'
+#source 'https://github.com/CocoaPods/Specs.git'
 
 abstract_target 'fearlessAll' do
   use_frameworks!
@@ -27,21 +27,21 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
 
-  pod 'SSFXCM'
-  pod 'SSFExtrinsicKit'
-  pod 'SSFCrypto'
-  pod 'SSFSigner'
-  pod 'SSFModels'
-  pod 'SSFEraKit'
-  pod 'SSFLogger'
-  pod 'SSFRuntimeCodingService'
-  pod 'SSFStorageQueryKit'
-  pod 'SSFChainConnection'
-  pod 'SSFNetwork'
-  pod 'SSFUtils'
-  pod 'SSFChainRegistry'
-  pod 'SSFHelpers'
-  
+  pod 'SSFXCM', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFXCM/SSFXCM.podspec'
+  pod 'SSFExtrinsicKit', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFExtrinsicKit/SSFExtrinsicKit.podspec'
+  pod 'SSFCrypto', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFCrypto/SSFCrypto.podspec'
+  pod 'SSFSigner', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFSigner/SSFSigner.podspec'
+  pod 'SSFModels', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFModels/SSFModels.podspec'
+  pod 'SSFEraKit', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFEraKit/SSFEraKit.podspec'
+  pod 'SSFLogger', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFLogger/SSFLogger.podspec'
+  pod 'SSFRuntimeCodingService', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFRuntimeCodingService/SSFRuntimeCodingService.podspec'
+  pod 'SSFStorageQueryKit', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFStorageQueryKit/SSFStorageQueryKit.podspec'
+  pod 'SSFChainConnection', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFChainConnection/SSFChainConnection.podspec'
+  pod 'SSFNetwork', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFNetwork/SSFNetwork.podspec'
+  pod 'SSFUtils', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFUtils/SSFUtils.podspec'
+  pod 'SSFChainRegistry', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFChainRegistry/SSFChainRegistry.podspec'
+  pod 'SSFHelpers', :podspec => 'https://raw.githubusercontent.com/soramitsu/shared-features-ios/drk/SSFHelpers/SSFHelpers.podspec'
+
   # Development pods
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
 #  pod 'SSFExtrinsicKit', :path => '../soramitsu-shared-features-ios/SSFExtrinsicKit'
