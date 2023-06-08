@@ -185,12 +185,6 @@ final class ChainSyncService {
     }
 
     private func complete(result: Result<SyncChanges, Error>?) {
-//        mutex.lock()
-//
-//        defer {
-//            mutex.unlock()
-//        }
-
         isSyncing = false
 
         switch result {
