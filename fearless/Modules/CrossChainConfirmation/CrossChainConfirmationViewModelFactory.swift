@@ -34,7 +34,7 @@ final class CrossChainConfirmationViewModelFactory: CrossChainConfirmationViewMo
             doubleImageViewViewModel: doubleImageViewViewModel,
             originalNetworkName: data.originChainAsset.chain.name,
             destNetworkName: data.destChainModel.name,
-            amount: data.displayAmount,
+            amount: [data.displayAmount, data.originChainAsset.asset.symbolUppercased].joined(separator: " "),
             originalChainFee: data.originChainFee,
             destChainFee: data.destChainFee
         )
