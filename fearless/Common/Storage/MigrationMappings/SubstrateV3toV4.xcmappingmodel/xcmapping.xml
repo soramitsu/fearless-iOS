@@ -255,14 +255,14 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxELcAALAAwAGwA3ADgAOQBhAGIAYwBk
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z144"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z143">
-        <attribute name="migrationpolicyclassname" type="string">fearless.ChainModelV4MigrationPolicy</attribute>
+        <attribute name="migrationpolicyclassname" type="string"></attribute>
         <attribute name="sourcename" type="string">CDAsset</attribute>
         <attribute name="mappingtypename" type="string">Undefined</attribute>
         <attribute name="mappingnumber" type="int16">1</attribute>
         <attribute name="destinationname" type="string">CDAsset</attribute>
         <attribute name="autogenerateexpression" type="bool">1</attribute>
         <relationship name="mappingmodel" type="1/1" destination="XDDEVMAPPINGMODEL" idrefs="z114"></relationship>
-        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z124 z200 z210 z129 z137 z148 z134 z170 z121 z218 z110 z160 z173 z164 z165 z131"></relationship>
+        <relationship name="attributemappings" type="0/0" destination="XDDEVATTRIBUTEMAPPING" idrefs="z164 z210 z121 z165 z129 z218 z131 z124 z137 z110 z200 z148 z160 z134 z173 z170"></relationship>
         <relationship name="relationshipmappings" type="0/0" destination="XDDEVRELATIONSHIPMAPPING"></relationship>
     </object>
     <object type="XDDEVENTITYMAPPING" id="z144">
@@ -302,9 +302,6 @@ cxIAAYagXxAPTlNLZXllZEFyY2hpdmVy0QAIAAlUcm9vdIABrxELcAALAAwAGwA3ADgAOQBhAGIAYwBk
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z166"></relationship>
     </object>
     <object type="XDDEVATTRIBUTEMAPPING" id="z150">
-        <attribute name="valueexpressiondata" type="binary">YnBsaXN0MDDUAQIDBAUGBwpYJHZlcnNpb25ZJGFyY2hpdmVyVCR0b3BYJG9iamVjdHMSAAGGoF8Q
-D05TS2V5ZWRBcmNoaXZlctEICVRyb290gAGkCwwTFFUkbnVsbNMNDg8QERJfEA9OU0NvbnN0YW50VmFsdWVfEBBOU0V4cHJlc3Npb25UeXBlViRjbGFzc4ACEACAAwjSFRYXGFokY2xhc3NuYW1lWCRjbGFzc2VzXxAZTlNDb25zdGFudFZhbHVlRXhwcmVzc2lvbqMXGRpcTlNFeHByZXNzaW9uWE5TT2JqZWN0CBEaJCkyN0lMUVNYXmV3ipGTlZeYnaixzdHeAAAAAAAAAQEAAAAAAAAAGwAAAAAAAAAAAAAAAAAAAOc=
-</attribute>
         <attribute name="name" type="string">disabled</attribute>
         <relationship name="entitymapping" type="1/1" destination="XDDEVENTITYMAPPING" idrefs="z211"></relationship>
     </object>
