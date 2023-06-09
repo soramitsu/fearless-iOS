@@ -94,6 +94,8 @@
 		078E34C128058B9D00DF187A /* DocumentType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C028058B9D00DF187A /* DocumentType.swift */; };
 		078E34C328058BFD00DF187A /* DocumentPickerPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */; };
 		078FD51027F310FE00F031E6 /* StartViewHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 078FD50F27F310FE00F031E6 /* StartViewHelper.swift */; };
+		07A086E82A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = 07A086E72A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel */; };
+		07A086EA2A32F4F90062BCA4 /* ChainModelV4MigrationPolicy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07A086E92A32F4F90062BCA4 /* ChainModelV4MigrationPolicy.swift */; };
 		07B018D128C7135400E05510 /* ScamInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D028C7135400E05510 /* ScamInfo.swift */; };
 		07B018D328C714B300E05510 /* ScamServiceOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */; };
 		07B018DB28C9D66300E05510 /* ScamWarningExpandableView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */; };
@@ -2680,6 +2682,8 @@
 		078E34C028058B9D00DF187A /* DocumentType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentType.swift; sourceTree = "<group>"; };
 		078E34C228058BFD00DF187A /* DocumentPickerPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DocumentPickerPresentable.swift; sourceTree = "<group>"; };
 		078FD50F27F310FE00F031E6 /* StartViewHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StartViewHelper.swift; sourceTree = "<group>"; };
+		07A086E72A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = SubstrateV3toV4.xcmappingmodel; sourceTree = "<group>"; };
+		07A086E92A32F4F90062BCA4 /* ChainModelV4MigrationPolicy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainModelV4MigrationPolicy.swift; sourceTree = "<group>"; };
 		07B018D028C7135400E05510 /* ScamInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamInfo.swift; sourceTree = "<group>"; };
 		07B018D228C714B300E05510 /* ScamServiceOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamServiceOperationFactory.swift; sourceTree = "<group>"; };
 		07B018DA28C9D66300E05510 /* ScamWarningExpandableView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScamWarningExpandableView.swift; sourceTree = "<group>"; };
@@ -7486,10 +7490,11 @@
 			isa = PBXGroup;
 			children = (
 				FA7435A029C0744B0085A47E /* UserDataModel.xcdatamodeld */,
-				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				FA2569A7274CE70700875A53 /* SubstrateDataModel.xcdatamodeld */,
 				8457F91126EB9088006803E1 /* EntityToModel */,
 				84CEAAEB26D6D91A0021B881 /* MigrationMappings */,
+				F418E86D264D0EF600699085 /* Migration */,
+				FA74359C29C0736F0085A47E /* StorageWrapper.swift */,
 				8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */,
 				8467FD5424EFD254005D486C /* StorageFacadeProtocol.swift */,
 				843910CD253F7E8000E3C217 /* SubstrateDataStorageFacade.swift */,
@@ -7822,7 +7827,6 @@
 				8490145424A9403C008F705E /* Helpers */,
 				849014C624AA8A28008F705E /* LocalAuthentication */,
 				849013D324A927E2008F705E /* Logger */,
-				F418E86D264D0EF600699085 /* Migration */,
 				849013E024A9287F008F705E /* Model */,
 				8490150124AB6BEA008F705E /* Network */,
 				8490147924AA13C7008F705E /* Operation */,
@@ -8964,6 +8968,7 @@
 				FA9278A727C382C600FF7B5B /* MultiassetV2.xcmappingmodel */,
 				FA69A94627CE3476000352A6 /* SubstrateV2Mapping.xcmappingmodel */,
 				FA28A9AF29D19A41005AA42E /* MultiassetV9.xcmappingmodel */,
+				07A086E72A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel */,
 			);
 			path = MigrationMappings;
 			sourceTree = "<group>";
@@ -11727,6 +11732,7 @@
 				FA402F3927CCD1DB008CF986 /* SubstrateStorageMigrator.swift */,
 				FA402F3327CCCC19008CF986 /* ChainSubstrateV2MigrationPolicy.swift */,
 				FA402F3B27CCD53D008CF986 /* SubstrateStorageMigrator+Sync.swift */,
+				07A086E92A32F4F90062BCA4 /* ChainModelV4MigrationPolicy.swift */,
 			);
 			path = SubstrateStorage;
 			sourceTree = "<group>";
@@ -13296,7 +13302,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -13333,7 +13339,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -15038,6 +15044,7 @@
 				075FC63528D9AB1600E25263 /* CommonInputViewV2.swift in Sources */,
 				6A8A060B9EB9ABAF6EC066FF /* NetworkInfoProtocols.swift in Sources */,
 				FAADC1AB29261F7000DA9903 /* PoolRolesConfirmViewLayout.swift in Sources */,
+				07A086E82A32F1B30062BCA4 /* SubstrateV3toV4.xcmappingmodel in Sources */,
 				FABC71BB29DD72C10074A31E /* CrossChainConfirmationProtocols.swift in Sources */,
 				FA17B4D627E9CF34006E0735 /* UserInactiveEvent.swift in Sources */,
 				07D05E4128EC08B800B66C70 /* StakinkPoolRewardCalculator.swift in Sources */,
@@ -15731,6 +15738,7 @@
 				982BB3FA25BA6AD5443B24C6 /* NetworkIssuesNotificationPresenter.swift in Sources */,
 				BF3753B93B3E94BE1ECB9E81 /* NetworkIssuesNotificationInteractor.swift in Sources */,
 				445F1F1FB3ECC47D8DD2FBEA /* NetworkIssuesNotificationViewController.swift in Sources */,
+				07A086EA2A32F4F90062BCA4 /* ChainModelV4MigrationPolicy.swift in Sources */,
 				737F71CCDF39E7A400EBB7C0 /* NetworkIssuesNotificationViewLayout.swift in Sources */,
 				38BFEDD4B9F31EF2532962BD /* NetworkIssuesNotificationAssembly.swift in Sources */,
 				A4FE32D50E4B7CB5B53E0067 /* StakingPoolInfoProtocols.swift in Sources */,

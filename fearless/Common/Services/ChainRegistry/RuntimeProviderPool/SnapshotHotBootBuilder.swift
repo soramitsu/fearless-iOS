@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SSFModels
+import SSFNetwork
 
 protocol SnapshotHotBootBuilderProtocol {
     func startHotBoot()
@@ -12,7 +13,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     private let chainRepository: AnyDataProviderRepository<ChainModel>
     private let filesOperationFactory: RuntimeFilesOperationFactoryProtocol
     private let runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>
-    private let dataOperationFactory: DataOperationFactoryProtocol
+    private let dataOperationFactory: NetworkOperationFactoryProtocol
     private let operationQueue: OperationQueue
     private let logger: Logger
 
@@ -21,7 +22,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
         chainRepository: AnyDataProviderRepository<ChainModel>,
         filesOperationFactory: RuntimeFilesOperationFactoryProtocol,
         runtimeItemRepository: AnyDataProviderRepository<RuntimeMetadataItem>,
-        dataOperationFactory: DataOperationFactoryProtocol,
+        dataOperationFactory: NetworkOperationFactoryProtocol,
         operationQueue: OperationQueue,
         logger: Logger
     ) {
@@ -37,18 +38,21 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
     // MARK: - Public
 
     func startHotBoot() {
-        guard let chainsTypesUrl = ApplicationConfig.shared.chainsTypesURL else {
+        guard
+            let chainsTypesUrl = ApplicationConfig.shared.chainsTypesURL,
+            let chainsUrl = ApplicationConfig.shared.chainListURL
+        else {
             assertionFailure()
             return
         }
         let chainsTypesFetchOperation = fetchChainsTypes(url: chainsTypesUrl)
         let runtimeItemsOperation = runtimeItemRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        let chainModelOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
+        let chainModelOperation = fetchChains(url: chainsUrl)
 
         let mergeOperation = ClosureOperation<MergeOperationResult> {
             let chainsTypesResult = try chainsTypesFetchOperation.targetOperation.extractNoCancellableResultData()
             let runtimesResult = try runtimeItemsOperation.extractNoCancellableResultData()
-            let chainModelResult = try chainModelOperation.extractNoCancellableResultData()
+            let chainModelResult = try chainModelOperation.targetOperation.extractNoCancellableResultData()
 
             return MergeOperationResult(
                 chainsTypes: chainsTypesResult,
@@ -59,7 +63,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
 
         let dependencies = chainsTypesFetchOperation.allOperations
             + [runtimeItemsOperation]
-            + [chainModelOperation]
+            + chainModelOperation.allOperations
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
@@ -111,7 +115,7 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
 
     private func fetchChainsTypes(url: URL) -> CompoundOperationWrapper<Data> {
         let chainsTypesFetchOperation = filesOperationFactory.fetchChainsTypesOperation()
-        let remoteChainsTypesOperation = dataOperationFactory.fetchData(from: url)
+        let remoteChainsTypesOperation: BaseOperation<Data> = dataOperationFactory.fetchData(from: url)
 
         remoteChainsTypesOperation.configurationBlock = { [weak self] in
             do {
@@ -130,6 +134,48 @@ final class SnapshotHotBootBuilder: SnapshotHotBootBuilderProtocol {
             targetOperation: remoteChainsTypesOperation,
             dependencies: chainsTypesFetchOperation.allOperations
         )
+    }
+
+    private func fetchChains(url: URL) -> CompoundOperationWrapper<[ChainModel]> {
+        let chainsFetchOperation = chainRepository.fetchAllOperation(with: RepositoryFetchOptions())
+        let remoteChainsOperation: BaseOperation<[ChainModel]> = dataOperationFactory.fetchData(from: url)
+
+        remoteChainsOperation.configurationBlock = { [weak self] in
+            do {
+                let localResult = try chainsFetchOperation.extractNoCancellableResultData()
+                if localResult.isNotEmpty {
+                    remoteChainsOperation.result = .success(localResult)
+                } else {
+                    self?.saveChains(from: remoteChainsOperation)
+                }
+            } catch {
+                self?.logger.error("\(error)")
+            }
+        }
+
+        remoteChainsOperation.addDependency(chainsFetchOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: remoteChainsOperation,
+            dependencies: [chainsFetchOperation]
+        )
+    }
+
+    private func saveChains(from operation: BaseOperation<[ChainModel]>) {
+        operation.completionBlock = { [weak self] in
+            guard let strongSelf = self else { return }
+            do {
+                let chains = try operation.extractNoCancellableResultData()
+                let saveOperation = strongSelf.chainRepository.saveOperation({
+                    chains
+                }, {
+                    []
+                })
+                strongSelf.operationQueue.addOperation(saveOperation)
+            } catch {
+                strongSelf.logger.customError(error)
+            }
+        }
     }
 
     private func prepareVersionedJsons(from data: Data) throws -> [String: Data] {
