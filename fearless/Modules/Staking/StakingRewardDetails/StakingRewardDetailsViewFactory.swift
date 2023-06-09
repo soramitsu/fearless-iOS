@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import SSFUtils
+import SSFModels
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
     static func createView(

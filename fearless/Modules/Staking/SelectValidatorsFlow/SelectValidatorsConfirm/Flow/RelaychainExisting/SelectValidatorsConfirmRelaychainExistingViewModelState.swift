@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
     var balance: Decimal?

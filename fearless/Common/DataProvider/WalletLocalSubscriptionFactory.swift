@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol WalletLocalSubscriptionFactoryProtocol {
     var operationManager: OperationManagerProtocol { get }

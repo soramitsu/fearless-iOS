@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SoraUI
+import SSFModels
 
 enum SelectNetworkAssembly {
     static func configureModule(

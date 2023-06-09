@@ -2,6 +2,7 @@ import UIKit
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import SSFModels
 
 final class YourValidatorListInteractor: AccountFetching {
     weak var presenter: YourValidatorListInteractorOutputProtocol!

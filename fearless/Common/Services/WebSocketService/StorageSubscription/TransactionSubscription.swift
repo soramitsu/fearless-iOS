@@ -3,6 +3,7 @@ import SSFUtils
 import IrohaCrypto
 import RobinHood
 import BigInt
+import SSFModels
 
 struct TransactionSubscriptionResult {
     let processingResult: ExtrinsicProcessingResult

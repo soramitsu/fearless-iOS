@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 protocol PoolStakingAccountSubscriptionProtocol {
     func subscribeRemote()

@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 // swiftlint:disable opening_brace multiple_closures_with_trailing_closure
 final class StakingPoolCreateConfirmInteractor {

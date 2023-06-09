@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 final class StakingRedeemConfirmationPoolViewModelFactory: StakingRedeemConfirmationViewModelFactoryProtocol {
     private let asset: AssetModel

@@ -1,5 +1,6 @@
 import RobinHood
 import XNetworking
+import SSFModels
 
 final class SoraXNetworkingHistoryOperation<ResultType>: BaseOperation<ResultType> {
     private let httpProvider: SoramitsuHttpClientProviderImpl

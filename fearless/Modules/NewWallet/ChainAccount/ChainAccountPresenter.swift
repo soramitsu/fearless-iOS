@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 final class ChainAccountPresenter {
     weak var view: ChainAccountViewProtocol?
@@ -104,7 +105,7 @@ final class ChainAccountPresenter {
 
         if let address = wallet.fetch(for: chainAsset.chain.accountRequest())?.toAddress() {
             let allAssets = Array(chainAsset.chain.assets)
-            let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
+            let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
 
             var availableProviders: [PurchaseProviderProtocol] = []
             chainAssetModel?.purchaseProviders?.compactMap { $0 }.forEach {

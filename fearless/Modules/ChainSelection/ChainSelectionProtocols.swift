@@ -1,3 +1,5 @@
+import SSFModels
+
 protocol ChainSelectionViewProtocol: SelectionListViewProtocol {}
 
 protocol ChainSelectionPresenterProtocol: SelectionListPresenterProtocol {

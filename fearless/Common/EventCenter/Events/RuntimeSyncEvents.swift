@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct RuntimeChainsTypesSyncCompleted: EventProtocol {
     let versioningMap: [String: Data]

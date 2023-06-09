@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class StakingPoolManagementRouter: StakingPoolManagementRouterInput {
     func presentStakeMoreFlow(

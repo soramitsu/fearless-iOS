@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum NetworkIssuesActionButtonType {
     case switchNode(title: String)

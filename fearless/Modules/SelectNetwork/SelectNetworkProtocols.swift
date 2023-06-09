@@ -1,3 +1,6 @@
+
+import SSFModels
+
 typealias SelectNetworkModuleCreationResult = (view: SelectNetworkViewInput, input: SelectNetworkModuleInput)
 
 protocol SelectNetworkViewInput: SelectionListViewProtocol {}

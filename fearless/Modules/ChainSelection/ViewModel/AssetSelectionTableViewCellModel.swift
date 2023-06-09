@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum AssetSelectionStakingType: Equatable {
     case normal(chainAsset: ChainAsset?)

@@ -1,3 +1,5 @@
+
+import SSFModels
 typealias CrossChainConfirmationModuleCreationResult = (
     view: CrossChainConfirmationViewInput,
     input: CrossChainConfirmationModuleInput

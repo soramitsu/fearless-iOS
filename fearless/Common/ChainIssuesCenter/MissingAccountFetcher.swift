@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol MissingAccountFetcherProtocol {
     func fetchMissingAccounts(for wallet: MetaAccountModel, complection: @escaping ([ChainModel]) -> Void)

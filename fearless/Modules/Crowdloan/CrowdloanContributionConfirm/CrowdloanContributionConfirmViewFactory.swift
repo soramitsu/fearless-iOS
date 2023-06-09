@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 struct CrowdloanContributionConfirmViewFactory {
     static func createView(
@@ -16,7 +17,7 @@ struct CrowdloanContributionConfirmViewFactory {
             let asset = chain.utilityAssets().first,
             let interactor = createInteractor(
                 for: paraId,
-                chainAsset: ChainAsset(chain: chain, asset: asset.asset),
+                chainAsset: ChainAsset(chain: chain, asset: asset),
                 bonusService: bonusService,
                 state: state
             ) else {
@@ -25,7 +26,7 @@ struct CrowdloanContributionConfirmViewFactory {
 
         let wireframe = CrowdloanContributionConfirmWireframe()
 
-        let assetInfo = asset.asset.displayInfo(with: chain.icon)
+        let assetInfo = asset.displayInfo(with: chain.icon)
         let balanceViewModelFactory = BalanceViewModelFactory(
             targetAssetInfo: assetInfo,
             selectedMetaAccount: selectedAccount
@@ -55,7 +56,7 @@ struct CrowdloanContributionConfirmViewFactory {
             assetInfo: assetInfo,
             localizationManager: localizationManager,
             logger: Logger.shared,
-            chainAsset: ChainAsset(chain: chain, asset: asset.asset)
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let view = CrowdloanContributionConfirmVC(

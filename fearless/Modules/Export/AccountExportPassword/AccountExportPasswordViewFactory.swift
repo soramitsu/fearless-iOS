@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryProtocol {
     static func createView(flow: ExportFlow) -> AccountExportPasswordViewProtocol? {

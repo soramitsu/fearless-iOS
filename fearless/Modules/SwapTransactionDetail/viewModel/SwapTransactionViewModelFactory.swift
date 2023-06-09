@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SSFModels
 
 protocol SwapTransactionViewModelFactoryProtocol {
     func createViewModel(

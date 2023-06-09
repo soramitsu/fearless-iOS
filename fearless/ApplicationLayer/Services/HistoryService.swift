@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import RobinHood
+import SSFModels
 
 typealias TransactionHistoryBlock = (Result<AssetTransactionPageData?, Error>?) -> Void
 

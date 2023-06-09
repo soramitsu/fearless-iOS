@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtocol {
     func proceed(

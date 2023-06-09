@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class WalletMainContainerRouter: WalletMainContainerRouterInput {
     func showWalletManagment(

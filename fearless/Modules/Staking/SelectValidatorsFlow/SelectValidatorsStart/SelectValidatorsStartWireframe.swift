@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 class SelectValidatorsStartWireframe: SelectValidatorsStartWireframeProtocol {
     func proceedToCustomList(

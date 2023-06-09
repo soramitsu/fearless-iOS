@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class StakingBalanceRelaychainViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private let asset: AssetModel

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol WalletDetailsViewOutputProtocol {
     func didLoad(ui: WalletDetailsViewProtocol)

@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class NetworkInfoPresenter {
     weak var view: NetworkInfoViewProtocol?

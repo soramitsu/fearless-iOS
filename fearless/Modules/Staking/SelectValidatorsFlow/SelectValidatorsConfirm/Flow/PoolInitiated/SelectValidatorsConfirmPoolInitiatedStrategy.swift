@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol SelectValidatorsConfirmPoolInitiatedStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didReceiveMinBond(result: Result<BigUInt?, Error>)

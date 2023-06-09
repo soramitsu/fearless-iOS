@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol PriceLocalStorageSubscriber where Self: AnyObject {
     var priceLocalSubscriptionFactory: PriceProviderFactoryProtocol { get }

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol StakingRewardDestConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceiveConfirmation(viewModel: StakingRewardDestConfirmViewModel)

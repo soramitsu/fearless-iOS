@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct ChainAccountRequest {
     let chainId: ChainModel.Id

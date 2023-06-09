@@ -1,4 +1,5 @@
 import RobinHood
+import SSFModels
 
 enum AddressValidationResult {
     case valid(String)

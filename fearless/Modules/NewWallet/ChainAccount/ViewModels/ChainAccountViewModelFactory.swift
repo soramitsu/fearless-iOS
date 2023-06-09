@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol ChainAccountViewModelFactoryProtocol {
     func buildChainAccountViewModel(
@@ -25,9 +26,9 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             address = address1
         }
         let allAssets = Array(chainAsset.chain.assets)
-        let chainAssetModel = allAssets.first(where: { $0.assetId == chainAsset.asset.id })
+        let chainAssetModel = allAssets.first(where: { $0.id == chainAsset.asset.id })
         let buyButtonVisible = !(chainAssetModel?.purchaseProviders?.first == nil)
-        let polkaswapButtonVisible = chainAssetModel?.chain?.options?.contains(.polkaswap) == true
+        let polkaswapButtonVisible = chainAsset.chain.options?.contains(.polkaswap) == true
 
         var xcmButtomVisible: Bool = false
         if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.lowercased() }) {
@@ -39,7 +40,7 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
             walletName: wallet.name,
             selectedChainName: chainAsset.chain.name,
             address: address,
-            chainAssetModel: chainAssetModel,
+            assetModel: chainAssetModel,
             buyButtonVisible: buyButtonVisible,
             polkaswapButtonVisible: polkaswapButtonVisible,
             xcmButtomVisible: xcmButtomVisible

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SoraKeystore
+import SSFModels
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createMainViewModel(

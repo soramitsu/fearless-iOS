@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(viewModel: SelectValidatorsStartViewModel?)

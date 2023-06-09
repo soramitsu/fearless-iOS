@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import SSFModels
 
 final class StakingPoolMainRouter: StakingPoolMainRouterInput {
     func showSetupAmount(

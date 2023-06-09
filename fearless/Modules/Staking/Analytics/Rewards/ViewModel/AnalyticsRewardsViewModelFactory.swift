@@ -1,5 +1,6 @@
 import BigInt
 import SoraFoundation
+import SSFModels
 
 final class AnalyticsRewardsViewModelFactory: AnalyticsViewModelFactoryBase<SubqueryRewardItemData>,
     AnalyticsRewardsViewModelFactoryProtocol {

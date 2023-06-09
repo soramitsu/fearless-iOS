@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 class SubstrateLocalSubscriptionFactory {
     private var providers: [String: WeakWrapper] = [:]

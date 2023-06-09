@@ -2,6 +2,7 @@ import RobinHood
 import SoraKeystore
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRebondSetupInteractorOutputProtocol!

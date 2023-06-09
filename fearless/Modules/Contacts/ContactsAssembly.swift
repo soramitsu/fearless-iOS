@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import RobinHood
+import SSFModels
 
 final class ContactsAssembly {
     static func configureModule(

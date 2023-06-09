@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol SelectValidatorsConfirmParachainStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didReceiveAtStake(snapshot: ParachainStakingCollatorSnapshot?)

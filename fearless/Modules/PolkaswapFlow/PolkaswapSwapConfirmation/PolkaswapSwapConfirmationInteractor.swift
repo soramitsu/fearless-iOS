@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 import BigInt
 
 final class PolkaswapSwapConfirmationInteractor: RuntimeConstantFetching {

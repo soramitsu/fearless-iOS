@@ -1,5 +1,6 @@
 import SoraFoundation
 import IrohaCrypto
+import SSFModels
 
 final class ValidatorSearchPresenter {
     weak var view: ValidatorSearchViewProtocol?

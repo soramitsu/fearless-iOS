@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import CoreData
 import IrohaCrypto
+import SSFModels
 
 enum ChainNodeMapperError: Error {
     case missedRequiredFields

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol StakingPoolJoinConfirmViewModelFactoryProtocol {
     func buildViewModel(

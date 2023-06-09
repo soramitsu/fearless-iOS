@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import BigInt
+import SSFModels
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {

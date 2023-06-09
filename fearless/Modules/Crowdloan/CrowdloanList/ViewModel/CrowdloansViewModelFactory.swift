@@ -3,6 +3,7 @@ import CommonWallet
 import SoraFoundation
 import SSFUtils
 import BigInt
+import SSFModels
 
 protocol CrowdloansViewModelFactoryProtocol {
     func createChainViewModel(

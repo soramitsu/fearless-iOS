@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import SSFModels
 
 final class StakingPoolJoinConfigInteractor {
     // MARK: - Private properties

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: ControllerAccountViewModel)

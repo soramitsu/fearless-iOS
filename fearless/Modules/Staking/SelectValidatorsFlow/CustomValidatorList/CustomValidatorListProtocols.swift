@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?)

@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 enum ConnectionPoolError: Error {
     case onlyOneNode

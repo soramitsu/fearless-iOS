@@ -3,6 +3,7 @@ import BigInt
 import SoraFoundation
 import IrohaCrypto
 import SwiftUI
+import SSFModels
 
 final class WalletSendConfirmPresenter {
     weak var view: WalletSendConfirmViewProtocol?

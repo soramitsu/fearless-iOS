@@ -1,3 +1,5 @@
+import SSFModels
+
 typealias StakingPoolCreateConfirmModuleCreationResult = (
     view: StakingPoolCreateConfirmViewInput,
     input: StakingPoolCreateConfirmModuleInput

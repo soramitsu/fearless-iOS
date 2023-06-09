@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 protocol StakingRebondConfirmationParachainStrategyOutput: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)

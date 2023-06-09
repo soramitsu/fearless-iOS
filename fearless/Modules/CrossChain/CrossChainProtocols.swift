@@ -1,5 +1,6 @@
 import Foundation
 import SSFXCM
+import SSFModels
 
 typealias CrossChainModuleCreationResult = (
     view: CrossChainViewInput,
