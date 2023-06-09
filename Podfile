@@ -27,7 +27,15 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
 
-  pod 'SSFXCM'
+  def configs_for_debug_menu_only_dependencies
+    if %r{^beta$}i.match ENV['RELEASE_VARIANT']
+      ['Release']
+    else
+      ['Debug']
+    end
+  end
+
+  pod 'SSFXCM', configuration: configs_for_debug_menu_only_dependencies
   pod 'SSFExtrinsicKit'
   pod 'SSFCrypto'
   pod 'SSFSigner'
