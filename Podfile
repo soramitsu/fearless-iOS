@@ -48,7 +48,7 @@ abstract_target 'fearlessAll' do
       end
   end
 
-  pods_include_configurations
+  pods_with_configurations
   
   # Development pods
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
