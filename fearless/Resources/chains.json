@@ -429,7 +429,15 @@
             "history": {
                 "type": "giantsquid",
                 "url": "https://squid.subsquid.io/gs-main-statemint/graphql"
-            }
+            },
+            "explorers": [{
+                "type": "subscan",
+                "types": [
+                    "extrinsic",
+                    "account"
+                ],
+                "url": "https://statemint.subscan.io/{type}/{value}"
+            }]
         },
         "assets": [{
                 "isUtility": true,
@@ -1005,7 +1013,7 @@
             }
         ],
         "xcm": {
-            "xcmVersion": "v1",
+            "xcmVersion": "v3",
             "availableAssets": ["KSM", "BNC", "KUSD", "KAR", "RMRK", "USDT", "KINT", "LKSM", "MOVR"],
             "availableDestinations": [{
                     "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
@@ -1189,7 +1197,7 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["KSM", "MOVR", "KUSD", "RMRK", "KINT", "PHA", "XRT", "KBTC"],
+            "availableAssets": ["KSM", "MOVR", "KSM", "KUSD", "RMRK", "KINT", "PHA", "XRT", "KBTC"],
             "availableDestinations": [{
                     "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
                     "assets": ["KSM"]
@@ -1489,16 +1497,31 @@
         ],
         "xcm": {
             "xcmVersion": "v3",
-            "availableAssets": ["KSM", "BNC", "KAR", "KUSD"],
+            "availableAssets": ["KSM", "BNC", "MOVR", "KUSD", "PHA", "ZLK", "USDt"],
             "availableDestinations": [{
                     "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
                     "assets": ["KSM"]
                 },
                 {
+                    "chainId": "48239ef607d7928874027a43a67689209727dfb3d3dc5e5b03a39bdc2eda771a",
+                    "assets": ["USDt"]
+                },
+                {
                     "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                    "assets": ["KSM", "BNC", "KAR", "KUSD"]
+                    "assets": ["KSM", "BNC", "KUSD"]
+                },
+                {
+                    "chainId": "401a1f9dca3da46f5c4091016c8a2f26dcea05865116b286f60f668207d1474b",
+                    "assets": ["KSM", "BNC", "MOVR"]
+                },
+                {
+                    "chainId": "d43540ba6d3eb4897c28a77d48cb5b729fea37603cbbfc7a86a73b72adb3be8d",
+                    "assets": ["PHA", "ZLK"]
+                },
+                {
+                    "chainId": "d611f22d291c5b7b69f1e105cca03352984c344c4421977efaa4cbdd1834e2aa",
+                    "assets": ["BNC", "ZLK"]
                 }
-
             ]
         },
         "nodes": [{
@@ -2057,11 +2080,16 @@
         }],
         "xcm": {
             "xcmVersion": "v1",
-            "availableAssets": ["NEER"],
+            "availableAssets": ["KSM", "NEER"],
             "availableDestinations": [{
-                "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
-                "assets": ["NEER"]
-            }]
+                    "chainId": "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe",
+                    "assets": ["KSM"]
+                },
+                {
+                    "chainId": "baf5aabe40646d11f0ee8abbdc64f4a4b7674925cba08e4a05ff9ebed6e2126b",
+                    "assets": ["NEER"]
+                }
+            ]
         },
         "nodes": [{
                 "url": "wss://pioneer.api.onfinality.io/ws?apikey=313214ec-15ef-4834-a896-1cf39911f94b",
@@ -2683,7 +2711,7 @@
             }
         ],
         "xcm": {
-            "xcmVersion": "v1",
+            "xcmVersion": "v3",
             "availableAssets": ["DOT", "GLMR", "aUSD", "ACA", "IBTC", "INTR", "ASTR", "USDt", "EQ", "EQD", "PHA"],
             "availableDestinations": [{
                     "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
@@ -3172,22 +3200,22 @@
         ],
         "xcm": {
             "xcmVersion": "v1",
-            "availableAssets": ["DOT", "GLMR", "IBTC", "USDt"],
+            "availableAssets": ["DOT", "INTR", "ACA", "USDt"],
             "availableDestinations": [{
                     "chainId": "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
                     "assets": ["DOT"]
                 },
                 {
                     "chainId": "fe58ea77779b7abda7da4ec526d14db9b1e9cd40a217c34892af80a9b332b76d",
-                    "assets": ["IBTC", "GLMR"]
+                    "assets": ["INTR"]
                 },
                 {
                     "chainId": "fc41b9bd8ef8fe53d58c7ea67c794c7ec9a73daf05e6d54b14ff6342c99ba64c",
-                    "assets": ["IBTC"]
+                    "assets": ["ACA"]
                 },
                 {
                     "chainId": "bf88efe70e9e0e916416e8bed61f2b45717f517d7f3523e33c7b001e5ffcbc72",
-                    "assets": ["IBTC"]
+                    "assets": ["INTR"]
                 },
                 {
                     "chainId": "68d56f15f85d3136970ec16946040bc1752654e906147f7e43e9d539d7c3de2f",
