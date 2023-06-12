@@ -1,7 +1,7 @@
 import Foundation
 import SSFUtils
-import BigInt
 import RobinHood
+import Web3
 
 // MARK: - Normal
 
@@ -112,12 +112,7 @@ struct AccountData: Codable, Equatable {
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
-        do {
-            free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
-        } catch {
-            print(error)
-            free = .zero
-        }
+        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
         reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
         do {
             flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value

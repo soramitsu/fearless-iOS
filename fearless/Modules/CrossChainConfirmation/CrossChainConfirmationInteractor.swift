@@ -1,7 +1,7 @@
 import UIKit
 import SSFXCM
 import RobinHood
-import BigInt
+import Web3
 import SSFModels
 
 protocol CrossChainConfirmationInteractorOutput: AnyObject {

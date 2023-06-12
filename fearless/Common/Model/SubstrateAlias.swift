@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 
 typealias AccountAddress = String
 typealias AccountId = Data
@@ -18,7 +18,7 @@ typealias LeasingOffset = UInt32
 
 extension AccountId {
     static func matchHex(_ value: String) -> AccountId? {
-        guard let data = try? Data(hexString: value) else {
+        guard let data = try? Data(hexStringSSF: value) else {
             return nil
         }
 

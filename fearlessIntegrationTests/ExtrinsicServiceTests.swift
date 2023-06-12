@@ -1,6 +1,6 @@
 //import XCTest
 //import SoraKeystore
-//import BigInt
+//import Web3
 //import IrohaCrypto
 //@testable import fearless
 //
@@ -66,7 +66,7 @@
 //            switch result {
 //            case let .success(paymentInfo):
 //                if
-//                    let feeValue = BigUInt(paymentInfo.fee),
+//                    let feeValue = BigUInt(string: paymentInfo.fee),
 //                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: assetPrecision),
 //                    fee > 0 {
 //                    feeExpectation.fulfill()
@@ -115,7 +115,7 @@
 //            switch result {
 //            case let .success(paymentInfo):
 //                if
-//                    let feeValue = BigUInt(paymentInfo.fee),
+//                    let feeValue = BigUInt(string: paymentInfo.fee),
 //                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: assetPrecision),
 //                    fee > 0 {
 //                    feeExpectation.fulfill()
@@ -168,7 +168,7 @@
 //            switch result {
 //            case let .success(paymentInfo):
 //                if
-//                    let feeValue = BigUInt(paymentInfo.fee),
+//                    let feeValue = BigUInt(string: paymentInfo.fee),
 //                    let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision),
 //                    fee > 0 {
 //                    feeExpectation.fulfill()

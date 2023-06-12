@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import BigInt
+import Web3
 import SSFModels
 
 typealias StakingPoolMainModuleCreationResult = (view: StakingPoolMainViewInput, input: StakingPoolMainModuleInput)

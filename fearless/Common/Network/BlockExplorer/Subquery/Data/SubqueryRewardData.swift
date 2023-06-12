@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 struct SubqueryRewardItemData: Equatable, Codable {
     let eventId: String
@@ -23,7 +23,7 @@ extension SubqueryRewardItemData {
             let isReward = json.reward?.isReward?.boolValue,
             let era = json.reward?.era?.unsignedIntValue,
             let amountString = json.reward?.amount?.stringValue,
-            let amount = BigUInt(amountString)
+            let amount = BigUInt(string: amountString)
         else { return nil }
 
         self.eventId = eventId

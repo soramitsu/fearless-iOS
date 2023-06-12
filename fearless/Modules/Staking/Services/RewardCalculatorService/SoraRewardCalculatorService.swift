@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 enum SoraCalculatorServiceError: Error {
@@ -135,7 +135,7 @@ final class SoraRewardCalculatorService {
         operationManager.enqueue(operations: allOperations, in: .blockAfter)
 
         let workItem = DispatchWorkItem(flags: .barrier) { [weak self] in
-            let rewardAssetAmount = self?.swapValues.compactMap { BigUInt($0.amount) }.max()
+            let rewardAssetAmount = self?.swapValues.compactMap { BigUInt(string: $0.amount) }.max()
             guard
                 let rewardAssetAmount = rewardAssetAmount,
                 let rewardChainAsset = self?.rewardChainAsset,

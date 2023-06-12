@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 struct ExtrinsicProcessingResult {
     let extrinsic: Extrinsic

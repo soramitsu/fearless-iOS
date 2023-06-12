@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 import SSFModels
 
 final class StakingBalanceParachainViewModelState: StakingBalanceViewModelState {

@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 struct EthereumBalanceRequestParams: Encodable {
     let address: String
@@ -45,7 +45,7 @@ final class AlchemyService {
         let request = AlchemyRequest(body: paramsEncoded)
         let worker = NetworkWorker()
         let response: AlchemyResponse<String> = try await worker.performRequest(with: request)
-        guard let balanceData = try? Data(hexString: response.result) else {
+        guard let balanceData = try? Data(hexStringSSF: response.result) else {
             throw CommonError.network
         }
         let balance = BigUInt(balanceData)
@@ -68,7 +68,7 @@ final class AlchemyService {
         let request = AlchemyRequest(body: paramsEncoded)
         let worker = NetworkWorker()
         let response: AlchemyResponse<String> = try await worker.performRequest(with: request)
-        guard let balanceData = try? Data(hexString: response.result) else {
+        guard let balanceData = try? Data(hexStringSSF: response.result) else {
             throw CommonError.network
         }
         let balance = BigUInt(balanceData)

@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 
 protocol StakingMainRelaychainStrategyOutput: AnyObject {
     func didReceive(totalReward: Result<TotalRewardItem, Error>)

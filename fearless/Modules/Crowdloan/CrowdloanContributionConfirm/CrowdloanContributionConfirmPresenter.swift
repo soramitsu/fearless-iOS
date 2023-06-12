@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 import SoraFoundation
 import SSFModels
 
@@ -362,7 +362,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: assetInfo.assetPrecision)
             } ?? nil
 

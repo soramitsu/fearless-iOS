@@ -1,6 +1,6 @@
 import UIKit
 import SoraFoundation
-import BigInt
+import Web3
 import SSFModels
 
 enum StakingRedeemFlow {

@@ -1,6 +1,6 @@
 import Foundation
 import IrohaCrypto
-import BigInt
+import Web3
 import SSFModels
 
 extension ValidatorState {

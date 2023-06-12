@@ -1,5 +1,5 @@
 import CommonWallet
-import BigInt
+import Web3
 import SSFModels
 
 typealias StakingPoolJoinConfigModuleCreationResult = (

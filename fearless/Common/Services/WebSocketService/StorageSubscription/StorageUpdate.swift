@@ -20,13 +20,13 @@ struct StorageUpdateData {
                 return nil
             }
 
-            guard let keyString = change[0], let keyData = try? Data(hexString: keyString) else {
+            guard let keyString = change[0], let keyData = try? Data(hexStringSSF: keyString) else {
                 return nil
             }
 
             key = keyData
 
-            if let valueString = change[1], let valueData = try? Data(hexString: valueString) {
+            if let valueString = change[1], let valueData = try? Data(hexStringSSF: valueString) {
                 value = valueData
             } else {
                 value = nil
@@ -40,7 +40,7 @@ struct StorageUpdateData {
     init(update: StorageUpdate) {
         if
             let blockHashString = update.blockHash,
-            let blockHashData = try? Data(hexString: blockHashString) {
+            let blockHashData = try? Data(hexStringSSF: blockHashString) {
             blockHash = blockHashData
         } else {
             blockHash = nil

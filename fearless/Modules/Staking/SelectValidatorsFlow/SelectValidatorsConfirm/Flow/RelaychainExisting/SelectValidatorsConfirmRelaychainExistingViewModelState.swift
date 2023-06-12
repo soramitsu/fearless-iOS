@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import BigInt
+import Web3
 import SSFModels
 
 final class SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidatorsConfirmViewModelState {
@@ -243,7 +243,7 @@ extension SelectValidatorsConfirmRelaychainExistingViewModelState: SelectValidat
     }
 
     func didReceive(paymentInfo: RuntimeDispatchInfo) {
-        if let feeValue = BigUInt(paymentInfo.fee),
+        if let feeValue = BigUInt(string: paymentInfo.fee),
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(chainAsset.asset.precision)) {
             self.fee = fee
         } else {

@@ -1,4 +1,4 @@
-import BigInt
+import Web3
 import Foundation
 
 protocol AnalyticsRewardDetailsModel {

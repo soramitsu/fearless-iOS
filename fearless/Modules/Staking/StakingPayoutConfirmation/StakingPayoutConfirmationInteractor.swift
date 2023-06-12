@@ -3,7 +3,7 @@ import SoraKeystore
 import CommonWallet
 import RobinHood
 import IrohaCrypto
-import BigInt
+import Web3
 import SSFModels
 
 final class StakingPayoutConfirmationInteractor: AccountFetching {

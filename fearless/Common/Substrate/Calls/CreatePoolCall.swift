@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 struct CreatePoolCall: Codable {
     @StringCodable var amount: BigUInt

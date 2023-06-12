@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
-import BigInt
+import Web3
 import SSFModels
 
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol, Localizable {

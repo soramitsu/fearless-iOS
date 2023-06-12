@@ -14,8 +14,8 @@
       "kind" : "remoteSourceControl",
       "location" : "https://github.com/krzyzanowskim/CryptoSwift.git",
       "state" : {
-        "revision" : "eee9ad754926c40a0f7e73f152357d37b119b7fa",
-        "version" : "1.7.1"
+        "revision" : "32f641cf24fc7abc1c591a2025e9f2f572648b0f",
+        "version" : "1.7.2"
       }
     },
     {
@@ -93,10 +93,10 @@
     {
       "identity" : "web3.swift",
       "kind" : "remoteSourceControl",
-      "location" : "https://github.com/Boilertalk/Web3.swift.git",
+      "location" : "https://github.com/bnsports/Web3.swift.git",
       "state" : {
-        "revision" : "4647a88ef5a85d92963512e0f7ebc78a66b6d850",
-        "version" : "0.8.3"
+        "branch" : "master",
+        "revision" : "cbad09c809dd01e21f4e78a251e6d2764eb1a613"
       }
     },
     {

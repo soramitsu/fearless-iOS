@@ -2,6 +2,8 @@ import UIKit
 import RobinHood
 import SoraKeystore
 import SSFModels
+import Web3
+import Web3ContractABI
 
 final class ChainAssetListInteractor {
     // MARK: - Private properties
@@ -106,6 +108,31 @@ extension ChainAssetListInteractor: ChainAssetListInteractorInput {
         eventCenter.add(observer: self, dispatchIn: .main)
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchChainSettings()
+
+        queryEthereumBalances()
+    }
+
+    func queryEthereumBalances() {
+        do {
+            let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
+            web3.eth.getBalance(address: try EthereumAddress(hex: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C", eip55: true), block: .latest) { resp in
+                print("Ethereum balance response: ", resp)
+            }
+
+//            let contractAddress = try EthereumAddress(hex: "0x6B175474E89094C44Da98b954EedeAC495271d0F", eip55: true)
+//            let contract = web3.eth.Contract(type: GenericERC20Contract.self, address: contractAddress)
+//
+//            // Get balance of some address
+//            try contract.balanceOf(address: EthereumAddress(hex: "0xd7330e4152c2FEC60a3631682F98b8043E7c538C", eip55: true)).call(completion: { response, error in
+//                guard let response = response else {
+//                    print("DAI Balance Error: ", error)
+//                    return
+//                }
+//                print("DAI Balance: ", response["_balance"] as? BigUInt)
+//            })
+        } catch {
+            print("Ethereum balance error: ", error)
+        }
     }
 
     func updateChainAssets(

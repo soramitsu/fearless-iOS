@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 import RobinHood
 import SSFUtils
 import SSFModels
@@ -43,7 +43,7 @@ final class ExistentialDepositService: RuntimeConstantFetching, ExistentialDepos
 
         if
             let existentialDeposit = chainAsset.asset.existentialDeposit,
-            let result = BigUInt(existentialDeposit) {
+            let result = BigUInt(string: existentialDeposit) {
             completion(.success(result))
             return
         }

@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import BigInt
+import Web3
 
 final class BalanceInfoPresenter {
     // MARK: Private properties

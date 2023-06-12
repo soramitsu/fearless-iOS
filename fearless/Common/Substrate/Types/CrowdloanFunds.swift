@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 enum TrieOrFundIndex: Codable, ScaleEncodable, Equatable, Hashable {
     enum Error: Swift.Error {

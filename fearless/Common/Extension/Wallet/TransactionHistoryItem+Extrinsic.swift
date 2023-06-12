@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 extension TransactionHistoryItem {

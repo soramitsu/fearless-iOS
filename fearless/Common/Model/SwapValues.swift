@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 
 struct SwapValues: Decodable {
     var dexId: UInt32?

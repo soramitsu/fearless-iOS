@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 public struct AssetDetailsV1: Decodable {
     @StringCodable public var minBalance: BigUInt

@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import BigInt
+import Web3
 import CommonWallet
 
 final class SubqueryRewardSource {
@@ -142,7 +142,7 @@ final class SubqueryRewardSource {
         remoteItems.reduce(Decimal(0.0)) { amount, remoteItem in
             guard
                 let rewardOrSlash = remoteItem.rewardInfo,
-                let nextAmount = BigUInt(rewardOrSlash.amount),
+                let nextAmount = BigUInt(string: rewardOrSlash.amount),
                 let nextAmountDecimal = Decimal.fromSubstrateAmount(
                     nextAmount,
                     precision: assetPrecision

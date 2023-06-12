@@ -2,7 +2,7 @@
 //@testable import fearless
 //import RobinHood
 //import IrohaCrypto
-//import BigInt
+//import Web3
 //import SSFUtils
 //
 //final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {

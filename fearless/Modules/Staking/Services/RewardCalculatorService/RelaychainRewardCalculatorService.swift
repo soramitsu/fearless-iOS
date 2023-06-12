@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 enum RewardCalculatorServiceError: Error {

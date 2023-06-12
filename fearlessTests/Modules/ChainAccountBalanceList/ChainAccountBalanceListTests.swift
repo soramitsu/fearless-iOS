@@ -2,7 +2,7 @@
 //@testable import fearless
 //import SoraFoundation
 //import SoraKeystore
-//import BigInt
+//import Web3
 //import Cuckoo
 //import RobinHood
 //

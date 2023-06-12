@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 
 struct SelectedValidatorInfo: ValidatorInfoProtocol, Equatable, Recommendable {
     let address: AccountAddress

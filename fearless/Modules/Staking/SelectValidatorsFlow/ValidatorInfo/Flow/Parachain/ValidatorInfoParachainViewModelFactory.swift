@@ -1,7 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 final class ValidatorInfoParachainViewModelFactory {

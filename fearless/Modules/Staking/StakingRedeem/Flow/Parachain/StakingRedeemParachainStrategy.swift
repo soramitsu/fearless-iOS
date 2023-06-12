@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SoraKeystore
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 protocol StakingRedeemParachainStrategyOutput: AnyObject {

@@ -179,6 +179,7 @@ PODS:
     - IrohaCrypto/ss58
     - ReachabilitySwift (~> 5.0)
     - RobinHood
+    - SSFModels
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
@@ -351,7 +352,7 @@ SPEC CHECKSUMS:
   SSFRuntimeCodingService: 862c8686ff522a35db9932a23cfc9629b4a47c3e
   SSFSigner: fdd10bb636a971c44949cdc62f463adf95a45b93
   SSFStorageQueryKit: a6276c00809e7d3a0e5d7a0d86fb1eb859bd741d
-  SSFUtils: 18b426810c7ac702a400eae2f90af68100aa9785
+  SSFUtils: 0faeb474c4b921baf16514cd00d35f7fce907f44
   SSFXCM: 72951cb5cb50c208732c1a601ba82bfcd913b5db
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea

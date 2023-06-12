@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 import SSFModels
 
 final class StakingRewardDestConfirmPresenter {
@@ -132,7 +132,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(asset.precision))
             } ?? nil
 

@@ -1,6 +1,6 @@
 import Foundation
 @testable import fearless
-import BigInt
+import Web3
 
 final class ExtrinsicServiceStub: ExtrinsicServiceProtocol {
     let dispatchInfo: Result<RuntimeDispatchInfo, Error>

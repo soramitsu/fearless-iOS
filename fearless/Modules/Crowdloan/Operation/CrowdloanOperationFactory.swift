@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import IrohaCrypto
-import BigInt
+import Web3
 
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(

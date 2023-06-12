@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import BigInt
+import Web3
 import SSFModels
 
 final class SendInteractor: RuntimeConstantFetching {
@@ -139,6 +139,24 @@ extension SendInteractor: SendInteractorInput {
             return accountId
         }
 
+        let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
+        if let address = address, let ethAddress = try? EthereumAddress(hex: address, eip55: true) {
+            let call = EthereumCall(to: ethAddress)
+            let gasPrice = web3.eth.gasPrice { resp in
+                if let result = resp.result {
+                    print("Eth gas price: ", result)
+                } else if let error = resp.error {
+                    print("Eth gas price error: ", error)
+                }
+            }
+            let transaction = web3.eth.estimateGas(call: call) { resp in
+                if let result = resp.result {
+                    print("Eth gas estimate: ", result)
+                } else if let error = resp.error {
+                    print("Eth gas estimate error: ", error)
+                }
+            }
+        }
         guard
             let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset)
         else { return }

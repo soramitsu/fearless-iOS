@@ -1,5 +1,5 @@
 import SoraFoundation
-import BigInt
+import Web3
 
 protocol CrowdloanContributionConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)

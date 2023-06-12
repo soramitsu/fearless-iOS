@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import SSFModels
-import BigInt
+import Web3
 
 final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactoryProtocol {
     private let asset: AssetModel

@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import BigInt
+import Web3
 import SSFModels
 
 final class StakingPoolCreateInteractor {

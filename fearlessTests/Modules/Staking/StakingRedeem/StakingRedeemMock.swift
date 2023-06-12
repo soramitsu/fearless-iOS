@@ -2,7 +2,7 @@
 //@testable import fearless
 //import SSFUtils
 //import IrohaCrypto
-//import BigInt
+//import Web3
 //
 //struct StakingRedeemMock {
 //    static func addNomination(

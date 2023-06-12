@@ -4,7 +4,7 @@ import SoraFoundation
 import SoraKeystore
 import SSFUtils
 import Cuckoo
-import BigInt
+import Web3
 
 class CrowdloanListTests: XCTestCase {
 //    static let currentBlockNumber: BlockNumber = 1337

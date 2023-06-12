@@ -1,6 +1,6 @@
 import Foundation
 import XNetworking
-import BigInt
+import Web3
 import CommonWallet
 import IrohaCrypto
 import SSFUtils
@@ -194,7 +194,7 @@ extension TxHistoryItem: WalletRemoteHistoryItemProtocol {
         asset: AssetModel
     ) -> AssetTransactionData {
         let amount = Decimal.fromSubstrateAmount(
-            BigUInt(rewardOrSlash.amount) ?? 0,
+            BigUInt(string: rewardOrSlash.amount) ?? 0,
             precision: Int16(asset.precision)
         ) ?? 0.0
 

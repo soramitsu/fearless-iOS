@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 import SSFUtils
-import BigInt
+import Web3
 import SSFModels
 
 enum ParachainRewardCalculatorServiceError: Error {
@@ -88,8 +88,8 @@ final class ParachainRewardCalculatorService {
             let commission = try commissionWrapper.targetOperation.extractNoCancellableResultData()
             let collators = try collatorsWrapper.targetOperation.extractNoCancellableResultData()
 
-            let stakedValue = BigUInt(staked ?? "") ?? BigUInt.zero
-            let comissionValue = BigUInt(commission ?? "")
+            let stakedValue = BigUInt(string: staked ?? "") ?? BigUInt.zero
+            let comissionValue = BigUInt(string: commission ?? "")
 
             let eraDurationInSeconds = TimeInterval(24 / strongSelf.chainAsset.chain.erasPerDay * 3600)
 

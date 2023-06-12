@@ -1,6 +1,6 @@
 import Foundation
 import CommonWallet
-import BigInt
+import Web3
 import SSFUtils
 
 struct ParachainStakingDelegations: Codable, Equatable {

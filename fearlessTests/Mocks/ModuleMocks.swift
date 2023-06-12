@@ -10712,7 +10712,7 @@ import Cuckoo
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import Foundation
 
 
@@ -11519,7 +11519,7 @@ import Foundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import SoraFoundation
 
 
@@ -13719,7 +13719,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import CommonWallet
 import Foundation
 import SoraFoundation
@@ -35416,7 +35416,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import Foundation
 import SoraFoundation
 
@@ -47231,7 +47231,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import CommonWallet
 import SoraFoundation
 
@@ -48687,7 +48687,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import CommonWallet
 import SoraFoundation
 
@@ -50296,7 +50296,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import CommonWallet
 import Foundation
 import SoraFoundation
@@ -56928,7 +56928,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import Foundation
 import SoraFoundation
 
@@ -60024,7 +60024,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import Foundation
 import SoraFoundation
 
@@ -67664,7 +67664,7 @@ import SoraUI
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import Foundation
 import SoraFoundation
 
@@ -69202,7 +69202,7 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
-import BigInt
+import Web3
 import CommonWallet
 import Foundation
 import SoraFoundation

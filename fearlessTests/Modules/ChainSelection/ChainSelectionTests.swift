@@ -1,6 +1,6 @@
 import XCTest
 @testable import fearless
-import BigInt
+import Web3
 import Cuckoo
 import SoraFoundation
 import RobinHood

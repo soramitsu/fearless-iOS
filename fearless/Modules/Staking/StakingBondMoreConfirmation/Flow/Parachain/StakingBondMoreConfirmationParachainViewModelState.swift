@@ -1,5 +1,5 @@
 import Foundation
-import BigInt
+import Web3
 import SSFModels
 
 final class StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreConfirmationViewModelState {
@@ -128,7 +128,7 @@ extension StakingBondMoreConfirmationParachainViewModelState: StakingBondMoreCon
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
-            if let feeValue = BigUInt(dispatchInfo.fee) {
+            if let feeValue = BigUInt(string: dispatchInfo.fee) {
                 fee = Decimal.fromSubstrateAmount(feeValue, precision: Int16(chainAsset.asset.precision))
             } else {
                 fee = nil

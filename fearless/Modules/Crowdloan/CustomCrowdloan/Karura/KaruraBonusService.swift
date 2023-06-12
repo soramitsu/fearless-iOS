@@ -1,6 +1,6 @@
 import Foundation
 import RobinHood
-import BigInt
+import Web3
 import IrohaCrypto
 import SSFUtils
 

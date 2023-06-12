@@ -45,7 +45,8 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type)
+            type: createChainAssetModelType(from: entity.type),
+            smartContract: entity.smartContract
         )
     }
 
@@ -63,6 +64,7 @@ final class AssetModelMapper: CoreDataMapperProtocol {
         entity.symbol = model.symbol
         entity.existentialDeposit = model.existentialDeposit
         entity.color = model.color
+        entity.smartContract = model.smartContract
     }
 
     private func createChainAssetModelType(from rawValue: String?) -> ChainAssetType {

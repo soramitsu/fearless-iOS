@@ -1,6 +1,6 @@
 import UIKit
 import RobinHood
-import BigInt
+import Web3
 
 final class CrowdloanContributionSetupInteractor: CrowdloanContributionInteractor,
     CrowdloanContributionSetupInteractorInputProtocol {}

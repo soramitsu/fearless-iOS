@@ -1,6 +1,6 @@
 import Foundation
 import SoraFoundation
-import BigInt
+import Web3
 import SSFUtils
 import SSFModels
 
@@ -353,7 +353,7 @@ extension SendPresenter: SendInteractorOutput {
         case let .success(dispatchInfo):
             guard let chainAsset = selectedChainAsset,
                   let utilityAsset = interactor.getFeePaymentChainAsset(for: chainAsset) else { return }
-            fee = BigUInt(dispatchInfo.fee).map {
+            fee = BigUInt(string: dispatchInfo.fee).map {
                 Decimal.fromSubstrateAmount($0, precision: Int16(utilityAsset.asset.precision))
             } ?? nil
 

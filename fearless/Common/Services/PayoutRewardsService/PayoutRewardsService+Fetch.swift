@@ -1,6 +1,6 @@
 import RobinHood
 import SSFUtils
-import BigInt
+import Web3
 import IrohaCrypto
 
 extension PayoutRewardsService {

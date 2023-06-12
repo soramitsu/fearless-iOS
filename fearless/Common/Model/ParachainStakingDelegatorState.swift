@@ -1,6 +1,6 @@
 import Foundation
 import SSFUtils
-import BigInt
+import Web3
 
 enum DelegatorStatus: String, Codable {
     case active = "Active"

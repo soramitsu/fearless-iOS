@@ -1,6 +1,6 @@
 @testable import fearless
 import RobinHood
-import BigInt
+import Web3
 
 final class ExtrinsicOperationFactoryStub: ExtrinsicOperationFactoryProtocol {
     func createGenesisBlockHashOperation() -> BaseOperation<String> {

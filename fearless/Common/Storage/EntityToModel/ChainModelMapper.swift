@@ -58,7 +58,8 @@ final class ChainModelMapper {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type)
+            type: createChainAssetModelType(from: entity.type),
+            smartContract: entity.smartContract
         )
     }
 
@@ -100,6 +101,7 @@ final class ChainModelMapper {
             assetEntity.isUtility = $0.isUtility
             assetEntity.isNative = $0.isNative
             assetEntity.staking = $0.staking?.rawValue
+            assetEntity.smartContract = $0.smartContract
 
             let purchaseProviders: [String]? = $0.purchaseProviders?.map(\.rawValue)
             assetEntity.purchaseProviders = purchaseProviders

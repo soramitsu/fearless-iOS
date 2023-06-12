@@ -1,5 +1,5 @@
 import SSFUtils
-import BigInt
+import Web3
 import Foundation
 
 class SwapAmount: Codable {
@@ -28,8 +28,8 @@ class SwapAmount: Codable {
            !container.allKeys.isEmpty {
             let slip = try container.decode(String.self, forKey: CodingKeysIn.slip)
             let desired = try container.decode(String.self, forKey: CodingKeysIn.desired)
-            self.slip = BigUInt(slip) ?? 0
-            self.desired = BigUInt(desired) ?? 0
+            self.slip = BigUInt(string: slip) ?? 0
+            self.desired = BigUInt(string: desired) ?? 0
             type = .desiredInput
         } else
         if let container = try? decoder.container(keyedBy: CodingKeysOut.self),
@@ -132,7 +132,7 @@ struct SoraAssetId: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         guard
-            let bytes = try? Data(hexString: value).map({ StringScaleMapper(value: $0) })
+            let bytes = try? Data(hexStringSSF: value).map({ StringScaleMapper(value: $0) })
         else {
             let context = EncodingError.Context(
                 codingPath: container.codingPath,
@@ -164,7 +164,7 @@ struct ArrayCodable: Codable, Equatable {
         var container = encoder.singleValueContainer()
 
         guard
-            let bytes = try? Data(hexString: wrappedValue).map({ StringScaleMapper(value: $0) })
+            let bytes = try? Data(hexStringSSF: wrappedValue).map({ StringScaleMapper(value: $0) })
         else {
             let context = EncodingError.Context(
                 codingPath: container.codingPath,

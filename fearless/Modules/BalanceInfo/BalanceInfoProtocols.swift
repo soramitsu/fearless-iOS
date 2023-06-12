@@ -1,4 +1,4 @@
-import BigInt
+import Web3
 import SSFModels
 
 typealias BalanceInfoModuleCreationResult = (view: BalanceInfoViewInput, input: BalanceInfoModuleInput)

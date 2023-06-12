@@ -5,7 +5,7 @@
 //import RobinHood
 //import SoraFoundation
 //import Cuckoo
-//import BigInt
+//import Web3
 //
 //class CrowdloanContributionSetupTests: XCTestCase {
 //    static let currentBlockNumber: BlockNumber = 1337
