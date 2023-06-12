@@ -27,20 +27,28 @@ abstract_target 'fearlessAll' do
   pod 'Charts', '~> 4.1.0'
   pod 'XNetworking', :podspec => 'https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec'
 
-  pod 'SSFXCM'
-  pod 'SSFExtrinsicKit'
-  pod 'SSFCrypto'
-  pod 'SSFSigner'
-  pod 'SSFModels'
-  pod 'SSFEraKit'
-  pod 'SSFLogger'
-  pod 'SSFRuntimeCodingService'
-  pod 'SSFStorageQueryKit'
-  pod 'SSFChainConnection'
-  pod 'SSFNetwork'
-  pod 'SSFUtils'
-  pod 'SSFChainRegistry'
-  pod 'SSFHelpers'
+  def pods_with_configurations
+      if %r{^true$}i.match ENV['F_DEV']
+          pod 'SSFXCM', :configurations => ['DEBUG']
+      else
+          pod 'SSFXCM'
+          pod 'SSFExtrinsicKit'
+          pod 'SSFCrypto'
+          pod 'SSFSigner'
+          pod 'SSFModels'
+          pod 'SSFEraKit'
+          pod 'SSFLogger'
+          pod 'SSFRuntimeCodingService'
+          pod 'SSFStorageQueryKit'
+          pod 'SSFChainConnection'
+          pod 'SSFNetwork'
+          pod 'SSFUtils'
+          pod 'SSFChainRegistry'
+          pod 'SSFHelpers'
+      end
+  end
+
+  pods_with_configurations
   
   # Development pods
 #  pod 'SSFXCM', :path => '../soramitsu-shared-features-ios/SSFXCM'
