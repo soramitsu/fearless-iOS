@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import Web3
 import SSFModels
+import Web3PromiseKit
 
 final class SendInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
@@ -60,7 +61,7 @@ final class SendInteractor: RuntimeConstantFetching {
                 for: .defaultTip,
                 runtimeCodingService: dependencies.runtimeService,
                 operationManager: operationManager
-            ) { [weak self] (result: Result<BigUInt, Error>) in
+            ) { [weak self] (result: Swift.Result<BigUInt, Error>) in
                 self?.output?.didReceiveTip(result: result)
             }
         }
@@ -140,23 +141,22 @@ extension SendInteractor: SendInteractorInput {
         }
 
         let web3 = Web3(rpcURL: "https://rpc.sepolia.org")
+
         if let address = address, let ethAddress = try? EthereumAddress(hex: address, eip55: true) {
             let call = EthereumCall(to: ethAddress)
-            let gasPrice = web3.eth.gasPrice { resp in
-                if let result = resp.result {
-                    print("Eth gas price: ", result)
-                } else if let error = resp.error {
-                    print("Eth gas price error: ", error)
-                }
-            }
-            let transaction = web3.eth.estimateGas(call: call) { resp in
-                if let result = resp.result {
-                    print("Eth gas estimate: ", result)
-                } else if let error = resp.error {
-                    print("Eth gas estimate error: ", error)
+
+            web3.eth.estimateGas(call: call) { [weak self] resp in
+                DispatchQueue.main.async {
+                    if let fee = resp.result?.quantity {
+                        let runtimeDispatchInfo = RuntimeDispatchInfo(inclusionFee: FeeDetails(baseFee: fee, lenFee: .zero, adjustedWeightFee: .zero))
+                        self?.output?.didReceiveFee(result: .success(runtimeDispatchInfo))
+                    } else if let error = resp.error {
+                        self?.output?.didReceiveFee(result: .failure(error))
+                    }
                 }
             }
         }
+
         guard
             let dependencies = dependencyContainer.prepareDepencies(chainAsset: chainAsset)
         else { return }
@@ -227,7 +227,7 @@ extension SendInteractor: SendInteractorInput {
 
 extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
     func handleAccountInfo(
-        result: Result<AccountInfo?, Error>,
+        result: Swift.Result<AccountInfo?, Error>,
         accountId _: AccountId,
         chainAsset: ChainAsset
     ) {
@@ -236,13 +236,13 @@ extension SendInteractor: AccountInfoSubscriptionAdapterHandler {
 }
 
 extension SendInteractor: PriceLocalStorageSubscriber, PriceLocalSubscriptionHandler {
-    func handlePrice(result: Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
+    func handlePrice(result: Swift.Result<PriceData?, Error>, priceId: AssetModel.PriceId) {
         output?.didReceivePriceData(result: result, for: priceId)
     }
 }
 
 extension SendInteractor: ExtrinsicFeeProxyDelegate {
-    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
+    func didReceiveFee(result: Swift.Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         output?.didReceiveFee(result: result)
     }
 }

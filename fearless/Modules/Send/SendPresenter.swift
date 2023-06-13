@@ -190,18 +190,18 @@ extension SendPresenter: SendViewOutput {
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
                 self?.refreshFee(for: chainAsset, address: address)
-            }),
-            dataValidatingFactory.canPayFeeAndAmount(
-                balanceType: balanceType,
-                feeAndTip: (fee ?? 0) + (tip ?? 0),
-                sendAmount: sendAmountDecimal,
-                locale: selectedLocale
-            ),
-            dataValidatingFactory.exsitentialDepositIsNotViolated(
-                parameters: edParameters,
-                locale: selectedLocale,
-                chainAsset: chainAsset
-            )
+            })
+//            dataValidatingFactory.canPayFeeAndAmount(
+//                balanceType: balanceType,
+//                feeAndTip: (fee ?? 0) + (tip ?? 0),
+//                sendAmount: sendAmountDecimal,
+//                locale: selectedLocale
+//            ),
+//            dataValidatingFactory.exsitentialDepositIsNotViolated(
+//                parameters: edParameters,
+//                locale: selectedLocale,
+//                chainAsset: chainAsset
+//            )
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self, let amount = sendAmountDecimal else { return }
