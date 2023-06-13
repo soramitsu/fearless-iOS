@@ -148,8 +148,7 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityAssets().first {
+           if let utilityAsset = chainAsset.chain.utilityAssets().first {
             return ChainAsset(chain: chainAsset.chain, asset: utilityAsset)
         }
         return chainAsset
