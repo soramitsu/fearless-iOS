@@ -6723,7 +6723,7 @@ import RobinHood
     
     
     
-     func setupSubscription(for accountId: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: RawStakingType) throws {
+     func setupSubscription(for accountId: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: StakingType) throws {
         
     return try cuckoo_manager.callThrows(
     """
@@ -6771,8 +6771,8 @@ import RobinHood
         
         
         
-        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for accountId: M1, chainAsset: M2, chainFormat: M3, stakingType: M4) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(AccountId, ChainAsset, ChainFormat, RawStakingType)> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, ChainFormat, RawStakingType)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: chainFormat) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
+        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for accountId: M1, chainAsset: M2, chainFormat: M3, stakingType: M4) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(AccountId, ChainAsset, ChainFormat, StakingType)> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, ChainFormat, StakingType)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: chainFormat) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingAccountUpdatingServiceProtocol.self, method:
     """
     setupSubscription(for: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: StakingType) throws
@@ -6810,8 +6810,8 @@ import RobinHood
         
         
         @discardableResult
-        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for accountId: M1, chainAsset: M2, chainFormat: M3, stakingType: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, ChainFormat, RawStakingType), Void> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, ChainFormat, RawStakingType)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: chainFormat) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
+        func setupSubscription<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable>(for accountId: M1, chainAsset: M2, chainFormat: M3, stakingType: M4) -> Cuckoo.__DoNotUse<(AccountId, ChainAsset, ChainFormat, StakingType), Void> where M1.MatchedType == AccountId, M2.MatchedType == ChainAsset, M3.MatchedType == ChainFormat, M4.MatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(AccountId, ChainAsset, ChainFormat, StakingType)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: chainAsset) { $0.1 }, wrap(matchable: chainFormat) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
             return cuckoo_manager.verify(
     """
     setupSubscription(for: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: StakingType) throws
@@ -6844,7 +6844,7 @@ import RobinHood
     
     
     
-     func setupSubscription(for accountId: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: RawStakingType) throws  {
+     func setupSubscription(for accountId: AccountId, chainAsset: ChainAsset, chainFormat: ChainFormat, stakingType: StakingType) throws  {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -6901,7 +6901,7 @@ import Foundation
     
     
     
-     func attachToGlobalData(for chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: RawStakingType?) -> UUID? {
+     func attachToGlobalData(for chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?) -> UUID? {
         
     return cuckoo_manager.call(
     """
@@ -6921,7 +6921,7 @@ import Foundation
     
     
     
-     func detachFromGlobalData(for subscriptionId: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: RawStakingType?)  {
+     func detachFromGlobalData(for subscriptionId: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?)  {
         
     return cuckoo_manager.call(
     """
@@ -6949,8 +6949,8 @@ import Foundation
         
         
         
-        func attachToGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for chainId: M1, queue: M2, closure: M3, stakingType: M4) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?), UUID?> where M1.MatchedType == ChainModel.Id, M2.OptionalMatchedType == DispatchQueue, M3.OptionalMatchedType == RemoteSubscriptionClosure, M4.OptionalMatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: queue) { $0.1 }, wrap(matchable: closure) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
+        func attachToGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for chainId: M1, queue: M2, closure: M3, stakingType: M4) -> Cuckoo.ProtocolStubFunction<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?), UUID?> where M1.MatchedType == ChainModel.Id, M2.OptionalMatchedType == DispatchQueue, M3.OptionalMatchedType == RemoteSubscriptionClosure, M4.OptionalMatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: queue) { $0.1 }, wrap(matchable: closure) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRemoteSubscriptionServiceProtocol.self, method:
     """
     attachToGlobalData(for: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?) -> UUID?
@@ -6960,8 +6960,8 @@ import Foundation
         
         
         
-        func detachFromGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainId: M2, queue: M3, closure: M4, stakingType: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?)> where M1.MatchedType == UUID, M2.MatchedType == ChainModel.Id, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure, M5.OptionalMatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainId) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }, wrap(matchable: stakingType) { $0.4 }]
+        func detachFromGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainId: M2, queue: M3, closure: M4, stakingType: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?)> where M1.MatchedType == UUID, M2.MatchedType == ChainModel.Id, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure, M5.OptionalMatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainId) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }, wrap(matchable: stakingType) { $0.4 }]
             return .init(stub: cuckoo_manager.createStub(for: MockStakingRemoteSubscriptionServiceProtocol.self, method:
     """
     detachFromGlobalData(for: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?)
@@ -6988,8 +6988,8 @@ import Foundation
         
         
         @discardableResult
-        func attachToGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for chainId: M1, queue: M2, closure: M3, stakingType: M4) -> Cuckoo.__DoNotUse<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?), UUID?> where M1.MatchedType == ChainModel.Id, M2.OptionalMatchedType == DispatchQueue, M3.OptionalMatchedType == RemoteSubscriptionClosure, M4.OptionalMatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: queue) { $0.1 }, wrap(matchable: closure) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
+        func attachToGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for chainId: M1, queue: M2, closure: M3, stakingType: M4) -> Cuckoo.__DoNotUse<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?), UUID?> where M1.MatchedType == ChainModel.Id, M2.OptionalMatchedType == DispatchQueue, M3.OptionalMatchedType == RemoteSubscriptionClosure, M4.OptionalMatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?)>] = [wrap(matchable: chainId) { $0.0 }, wrap(matchable: queue) { $0.1 }, wrap(matchable: closure) { $0.2 }, wrap(matchable: stakingType) { $0.3 }]
             return cuckoo_manager.verify(
     """
     attachToGlobalData(for: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?) -> UUID?
@@ -7000,8 +7000,8 @@ import Foundation
         
         
         @discardableResult
-        func detachFromGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainId: M2, queue: M3, closure: M4, stakingType: M5) -> Cuckoo.__DoNotUse<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?), Void> where M1.MatchedType == UUID, M2.MatchedType == ChainModel.Id, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure, M5.OptionalMatchedType == RawStakingType {
-            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, RawStakingType?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainId) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }, wrap(matchable: stakingType) { $0.4 }]
+        func detachFromGlobalData<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(for subscriptionId: M1, chainId: M2, queue: M3, closure: M4, stakingType: M5) -> Cuckoo.__DoNotUse<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?), Void> where M1.MatchedType == UUID, M2.MatchedType == ChainModel.Id, M3.OptionalMatchedType == DispatchQueue, M4.OptionalMatchedType == RemoteSubscriptionClosure, M5.OptionalMatchedType == StakingType {
+            let matchers: [Cuckoo.ParameterMatcher<(UUID, ChainModel.Id, DispatchQueue?, RemoteSubscriptionClosure?, StakingType?)>] = [wrap(matchable: subscriptionId) { $0.0 }, wrap(matchable: chainId) { $0.1 }, wrap(matchable: queue) { $0.2 }, wrap(matchable: closure) { $0.3 }, wrap(matchable: stakingType) { $0.4 }]
             return cuckoo_manager.verify(
     """
     detachFromGlobalData(for: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?)
@@ -7022,7 +7022,7 @@ import Foundation
     
     
     
-     func attachToGlobalData(for chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: RawStakingType?) -> UUID?  {
+     func attachToGlobalData(for chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?) -> UUID?  {
         return DefaultValueRegistry.defaultValue(for: (UUID?).self)
     }
     
@@ -7030,7 +7030,7 @@ import Foundation
     
     
     
-     func detachFromGlobalData(for subscriptionId: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: RawStakingType?)   {
+     func detachFromGlobalData(for subscriptionId: UUID, chainId: ChainModel.Id, queue: DispatchQueue?, closure: RemoteSubscriptionClosure?, stakingType: StakingType?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
