@@ -4,6 +4,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import SSFUtils
+import SSFModels
 
 protocol AccountOperationFactoryProtocol {
     func createGenisisHashOperation() -> BaseOperation<String>

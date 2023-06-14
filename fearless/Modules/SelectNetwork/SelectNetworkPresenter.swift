@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class SelectNetworkPresenter {
     // MARK: Private properties
@@ -13,6 +14,7 @@ final class SelectNetworkPresenter {
     private let selectedMetaAccount: MetaAccountModel
     private let includingAllNetworks: Bool
     private let searchTextsViewModel: TextSearchViewModel?
+    private let contextTag: Int?
 
     private var viewModels: [SelectableIconDetailsListViewModel] = []
     private var fullViewModels: [SelectableIconDetailsListViewModel] = []
@@ -27,6 +29,7 @@ final class SelectNetworkPresenter {
         selectedChainId: ChainModel.Id?,
         includingAllNetworks: Bool,
         searchTextsViewModel: TextSearchViewModel?,
+        contextTag: Int?,
         interactor: SelectNetworkInteractorInput,
         router: SelectNetworkRouterInput,
         localizationManager: LocalizationManagerProtocol
@@ -36,6 +39,7 @@ final class SelectNetworkPresenter {
         self.selectedChainId = selectedChainId
         self.includingAllNetworks = includingAllNetworks
         self.searchTextsViewModel = searchTextsViewModel
+        self.contextTag = contextTag
         self.interactor = interactor
         self.router = router
         self.localizationManager = localizationManager
@@ -78,11 +82,11 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
                 return chain.chainId == selectedViewModel.identifier
             })
         else {
-            router.complete(on: view, selecting: nil)
+            router.complete(on: view, selecting: nil, contextTag: contextTag)
             return
         }
         selectedNetwork = selectedNetworkItem.chain
-        router.complete(on: view, selecting: selectedNetworkItem.chain)
+        router.complete(on: view, selecting: selectedNetworkItem.chain, contextTag: contextTag)
     }
 
     func searchItem(with text: String?) {
@@ -104,7 +108,7 @@ extension SelectNetworkPresenter: SelectNetworkViewOutput {
 
     func willDisappear() {
         guard let view = view else { return }
-        router.complete(on: view, selecting: selectedNetwork)
+        router.complete(on: view, selecting: selectedNetwork, contextTag: contextTag)
     }
 }
 

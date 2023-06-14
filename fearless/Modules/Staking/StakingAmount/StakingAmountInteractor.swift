@@ -4,6 +4,7 @@ import SoraKeystore
 import IrohaCrypto
 import BigInt
 import SSFUtils
+import SSFModels
 
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol?

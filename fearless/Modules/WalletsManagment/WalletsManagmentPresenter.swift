@@ -9,6 +9,7 @@ final class WalletsManagmentPresenter {
     private let interactor: WalletsManagmentInteractorInput
     private weak var moduleOutput: WalletsManagmentModuleOutput?
     private let contextTag: Int
+    private let viewType: WalletsManagmentType
 
     private let viewModelFactory: WalletsManagmentViewModelFactoryProtocol
     private let logger: Logger
@@ -19,6 +20,7 @@ final class WalletsManagmentPresenter {
     // MARK: - Constructors
 
     init(
+        viewType: WalletsManagmentType,
         contextTag: Int,
         viewModelFactory: WalletsManagmentViewModelFactoryProtocol,
         logger: Logger,
@@ -27,6 +29,7 @@ final class WalletsManagmentPresenter {
         moduleOutput: WalletsManagmentModuleOutput?,
         localizationManager: LocalizationManagerProtocol
     ) {
+        self.viewType = viewType
         self.contextTag = contextTag
         self.viewModelFactory = viewModelFactory
         self.logger = logger
@@ -40,6 +43,7 @@ final class WalletsManagmentPresenter {
 
     private func provideViewModel() {
         let viewModels = viewModelFactory.buildViewModel(
+            viewType: viewType,
             from: wallets,
             balances: balances,
             locale: selectedLocale

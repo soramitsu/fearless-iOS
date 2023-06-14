@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct WalletSendConfirmViewModelFactoryParameters {
     let amount: Decimal

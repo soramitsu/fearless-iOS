@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class AssetSelectionWireframe: AssetSelectionWireframeProtocol {
     weak var delegate: AssetSelectionDelegate?

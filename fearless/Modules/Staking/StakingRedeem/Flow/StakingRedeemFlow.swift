@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import BigInt
+import SSFModels
 
 enum StakingRedeemFlow {
     case relaychain

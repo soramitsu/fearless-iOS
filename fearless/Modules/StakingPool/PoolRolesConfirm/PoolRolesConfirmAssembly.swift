@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 final class PoolRolesConfirmAssembly {
     static func configureModule(

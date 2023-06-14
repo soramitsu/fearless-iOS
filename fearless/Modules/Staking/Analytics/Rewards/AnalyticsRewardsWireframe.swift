@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 final class AnalyticsRewardsWireframe: AnalyticsRewardsWireframeProtocol {
     func showRewardDetails(

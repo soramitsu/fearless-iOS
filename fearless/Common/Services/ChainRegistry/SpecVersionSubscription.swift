@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 import SSFUtils
 
 protocol SpecVersionSubscriptionProtocol: AnyObject {

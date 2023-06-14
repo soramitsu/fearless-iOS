@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 import BigInt
 
 final class StakingRedeemParachainViewModelFactory: StakingRedeemViewModelFactoryProtocol {

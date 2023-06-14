@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import SSFModels
 
 struct StakingBondMoreConfirmViewFactory {
     static func createView(

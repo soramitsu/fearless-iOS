@@ -1,9 +1,20 @@
 import Foundation
 import IrohaCrypto
+import SSFCrypto
+import SSFModels
 
 enum ChainFormat {
     case ethereum
     case substrate(_ prefix: UInt16)
+
+    func asSfCrypto() -> SFChainFormat {
+        switch self {
+        case .ethereum:
+            return .sfEthereum
+        case let .substrate(prefix):
+            return .sfSubstrate(prefix)
+        }
+    }
 }
 
 enum AddressFactory {

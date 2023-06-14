@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 struct ExportMnemonicData {
     let mnemonic: IRMnemonicProtocol

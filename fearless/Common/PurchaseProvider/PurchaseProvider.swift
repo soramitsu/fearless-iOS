@@ -1,5 +1,6 @@
 import Foundation
 import UIKit.UIImage
+import SSFModels
 
 final class PurchaseAggregator {
     private var providers: [PurchaseProviderProtocol]

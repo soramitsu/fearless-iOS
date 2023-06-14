@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol AnalyticsRewardsParachainStrategyOutput: AnyObject {
     func didReceieveSubqueryData(_ subqueryData: [SubqueryRewardItemData]?)

@@ -1,6 +1,7 @@
 import RobinHood
 import IrohaCrypto
 import SSFUtils
+import SSFModels
 
 final class StakingBalanceInteractor: AccountFetching {
     weak var presenter: StakingBalanceInteractorOutputProtocol?

@@ -1,3 +1,6 @@
+
+import SSFModels
+
 typealias PoolRolesConfirmModuleCreationResult = (view: PoolRolesConfirmViewInput, input: PoolRolesConfirmModuleInput)
 
 protocol PoolRolesConfirmViewInput: ControllerBackedProtocol, LoadableViewProtocol {

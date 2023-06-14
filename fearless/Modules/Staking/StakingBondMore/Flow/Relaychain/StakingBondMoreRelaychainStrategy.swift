@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 protocol StakingBondMoreRelaychainStrategyOutput: AnyObject {
     func didReceiveStash(result: Result<ChainAccountResponse?, Error>)

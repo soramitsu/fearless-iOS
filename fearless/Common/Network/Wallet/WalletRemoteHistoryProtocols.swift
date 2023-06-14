@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import RobinHood
+import SSFModels
 
 enum WalletRemoteHistorySourceLabel: Int, CaseIterable {
     case transfers

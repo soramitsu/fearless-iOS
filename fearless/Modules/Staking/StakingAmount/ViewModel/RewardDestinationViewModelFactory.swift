@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import CommonWallet
+import SSFModels
 
 protocol RewardDestinationViewModelFactoryProtocol {
     func createRestake(from model: CalculatedReward?, priceData: PriceData?)

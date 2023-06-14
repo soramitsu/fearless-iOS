@@ -1,5 +1,6 @@
 import SoraFoundation
 import SoraUI
+import SSFModels
 
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
     Localizable,

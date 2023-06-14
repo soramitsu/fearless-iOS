@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 class BaseStakingState: StakingStateProtocol {
     weak var stateMachine: StakingStateMachineProtocol?

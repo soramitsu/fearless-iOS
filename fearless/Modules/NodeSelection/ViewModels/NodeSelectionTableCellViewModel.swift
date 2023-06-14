@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol NodeSelectionTableCellViewModelDelegate: AnyObject {
     func deleteNode(_ node: ChainNodeModel)

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import BigInt
+import SSFModels
 
 // swiftlint:disable function_parameter_count function_body_length
 protocol ChainAssetListViewModelFactoryProtocol {
@@ -236,7 +237,7 @@ private extension ChainAssetListViewModelFactory {
             assetContainsChainAssets: chainAssets,
             shownChainAssets: notUtilityChainsWithBalance,
             chainAsset: chainAsset,
-            assetName: chainAsset.asset.displayName,
+            assetName: chainAsset.asset.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
             imageViewModel: (chainAsset.asset.icon ?? chainAsset.chain.icon).map { buildRemoteImageViewModel(url: $0) },
             balanceString: .init(
@@ -315,14 +316,14 @@ private extension ChainAssetListViewModelFactory {
                 aca1.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca1.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca1.mainChainAsset.chain.name,
-                aca1.mainChainAsset.asset.name
+                aca1.mainChainAsset.asset.symbolUppercased
             ) > (
                 aca2.totalFiatBalance,
                 aca2.totalBalance,
                 aca2.mainChainAsset.chain.isTestnet.invert().intValue,
                 aca2.mainChainAsset.chain.isPolkadotOrKusama.intValue,
                 aca2.mainChainAsset.chain.name,
-                aca2.mainChainAsset.asset.name
+                aca2.mainChainAsset.asset.symbolUppercased
             )
         }
 
@@ -529,10 +530,10 @@ private extension ChainAssetListViewModelFactory {
         pricesData: [PriceData],
         wallet: MetaAccountModel
     ) -> [AssetChainAssets] {
-        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.name })
+        let assetNamesSet: Set<String> = Set(chainAssets.map { $0.asset.symbolUppercased })
 
         return assetNamesSet.compactMap { name in
-            let assetChainAssets = chainAssets.filter { $0.asset.name == name }
+            let assetChainAssets = chainAssets.filter { $0.asset.symbolUppercased == name }
             let chainAssetsSorted = assetChainAssets.sorted(by: { ca1, ca2 in
                 sortChainAssets(ca1: ca1, ca2: ca2)
             })

@@ -1,6 +1,7 @@
 import UIKit
 import RobinHood
 import BigInt
+import SSFModels
 
 final class SendInteractor: RuntimeConstantFetching {
     // MARK: - Private properties
@@ -118,7 +119,7 @@ extension SendInteractor: SendInteractorInput {
             DispatchQueue.main.async {
                 switch result {
                 case let .success(chainAssets):
-                    let chains = chainAssets.filter { $0.asset.name == asset.name }.map { $0.chain }
+                    let chains = chainAssets.filter { $0.asset.symbolUppercased == asset.symbolUppercased }.map { $0.chain }
                     completionBlock(chains)
                 default:
                     completionBlock(nil)
@@ -180,8 +181,7 @@ extension SendInteractor: SendInteractorInput {
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+        if let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }
         return chainAsset

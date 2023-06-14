@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SSFModels
 
 final class StakingRedeemParachainViewModelState: StakingRedeemViewModelState {
     var stateListener: StakingRedeemModelStateListener?

@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 final class PortionRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private let dayDurationInSeconds: TimeInterval = 60 * 60 * 24

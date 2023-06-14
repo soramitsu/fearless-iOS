@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol SelectValidatorsConfirmRelaychainExistingStrategyOutput: SelectValidatorsConfirmStrategyOutput {
     func didSetup()

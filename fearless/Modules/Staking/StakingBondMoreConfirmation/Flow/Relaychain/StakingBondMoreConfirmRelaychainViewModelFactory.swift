@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class StakingBondMoreConfirmRelaychainViewModelFactory: StakingBondMoreConfirmViewModelFactoryProtocol {
     let chainAsset: ChainAsset

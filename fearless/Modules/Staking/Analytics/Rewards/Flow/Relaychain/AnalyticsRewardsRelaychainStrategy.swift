@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol AnalyticsRewardsRelaychainStrategyOutput: AnyObject {
     func didReceieveSubqueryData(_ subqueryData: [SubqueryRewardItemData]?)

@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import CommonWallet
+import SSFModels
 
 final class StakingPayoutConfirmationPresenter {
     weak var view: StakingPayoutConfirmationViewProtocol?

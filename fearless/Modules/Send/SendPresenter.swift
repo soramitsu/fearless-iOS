@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import BigInt
 import SSFUtils
+import SSFModels
 
 final class SendPresenter {
     enum State {
@@ -306,8 +307,27 @@ extension SendPresenter: SendInteractorOutput {
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+            logger?.info("Did receive minimum balance \(minimumBalance)")
+            #if F_DEV
+                router.present(
+                    message: "\(minimumBalance)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
+            #if F_DEV
+                router.present(
+                    message: "\(error)",
+                    title: "\(#function)",
+                    closeAction: nil,
+                    from: view,
+                    actions: []
+                )
+            #endif
         }
     }
 
@@ -418,7 +438,7 @@ extension SendPresenter: SelectAssetModuleOutput {
         if let asset = chainAsset?.asset {
             if let chain = selectedChain {
                 state = .normal
-                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.name == asset.name })
+                selectedChainAsset = chain.chainAssets.first(where: { $0.asset.symbol == asset.symbol })
                 if let selectedChainAsset = selectedChainAsset {
                     handle(selectedChainAsset: selectedChainAsset)
                 }
@@ -449,7 +469,8 @@ extension SendPresenter: SelectAssetModuleOutput {
 extension SendPresenter: SelectNetworkDelegate {
     func chainSelection(
         view _: SelectNetworkViewInput,
-        didCompleteWith chain: ChainModel?
+        didCompleteWith chain: ChainModel?,
+        contextTag _: Int?
     ) {
         handle(selectedChain: chain)
     }
@@ -573,7 +594,7 @@ private extension SendPresenter {
                 let selectedChain = selectedChain,
                 let selectedAsset = optionalAsset,
                 let selectedChainAsset = selectedChain.chainAssets.first(where: {
-                    $0.asset.name == selectedAsset.name
+                    $0.asset.symbol == selectedAsset.symbol
                 }) {
                 self.selectedChainAsset = selectedChainAsset
                 handle(selectedChainAsset: selectedChainAsset)

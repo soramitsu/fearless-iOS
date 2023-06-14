@@ -95,7 +95,7 @@ final class SendViewLayout: UIView {
         return button
     }()
 
-    let searchView = SearchTriangularedView(frame: .zero)
+    let searchView = SearchTriangularedView()
 
     var locale = Locale.current {
         didSet {

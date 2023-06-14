@@ -1,4 +1,5 @@
 import UIKit
+import SSFModels
 
 protocol ExtrinsicOptionsPresentable: AnyObject {
     func presentOptions(

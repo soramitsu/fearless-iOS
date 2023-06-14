@@ -4,6 +4,7 @@ import CommonWallet
 import BigInt
 import SwiftUI
 import SoraFoundation
+import SSFModels
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?

@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 import BigInt
 
 final class CustomValidatorListParachainViewModelFactory {

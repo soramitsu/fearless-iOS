@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol AnalyticsValidatorsViewProtocol: AnalyticsEmbeddedViewProtocol {
     func reload(viewState: AnalyticsViewState<AnalyticsValidatorsViewModel>)

@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 protocol StakingRemoteSubscriptionServiceProtocol {
     func attachToGlobalData(

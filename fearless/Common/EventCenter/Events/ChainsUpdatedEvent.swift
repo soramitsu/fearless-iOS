@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct ChainsUpdatedEvent: EventProtocol {
     let updatedChains: [ChainModel]

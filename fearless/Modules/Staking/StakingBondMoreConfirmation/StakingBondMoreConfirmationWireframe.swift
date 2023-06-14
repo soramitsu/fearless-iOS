@@ -1,4 +1,5 @@
 import SoraUI
+import SSFModels
 
 final class StakingBondMoreConfirmationWireframe: StakingBondMoreConfirmationWireframeProtocol,
     ModalAlertPresenting, AllDonePresentable {

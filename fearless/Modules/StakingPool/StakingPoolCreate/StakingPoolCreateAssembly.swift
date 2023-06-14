@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import RobinHood
 import SSFUtils
+import SSFModels
 
 final class StakingPoolCreateAssembly {
     static func configureModule(

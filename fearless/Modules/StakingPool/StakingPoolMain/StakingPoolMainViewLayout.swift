@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SnapKit
+import SSFModels
 
 final class StakingPoolMainViewLayout: UIView {
     private enum Constants {
@@ -228,7 +229,7 @@ final class StakingPoolMainViewLayout: UIView {
             )
         }
 
-        assetSelectionView.title = chainAsset.asset.name
+        assetSelectionView.title = chainAsset.asset.symbolUppercased
     }
 
     func bind(balanceViewModel: BalanceViewModelProtocol) {

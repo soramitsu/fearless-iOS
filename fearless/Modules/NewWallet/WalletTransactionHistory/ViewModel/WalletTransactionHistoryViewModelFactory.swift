@@ -2,6 +2,7 @@ import CommonWallet
 import RobinHood
 import SSFUtils
 import UIKit
+import SSFModels
 
 enum TransactionHistoryViewModelFactoryError: Error {
     case missingAsset

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import CommonWallet
 import SSFUtils
+import SSFModels
 
 protocol CrowdloanContributionViewModelFactoryProtocol {
     func createContributionSetupViewModel(

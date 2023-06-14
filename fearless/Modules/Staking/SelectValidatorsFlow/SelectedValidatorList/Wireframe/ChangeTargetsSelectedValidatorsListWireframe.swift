@@ -1,3 +1,6 @@
+
+import SSFModels
+
 final class ChangeTargetsSelectedValidatorListWireframe: SelectedValidatorListWireframe {
     override func proceed(
         from view: SelectedValidatorListViewProtocol?,

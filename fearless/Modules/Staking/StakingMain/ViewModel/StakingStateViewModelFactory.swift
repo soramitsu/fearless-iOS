@@ -4,6 +4,7 @@ import SoraFoundation
 import BigInt
 import IrohaCrypto
 import SoraKeystore
+import SSFModels
 
 protocol StakingStateViewModelFactoryProtocol {
     func createViewModel(from state: StakingStateProtocol) -> StakingViewState

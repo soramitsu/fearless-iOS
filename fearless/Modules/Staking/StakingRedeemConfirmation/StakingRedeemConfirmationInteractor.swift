@@ -4,6 +4,7 @@ import RobinHood
 import BigInt
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class StakingRedeemConfirmationInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingRedeemConfirmationInteractorOutputProtocol!

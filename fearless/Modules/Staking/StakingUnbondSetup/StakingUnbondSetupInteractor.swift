@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import SSFUtils
 import IrohaCrypto
+import SSFModels
 
 final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetching {
     weak var presenter: StakingUnbondSetupInteractorOutputProtocol!

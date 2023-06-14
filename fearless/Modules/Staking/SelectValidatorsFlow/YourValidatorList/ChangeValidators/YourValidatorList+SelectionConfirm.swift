@@ -1,5 +1,6 @@
 import Foundation
 import SoraUI
+import SSFModels
 
 extension YourValidatorList {
     final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting, AllDonePresentable {

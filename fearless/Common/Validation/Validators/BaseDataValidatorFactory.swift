@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import SSFModels
 
 protocol BaseDataValidatingFactoryProtocol: AnyObject {
     var view: (ControllerBackedProtocol & Localizable)? { get }
