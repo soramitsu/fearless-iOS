@@ -213,7 +213,7 @@ final class StakingPoolMainInteractor: RuntimeConstantFetching {
                 for: accountId,
                 chainAsset: chainAsset,
                 chainFormat: chainAsset.chain.chainFormat,
-                stakingType: .relayChain
+                stakingType: .relaychain
             )
             poolMemberProvider = subscribeToPoolMembers(for: accountId, chainAsset: chainAsset)
 
@@ -463,7 +463,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
                 for: accountId,
                 chainAsset: chainAsset,
                 chainFormat: chainAsset.chain.chainFormat,
-                stakingType: .relayChain
+                stakingType: .relaychain
             )
 
             fetchPendingRewards()
@@ -535,7 +535,7 @@ extension StakingPoolMainInteractor: StakingPoolMainInteractorInput {
                 for: poolStashAccountId,
                 chainAsset: chainAsset,
                 chainFormat: chainAsset.chain.chainFormat,
-                stakingType: .relayChain
+                stakingType: .relaychain
             )
         } catch {
             output?.didReceiveError(.nominationError(error: error))

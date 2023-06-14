@@ -71,33 +71,27 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
         collatorOperationFactory: ParachainCollatorOperationFactory?,
         wallet: MetaAccountModel
     ) throws -> RewardCalculatorServiceProtocol {
-        guard let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId) else {
+        guard
+            let runtimeService = chainRegisty.getRuntimeProvider(for: chainAsset.chain.chainId),
+            let connection = chainRegisty.getConnection(for: chainAsset.chain.chainId)
+        else {
             throw ChainRegistryError.runtimeMetadaUnavailable
         }
 
         switch chainAsset.stakingType {
-        case .relayChain:
-            if chainAsset.chain.isSora {
-                return try createSoraRewardCalculator(
-                    for: chainAsset,
-                    assetPrecision: assetPrecision,
-                    validatorService: validatorService,
-                    wallet: wallet
-                )
-            } else {
-                return RelaychainRewardCalculatorService(
-                    chainAsset: chainAsset,
-                    assetPrecision: assetPrecision,
-                    eraValidatorsService: validatorService,
-                    operationManager: operationManager,
-                    providerFactory: substrateDataProviderFactory,
-                    runtimeCodingService: runtimeService,
-                    stakingDurationFactory: StakingDurationOperationFactory(),
-                    storageFacade: storageFacade,
-                    logger: logger
-                )
-            }
-        case .paraChain:
+        case .relaychain:
+            return InflationRewardCalculatorService(
+                chainAsset: chainAsset,
+                assetPrecision: assetPrecision,
+                eraValidatorsService: validatorService,
+                operationManager: operationManager,
+                providerFactory: substrateDataProviderFactory,
+                runtimeCodingService: runtimeService,
+                stakingDurationFactory: StakingDurationOperationFactory(),
+                storageFacade: storageFacade,
+                logger: logger
+            )
+        case .parachain:
             guard let collatorOperationFactory = collatorOperationFactory else {
                 throw StakingServiceFactoryError.stakingUnavailable
             }
@@ -110,6 +104,31 @@ final class StakingServiceFactory: StakingServiceFactoryProtocol {
                 runtimeCodingService: runtimeService,
                 storageFacade: storageFacade,
                 collatorOperationFactory: collatorOperationFactory
+            )
+        case .sora:
+            return try createSoraRewardCalculator(
+                for: chainAsset,
+                assetPrecision: assetPrecision,
+                validatorService: validatorService,
+                wallet: wallet
+            )
+        case .ternoa:
+            let requestFactory = StorageRequestFactory(
+                remoteFactory: StorageKeyFactory(),
+                operationManager: operationManager
+            )
+
+            return PortionRewardCalculatorService(
+                chainAsset: chainAsset,
+                assetPrecision: assetPrecision,
+                eraValidatorsService: validatorService,
+                operationManager: operationManager,
+                providerFactory: substrateDataProviderFactory,
+                runtimeCodingService: runtimeService,
+                stakingDurationFactory: StakingDurationOperationFactory(),
+                storageFacade: storageFacade,
+                engine: connection,
+                storageRequestFactory: requestFactory
             )
         case .none:
             throw StakingServiceFactoryError.stakingUnavailable

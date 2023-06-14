@@ -91,9 +91,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         }
 
         switch newSelectedChainAsset.stakingType {
-        case .relayChain:
+        case .relaychain, .sora, .ternoa:
             eraInfoOperationFactory = RelaychainStakingInfoOperationFactory()
-        case .paraChain:
+        case .parachain:
             eraInfoOperationFactory = ParachainStakingInfoOperationFactory()
 
         case .none:

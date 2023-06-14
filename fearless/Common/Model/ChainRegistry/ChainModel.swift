@@ -69,11 +69,11 @@ class ChainModel: Codable {
     }
 
     var isPolkadot: Bool {
-        name.lowercased() == "polkadot"
+        knownChainEquivalent == .polkadot
     }
 
     var isKusama: Bool {
-        name.lowercased() == "kusama"
+        knownChainEquivalent == .kusama
     }
 
     var isPolkadotOrKusama: Bool {
@@ -81,15 +81,19 @@ class ChainModel: Codable {
     }
 
     var isWestend: Bool {
-        name.lowercased() == "westend"
+        knownChainEquivalent == .westend
     }
 
     var isSora: Bool {
-        name.lowercased() == "sora mainnet" || name.lowercased() == "sora test"
+        knownChainEquivalent == .soraMain || knownChainEquivalent == .soraTest
+    }
+
+    var isTernoa: Bool {
+        knownChainEquivalent == .ternoa
     }
 
     var isEquilibrium: Bool {
-        name.lowercased() == "equilibrium"
+        knownChainEquivalent == .equilibrium
     }
 
     var isUtilityFeePayment: Bool {
@@ -110,6 +114,10 @@ class ChainModel: Codable {
 
     var hasPolkaswap: Bool {
         options.or([]).contains(.polkaswap)
+    }
+
+    var knownChainEquivalent: Chain? {
+        Chain(chainId: chainId)
     }
 
     func utilityAssets() -> Set<ChainAssetModel> {

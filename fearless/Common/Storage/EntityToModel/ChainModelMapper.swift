@@ -47,9 +47,9 @@ final class ChainModelMapper {
               let asset = entity.asset else {
             preconditionFailure()
         }
-        let staking: StakingType?
+        let staking: RawStakingType?
         if let entityStaking = entity.staking {
-            staking = StakingType(rawValue: entityStaking)
+            staking = RawStakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }

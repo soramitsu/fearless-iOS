@@ -90,8 +90,12 @@ extension ChainAsset {
 
     var assetDisplayInfo: AssetBalanceDisplayInfo { asset.displayInfo(with: chain.icon) }
 
-    var stakingType: StakingType? {
+    var rawStakingType: RawStakingType? {
         chain.assets.first(where: { $0.assetId == asset.id })?.staking
+    }
+
+    var stakingType: StakingType? {
+        StakingType(chainAsset: self)
     }
 
     var storagePath: StorageCodingPath {

@@ -4,7 +4,7 @@ import RobinHood
 
 class ChainAssetModel: Codable {
     let assetId: String
-    let staking: StakingType?
+    let staking: RawStakingType?
     let purchaseProviders: [PurchaseProvider]?
     let type: ChainAssetType
     let isUtility: Bool
@@ -15,7 +15,7 @@ class ChainAssetModel: Codable {
 
     init(
         assetId: String,
-        staking: StakingType? = nil,
+        staking: RawStakingType? = nil,
         purchaseProviders: [PurchaseProvider]? = nil,
         type: ChainAssetType,
         asset: AssetModel,
@@ -37,7 +37,7 @@ class ChainAssetModel: Codable {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         assetId = try container.decode(String.self, forKey: .assetId)
-        staking = try? container.decode(StakingType.self, forKey: .staking)
+        staking = try? container.decode(RawStakingType.self, forKey: .staking)
         purchaseProviders = try? container.decode([PurchaseProvider]?.self, forKey: .purchaseProviders)
         let type = try? container.decode(ChainAssetType?.self, forKey: .type)
         self.type = type ?? ChainAssetType.normal
@@ -68,7 +68,7 @@ enum PurchaseProvider: String, Codable {
     case ramp
 }
 
-enum StakingType: String, Codable {
+enum RawStakingType: String, Codable {
     case relayChain = "relaychain"
     case paraChain = "parachain"
 
@@ -87,6 +87,55 @@ enum StakingType: String, Codable {
             return true
         default:
             return false
+        }
+    }
+}
+
+enum StakingType {
+    case relaychain
+    case parachain
+    case sora
+    case ternoa
+
+    var isRelaychain: Bool {
+        switch self {
+        case .relaychain, .sora, .ternoa:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var isParachain: Bool {
+        switch self {
+        case .parachain:
+            return true
+        default:
+            return false
+        }
+    }
+
+    init(rawStakingType: RawStakingType) {
+        switch rawStakingType {
+        case .relayChain:
+            self = .relaychain
+        case .paraChain:
+            self = .parachain
+        }
+    }
+
+    init?(chainAsset: ChainAsset) {
+        switch chainAsset.chain.knownChainEquivalent {
+        case .soraMain, .soraTest:
+            self = .sora
+        case .ternoa:
+            self = .ternoa
+        default:
+            guard let stakingType = chainAsset.rawStakingType else {
+                return nil
+            }
+
+            self = StakingType(rawStakingType: stakingType)
         }
     }
 }
