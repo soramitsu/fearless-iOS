@@ -11,6 +11,8 @@ enum Chain: String, Codable, CaseIterable {
     case moonbaseAlpha = "Moonbase Alpha"
     case soraMain = "SORA Mainnet"
     case soraTest = "SORA Test"
+    case ternoa = "Ternoa Mainnet"
+    case equilibrium = "Equilibrium"
 
     init?(rawValue: String) {
         switch rawValue {
@@ -22,11 +24,29 @@ enum Chain: String, Codable, CaseIterable {
         case Self.moonriver.rawValue: self = .moonriver
         case Self.moonbaseAlpha.rawValue: self = .moonbaseAlpha
         case Self.soraMain.rawValue: self = .soraMain
+        case Self.ternoa.rawValue: self = .ternoa
+        case Self.equilibrium.rawValue: self = .equilibrium
 
         #if F_DEV
             case "Polkatrain": self = .polkadot
         #endif
 
+        default: return nil
+        }
+    }
+
+    init?(chainId: String) {
+        switch chainId {
+        case Self.kusama.genesisHash: self = .kusama
+        case Self.polkadot.genesisHash: self = .polkadot
+        case Self.westend.genesisHash: self = .westend
+        case Self.rococo.genesisHash: self = .rococo
+        case Self.moonbeam.genesisHash: self = .moonbeam
+        case Self.moonriver.genesisHash: self = .moonriver
+        case Self.moonbaseAlpha.genesisHash: self = .moonbaseAlpha
+        case Self.soraMain.genesisHash: self = .soraMain
+        case Self.ternoa.genesisHash: self = .ternoa
+        case Self.equilibrium.genesisHash: self = .equilibrium
         default: return nil
         }
     }
@@ -42,12 +62,14 @@ enum Chain: String, Codable, CaseIterable {
         case .moonbaseAlpha: return "91bc6e169807aaa54802737e1c504b2577d4fafedd5a02c10293b1cd60e39527"
         case .soraMain: return "7e4e32d0feafd4f9c9414b0be86373f9a1efa904809b683453a9af6856d38ad5"
         case .soraTest: return "3266816be9fa51b32cfea58d3e33ca77246bc9618595a4300e44c8856a8d8a17"
+        case .ternoa: return "6859c81ca95ef624c9dfe4dc6e3381c33e5d6509e35e147092bfbc780f777c4e"
+        case .equilibrium: return "89d3ec46d2fb43ef5a9713833373d5ea666b092fa8fd68fbc34596036571b907"
         }
     }
 
     var erasPerDay: Int {
         switch self {
-        case .polkadot: return 1
+        case .polkadot, .ternoa, .equilibrium: return 1
         case .kusama, .westend, .rococo, .moonbeam, .soraMain, .soraTest: return 4
         case .moonriver, .moonbaseAlpha: return 12
         }

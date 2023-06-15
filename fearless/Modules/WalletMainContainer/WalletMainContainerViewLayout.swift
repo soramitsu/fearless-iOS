@@ -246,6 +246,9 @@ final class WalletMainContainerViewLayout: UIView {
     }
 
     private func setupSegmentedLayout() {
+        segmentedControl.isHidden = true
+        /* Uncomment this to show assets/NFT segmented control */
+        /*
         contentView.setCustomSpacing(32, after: walletBalanceVStackView)
         let segmentContainer = UIView()
         contentView.addArrangedSubview(segmentContainer)
@@ -255,13 +258,14 @@ final class WalletMainContainerViewLayout: UIView {
             make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
             make.edges.equalToSuperview()
         }
+        */
     }
 
     private func setupListLayout() {
         addSubview(pageViewControllerContainer)
         pageViewControllerContainer.addSubview(pageViewController.view)
         pageViewControllerContainer.snp.makeConstraints { make in
-            make.top.equalTo(contentView.snp.bottom).offset(8)
+            make.top.equalTo(contentView.snp.bottom).offset(32)
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide.snp.bottom)
         }

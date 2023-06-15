@@ -28,7 +28,7 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
                 fromAddress: query,
                 addressPrefix: addressPrefix
             )
-            let accountIdData = try Data(hexString: parameters.accountId)
+            let accountIdData = try Data(hexStringSSF: parameters.accountId)
 
             guard peerId != accountIdData else {
                 return []

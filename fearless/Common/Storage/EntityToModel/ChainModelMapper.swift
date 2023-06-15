@@ -32,14 +32,14 @@ final class ChainModelMapper {
             return nil
         }
 
-        let staking: StakingType?
+        let staking: SSFModels.RawStakingType?
         if let entityStaking = entity.staking {
-            staking = StakingType(rawValue: entityStaking)
+            staking = SSFModels.RawStakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }
-        let purchaseProviders: [PurchaseProvider]? = entity.purchaseProviders?.compactMap {
-            PurchaseProvider(rawValue: $0)
+        let purchaseProviders: [SSFModels.PurchaseProvider]? = entity.purchaseProviders?.compactMap {
+            SSFModels.PurchaseProvider(rawValue: $0)
         }
 
         return AssetModel(
@@ -58,7 +58,8 @@ final class ChainModelMapper {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type)
+            type: createChainAssetModelType(from: entity.type),
+            smartContract: nil
         )
     }
 
