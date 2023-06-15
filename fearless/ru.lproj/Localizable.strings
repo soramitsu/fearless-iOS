@@ -1040,6 +1040,7 @@
 "verification.rejected.support" = "Support";
 "verify.email.resend" = "RE-SEND IN %@";
 "details.get.more.xor" = "Get more XOR";
+"sora.card.issue.card.title" = "Issue card for 12 € ";
 "details.already.have.card" = "I already have a card";
 "details.issue.card" = "Issue card for free";
 "details.already.used.free.try" = "You already used your free try";
@@ -1049,6 +1050,12 @@
 "verification.successful.title" = "Заявка одобрена";
 "unsupported.countries.link" = "Посмотреть список";
 "unsupported.countries.disclaimer" = "Жители некоторых стран не могут подать заявку на карту SORA Card в данный момент.";
+"details.issue.card" = "Issue card for free";
+"details.get.more.xor.description" = "Select a way you want get XOR";
+"get.more.xor.swap.action.title" = "Swap for XOR";
+"get.more.xor.buy.action.title" = "Buy XOR with fiat";
+"details.need.xor.desription" = "You need %@ more XOR (€%@)";
+"details.enough.xor.desription" = "You have enough XOR";
 "common.user.not.found" = "Номер мобильного телефона не найден, проверьте его еще раз и повторите попытку.";
 "details.title" = "Top up SORA Card with fiat or crypto and pay online, in-store or withdraw from an ATM";
 "details.description" = "Get a Euro IBAN account and Mastercard Debit Card accessible within your SORA Wallet";
@@ -1074,3 +1081,16 @@
 "card.hub.settings.logout.button" = "Log out";
 "card.hub.settings.title" = "Card settings";
 "card.hub.settings.logout" = "Log out SORA Card";
+"pool.staking.management.claim.button.title" = "Claim";
+"xcm.origin.network.fee.title" = "Origin Network Fee";
+"xcm.destination.network.fee.title" = "Destination Network Fee";
+"xcm.original.network.title" = "Origin network";
+"xcm.destination.network.title" = "Destination network";
+"xcm.title" = "Cross-Chain";
+"common.not.available.short" = "N/A";
+"profile.sora.card.title" = "SORA Card";
+"xcm.mywallets.button.title" = "My wallets";
+"xcm.cross.chain.button.title" = "Cross Chain";
+"wallet.managment.select.wallet.title" = "Select your wallet";
+"xcm.cross.chain.invalid.address.title" = "Is not network address";
+"xcm.cross.chain.invalid.address.message" = "According to the address provided you're trying to make a transfer on the wrong network.";

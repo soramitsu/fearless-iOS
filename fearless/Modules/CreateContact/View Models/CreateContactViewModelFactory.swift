@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 protocol CreateContactViewModelFactoryProtocol {
     func buildViewModel(address: String?, chain: ChainModel) -> CreateContactViewModel

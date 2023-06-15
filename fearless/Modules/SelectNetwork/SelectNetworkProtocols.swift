@@ -1,3 +1,6 @@
+
+import SSFModels
+
 typealias SelectNetworkModuleCreationResult = (view: SelectNetworkViewInput, input: SelectNetworkModuleInput)
 
 protocol SelectNetworkViewInput: SelectionListViewProtocol {}
@@ -16,7 +19,11 @@ protocol SelectNetworkInteractorOutput: AnyObject {
 }
 
 protocol SelectNetworkRouterInput: SheetAlertPresentable, ErrorPresentable {
-    func complete(on view: SelectNetworkViewInput, selecting chain: ChainModel?)
+    func complete(
+        on view: SelectNetworkViewInput,
+        selecting chain: ChainModel?,
+        contextTag: Int?
+    )
 }
 
 protocol SelectNetworkModuleInput: AnyObject {}

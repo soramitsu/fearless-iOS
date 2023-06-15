@@ -1,6 +1,7 @@
 import Foundation
 import IrohaCrypto
 import BigInt
+import SSFModels
 
 extension ValidatorState {
     var status: ValidationViewStatus {

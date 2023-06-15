@@ -2,6 +2,7 @@ import Foundation
 import BigInt
 import CommonWallet
 import SoraFoundation
+import SSFModels
 
 final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
     weak var stateListener: StakingAmountModelStateListener?
@@ -71,6 +72,10 @@ final class StakingAmountRelaychainViewModelState: StakingAmountViewModelState {
         }
 
         payoutAccount = wallet.fetch(for: chainAsset.chain.accountRequest())
+
+        if let payoutAccount = payoutAccount {
+            rewardDestination = chainAsset.chain.isSora ? .payout(account: payoutAccount) : .restake
+        }
     }
 
     func validators(using _: Locale) -> [DataValidating] {

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SSFUtils
 import CommonWallet
+import SSFModels
 
 protocol RewardDestinationViewModelFactoryProtocol {
     func createRestake(from model: CalculatedReward?, priceData: PriceData?)
@@ -13,14 +14,17 @@ protocol RewardDestinationViewModelFactoryProtocol {
 
 final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactoryProtocol {
     private var iconGenerator: IconGenerating
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let chainAsset: ChainAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        iconGenerator: IconGenerating
+        iconGenerator: IconGenerating,
+        chainAsset: ChainAsset
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
+        self.chainAsset = chainAsset
     }
 
     func createRestake(
@@ -107,7 +111,8 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
                 restakePrice: restakeBalance.price ?? "",
                 payoutAmount: payoutBalance.amount,
                 payoutPercentage: payoutPercentage ?? "",
-                payoutPrice: payoutBalance.price ?? ""
+                payoutPrice: payoutBalance.price ?? "",
+                restakeAvailable: !self.chainAsset.chain.isSora
             )
 
             return RewardDestinationViewModel(

@@ -1,4 +1,5 @@
 import SoraFoundation
+import SSFModels
 
 protocol ValidatorSearchWireframeProtocol: SheetAlertPresentable {
     func present(

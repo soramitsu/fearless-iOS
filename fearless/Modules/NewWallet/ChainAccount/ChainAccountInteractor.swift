@@ -3,6 +3,7 @@ import RobinHood
 import BigInt
 import SSFUtils
 import SoraKeystore
+import SSFModels
 
 final class ChainAccountInteractor {
     weak var presenter: ChainAccountInteractorOutputProtocol?
@@ -43,7 +44,7 @@ final class ChainAccountInteractor {
 
     private func getAvailableChainAssets() {
         chainAssetFetching.fetch(
-            filters: [.assetName(chainAsset.asset.name), .ecosystem(chainAsset.defineEcosystem())],
+            filters: [.assetName(chainAsset.asset.symbol), .ecosystem(chainAsset.defineEcosystem())],
             sortDescriptors: []
         ) { [weak self] result in
             switch result {

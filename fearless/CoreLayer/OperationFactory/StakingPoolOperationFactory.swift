@@ -2,6 +2,7 @@ import Foundation
 import SSFUtils
 import RobinHood
 import BigInt
+import SSFModels
 
 protocol StakingPoolOperationFactoryProtocol {
     func fetchBondedPoolsOperation() -> CompoundOperationWrapper<[StakingPool]>

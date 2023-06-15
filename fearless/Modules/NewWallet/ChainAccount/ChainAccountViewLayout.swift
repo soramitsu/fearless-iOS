@@ -88,6 +88,14 @@ final class ChainAccountViewLayout: UIView {
         return button
     }()
 
+    let crossChainButton: VerticalContentButton = {
+        let button = VerticalContentButton()
+        button.setImage(R.image.crossChainIcon(), for: .normal)
+        button.titleLabel?.font = .p2Paragraph
+        button.isHidden = true
+        return button
+    }()
+
     let chainOptionsContentView = UIView()
 
     let actionsView: TriangularedView = {
@@ -168,6 +176,7 @@ final class ChainAccountViewLayout: UIView {
 
         transferableBalanceView.bindBalance(viewModel: balanceViewModel?.transferrableValue.value(for: locale))
         balanceLocksView.bindBalance(viewModel: balanceViewModel?.lockedValue.value(for: locale))
+        infoButton.isHidden = !(balanceViewModel?.hasLockedTokens == true)
     }
 
     func bind(viewModel: ChainAccountViewModel) {
@@ -179,8 +188,9 @@ final class ChainAccountViewLayout: UIView {
         } else {
             addressCopyableLabel.isHidden = true
         }
-        buyButton.isHidden = viewModel.chainAssetModel?.purchaseProviders?.first == nil
-        polkaswapButton.isHidden = !(viewModel.chainAssetModel?.chain?.options?.contains(.polkaswap) == true)
+        buyButton.isHidden = !viewModel.buyButtonVisible
+        polkaswapButton.isHidden = !viewModel.polkaswapButtonVisible
+        crossChainButton.isHidden = !viewModel.xcmButtomVisible
     }
 }
 
@@ -241,6 +251,7 @@ private extension ChainAccountViewLayout {
 
         actionsContentStackView.addArrangedSubview(sendButton)
         actionsContentStackView.addArrangedSubview(receiveButton)
+        actionsContentStackView.addArrangedSubview(crossChainButton)
         actionsContentStackView.addArrangedSubview(buyButton)
         actionsContentStackView.addArrangedSubview(polkaswapButton)
 
@@ -329,5 +340,6 @@ private extension ChainAccountViewLayout {
         polkaswapButton.setTitle(R.string.localizable.polkaswapConfirmationSwapStub(preferredLanguages: locale.rLanguages), for: .normal)
         transferableBalanceView.titleLabel.text = R.string.localizable.assetdetailsBalanceTransferable(preferredLanguages: locale.rLanguages)
         balanceLocksView.titleLabel.text = R.string.localizable.walletBalanceLocked(preferredLanguages: locale.rLanguages)
+        crossChainButton.setTitle(R.string.localizable.xcmCrossChainButtonTitle(preferredLanguages: locale.rLanguages), for: .normal)
     }
 }

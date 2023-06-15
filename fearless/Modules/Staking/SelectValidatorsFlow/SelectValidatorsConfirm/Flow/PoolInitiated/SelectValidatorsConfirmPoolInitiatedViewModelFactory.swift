@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 // swiftlint:disable type_name
 final class SelectValidatorsConfirmPoolInitiatedViewModelFactory {

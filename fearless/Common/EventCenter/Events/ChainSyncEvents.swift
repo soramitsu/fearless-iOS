@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 struct ChainSyncDidStart: EventProtocol {
     func accept(visitor: EventVisitorProtocol) {

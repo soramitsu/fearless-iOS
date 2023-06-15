@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 enum FormatterLocale {
     case japanese
@@ -109,43 +110,50 @@ class AssetBalanceFormatterFactory {
             ]
         case .usual:
             abbreviations = [
-                BigNumberAbbreviation(
-                    threshold: 0,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: formatter
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: formatter
-                ),
-                BigNumberAbbreviation(
-                    threshold: 10,
-                    divisor: 1.0,
-                    suffix: "",
-                    formatter: formatter
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000,
-                    divisor: 1_000_000.0,
-                    suffix: "M",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000_000,
-                    divisor: 1_000_000_000.0,
-                    suffix: "B",
-                    formatter: nil
-                ),
-                BigNumberAbbreviation(
-                    threshold: 1_000_000_000_000,
-                    divisor: 1_000_000_000_000.0,
-                    suffix: "T",
-                    formatter: nil
-                )
-            ]
+        let abbreviations: [BigNumberAbbreviation] = [
+            BigNumberAbbreviation(
+                threshold: 0,
+                divisor: 1.0,
+                suffix: "",
+                formatter: formatter
+            ),
+            BigNumberAbbreviation(
+                threshold: 1,
+                divisor: 1.0,
+                suffix: "",
+                formatter: formatter
+            ),
+            BigNumberAbbreviation(
+                threshold: 10,
+                divisor: 1.0,
+                suffix: "",
+                formatter: formatter
+            ),
+            BigNumberAbbreviation(
+                threshold: 1000,
+                divisor: 1000.0,
+                suffix: "K",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000,
+                divisor: 1_000_000.0,
+                suffix: "M",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000_000,
+                divisor: 1_000_000_000.0,
+                suffix: "B",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000_000_000,
+                divisor: 1_000_000_000_000.0,
+                suffix: "T",
+                formatter: nil
+            )
+        ]
         }
 
         return BigNumberFormatter(

@@ -1,5 +1,6 @@
 import Foundation
 import Kingfisher
+import SSFModels
 
 struct ChainAccountBalanceCellViewModel: Hashable {
     let assetContainsChainAssets: [ChainAsset]

@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 /**
  *  Protocol is designed for fetching and saving files representing runtime

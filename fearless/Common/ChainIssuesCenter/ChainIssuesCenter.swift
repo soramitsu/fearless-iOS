@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum ChainIssue {
     case network(chains: [ChainModel])

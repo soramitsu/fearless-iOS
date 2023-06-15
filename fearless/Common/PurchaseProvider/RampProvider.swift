@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 final class RampProvider: PurchaseProviderProtocol {
     enum Constants {
@@ -29,7 +30,7 @@ final class RampProvider: PurchaseProviderProtocol {
     }
 
     func buildPurchaseActions(asset: AssetModel, address: String) -> [PurchaseAction] {
-        if let url = buildURLForToken(asset.name, address: address) {
+        if let url = buildURLForToken(asset.symbolUppercased, address: address) {
             return [PurchaseAction(title: Constants.title, url: url, icon: Constants.icon!)]
         }
         return []

@@ -3,6 +3,7 @@ import BigInt
 import CommonWallet
 import IrohaCrypto
 import SoraFoundation
+import SSFModels
 
 struct GiantsquidDestination: Decodable {
     let id: String

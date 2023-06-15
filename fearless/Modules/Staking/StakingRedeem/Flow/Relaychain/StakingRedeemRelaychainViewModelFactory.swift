@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class StakingRedeemRelaychainViewModelFactory: StakingRedeemViewModelFactoryProtocol {
     let asset: AssetModel

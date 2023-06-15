@@ -3,6 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFModels
 
 struct StakingRebondConfirmationViewFactory {
     static func createView(

@@ -1,6 +1,7 @@
 import Foundation
 import SSFUtils
 import SoraFoundation
+import SSFModels
 
 final class StakingUnbondConfirmParachainViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol {
     let asset: AssetModel

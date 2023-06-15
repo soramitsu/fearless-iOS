@@ -133,6 +133,10 @@ enum StorageCodingPath: Equatable, CaseIterable {
             return (moduleName: "DexManager", itemName: "DexInfos")
         case .eqOraclePricePoint:
             return (moduleName: "Oracle", itemName: "PricePoints")
+        case .assetsAccount:
+            return (moduleName: "Assets", itemName: "Account")
+        case .assetsAssetDetail:
+            return (moduleName: "Assets", itemName: "Asset")
         }
     }
 
@@ -197,4 +201,6 @@ enum StorageCodingPath: Equatable, CaseIterable {
     case polkaswapTbcPool
     case polkaswapDexManagerDesInfos
     case eqOraclePricePoint
+    case assetsAccount
+    case assetsAssetDetail
 }

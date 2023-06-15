@@ -1,5 +1,6 @@
 import Foundation
 import SoraUI
+import SSFModels
 
 final class StakingUnbondConfirmWireframe: StakingUnbondConfirmWireframeProtocol, ModalAlertPresenting {
     func complete(

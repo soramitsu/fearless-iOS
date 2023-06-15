@@ -3,6 +3,7 @@ import IrohaCrypto
 import BigInt
 import SoraKeystore
 import SSFUtils
+import SSFModels
 
 final class StakingBondMoreConfirmationInteractor: AccountFetching {
     weak var presenter: StakingBondMoreConfirmationOutputProtocol!

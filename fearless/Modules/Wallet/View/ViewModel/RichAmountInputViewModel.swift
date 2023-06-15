@@ -1,5 +1,6 @@
 import SoraFoundation
 import CommonWallet
+import SSFModels
 
 protocol RichAmountInputViewModelProtocol: IAmountInputViewModel {
     var balanceViewModelFactory: BalanceViewModelFactoryProtocol { get }

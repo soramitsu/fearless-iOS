@@ -2,6 +2,7 @@ import UIKit
 import SSFUtils
 import RobinHood
 import SoraKeystore
+import SSFModels
 
 final class StakingPoolMainInteractor: RuntimeConstantFetching {
     // MARK: - Private properties

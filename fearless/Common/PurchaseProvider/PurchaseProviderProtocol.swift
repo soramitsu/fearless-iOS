@@ -1,5 +1,6 @@
 import Foundation
 import UIKit.UIImage
+import SSFModels
 
 struct PurchaseAction {
     let title: String

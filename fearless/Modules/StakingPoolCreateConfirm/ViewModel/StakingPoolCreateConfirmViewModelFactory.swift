@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 struct CreatePoolConfirmData {
     let amount: Decimal

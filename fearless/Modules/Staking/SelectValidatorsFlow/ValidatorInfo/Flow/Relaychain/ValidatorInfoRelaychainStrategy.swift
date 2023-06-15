@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol ValidatorInfoRelaychainStrategyOutput: AnyObject {
     func didReceiveValidatorInfo(_ validatorInfo: ValidatorInfoProtocol)

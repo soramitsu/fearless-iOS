@@ -4,6 +4,7 @@ import AVFoundation
 import SoraFoundation
 import CommonWallet
 import UIKit
+import SSFModels
 
 final class WalletScanQRPresenter: NSObject {
     enum ScanState {

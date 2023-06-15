@@ -1,5 +1,6 @@
 import Foundation
 import SoraUI
+import SSFModels
 
 final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting, AllDonePresentable {
     func complete(chainAsset: ChainAsset, txHash: String, from view: SelectValidatorsConfirmViewProtocol?) {

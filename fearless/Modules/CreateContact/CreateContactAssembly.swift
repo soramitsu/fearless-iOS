@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SSFModels
 
 final class CreateContactAssembly {
     static func configureModule(

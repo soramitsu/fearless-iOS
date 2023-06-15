@@ -1,5 +1,6 @@
 import Foundation
 import SSFUtils
+import SSFModels
 
 private struct Scheme {
     let colors: [UInt]

@@ -1,6 +1,11 @@
 import UIKit
 import SoraUI
 
+enum WalletsManagmentType {
+    case wallets
+    case selectYourWallet(selectedWalletId: MetaAccountId?)
+}
+
 final class WalletsManagmentViewLayout: UIView {
     private enum Constants {
         static let headerHeight: CGFloat = 56.0
@@ -26,6 +31,7 @@ final class WalletsManagmentViewLayout: UIView {
 
     let tableView: SelfSizingTableView = {
         let tableView = SelfSizingTableView()
+        tableView.backgroundColor = R.color.colorBlack19()
         return tableView
     }()
 
@@ -49,8 +55,11 @@ final class WalletsManagmentViewLayout: UIView {
         }
     }
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    private let type: WalletsManagmentType
+
+    init(type: WalletsManagmentType) {
+        self.type = type
+        super.init(frame: .zero)
         setupLayout()
     }
 
@@ -60,7 +69,12 @@ final class WalletsManagmentViewLayout: UIView {
     }
 
     private func applyLocale() {
+        switch type {
+        case .wallets:
         titleLabel.text = R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages)
+        case .selectYourWallet:
+            titleLabel.text = R.string.localizable.walletManagmentSelectWalletTitle(preferredLanguages: locale.rLanguages)
+        }
         importWalletButton.imageWithTitleView?.title = R.string.localizable.importWallet(
             preferredLanguages: locale.rLanguages
         )
@@ -115,7 +129,13 @@ final class WalletsManagmentViewLayout: UIView {
         tableView.snp.makeConstraints { make in
             make.top.equalTo(navView.snp.bottom).offset(UIConstants.defaultOffset)
             make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(buttonsVStackView.snp.top).offset(-UIConstants.hugeOffset)
+            switch type {
+            case .wallets:
+                make.bottom.equalTo(buttonsVStackView.snp.top).offset(-UIConstants.hugeOffset)
+            case .selectYourWallet:
+                buttonsVStackView.isHidden = true
+                make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            }
         }
     }
 }

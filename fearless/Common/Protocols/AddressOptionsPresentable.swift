@@ -1,5 +1,6 @@
 import UIKit
 import Foundation
+import SSFModels
 
 protocol AddressOptionsPresentable {
     func presentAccountOptions(

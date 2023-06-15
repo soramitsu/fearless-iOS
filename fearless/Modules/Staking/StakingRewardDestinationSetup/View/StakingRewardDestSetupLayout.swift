@@ -9,7 +9,12 @@ final class StakingRewardDestSetupLayout: UIView {
         return view
     }()
 
-    let restakeOptionView = UIFactory.default.createRewardSelectionView()
+    let restakeOptionView: RewardSelectionView = {
+        let view = UIFactory.default.createRewardSelectionView()
+        view.isHidden = true
+        return view
+    }()
+
     let payoutOptionView = UIFactory.default.createRewardSelectionView()
     let accountView: DetailsTriangularedView = {
         let accountView = UIFactory.default.createAccountView(for: .selection, filled: false)

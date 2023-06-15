@@ -1,4 +1,6 @@
 import CommonWallet
+import SSFModels
+
 protocol WalletTransactionHistoryViewProtocol: ControllerBackedProtocol, Draggable, LoadableViewProtocol {
     func didReceive(state: WalletTransactionHistoryViewState)
     func reloadContent()

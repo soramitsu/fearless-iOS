@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import SSFModels
 
 protocol CrowdloanLocalStorageSubscriber where Self: AnyObject {
     var crowdloanLocalSubscriptionFactory: CrowdloanLocalSubscriptionFactoryProtocol { get }

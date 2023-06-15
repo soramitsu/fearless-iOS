@@ -31,7 +31,6 @@ protocol ApplicationConfigProtocol {
     // MARK: - GitHub
 
     var chainListURL: URL? { get }
-    var assetListURL: URL? { get }
     var chainsTypesURL: URL? { get }
     var appVersionURL: URL? { get }
     var scamListCsvURL: URL? { get }
@@ -162,34 +161,26 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var chainListURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "chains/chains_dev.json")
+            GitHubUrl.url(suffix: "chains/chains_dev.json", branch: .newAssets)
         #else
             GitHubUrl.url(suffix: "chains/chains.json")
         #endif
     }
 
-    var assetListURL: URL? {
-        #if F_DEV
-            GitHubUrl.url(suffix: "chains/assets_dev.json")
-        #else
-            GitHubUrl.url(suffix: "chains/assets.json")
-        #endif
-    }
-
     var chainsTypesURL: URL? {
-        GitHubUrl.url(suffix: "type_registry/all_chains_types.json")
+        GitHubUrl.url(suffix: "chains/all_chains_types.json")
     }
 
     var appVersionURL: URL? {
         #if F_DEV
-            GitHubUrl.url(suffix: "ios_app_support_dev.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support_dev.json")
         #else
-            GitHubUrl.url(suffix: "ios_app_support.json")
+            GitHubUrl.url(suffix: "appVersionSupport/ios_app_support.json")
         #endif
     }
 
     var polkaswapSettingsURL: URL? {
-        GitHubUrl.url(suffix: "polkaswapSettings.json")
+        GitHubUrl.url(suffix: "polkaswapSettings.json", url: .fearlessUtils, branch: .v4)
     }
 
     var fiatsURL: URL? {
@@ -201,18 +192,24 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     }
 
     var scamListCsvURL: URL? {
-        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: "master")
+        GitHubUrl.url(suffix: "Polkadot_Hot_Wallet_Attributions.csv", branch: .master)
     }
 }
 
 private enum GitHubUrl {
-    private static var baseUrl: URL? {
-        URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/")
+    enum BaseUrl: String {
+        case sharedUtils = "https://raw.githubusercontent.com/soramitsu/shared-features-utils/"
+        case fearlessUtils = "https://raw.githubusercontent.com/soramitsu/fearless-utils/"
     }
 
-    private static let defaultBranch = "v5"
+    enum DefaultBranch: String {
+        case master
+        case develop
+        case v4
+        case newAssets = "new-assets"
+    }
 
-    static func url(suffix: String, branch: String = defaultBranch) -> URL? {
-        baseUrl?.appendingPathComponent(branch).appendingPathComponent(suffix)
+    static func url(suffix: String, url: BaseUrl = .sharedUtils, branch: DefaultBranch = .develop) -> URL? {
+        URL(string: url.rawValue)?.appendingPathComponent(branch.rawValue).appendingPathComponent(suffix)
     }
 }

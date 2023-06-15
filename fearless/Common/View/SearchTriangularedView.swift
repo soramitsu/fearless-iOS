@@ -7,7 +7,17 @@ final class SearchTriangularedView: UIView {
         static let iconSize: CGFloat = 32
         static let viewHeight: CGFloat = 64
         static let verticalOffset: CGFloat = 12
-        static let buttonSize: CGFloat = 16
+        static let clearButtonSize: CGFloat = 16
+        static let pasteButtonSize: CGFloat = 76
+    }
+
+    var onPasteTapped: (() -> Void)?
+    private let withPasteButton: Bool
+
+    var locale: Locale = .current {
+        didSet {
+            applyLocalization()
+        }
     }
 
     private let backgroundView: TriangularedView = {
@@ -33,6 +43,13 @@ final class SearchTriangularedView: UIView {
         imageView.image = R.image.addressPlaceholder()
         imageView.contentMode = .scaleAspectFit
         return imageView
+    }()
+
+    private let pasteButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyStackButtonStyle()
+        button.imageWithTitleView?.iconImage = R.image.iconCopy()
+        return button
     }()
 
     private let cleanButton: UIButton = {
@@ -68,12 +85,14 @@ final class SearchTriangularedView: UIView {
         return view
     }()
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(withPasteButton: Bool = false) {
+        self.withPasteButton = withPasteButton
+        super.init(frame: .zero)
 
         setupLayout()
 
         cleanButton.addTarget(self, action: #selector(clean), for: .touchUpInside)
+        pasteButton.addTarget(self, action: #selector(pasteTapped), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -84,8 +103,10 @@ final class SearchTriangularedView: UIView {
     func updateState(icon: DrawableIcon?) {
         if let text = textField.text, text.isNotEmpty {
             cleanButton.isHidden = false
+            pasteButton.isHidden = true
         } else {
             cleanButton.isHidden = true
+            pasteButton.isHidden = false
         }
         if let icon = icon {
             addressImage.bind(icon: icon)
@@ -119,26 +140,40 @@ final class SearchTriangularedView: UIView {
             make.edges.equalTo(addressImage)
         }
 
+        let vStackView = UIFactory
+            .default
+            .createVerticalStackView(spacing: UIConstants.minimalOffset)
+        addSubview(vStackView)
+        vStackView.snp.makeConstraints { make in
+            make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)
+            make.leading.equalTo(addressImage.snp.trailing).offset(UIConstants.defaultOffset)
+            make.bottom.equalToSuperview().inset(LayoutConstants.verticalOffset)
+        }
+        vStackView.addArrangedSubview(titleLabel)
+        vStackView.addArrangedSubview(textField)
+
         addSubview(cleanButton)
         cleanButton.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
-            make.size.equalTo(LayoutConstants.buttonSize)
+            make.width.equalTo(LayoutConstants.clearButtonSize)
+            make.leading.equalTo(vStackView.snp.trailing).offset(UIConstants.defaultOffset)
         }
 
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(addressImage.snp.trailing).offset(UIConstants.defaultOffset)
-            make.trailing.equalTo(cleanButton.snp.leading).offset(-UIConstants.defaultOffset)
-            make.top.equalToSuperview().inset(LayoutConstants.verticalOffset)
+        if withPasteButton {
+            addSubview(pasteButton)
+            pasteButton.snp.makeConstraints { make in
+                make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+                make.centerY.equalToSuperview()
+                make.width.equalTo(LayoutConstants.pasteButtonSize)
+            }
         }
+    }
 
-        addSubview(textField)
-        textField.snp.makeConstraints { make in
-            make.leading.trailing.equalTo(titleLabel)
-            make.top.greaterThanOrEqualTo(titleLabel.snp.bottom).offset(UIConstants.minimalOffset)
-            make.bottom.equalToSuperview().inset(LayoutConstants.verticalOffset)
-        }
+    private func applyLocalization() {
+        pasteButton.imageWithTitleView?.title = R.string.localizable.commonPaste(
+            preferredLanguages: locale.rLanguages
+        ).uppercased()
     }
 
     @objc
@@ -146,5 +181,10 @@ final class SearchTriangularedView: UIView {
         textField.text = nil
         _ = textField.delegate?.textFieldShouldClear?(textField)
         updateState(icon: nil)
+    }
+
+    @objc
+    private func pasteTapped() {
+        onPasteTapped?()
     }
 }

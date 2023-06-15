@@ -3,6 +3,7 @@ import BigInt
 import SSFUtils
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 struct WalletSendConfirmViewFactory {
     static func createView(

@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SSFUtils
+import SSFModels
 
 final class ExportMnemonicPresenter {
     weak var view: ExportGenericViewProtocol?

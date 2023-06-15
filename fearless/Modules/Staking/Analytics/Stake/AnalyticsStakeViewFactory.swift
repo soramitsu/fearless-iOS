@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import SSFModels
 
 struct AnalyticsStakeViewFactory {
     static func createView(

@@ -3,6 +3,7 @@ import SoraFoundation
 import SSFUtils
 import IrohaCrypto
 import SoraKeystore
+import SSFModels
 
 protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createProfileViewModel(

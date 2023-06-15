@@ -1,8 +1,10 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 protocol WalletsManagmentViewModelFactoryProtocol {
     func buildViewModel(
+        viewType: WalletsManagmentType,
         from wallets: [ManagedMetaAccountModel],
         balances: [MetaAccountId: WalletBalanceInfo],
         locale: Locale
@@ -17,6 +19,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
     }
 
     func buildViewModel(
+        viewType: WalletsManagmentType,
         from wallets: [ManagedMetaAccountModel],
         balances: [MetaAccountId: WalletBalanceInfo],
         locale: Locale
@@ -24,9 +27,17 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
         wallets.compactMap { managedMetaAccount -> WalletsManagmentCellViewModel? in
             let key = managedMetaAccount.info.metaId
 
+            let isSelected: Bool
+            switch viewType {
+            case .wallets:
+                isSelected = managedMetaAccount.isSelected
+            case let .selectYourWallet(selectedWalletId):
+                isSelected = selectedWalletId == nil ? false : managedMetaAccount.info.metaId == selectedWalletId
+            }
+
             guard let walletBalance = balances[key] else {
                 return WalletsManagmentCellViewModel(
-                    isSelected: managedMetaAccount.isSelected,
+                    isSelected: isSelected,
                     address: "",
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: nil,
@@ -45,7 +56,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             else {
                 let fiatBalance = balanceTokenFormatterValue.stringFromDecimal(.zero)
                 return WalletsManagmentCellViewModel(
-                    isSelected: managedMetaAccount.isSelected,
+                    isSelected: isSelected,
                     address: "",
                     walletName: managedMetaAccount.info.name,
                     fiatBalance: fiatBalance,
@@ -61,7 +72,7 @@ final class WalletsManagmentViewModelFactory: WalletsManagmentViewModelFactoryPr
             )
 
             let viewModel = WalletsManagmentCellViewModel(
-                isSelected: managedMetaAccount.isSelected,
+                isSelected: isSelected,
                 address: "",
                 walletName: managedMetaAccount.info.name,
                 fiatBalance: totalFiatValue,

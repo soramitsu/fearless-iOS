@@ -2,6 +2,8 @@ import Foundation
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
+import SSFModels
 
 final class ParachainRewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal

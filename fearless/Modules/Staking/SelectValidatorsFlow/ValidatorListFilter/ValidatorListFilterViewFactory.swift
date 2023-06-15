@@ -1,5 +1,6 @@
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 struct ValidatorListFilterViewFactory: ValidatorListFilterViewFactoryProtocol {
     private static func createContainer(flow: ValidatorListFilterFlow) -> ValidatorListFilterDependencyContainer? {

@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import SoraKeystore
 import IrohaCrypto
+import SSFModels
 
 final class NetworkInfoInteractor {
     weak var presenter: NetworkInfoInteractorOutputProtocol!

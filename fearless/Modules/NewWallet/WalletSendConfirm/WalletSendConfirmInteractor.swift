@@ -2,6 +2,7 @@ import UIKit
 import RobinHood
 import BigInt
 import IrohaCrypto
+import SSFModels
 
 final class WalletSendConfirmInteractor: RuntimeConstantFetching {
     weak var presenter: WalletSendConfirmInteractorOutputProtocol?
@@ -147,9 +148,8 @@ extension WalletSendConfirmInteractor: WalletSendConfirmInteractorInputProtocol 
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityAssets().first {
-            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset.asset)
+           if let utilityAsset = chainAsset.chain.utilityAssets().first {
+            return ChainAsset(chain: chainAsset.chain, asset: utilityAsset)
         }
         return chainAsset
     }

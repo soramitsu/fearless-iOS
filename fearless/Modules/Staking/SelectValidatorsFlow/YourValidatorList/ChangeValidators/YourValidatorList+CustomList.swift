@@ -1,3 +1,6 @@
+
+import SSFModels
+
 extension YourValidatorList {
     final class CustomListWireframe: CustomValidatorListWireframe {
         override func proceed(

@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import SSFUtils
 import BigInt
+import SSFModels
 
 enum ParachainRewardCalculatorServiceError: Error {
     case timedOut

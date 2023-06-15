@@ -34,7 +34,8 @@ struct AccountInfo: Codable, Equatable {
         data = AccountData(
             free: ormlAccountInfo.free,
             reserved: ormlAccountInfo.reserved,
-            frozen: ormlAccountInfo.frozen
+            frozen: ormlAccountInfo.frozen,
+            flags: .zero
         )
     }
 
@@ -49,7 +50,23 @@ struct AccountInfo: Codable, Equatable {
         data = AccountData(
             free: equilibriumFree,
             reserved: BigUInt.zero,
-            frozen: BigUInt.zero
+            frozen: BigUInt.zero,
+            flags: BigUInt.zero
+        )
+    }
+
+    init?(assetAccount: AssetAccount?) {
+        guard let assetAccount = assetAccount else {
+            return nil
+        }
+        nonce = 0
+        consumers = 0
+        providers = 0
+
+        data = AccountData(
+            free: assetAccount.balance,
+            reserved: .zero,
+            frozen: .zero
         )
     }
 
@@ -67,6 +84,7 @@ struct AccountData: Codable, Equatable {
         case free
         case reserved
         case frozen
+        case flags
         case miscFrozen
         case feeFrozen
     }
@@ -74,11 +92,13 @@ struct AccountData: Codable, Equatable {
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
     @StringCodable var frozen: BigUInt
+    @StringCodable var flags: BigUInt
 
-    init(free: BigUInt, reserved: BigUInt, frozen: BigUInt) {
+    init(free: BigUInt, reserved: BigUInt, frozen: BigUInt, flags: BigUInt? = .zero) {
         self.free = free
         self.reserved = reserved
         self.frozen = frozen
+        self.flags = flags ?? .zero
     }
 
     func encode(to encoder: Encoder) throws {
@@ -86,6 +106,7 @@ struct AccountData: Codable, Equatable {
         try container.encode(free, forKey: .free)
         try container.encode(reserved, forKey: .reserved)
         try container.encode(frozen, forKey: .frozen)
+        try container.encode(flags, forKey: .flags)
     }
 
     init(from decoder: Decoder) throws {
@@ -93,6 +114,11 @@ struct AccountData: Codable, Equatable {
 
         free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
         reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        do {
+            flags = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .flags).value
+        } catch {
+            flags = .zero
+        }
 
         do {
             frozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .frozen).value
@@ -118,6 +144,12 @@ struct OrmlAccountInfo: Codable, Equatable {
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
     @StringCodable var frozen: BigUInt
+}
+
+// MARK: - Assets Account
+
+struct AssetAccount: Codable {
+    @StringCodable var balance: BigUInt
 }
 
 // MARK: - Equilibrium

@@ -1,3 +1,6 @@
+
+import SSFModels
+
 final class InitiatedBondingSelectedValidatorListWireframe: SelectedValidatorListWireframe {
     override func proceed(
         from view: SelectedValidatorListViewProtocol?,

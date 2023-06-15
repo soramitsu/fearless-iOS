@@ -1,4 +1,5 @@
 import SSFUtils
+import SSFModels
 
 protocol SendViewModelFactoryProtocol {
     func buildRecipientViewModel(address: String, isValid: Bool) -> RecipientViewModel

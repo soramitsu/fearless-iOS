@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 typealias ContactsModuleCreationResult = (view: ContactsViewInput, input: ContactsModuleInput)
 

@@ -1,4 +1,5 @@
 import Foundation
+import SSFModels
 
 enum CustomValidatorListFlowError {
     case validatorBlocked

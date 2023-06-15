@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import SSFModels
 
 struct AnalyticsRewardDetailsViewFactory {
     static func createView(

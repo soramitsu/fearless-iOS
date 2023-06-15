@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SSFModels
 
 final class StakingPoolJoinChoosePoolRouter: StakingPoolJoinChoosePoolRouterInput {
     func presentConfirm(

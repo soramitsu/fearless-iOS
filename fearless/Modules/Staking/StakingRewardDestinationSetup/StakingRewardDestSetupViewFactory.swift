@@ -2,6 +2,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import SSFUtils
+import SSFModels
 
 struct StakingRewardDestSetupViewFactory {
     static func createView(
@@ -37,7 +38,8 @@ struct StakingRewardDestSetupViewFactory {
 
         let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: rewardBalanceViewModelFactory,
-            iconGenerator: UniversalIconGenerator(chain: chain)
+            iconGenerator: UniversalIconGenerator(chain: chain),
+            chainAsset: ChainAsset(chain: chain, asset: asset)
         )
 
         let changeRewardDestViewModelFactory = ChangeRewardDestinationViewModelFactory(

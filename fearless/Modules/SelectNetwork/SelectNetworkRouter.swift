@@ -1,7 +1,12 @@
 import Foundation
+import SSFModels
 
 protocol SelectNetworkDelegate: AnyObject {
-    func chainSelection(view: SelectNetworkViewInput, didCompleteWith chain: ChainModel?)
+    func chainSelection(
+        view: SelectNetworkViewInput,
+        didCompleteWith chain: ChainModel?,
+        contextTag: Int?
+    )
 }
 
 final class SelectNetworkRouter: SelectNetworkRouterInput {
@@ -11,8 +16,16 @@ final class SelectNetworkRouter: SelectNetworkRouterInput {
         self.delegate = delegate
     }
 
-    func complete(on view: SelectNetworkViewInput, selecting chain: ChainModel?) {
+    func complete(
+        on view: SelectNetworkViewInput,
+        selecting chain: ChainModel?,
+        contextTag: Int?
+    ) {
         view.controller.dismiss(animated: true)
-        delegate?.chainSelection(view: view, didCompleteWith: chain)
+        delegate?.chainSelection(
+            view: view,
+            didCompleteWith: chain,
+            contextTag: contextTag
+        )
     }
 }
