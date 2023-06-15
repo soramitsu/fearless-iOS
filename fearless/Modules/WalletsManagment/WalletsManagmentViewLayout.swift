@@ -60,7 +60,7 @@ final class WalletsManagmentViewLayout: UIView {
     }
 
     private func applyLocale() {
-        titleLabel.text = R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
+        titleLabel.text = R.string.localizable.commonWallet(preferredLanguages: locale.rLanguages)
         importWalletButton.imageWithTitleView?.title = R.string.localizable.importWallet(
             preferredLanguages: locale.rLanguages
         )

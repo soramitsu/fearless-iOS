@@ -54,7 +54,7 @@ final class StakingRewardDestSetupLayout: UIView {
             .stakingRestakeTitle(preferredLanguages: locale.rLanguages)
 
         payoutOptionView.title = R.string.localizable
-            .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
+            .commonPayout(preferredLanguages: locale.rLanguages)
 
         accountView.title = R.string.localizable
             .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)

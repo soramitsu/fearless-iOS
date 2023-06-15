@@ -1,6 +1,11 @@
 import Foundation
 import SoraFoundation
 
+enum FormatterLocale {
+    case japanese
+    case usual
+}
+
 protocol AssetBalanceFormatterFactoryProtocol {
     func createInputFormatter(
         for info: AssetBalanceDisplayInfo
@@ -34,7 +39,13 @@ class AssetBalanceFormatterFactory {
     ) -> LocalizableResource<TokenFormatter> {
         LocalizableResource { locale in
             let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
-            let formatter = self.createCompoundFormatter(for: info.displayPrecision, roundingMode: roundingMode, formatter: numberFormatter)
+            let formatterLocale: FormatterLocale = locale.identifier == "ja" ? .japanese : .usual
+            let formatter = self.createCompoundFormatter(
+                for: info.displayPrecision,
+                roundingMode: roundingMode,
+                formatter: numberFormatter,
+                for: formatterLocale
+            )
 
             let tokenFormatter = TokenFormatter(
                 decimalFormatter: formatter,
@@ -52,46 +63,90 @@ class AssetBalanceFormatterFactory {
     private func createCompoundFormatter(
         for _: UInt16,
         roundingMode: NumberFormatter.RoundingMode = .down,
-        formatter: NumberFormatter
+        formatter: NumberFormatter,
+        for locale: FormatterLocale
     ) -> LocalizableDecimalFormatting {
-        let abbreviations: [BigNumberAbbreviation] = [
-            BigNumberAbbreviation(
-                threshold: 0,
-                divisor: 1.0,
-                suffix: "",
-                formatter: formatter
-            ),
-            BigNumberAbbreviation(
-                threshold: 1,
-                divisor: 1.0,
-                suffix: "",
-                formatter: formatter
-            ),
-            BigNumberAbbreviation(
-                threshold: 10,
-                divisor: 1.0,
-                suffix: "",
-                formatter: formatter
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000,
-                divisor: 1_000_000.0,
-                suffix: "M",
-                formatter: nil
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000_000,
-                divisor: 1_000_000_000.0,
-                suffix: "B",
-                formatter: nil
-            ),
-            BigNumberAbbreviation(
-                threshold: 1_000_000_000_000,
-                divisor: 1_000_000_000_000.0,
-                suffix: "T",
-                formatter: nil
-            )
-        ]
+        let abbreviations: [BigNumberAbbreviation]
+        switch locale {
+        case .japanese:
+            abbreviations = [
+                BigNumberAbbreviation(
+                    threshold: 0,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 10,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 10000,
+                    divisor: 10000.0,
+                    suffix: "万",
+                    formatter: nil
+                ),
+                BigNumberAbbreviation(
+                    threshold: 100_000_000,
+                    divisor: 100_000_000.0,
+                    suffix: "億",
+                    formatter: nil
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1_000_000_000_000,
+                    divisor: 1_000_000_000_000.0,
+                    suffix: "兆",
+                    formatter: nil
+                )
+            ]
+        case .usual:
+            abbreviations = [
+                BigNumberAbbreviation(
+                    threshold: 0,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 10,
+                    divisor: 1.0,
+                    suffix: "",
+                    formatter: formatter
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1_000_000,
+                    divisor: 1_000_000.0,
+                    suffix: "M",
+                    formatter: nil
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1_000_000_000,
+                    divisor: 1_000_000_000.0,
+                    suffix: "B",
+                    formatter: nil
+                ),
+                BigNumberAbbreviation(
+                    threshold: 1_000_000_000_000,
+                    divisor: 1_000_000_000_000.0,
+                    suffix: "T",
+                    formatter: nil
+                )
+            ]
+        }
 
         return BigNumberFormatter(
             abbreviations: abbreviations,
@@ -125,7 +180,11 @@ extension AssetBalanceFormatterFactory: AssetBalanceFormatterFactoryProtocol {
     ) -> LocalizableResource<LocalizableDecimalFormatting> {
         LocalizableResource { locale in
             let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
-            let formatter = self.createCompoundFormatter(for: info.displayPrecision, formatter: numberFormatter)
+            let formatter = self.createCompoundFormatter(
+                for: info.displayPrecision,
+                formatter: numberFormatter,
+                for: .usual
+            )
             formatter.locale = locale
             return formatter
         }

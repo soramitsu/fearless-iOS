@@ -100,7 +100,7 @@ final class StakingAmountParachainViewModelFactory: StakingAmountViewModelFactor
 
         return LocalizableResource { [unowned self] locale in
             let accountViewModel = AccountViewModel(
-                title: R.string.localizable.accountInfoTitle(preferredLanguages: locale.rLanguages),
+                title: R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages),
                 name: wallet.name,
                 icon: nil,
                 image: R.image.iconBirdGreen()

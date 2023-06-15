@@ -73,7 +73,7 @@ enum WalletTransactionHistoryViewFactory {
         }
 
         return [FilterSet(
-            title: R.string.localizable.walletFiltersHeader(
+            title: R.string.localizable.commonShow(
                 preferredLanguages: LocalizationManager.shared.selectedLocale.rLanguages
             ),
             items: filters

@@ -18,14 +18,11 @@ protocol CrowdloanErrorPresentable: BaseErrorPresentable {
 
 extension CrowdloanErrorPresentable where Self: SheetAlertPresentable & ErrorPresentable {
     func presentMinimalBalanceContributionError(
-        _ value: String,
+        _: String,
         from view: ControllerBackedProtocol,
         locale: Locale?
     ) {
-        let message = R.string.localizable.crowdloanTooSmallContributionMessage(
-            value,
-            preferredLanguages: locale?.rLanguages
-        )
+        let message = ""
 
         let title = R.string.localizable.crowdloanTooSmallContributionTitle(
             preferredLanguages: locale?.rLanguages
