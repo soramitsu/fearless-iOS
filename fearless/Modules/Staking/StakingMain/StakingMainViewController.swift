@@ -57,7 +57,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return tableView
     }()
 
-    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relayChain)
+    private var storiesModel: LocalizableResource<StoriesModel>? = StoriesFactory().createModel(for: .relaychain)
 
     private var balanceViewModel: LocalizableResource<String>?
     private var assetIconViewModel: ImageViewModelProtocol?

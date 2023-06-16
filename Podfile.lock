@@ -111,7 +111,6 @@ PODS:
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
   - SSFChainConnection (0.1.0):
-    - SSFModels
     - SSFUtils
   - SSFChainRegistry (0.1.0):
     - RobinHood
@@ -181,6 +180,7 @@ PODS:
     - IrohaCrypto/ss58
     - ReachabilitySwift (~> 5.0)
     - RobinHood
+    - SSFModels
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
@@ -322,7 +322,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
@@ -341,19 +341,19 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  SSFChainConnection: e3d64c798c2c056fa022bfbcd261e86a4215b91d
+  SSFChainConnection: 2e09fb1ab881300a35658d35291772841d3df83c
   SSFChainRegistry: a56168a8e65cc579b98379d6f2e4d82702c80621
   SSFCrypto: 7f45f092ffea4607c5263520cfb676083cf9b210
-  SSFEraKit: d82a69699ca5b3053620bd96c792eec7b8529dc0
+  SSFEraKit: 326e1175e2d6af38eebea8c8fba90cabec5e2913
   SSFExtrinsicKit: 6d5bb2f673c66c9b51c1e477a71c6abb3e80468f
   SSFHelpers: dc0ad9aea08504629e7079c79f42edccca15c36e
   SSFLogger: baa2fd710bf2bd243af8fddb9b18574a77f7e734
-  SSFModels: bc12f1319ce8c3a419c7d1f602adf3f97f37ef88
+  SSFModels: 0f1c159d87352f57c787af8c9d6d7ebe9a62e3ab
   SSFNetwork: 92b985ffe2670afdaf6db9f7af84890dc16523fd
-  SSFRuntimeCodingService: 763025fa8eea2711d803a0a462b2e6348a30237d
+  SSFRuntimeCodingService: 862c8686ff522a35db9932a23cfc9629b4a47c3e
   SSFSigner: fdd10bb636a971c44949cdc62f463adf95a45b93
   SSFStorageQueryKit: a6276c00809e7d3a0e5d7a0d86fb1eb859bd741d
-  SSFUtils: 18b426810c7ac702a400eae2f90af68100aa9785
+  SSFUtils: 0faeb474c4b921baf16514cd00d35f7fce907f44
   SSFXCM: 72951cb5cb50c208732c1a601ba82bfcd913b5db
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
@@ -365,6 +365,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: d2ad347e85b1c9976ed0fb821ada9003c944e7aa
+PODFILE CHECKSUM: 8187e9713b022a7fab6fb5e4678196ba5e3714ef
 
 COCOAPODS: 1.11.3

@@ -613,7 +613,7 @@ extension StakingPoolOperationFactory: StakingPoolOperationFactoryProtocol {
                 return BigUInt.zero
             }
 
-            let data = try Data(hexString: result)
+            let data = try Data(hexStringSSF: result)
             let decoder = try runtimeOperation.extractNoCancellableResultData().createDecoder(from: data)
 
             guard let claimableString = try decoder.readU128().stringValue else {

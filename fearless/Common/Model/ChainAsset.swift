@@ -23,12 +23,17 @@ extension ChainAsset: Identifiable {
             .vToken,
             .vsToken,
             .stable,
-            .soraAsset,
             .assetId,
             .token2:
             storagePath = StorageCodingPath.tokens
         case .assets:
             storagePath = StorageCodingPath.assetsAccount
+        case .soraAsset:
+            if isUtility {
+                storagePath = StorageCodingPath.account
+            } else {
+                storagePath = StorageCodingPath.tokens
+            }
         }
 
         return storagePath
