@@ -249,16 +249,16 @@ final class WalletMainContainerViewLayout: UIView {
         segmentedControl.isHidden = true
         /* Uncomment this to show assets/NFT segmented control */
         /*
-        contentView.setCustomSpacing(32, after: walletBalanceVStackView)
-        let segmentContainer = UIView()
-        contentView.addArrangedSubview(segmentContainer)
-        segmentContainer.addSubview(segmentedControl)
-        segmentedControl.snp.makeConstraints { make in
-            make.height.equalTo(32)
-            make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
-            make.edges.equalToSuperview()
-        }
-        */
+         contentView.setCustomSpacing(32, after: walletBalanceVStackView)
+         let segmentContainer = UIView()
+         contentView.addArrangedSubview(segmentContainer)
+         segmentContainer.addSubview(segmentedControl)
+         segmentedControl.snp.makeConstraints { make in
+             make.height.equalTo(32)
+             make.width.equalTo(contentView.snp.width).offset(-2.0 * UIConstants.horizontalInset)
+             make.edges.equalToSuperview()
+         }
+         */
     }
 
     private func setupListLayout() {
