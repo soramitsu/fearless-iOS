@@ -1,4 +1,4 @@
-@Library('jenkins-library@duty/fearless-ios_cache') _
+@Library('jenkins-library') _
 
 // Job properties
 def jobParams = [
