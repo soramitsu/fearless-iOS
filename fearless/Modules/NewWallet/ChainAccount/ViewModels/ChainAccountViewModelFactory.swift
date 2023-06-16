@@ -34,6 +34,12 @@ class ChainAccountViewModelFactory: ChainAccountViewModelFactoryProtocol {
         if let availableAssets = chainAsset.chain.xcm?.availableAssets.map({ $0.lowercased() }) {
             let symbol = chainAsset.asset.symbol.lowercased()
             xcmButtomVisible = availableAssets.contains(symbol)
+            if availableAssets.contains(symbol) {
+                xcmButtomVisible = true
+            } else if symbol.lowercased().hasPrefix("xc") {
+                let modifySymbol = String(symbol.dropFirst(2)).lowercased()
+                xcmButtomVisible = availableAssets.contains(modifySymbol)
+            }
         }
 
         return ChainAccountViewModel(

@@ -137,7 +137,13 @@ final class CrossChainInteractor {
                     .chainAssets
                     .filter {
                         let symbol = $0.asset.symbol.lowercased()
-                        return availableOriginAsset?.contains(symbol) == true
+                        if availableOriginAsset?.contains(symbol) == true {
+                            return true
+                        } else if symbol.hasPrefix("xc") {
+                            let modifySymbol = String(symbol.dropFirst(2))
+                            return availableOriginAsset?.contains(modifySymbol) == true
+                        }
+                        return false
                     }
 
                 chainAssetFetching.fetch(
@@ -195,7 +201,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceiveOriginFee(result: originalFee)
             }
-
+        }
+        Task {
             guard let destinationFee = await deps?
                 .xcmServices
                 .destinationFeeFetcher

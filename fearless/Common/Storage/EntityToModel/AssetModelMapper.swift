@@ -19,9 +19,9 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             throw AssetModelMapperError.requiredFieldsMissing
         }
 
-        let staking: StakingType?
+        let staking: RawStakingType?
         if let entityStaking = entity.staking {
-            staking = StakingType(rawValue: entityStaking)
+            staking = RawStakingType(rawValue: entityStaking)
         } else {
             staking = nil
         }
@@ -45,7 +45,8 @@ final class AssetModelMapper: CoreDataMapperProtocol {
             isNative: entity.isNative,
             staking: staking,
             purchaseProviders: purchaseProviders,
-            type: createChainAssetModelType(from: entity.type)
+            type: createChainAssetModelType(from: entity.type),
+            smartContract: nil
         )
     }
 

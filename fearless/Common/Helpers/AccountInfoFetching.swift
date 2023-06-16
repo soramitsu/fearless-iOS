@@ -106,7 +106,6 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                     .vToken,
                     .vsToken,
                     .stable,
-                    .soraAsset,
                     .assetId,
                     .token2:
                     self?.handleOrmlAccountInfo(
@@ -127,6 +126,20 @@ final class AccountInfoFetching: AccountInfoFetchingProtocol {
                         item: item,
                         completionBlock: completionBlock
                     )
+                case .soraAsset:
+                    if chainAsset.isUtility {
+                        self?.handleAccountInfo(
+                            chainAsset: chainAsset,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    } else {
+                        self?.handleOrmlAccountInfo(
+                            chainAsset: chainAsset,
+                            item: item,
+                            completionBlock: completionBlock
+                        )
+                    }
                 }
             default:
                 completionBlock(chainAsset, nil)

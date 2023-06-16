@@ -195,9 +195,11 @@ final class CrossChainPresenter {
     }
 
     private func providePrices() {
-        provideAssetViewModel()
-        provideOriginNetworkFeeViewModel()
-        provideDestNetworkFeeViewModel()
+        DispatchQueue.main.async {
+            self.provideAssetViewModel()
+            self.provideOriginNetworkFeeViewModel()
+            self.provideDestNetworkFeeViewModel()
+        }
     }
 
     private func handle(newAddress: String) {
@@ -630,6 +632,11 @@ extension CrossChainPresenter: SelectAssetModuleOutput {
         guard let chainAsset = chainAsset else {
             return
         }
+        destNetworkFee = nil
+        originNetworkFee = nil
+        provideOriginNetworkFeeViewModel()
+        provideDestNetworkFeeViewModel()
+
         selectedAmountChainAsset = chainAsset
         selectedDestChainModel = nil
         interactor.didReceive(originChainAsset: chainAsset)
