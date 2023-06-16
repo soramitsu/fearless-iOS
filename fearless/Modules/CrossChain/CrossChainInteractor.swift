@@ -195,7 +195,8 @@ extension CrossChainInteractor: CrossChainInteractorInput {
             DispatchQueue.main.async { [weak self] in
                 self?.output?.didReceiveOriginFee(result: originalFee)
             }
-
+        }
+        Task {
             guard let destinationFee = await deps?
                 .xcmServices
                 .destinationFeeFetcher

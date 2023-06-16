@@ -275,6 +275,7 @@ final class ChainModelMapper {
 
         return XcmChain(
             xcmVersion: version,
+            destWeightIsPrimitive: entity.xcmConfig?.destWeightIsPrimitive,
             availableAssets: assets,
             availableDestinations: destinations
         )
@@ -349,6 +350,7 @@ final class ChainModelMapper {
         let configEntity = CDChainXcmConfig(context: context)
         configEntity.xcmVersion = xcmConfig.xcmVersion?.rawValue
         configEntity.availableAssets = xcmConfig.availableAssets
+        configEntity.destWeightIsPrimitive = xcmConfig.destWeightIsPrimitive ?? false
         let destinationEntities = xcmConfig.availableDestinations.compactMap {
             let destinationEntity = CDXcmAvailableDestination(context: context)
             destinationEntity.chainId = $0.chainId
