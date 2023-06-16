@@ -5,6 +5,10 @@ import SSFModels
 enum FormatterLocale {
     case japanese
     case usual
+
+    init(locale: Locale) {
+        self = locale.identifier == "ja" ? .japanese : .usual
+    }
 }
 
 protocol AssetBalanceFormatterFactoryProtocol {
@@ -40,12 +44,11 @@ class AssetBalanceFormatterFactory {
     ) -> LocalizableResource<TokenFormatter> {
         LocalizableResource { locale in
             let numberFormatter = NumberFormatter.formatter(for: usageCase, locale: locale)
-            let formatterLocale: FormatterLocale = locale.identifier == "ja" ? .japanese : .usual
             let formatter = self.createCompoundFormatter(
                 for: info.displayPrecision,
                 roundingMode: roundingMode,
                 formatter: numberFormatter,
-                for: formatterLocale
+                for: FormatterLocale(locale: locale)
             )
 
             let tokenFormatter = TokenFormatter(

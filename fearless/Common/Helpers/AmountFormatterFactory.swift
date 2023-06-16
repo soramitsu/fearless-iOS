@@ -28,8 +28,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     func createDisplayFormatter(for asset: WalletAsset?) -> LocalizableResource<LocalizableDecimalFormatting> {
         let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
         return LocalizableResource { locale in
-            let formatterLocale: FormatterLocale = locale.identifier == "ja" ? .japanese : .usual
-            let formatter = createCompoundFormatter(for: precision, for: formatterLocale)
+            let formatter = createCompoundFormatter(for: precision, for: FormatterLocale(locale: locale))
             formatter.locale = locale
             return formatter
         }
