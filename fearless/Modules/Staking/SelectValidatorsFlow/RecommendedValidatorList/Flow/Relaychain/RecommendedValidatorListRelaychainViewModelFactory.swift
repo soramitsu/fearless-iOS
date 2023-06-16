@@ -24,9 +24,13 @@ class RecommendedValidatorListRelaychainViewModelFactory {
         }
     }
 
-    private func createItemsCountString(for _: Int, outOf _: Int) -> LocalizableResource<String> {
-        LocalizableResource { _ in
-            ""
+    private func createItemsCountString(for currentCount: Int, outOf maxCount: Int) -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.stakingSelectedValidatorsCount_v191(
+                currentCount,
+                maxCount,
+                preferredLanguages: locale.rLanguages
+            )
         }
     }
 }
