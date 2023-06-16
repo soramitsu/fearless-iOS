@@ -181,8 +181,7 @@ extension SendInteractor: SendInteractorInput {
 
     func getFeePaymentChainAsset(for chainAsset: ChainAsset?) -> ChainAsset? {
         guard let chainAsset = chainAsset else { return nil }
-        if chainAsset.chain.isUtilityFeePayment, !chainAsset.isUtility,
-           let utilityAsset = chainAsset.chain.utilityChainAssets().first {
+        if let utilityAsset = chainAsset.chain.utilityChainAssets().first {
             return utilityAsset
         }
         return chainAsset

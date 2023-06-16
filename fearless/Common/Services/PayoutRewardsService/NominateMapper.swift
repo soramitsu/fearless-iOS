@@ -24,7 +24,7 @@ final class NominateMapper: Mapping {
                 return nil
             }
 
-            return try? Data(hexString: accountId)
+            return try? Data(hexStringSSF: accountId)
         }
     }
 

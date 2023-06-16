@@ -103,8 +103,8 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
                     moduleName: storagePath.moduleName,
                     storageName: storagePath.itemName,
                     keys: [
-                        Data(hexString: param1),
-                        Data(hexString: param2)
+                        Data(hexStringSSF: param1),
+                        Data(hexStringSSF: param2)
                     ],
                     hashers: [
                         .blake128Concat,
@@ -137,7 +137,7 @@ final class PolkaswapRemoteSubscriptionService: PolkaswapRemoteSubscriptionServi
                 .createStorageKey(
                     moduleName: storagePath.moduleName,
                     storageName: storagePath.itemName,
-                    key: Data(hexString: param1),
+                    key: Data(hexStringSSF: param1),
                     hasher: .twox64Concat
                 ).toHex(includePrefix: true)
         }

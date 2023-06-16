@@ -298,7 +298,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
     //  We use seed vs seed.miniSeed for mnemonic. Check if it works for SeedRequest.
     func newMetaAccountOperation(request: MetaAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let substrateSeed = try Data(hexString: request.substrateSeed)
+            let substrateSeed = try Data(hexStringSSF: request.substrateSeed)
             let substrateQuery = try getQuery(
                 seedSource: .seed(substrateSeed),
                 derivationPath: request.substrateDerivationPath,
@@ -308,7 +308,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
             var ethereumQuery: AccountQuery?
             if let ethereumSeedString = request.ethereumSeed,
-               let ethereumSeed = try? Data(hexString: ethereumSeedString),
+               let ethereumSeed = try? Data(hexStringSSF: ethereumSeedString),
                let ethereumDerivationPath = request.ethereumDerivationPath {
                 ethereumQuery = try getQuery(
                     seedSource: .seed(ethereumSeed),
@@ -466,7 +466,7 @@ extension MetaAccountOperationFactory: MetaAccountOperationFactoryProtocol {
 
     func importChainAccountOperation(request: ChainAccountImportSeedRequest) -> BaseOperation<MetaAccountModel> {
         ClosureOperation { [self] in
-            let seed = try Data(hexString: request.seed)
+            let seed = try Data(hexStringSSF: request.seed)
             let query = try getQuery(
                 seedSource: .seed(seed),
                 derivationPath: request.derivationPath,

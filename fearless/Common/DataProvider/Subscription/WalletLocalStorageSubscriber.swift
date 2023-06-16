@@ -92,7 +92,6 @@ extension WalletLocalStorageSubscriber {
             .vToken,
             .vsToken,
             .stable,
-            .soraAsset,
             .assetId,
             .token2:
             handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
@@ -100,6 +99,12 @@ extension WalletLocalStorageSubscriber {
             handleEquilibrium(for: accountId, chainAsset: chainAsset, item: item)
         case .assets:
             handleAssetAccount(for: accountId, chainAsset: chainAsset, item: item)
+        case .soraAsset:
+            if chainAsset.isUtility {
+                handleAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+            } else {
+                handleOrmlAccountInfo(for: accountId, chainAsset: chainAsset, item: item)
+            }
         }
     }
 
