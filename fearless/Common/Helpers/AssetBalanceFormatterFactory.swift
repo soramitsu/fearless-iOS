@@ -2,12 +2,16 @@ import Foundation
 import SoraFoundation
 import SSFModels
 
-enum FormatterLocale {
-    case japanese
+enum FormatterLocale: String {
+    case japanese = "jp"
     case usual
 
     init(locale: Locale) {
-        self = locale.identifier == "ja" ? .japanese : .usual
+        guard let formatter = FormatterLocale(rawValue: locale.identifier) else {
+            self = .usual
+            return
+        }
+        self = formatter
     }
 }
 
