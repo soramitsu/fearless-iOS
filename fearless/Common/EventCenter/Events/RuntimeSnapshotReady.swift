@@ -4,6 +4,6 @@ struct RuntimeSnapshotReady: EventProtocol {
     let chainModel: ChainModel
 
     func accept(visitor: EventVisitorProtocol) {
-        visitor.processRuntimeSnapshorReady()
+        visitor.processRuntimeSnapshorReady(event: RuntimeSnapshotReady(chainModel: chainModel))
     }
 }

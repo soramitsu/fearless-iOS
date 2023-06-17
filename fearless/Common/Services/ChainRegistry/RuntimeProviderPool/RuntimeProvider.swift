@@ -154,10 +154,11 @@ final class RuntimeProvider {
                 self.snapshot = snapshot
 
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
-                let event = RuntimeSnapshotReady(chainModel: chainModel)
-                eventCenter.notify(with: event)
 
                 resolveRequests()
+
+                let event = RuntimeSnapshotReady(chainModel: chainModel)
+                eventCenter.notify(with: event)
             }
         case let .failure(error):
             currentWrapper = nil

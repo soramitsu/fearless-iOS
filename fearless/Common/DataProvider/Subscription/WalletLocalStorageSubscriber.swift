@@ -40,7 +40,7 @@ extension WalletLocalStorageSubscriber {
         }
 
         let options = StreamableProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
+            alwaysNotifyOnRefresh: true,
             waitsInProgressSyncOnAdd: false,
             initialSize: 0,
             refreshWhenEmpty: true
