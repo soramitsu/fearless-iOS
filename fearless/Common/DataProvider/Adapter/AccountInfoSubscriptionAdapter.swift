@@ -22,7 +22,6 @@ protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
         deliveryOn queue: DispatchQueue?
     )
 
-    func reset(chainAssets: [ChainAsset])
     func reset()
 }
 
@@ -86,25 +85,20 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         subscriptions = [:]
     }
 
-    func reset(chainAssets: [ChainAsset]) {
-        chainAssets.forEach { chainAsset in
-            subscriptions[chainAsset.chainAssetId]?.removeObserver(wrapper)
-            subscriptions[chainAsset.chainAssetId] = nil
-        }
-    }
-
     func subscribe(
         chainAsset: ChainAsset,
         accountId: AccountId,
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset(chainAssets: [chainAsset])
         self.handler = handler
         deliveryQueue = queue
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
+            strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
+            strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+
             if let subscription = strongSelf.wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
                 strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
             }
@@ -116,13 +110,16 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset(chainAssets: chainsAssets)
         self.handler = handler
         deliveryQueue = queue
 
         lock.exclusivelyWrite { [weak self] in
             guard let strongSelf = self else { return }
             chainsAssets.forEach { chainAsset in
+
+                strongSelf.subscriptions[chainAsset.chainAssetId]?.removeObserver(strongSelf.wrapper)
+                strongSelf.subscriptions[chainAsset.chainAssetId] = nil
+
                 let accountRequest = chainAsset.chain.accountRequest()
                 if let accountId = strongSelf.selectedMetaAccount.fetch(for: accountRequest)?.accountId,
                    let subscription = strongSelf.wrapper.subscribeAccountProvider(
