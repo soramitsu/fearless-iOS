@@ -50,7 +50,7 @@ extension AccountAddress {
     func toAccountId(using conversion: ChainFormat) throws -> AccountId {
         switch conversion {
         case .ethereum:
-            return try AccountId(hexString: self)
+            return try AccountId(hexStringSSF: self)
         case let .substrate(prefix):
             return try SS58AddressFactory().accountId(fromAddress: self, type: prefix)
         }
@@ -58,7 +58,7 @@ extension AccountAddress {
 
     func toAccountId() throws -> AccountId {
         if hasPrefix("0x") {
-            return try AccountId(hexString: self)
+            return try AccountId(hexStringSSF: self)
         } else {
             return try SS58AddressFactory().accountId(from: self)
         }
