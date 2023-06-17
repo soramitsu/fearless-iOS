@@ -157,7 +157,7 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
 
     func testSaveOldAccountInfo() {
         let oldAccountData = OldAccountData(free: BigUInt(1_000_000_000_000), reserved: .zero, miscFrozen: BigUInt(500_000_000_000), feeFrozen: .zero)
-        let oldAccountInfo = OldAccountInfo(nonce: 0, consumers: 0, providers: 0, data: oldAccountData)
+        let oldAccountInfo = OldAccountInfo(nonce: 0, consumers: 0, providers: 0, sufficients: 0, data: oldAccountData)
 
         guard let runtimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3") else {
             return

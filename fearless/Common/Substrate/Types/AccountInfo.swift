@@ -9,12 +9,14 @@ struct OldAccountInfo: Codable, Equatable {
     @StringCodable var nonce: UInt32
     @StringCodable var consumers: UInt32
     @StringCodable var providers: UInt32
+    @StringCodable var sufficients: UInt32
     let data: OldAccountData
 
-    init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: OldAccountData) {
+    init(nonce: UInt32, consumers: UInt32, providers: UInt32, sufficients: UInt32, data: OldAccountData) {
         self.nonce = nonce
         self.consumers = consumers
         self.providers = providers
+        self.sufficients = sufficients
         self.data = data
     }
 
@@ -51,10 +53,10 @@ struct OldAccountData: Codable, Equatable {
 
     func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
-        try container.encode(free, forKey: .free)
-        try container.encode(reserved, forKey: .reserved)
-        try container.encode(feeFrozen, forKey: .feeFrozen)
-        try container.encode(miscFrozen, forKey: .miscFrozen)
+        try container.encode(String(free), forKey: .free)
+        try container.encode(String(reserved), forKey: .reserved)
+        try container.encode(String(feeFrozen), forKey: .feeFrozen)
+        try container.encode(String(miscFrozen), forKey: .miscFrozen)
     }
 
     init(from decoder: Decoder) throws {

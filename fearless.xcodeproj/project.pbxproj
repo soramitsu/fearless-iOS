@@ -165,6 +165,8 @@
 		07F2B75F28AA183C00280C38 /* PrintTimer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B75E28AA183C00280C38 /* PrintTimer.swift */; };
 		07F2B76128AB806400280C38 /* SnapshotHotBootBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */; };
 		07F2B76328ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76228ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift */; };
+		07F8CF302A3D676A0033951F /* polkadot-metadata in Resources */ = {isa = PBXBuildFile; fileRef = 07F8CF2F2A3D67690033951F /* polkadot-metadata */; };
+		07F8CF322A3D89600033951F /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = 07F8CF312A3D89600033951F /* polkadot-9370metadata */; };
 		07FBC9E228BE24E900ED65B4 /* MissingAccountFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */; };
 		07FBC9E628BE29C900ED65B4 /* ChainIssuesCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
@@ -2466,7 +2468,6 @@
 		FAE7406E2A3D3BE9001B5EF9 /* UserDataModel.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = FAE740622A3D3BE9001B5EF9 /* UserDataModel.xcdatamodeld */; };
 		FAE740702A3D3BF3001B5EF9 /* MultiassetV10.xcmappingmodel in Sources */ = {isa = PBXBuildFile; fileRef = FAE7406F2A3D3BF3001B5EF9 /* MultiassetV10.xcmappingmodel */; };
 		FAE740742A3D3C0C001B5EF9 /* MultiassetAccountInfoV10Policy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE740732A3D3C0B001B5EF9 /* MultiassetAccountInfoV10Policy.swift */; };
-		FAE740762A3D55EA001B5EF9 /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = FAE740752A3D55EA001B5EF9 /* polkadot-9370metadata */; };
 		FAE9EB9D288AB74D009390B6 /* AnalyticsRewardsFlow.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */; };
 		FAE9EB9F288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */; };
 		FAE9EBA1288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */; };
@@ -2737,6 +2738,8 @@
 		07F2B75E28AA183C00280C38 /* PrintTimer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PrintTimer.swift; sourceTree = "<group>"; };
 		07F2B76028AB806400280C38 /* SnapshotHotBootBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SnapshotHotBootBuilder.swift; sourceTree = "<group>"; };
 		07F2B76228ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeHotBootSnapshotFactory.swift; sourceTree = "<group>"; };
+		07F8CF2F2A3D67690033951F /* polkadot-metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-metadata"; sourceTree = "<group>"; };
+		07F8CF312A3D89600033951F /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountFetcher.swift; sourceTree = "<group>"; };
 		07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainIssuesCenter.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
@@ -5095,7 +5098,6 @@
 		FAE7406D2A3D3BE9001B5EF9 /* MultiassetUserDataModel_v6.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = MultiassetUserDataModel_v6.xcdatamodel; sourceTree = "<group>"; };
 		FAE7406F2A3D3BF3001B5EF9 /* MultiassetV10.xcmappingmodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcmappingmodel; path = MultiassetV10.xcmappingmodel; sourceTree = "<group>"; };
 		FAE740732A3D3C0B001B5EF9 /* MultiassetAccountInfoV10Policy.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MultiassetAccountInfoV10Policy.swift; sourceTree = "<group>"; };
-		FAE740752A3D55EA001B5EF9 /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
 		FAE9EB9C288AB74D009390B6 /* AnalyticsRewardsFlow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsFlow.swift; sourceTree = "<group>"; };
 		FAE9EB9E288ABBBE009390B6 /* AnalyticRewardsParachainViewModelState.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainViewModelState.swift; sourceTree = "<group>"; };
 		FAE9EBA0288ABBC7009390B6 /* AnalyticRewardsParachainStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticRewardsParachainStrategy.swift; sourceTree = "<group>"; };
@@ -7084,7 +7086,8 @@
 		84452F6F25D5E2B300F47EC5 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				FAE740752A3D55EA001B5EF9 /* polkadot-9370metadata */,
+				07F8CF312A3D89600033951F /* polkadot-9370metadata */,
+				07F8CF2F2A3D67690033951F /* polkadot-metadata */,
 				FA66FE8F2779C9AE0037C989 /* runtime-empty.json */,
 				07F2B75A28A6533900280C38 /* assets.json */,
 				076D9D6129506CE3002762E3 /* polkaswapSettings.json */,
@@ -13123,6 +13126,7 @@
 				FA2569A5274CE6AD00875A53 /* polkadot-v14-runtime in Resources */,
 				84CD35792526554A0081BC0B /* WalletAssetCell.xib in Resources */,
 				8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */,
+				07F8CF302A3D676A0033951F /* polkadot-metadata in Resources */,
 				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
@@ -13135,7 +13139,6 @@
 				AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */,
 				8490142524A93027008F705E /* sora-SemiBold.otf in Resources */,
 				84452F7425D5E2B300F47EC5 /* runtime-westend.json in Resources */,
-				FAE740762A3D55EA001B5EF9 /* polkadot-9370metadata in Resources */,
 				846AF84A2525E24C00868F37 /* WalletTotalPriceCell.xib in Resources */,
 				84D97ED12521CA5200F07405 /* WalletTokenView.xib in Resources */,
 				FA256A46274CE8BD00875A53 /* StoriesCollectionItem.xib in Resources */,
@@ -13153,6 +13156,7 @@
 				8438C45B2655AC2600047E3F /* runtime-rococo.json in Resources */,
 				4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */,
 				8460E12725422A6D00826F55 /* WalletCompoundDetailsView.xib in Resources */,
+				07F8CF322A3D89600033951F /* polkadot-9370metadata in Resources */,
 				AE2060B02637068700357578 /* CIKeys.stencil in Resources */,
 				9D5F6A48E7A9166B9341F417 /* NetworkInfoViewController.xib in Resources */,
 				07F2B75D28A6565900280C38 /* chains.json in Resources */,
