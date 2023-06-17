@@ -21,6 +21,7 @@ protocol WalletMainContainerViewOutput: AnyObject {
 protocol WalletMainContainerInteractorInput: AnyObject {
     func setup(with output: WalletMainContainerInteractorOutput)
     func saveChainIdForFilter(_ chainId: ChainModel.Id?)
+    func testSaveOldAccountInfo()
 }
 
 protocol WalletMainContainerInteractorOutput: AnyObject {

@@ -3,6 +3,77 @@ import SSFUtils
 import BigInt
 import RobinHood
 
+// MARK: - OLD
+
+struct OldAccountInfo: Codable, Equatable {
+    @StringCodable var nonce: UInt32
+    @StringCodable var consumers: UInt32
+    @StringCodable var providers: UInt32
+    let data: OldAccountData
+
+    init(nonce: UInt32, consumers: UInt32, providers: UInt32, data: OldAccountData) {
+        self.nonce = nonce
+        self.consumers = consumers
+        self.providers = providers
+        self.data = data
+    }
+
+    func nonZero() -> Bool {
+        data.total > 0
+    }
+
+    func zero() -> Bool {
+        data.total == BigUInt.zero
+    }
+}
+
+struct OldAccountData: Codable, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case free
+        case reserved
+        case frozen
+        case flags
+        case miscFrozen
+        case feeFrozen
+    }
+
+    @StringCodable var free: BigUInt
+    @StringCodable var reserved: BigUInt
+    @StringCodable var miscFrozen: BigUInt
+    @StringCodable var feeFrozen: BigUInt
+
+    init(free: BigUInt, reserved: BigUInt, miscFrozen: BigUInt, feeFrozen: BigUInt) {
+        self.free = free
+        self.reserved = reserved
+        self.miscFrozen = miscFrozen
+        self.feeFrozen = feeFrozen
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(free, forKey: .free)
+        try container.encode(reserved, forKey: .reserved)
+        try container.encode(feeFrozen, forKey: .feeFrozen)
+        try container.encode(miscFrozen, forKey: .miscFrozen)
+    }
+
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+
+        free = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .free).value
+        reserved = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .reserved).value
+        feeFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .feeFrozen).value
+        miscFrozen = try container.decode(StringScaleMapper<BigUInt>.self, forKey: .miscFrozen).value
+    }
+}
+
+extension OldAccountData {
+    var total: BigUInt { free + reserved }
+    var locked: BigUInt { miscFrozen + feeFrozen }
+    var stakingAvailable: BigUInt { free - miscFrozen }
+    var sendAvailable: BigUInt { free - miscFrozen }
+}
+
 // MARK: - Normal
 
 struct AccountInfoStorageWrapper: StorageWrapper {

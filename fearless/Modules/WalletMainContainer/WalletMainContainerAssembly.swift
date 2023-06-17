@@ -40,6 +40,8 @@ final class WalletMainContainerAssembly {
 
         let chainSettingsRepositoryFactory = ChainSettingsRepositoryFactory(storageFacade: UserDataStorageFacade.shared)
         let chainSettingsRepostiry = chainSettingsRepositoryFactory.createRepository()
+        let runtimeMetadataRepository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
 
         let interactor = WalletMainContainerInteractor(
             accountRepository: AnyDataProviderRepository(accountRepository),
@@ -48,7 +50,9 @@ final class WalletMainContainerAssembly {
             operationQueue: OperationManagerFacade.sharedDefaultQueue,
             eventCenter: EventCenter.shared,
             chainsIssuesCenter: chainsIssuesCenter,
-            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry)
+            chainSettingsRepository: AnyDataProviderRepository(chainSettingsRepostiry),
+            accountInfoRepository: AnyDataProviderRepository(accountInfoRepository),
+            runtimeRepository: AnyDataProviderRepository(runtimeMetadataRepository)
         )
 
         let router = WalletMainContainerRouter()

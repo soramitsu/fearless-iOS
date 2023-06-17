@@ -177,7 +177,7 @@ extension EraValidatorService {
 
         let keysClosure: () throws -> [Data] = {
             let hexKeys = try remoteValidatorIdsOperation.extractNoCancellableResultData()
-            return try hexKeys.map { try Data(hexString: $0) }
+            return try hexKeys.map { try Data(hexStringSSF: $0) }
         }
 
         let exposureWrapper = createExposureWrapper(keysClosure: keysClosure, codingFactory: codingFactory)
@@ -243,7 +243,7 @@ extension EraValidatorService {
 
         let mapOperation: BaseOperation<[IdentifiableExposure]> = ClosureOperation {
             let identifiers = try encodedItems.map { item in
-                try Data(hexString: item.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght)
+                try Data(hexStringSSF: item.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght)
             }
             let validators = try decodingOperation.extractNoCancellableResultData()
 
@@ -269,7 +269,7 @@ extension EraValidatorService {
 
         let localDecoder = decodeLocalValidators(validators, codingFactory: codingFactory)
 
-        let identifiersClosure = { try validators.map { try Data(hexString: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght) } }
+        let identifiersClosure = { try validators.map { try Data(hexStringSSF: $0.identifier).getAccountIdFromKey(accountIdLenght: accountIdLenght) } }
 
         let prefs = createPrefsWrapper(
             identifiersClosure: identifiersClosure,

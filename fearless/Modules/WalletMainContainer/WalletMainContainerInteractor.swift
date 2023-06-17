@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import BigInt
 
 final class WalletMainContainerInteractor {
     // MARK: - Private properties
@@ -13,6 +14,8 @@ final class WalletMainContainerInteractor {
     private let eventCenter: EventCenterProtocol
     private let chainsIssuesCenter: ChainsIssuesCenter
     private let chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+    private let accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>
+    private let runtimeRepository: AnyDataProviderRepository<RuntimeMetadataItem>
 
     // MARK: - Constructor
 
@@ -23,7 +26,9 @@ final class WalletMainContainerInteractor {
         operationQueue: OperationQueue,
         eventCenter: EventCenterProtocol,
         chainsIssuesCenter: ChainsIssuesCenter,
-        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>
+        chainSettingsRepository: AnyDataProviderRepository<ChainSettings>,
+        accountInfoRepository: AnyDataProviderRepository<AccountInfoStorageWrapper>,
+        runtimeRepository: AnyDataProviderRepository<RuntimeMetadataItem>
     ) {
         self.wallet = wallet
         self.chainRepository = chainRepository
@@ -32,6 +37,8 @@ final class WalletMainContainerInteractor {
         self.eventCenter = eventCenter
         self.chainsIssuesCenter = chainsIssuesCenter
         self.chainSettingsRepository = chainSettingsRepository
+        self.accountInfoRepository = accountInfoRepository
+        self.runtimeRepository = runtimeRepository
     }
 
     // MARK: - Private methods
@@ -130,6 +137,63 @@ extension WalletMainContainerInteractor: WalletMainContainerInteractorInput {
         chainsIssuesCenter.addIssuesListener(self, getExisting: true)
         fetchSelectedChainName()
         fetchChainSettings()
+
+        let localMetadataOperation = runtimeRepository.fetchOperation(
+            by: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3",
+            options: RepositoryFetchOptions()
+        )
+
+        localMetadataOperation.completionBlock = {
+            do {
+                let runtime = try localMetadataOperation.extractNoCancellableResultData()
+                print(runtime)
+            } catch {
+                print(error)
+            }
+        }
+
+        operationQueue.addOperation(localMetadataOperation)
+    }
+
+    func testSaveOldAccountInfo() {
+        let oldAccountData = OldAccountData(free: BigUInt(1_000_000_000_000), reserved: .zero, miscFrozen: BigUInt(500_000_000_000), feeFrozen: .zero)
+        let oldAccountInfo = OldAccountInfo(nonce: 0, consumers: 0, providers: 0, data: oldAccountData)
+
+        guard let runtimeService = ChainRegistryFacade.sharedRegistry.getRuntimeProvider(for: "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3") else {
+            return
+        }
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        runtimeOperation.completionBlock = {
+            do {
+                let codingFactory = try runtimeOperation.extractNoCancellableResultData()
+                guard let entry = codingFactory.metadata.getStorageMetadata(
+                    in: StorageCodingPath.account.moduleName,
+                    storageName: StorageCodingPath.account.itemName
+                ) else {
+                    throw StorageDecodingOperationError.invalidStoragePath
+                }
+
+                let type = try entry.type.typeName(using: codingFactory.metadata.schemaResolver)
+
+                let encoder = try runtimeOperation.extractNoCancellableResultData().createEncoder()
+                try encoder.append(oldAccountInfo, ofType: type)
+                let accountIdBytes = try encoder.encode()
+                let accountInfoStorageWrapper = AccountInfoStorageWrapper(identifier: "dadc4767367320d8da7932575958add7c2982ee6c0669c58badcc39435a9a2ca", data: accountIdBytes)
+
+                let saveOperation = self.accountInfoRepository.saveOperation {
+                    [accountInfoStorageWrapper]
+                } _: {
+                    []
+                }
+
+                self.operationQueue.addOperation(saveOperation)
+            } catch {
+                print(error)
+            }
+        }
+
+        operationQueue.addOperation(runtimeOperation)
     }
 }
 

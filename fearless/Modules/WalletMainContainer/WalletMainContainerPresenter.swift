@@ -74,7 +74,8 @@ extension WalletMainContainerPresenter: WalletMainContainerViewOutput {
     }
 
     func didTapOnQR() {
-        router.showScanQr(from: view, moduleOutput: self)
+//        router.showScanQr(from: view, moduleOutput: self)
+        interactor.testSaveOldAccountInfo()
     }
 
     func didTapSearch() {

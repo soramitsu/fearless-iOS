@@ -21,7 +21,7 @@
 //
 //        let hex = try String(contentsOf: metadataUrl)
 //            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-//        let metadata = try Data(hexString: hex)
+//        let metadata = try Data(hexStringSSF: hex)
 //
 //        // when
 //
@@ -110,7 +110,7 @@
 //
 //        let hex = try String(contentsOf: metadataUrl)
 //            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-//        let metadata = try Data(hexString: hex)
+//        let metadata = try Data(hexStringSSF: hex)
 //
 //        var isSetup = true
 //
@@ -174,7 +174,7 @@
 //
 //        let hex = try String(contentsOf: metadataUrl)
 //            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-//        let metadata = try Data(hexString: hex)
+//        let metadata = try Data(hexStringSSF: hex)
 //
 //        var isSetup = true
 //
@@ -238,7 +238,7 @@
 //
 //        let hex = try String(contentsOf: metadataUrl)
 //            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-//        let metadata = try Data(hexString: hex)
+//        let metadata = try Data(hexStringSSF: hex)
 //
 //        var isSetup = true
 //
@@ -303,7 +303,7 @@
 //
 //        let hex = try String(contentsOf: metadataUrl)
 //            .trimmingCharacters(in: CharacterSet.whitespacesAndNewlines)
-//        let metadata = try Data(hexString: hex)
+//        let metadata = try Data(hexStringSSF: hex)
 //
 //        // when
 //

@@ -217,21 +217,28 @@ final class RuntimeSyncService {
 
         remoteMetadaOperation.configurationBlock = {
             do {
-                let currentItem = try localMetadataOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                if let item = currentItem, item.version == runtimeVersion.specVersion {
-                    remoteMetadaOperation.result = .failure(RuntimeSyncServiceError.skipMetadataUnchanged)
-                }
+                let path = Bundle.main.path(forResource: "polkadot-9370metadata", ofType: nil)
+                let metadata = try String(contentsOfFile: path!)
+                remoteMetadaOperation.result = .success(metadata)
             } catch {
                 remoteMetadaOperation.result = .failure(error)
             }
+//            do {
+//                let currentItem = try localMetadataOperation
+//                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+//                if let item = currentItem, item.version == runtimeVersion.specVersion {
+//                    remoteMetadaOperation.result = .failure(RuntimeSyncServiceError.skipMetadataUnchanged)
+//                }
+//            } catch {
+//                remoteMetadaOperation.result = .failure(error)
+//            }
         }
 
         remoteMetadaOperation.addDependency(localMetadataOperation)
 
         let buildRuntimeMetadataOperation = ClosureOperation<RuntimeMetadataItem> {
             let hexMetadata = try remoteMetadaOperation.extractNoCancellableResultData()
-            let rawMetadata = try Data(hexString: hexMetadata)
+            let rawMetadata = try Data(hexStringSSF: hexMetadata)
             let metadataItem = RuntimeMetadataItem(
                 chain: chainId,
                 version: runtimeVersion.specVersion,
