@@ -18,7 +18,7 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
 
             let ethereumBased = chainAccontEntity.ethereumBased
 
-            let accountId = try Data(hexString: chainAccontEntity.accountId!)
+            let accountId = try Data(hexStringSSF: chainAccontEntity.accountId!)
             return ChainAccountModel(
                 chainId: chainAccontEntity.chainId!,
                 accountId: accountId,
@@ -43,8 +43,8 @@ extension MetaAccountMapper: CoreDataMapperProtocol {
             )
         }
 
-        let substrateAccountId = try Data(hexString: entity.substrateAccountId!)
-        let ethereumAddress = try entity.ethereumAddress.map { try Data(hexString: $0) }
+        let substrateAccountId = try Data(hexStringSSF: entity.substrateAccountId!)
+        let ethereumAddress = try entity.ethereumAddress.map { try Data(hexStringSSF: $0) }
         let assetFilterOptions = entity.assetFilterOptions as? [String]
         let assetsVisibility: [AssetVisibility]? = (entity.assetsVisibility?.allObjects as? [CDAssetVisibility])?.compactMap {
             guard let assetId = $0.assetId else {

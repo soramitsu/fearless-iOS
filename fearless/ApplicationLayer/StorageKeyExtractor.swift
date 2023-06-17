@@ -20,7 +20,7 @@ final class StorageKeyExtractor {
             utf16Offset: keyString.count - Constants.hexSymbolsPerByte * Constants.uint32Bytes,
             in: keyString
         ))
-        let idData = try Data(hexString: String(idHexString))
+        let idData = try Data(hexStringSSF: String(idHexString))
         let decoder = try ScaleDecoder(data: idData)
         let uint32 = try UInt32(scaleDecoder: decoder)
         return uint32

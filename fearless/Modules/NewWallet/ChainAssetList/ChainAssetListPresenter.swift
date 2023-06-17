@@ -31,7 +31,9 @@ final class ChainAssetListPresenter {
     private var chainSettings: [ChainSettings]?
 
     private lazy var factoryOperationQueue: OperationQueue = {
-        OperationQueue()
+        let queue = OperationQueue()
+        queue.maxConcurrentOperationCount = 1
+        return queue
     }()
 
     // MARK: - Constructors

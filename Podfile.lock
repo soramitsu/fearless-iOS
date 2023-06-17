@@ -110,6 +110,8 @@ PODS:
   - Sourcery (1.9.2):
     - Sourcery/CLI-Only (= 1.9.2)
   - Sourcery/CLI-Only (1.9.2)
+  - SSFModels (0.1.0):
+    - IrohaCrypto
   - SSFUtils (0.1.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519
@@ -119,6 +121,7 @@ PODS:
     - IrohaCrypto/ss58
     - ReachabilitySwift (~> 5.0)
     - RobinHood
+    - SSFModels
     - Starscream
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
@@ -149,7 +152,7 @@ DEPENDENCIES:
   - SoraKeystore (from `https://github.com/soramitsu/keystore-iOS.git`, tag `1.0.1`)
   - SoraUI (~> 1.10.3)
   - Sourcery (~> 1.4)
-  - SSFUtils (from `../soramitsu-shared-features-ios/SSFUtils`)
+  - SSFUtils
   - Starscream (from `https://github.com/soramitsu/fearless-starscream.git`, tag `4.0.8`)
   - SVGKit
   - SwiftFormat/CLI (~> 0.47.13)
@@ -158,10 +161,13 @@ DEPENDENCIES:
   - XNetworking (from `https://raw.githubusercontent.com/soramitsu/x-networking/0.0.37/AppCommonNetworking/XNetworking/XNetworking.podspec`)
 
 SPEC REPOS:
-  https://github.com/cocoapods/Specs.git:
+  https://github.com/CocoaPods/Specs.git:
     - BigInt
     - TweetNacl
     - xxHash-Swift
+  https://github.com/soramitsu/SSFSpecs.git:
+    - SSFModels
+    - SSFUtils
   trunk:
     - Charts
     - CocoaLumberjack
@@ -191,8 +197,6 @@ EXTERNAL SOURCES:
   SoraKeystore:
     :git: https://github.com/soramitsu/keystore-iOS.git
     :tag: 1.0.1
-  SSFUtils:
-    :path: "../soramitsu-shared-features-ios/SSFUtils"
   Starscream:
     :git: https://github.com/soramitsu/fearless-starscream.git
     :tag: 4.0.8
@@ -209,7 +213,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  Charts: 354f86803d11d9c35de280587fef50d1af063978
+  Charts: ce0768268078eee0336f122c3c4ca248e4e204c5
   CocoaLumberjack: 78abfb691154e2a9df8ded4350d504ee19d90732
   CommonWallet: 3c67d5fd85593a20f6b55777c2660ff886fc4148
   Cuckoo: 1b6793fe60fac29af50b0a5915bc309a4a1ac673
@@ -228,7 +232,8 @@ SPEC CHECKSUMS:
   SoraKeystore: e1789fe41412606d8a1116b86bd00d46d4cb9ccb
   SoraUI: 1ec71151eb962591eeb898bcdd98bded59745f2d
   Sourcery: 179539341c2261068528cd15a31837b7238fd901
-  SSFUtils: 18b426810c7ac702a400eae2f90af68100aa9785
+  SSFModels: 11a6bad13319a03093c50c9278efda185331f70d
+  SSFUtils: 994c698425074c773f001bb0dc5eade36ac2e08c
   Starscream: b676ee89781677a2d8d36029a78c970710e2d3eb
   SVGKit: 1ad7513f8c74d9652f94ed64ddecda1a23864dea
   SwiftAlgorithms: 38dda4731d19027fdeee1125f973111bf3386b53
@@ -239,6 +244,6 @@ SPEC CHECKSUMS:
   XNetworking: 516d982bd74ff208222381d27e07052a5d897aaf
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: f342f74aa44f58c1ab9c5ba7e7c45c08e1fd464a
+PODFILE CHECKSUM: bdb25fe3da7405d27a11c8f98d057daeed4cd47d
 
 COCOAPODS: 1.11.3

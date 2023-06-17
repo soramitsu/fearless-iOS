@@ -226,7 +226,7 @@ class SubqueryHistoryOperationFactory {
                     return false
                 }
 
-                let assetIdBytes = try Data(hexString: assetId)
+                let assetIdBytes = try Data(hexStringSSF: assetId)
                 let encoder = try runtimeOperation.extractNoCancellableResultData().createEncoder()
                 guard let currencyId = chainAsset.currencyId else {
                     return false

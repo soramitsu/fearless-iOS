@@ -21,14 +21,14 @@
 //            let coderFactory = try RuntimeCodingServiceStub.createWestendCodingFactory(metadataVersion: 14)
 //            let processor = ExtrinsicProcessor(accountId: senderAccountId)
 //
-//            let eventRecordsData = try Data(hexString: eventRecordsHex)
+//            let eventRecordsData = try Data(hexStringSSF: eventRecordsHex)
 //            let type = coderFactory.metadata.getStorageMetadata(for: .events)!.type
 //            let resolver = coderFactory.metadata.schemaResolver
 //            let typeName = try type.typeName(using: resolver)
 //            let decoder = try coderFactory.createDecoder(from: eventRecordsData)
 //            let eventRecords: [EventRecord] = try decoder.read(of: typeName)
 //
-//            let extrinsicData = try Data(hexString: transferExtrinsicHex)
+//            let extrinsicData = try Data(hexStringSSF: transferExtrinsicHex)
 //
 //            guard let result = processor.process(
 //                    extrinsicIndex: extrinsicIndex,

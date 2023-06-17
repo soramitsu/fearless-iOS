@@ -66,7 +66,7 @@ final class AccountInfoUpdatingService {
         }
     }
 
-    private func addSubscriptionIfNeeded(for chainAsset: ChainAsset) {
+    private func addSubscriptionIfNeeded(for chainAsset: ChainAsset, closure: RemoteSubscriptionClosure? = nil) {
         guard let accountId = selectedMetaAccount.fetch(for: chainAsset.chain.accountRequest())?.accountId else {
             logger?.error("Couldn't create account for chain \(chainAsset.chain.chainId)")
             return
@@ -81,7 +81,7 @@ final class AccountInfoUpdatingService {
             of: accountId,
             chainAsset: chainAsset,
             queue: nil,
-            closure: nil
+            closure: closure
         )
 
         if let subsciptionId = maybeSubscriptionId {
@@ -121,7 +121,15 @@ final class AccountInfoUpdatingService {
             queue: nil
         ) { [weak self] _ in
             self?.setSubscription(nil, for: key)
-            self?.addSubscriptionIfNeeded(for: chainAsset)
+            self?.addSubscriptionIfNeeded(for: chainAsset) { result in
+                switch result {
+                case .success:
+                    let event = WalletRemoteSubscriptionWasUpdatedEvent(chainAsset: chainAsset)
+                    self?.eventCenter.notify(with: event)
+                case let .failure(error):
+                    self?.logger?.error("Can't add subscription if nedded error: \(error)")
+                }
+            }
         }
     }
 
@@ -190,6 +198,13 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
             chain.chainAssets.forEach {
                 updateSubscription(for: $0)
             }
+        }
+    }
+
+    func processRuntimeSnapshorReady(event: RuntimeSnapshotReady) {
+        let chainAssets = event.chainModel.chainAssets
+        chainAssets.forEach {
+            updateSubscription(for: $0)
         }
     }
 }
