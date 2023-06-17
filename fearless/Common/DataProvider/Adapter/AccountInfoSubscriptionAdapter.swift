@@ -22,6 +22,7 @@ protocol AccountInfoSubscriptionAdapterProtocol: AnyObject {
         deliveryOn queue: DispatchQueue?
     )
 
+    func reset(chainAssets: [ChainAsset])
     func reset()
 }
 
@@ -55,7 +56,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
 
     // MARK: - Private properties
 
-    private var subscriptions: [StreamableProvider<AccountInfoStorageWrapper>] = []
+    private var subscriptions: [ChainAssetId: StreamableProvider<AccountInfoStorageWrapper>] = [:]
     private var selectedMetaAccount: MetaAccountModel
 
     private lazy var wrapper: AccountInfoSubscriptionProviderWrapper = {
@@ -78,11 +79,18 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
     // MARK: - Public methods
 
     func reset() {
-        subscriptions.forEach { subscription in
+        subscriptions.values.forEach { subscription in
             subscription.removeObserver(wrapper)
         }
 
-        subscriptions.removeAll()
+        subscriptions = [:]
+    }
+
+    func reset(chainAssets: [ChainAsset]) {
+        chainAssets.forEach { chainAsset in
+            subscriptions[chainAsset.chainAssetId]?.removeObserver(wrapper)
+            subscriptions[chainAsset.chainAssetId] = nil
+        }
     }
 
     func subscribe(
@@ -91,12 +99,15 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset()
+        reset(chainAssets: [chainAsset])
         self.handler = handler
         deliveryQueue = queue
 
-        if let subscription = wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
-            subscriptions.append(subscription)
+        lock.exclusivelyWrite { [weak self] in
+            guard let strongSelf = self else { return }
+            if let subscription = strongSelf.wrapper.subscribeAccountProvider(for: accountId, chainAsset: chainAsset) {
+                strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
+            }
         }
     }
 
@@ -105,7 +116,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
         handler: AccountInfoSubscriptionAdapterHandler?,
         deliveryOn queue: DispatchQueue?
     ) {
-        reset()
+        reset(chainAssets: chainsAssets)
         self.handler = handler
         deliveryQueue = queue
 
@@ -118,7 +129,7 @@ final class AccountInfoSubscriptionAdapter: AccountInfoSubscriptionAdapterProtoc
                        for: accountId,
                        chainAsset: chainAsset
                    ) {
-                    strongSelf.subscriptions.append(subscription)
+                    strongSelf.subscriptions[chainAsset.chainAssetId] = subscription
                 }
             }
         }
