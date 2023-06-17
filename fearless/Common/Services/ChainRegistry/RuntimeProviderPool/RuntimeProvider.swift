@@ -29,6 +29,7 @@ final class RuntimeProvider {
 
     internal let chainId: ChainModel.Id
     private let chainName: String
+    private let chainModel: ChainModel
     private let usedRuntimePaths: [String: [String]]
 
     private let snapshotOperationFactory: RuntimeSnapshotFactoryProtocol
@@ -69,6 +70,7 @@ final class RuntimeProvider {
     ) {
         chainId = chainModel.chainId
         chainName = chainModel.name
+        self.chainModel = chainModel
         self.snapshotOperationFactory = snapshotOperationFactory
         self.snapshotHotOperationFactory = snapshotHotOperationFactory
         self.eventCenter = eventCenter
@@ -88,8 +90,7 @@ final class RuntimeProvider {
     private func buildSnapshot() {
         guard
             let chainTypes = chainTypes,
-            let chainMetadata = chainMetadata,
-            compareChainsTypes(local: runtimeSnapshot?.localChainTypes, remote: chainTypes)
+            let chainMetadata = chainMetadata
         else {
             return
         }
@@ -111,18 +112,6 @@ final class RuntimeProvider {
         currentWrapper = wrapper
 
         operationQueue.addOperation(wrapper)
-    }
-
-    private func compareChainsTypes(local: Data?, remote: Data) -> Bool {
-        guard
-            let localData = local,
-            let localJson = try? JSONDecoder().decode(JSON.self, from: localData),
-            let remoteJson = try? JSONDecoder().decode(JSON.self, from: remote)
-        else {
-            return true
-        }
-
-        return localJson != remoteJson
     }
 
     private func buildHotSnapshot() {
@@ -165,6 +154,8 @@ final class RuntimeProvider {
                 self.snapshot = snapshot
 
                 logger?.debug("Did complete snapshot for: \(chainName), Will notify waiters: \(pendingRequests.count)")
+                let event = RuntimeSnapshotReady(chainModel: chainModel)
+                eventCenter.notify(with: event)
 
                 resolveRequests()
             }

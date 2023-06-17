@@ -192,4 +192,11 @@ extension AccountInfoUpdatingService: EventVisitorProtocol {
             }
         }
     }
+
+    func processRuntimeSnapshorReady(event: RuntimeSnapshotReady) {
+        let chainAssets = event.chainModel.chainAssets
+        chainAssets.forEach {
+            updateSubscription(for: $0)
+        }
+    }
 }

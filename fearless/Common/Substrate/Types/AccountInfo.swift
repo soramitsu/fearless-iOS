@@ -192,8 +192,15 @@ struct AccountData: Codable, Equatable {
 extension AccountData {
     var total: BigUInt { free + reserved }
     var locked: BigUInt { frozen }
-    var stakingAvailable: BigUInt { free - frozen }
-    var sendAvailable: BigUInt { free - frozen }
+    var stakingAvailable: BigUInt {
+        let stakingAvailable = BigInt(free) - BigInt(frozen)
+        return BigUInt(max(stakingAvailable, 0))
+    }
+
+    var sendAvailable: BigUInt {
+        let sendAvailable = BigInt(free) - BigInt(frozen)
+        return BigUInt(max(sendAvailable, 0))
+    }
 }
 
 // MARK: - Orml

@@ -167,6 +167,7 @@
 		07F2B76328ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F2B76228ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift */; };
 		07F8CF302A3D676A0033951F /* polkadot-metadata in Resources */ = {isa = PBXBuildFile; fileRef = 07F8CF2F2A3D67690033951F /* polkadot-metadata */; };
 		07F8CF322A3D89600033951F /* polkadot-9370metadata in Resources */ = {isa = PBXBuildFile; fileRef = 07F8CF312A3D89600033951F /* polkadot-9370metadata */; };
+		07F8CF342A3DB06E0033951F /* RuntimeSnapshotReady.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07F8CF332A3DB06E0033951F /* RuntimeSnapshotReady.swift */; };
 		07FBC9E228BE24E900ED65B4 /* MissingAccountFetcher.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */; };
 		07FBC9E628BE29C900ED65B4 /* ChainIssuesCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */; };
 		07FD95C027F4384900F07064 /* UIFont+dynamicSize.swift in Sources */ = {isa = PBXBuildFile; fileRef = 07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */; };
@@ -2740,6 +2741,7 @@
 		07F2B76228ACDA7800280C38 /* RuntimeHotBootSnapshotFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeHotBootSnapshotFactory.swift; sourceTree = "<group>"; };
 		07F8CF2F2A3D67690033951F /* polkadot-metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-metadata"; sourceTree = "<group>"; };
 		07F8CF312A3D89600033951F /* polkadot-9370metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "polkadot-9370metadata"; sourceTree = "<group>"; };
+		07F8CF332A3DB06E0033951F /* RuntimeSnapshotReady.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeSnapshotReady.swift; sourceTree = "<group>"; };
 		07FBC9E128BE24E900ED65B4 /* MissingAccountFetcher.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MissingAccountFetcher.swift; sourceTree = "<group>"; };
 		07FBC9E528BE29C900ED65B4 /* ChainIssuesCenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainIssuesCenter.swift; sourceTree = "<group>"; };
 		07FD95BF27F4384900F07064 /* UIFont+dynamicSize.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+dynamicSize.swift"; sourceTree = "<group>"; };
@@ -9285,6 +9287,7 @@
 				FA5AE96327B1326400B2564E /* ChainsUpdatedEvent.swift */,
 				07089AF428B64701001566CA /* ChainReconnectingEvent.swift */,
 				FA37AE4C28603C37001DCA96 /* StakingUpdatedEvent.swift */,
+				07F8CF332A3DB06E0033951F /* RuntimeSnapshotReady.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -15752,6 +15755,7 @@
 				FAFFAEA829AC85230074AF1F /* ZeroBalancesSettingChanged.swift in Sources */,
 				96EBE5F57C97C7A7A525E864 /* SwapTransactionDetailProtocols.swift in Sources */,
 				ADF845374BEF73D90D4BF005 /* SwapTransactionDetailRouter.swift in Sources */,
+				07F8CF342A3DB06E0033951F /* RuntimeSnapshotReady.swift in Sources */,
 				A73B076B0E983DA669C1F215 /* SwapTransactionDetailPresenter.swift in Sources */,
 				41040A200CF5E77C291128DA /* SwapTransactionDetailInteractor.swift in Sources */,
 				3B0F51B1D1590FAAE73CD36C /* SwapTransactionDetailViewController.swift in Sources */,
