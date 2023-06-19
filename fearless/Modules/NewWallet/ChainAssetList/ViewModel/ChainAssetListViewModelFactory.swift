@@ -233,9 +233,22 @@ private extension ChainAssetListViewModelFactory {
             wallet: wallet
         )
 
+        let shownChainAssetsIconsArray = notUtilityChainsWithBalance.map { $0.chain.icon }
+        var chainImages = Array(Set(shownChainAssetsIconsArray))
+            .map { $0.map { RemoteImageViewModel(url: $0) }}
+        if !shownChainAssetsIconsArray.contains(chainAsset.chain.icon) {
+            let chainImageUrl = chainAsset.chain.icon.map { RemoteImageViewModel(url: $0) }
+            chainImages.insert(chainImageUrl, at: 0)
+        }
+
+        let chainIconsViewModel = ChainCollectionViewModel(
+            maxImagesCount: 5,
+            chainImages: chainImages
+        )
+
         let viewModel = ChainAccountBalanceCellViewModel(
             assetContainsChainAssets: chainAssets,
-            shownChainAssets: notUtilityChainsWithBalance,
+            chainIconViewViewModel: chainIconsViewModel,
             chainAsset: chainAsset,
             assetName: chainAsset.asset.name,
             assetInfo: chainAsset.asset.displayInfo(with: chainAsset.chain.icon),
