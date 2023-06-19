@@ -385,7 +385,7 @@
 "staking.select.validators.recommended.button.title" = "推奨を選択";
 "staking.select.validators.custom.button.title" = "自分で選択してください";
 "staking.filter.title.rewards" = "報酬 (APY)";
-"staking.selected.validators.count_v1.9.1" = "選択済み： %@ （最大%@ ）";
+"staking.selected.validators.count_v1.9.1" = "選択済み： %li （最大%li ）";
 "staking.select.validators.recommended.desc" = "フィアレスのアルゴリズムは、基準に基づいて推奨されるバリデーターのリストを選択しました：";
 "common.not.enough.fee.message" = "残念ながら、ネットワーク手数料を支払うための資金が足りません";
 "common.not.enough.balance.message" = "指定された金額を使用するための残高がありません";
